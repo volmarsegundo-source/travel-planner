@@ -1,0 +1,134 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "confirm": "Confirm",
+    "error": "An error occurred. Please try again.",
+    "success": "Operation completed successfully."
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in to Travel Planner",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Sign in",
+      "google": "Sign in with Google",
+      "forgotPassword": "Forgot password",
+      "noAccount": "Don't have an account?",
+      "register": "Sign up"
+    },
+    "register": {
+      "title": "Create account",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm password",
+      "submit": "Create account",
+      "google": "Sign up with Google",
+      "hasAccount": "Already have an account?",
+      "login": "Sign in",
+      "trustBadge": "Your data is safe",
+      "privacyNote": "We don't share your data. You can delete your account at any time.",
+      "deleteAccountLink": "Learn how to delete your account"
+    },
+    "verifyEmail": {
+      "title": "Verify your email",
+      "description": "We sent a verification link to {email}. Click the link to activate your account.",
+      "resend": "Resend email",
+      "resendSuccess": "Email resent successfully."
+    },
+    "forgotPassword": {
+      "title": "Recover password",
+      "description": "Enter your email and we'll send you a link to reset your password.",
+      "email": "Email",
+      "submit": "Send link",
+      "success": "Link sent! Check your email."
+    },
+    "resetPassword": {
+      "title": "New password",
+      "password": "New password",
+      "confirmPassword": "Confirm new password",
+      "submit": "Reset password",
+      "success": "Password reset successfully. Please sign in."
+    },
+    "errors": {
+      "invalidCredentials": "Incorrect email or password.",
+      "emailNotVerified": "Please verify your email before signing in.",
+      "emailAlreadyExists": "This email is already registered.",
+      "tokenExpired": "Link expired. Please request a new one.",
+      "weakPassword": "Password must be at least 8 characters long."
+    }
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Welcome to Travel Planner, {name}!",
+      "description": "Plan your next trip with AI assistance in less than 60 seconds.",
+      "cta": "Get started"
+    },
+    "step2": {
+      "title": "Where are you going?",
+      "description": "Create your first trip in seconds.",
+      "cta": "Create trip"
+    },
+    "step3": {
+      "title": "Done! Now AI builds your plan.",
+      "description": "Our travel assistant will create a personalized itinerary for you.",
+      "cta": "Generate plan"
+    },
+    "progress": "Step {current} of {total}",
+    "skip": "Skip setup"
+  },
+  "trips": {
+    "title": "My Trips",
+    "empty": {
+      "title": "No trips yet",
+      "description": "Create your first trip and let AI build your plan.",
+      "cta": "Create first trip"
+    },
+    "counter": "{count} of {max} active trips",
+    "create": {
+      "title": "New Trip",
+      "destination": "Destination",
+      "destinationPlaceholder": "Where are you going?",
+      "startDate": "Departure date",
+      "endDate": "Return date",
+      "travelers": "Travelers",
+      "submit": "Create trip"
+    },
+    "status": {
+      "PLANNING": "Planning",
+      "ACTIVE": "Traveling",
+      "COMPLETED": "Completed",
+      "ARCHIVED": "Archived"
+    },
+    "errors": {
+      "limitReached": "You have reached the limit of 20 active trips. Archive or delete a trip to continue.",
+      "notFound": "Trip not found.",
+      "notAuthorized": "You do not have permission to access this trip."
+    }
+  },
+  "checklist": {
+    "title": "Travel Checklist",
+    "categories": {
+      "DOCUMENTS": "Documents",
+      "HEALTH": "Health",
+      "CURRENCY": "Currency",
+      "WEATHER": "Weather",
+      "TECHNOLOGY": "Technology",
+      "OTHER": "Other"
+    },
+    "addItem": "Add item",
+    "generate": "Generate checklist with AI"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "notFound": "Page not found.",
+    "unauthorized": "You need to be logged in to access this page.",
+    "serverError": "Internal error. Our team has been notified."
+  }
+}

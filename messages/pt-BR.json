@@ -1,0 +1,134 @@
+{
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "skip": "Pular",
+    "confirm": "Confirmar",
+    "error": "Ocorreu um erro. Tente novamente.",
+    "success": "Operação realizada com sucesso."
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar no Travel Planner",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "google": "Entrar com Google",
+      "forgotPassword": "Esqueci minha senha",
+      "noAccount": "Não tem conta?",
+      "register": "Cadastre-se"
+    },
+    "register": {
+      "title": "Criar conta",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar senha",
+      "submit": "Criar conta",
+      "google": "Cadastrar com Google",
+      "hasAccount": "Já tem conta?",
+      "login": "Entrar",
+      "trustBadge": "Seus dados estão seguros",
+      "privacyNote": "Não compartilhamos seus dados. Você pode excluir sua conta a qualquer momento.",
+      "deleteAccountLink": "Saiba como excluir sua conta"
+    },
+    "verifyEmail": {
+      "title": "Verifique seu e-mail",
+      "description": "Enviamos um link de verificação para {email}. Clique no link para ativar sua conta.",
+      "resend": "Reenviar e-mail",
+      "resendSuccess": "E-mail reenviado com sucesso."
+    },
+    "forgotPassword": {
+      "title": "Recuperar senha",
+      "description": "Informe seu e-mail e enviaremos um link para redefinir sua senha.",
+      "email": "E-mail",
+      "submit": "Enviar link",
+      "success": "Link enviado! Verifique seu e-mail."
+    },
+    "resetPassword": {
+      "title": "Nova senha",
+      "password": "Nova senha",
+      "confirmPassword": "Confirmar nova senha",
+      "submit": "Redefinir senha",
+      "success": "Senha redefinida com sucesso. Faça login."
+    },
+    "errors": {
+      "invalidCredentials": "E-mail ou senha incorretos.",
+      "emailNotVerified": "Verifique seu e-mail antes de entrar.",
+      "emailAlreadyExists": "Este e-mail já está cadastrado.",
+      "tokenExpired": "Link expirado. Solicite um novo.",
+      "weakPassword": "A senha deve ter no mínimo 8 caracteres."
+    }
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Bem-vindo ao Travel Planner, {name}!",
+      "description": "Planeje sua próxima viagem com ajuda da IA em menos de 60 segundos.",
+      "cta": "Começar"
+    },
+    "step2": {
+      "title": "Para onde você vai?",
+      "description": "Crie sua primeira viagem em segundos.",
+      "cta": "Criar viagem"
+    },
+    "step3": {
+      "title": "Pronto! Agora a IA monta seu plano.",
+      "description": "Nosso assistente de viagem vai criar um itinerário personalizado para você.",
+      "cta": "Gerar plano"
+    },
+    "progress": "Passo {current} de {total}",
+    "skip": "Pular configuração"
+  },
+  "trips": {
+    "title": "Minhas Viagens",
+    "empty": {
+      "title": "Nenhuma viagem ainda",
+      "description": "Crie sua primeira viagem e deixe a IA montar seu plano.",
+      "cta": "Criar primeira viagem"
+    },
+    "counter": "{count} de {max} viagens ativas",
+    "create": {
+      "title": "Nova Viagem",
+      "destination": "Destino",
+      "destinationPlaceholder": "Para onde você vai?",
+      "startDate": "Data de ida",
+      "endDate": "Data de volta",
+      "travelers": "Viajantes",
+      "submit": "Criar viagem"
+    },
+    "status": {
+      "PLANNING": "Planejando",
+      "ACTIVE": "Em viagem",
+      "COMPLETED": "Concluída",
+      "ARCHIVED": "Arquivada"
+    },
+    "errors": {
+      "limitReached": "Você atingiu o limite de 20 viagens ativas. Archive ou exclua uma viagem para continuar.",
+      "notFound": "Viagem não encontrada.",
+      "notAuthorized": "Você não tem permissão para acessar esta viagem."
+    }
+  },
+  "checklist": {
+    "title": "Checklist de Viagem",
+    "categories": {
+      "DOCUMENTS": "Documentos",
+      "HEALTH": "Saúde",
+      "CURRENCY": "Moeda",
+      "WEATHER": "Clima",
+      "TECHNOLOGY": "Tecnologia",
+      "OTHER": "Outros"
+    },
+    "addItem": "Adicionar item",
+    "generate": "Gerar checklist com IA"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "notFound": "Página não encontrada.",
+    "unauthorized": "Você precisa estar logado para acessar esta página.",
+    "serverError": "Erro interno. Nosso time foi notificado."
+  }
+}
