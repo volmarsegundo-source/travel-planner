@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, ArrowLeft, Loader2 } from "lucide-react";
+import { Sparkles, ArrowLeft, Loader2, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryDayCard } from "./ItineraryDayCard";
 import { generateTripChecklist } from "@/server/actions/ai.actions";
@@ -91,8 +91,19 @@ export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
         </div>
       )}
 
+      {/* Edit itinerary CTA */}
+      <div className="mt-8 flex justify-center">
+        <Button
+          variant="outline"
+          onClick={() => router.push(`/trips/${tripId}/edit`)}
+        >
+          <Edit2 className="mr-2 h-4 w-4" aria-hidden="true" />
+          Editar itinerário
+        </Button>
+      </div>
+
       {/* Generate checklist CTA */}
-      <div className="mt-8 flex flex-col items-center gap-3">
+      <div className="mt-4 flex flex-col items-center gap-3">
         {checklistError && (
           <p className="text-sm text-red-600" role="alert">
             {checklistError}
