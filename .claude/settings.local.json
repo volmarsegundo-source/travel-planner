@@ -2,7 +2,37 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(git config:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(node --version && npm --version && npx --version 2>&1)",
+      "Bash(git:*)",
+      "Bash(cd /c/travel-planner && echo \"y\" | npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --no-git --use-npm --yes 2>&1)",
+      "Bash(cp:*)",
+      "Bash(cd /c/travel-planner && npm install \\\\\n  next-intl \\\\\n  @anthropic-ai/sdk \\\\\n  ioredis \\\\\n  @prisma/client \\\\\n  @auth/prisma-adapter \\\\\n  @t3-oss/env-nextjs \\\\\n  zod \\\\\n  react-hook-form \\\\\n  @hookform/resolvers \\\\\n  @dnd-kit/core \\\\\n  @dnd-kit/sortable \\\\\n  @dnd-kit/utilities \\\\\n  cuid2 \\\\\n  bcryptjs \\\\\n  date-fns \\\\\n  clsx \\\\\n  tailwind-merge \\\\\n  lucide-react \\\\\n  class-variance-authority 2>&1)",
+      "Bash(cd /c/travel-planner && npm install \\\\\n  next-intl \\\\\n  @anthropic-ai/sdk \\\\\n  ioredis \\\\\n  @prisma/client \\\\\n  @auth/prisma-adapter \\\\\n  @t3-oss/env-nextjs \\\\\n  zod \\\\\n  react-hook-form \\\\\n  @hookform/resolvers \\\\\n  @dnd-kit/core \\\\\n  @dnd-kit/sortable \\\\\n  @dnd-kit/utilities \\\\\n  @paralleldrive/cuid2 \\\\\n  bcryptjs \\\\\n  date-fns \\\\\n  clsx \\\\\n  tailwind-merge \\\\\n  lucide-react \\\\\n  class-variance-authority 2>&1)",
+      "Bash(cd /c/travel-planner && npm install auth@beta 2>&1)",
+      "Bash(cd /c/travel-planner && npm install -D \\\\\n  prisma \\\\\n  @types/bcryptjs \\\\\n  @types/node \\\\\n  vitest \\\\\n  @vitejs/plugin-react \\\\\n  @testing-library/react \\\\\n  @testing-library/jest-dom \\\\\n  @playwright/test \\\\\n  vitest-mock-extended \\\\\n  @vitest/coverage-v8 \\\\\n  jsdom \\\\\n  ts-node 2>&1)",
+      "Bash(cd /c/travel-planner && npx shadcn@latest init --defaults --yes 2>&1)",
+      "Bash(cd /c/travel-planner && npx shadcn@latest add button input label form card dialog badge separator skeleton toast progress --yes 2>&1)",
+      "Bash(cd /c/travel-planner && npx shadcn@latest add button input label form card dialog badge separator skeleton sonner progress --yes 2>&1)",
+      "Bash(cd /c/travel-planner && npx prisma init --datasource-provider postgresql 2>&1)",
+      "Bash(cat /c/travel-planner/node_modules/prisma/package.json | python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d.get\\('version', 'unknown'\\)\\)\" 2>&1)",
+      "Bash(cd /c/travel-planner && npx prisma validate 2>&1)",
+      "WebFetch(domain:www.prisma.io)",
+      "WebFetch(domain:pris.ly)",
+      "Bash(cd /c/travel-planner && npx prisma generate 2>&1)",
+      "Bash(cd /c/travel-planner && npm install @prisma/adapter-pg pg @types/pg 2>&1)",
+      "Bash(cd /c/travel-planner && npm install -D dotenv 2>&1)",
+      "Bash(node:*)",
+      "WebFetch(domain:next-intl.dev)",
+      "Bash(ls:*)",
+      "Bash(cd /c/travel-planner && SKIP_ENV_VALIDATION=1 npm run build 2>&1)",
+      "Bash(cd /c/travel-planner && npm run lint 2>&1)",
+      "Bash(echo LINT OK:*)",
+      "Bash(echo next-auth not found:*)",
+      "Bash(grep:*)"
     ]
   }
 }
