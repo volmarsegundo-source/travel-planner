@@ -45,6 +45,7 @@ import {
   getUserByEmail,
   createVerificationToken,
   verifyEmailToken,
+  confirmPasswordReset,
 } from "../auth.service";
 
 // ── hashPassword / verifyPassword ─────────────────────────────────────────────
@@ -75,7 +76,7 @@ describe("getUserByEmail", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("returns the user when found", async () => {
-    const user = { id: "u1", email: "alice@example.com", name: "Alice" };
+    const user = { id: "u1", email: "alice@example.com", name: "Alice", password: "hashed:secret" };
     mockUser.findUnique.mockResolvedValue(user);
 
     expect(await getUserByEmail("alice@example.com")).toEqual(user);
@@ -148,6 +149,58 @@ describe("verifyEmailToken", () => {
     mockRedis.get.mockResolvedValue(null);
     // Service returns false (does not throw) — callers handle the false return
     expect(await verifyEmailToken("bad-token")).toBe(false);
+    expect(mockUser.update).not.toHaveBeenCalled();
+  });
+});
+
+// ── confirmPasswordReset ──────────────────────────────────────────────────────
+
+describe("confirmPasswordReset", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("stores new password hash in DB and deletes reset token from Redis", async () => {
+    mockRedis.get.mockResolvedValue("alice@example.com");
+    mockUser.update.mockResolvedValue({ id: "u1" });
+    mockRedis.del.mockResolvedValue(1);
+
+    const result = await confirmPasswordReset("valid-reset-token", "newSecret");
+
+    expect(result).toBe(true);
+
+    // Password must be stored in the database, NOT in Redis
+    expect(mockUser.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { email: "alice@example.com" },
+        data: expect.objectContaining({ password: expect.stringMatching(/^hashed:/) }),
+      }),
+    );
+
+    // Reset token must be deleted from Redis after use
+    expect(mockRedis.del).toHaveBeenCalledWith("cache:pwd-reset:valid-reset-token");
+  });
+
+  it("does NOT call redis.setex with pwd: key (password must not go to Redis)", async () => {
+    mockRedis.get.mockResolvedValue("alice@example.com");
+    mockUser.update.mockResolvedValue({ id: "u1" });
+    mockRedis.del.mockResolvedValue(1);
+    mockRedis.setex = vi.fn();
+
+    await confirmPasswordReset("valid-reset-token", "newSecret");
+
+    // Ensure no `pwd:*` key is written to Redis
+    expect(mockRedis.setex).not.toHaveBeenCalledWith(
+      expect.stringMatching(/^pwd:/),
+      expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it("returns false when reset token is not found in Redis (expired)", async () => {
+    mockRedis.get.mockResolvedValue(null);
+
+    const result = await confirmPasswordReset("expired-token", "newSecret");
+
+    expect(result).toBe(false);
     expect(mockUser.update).not.toHaveBeenCalled();
   });
 });

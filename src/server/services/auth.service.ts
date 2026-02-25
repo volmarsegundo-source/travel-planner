@@ -28,6 +28,7 @@ export async function getUserByEmail(email: string) {
       emailVerified: true,
       image: true,
       locale: true,
+      password: true,
     },
   });
 }
@@ -55,12 +56,15 @@ export async function verifyEmailToken(token: string): Promise<boolean> {
 }
 
 export async function sendVerificationEmail(
-  email: string,
+  _email: string,
   token: string,
 ): Promise<void> {
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${token}`;
   // TODO: integrate transactional email (Resend / SendGrid) before production
-  console.log(`[AUTH] Verification email → ${email}\nLink: ${url}`);
+  // SECURITY: never log email address (PII) or token in non-dev environments
+  if (process.env.NODE_ENV === "development") {
+    const url = `${process.env.NEXT_PUBLIC_APP_URL}/auth/verify-email?token=${token}`;
+    console.log("[AUTH DEV] Verification URL (configure Resend before staging):", url);
+  }
 }
 
 export async function createPasswordResetToken(email: string): Promise<string> {
@@ -74,11 +78,15 @@ export async function createPasswordResetToken(email: string): Promise<string> {
 }
 
 export async function sendPasswordResetEmail(
-  email: string,
+  _email: string,
   token: string,
 ): Promise<void> {
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
-  console.log(`[AUTH] Password reset email → ${email}\nLink: ${url}`);
+  // TODO: integrate transactional email (Resend / SendGrid) before production
+  // SECURITY: never log email address (PII) or token in non-dev environments
+  if (process.env.NODE_ENV === "development") {
+    const url = `${process.env.NEXT_PUBLIC_APP_URL}/auth/reset-password?token=${token}`;
+    console.log("[AUTH DEV] Password reset URL (configure Resend before staging):", url);
+  }
 }
 
 export async function confirmPasswordReset(
@@ -90,16 +98,11 @@ export async function confirmPasswordReset(
 
   const passwordHash = await hashPassword(newPassword);
 
-  // Auth.js v5 with Credentials stores password in Account model
-  // Update via a custom field or user metadata — adjust per final auth schema
   await db.user.update({
     where: { email },
-    data: { updatedAt: new Date() },
+    data: { password: passwordHash },
   });
 
-  // Store hashed password in cache temporarily for Credentials provider
-  // In production this should be a dedicated `password` field on User
-  await redis.setex(`pwd:${email}`, 60 * 60 * 24 * 30, passwordHash);
   await redis.del(CacheKeys.passwordReset(token));
   return true;
 }

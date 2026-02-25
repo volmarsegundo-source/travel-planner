@@ -1,7 +1,6 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { db } from "@/server/db/client";
-import { redis } from "@/server/cache/client";
 import { verifyPassword } from "@/server/services/auth.service";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
@@ -60,16 +59,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             name: true,
             emailVerified: true,
             locale: true,
+            password: true,
           },
         });
 
-        if (!user || !user.emailVerified) return null;
+        if (!user || !user.emailVerified || !user.password) return null;
 
-        // Check password stored in Redis (MVP approach — add `password` column to User for production)
-        const storedHash = await redis.get(`pwd:${email}`);
-        if (!storedHash) return null;
-
-        const valid = await verifyPassword(password, storedHash);
+        const valid = await verifyPassword(password, user.password);
         if (!valid) return null;
 
         return {

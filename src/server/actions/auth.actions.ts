@@ -2,7 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { db } from "@/server/db/client";
-import { redis } from "@/server/cache/client";
 import {
   hashPassword,
   createVerificationToken,
@@ -39,10 +38,9 @@ export async function registerUser(data: RegisterInput) {
     }
 
     const passwordHash = await hashPassword(password);
-    await redis.setex(`pwd:${email}`, 60 * 60 * 24 * 30, passwordHash);
 
     await db.user.create({
-      data: { email, name: null, emailVerified: null },
+      data: { email, name: null, emailVerified: null, password: passwordHash },
     });
 
     const token = await createVerificationToken(email);

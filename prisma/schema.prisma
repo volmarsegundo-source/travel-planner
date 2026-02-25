@@ -17,6 +17,7 @@ model User {
   email         String    @unique
   emailVerified DateTime?
   image         String?
+  password      String?   // hashed — set for credentials provider, null for OAuth-only users
   locale        String    @default("pt-BR")
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -24,8 +25,6 @@ model User {
   accounts  Account[]
   sessions  Session[]
   trips     Trip[]
-
-  @@index([email])
 }
 
 model Account {
