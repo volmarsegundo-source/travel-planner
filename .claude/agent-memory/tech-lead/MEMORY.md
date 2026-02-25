@@ -1,9 +1,10 @@
 # Tech Lead Memory — Travel Planner
 
-## Project State (as of 2026-02-23)
+## Project State (as of 2026-02-24)
 - Bootstrap Phase 2 complete: SPEC-001, QA-SPEC-001, SEC-SPEC-001, CIA-001 all approved
-- Sprint 1 task breakdown written to docs/tasks.md
-- US-001 status updated to "In Progress" with all spec refs linked
+- Sprint 1 detailed plan written to docs/tasks.md (section "Sprint 1 — Plano Detalhado")
+- MVP v2.0: 10 user stories Sprint 1, Claude API core, Google Places, i18n from Day 1
+- T-001 to T-014 fully planned with daily subtasks, sync points, risks and DoD
 
 ## Key Docs Paths
 - docs/tasks.md — backlog + Sprint 1 task breakdown (TASK-001 to TASK-019)
@@ -20,11 +21,17 @@
 - SR-006: coverEmoji needs Unicode regex or enum — z.string().max(10) alone is insufficient
 - SR-007: confirmationTitle needs .max(100) in TripDeleteSchema
 
-## Sprint 1 Parallelization Pattern
-- dev-fullstack-1: backend track (schema, TripService, Server Actions, Redis, integration tests)
-- dev-fullstack-2: frontend track (UI components, TripForm, pages, E2E tests)
-- Days 1-7 are parallel; Days 8-10 are sequential (integration + E2E require full feature)
+## Sprint 1 Parallelization Pattern (v2.0)
+- dev-fullstack-1: T-001, T-005, T-007, T-010, T-012 + backend Server Actions
+- dev-fullstack-2: T-002, T-003, T-004, T-006, T-008, T-009, T-011 + frontend UI
+- Days 1-7 parallel; Days 8-10 QA + integration with qa-engineer
 - CIA-001 constraint: users table migration must run BEFORE trips migration
+- Claude models: claude-sonnet-4-6 for travel plans, claude-haiku-4-5-20251001 for checklists
+- Cache strategy: Redis TTL 24h, hash key uses bucket ranges (R$500 budget buckets, month not exact date)
+- i18n (next-intl): MUST be configured Day 1 before any text is hardcoded in frontend
+- Google Places: proxy via /api/v1/places/autocomplete to never expose API key to client
+- Drag-and-drop: @dnd-kit/core + @dnd-kit/sortable (MIT) with TouchSensor for mobile
+- Key sync points: Day 1 17h (session contract), Day 4 EOD (trip types), Day 6 AM (AI types), Day 7 17h (full flow test)
 
 ## Team Conventions
 - Communication: Portuguese; Code: English

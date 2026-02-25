@@ -1,939 +1,680 @@
 # Travel Planner — Backlog & Tarefas
 
-**Versão**: 1.0.0
-**Atualizado em**: 2026-02-23
-**Responsável**: product-owner
+**Versão**: 2.0.0
+**Atualizado em**: 2026-02-24
+**Fonte**: user-story-map-v2.docx (revisão crítica)
 **Sprint atual**: 1
 
 ---
 
-## Matriz de Pontuacao de Features
+## Visão do Produto
 
-> Formula de pontuacao: `User Value x2 + Business Value x2 + Effort + Risk + Dependency`
->
-> Effort e Risk sao pontuados de forma inversa (1 = alto esforco/risco, 5 = baixo esforco/risco).
-> Dependency: quanto maior, mais features dependem desta para existir.
+> "Diga para onde vai e quando — a IA monta seu plano e checklist em 60 segundos. Você ajusta, acompanha os gastos em tempo real e viaja sem surpresas."
 
-| Feature | User Value (x2) | Business Value (x2) | Effort inv. | Risk inv. | Dependency | Total Score |
-|---|---|---|---|---|---|---|
-| Criacao e gestao de viagens | 5 | 5 | 4 | 4 | 5 | **33** |
-| Construtor de itinerario | 5 | 4 | 3 | 3 | 4 | **28** |
-| Busca e descoberta de destinos | 4 | 3 | 3 | 3 | 3 | **23** |
-| Planejamento colaborativo | 4 | 4 | 2 | 2 | 2 | **22** |
-| Controle de orcamento | 3 | 3 | 4 | 4 | 2 | **22** |
-| Integracao com reservas | 4 | 5 | 1 | 1 | 1 | **21** |
-| Gerenciador de lista de malas | 2 | 2 | 5 | 5 | 1 | **19** |
+**Plataforma**: Web App responsivo (mobile-first, 375px)
+**Modelo**: Freemium | **Idiomas**: PT-BR + EN
+**Público-alvo**: Viajante solo, casais, famílias e grupos pequenos (B2C)
 
-### Justificativa da Pontuacao
+### Princípios Inegociáveis
 
-**Criacao e gestao de viagens (33 pontos)** lidera com margem significativa porque:
-- E o objeto central do dominio: sem uma `Trip`, nenhuma outra feature existe (Dependency = 5)
-- Entrega valor imediato ao viajante no primeiro uso — o produto literalmente nao funciona sem ela
-- Esforco moderado-baixo: CRUD autenticado bem definido, sem dependencias externas ou complexidade de tempo real
-- Risco baixo: padrao estabelecido, schema ja definido na arquitetura, sem integracao de terceiros
-- A arquitetura ja previu a estrutura: `trips/`, `trips/new/`, `trips/[id]/`, `TripService`, `trip.actions.ts`
-
-**Construtor de itinerario (28 pontos)** e o segundo mais importante mas dependente diretamente de US-001.
-
-**Busca de destinos (23 pontos)** e valiosa mas requer dados de destinos pre-populados e integracao Mapbox — complexidade adicional que justifica adiamento para Sprint 2.
-
-**Integracao com reservas (21 pontos)** tem alto Business Value mas Effort e Risk extremamente baixos na pontuacao (alto esforco/risco real): escopo de PCI-DSS, integracao GDS/NDC — inadequado para MVP com 2 devs.
+| Princípio | Aplicação |
+|-----------|-----------|
+| Velocidade até o valor | Primeiro plano gerado em ≤ 60 segundos do cadastro |
+| Formulários curtos | Máx. 3 campos visíveis por etapa |
+| Mobile-first | Design começa em 375px — validado antes de todo PR |
+| Trust signals visíveis | Badge de segurança + mini política na tela de cadastro |
+| Privacidade como diferencial | LGPD from day one, exclusão de dados acessível |
 
 ---
 
-## Em Andamento
+## Definition of Done (DoD) — v2.0
 
-### US-001: Criacao e Gestao de Viagens
+Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 
-**Tipo**: Must Have
-**Prioridade**: P0
-**Status**: In Progress
-**Sprint**: 1
-**Spec**: SPEC-001 — aprovado
-**Security**: SEC-SPEC-001 — CLEARED WITH CONDITIONS
-**QA**: QA-SPEC-001 — aprovado
-**Release**: CIA-001 — v0.1.0
-**Task Breakdown**: ver [Sprint 1 — Task Breakdown](#sprint-1--task-breakdown-spec-001) abaixo
-
----
-
-#### User Story
-
-As a leisure traveler or business traveler,
-I want to create a trip with a title, destination, date range, and optional description,
-So that I have a central place to organize all information about my upcoming journey and can manage my trips in one dashboard.
+- [ ] Implementado conforme spec técnica
+- [ ] Cobertura ≥ 80% de testes unitários
+- [ ] Cenários E2E passando (happy path + edge cases + erro)
+- [ ] Aprovado pelo tech-lead (code review)
+- [ ] Aprovado pelo security-specialist
+- [ ] Tela conforme protótipo do ux-designer
+- [ ] Validado em mobile 375px **e** desktop 1280px
+- [ ] WCAG 2.1 AA validado (contraste, teclado, aria-labels)
+- [ ] Todos os textos traduzidos em PT-BR e EN (i18n)
+- [ ] Nenhum formulário com mais de 3 campos visíveis por etapa
+- [ ] Nenhum dado PII logado ou exposto em qualquer camada
+- [ ] Trust signals visíveis nas telas de autenticação
+- [ ] PR aprovado e merged em `main` — nunca commit direto
+- [ ] Critérios de aceite validados pelo product-owner
 
 ---
 
-#### Personas
+## Métricas de Sucesso do MVP (30 dias)
 
-- **Primaria** — `@leisure-solo` e `@leisure-family`: viajante que planeja uma viagem com antecedencia, quer registrar datas, destino e detalhes basicos antes de comecar a montar o roteiro. Frequentemente acessa pelo celular.
-- **Secundaria** — `@business-traveler`: profissional que precisa registrar viagens corporativas rapidamente, com datas precisas e destino definido, para depois adicionar atividades ao itinerario.
-
----
-
-#### Contexto do Viajante
-
-- **Dor atual**: viajantes usam planilhas, notas de celular, ou grupos de WhatsApp para registrar os dados basicos de uma viagem — informacoes ficam fragmentadas, sem um "ponto central de verdade".
-- **Solucao atual (workaround)**: Google Sheets, Notion, Apple Notes, Google Docs. Nenhuma dessas ferramentas foi projetada para viagens — faltam campos especificos (datas de ida/volta, destino, status da viagem).
-- **Frequencia da dor**: ocorre a cada nova viagem planejada. Pesquisa Amadeus Travel Trends 2024 indica que viajantes de lazer planejam em media 2,4 viagens internacionais por ano; viajantes corporativos, 8+ por ano.
-
----
-
-#### Criterios de Aceite
-
-**Autenticacao e acesso**
-- [ ] AC-001: Dado que um usuario nao autenticado tenta acessar `/trips`, quando a pagina carrega, entao ele e redirecionado para a pagina de login com o parametro `callbackUrl=/trips`.
-- [ ] AC-002: Dado que um usuario autenticado acessa `/trips`, quando a pagina carrega, entao ele ve apenas suas proprias viagens (isolamento por `userId`).
-
-**Criacao de viagem**
-- [ ] AC-003: Dado que um usuario autenticado esta em `/trips/new`, quando preenche titulo (obrigatorio, max 100 chars), destino (obrigatorio), data de inicio e data de fim, e clica em "Criar viagem", entao a viagem e criada e o usuario e redirecionado para `/trips/[id]`.
-- [ ] AC-004: Dado que o usuario submete o formulario com data de fim anterior a data de inicio, quando o formulario e validado, entao uma mensagem de erro e exibida no campo de data de fim: "A data de retorno deve ser posterior a data de partida".
-- [ ] AC-005: Dado que o usuario submete o formulario com campos obrigatorios em branco, quando o formulario e validado, entao cada campo invalido exibe sua mensagem de erro especifica sem recarregar a pagina.
-- [ ] AC-006: Dado que o usuario cria uma viagem com sucesso, quando redirecionado para `/trips/[id]`, entao a pagina exibe o titulo, destino, periodo e status "Planejando" como padrao.
-- [ ] AC-007: Dado que um usuario tenta criar mais de 20 viagens ativas, quando submete o formulario, entao recebe a mensagem "Limite de 20 viagens ativas atingido. Arquive ou exclua uma viagem para continuar." (limite de negocio MVP).
-
-**Listagem de viagens**
-- [ ] AC-008: Dado que o usuario tem viagens criadas, quando acessa `/trips`, entao ve a lista ordenada por data de inicio (proximas primeiro), com titulo, destino, periodo e status de cada viagem.
-- [ ] AC-009: Dado que o usuario nao tem viagens, quando acessa `/trips`, entao ve um estado vazio com chamada para acao "Criar minha primeira viagem".
-- [ ] AC-010: Dado que o usuario tem mais de 20 viagens, quando acessa `/trips`, entao a listagem e paginada com 20 itens por pagina, com controles de navegacao.
-
-**Edicao de viagem**
-- [ ] AC-011: Dado que o usuario acessa `/trips/[id]/edit`, quando edita qualquer campo e salva, entao as alteracoes sao persistidas e o usuario e redirecionado para `/trips/[id]` com os dados atualizados.
-- [ ] AC-012: Dado que um usuario tenta acessar `/trips/[id]/edit` de uma viagem que nao lhe pertence, quando a pagina e carregada, entao recebe resposta 403 e mensagem "Voce nao tem permissao para editar esta viagem".
-
-**Exclusao / arquivamento**
-- [ ] AC-013: Dado que o usuario clica em "Arquivar viagem", quando confirma na caixa de dialogo, entao o campo `status` da viagem muda para `ARCHIVED` e ela sai da listagem principal (soft delete nao aplicado — viagem permanece acessivel via filtro "Arquivadas").
-- [ ] AC-014: Dado que o usuario clica em "Excluir viagem", quando confirma na caixa de dialogo de confirmacao (com campo de digitacao do titulo), entao `deletedAt` e preenchido (soft delete) e a viagem desaparece de todas as listagens.
-
-**Performance e acessibilidade**
-- [ ] AC-015: Dado que o usuario acessa `/trips` com conexao 4G media, quando a pagina carrega, entao o First Contentful Paint ocorre em menos de 1,5 segundos (medido com Lighthouse em ambiente de producao).
-- [ ] AC-016: O formulario de criacao de viagem deve ser completamente operavel via teclado e compativel com leitores de tela (WCAG 2.1 AA). Todos os campos devem ter `label` associado e mensagens de erro vinculadas via `aria-describedby`.
-- [ ] AC-017: Dado que o usuario esta em dispositivo movel (viewport 375px), quando acessa `/trips` ou `/trips/new`, entao todos os elementos sao visiveis e interagiveis sem scroll horizontal.
+| Métrica | Meta | Evento de Analytics |
+|---------|------|---------------------|
+| Usuários cadastrados | 100 contas ativas | `user.registered` |
+| Aha moment concluído | ≥ 70% dos cadastros | `onboarding.completed` |
+| Planos gerados pela IA | ≥ 80% das viagens | `ai.plan.generated` |
+| Checklists gerados pela IA | ≥ 70% das viagens | `ai.checklist.generated` |
+| Gastos registrados | ≥ 30% dos usuários | `expense.created` |
+| Tempo até 1º plano gerado | ≤ 60 segundos | tempo `user.registered` → `ai.plan.generated` |
+| Retenção D7 | ≥ 40% | Sessões únicas D+7 |
+| NPS | ≥ 50 | Pesquisa in-app após 7 dias |
+| Uptime | ≥ 99.9% | Monitoramento Datadog |
+| Score WCAG | AA em 100% das telas | axe-core no CI/CD |
 
 ---
 
-#### Campos do Formulario de Criacao
+## 🟢 Sprint 1 — Em Andamento
 
-| Campo | Tipo | Obrigatorio | Validacao |
-|---|---|---|---|
-| Titulo da viagem | Texto (input) | Sim | Min 3 chars, max 100 chars |
-| Destino principal | Texto (input) + autocomplete futuro | Sim | Min 2 chars, max 150 chars |
-| Data de partida | Date picker | Sim | Nao pode ser no passado para novas viagens |
-| Data de retorno | Date picker | Sim | Deve ser >= data de partida |
-| Descricao / notas | Textarea | Nao | Max 500 chars |
-| Imagem de capa | Upload ou URL | Nao | Fora do escopo v1 — campo reservado no schema |
+**Objetivo**: MVP funcionando end-to-end — autenticação com trust signals, onboarding guiado, criação de viagem, IA gerando plano e checklist, i18n.
 
 ---
 
-#### Fora do Escopo (v1)
+### US-001: Criar conta
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
 
-- Upload de imagem de capa — o schema reserva `coverImageUrl` mas a UI de upload sera implementada em Sprint 2
-- Autocomplete de destino via Mapbox Geocoding API — campo de texto livre no v1
-- Compartilhamento de viagem com outros usuarios (feature de planejamento colaborativo — US-004)
-- Convite de co-viajantes na criacao
-- Templates de viagem (ex: "viagem de negocios padrao")
-- Integracao com calendario externo (Google Calendar, Outlook)
-- Duplicar viagem existente
-- Exportar viagem em PDF
+**User Story**
+> As a novo usuário,
+> I want to criar uma conta em ≤ 3 campos (Google OAuth ou email),
+> So that eu possa começar a planejar minha viagem rapidamente com segurança.
 
----
-
-#### Metricas de Sucesso
-
-- Taxa de conclusao do formulario de criacao >= 85% (usuarios que iniciam o formulario e completam com sucesso)
-- Abandono na tela `/trips/new` <= 15%
-- Tempo medio para criar uma viagem (do clique em "Nova viagem" ate o redirect para `/trips/[id]`) <= 60 segundos
-- Zero erros 500 em fluxos de criacao/edicao/exclusao nas primeiras 2 semanas apos deploy
-- NPS da feature medido via micro-survey in-app apos criacao (meta: score >= 40 para MVP)
+**Critérios de Aceite**
+- [ ] AC-001: Cadastro via Google OAuth em 1 clique
+- [ ] AC-002: Cadastro via email com máx. 3 campos visíveis (email, senha, confirmação)
+- [ ] AC-003: Verificação de e-mail obrigatória antes do primeiro acesso
+- [ ] AC-004: Mensagens de erro em português, nunca códigos técnicos
+- [ ] AC-005: Formulário validado em mobile 375px e desktop 1280px
 
 ---
 
-#### Justificativa de Priorizacao
+### US-002: Login e logout
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
 
-**US-001 recebeu a maior pontuacao na matriz (33 pontos)** por tres razoes estruturais:
+**User Story**
+> As a usuário cadastrado,
+> I want to fazer login com sessão persistente e logout seguro,
+> So that eu possa acessar minhas viagens de qualquer dispositivo com segurança.
 
-1. **Dependencia total**: O objeto `Trip` e a entidade central do dominio. O construtor de itinerario (US-002), a busca de destinos vinculada a uma viagem (US-003), o controle de orcamento (US-005) e o planejamento colaborativo (US-004) sao todos dependentes da existencia de uma `Trip`. Sem US-001, nenhuma outra feature do MVP pode ser desenvolvida ou testada com dados reais de usuario.
-
-2. **Primeiro valor entregue ao viajante**: Um usuario novo que faz cadastro e nao consegue criar uma viagem imediatamente abandona o produto. A criacao de viagem e o "aha moment" da aplicacao — o instante em que o produto se torna concreto para o viajante.
-
-3. **Risco e esforco justificados para Sprint 1**: A complexidade tecnica e bem delimitada (CRUD autenticado, validacao Zod, Server Actions, Prisma), sem dependencia de APIs externas pagas ou integracoes de terceiros. A equipe de 2 desenvolvedores pode entregar esta feature com qualidade e cobertura de testes em um unico sprint.
-
----
-
-## Backlog
-
-### Must Have — P0
-
-- [ ] US-001: Criacao e gestao de viagens — criar, listar, editar e arquivar viagens com datas e destino (**Em andamento — Sprint 1**)
-- [ ] US-002: Construtor de itinerario — adicionar dias e atividades a uma viagem existente, com ordenacao e horarios
-- [ ] US-003: Autenticacao de usuarios — cadastro, login com email/senha e OAuth (Google), logout, sessao persistente
-
-> Nota: US-003 e tecnicamente pre-requisito para US-001, mas como a arquitetura de autenticacao (Auth.js v5) esta definida no ADR-001, a implementacao de auth sera desenvolvida em paralelo na Sprint 1 pelo segundo desenvolvedor.
+**Critérios de Aceite**
+- [ ] AC-001: Login via Google OAuth ou email/senha
+- [ ] AC-002: Sessão persistente (não expira em uso normal)
+- [ ] AC-003: Logout limpa sessão completamente (database sessions, não JWT)
+- [ ] AC-004: Recuperação de senha em 2 passos (email → nova senha)
+- [ ] AC-005: Redirecionamento pós-login para última página visitada
 
 ---
 
-### Should Have — P1
+### US-002B: Trust signals no cadastro 🆕
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
 
-- [ ] US-004: Busca e descoberta de destinos — pesquisa full-text de destinos com filtros (regiao, tipo), cache Redis, exibicao em mapa Mapbox
-- [ ] US-005: Salvar destinos favoritos (Bookmarks) — salvar e remover destinos da lista de favoritos, acessivel em `/bookmarks`
-- [ ] US-006: Perfil e configuracoes do usuario — editar nome, avatar, preferencias de notificacao, deletar conta (GDPR)
+**User Story**
+> As a novo usuário desconfiante,
+> I want to ver sinais claros de segurança e privacidade na tela de cadastro,
+> So that eu me sinta seguro para fornecer meus dados.
 
----
-
-### Could Have — P2
-
-- [ ] US-007: Controle de orcamento por viagem — registrar gastos planejados vs realizados, categorias (hospedagem, transporte, alimentacao), total consolidado
-- [ ] US-008: Gerenciador de lista de malas — checklist de itens por viagem, com categorias e status de empacotamento
-- [ ] US-009: Compartilhamento de itinerario (somente leitura) — gerar link publico para visualizacao do itinerario sem login
-- [ ] US-010: Imagem de capa da viagem — upload de imagem ou selecao de foto do destino via Unsplash API
-
----
-
-### Won't Have (v1)
-
-- Planejamento colaborativo em tempo real (convite de co-editores) — complexidade de permissoes e sincronizacao em tempo real (WebSocket/CRDT) inadequada para MVP com equipe de 2 devs; avaliar para v2
-- Integracao com reservas (voos, hoteis) — escopo PCI-DSS, integracao GDS/NDC; requer security-specialist dedicado e arquitetura de pagamentos; roadmap v2+
-- Aplicativo mobile nativo (iOS/Android) — responsive web cobre o MVP; app nativo requer decisao de BFF pattern e stack mobile; roadmap v3
-- Notificacoes por email (lembretes de viagem) — requer escolha de provider (Resend/SendGrid) e pipeline de eventos; backlog v2
-- Importacao de reservas via email (parsing de confirmacoes) — alto esforco de ML/NLP; roadmap v3
-- Multi-tenancy / contas de agencias de viagem — requer camada `Organization` no schema antes da primeira migration; decisao arquitetural pendente (ver Open Questions em architecture.md)
-- Suporte offline / PWA — Service Worker + estrategia de sync local; avaliar para v2 com base em metricas de uso mobile
+**Critérios de Aceite**
+- [ ] AC-001: Badge de segurança visível na tela de cadastro
+- [ ] AC-002: Mini política de privacidade em 2 linhas (linguagem simples, sem juridiquês)
+- [ ] AC-003: Link visível para "excluir minha conta" acessível a partir do cadastro
+- [ ] AC-004: Textos revisados por UX designer — sem termos técnicos ou legais
 
 ---
 
-## Concluido
+### US-003: Aha moment — onboarding guiado 🆕
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
 
-_Nenhuma feature concluida ainda — projeto em fase de bootstrap._
+**User Story**
+> As a novo usuário que acabou de se cadastrar,
+> I want to ser guiado em 3 passos até gerar meu primeiro plano de viagem,
+> So that eu entenda o valor do produto em ≤ 60 segundos.
 
----
-
-## Historico de Revisoes
-
-| Versao | Data | Autor | Alteracoes |
-|---|---|---|---|
-| 1.0.0 | 2026-02-23 | product-owner | Versao inicial — matriz de pontuacao, US-001, backlog MVP completo |
-| 1.1.0 | 2026-02-23 | tech-lead | Adicao do Sprint 1 Task Breakdown (SPEC-001); atualizacao de status de US-001 |
-
----
-
-## Sprint 1 — Task Breakdown (SPEC-001)
-
-**Sprint goal**: Entregar US-001 Trip Creation & Management ao ambiente de staging, aprovando todos os quality gates de QA e seguranca definidos em QA-SPEC-001 e SEC-SPEC-001.
-**Start date**: 2026-02-23
-**Target**: Phase 3 ready — staging deploy, QA sign-off, security clearance verificada
+**Critérios de Aceite**
+- [ ] AC-001: Onboarding de 3 passos pós-cadastro: boas-vindas → criar viagem → gerar plano
+- [ ] AC-002: Progress indicator visível em cada etapa
+- [ ] AC-003: Opção de "pular" (skip) disponível em cada passo
+- [ ] AC-004: Animações suaves entre os passos (sem travamentos)
+- [ ] AC-005: Meta: do cadastro ao primeiro plano gerado em ≤ 60 segundos
+- [ ] AC-006: Evento `onboarding.completed` disparado ao final
 
 ---
 
-### Parallelization Map
+### US-004: Criar viagem
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
+**Spec**: SPEC-001 | **Security**: SEC-SPEC-001 — CLEARED WITH CONDITIONS
+**QA**: QA-SPEC-001 | **Release**: CIA-001 — v0.1.0
+
+**User Story**
+> As a viajante planejando uma viagem,
+> I want to criar uma nova viagem com destino, datas e número de viajantes,
+> So that eu possa organizar meu planejamento em um só lugar.
+
+**Critérios de Aceite**
+- [ ] AC-001: Formulário com máx. 3 campos visíveis (destino, datas, nº viajantes)
+- [ ] AC-002: Autocomplete de destino via Google Places API
+- [ ] AC-003: Seletor de datas com validação (data início ≤ data fim)
+- [ ] AC-004: Limite de 20 viagens ativas por usuário
+- [ ] AC-005: Redirecionamento para tela de geração de plano após criação
+
+**Fora do Escopo (v1)**
+- Múltiplos destinos (MVP2)
+- Upload de imagem de capa (usar gradiente/emoji)
+
+---
+
+### US-005: Editar e excluir viagem
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
+
+**User Story**
+> As a viajante com planos que mudaram,
+> I want to editar os dados da minha viagem ou excluí-la,
+> So that minhas informações estejam sempre atualizadas.
+
+**Critérios de Aceite**
+- [ ] AC-001: Todos os campos editáveis após criação
+- [ ] AC-002: Exclusão com confirmação explícita (digitar nome da viagem)
+- [ ] AC-003: Lista de viagens atualizada imediatamente após edição/exclusão
+- [ ] AC-004: Soft delete — dados recuperáveis por 30 dias (LGPD)
+- [ ] AC-005: Autorização BOLA-safe — usuário só acessa suas próprias viagens
+
+---
+
+### US-006: Gerar plano de viagem com IA 🆕
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
+
+**User Story**
+> As a viajante que criou uma viagem,
+> I want to gerar automaticamente um plano de itinerário com a IA em ≤ 3 interações,
+> So that eu tenha um ponto de partida completo sem precisar pesquisar horas.
+
+**Critérios de Aceite**
+- [ ] AC-001: Fluxo em máx. 3 interações: destino+datas → estilo visual → orçamento slider → gerar
+- [ ] AC-002: Seleção visual de estilo de viagem (ícones: aventura, cultura, relaxamento, gastronomia)
+- [ ] AC-003: Slider de orçamento total (R$ ou USD)
+- [ ] AC-004: Animação/loading durante geração — nunca tela em branco
+- [ ] AC-005: Plano gerado em ≤ 60 segundos
+- [ ] AC-006: Cache de respostas similares para reduzir custo de API
+- [ ] AC-007: Evento `ai.plan.generated` disparado ao concluir
+
+---
+
+### US-007: Editar plano gerado
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
+
+**User Story**
+> As a viajante com o plano gerado pela IA,
+> I want to ajustar o itinerário (adicionar, editar, reordenar e excluir atividades),
+> So that o plano final reflita exatamente o que quero fazer.
+
+**Critérios de Aceite**
+- [ ] AC-001: Drag-and-drop para reordenar atividades dentro de um dia
+- [ ] AC-002: Drag-and-drop para mover atividades entre dias
+- [ ] AC-003: Adicionar nova atividade em qualquer dia
+- [ ] AC-004: Editar e excluir atividades existentes
+- [ ] AC-005: Interface touch-friendly (funciona em mobile 375px)
+- [ ] AC-006: Alterações salvas automaticamente (auto-save)
+
+---
+
+### US-008: Gerar checklist com IA
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P0
+
+**User Story**
+> As a viajante se preparando para a viagem,
+> I want to receber automaticamente um checklist adaptado ao destino,
+> So that eu não esqueça documentos, vacinas, moeda local ou itens específicos.
+
+**Critérios de Aceite**
+- [ ] AC-001: Checklist gerado automaticamente ao criar o plano
+- [ ] AC-002: Categorias: documentos, saúde, moeda, clima, tecnologia
+- [ ] AC-003: Checklist editável — adicionar, editar e excluir itens
+- [ ] AC-004: Checkbox interativo (marcar/desmarcar itens)
+- [ ] AC-005: Categorias visualmente distintas (ícone + cor)
+- [ ] AC-006: Evento `ai.checklist.generated` disparado ao concluir
+
+---
+
+### US-015: Alternar idioma PT/EN
+**Sprint**: 🟢 1 | **Status**: 🔵 Em andamento | **Prioridade**: P1
+
+**User Story**
+> As a usuário,
+> I want to alternar entre português e inglês na interface,
+> So that eu possa usar o app no idioma de minha preferência.
+
+**Critérios de Aceite**
+- [ ] AC-001: Interface 100% traduzida em PT-BR e EN
+- [ ] AC-002: Seletor de idioma visível no perfil do usuário
+- [ ] AC-003: Preferência de idioma salva no perfil (persiste entre sessões)
+- [ ] AC-004: Estrutura i18n preparada para adicionar novos idiomas facilmente
+- [ ] AC-005: Todos os textos gerados pela IA respeitam o idioma selecionado
+
+---
+
+## 🟡 Sprint 2A — Backlog
+
+**Objetivo**: Completar o ciclo ANTES — orçamento planejado, câmbio em tempo real, links externos e exclusão de dados (LGPD).
+
+---
+
+### US-009: Definir orçamento
+**Sprint**: 🟡 2A | **Status**: ⬜ Pendente | **Prioridade**: P0
+
+**User Story**
+> As a viajante planejando os custos,
+> I want to definir um orçamento por categoria com suporte a múltiplas moedas,
+> So that eu saiba exatamente quanto posso gastar em cada área da viagem.
+
+**Critérios de Aceite**
+- [ ] AC-001: Orçamento definível por categoria (hospedagem, transporte, alimentação, atividades, outros)
+- [ ] AC-002: Seletor visual de moeda (bandeira + código: BRL, USD, EUR...)
+- [ ] AC-003: Câmbio em tempo real via ExchangeRate-API
+- [ ] AC-004: Total calculado automaticamente ao alterar valores
+- [ ] AC-005: Cache de câmbio por 1 hora com fallback gracioso se API falhar
+
+---
+
+### US-010: Links para passagens e hotel
+**Sprint**: 🟡 2A | **Status**: ⬜ Pendente | **Prioridade**: P1
+
+**User Story**
+> As a viajante pronto para reservar,
+> I want to ver links diretos para buscar voos e hotéis a partir do meu itinerário,
+> So that eu possa reservar sem sair do contexto da minha viagem.
+
+**Critérios de Aceite**
+- [ ] AC-001: Cards no itinerário com deep-link para Kayak (voos) pré-preenchido com destino e datas
+- [ ] AC-002: Cards no itinerário com deep-link para Booking (hotéis) pré-preenchido
+- [ ] AC-003: Links abrem em nova aba
+- [ ] AC-004: Sem booking interno — apenas redirecionamento para parceiros
+
+---
+
+### US-016: Excluir conta e dados (LGPD) 🆕
+**Sprint**: 🟡 2A | **Status**: ⬜ Pendente | **Prioridade**: P0
+
+**User Story**
+> As a usuário que deseja remover seus dados,
+> I want to excluir minha conta e todos os meus dados em 2 passos,
+> So that eu possa exercer meu direito à exclusão garantido pela LGPD.
+
+**Critérios de Aceite**
+- [ ] AC-001: Opção "Excluir minha conta" visível no perfil (sem obstáculos ou dark patterns)
+- [ ] AC-002: Confirmação em 2 passos: aviso claro → confirmação final
+- [ ] AC-003: Remoção de TODOS os dados do usuário (viagens, gastos, checklist, perfil)
+- [ ] AC-004: Audit log da exclusão mantido por 7 anos (apenas hash do ID, sem PII)
+- [ ] AC-005: Confirmação enviada por e-mail após exclusão concluída
+- [ ] AC-006: Processo concluído em ≤ 30 dias (LGPD Art. 18)
+
+---
+
+## 🟣 Sprint 2B — Backlog
+
+**Objetivo**: Completar o ciclo DURANTE — gastos reais, dashboard planejado vs. gasto, alertas de estouro.
+
+---
+
+### US-011: Registrar gasto
+**Sprint**: 🟣 2B | **Status**: ⬜ Pendente | **Prioridade**: P0
+
+**User Story**
+> As a viajante em viagem,
+> I want to lançar um gasto em ≤ 3 toques (valor, categoria, confirmar),
+> So that eu consiga registrar gastos rapidamente sem interromper o passeio.
+
+**Critérios de Aceite**
+- [ ] AC-001: Fluxo máx. 3 toques: valor → categoria (ícones) → confirmar
+- [ ] AC-002: Interface touch-friendly, testada em 375px
+- [ ] AC-003: Campos: valor, moeda, categoria, data (default: hoje), descrição (opcional)
+- [ ] AC-004: Gasto aparece imediatamente no dashboard após confirmação
+
+---
+
+### US-012: Ver planejado vs. gasto
+**Sprint**: 🟣 2B | **Status**: ⬜ Pendente | **Prioridade**: P0
+
+**User Story**
+> As a viajante controlando o orçamento,
+> I want to ver em tempo real quanto gastei vs. quanto planejei por categoria,
+> So that eu possa ajustar meus gastos antes de estourar o orçamento.
+
+**Critérios de Aceite**
+- [ ] AC-001: Dashboard visual com barra de progresso por categoria
+- [ ] AC-002: Total restante calculado em tempo real
+- [ ] AC-003: Atualização imediata ao registrar novo gasto (sem reload)
+- [ ] AC-004: Exibição em moeda local do usuário com conversão automática
+
+---
+
+### US-013: Alerta de estouro de orçamento
+**Sprint**: 🟣 2B | **Status**: ⬜ Pendente | **Prioridade**: P1
+
+**User Story**
+> As a viajante se aproximando do limite do orçamento,
+> I want to receber um alerta visual não invasivo ao atingir 80% e 100% do orçamento,
+> So that eu seja avisado antes de estourar sem ser interrompido.
+
+**Critérios de Aceite**
+- [ ] AC-001: Alerta visual (badge/banner) ao atingir 80% do orçamento por categoria
+- [ ] AC-002: Alerta visual ao atingir 100% (estouro)
+- [ ] AC-003: Alertas não bloqueiam a tela (não-invasivos)
+- [ ] AC-004: Opção de dismiss (fechar) disponível
+- [ ] AC-005: Alertas persistem até que o usuário faça dismiss
+
+---
+
+### US-014: Ajustar plano on-the-go
+**Sprint**: 🟣 2B | **Status**: ⬜ Pendente | **Prioridade**: P1
+
+**User Story**
+> As a viajante que precisa mudar os planos durante a viagem,
+> I want to editar meu itinerário diretamente no celular,
+> So that eu possa adaptar o roteiro em tempo real sem precisar do desktop.
+
+**Critérios de Aceite**
+- [ ] AC-001: Interface de edição otimizada para touch (mobile 375px)
+- [ ] AC-002: Botões com área de toque ≥ 44x44px (WCAG 2.5.5)
+- [ ] AC-003: Edição funcional em conexão lenta (3G simulado)
+- [ ] AC-004: Alterações salvas com feedback visual imediato
+
+---
+
+## ❌ Fora do Escopo — MVP2
+
+| Feature | Razão |
+|---------|-------|
+| Comparativo pós-viagem | Requer dados reais de gastos — validar primeiro |
+| Compartilhamento & grupo | Complexidade de colaboração — validar uso solo/casal primeiro |
+| Exportar PDF | Feature de fechamento — só útil após validar ciclo completo |
+| Múltiplos destinos | Simplifica UX — 1 destino valida o core loop |
+| Import reservas via e-mail | Parsing de e-mail frágil — adicionar após IA validada |
+| IA — recomendações personalizadas | Requer histórico — impossível no MVP |
+| App mobile nativo | Web responsivo valida o produto; nativo após tração |
+
+---
+
+## 📋 Lista de Tarefas — 30 Tasks
+
+### 🟢 Sprint 1 (T-001 a T-014)
+
+| # | Stories | Tipo | Descrição | Agente |
+|---|---------|------|-----------|--------|
+| T-001 | US-001/002 | Backend | Auth.js — Google OAuth + credentials, verificação de e-mail obrigatória, recuperação de senha 2 passos | dev-fullstack-1 |
+| T-002 | US-001/002 | Frontend | UI autenticação — cadastro máx. 3 campos, login, recuperação — WCAG 2.1 AA, mobile-first 375px | dev-fullstack-2 |
+| T-003 | US-002B | Frontend 🆕 | Trust signals no cadastro — badge de segurança, mini política em 2 linhas, linguagem simples | dev-fullstack-2 |
+| T-004 | US-003 | Frontend 🆕 | Onboarding 3 passos pós-cadastro — animações suaves, progress indicator, skip opcional, aha moment ≤ 60s | dev-fullstack-2 |
+| T-005 | US-004/005 | Backend | CRUD de viagens — Server Actions, validação Zod, autorização BOLA-safe, testes unitários | dev-fullstack-1 |
+| T-006 | US-004/005 | Frontend | UI dashboard de viagens — lista, card visual, modal criação/edição, autocomplete Google Places API | dev-fullstack-2 |
+| T-007 | US-006 | Backend 🆕 | Claude API — prompt engineering para geração de plano (itinerário dia a dia, atividades, custos estimados, cache) | dev-fullstack-1 |
+| T-008 | US-006 | Frontend 🆕 | UI geração de plano — seleção visual de estilo (ícones), slider de orçamento, animação de loading, máx. 3 interações | dev-fullstack-2 |
+| T-009 | US-007 | Frontend | Editor de itinerário — drag-and-drop, add/edit/delete por dia, touch-friendly | dev-fullstack-2 |
+| T-010 | US-008 | Backend | Claude API — prompt engineering para checklist por destino (docs, saúde, moeda, clima, tecnologia) | dev-fullstack-1 |
+| T-011 | US-008 | Frontend | UI checklist — lista editável, checkbox, categorias visuais, add item manual | dev-fullstack-2 |
+| T-012 | US-015 | Backend | Setup i18n (next-intl) — PT-BR e EN, estrutura para novos idiomas, seletor no perfil | dev-fullstack-1 |
+| T-013 | ALL | QA | Testes unitários Sprint 1 — cobertura ≥ 80%, foco em auth, IA e CRUD de viagens | qa-engineer |
+| T-014 | ALL | QA | E2E Sprint 1 — cadastro → onboarding → criar viagem → gerar plano → gerar checklist → validar 375px | qa-engineer |
+
+### 🟡 Sprint 2A (T-015 a T-021)
+
+| # | Stories | Tipo | Descrição | Agente |
+|---|---------|------|-----------|--------|
+| T-015 | US-009 | Backend | CRUD de orçamento — categorias configuráveis, valor planejado, suporte multicurrency | dev-fullstack-1 |
+| T-016 | US-009 | Frontend | UI orçamento — input por categoria, seletor visual de moeda, total calculado em tempo real | dev-fullstack-2 |
+| T-017 | US-009 | Backend | Integração ExchangeRate-API — câmbio em tempo real, cache 1h, fallback gracioso | dev-fullstack-1 |
+| T-018 | US-010 | Frontend | Cards do itinerário com deep-link Kayak (voos) e Booking (hotéis) por destino e data | dev-fullstack-2 |
+| T-019 | US-016 | Backend 🆕 | Endpoint exclusão de conta — remove todos os dados (LGPD), confirmação 2 passos, audit log | dev-fullstack-1 |
+| T-020 | US-016 | Frontend 🆕 | UI exclusão de conta no perfil — visível, sem obstáculos, linguagem clara, confirmação 2 passos | dev-fullstack-2 |
+| T-021 | ALL | QA | Testes Sprint 2A — orçamento, câmbio, links, exclusão de dados, cenários de erro | qa-engineer |
+
+### 🟣 Sprint 2B (T-022 a T-030)
+
+| # | Stories | Tipo | Descrição | Agente |
+|---|---------|------|-----------|--------|
+| T-022 | US-011 | Backend | CRUD de gastos — valor, categoria, data, descrição, moeda | dev-fullstack-1 |
+| T-023 | US-011 | Frontend | UI lançar gasto — ≤ 3 toques: valor, categoria (ícones), confirmar — touch-friendly | dev-fullstack-2 |
+| T-024 | US-012 | Frontend | Dashboard planejado vs. gasto — barra de progresso por categoria, total restante, tempo real | dev-fullstack-2 |
+| T-025 | US-013 | Frontend | Alertas de estouro — badge visual em 80% e 100%, não invasivo, dismiss opcional | dev-fullstack-2 |
+| T-026 | US-014 | Frontend | Edição de itinerário responsiva — touch-friendly, testada em 375px | dev-fullstack-2 |
+| T-027 | ALL | QA | Testes Sprint 2B — gastos, dashboard, alertas, E2E completo ciclo DURANTE, teste 3G simulado | qa-engineer |
+| T-028 | ALL | Security | Security audit pré-release — OWASP Top 10, dados financeiros, PII, LGPD compliance | security-specialist |
+| T-029 | ALL | DevOps | CI/CD produção — pipeline completo, deploy canary, smoke tests, monitoring, alertas P0/P1 | devops-engineer |
+| T-030 | ALL | DevOps | Observabilidade — dashboards Datadog, SLOs, axe-core no pipeline para WCAG automático | devops-engineer |
+
+---
+
+## ✅ Concluído
+
+*(vazio — Sprint 1 em andamento)*
+
+---
+
+*Fonte: user-story-map-v2.docx — Travel Planner MVP v2.0, revisão crítica Fevereiro 2026*
+*Gerado pelo time: product-owner · architect · ux-designer · tech-lead · security-specialist*
+
+---
+
+## Sprint 1 — Plano Detalhado
+
+**Periodo**: Semana 1 + Semana 2 (10 dias uteis)
+**Sprint Goal**: MVP funcionando end-to-end — cadastro com trust signals → onboarding → criar viagem → IA gera plano e checklist → i18n PT/EN
+
+---
+
+### Setup Obrigatorio (Dia 0 — antes do primeiro commit)
+
+- [ ] SETUP-001: Variaveis de ambiente configuradas e validadas via `src/lib/env.ts` (`ANTHROPIC_API_KEY`, `GOOGLE_PLACES_API_KEY`, `NEXTAUTH_SECRET`, `DATABASE_URL`, `REDIS_URL`, `NEXT_PUBLIC_APP_URL`)
+- [ ] SETUP-002: Branch `feat/sprint-1` criada a partir de `main` — todos os PRs apontam para esta branch
+- [ ] SETUP-003: `next-intl` instalado e configurado com estrutura de namespaces (`common`, `auth`, `trips`, `onboarding`, `checklist`); arquivos `messages/pt-BR.json` e `messages/en.json` criados
+- [ ] SETUP-004: Prisma schema atualizado com modelos `User`, `Trip`, `ItineraryDay`, `Activity`, `ChecklistItem` — migration inicial executada em dev
+- [ ] SETUP-005: Subpastas de codigo criadas conforme `docs/architecture.md`: `src/server/services/`, `src/server/actions/`, `src/server/cache/`, `src/components/features/trips/`, `src/components/features/onboarding/`, `src/components/features/itinerary/`, `src/components/features/checklist/`
+- [ ] SETUP-006: `docker-compose.yml` funcional com PostgreSQL 16 e Redis 7 — `docker compose up -d` executado com sucesso no ambiente de cada dev
+- [ ] SETUP-007: `.env.example` atualizado com todas as novas variaveis do Sprint 1 (sem valores reais)
+- [ ] SETUP-008: `vitest.config.ts` e `playwright.config.ts` configurados; `npm run test` e `npm run test:e2e` executam sem erro
+
+---
+
+### Mapa de Dependencias
 
 ```
-Day 1:
-  dev-fullstack-1: [TASK-001] Read all specs + setup branch
-  dev-fullstack-2: [TASK-002] Read all specs + setup branch
+SETUP (Dia 0)
+    |
+    +---> T-001 (Auth backend) ---------> T-002 (Auth frontend UI)
+    |                                           |
+    |                                           +---> T-003 (Trust signals)   [paralelo com T-004]
+    |                                           |
+    |                                           +---> T-004 (Onboarding)      [paralelo com T-003]
+    |
+    +---> T-012 (i18n setup) -----------> [TODOS os textos frontend dependem disto]
+    |
+    +---> T-005 (CRUD viagens backend) -> T-006 (UI dashboard viagens)
+    |
+    +---> T-007 (Claude API plano) -----> T-008 (UI geracao de plano)
+    |         |
+    |         +---> cache Redis TTL 24h
+    |
+    +---> T-010 (Claude API checklist) -> T-011 (UI checklist)
+              |
+              [paralelo com T-007]
 
-Day 2 (parallel):
-  dev-fullstack-1: [TASK-003] Prisma schema + migration + soft-delete extension (Prisma 7 db.$extends)
-  dev-fullstack-2: [TASK-004] US-003 prerequisite: confirmar tabela users existe + shared types + error classes
+T-008 + T-009 (Editor drag-and-drop) ---> T-013 (QA unit tests)  [Semana 2]
+T-002 + T-006 + T-011               ---> T-014 (QA E2E)         [Semana 2]
 
-Day 3 (parallel):
-  dev-fullstack-1: [TASK-005] Zod validation schemas + unit tests (trip.schema.test.ts)
-  dev-fullstack-2: [TASK-006] UI primitive components: StatusBadge, TripCounter, CoverPicker, EmojiPicker
-
-Day 4 (parallel):
-  dev-fullstack-1: [TASK-007] TripService: createTrip + getTripById + listTrips + unit tests
-  dev-fullstack-2: [TASK-008] TripCard + TripGrid + TripHero + TripInfoHeader (com mock data)
-
-Day 5 (parallel):
-  dev-fullstack-1: [TASK-009] TripService: updateTrip + archiveTrip + deleteTrip + unit tests
-  dev-fullstack-2: [TASK-010] TripForm Client Component (sem action conectada ainda)
-
-Day 6 (parallel):
-  dev-fullstack-1: [TASK-011] Server Actions: createTrip + updateTrip + archiveTrip + deleteTrip
-  dev-fullstack-2: [TASK-012] ConfirmArchiveDialog + ConfirmDeleteDialog + cache/keys.ts
-
-Day 7 (parallel):
-  dev-fullstack-1: [TASK-013] Redis cache integration no TripService + invalidation
-  dev-fullstack-2: [TASK-014] Paginas Server Components: /trips, /trips/new, /trips/[id], /trips/[id]/edit
-
-Day 8 (sequential — depende de TASK-011, TASK-013, TASK-014):
-  dev-fullstack-1: [TASK-015] Integration tests: trip.service.integration.test.ts
-  dev-fullstack-2: [TASK-016] E2E tests: trip-creation.spec.ts + trip-management.spec.ts + trip-security.spec.ts
-
-Day 9 (sequential — depende de TASK-015, TASK-016):
-  dev-fullstack-1 + dev-fullstack-2: [TASK-017] Accessibility + mobile viewport tests + a11y scan
-  dev-fullstack-1: [TASK-018] Security tasks: FIND-M-001 + FIND-M-002 verification (durante implementacao)
-
-Day 10:
-  dev-fullstack-1: [TASK-019] PR preparation + code review self-checklist
-  dev-fullstack-2: [TASK-019] PR preparation + code review self-checklist
+Restricoes criticas:
+- T-012 DEVE preceder qualquer hardcode de texto no frontend (comeca Dia 1)
+- T-001 DEVE estar completo antes de T-002 integrar (contrato de API acordado no Dia 1)
+- T-005 DEVE estar completo antes de T-006 integrar (mock local para dev-2 nos Dias 1-4)
+- T-007 DEVE estar completo antes de T-008 integrar (mock de resposta Claude para dev-2 nos Dias 3-5)
+- T-003 e T-004 DEPENDEM da estrutura de T-002 estar estabelecida
 ```
 
-**Dependencias criticas**:
-- TASK-003 (migration) depende de TASK-004 (users table confirmada) — CIA-001 ordering constraint
-- TASK-007 e TASK-009 (TripService) dependem de TASK-003 (schema Prisma gerado)
-- TASK-011 (Server Actions) depende de TASK-007 + TASK-009 (TripService completo) e TASK-005 (schemas Zod)
-- TASK-013 (Redis cache) depende de TASK-007 + TASK-009 (TripService metodos existem)
-- TASK-014 (paginas) depende de TASK-008 (componentes UI), TASK-010 (TripForm), TASK-012 (dialogs)
-- TASK-015 + TASK-016 (testes) dependem de TASK-011 + TASK-013 + TASK-014 (feature completa)
+---
+
+### Semana 1 — Fundacao
+
+#### Dia 1 — Setup e Contratos
+
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-001 (Auth backend) + T-012 (i18n) | **Manha**: Configurar Auth.js v5 — `src/lib/auth.ts` com providers Google OAuth e credentials; `src/app/auth/[...nextauth]/route.ts`; schema Prisma para `Account`, `Session`, `VerificationToken` (seguir Auth.js v5 adapter para Prisma) |
+| | | **Tarde**: Setup `next-intl` no servidor — `src/i18n/routing.ts`, `src/i18n/request.ts`, middleware de locale; criar arquivos `messages/pt-BR.json` e `messages/en.json` com namespace `auth` completo; configurar `src/lib/env.ts` com `@t3-oss/env-nextjs` validando todas as vars do sprint |
+| **dev-fullstack-2** | T-002 (UI auth — estrutura) | **Manha**: Criar estrutura de rotas `src/app/(public)/auth/login/page.tsx` e `src/app/(public)/auth/register/page.tsx`; instalar e configurar `next-intl` no cliente (`NextIntlClientProvider`); criar `src/components/features/auth/` com `LoginForm.tsx` (esqueleto) e `RegisterForm.tsx` (esqueleto) sem textos hardcoded — todos via `useTranslations('auth')` |
+| | | **Tarde**: Configurar `react-hook-form` + Zod em `src/lib/validations/user.schema.ts` — `LoginSchema` e `RegisterSchema`; integrar shadcn/ui `Form`, `Input`, `Button`; layout mobile-first 375px validado no browser |
+
+**Ponto de sincronizacao Dia 1 — 17h**: dev-1 e dev-2 alinham o contrato de sessao Auth.js (shape do objeto `session.user`) e o contrato de redirect pos-login antes de cada um continuar isoladamente.
 
 ---
 
-### dev-fullstack-1 Tasks
+#### Dia 2 — Auth completo + i18n fundacao
 
-#### TASK-001: Read all specs + setup branch (Day 1)
-
-**Assigned to**: dev-fullstack-1
-**Depends on**: nothing
-**Parallel with**: TASK-002
-**Estimated**: 2h
-**Branch**: `feat/trip-creation-dev1`
-
-**Description**: Ler os seguintes documentos na integra antes de escrever qualquer linha de codigo:
-- `docs/SPEC-001.md` — spec tecnico completo (prestar atencao especial nas secoes 3.2, 4.1, 7, 11.4)
-- `docs/QA-SPEC-001.md` — estrategia de testes e definition of done
-- `docs/SEC-SPEC-001.md` — achados de seguranca: FIND-M-001 e FIND-M-002 sao obrigatorios
-- `docs/CIA-001.md` — prerequisitos de deployment e ordering constraint (users table antes da trips migration)
-- `docs/architecture.md` — convencoes, estrutura de pastas, padroes de servidor
-
-Anotar: (1) o padrao correto do redirect fora do try/catch (SPEC-001 secao 11.4 x secao 4.1), (2) que `db.$use` esta deprecated no Prisma 7 e deve usar `db.$extends`.
-
-**Done when**: Branch criada a partir de `main`; desenvolvedor consegue articular os dois achados de seguranca FIND-M-001 e FIND-M-002 em comentario no PR de abertura.
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-001 (Auth backend — continua) | **Manha**: Implementar verificacao de e-mail obrigatoria — Server Action `sendVerificationEmail`, token com TTL 24h armazenado no Redis (`cache:email-verify:{token}`); endpoint de verificacao `src/app/auth/verify-email/route.ts`; bloquear acesso a rotas protegidas ate verificacao |
+| | | **Tarde**: Implementar recuperacao de senha em 2 passos — Server Action `requestPasswordReset` (gera token Redis TTL 1h) e `confirmPasswordReset` (valida token, atualiza hash bcrypt); testes unitarios `tests/unit/server/auth.service.test.ts` cobrindo: login valido, senha errada, token expirado, usuario nao verificado |
+| **dev-fullstack-2** | T-002 (UI auth — integracao) + T-012 (i18n frontend) | **Manha**: Conectar `LoginForm` e `RegisterForm` aos Server Actions de Auth.js; implementar feedback de erro em portugues via `useTranslations` — nunca expor codigos tecnicos; implementar fluxo de Google OAuth (botao "Entrar com Google" — 1 clique); estado de loading durante submit |
+| | | **Tarde**: Pagina `verify-email/page.tsx` — instrucoes claras, botao "Reenviar e-mail"; pagina `forgot-password/page.tsx` e `reset-password/page.tsx`; adicionar namespaces `common` e `auth` completos em ambos os arquivos de mensagens PT-BR e EN |
 
 ---
 
-#### TASK-003: Prisma schema + migration + soft-delete extension (Day 2)
+#### Dia 3 — Trust signals + Onboarding (estrutura) + CRUD backend inicia
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-001 (specs lidas), TASK-004 (confirmacao que users table existe)
-**Parallel with**: TASK-004
-**Estimated**: 4h
-**Spec ref**: SPEC-001 §3.1 (Prisma Schema), §3.2 (Migration + Soft Delete), CIA-001 §Database Changes
-
-**Description**: Implementar o modelo `Trip` no `prisma/schema.prisma`, gerar a migration e implementar o middleware de soft delete usando a API correta do Prisma 7.
-
-Arquivos a criar/modificar:
-- `prisma/schema.prisma` — adicionar enums `TripStatus`, `TripVisibility` e modelo `Trip` conforme SPEC-001 §3.1
-- Executar `npx prisma migrate dev --name create_trips_table` para gerar a migration SQL
-- `src/server/db/client.ts` — adicionar soft-delete extension usando `db.$extends` (NAO `db.$use` — FIND-M-002)
-- `npx prisma generate` para regenerar o client TypeScript
-
-Verificar antes de commitar:
-- A foreign key `trips_userId_fkey` so pode ser criada se a tabela `users` ja existir (CIA-001 ordering constraint). Se a tabela nao existir ainda, coordenar com dev-fullstack-2 (TASK-004) antes de rodar a migration.
-- A implementacao do soft delete usa `db.$extends` — confirmar na documentacao do Prisma 7 qual e a API exata de query extension para interceptar `findMany`, `findFirst`, `findUnique`.
-
-**Done when**:
-- `npx prisma migrate dev` roda sem erro
-- `npx prisma generate` completa sem erro
-- `src/server/db/client.ts` usa `db.$extends` (nao `db.$use`)
-- O client TypeScript reconhece o modelo `Trip` com todos os campos e enums
-- Todos os 3 indexes compostos estao presentes no schema (`userId+deletedAt`, `userId+status+deletedAt`, `userId+startDate+deletedAt`)
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-005 (CRUD viagens backend) | **Manha**: Schema Prisma — modelos `Trip`, `ItineraryDay`, `Activity`, `ChecklistItem` conforme data model de `docs/architecture.md`; adicionar campos `travelStyle` (enum: `ADVENTURE`, `CULTURE`, `RELAXATION`, `GASTRONOMY`), `budgetTotal` (Decimal), `budgetCurrency` (String), `destinationName` (String), `destinationPlaceId` (String); migration `npx prisma migrate dev --name add-trip-models` |
+| | | **Tarde**: `src/server/services/trip.service.ts` — metodos `createTrip`, `getTripsByUser`, `getTripById`; validacao BOLA-safe (sempre filtrar por `userId`); regra de negocio `MAX_TRIPS_PER_USER = 20`; soft delete com `deletedAt`; todos os queries com `select` explicito (nao usar `findMany` sem select — regra SR-005) |
+| **dev-fullstack-2** | T-003 (Trust signals) + T-004 (Onboarding — estrutura) | **Manha**: Componente `src/components/features/auth/TrustSignals.tsx` — badge de segurança (icone cadeado + "Seus dados estao seguros"), mini politica de privacidade em 2 linhas (texto via i18n, sem juridiques), link "Excluir minha conta" visivel; integrar no `RegisterForm` abaixo do submit; validar em 375px |
+| | | **Tarde**: Estrutura do onboarding — `src/app/(auth)/onboarding/page.tsx`; componente `src/components/features/onboarding/OnboardingWizard.tsx` com 3 passos (estado gerenciado por `useState`); `ProgressIndicator.tsx` com indicador visual de etapa (1/3, 2/3, 3/3); botao "Pular" em cada etapa; transicoes com `transition-all duration-300` do Tailwind; textos via `useTranslations('onboarding')` |
 
 ---
 
-#### TASK-005: Zod validation schemas + unit tests (Day 3)
+#### Dia 4 — CRUD backend completo + UI dashboard viagens inicia
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-001 (specs lidas)
-**Parallel with**: TASK-006
-**Estimated**: 4h
-**Spec ref**: SPEC-001 §3.3 (Validation Rules), §4.1 (Zod schemas), SEC-SPEC-001 SR-006, SR-007
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-005 (CRUD viagens — Server Actions) | **Manha**: `src/server/actions/trip.actions.ts` — `createTrip`, `updateTrip`, `deleteTrip` (soft delete); validacao Zod `TripCreateSchema` e `TripUpdateSchema` em `src/lib/validations/trip.schema.ts`; `redirect()` FORA do try/catch (FIND-M-001 — padrao obrigatorio); cache Redis: invalidar `CacheKeys.userTrips(userId)` apos mutacoes |
+| | | **Tarde**: `getTripById` Server Action com autorizacao BOLA-safe; `listUserTrips` com paginacao (page, pageSize=10); confirmar exclusao exige digitar nome da viagem (validado no schema antes de `deleteTrip`); testes unitarios `tests/unit/server/trip.service.test.ts` — mock Prisma com `vitest-mock-extended`; cobrir: criar com limite atingido, acesso a viagem de outro usuario, soft delete |
+| **dev-fullstack-2** | T-006 (UI dashboard viagens) | **Manha**: `src/app/(auth)/trips/page.tsx` — lista de viagens via TanStack Query (`useQuery`) buscando Server Action `listUserTrips`; componente `TripCard.tsx` com: emoji/gradiente de capa, titulo, destino, datas, numero de viajantes; skeleton loading durante fetch; estado vazio com CTA "Criar primeira viagem" |
+| | | **Tarde**: Modal `CreateTripModal.tsx` usando shadcn/ui `Dialog` — formulario com 3 campos: destino (autocomplete Google Places — usar mock local no Dia 4, integrar API real no Dia 5), seletor de datas com `react-day-picker`, numero de viajantes (counter +/-); validacao client-side com Zod; submit via Server Action `createTrip`; otimistic update com TanStack Query `useMutation` |
 
-**Description**: Criar o arquivo de schemas Zod e os testes unitarios correspondentes.
-
-Arquivos a criar:
-- `src/lib/validations/trip.schema.ts` — implementar `TripCreateSchema`, `TripUpdateSchema`, `TripArchiveSchema`, `TripDeleteSchema` conforme SPEC-001 §4.1
-- `tests/unit/lib/validations/trip.schema.test.ts` — todos os casos UV-001 a UV-037 definidos em QA-SPEC-001 §3
-
-Requisitos de seguranca obrigatorios (SEC-SPEC-001):
-- SR-006: `coverEmoji` deve usar regex Unicode ou enum explicito — `z.string().max(10)` sozinho nao e suficiente. Implementar validacao conforme FIND-L-001.
-- SR-007: `confirmationTitle` em `TripDeleteSchema` deve ter `.max(100)`.
-- Mass assignment: confirmar que nenhum schema aceita `id`, `userId`, `status`, `deletedAt`, `visibility` do input do usuario.
-
-**Done when**:
-- Todos os testes UV-001 a UV-037 passam
-- Cobertura de `src/lib/validations/trip.schema.ts` >= 80%
-- `coverEmoji` rejeita `\x00` e U+202E (SEC-T-016, SEC-T-017)
-- `confirmationTitle` rejeita strings > 100 chars (UV-035)
-- Schemas nao aceitam campos desconhecidos (`id`, `userId`, `status`, `deletedAt` sao stripados — UV-026 a UV-029)
+**Ponto de sincronizacao Dia 4 — fim do dia**: dev-1 entrega contrato da Server Action `createTrip` (tipos de entrada/saida) para dev-2 integrar no Dia 5.
 
 ---
 
-#### TASK-007: TripService — createTrip, getTripById, listTrips + unit tests (Day 4)
+#### Dia 5 — Google Places + Claude API inicia
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-003 (schema e client Prisma prontos), TASK-005 (schemas Zod prontos)
-**Parallel with**: TASK-008
-**Estimated**: 6h
-**Spec ref**: SPEC-001 §6.2 (Trip Limit), §6.3 (Soft Delete Policy), §7.1 (Authorization Model), §7.3 (Mass Assignment Prevention), §9.2 (Cache Keys)
-
-**Description**: Implementar os metodos de leitura e criacao do TripService.
-
-Arquivos a criar:
-- `src/server/services/trip.service.ts` — metodos: `createTrip`, `getTripById`, `listTrips`
-- `src/server/cache/keys.ts` — `CacheKeys.tripsList`, `CacheKeys.tripsCount`, `CacheKeys.tripDetail`
-- `src/lib/constants.ts` — `MAX_ACTIVE_TRIPS = 20`
-- `src/types/trip.types.ts` — `TripCardData`, `TripDetailData` (subsets seguros do modelo)
-- `tests/unit/server/services/trip.service.test.ts` — testes UT-001 a UT-013, UT-029 a UT-033 (QA-SPEC-001 §3)
-
-Padroes obrigatorios (SEC-SPEC-001):
-- SR-005: TODOS os `db.trip.findFirst`, `db.trip.findMany`, `db.trip.create` devem ter `select` explicito — nunca retornar o modelo Prisma completo.
-- Ownership: TODA query deve incluir `userId` no `where` junto com `deletedAt: null`. Nunca buscar por `id` isolado (BOLA mitigation — UT-013).
-- `NotFoundError` quando trip nao encontrada ou de outro usuario — nunca `ForbiddenError` (evita enumeracao — UT-010).
-- `assertTripLimitNotReached` deve ser a primeira operacao antes de qualquer `db.trip.create` (UT-003).
-- Mapeamento explicito de campos no `db.trip.create` — sem spread do input do usuario (UT-008).
-- OQ-003 resolvido: `listTrips` aceita parametro `status` com default `["PLANNING", "ACTIVE", "COMPLETED"]`; passar `["ARCHIVED"]` para tab de arquivadas.
-
-**Done when**:
-- Testes UT-001 a UT-013 e UT-029 a UT-033 passam
-- Nenhuma chamada Prisma omite clausula `select`
-- Nenhuma chamada Prisma usa `db.trip.findUnique` sem `userId` no where
-- `src/lib/constants.ts` exporta `MAX_ACTIVE_TRIPS = 20`
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-007 (Claude API — plano de viagem) | **Manha**: `src/server/services/ai.service.ts` com `import "server-only"` — metodo `generateTravelPlan(params: GeneratePlanParams)`: construir prompt estruturado para `claude-sonnet-4-6`; params incluem `destination`, `startDate`, `endDate`, `travelStyle`, `budgetTotal`, `budgetCurrency`, `travelers`, `language` (PT-BR ou EN); output tipado: `ItineraryPlan` com array de `DayPlan[]` cada um com `activities[]`; usar SDK `@anthropic-ai/sdk` |
+| | | **Tarde**: Cache Redis para prompts similares: chave `cache:ai-plan:{hash}` onde hash = MD5 de `{destination}:{travelStyle}:{budgetRange}:{days}:{language}` (budgetRange = bucket de R$500 para evitar miss por diferenca minima); TTL 24h (86400s); if cache hit: retornar sem chamar Claude; timeout de 55s na chamada (meta <= 60s); testes unitarios com mock do SDK Anthropic |
+| **dev-fullstack-2** | T-006 (Google Places) + T-008 (UI geracao — estrutura) | **Manha**: Integrar Google Places Autocomplete no campo destino — `src/components/features/trips/DestinationAutocomplete.tsx` usando `@react-google-maps/api` ou fetch direto para `/api/v1/places/autocomplete` (proxy server-side para nao expor API key no cliente); salvar `placeId` e `displayName` separadamente |
+| | | **Tarde**: Estrutura da UI de geracao de plano — `src/app/(auth)/trips/[id]/generate/page.tsx`; componente `PlanGeneratorWizard.tsx` com 3 passos: (1) confirmar destino/datas ja preenchidos, (2) selecao visual de estilo (4 cards com icone + label via i18n), (3) slider de orcamento; botao "Gerar plano" dispara loading state; mock de resposta Claude para desenvolver UI sem depender do backend |
 
 ---
 
-#### TASK-009: TripService — updateTrip, archiveTrip, deleteTrip + unit tests (Day 5)
+### Semana 2 — Integracao e QA
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-007 (estrutura do TripService estabelecida)
-**Parallel with**: TASK-010
-**Estimated**: 5h
-**Spec ref**: SPEC-001 §6.1 (Status Machine), §6.3 (Soft Delete Policy), §8 (Error Handling)
+#### Dia 6 — Claude API checklist + UI geracao de plano integra
 
-**Description**: Implementar os metodos de mutacao do TripService e a maquina de estados.
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-010 (Claude API — checklist) | **Manha**: `ai.service.ts` — metodo `generateChecklist(params: GenerateChecklistParams)`: usar `claude-haiku-4-5-20251001` (mais rapido e barato para checklist); params: `destination`, `startDate`, `endDate`, `travelers`, `language`; output tipado `ChecklistCategory[]` com categorias `DOCUMENTS`, `HEALTH`, `CURRENCY`, `WEATHER`, `TECHNOLOGY`; cada categoria tem `items: ChecklistItem[]` |
+| | | **Tarde**: Cache Redis para checklist: chave `cache:ai-checklist:{hash}` onde hash = MD5 de `{destination}:{month}:{travelers}:{language}` (mes em vez de datas exatas para maximizar reuso); TTL 24h; Server Action `generateChecklist` em `src/server/actions/ai.actions.ts`; testes unitarios com mock Anthropic SDK |
+| **dev-fullstack-2** | T-008 (UI geracao — integracao real) | **Manha**: Integrar `PlanGeneratorWizard` com Server Action real `generateTravelPlan`; implementar `LoadingPlanAnimation.tsx` — animacao durante geracao (nunca tela em branco): spinner + mensagem rotativa ("Analisando destino...", "Montando itinerario...", "Finalizando plano...") com `useEffect` trocando mensagem a cada 4s |
+| | | **Tarde**: Pagina de resultado `src/app/(auth)/trips/[id]/itinerary/page.tsx` — renderizar `ItineraryPlan` retornado pela IA; componente `ItineraryDayCard.tsx` com lista de atividades por dia; botao "Gerar Checklist" abaixo do plano; disparar evento analytics `ai.plan.generated`; tratar erro de timeout com mensagem amigavel e botao "Tentar novamente" |
 
-Adicionar ao arquivo `src/server/services/trip.service.ts`:
-- `updateTrip(userId, tripId, data)` — atualiza apenas campos fornecidos; rejeita `status` do input (UT-016)
-- `archiveTrip(userId, tripId)` — muda `status` para `ARCHIVED`; NAO seta `deletedAt` (UT-020); valida transicao de estado (UT-022)
-- `deleteTrip(userId, tripId, confirmationTitle)` — seta `deletedAt`; valida `confirmationTitle === trip.title` case-sensitive (UT-027, UT-028); NUNCA chama `db.trip.delete()` (UT-024)
-- `isValidStatusTransition(from, to)` — maquina de estados conforme SPEC-001 §6.1
-- `VALID_STATUS_TRANSITIONS` map
-
-Adicionar ao arquivo `src/lib/errors.ts`:
-- `TripErrorCodes` object com: `TRIP_NOT_FOUND`, `TRIP_LIMIT_REACHED`, `INVALID_STATUS_TRANSITION`, `INVALID_CONFIRMATION_TITLE`
-
-Adicionar ao arquivo `tests/unit/server/services/trip.service.test.ts`:
-- Testes UT-014 a UT-028 e UT-034 a UT-043 (QA-SPEC-001 §3)
-
-**Done when**:
-- Testes UT-014 a UT-043 passam
-- `db.trip.delete()` nunca e chamado em nenhum caminho de codigo (UT-024)
-- `archiveTrip` nao seta `deletedAt` (UT-020)
-- `deleteTrip` valida `confirmationTitle` antes de qualquer operacao de escrita (UT-027)
-- `isValidStatusTransition` cobre todas as transicoes validas e invalidas (UT-034 a UT-043)
+**Ponto de sincronizacao Dia 6 — manha**: dev-1 entrega tipos `ItineraryPlan` e `ChecklistCategory[]` (exportados de `src/types/ai.types.ts`) para dev-2 usar na UI.
 
 ---
 
-#### TASK-011: Server Actions — createTrip, updateTrip, archiveTrip, deleteTrip (Day 6)
+#### Dia 7 — Editor drag-and-drop + UI checklist
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-007 (TripService metodos de leitura/criacao), TASK-009 (TripService metodos de mutacao), TASK-005 (schemas Zod)
-**Parallel with**: TASK-012
-**Estimated**: 5h
-**Spec ref**: SPEC-001 §4.1 (Server Actions), SEC-SPEC-001 SR-001, SR-003, SR-004
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-005 (auto-save) + T-010 (integracao checklist no banco) | **Manha**: Server Actions para atividades do itinerario — `updateActivity`, `reorderActivities` (recebe array de `{id, orderIndex}` e atualiza em transacao Prisma), `addActivity`, `deleteActivity`; Server Actions para checklist — `saveChecklist` (persiste no banco apos geracao pela IA), `updateChecklistItem` (toggle checked, editar texto), `addChecklistItem`, `deleteChecklistItem` |
+| | | **Tarde**: Testes de integracao `tests/integration/trip.service.test.ts` e `tests/integration/ai.service.test.ts` — usar banco de teste Docker; cobrir reordenamento atomico, soft delete de atividade, checklist salvo corretamente por categoria |
+| **dev-fullstack-2** | T-009 (Editor drag-and-drop) + T-011 (UI checklist) | **Manha**: `src/components/features/itinerary/DraggableActivityList.tsx` usando `@dnd-kit/core` e `@dnd-kit/sortable` (MIT license) — drag dentro do mesmo dia e entre dias diferentes; `ActivityItem.tsx` com handle de drag, botoes editar/excluir, campo de horario; touch sensor configurado para mobile (`TouchSensor` do dnd-kit); auto-save: `useMutation` com debounce 1s apos cada reordenamento |
+| | | **Tarde**: `src/components/features/checklist/ChecklistView.tsx` — agrupar itens por categoria; cada categoria com icone distinto (shadcn/ui `Icon` ou heroicons MIT); `ChecklistItem.tsx` com checkbox interativo, campo de texto editavel inline, botao excluir; botao "Adicionar item" no final de cada categoria; disparar evento `ai.checklist.generated` no mount |
 
-**Description**: Implementar as quatro Server Actions no arquivo `src/server/actions/trip.actions.ts`.
-
-ATENCAO CRITICA — FIND-M-001 (SEC-SPEC-001): O codigo de exemplo em SPEC-001 §4.1 para `createTrip` esta ERRADO — `redirect()` esta dentro do try/catch. Usar EXCLUSIVAMENTE o padrao correto documentado em SPEC-001 §11.4:
-
-```typescript
-// CORRETO — redirect() FORA do try/catch
-let tripId: string;
-try {
-  const trip = await TripService.createTrip(session.user.id, parsed.data);
-  tripId = trip.id;
-} catch (error) { ... return error; }
-revalidatePath("/trips");
-redirect(`/trips/${tripId!}`);
-```
-
-SR-003 — cada uma das quatro Server Actions DEVE:
-1. Chamar `await auth()` como PRIMEIRA instrucao absoluta
-2. Fazer parse do input com o schema Zod correspondente antes de qualquer chamada ao service
-3. Passar `session.user.id` (NUNCA userId do input) ao TripService
-4. Chamar `redirect()` FORA de qualquer bloco try/catch
-5. Retornar o shape de erro padronizado em caso de falha
-
-SR-004: A funcao `track()` para analytics DEVE verificar `hasAnalyticsConsent()` como primeira operacao antes de despachar qualquer evento.
-
-Arquivos a criar:
-- `src/server/actions/trip.actions.ts` — quatro actions: `createTrip`, `updateTrip`, `archiveTrip`, `deleteTrip`
-
-**Done when**:
-- Nenhum `redirect()` esta dentro de um bloco `try` ou `catch` em nenhuma action
-- `await auth()` e a primeira linha de cada action
-- `userId` vem exclusivamente de `session.user.id` — nunca do FormData
-- Cada action importa `"use server"` e `"server-only"`
-- Testes SEC-T-007, SEC-T-008, SEC-T-009 passam (auth enforcement)
-- Testes SEC-T-001, SEC-T-002 passam (redirect pattern)
+**Ponto de sincronizacao Dia 7 — 17h**: dev-1 e dev-2 testam juntos o fluxo completo em modo local — cadastro → onboarding → criar viagem → gerar plano → editor → checklist. Identificar e corrigir problemas de integracao antes do QA.
 
 ---
 
-#### TASK-013: Redis cache integration + invalidation (Day 7)
+#### Dia 8 — i18n completa + QA inicia
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-007 + TASK-009 (TripService completo), TASK-012 (cache/keys.ts)
-**Parallel with**: TASK-014
-**Estimated**: 3h
-**Spec ref**: SPEC-001 §9.2 (Caching Strategy), SEC-SPEC-001 FIND-L-003
-
-**Description**: Integrar as cache keys Redis ao TripService e implementar invalidation apos cada mutacao.
-
-Modificar `src/server/services/trip.service.ts`:
-- Apos `createTrip`: invalidar `CacheKeys.tripsList(userId)` e `CacheKeys.tripsCount(userId)`
-- Apos `updateTrip`: invalidar `CacheKeys.tripDetail(tripId)`, `CacheKeys.tripsList(userId)`, `CacheKeys.tripsCount(userId)`
-- Apos `archiveTrip`: invalidar os mesmos tres keys
-- Apos `deleteTrip`: invalidar os mesmos tres keys
-- Usar `Promise.all([...])` para invalidation em paralelo — nunca sequencial
-
-Modificar `src/server/cache/redis.ts` (ou criar se nao existir) — Redis client singleton (Upstash).
-
-Nota FIND-L-003 (SEC-SPEC-001): `trips:detail:{tripId}` nao e escopada por `userId`. Documentar em `src/server/cache/keys.ts` que entradas `tripDetail` so devem ser lidas APOS verificacao de propriedade ter sido feita no service — nunca antes.
-
-**Done when**:
-- Invalidation ocorre apos cada mutacao (`Promise.all` com os tres keys afetados)
-- O comentario de seguranca sobre `tripDetail` esta presente em `src/server/cache/keys.ts`
-- Testes de integracao IT-003, IT-004 confirmam que cache e invalidado corretamente
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | T-012 (i18n — seletor de idioma e preferencia) | **Manha**: Server Action `updateUserLocale` — salvar preferencia de idioma no perfil do usuario (campo `locale` na tabela `User`, valores `'pt-BR'` e `'en'`); middleware `src/middleware.ts` com `next-intl` — detectar idioma da preferencia do usuario autenticado, fallback para header `Accept-Language`, depois `pt-BR` como default |
+| | | **Tarde**: Auditar todos os arquivos `.tsx` criados nas semanas 1-2 — garantir zero textos hardcoded; qualquer string fora de `useTranslations()` ou `getTranslations()` e um bug; completar `messages/pt-BR.json` e `messages/en.json` para todos os namespaces: `auth`, `common`, `trips`, `onboarding`, `checklist`, `itinerary`, `errors`; testar troca de idioma com recarga de pagina |
+| **dev-fullstack-2** | T-012 (seletor UI) + T-004 (onboarding — refinamento) | **Manha**: Componente `LanguageSwitcher.tsx` — botao na navbar e na pagina de perfil `src/app/(auth)/account/page.tsx`; mostrar idioma atual (ex: "PT" / "EN"); ao clicar, chamar `updateUserLocale` e recarregar pagina com novo locale via `router.refresh()`; salvar em cookie tambem para usuarios nao autenticados (antes do login) |
+| | | **Tarde**: Refinamento do onboarding — integrar o `OnboardingWizard` completo: Passo 1 (boas-vindas com nome do usuario), Passo 2 (redireciona para `CreateTripModal` pre-aberto), Passo 3 (redireciona para `generate/page.tsx` com instrucoes); disparar `onboarding.completed` via analytics ao concluir Passo 3 ou ao pular qualquer etapa; animacoes validadas em 375px |
 
 ---
 
-#### TASK-015: Integration tests (Day 8)
+#### Dia 9 — QA: testes unitarios e E2E
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-011 (Server Actions completas), TASK-013 (Redis cache integrado), TASK-014 (paginas prontas)
-**Parallel with**: TASK-016
-**Estimated**: 5h
-**Spec ref**: QA-SPEC-001 §4 (Integration Tests), SEC-SPEC-001 CR-003
-
-**Description**: Implementar os testes de integracao contra PostgreSQL real via Docker.
-
-Arquivo a criar: `tests/integration/trip.service.integration.test.ts`
-
-Cenarios obrigatorios (QA-SPEC-001 §4):
-- IT-001: `createTrip` persiste no banco e retorna objeto com `id` CUID2 valido
-- IT-002: `getTripById` nao retorna trips de outro usuario (isolamento real no banco)
-- IT-003: `deleteTrip` seta `deletedAt`; trip desaparece de queries subsequentes
-- IT-004: `archiveTrip` muda `status` mas NAO seta `deletedAt`
-- IT-005: Limit enforcement — 20 trips criadas, 21a lanca `TRIP_LIMIT_REACHED`
-- IT-006: Trips arquivadas nao contam para o limite de 20
-- IT-007: Soft-delete middleware — trip com `deletedAt != null` nunca aparece em `findMany` (CR-003 obrigatorio)
-- IT-008: Cascade delete — deletar User hard-deleta todos os trips (GDPR erasure)
-- EC-017: Concorrencia — 5 calls paralelos com usuario em 19 trips; no maximo 1 deve ter sucesso
-
-Fixtures a criar:
-- `tests/fixtures/users.ts` — `testUsers.userA`, `testUsers.userB` conforme QA-SPEC-001 §11
-- `tests/fixtures/trips.ts` — `tripFixtures.validCreate`, `tripFixtures.minimalCreate`
-- `tests/helpers/seed.ts` — `seedTripsForUser`, `seedArchivedTripsForUser`, `cleanupUser`
-
-Estrategia: cada teste roda dentro de uma transaction que e revertida em `afterEach` — sem poluicao de estado entre testes.
-
-**Done when**:
-- IT-001 a IT-008 e EC-017 passam contra PostgreSQL real (nao mockado)
-- IT-007 passa especificamente com a implementacao `db.$extends` (nao `db.$use`) — isso e o acceptance criterion de CR-003
-- Nenhum teste depende de estado deixado por outro teste
-- `DATABASE_URL_TEST` e usado — banco de teste separado do banco de desenvolvimento
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **qa-engineer** | T-013 (testes unitarios) | **Manha**: Auditar cobertura atual com `npm run test -- --coverage`; identificar servicos abaixo de 80%; focar em `trip.service.ts`, `ai.service.ts`, `user.schema.ts`, `trip.schema.ts`; cobrir casos de borda: limite de 20 viagens, token expirado, resposta Claude malformada, cache hit vs miss |
+| | | **Tarde**: Escrever testes unitarios faltantes — mock do `@anthropic-ai/sdk` para testar `generateTravelPlan` e `generateChecklist` com resposta simulada valida e com resposta malformada; verificar que erros da Claude API sao tratados graciosamente (nao expose stack trace) |
+| **qa-engineer** | T-014 (E2E — Playwright) | **Manha**: `tests/e2e/auth.spec.ts` — fluxo completo: cadastro email → verificacao de e-mail (interceptar chamada de e-mail em teste) → login → trust signals visiveis → logout; fluxo Google OAuth (mock com `page.route()`) |
+| | | **Tarde**: `tests/e2e/onboarding.spec.ts` — pos-cadastro: wizard 3 passos, skip funciona, progresso visivel; `tests/e2e/trip-flow.spec.ts` — criar viagem com autocomplete → gerar plano (mock Claude) → editor drag-and-drop → checklist; validar em viewport 375x812 (mobile) e 1280x800 (desktop) |
 
 ---
 
-#### TASK-018: Security verification tasks (durante Days 4-8, nao um dia isolado)
+#### Dia 10 — QA final + validacao E2E + ajustes
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: Cada tarefa relevante (TASK-003, TASK-011)
-**Parallel with**: todas as demais tasks
-**Estimated**: distribuido — aproximadamente 1h por tarefa verificada
-
-**Description**: Verificacoes de seguranca obrigatorias do SEC-SPEC-001 que devem ser feitas durante a implementacao, nao deixadas para o final.
-
-Verificacoes especificas:
-
-**TASK-SEC-001 — FIND-M-001: redirect fora do try/catch**
-- Durante TASK-011: verificar manualmente que NENHUM `redirect()` em nenhuma das quatro Server Actions esta dentro de um bloco `try` ou `catch`
-- Confirmar no comentario de PR: "Confirmado: redirect() esta fora de try/catch em todas as actions"
-- Testes SEC-T-001, SEC-T-002, SEC-T-003 devem passar
-
-**TASK-SEC-002 — FIND-M-002: Prisma 7 db.$extends**
-- Durante TASK-003: confirmar que a implementacao usa `db.$extends` — documentar a versao exata do Prisma sendo usada e a referencia da documentacao consultada
-- O integration test IT-007 (CR-003) e o acceptance criterion final desta verificacao
-- Confirmar no comentario de PR: "Confirmado: usando db.$extends, testado em IT-007 contra Prisma [versao]"
-- Teste SEC-T-006 deve ser verificado em code review
-
-**TASK-SEC-003 — SR-005: select explicito em todas as queries**
-- Durante TASK-007 e TASK-009: verificar que todos os `findFirst`, `findMany`, `findUnique`, `create`, `update` tem clausula `select` explicita
-- Nenhum resultado retorna o modelo Prisma completo com `deletedAt`, `userId` internos (SEC-T-013, SEC-T-014)
-
-**TASK-SEC-004 — SR-004: Consent gate no track()**
-- Durante TASK-011: verificar que a funcao `track()` usada nas Server Actions inclui `hasAnalyticsConsent()` como primeira verificacao (CR-002)
-
-**Done when**: Cada verificacao acima esta documentada em comentario no PR com confirmacao explicita.
+| Dev | Task | Subtarefas (cada uma <= 4h) |
+|-----|------|-----------------------------|
+| **dev-fullstack-1** | Correcoes QA + revisao de seguranca | **Manha**: Atender issues P0/P1 levantados pelo qa-engineer nos Dias 8-9; revisar todos os Server Actions criados — confirmar que `redirect()` esta FORA do try/catch (FIND-M-001); confirmar que `db.$extends` e usado para soft-delete (nao `db.$use`) (FIND-M-002) |
+| | | **Tarde**: Revisar queries Prisma — confirmar `select` explicito em todos (SR-005); rate limiting no Server Action `generateTravelPlan` (max 10 geracoes/usuario/hora via Redis counter); confirmar zero PII em logs |
+| **dev-fullstack-2** | Correcoes QA + validacao mobile | **Manha**: Atender issues de UI levantados pelo qa-engineer; testar todos os fluxos em iPhone SE (375px) e Samsung Galaxy S20 (360px) via DevTools; validar que areas de toque sao >= 44x44px (WCAG 2.5.5); testar drag-and-drop com touch em mobile real ou emulacao |
+| | | **Tarde**: Teste cronometrado: do cadastro ao primeiro plano gerado em <= 60 segundos — medir com `performance.now()` ou Playwright `page.waitForSelector` com timeout configurado; documentar resultado no PR; corrigir gargalos se necessario |
+| **qa-engineer** | T-014 (validacao final) | **Manha + Tarde**: Executar suite E2E completa; validar criterios: i18n 100% (nenhum texto em ingles na UI PT-BR e vice-versa), WCAG via `axe-playwright` em todas as paginas criadas no sprint, tempo cadastro → primeiro plano <= 60s medido pelo Playwright; emitir QA sign-off se todos os criterios forem atingidos |
 
 ---
 
-#### TASK-019: PR preparation + self-review checklist (Day 10)
+### Pontos de Sincronizacao Obrigatorios
 
-**Assigned to**: dev-fullstack-1
-**Depends on**: TASK-015 (integration tests), TASK-018 (security verification)
-**Estimated**: 2h
-
-**Description**: Preparar o PR com a checklist completa de revisao preenchida.
-
-O PR deve incluir no corpo:
-1. Link para SPEC-001, QA-SPEC-001, SEC-SPEC-001, CIA-001
-2. Confirmacao: "redirect() fora de try/catch em todas as actions" (FIND-M-001)
-3. Confirmacao: "db.$extends usado em client.ts, testado em IT-007" (FIND-M-002)
-4. Confirmacao: "select explicito em todos as queries Prisma" (SR-005)
-5. Confirmacao: "auth() e a primeira instrucao em todas as Server Actions" (SR-003)
-6. Resultado de cobertura de testes (meta: >= 80% em `trip.service.ts` e `trip.schema.ts`)
-7. Checklist de seguranca de `docs/architecture.md` §8 preenchida
-
-**Done when**: PR aberto, todos os CI gates passando, checklist preenchida.
+| Momento | Dev-1 entrega | Dev-2 aguarda | O que sincronizar |
+|---------|---------------|---------------|-------------------|
+| Dia 1 — 17h | Contrato de sessao Auth.js (`session.user` shape) | Antes de implementar guards de rota | `{ id, email, name, emailVerified, locale }` — alinhar nomes de campo |
+| Dia 4 — fim do dia | Tipos `TripCreateInput` e `TripCreateResult` exportados de `src/types/trip.types.ts` | Antes de conectar `CreateTripModal` ao Server Action | Contrato completo incluindo campos opcionais e erros possiveis |
+| Dia 5 — manha | API key Google Places configurada em `.env.local` da equipe | Antes de integrar autocomplete | Confirmar quota do projeto e se proxy server-side e necessario |
+| Dia 6 — manha | Tipos `ItineraryPlan` e `ChecklistCategory[]` em `src/types/ai.types.ts` | Antes de renderizar resultado da IA | Shape exato dos dados retornados pela Claude API |
+| Dia 7 — 17h | Server Actions de reordenamento e checklist funcionais | Teste de integracao manual conjunto | Fluxo completo do MVP em ambiente local — go/no-go para QA |
+| Dia 8 — fim do dia | `messages/pt-BR.json` e `messages/en.json` completos | Antes de QA auditar i18n | Confirmar que nao ha chaves faltando em nenhum dos dois arquivos |
 
 ---
 
-### dev-fullstack-2 Tasks
+### Riscos do Sprint 1
 
-#### TASK-002: Read all specs + setup branch (Day 1)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: nothing
-**Parallel with**: TASK-001
-**Estimated**: 2h
-**Branch**: `feat/trip-creation-dev2`
-
-**Description**: Ler os seguintes documentos na integra antes de escrever qualquer linha de codigo:
-- `docs/SPEC-001.md` — prestar atencao especial nas secoes 5 (Component Architecture), 5.2 (Interactive Components), 10 (Testing)
-- `docs/QA-SPEC-001.md` — E2E test flows E2E-001 a E2E-010 e accessibility tests A11Y-001 a A11Y-015
-- `docs/SEC-SPEC-001.md` — FIND-M-001 e FIND-M-002 (entender os problemas mesmo sendo do lado backend)
-- `docs/CIA-001.md` — entender o ordering constraint US-003 users table
-- `docs/architecture.md` — convencoes de componentes, folder structure
-
-Anotar: componentes que sao Client Components vs Server Components conforme SPEC-001 §5.1 e §5.2; a acessibilidade obrigatoria em CoverPicker (role="radiogroup", arrow keys).
-
-**Done when**: Branch criada a partir de `main`; desenvolvedor consegue listar todos os Client Components e Server Components desta feature em comentario no PR de abertura.
+| Risco | Probabilidade | Impacto | Plano de contingencia |
+|-------|---------------|---------|----------------------|
+| Claude API latencia alta (>30s) | Media | Alto | Implementar streaming com `stream: true` no SDK Anthropic — UI exibe atividades conforme chegam; se latencia > 55s, retornar erro com mensagem amigavel e opcao de retry |
+| Google Places API key nao configurada no Dia 1 | Alta | Medio | dev-2 usa campo de texto livre para destino nos Dias 1-4; autocomplete integrado no Dia 5 — nao bloqueia progresso inicial |
+| Drag-and-drop nao funciona em mobile (touch events) | Media | Alto | Usar `@dnd-kit` com `TouchSensor` e `MouseSensor` configurados; testar em dispositivo fisico ou BrowserStack no Dia 7; fallback: botoes "mover para cima/baixo" como alternativa touch-safe |
+| `next-intl` com App Router tem configuracao fragil | Media | Medio | Seguir documentacao oficial next-intl v3 para App Router; configurar no Dia 1 antes de qualquer texto hardcoded; se houver bloqueio, abrir issue e contornar com context API simples temporariamente |
+| Resposta Claude API malformada (JSON invalido) | Baixa | Alto | Usar `zod.safeParse()` na resposta da Claude antes de persistir; prompt deve incluir instrucao "responda APENAS com JSON valido no formato..."; se parse falhar, retornar erro com mensagem "Nao foi possivel gerar o plano. Tente novamente." |
+| Cache Redis miss rate alto (pouca reutilizacao) | Baixa | Baixo | Ajustar granularidade do hash de cache — usar bucket de R$1000 em vez de R$500 se miss rate > 80% na primeira semana; monitorar com Redis `INFO stats` |
+| Cobertura de testes < 80% no Dia 9 | Media | Alto | dev-1 prioriza testes junto com implementacao (nao deixar para o fim); qa-engineer audita cobertura no Dia 9 manha com tempo suficiente para correcoes |
+| Tempo cadastro → plano > 60 segundos | Media | Alto | Medir no Dia 7 durante sincronizacao; se lento: habilitar streaming Claude, revisar queries N+1, confirmar indice em `userId` na tabela `trips` |
 
 ---
 
-#### TASK-004: US-003 prerequisite — confirmar users table + shared types + error classes (Day 2)
+### Criterios de Conclusao do Sprint 1
 
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-002 (specs lidas)
-**Parallel with**: TASK-003
-**Estimated**: 3h
-**Spec ref**: CIA-001 §Database Changes (migration dependency note), SPEC-001 §3.1 (User model reference)
-
-**Description**: Esta task e critica para o ordering constraint da CIA-001. A foreign key `trips_userId_fkey` exige que a tabela `users` exista antes da migration de trips rodar.
-
-Acoes:
-1. Verificar se a migration de US-003 (users table) ja foi aplicada no banco de desenvolvimento local e no banco de staging. Se a tabela `users` nao existir, coordenar com o devops-engineer para criar a tabela (US-003 deve ser implementado em paralelo).
-2. Se a tabela `users` nao existir ainda: criar uma migration temporaria apenas com o modelo `User` referenciado em SPEC-001 §3.1 para desbloquear o dev de backend. Documentar claramente que esta e uma migration de bootstrapping que sera substituida pela migration completa de US-003.
-3. Criar `src/lib/errors.ts` se nao existir — com as classes base: `AppError`, `NotFoundError`, `UnauthorizedError`, `ForbiddenError` conforme `docs/architecture.md` §4 (Error Handling Pattern).
-4. Criar `src/lib/env.ts` se nao existir — validacao de env vars conforme `docs/architecture.md` §3.
-5. Sinalizar para dev-fullstack-1 (TASK-003) quando a tabela `users` estiver confirmada no banco.
-
-**Done when**:
-- Tabela `users` existe no banco de desenvolvimento (verificar com `npx prisma db pull` ou `psql`)
-- `src/lib/errors.ts` existe com `AppError`, `NotFoundError`, `UnauthorizedError`, `ForbiddenError`
-- `src/lib/env.ts` existe com validacao de `DATABASE_URL`, `REDIS_URL`, `NEXTAUTH_SECRET`
-- dev-fullstack-1 foi notificado e pode prosseguir com TASK-003
+- [ ] Fluxo E2E completo executado sem erros: cadastro → verificacao de e-mail → login → onboarding 3 passos → criar viagem com autocomplete → gerar plano IA → editor drag-and-drop → gerar checklist IA
+- [ ] Validado em mobile 375px E desktop 1280px para todas as telas do sprint
+- [ ] i18n: 100% dos textos em PT-BR e EN — nenhuma string hardcoded no frontend
+- [ ] Cobertura de testes >= 80% em `trip.service.ts`, `ai.service.ts`, `user.schema.ts`, `trip.schema.ts`
+- [ ] Security review aprovado pelo `security-specialist` — FIND-M-001 e FIND-M-002 verificados
+- [ ] Trust signals presentes e visiveis na tela de cadastro (badge + mini politica + link exclusao)
+- [ ] Tempo cronometrado cadastro → primeiro plano gerado <= 60 segundos (resultado documentado no PR)
+- [ ] WCAG 2.1 AA: zero violacoes criticas detectadas pelo `axe-playwright` nas telas de auth, onboarding, criacao de viagem, itinerario e checklist
+- [ ] Nenhum dado PII logado ou exposto em qualquer resposta de API ou mensagem de erro
+- [ ] Todos os PRs revisados e aprovados pelo tech-lead — nenhum commit direto em `feat/sprint-1` ou `main`
+- [ ] QA sign-off emitido pelo `qa-engineer`
+- [ ] PR de `feat/sprint-1` para `main` aprovado e merged
 
 ---
 
-#### TASK-006: UI primitive components — StatusBadge, TripCounter, CoverPicker (Day 3)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-002 (specs lidas)
-**Parallel with**: TASK-005
-**Estimated**: 4h
-**Spec ref**: SPEC-001 §5.2 (Interactive Components), QA-SPEC-001 §10 (A11Y-008, A11Y-010, A11Y-011)
-
-**Description**: Implementar os componentes primitivos de UI da feature de trips.
-
-Arquivos a criar:
-- `src/components/features/trips/cover-picker.tsx` — Client Component com `role="radiogroup"`, cada opcao `role="radio"`, navegacao por arrow keys (A11Y-011). Props: `{ value: CoverGradient; onChange: (value: CoverGradient) => void }`. Os 8 gradientes: sunset, ocean, forest, desert, aurora, city, sakura, alpine.
-- `src/components/features/trips/trip-counter.tsx` — mostra "X de 20 viagens ativas". Quando X = 20, exibir em cor de erro. `aria-live="polite"` para atualizacoes dinamicas (A11Y-010). Props: `{ activeCount: number; limit: number }`.
-- `src/components/ui/status-badge.tsx` — badge de status com texto e cor correspondente ao `TripStatus`. Deve comunicar status por TEXTO, nao apenas por cor (A11Y-008). Props: `{ status: TripStatus }`.
-
-Estilos: usar Tailwind CSS 4 + CSS variables de design tokens. Seguir convencoes do shadcn/ui para composicao de classes.
-
-**Done when**:
-- `CoverPicker` aceita navegacao por arrow keys e seleciona com Space/Enter (E2E-010 step 9)
-- `CoverPicker` tem `role="radiogroup"` e cada opcao tem `role="radio"` com `aria-checked`
-- `StatusBadge` mostra o texto do status (nao apenas cor) — acessivel para leitores de tela
-- `TripCounter` tem `aria-live="polite"`
-- Componentes renderizam corretamente em viewport 375px (sem overflow horizontal)
-
----
-
-#### TASK-008: TripCard, TripGrid, TripHero, TripInfoHeader (Day 4)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-006 (StatusBadge, TripCounter prontos)
-**Parallel with**: TASK-007
-**Estimated**: 5h
-**Spec ref**: SPEC-001 §5.2 (TripCard, TripGrid), §5.3 (Component Tree), QA-SPEC-001 §10 (A11Y-007, A11Y-012)
-
-**Description**: Implementar os componentes de exibicao de trips com mock data.
-
-Arquivos a criar:
-- `src/components/features/trips/trip-card.tsx` — Client Component. Props: `{ trip: TripCardData; onArchive: (tripId: string) => void; onDelete: (tripId: string, title: string) => void }`. Renderiza: capa com gradiente e emoji, `StatusBadge`, titulo, destino, periodo, menu de contexto "...". Acessibilidade: `role="article"` ou `role="listitem"`, `aria-label` com detalhes da viagem (A11Y-007); botao "..." com `aria-label` descrevendo a viagem e `aria-haspopup="menu"` (A11Y-012).
-- `src/components/features/trips/trip-grid.tsx` — Server Component. Recebe lista de trips e renderiza grid de `TripCard`. Inclui `EmptyState` quando lista vazia (AC-009: texto "Criar minha primeira viagem").
-- `src/components/features/trips/trip-hero.tsx` — hero da pagina de detalhe com gradiente, emoji, titulo, `StatusBadge`. Props: `{ trip: TripDetailData }`.
-- `src/components/features/trips/trip-info-header.tsx` — exibe destino, periodo, contador de dias. Props: `{ destination: string; startDate: Date; endDate: Date }`.
-- `src/components/features/trips/itinerary-placeholder.tsx` — placeholder simples para US-002.
-
-Usar mock data para desenvolvimento isolado — o componente sera conectado ao service quando as paginas Server Component forem criadas (TASK-014).
-
-**Done when**:
-- `TripCard` renderiza com dados mock sem erros
-- `TripCard` exibe menu de contexto funcional (abre/fecha)
-- `TripGrid` exibe `EmptyState` quando lista e vazia
-- Todos os componentes renderizam em viewport 375px sem scroll horizontal (AC-017)
-- `TripCard` tem `role="article"` e `aria-label` (A11Y-007)
-
----
-
-#### TASK-010: TripForm Client Component (Day 5)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-006 (CoverPicker pronto), TASK-005 (schemas Zod prontos — pode ser parallel com TASK-005 se schemas basicos estiverem disponíveis)
-**Parallel with**: TASK-009
-**Estimated**: 6h
-**Spec ref**: SPEC-001 §5.2 (TripForm), QA-SPEC-001 §10 (A11Y-002, A11Y-013 a A11Y-015), SPEC-001 §11.4 pitfall #2
-
-**Description**: Implementar o componente de formulario de criacao/edicao de trip.
-
-Arquivo a criar: `src/components/features/trips/trip-form.tsx`
-
-Props:
-```typescript
-interface TripFormProps {
-  mode: "create" | "edit";
-  defaultValues?: Partial<TripCreateInput>;
-  tripId?: string; // obrigatorio no modo "edit"
-}
-```
-
-Implementacao:
-- `"use client"` no topo
-- `useActionState(action, initialState)` — React 19 (NAO `useFormState` de experimental — SPEC-001 §11.4 pitfall #2)
-- `react-hook-form` + `zodResolver(TripCreateSchema | TripUpdateSchema)` conforme o modo
-- Validacao inline: erros exibidos abaixo de cada campo sem recarregar a pagina (AC-005)
-- Foco move para o primeiro campo com erro apos submit falhado (E2E-002 step 1, A11Y-009)
-- Submit: desabilita botoes e exibe spinner durante envio (E2E-001 step 7)
-- Campos: titulo (com contador de caracteres `aria-live="polite"`), destino, startDate, endDate, description, `CoverPicker`, preview da capa em tempo real
-
-Acessibilidade obrigatoria (QA-SPEC-001 §10):
-- Cada `<input>` tem `<label>` associada via `htmlFor`/`id` (A11Y-013)
-- Campos obrigatorios tem `aria-required="true"` (A11Y-014)
-- Campos com erro tem `aria-invalid="true"` e mensagem de erro linkada via `aria-describedby` (A11Y-015, A11Y-009)
-
-A action sera conectada nas paginas Server Component (TASK-014). Nesta task o formulario pode usar uma action mock/vazia para testes de UI isolada.
-
-**Done when**:
-- Formulario renderiza em modo "create" e "edit" (modo edit pre-preenche defaultValues)
-- Erros inline aparecem em cada campo sem reload (UV-003 a UV-019 verificaveis visualmente)
-- Foco move para primeiro campo com erro
-- Submit button mostra estado de loading
-- `aria-required`, `aria-invalid`, `aria-describedby` presentes em todos os campos (A11Y-013 a A11Y-015)
-- Formulario operavel completamente via teclado (Tab para navegar, Space/Enter para CoverPicker)
-
----
-
-#### TASK-012: ConfirmArchiveDialog + ConfirmDeleteDialog + cache keys (Day 6)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-002 (specs lidas)
-**Parallel with**: TASK-011
-**Estimated**: 4h
-**Spec ref**: SPEC-001 §5.2 (ConfirmArchiveDialog, ConfirmDeleteDialog), QA-SPEC-001 §10 (A11Y-005, A11Y-006)
-
-**Description**: Implementar os dialogs de confirmacao e completar as cache keys.
-
-Arquivos a criar:
-- `src/components/features/trips/confirm-archive-dialog.tsx` — Client Component. Props: `{ tripId: string; tripTitle: string; open: boolean; onClose: () => void }`. Usa `archiveTrip` Server Action. Acessibilidade: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, `aria-describedby` (A11Y-005); focus trap ativo quando aberto; Escape fecha sem arquivar.
-- `src/components/features/trips/confirm-delete-dialog.tsx` — Client Component. Props: `{ tripId: string; tripTitle: string; open: boolean; onClose: () => void }`. Botao "Excluir permanentemente" so fica habilitado quando campo de confirmacao == `tripTitle` (case-sensitive — E2E-005). Usa `deleteTrip` Server Action. Acessibilidade: `role="dialog"`, focus trap (A11Y-006).
-- `src/server/cache/keys.ts` — implementar `CacheKeys.tripsList`, `CacheKeys.tripsCount`, `CacheKeys.tripDetail` conforme SPEC-001 §9.2
-
-Nota sobre `confirmDeleteDialog`: a validacao de `confirmationTitle === trip.title` deve ser feita TANTO no client (para UX — habilitar/desabilitar botao) QUANTO no server via `TripService.deleteTrip` (para seguranca — a verificacao client-side nao e garantia de seguranca).
-
-**Done when**:
-- `ConfirmArchiveDialog` fecha com Escape sem executar a action (E2E-010)
-- `ConfirmDeleteDialog` mantem o botao desabilitado ate o campo de texto corresponder exatamente ao titulo (E2E-005 steps 4-5)
-- Ambos os dialogs tem focus trap ativo (A11Y-005, A11Y-006)
-- `CacheKeys` exporta as tres funcoes de cache key
-
----
-
-#### TASK-014: Paginas Server Components — /trips, /trips/new, /trips/[id], /trips/[id]/edit (Day 7)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-008 (TripCard, TripGrid prontos), TASK-010 (TripForm pronto), TASK-012 (dialogs prontos), TASK-011 (Server Actions prontas — necessario para conectar TripForm)
-**Parallel with**: TASK-013
-**Estimated**: 6h
-**Spec ref**: SPEC-001 §5.1 (Page Components), §5.3 (Component Tree), SPEC-001 §8 (Error Handling)
-
-**Description**: Implementar as quatro paginas Server Component da feature.
-
-Arquivos a criar:
-
-`src/app/(auth)/trips/page.tsx`:
-- Recebe `searchParams: { page?: string; status?: TripStatus }`
-- Chama `TripService.listTrips(userId, { page, status })` diretamente no server
-- Renderiza: `PageHeader` com `TripCounter` e botao "Nova viagem", `TabBar` de filtro, `TripGrid`, `Pagination`
-- Auth: middleware garante redirect se nao autenticado (AC-001)
-
-`src/app/(auth)/trips/new/page.tsx`:
-- Busca contagem de trips ativas para verificar limite antes de renderizar
-- Se limite atingido (>= 20): exibir `Alert` com link "Ver minhas viagens" e `Submit` desabilitado (AC-007, E2E-006)
-- Renderiza `TripForm` com `action={createTrip}` e `mode="create"`
-
-`src/app/(auth)/trips/[id]/page.tsx`:
-- Recebe `params: { id: string }`
-- Chama `TripService.getTripById(userId, params.id)` — lancara `NotFoundError` se nao encontrada ou de outro usuario
-- Renderiza: `TripHero`, `TripInfoHeader`, botoes de acao, `ConfirmArchiveDialog`, `ConfirmDeleteDialog`, `ItineraryPlaceholder`, `TripDescription`
-- Error boundary: `not-found.tsx` para NotFoundError com "Esta viagem nao existe ou foi excluida" + link "Voltar para Minhas Viagens"
-
-`src/app/(auth)/trips/[id]/edit/page.tsx`:
-- Chama `TripService.getTripById(userId, params.id)` com mesma verificacao de propriedade
-- Renderiza `TripForm` com `mode="edit"`, `defaultValues` pre-preenchidos, `action={updateTrip}`, `tripId`
-
-Criar tambem:
-- `src/app/(auth)/trips/not-found.tsx` — pagina 404 para trips nao encontradas
-- `src/app/(auth)/trips/error.tsx` — pagina de erro para erros inesperados
-
-**Done when**:
-- Todas as quatro paginas renderizam sem erros com dados reais do banco
-- `/trips` com 0 trips exibe `EmptyState` (AC-009)
-- `/trips/new` com usuario em 20 trips exibe alerta de limite (AC-007)
-- `/trips/[id]` com tripId de outro usuario exibe pagina 404 (E2E-009)
-- Todas as paginas tem middleware de auth ativo — redirect para `/login?callbackUrl=...` se nao autenticado (AC-001)
-
----
-
-#### TASK-016: E2E tests (Day 8)
-
-**Assigned to**: dev-fullstack-2
-**Depends on**: TASK-011 (Server Actions completas), TASK-013 (Redis cache integrado), TASK-014 (paginas prontas)
-**Parallel with**: TASK-015
-**Estimated**: 6h
-**Spec ref**: QA-SPEC-001 §5 (E2E Tests), §8 (Edge Cases), §10 (Accessibility, Mobile Viewport)
-
-**Description**: Implementar os testes E2E Playwright cobrindo os 10 critical flows.
-
-Arquivos a criar:
-- `tests/e2e/trips/trip-creation.spec.ts` — E2E-001 (happy path), E2E-002 (form validation), E2E-003 (edit trip)
-- `tests/e2e/trips/trip-management.spec.ts` — E2E-004 (archive), E2E-005 (delete com nome), E2E-006 (trip limit), E2E-007 (pagination)
-- `tests/e2e/trips/trip-security.spec.ts` — E2E-008 (auth enforcement), E2E-009 (ownership isolation BOLA)
-- `tests/e2e/accessibility/trips-a11y.spec.ts` — E2E-010 (keyboard accessibility), A11Y-001 a A11Y-015 via `@axe-core/playwright`
-- `tests/e2e/responsive/mobile-viewport.spec.ts` — AC-017: viewport 375px sem scroll horizontal
-- `tests/e2e/fixtures/auth.ts` — fixture de sessao autenticada (sem OAuth flow real)
-- `tests/e2e/fixtures/trips.ts` — fixture de trips pre-criadas para testes que precisam de dados existentes
-
-Estrategia para date pickers (QA-SPEC-001 §13 — risco de flakiness):
-- Usar `page.fill()` com string ISO ("2026-09-01") em vez de interagir com o calendario visual
-- Adicionar `data-testid` aos inputs de data para selecao estavel
-
-**Done when**:
-- Todos os 10 E2E flows (E2E-001 a E2E-010) passam no Chromium
-- E2E-009 (ownership isolation) passa — P0 security test
-- axe-core retorna zero violacoes WCAG 2.1 AA em todas as 4 paginas (A11Y-001 a A11Y-004)
-- Viewport 375px: scrollWidth <= clientWidth em `/trips` e `/trips/new` (AC-017)
-- Auth fixture nao usa credenciais reais — usa sessao sintetica
-
----
-
-### Shared / Sequential Tasks
-
-#### TASK-017: Final accessibility + mobile validation + performance check (Day 9)
-
-**Assigned to**: dev-fullstack-1 e dev-fullstack-2 (colaborativo)
-**Depends on**: TASK-015 (integration tests), TASK-016 (E2E tests)
-**Estimated**: 3h total (1.5h cada)
-**Spec ref**: QA-SPEC-001 §7 (Performance Targets), §8 (Accessibility), AC-015, AC-016, AC-017
-
-**Description**: Validacoes finais de acessibilidade, viewport mobile e performance.
-
-dev-fullstack-2:
-- Rodar axe-core scan em todas as 4 paginas e corrigir quaisquer violacoes restantes
-- Verificar tab order em `/trips` (header -> tabs -> cards -> pagination) e em `/trips/new` (todos os campos -> CoverPicker -> botao submit)
-- Testar focus trap em ambos os dialogs (archive e delete) — Escape deve fechar sem executar action
-- Verificar viewport 375px nas 4 paginas — sem scroll horizontal
-
-dev-fullstack-1:
-- Rodar `EXPLAIN ANALYZE` no PostgreSQL para as queries de `listTrips` e `getTripById` — confirmar que os indexes estao sendo usados (P95 < 50ms e < 20ms respectivamente — AC-015)
-- Verificar que `revalidatePath` e Redis invalidation estao ocorrendo corretamente apos cada mutacao
-- Rodar Lighthouse localmente para estimativa de FCP (meta < 1,500ms — AC-015)
-
-**Done when**:
-- Zero violacoes axe-core WCAG 2.1 AA em todas as 4 paginas
-- Focus trap funciona em ambos os dialogs
-- Viewport 375px: sem scroll horizontal em `/trips` e `/trips/new`
-- Index usage confirmado no PostgreSQL EXPLAIN ANALYZE
-- FCP estimado dentro do target (validacao final em staging pelo QA)
-
----
-
-### Full Task List Summary
-
-| Task ID | Titulo | Dev | Day | Paralelo? | Depende De |
-|---------|--------|-----|-----|-----------|------------|
-| TASK-001 | Read all specs + setup branch | dev-1 | 1 | Sim (TASK-002) | — |
-| TASK-002 | Read all specs + setup branch | dev-2 | 1 | Sim (TASK-001) | — |
-| TASK-003 | Prisma schema + migration + db.$extends | dev-1 | 2 | Sim (TASK-004) | TASK-001, TASK-004 |
-| TASK-004 | US-003 prerequisite + errors.ts + env.ts | dev-2 | 2 | Sim (TASK-003) | TASK-002 |
-| TASK-005 | Zod validation schemas + unit tests | dev-1 | 3 | Sim (TASK-006) | TASK-001 |
-| TASK-006 | StatusBadge + TripCounter + CoverPicker | dev-2 | 3 | Sim (TASK-005) | TASK-002 |
-| TASK-007 | TripService: createTrip + getTripById + listTrips | dev-1 | 4 | Sim (TASK-008) | TASK-003, TASK-005 |
-| TASK-008 | TripCard + TripGrid + TripHero + TripInfoHeader | dev-2 | 4 | Sim (TASK-007) | TASK-006 |
-| TASK-009 | TripService: updateTrip + archiveTrip + deleteTrip | dev-1 | 5 | Sim (TASK-010) | TASK-007 |
-| TASK-010 | TripForm Client Component | dev-2 | 5 | Sim (TASK-009) | TASK-006, TASK-005 |
-| TASK-011 | Server Actions: quatro actions | dev-1 | 6 | Sim (TASK-012) | TASK-007, TASK-009, TASK-005 |
-| TASK-012 | ConfirmArchiveDialog + ConfirmDeleteDialog + cache/keys.ts | dev-2 | 6 | Sim (TASK-011) | TASK-002 |
-| TASK-013 | Redis cache integration + invalidation | dev-1 | 7 | Sim (TASK-014) | TASK-007, TASK-009, TASK-012 |
-| TASK-014 | Paginas Server Components (4 paginas) | dev-2 | 7 | Sim (TASK-013) | TASK-008, TASK-010, TASK-012, TASK-011 |
-| TASK-015 | Integration tests | dev-1 | 8 | Sim (TASK-016) | TASK-011, TASK-013, TASK-014 |
-| TASK-016 | E2E tests (10 critical flows) | dev-2 | 8 | Sim (TASK-015) | TASK-011, TASK-013, TASK-014 |
-| TASK-017 | Accessibility + mobile + performance check | dev-1 + dev-2 | 9 | Nao | TASK-015, TASK-016 |
-| TASK-018 | Security verification (distribuido Days 4-8) | dev-1 | 4-8 | Sim | Cada task relevante |
-| TASK-019 | PR preparation + self-review checklist | dev-1 + dev-2 | 10 | Sim | TASK-017, TASK-018 |
-
----
-
-### Definition of Done — Sprint 1
-
-Nenhum PR pode ser mergeado ate que TODOS os itens abaixo estejam verificados:
-
-**Funcionalidade**
-- [ ] Todos os criterios de aceite AC-001 a AC-017 verificados por testes ou checagem manual
-- [ ] Todos os testes unitarios passam — cobertura >= 80% em `trip.service.ts` e `trip.schema.ts`
-- [ ] Todos os integration tests IT-001 a IT-008 passam contra PostgreSQL real (nao mock)
-- [ ] IT-007 (soft-delete middleware) passa com implementacao `db.$extends` — CR-003 satisfeito
-- [ ] Todos os 10 E2E flows (E2E-001 a E2E-010) passam no Chromium
-- [ ] E2E-009 (ownership isolation BOLA) passa — P0 security test
-
-**Seguranca — SEC-SPEC-001**
-- [ ] FIND-M-001 corrigido: nenhum `redirect()` esta dentro de try/catch em nenhuma Server Action (SR-001)
-- [ ] FIND-M-002 corrigido: `db.$extends` usado em `client.ts`, nao `db.$use` (SR-002)
-- [ ] SR-003: `auth()` e a primeira instrucao de cada uma das quatro Server Actions
-- [ ] SR-004: `hasAnalyticsConsent()` e verificado em `track()` antes de qualquer evento (CR-002)
-- [ ] SR-005: clausula `select` explicita em todas as queries Prisma do TripService
-- [ ] SR-006: `coverEmoji` validado com regex Unicode ou enum — nao apenas `.max(10)`
-- [ ] SR-007: `confirmationTitle` tem `.max(100)` no `TripDeleteSchema`
-- [ ] Testes SEC-T-001 a SEC-T-025 passam ou sao verificados em code review
-- [ ] CR-001: estrategia de rate limiting para Server Actions documentada em ADR ou architecture.md
-
-**Qualidade**
-- [ ] Zero violacoes axe-core WCAG 2.1 AA nas 4 paginas (A11Y-001 a A11Y-004)
-- [ ] Viewport 375px: sem scroll horizontal em `/trips` e `/trips/new` (AC-017)
-- [ ] FCP < 1,500ms em `/trips` confirmado em staging (AC-015)
-- [ ] `listTrips` DB query < 50ms P95 confirmado com EXPLAIN ANALYZE
-- [ ] Nenhum bug P0 ou P1 em aberto
-
-**Processo**
-- [ ] Nenhum commit direto em `main` — apenas via PR aprovado
-- [ ] Nenhuma credencial, segredo ou API key hardcoded no codigo
-- [ ] `import "server-only"` presente em todos os arquivos de `src/server/`
-- [ ] Code review aprovado pelo tech-lead com security checklist preenchida
-- [ ] OQ-003 resolvido na implementacao: `listTrips` usa `status` filter com default correto
-- [ ] OQ-005 resolvido: `db.$extends` confirmado e documentado com versao do Prisma
-
-> Ready to execute — todos os pre-requisitos de spec, QA, seguranca e release estao aprovados. Desenvolvimento pode comecar em 2026-02-23.
+*Plano elaborado pelo tech-lead em 2026-02-24 com base no user-story-map-v2.docx, docs/architecture.md e restricoes de seguranca de SEC-SPEC-001*
