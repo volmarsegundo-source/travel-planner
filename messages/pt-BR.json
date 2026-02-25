@@ -9,6 +9,8 @@
     "next": "Próximo",
     "skip": "Pular",
     "confirm": "Confirmar",
+    "continue": "Continuar",
+    "myTrips": "Minhas viagens",
     "error": "Ocorreu um erro. Tente novamente.",
     "success": "Operação realizada com sucesso."
   },
@@ -91,13 +93,27 @@
       "cta": "Criar primeira viagem"
     },
     "counter": "{count} de {max} viagens ativas",
+    "travelerSingular": "viajante",
+    "travelerPlural": "viajantes",
+    "period": "Período",
+    "budget": "Orçamento",
+    "confirmTrip": "Confirmar viagem",
+    "reviewDetails": "Revise os detalhes antes de gerar o plano.",
+    "selectTravelStyle": "Qual é o seu estilo de viagem?",
+    "aiPersonalizes": "A IA vai personalizar o itinerário com base na sua escolha.",
+    "generatePlanWithAI": "Gerar plano com IA",
+    "generatingPlan": "Gerando seu plano...",
     "create": {
       "title": "Nova Viagem",
+      "titleLabel": "Nome da viagem",
+      "titlePlaceholder": "Ex.: Férias em Portugal",
       "destination": "Destino",
       "destinationPlaceholder": "Para onde você vai?",
       "startDate": "Data de ida",
       "endDate": "Data de volta",
       "travelers": "Viajantes",
+      "cardColor": "Cor do card",
+      "emoji": "Emoji (opcional)",
       "submit": "Criar viagem"
     },
     "status": {
@@ -114,9 +130,21 @@
     },
     "errors": {
       "limitReached": "Você atingiu o limite de 20 viagens ativas. Archive ou exclua uma viagem para continuar.",
+      "createFailed": "Erro ao criar viagem.",
+      "aiConnectionError": "Erro ao conectar com a IA. Tente novamente.",
       "notFound": "Viagem não encontrada.",
       "notAuthorized": "Você não tem permissão para acessar esta viagem."
     }
+  },
+  "itinerary": {
+    "title": "Itinerário",
+    "practiceTips": "Dicas práticas",
+    "editItinerary": "Editar itinerário",
+    "generateChecklist": "Gerar checklist de viagem",
+    "addActivity": "Adicionar atividade",
+    "dragActivity": "Arrastar atividade",
+    "deleteActivity": "Excluir {title}",
+    "dayFallback": "Dia {number}"
   },
   "checklist": {
     "title": "Checklist de Viagem",
@@ -129,7 +157,10 @@
       "OTHER": "Outros"
     },
     "addItem": "Adicionar item",
-    "generate": "Gerar checklist com IA"
+    "generate": "Gerar checklist com IA",
+    "newItemPlaceholder": "Novo item...",
+    "required": "obrigatório",
+    "itemsProgress": "{checked} de {total} itens"
   },
   "errors": {
     "generic": "Algo deu errado. Tente novamente.",

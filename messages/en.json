@@ -9,6 +9,8 @@
     "next": "Next",
     "skip": "Skip",
     "confirm": "Confirm",
+    "continue": "Continue",
+    "myTrips": "My trips",
     "error": "An error occurred. Please try again.",
     "success": "Operation completed successfully."
   },
@@ -91,13 +93,27 @@
       "cta": "Create first trip"
     },
     "counter": "{count} of {max} active trips",
+    "travelerSingular": "traveler",
+    "travelerPlural": "travelers",
+    "period": "Period",
+    "budget": "Budget",
+    "confirmTrip": "Confirm trip",
+    "reviewDetails": "Review the details before generating your plan.",
+    "selectTravelStyle": "What is your travel style?",
+    "aiPersonalizes": "AI will personalize the itinerary based on your choice.",
+    "generatePlanWithAI": "Generate plan with AI",
+    "generatingPlan": "Generating your plan...",
     "create": {
       "title": "New Trip",
+      "titleLabel": "Trip name",
+      "titlePlaceholder": "E.g.: Vacation in Portugal",
       "destination": "Destination",
       "destinationPlaceholder": "Where are you going?",
       "startDate": "Departure date",
       "endDate": "Return date",
       "travelers": "Travelers",
+      "cardColor": "Card color",
+      "emoji": "Emoji (optional)",
       "submit": "Create trip"
     },
     "status": {
@@ -114,9 +130,21 @@
     },
     "errors": {
       "limitReached": "You have reached the limit of 20 active trips. Archive or delete a trip to continue.",
+      "createFailed": "Error creating trip.",
+      "aiConnectionError": "Error connecting to AI. Please try again.",
       "notFound": "Trip not found.",
       "notAuthorized": "You do not have permission to access this trip."
     }
+  },
+  "itinerary": {
+    "title": "Itinerary",
+    "practiceTips": "Practical tips",
+    "editItinerary": "Edit itinerary",
+    "generateChecklist": "Generate travel checklist",
+    "addActivity": "Add activity",
+    "dragActivity": "Drag activity",
+    "deleteActivity": "Delete {title}",
+    "dayFallback": "Day {number}"
   },
   "checklist": {
     "title": "Travel Checklist",
@@ -129,7 +157,10 @@
       "OTHER": "Other"
     },
     "addItem": "Add item",
-    "generate": "Generate checklist with AI"
+    "generate": "Generate checklist with AI",
+    "newItemPlaceholder": "New item...",
+    "required": "required",
+    "itemsProgress": "{checked} of {total} items"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

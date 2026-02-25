@@ -154,7 +154,7 @@ export function ChecklistView({ categories, tripDestination }: ChecklistViewProp
       <div className="mb-6 rounded-xl bg-white p-4 shadow-sm">
         <div className="mb-2 flex items-center justify-between text-sm">
           <span className="font-medium text-gray-700">
-            {checkedItems} de {totalItems} itens
+            {t("itemsProgress", { checked: checkedItems, total: totalItems })}
           </span>
           <span className="font-semibold text-orange-600">{progress}%</span>
         </div>
@@ -236,13 +236,13 @@ export function ChecklistView({ categories, tripDestination }: ChecklistViewProp
                           : "text-gray-700",
                     )}
                     aria-label={`Item: ${item.text}`}
-                    placeholder="Novo item..."
+                    placeholder={t("newItemPlaceholder")}
                   />
 
                   {/* Required badge */}
                   {item.required && !item.checked && (
                     <span className="shrink-0 rounded-full bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600">
-                      obrigatório
+                      {t("required")}
                     </span>
                   )}
 

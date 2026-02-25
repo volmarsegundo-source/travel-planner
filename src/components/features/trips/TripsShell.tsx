@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { TripGrid } from "./TripGrid";
 import { CreateTripModal } from "./CreateTripModal";
+import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import type { TripSummary } from "@/types/trip.types";
 
 interface TripsShellProps {
@@ -22,8 +23,9 @@ export function TripsShell({ trips, total }: TripsShellProps) {
 
   return (
     <>
-      <header className="mb-8">
+      <header className="mb-8 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+        <LanguageSwitcher />
       </header>
 
       <TripGrid

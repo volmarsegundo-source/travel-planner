@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Sparkles, ArrowLeft, Loader2, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryDayCard } from "./ItineraryDayCard";
@@ -15,6 +16,8 @@ interface ItineraryViewProps {
 
 export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
   const router = useRouter();
+  const t = useTranslations("itinerary");
+  const tCommon = useTranslations("common");
   const [generatingChecklist, setGeneratingChecklist] = useState(false);
   const [checklistError, setChecklistError] = useState<string | null>(null);
 
@@ -42,7 +45,7 @@ export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
         className="mb-6 flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700"
       >
         <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        Minhas viagens
+        {tCommon("myTrips")}
       </button>
 
       {/* Plan header */}
@@ -78,7 +81,7 @@ export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
       {plan.tips && plan.tips.length > 0 && (
         <div className="mt-6 rounded-xl bg-blue-50 p-5">
           <h2 className="mb-3 text-sm font-semibold text-blue-800">
-            Dicas práticas
+            {t("practiceTips")}
           </h2>
           <ul className="space-y-1.5">
             {plan.tips.map((tip, i) => (
@@ -98,7 +101,7 @@ export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
           onClick={() => router.push(`/trips/${tripId}/edit`)}
         >
           <Edit2 className="mr-2 h-4 w-4" aria-hidden="true" />
-          Editar itinerário
+          {t("editItinerary")}
         </Button>
       </div>
 
@@ -119,7 +122,7 @@ export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
           ) : (
             <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
           )}
-          Gerar checklist de viagem
+          {t("generateChecklist")}
         </Button>
       </div>
     </div>
