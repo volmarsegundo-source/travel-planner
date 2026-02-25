@@ -159,3 +159,22 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 - **Copyright**: only MIT, Apache 2.0, BSD, or ISC licensed dependencies
 - **Bias**: all outputs must be inclusive, fair, and free of discriminatory logic
 - **Privacy**: PII must be encrypted — never logged or exposed in API responses
+
+### 🔴 SPRINT COMPLETION RULE (mandatory, no exceptions)
+
+After the last task of any sprint is committed, **automatically run `/sprint-review <N>`** before starting the next sprint. This is not optional.
+
+- The `/sprint-review` command runs tech-lead + architect + security-specialist in parallel
+- Results are written to `docs/review-sprint-N.md`
+- **Next sprint CANNOT start if any CRITICAL issue is open**
+- If the review returns BLOCK status, all CRITICAL issues must be resolved and re-reviewed before Sprint N+1 begins
+- The sprint number (`<N>`) must match the sprint just completed (e.g., `/sprint-review 1` after Sprint 1)
+
+### 🔴 DEPLOY GATE RULE (mandatory before any production deploy)
+
+Before any production deploy, **run `/deploy-checklist vX.X.X`** (using the semantic version being deployed).
+
+- The `/deploy-checklist` command runs security + QA + devops + architect in parallel
+- Results are written to `docs/deploy-checklist-vX.X.X.md`
+- **Deploy is BLOCKED if any agent returns CRITICAL**
+- The security-specialist has final release authority
