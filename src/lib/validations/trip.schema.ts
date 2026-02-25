@@ -20,7 +20,8 @@ export const TravelStyleEnum = z.enum([
   "GASTRONOMY",
 ]);
 
-export const TripCreateSchema = z.object({
+// Base schema without refinements so .partial() works in TripUpdateSchema (Zod v4)
+const TripCreateBaseSchema = z.object({
   title: z
     .string()
     .min(1, "Nome da viagem é obrigatório")
@@ -42,7 +43,9 @@ export const TripCreateSchema = z.object({
     .max(10)
     .regex(/^\p{Emoji}/u, "Deve ser um emoji válido")
     .optional(),
-}).refine(
+});
+
+export const TripCreateSchema = TripCreateBaseSchema.refine(
   (d) => {
     if (d.startDate && d.endDate) return d.startDate <= d.endDate;
     return true;
@@ -50,7 +53,7 @@ export const TripCreateSchema = z.object({
   { message: "Data de volta deve ser após a data de ida", path: ["endDate"] },
 );
 
-export const TripUpdateSchema = TripCreateSchema.partial().extend({
+export const TripUpdateSchema = TripCreateBaseSchema.partial().extend({
   status: z
     .enum(["PLANNING", "ACTIVE", "COMPLETED", "ARCHIVED"])
     .optional(),
