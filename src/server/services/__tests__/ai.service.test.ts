@@ -8,6 +8,9 @@ const { mockRedis, mockCreate } = vi.hoisted(() => {
   return { mockRedis, mockCreate };
 });
 
+vi.mock("@/lib/env", () => ({
+  env: { ANTHROPIC_API_KEY: "test-key" },
+}));
 vi.mock("@/server/cache/client", () => ({ redis: mockRedis }));
 vi.mock("@/server/cache/keys", () => ({
   CacheKeys: {

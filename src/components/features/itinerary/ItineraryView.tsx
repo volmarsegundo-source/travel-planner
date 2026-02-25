@@ -7,6 +7,7 @@ import { Sparkles, ArrowLeft, Loader2, Edit2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryDayCard } from "./ItineraryDayCard";
 import { generateTripChecklist } from "@/server/actions/ai.actions";
+import { saveChecklist } from "@/server/actions/checklist.actions";
 import type { ItineraryPlan } from "@/types/ai.types";
 
 interface ItineraryViewProps {
@@ -33,6 +34,12 @@ export function ItineraryView({ tripId, plan }: ItineraryViewProps) {
     }
 
     sessionStorage.setItem(`checklist:${tripId}`, JSON.stringify(result.data));
+
+    // Persist checklist to DB (fire-and-forget; sessionStorage is the fallback)
+    saveChecklist(tripId, result.data).catch((err: unknown) => {
+      console.error("[ItineraryView] Failed to persist checklist to DB:", err);
+    });
+
     router.push(`/trips/${tripId}/checklist`);
   }
 

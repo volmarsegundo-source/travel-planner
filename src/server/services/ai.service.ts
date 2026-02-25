@@ -1,6 +1,7 @@
 import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from "crypto";
+import { env } from "@/lib/env";
 import { redis } from "@/server/cache/client";
 import { CacheKeys, CacheTTL } from "@/server/cache/keys";
 import type {
@@ -11,7 +12,7 @@ import type {
 } from "@/types/ai.types";
 
 const client = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
+  apiKey: env.ANTHROPIC_API_KEY,
 });
 
 // ── Helpers ────────────────────────────────────────────────────────────────

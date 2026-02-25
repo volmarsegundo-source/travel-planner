@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { db } from "@/server/db/client";
 import {
   hashPassword,
@@ -17,11 +18,26 @@ import {
   ResetPasswordSchema,
   type RegisterInput,
 } from "@/lib/validations/user.schema";
+import { checkRateLimit } from "@/server/lib/rate-limit";
+import { CacheKeys, RateLimit } from "@/server/cache/keys";
 
 export async function registerUser(data: RegisterInput) {
   const parsed = RegisterSchema.safeParse(data);
   if (!parsed.success) {
     return { success: false as const, error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  const rl = await checkRateLimit(
+    CacheKeys.rateAuth(ip),
+    RateLimit.AUTH_MAX,
+    RateLimit.AUTH_WINDOW,
+  );
+  if (!rl.allowed) {
+    return {
+      success: false as const,
+      error: "Muitas tentativas. Tente novamente em alguns minutos.",
+    };
   }
 
   const { email, password } = parsed.data;
@@ -73,6 +89,19 @@ export async function requestPasswordReset(formData: FormData) {
   const parsed = ForgotPasswordSchema.safeParse({ email });
   if (!parsed.success) {
     return { success: false as const, error: parsed.error.issues[0]?.message ?? "E-mail inválido." };
+  }
+
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  const rl = await checkRateLimit(
+    CacheKeys.rateAuth(ip),
+    RateLimit.AUTH_MAX,
+    RateLimit.AUTH_WINDOW,
+  );
+  if (!rl.allowed) {
+    return {
+      success: false as const,
+      error: "Muitas tentativas. Tente novamente em alguns minutos.",
+    };
   }
 
   try {

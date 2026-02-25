@@ -6,6 +6,8 @@ import {
   generateTravelPlan,
   generateChecklist,
 } from "@/server/services/ai.service";
+import { checkRateLimit } from "@/server/lib/rate-limit";
+import { CacheKeys, RateLimit } from "@/server/cache/keys";
 import type { ItineraryPlan, ChecklistCategory } from "@/types/ai.types";
 
 type AiActionResult<T> =
@@ -20,6 +22,20 @@ export async function generateTripPlan(
   const session = await auth();
   if (!session?.user?.id)
     return { success: false, error: "Não autorizado.", code: "UNAUTHORIZED" };
+
+  const userId = session.user.id;
+  const rl = await checkRateLimit(
+    CacheKeys.rateAiPlan(userId),
+    RateLimit.AI_PLAN_MAX,
+    RateLimit.AI_PLAN_WINDOW,
+  );
+  if (!rl.allowed) {
+    return {
+      success: false,
+      error: "Limite de geração atingido. Tente novamente em 1 hora.",
+      code: "RATE_LIMITED",
+    };
+  }
 
   const tripResult = await getUserTripById(tripId);
   if (!tripResult.success)
@@ -58,6 +74,20 @@ export async function generateTripChecklist(
   const session = await auth();
   if (!session?.user?.id)
     return { success: false, error: "Não autorizado.", code: "UNAUTHORIZED" };
+
+  const userId = session.user.id;
+  const rl = await checkRateLimit(
+    CacheKeys.rateAiChecklist(userId),
+    RateLimit.AI_CHECKLIST_MAX,
+    RateLimit.AI_CHECKLIST_WINDOW,
+  );
+  if (!rl.allowed) {
+    return {
+      success: false,
+      error: "Limite de geração atingido. Tente novamente em 1 hora.",
+      code: "RATE_LIMITED",
+    };
+  }
 
   const tripResult = await getUserTripById(tripId);
   if (!tripResult.success)

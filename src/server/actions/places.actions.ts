@@ -21,7 +21,7 @@ export async function searchPlaces(
     return { success: false, error: "Não autorizado." };
 
   const trimmed = input.trim();
-  if (trimmed.length < 2)
+  if (trimmed.length < 2 || trimmed.length > 100)
     return { success: true, data: [] };
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;

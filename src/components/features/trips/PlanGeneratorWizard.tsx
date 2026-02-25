@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { generateTripPlan } from "@/server/actions/ai.actions";
+import { saveItineraryPlan } from "@/server/actions/itinerary.actions";
 import type { TripSummary } from "@/types/trip.types";
 
 type TravelStyle = "ADVENTURE" | "CULTURE" | "RELAXATION" | "GASTRONOMY";
@@ -89,11 +90,16 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
         return;
       }
 
-      // Store plan in sessionStorage so itinerary page can read it
+      // Store plan in sessionStorage so itinerary page can read it immediately
       sessionStorage.setItem(
         `plan:${trip.id}`,
         JSON.stringify(result.data),
       );
+
+      // Persist plan to DB (fire-and-forget; sessionStorage is the immediate fallback)
+      saveItineraryPlan(trip.id, result.data).catch((err: unknown) => {
+        console.error("[PlanGeneratorWizard] Failed to persist plan to DB:", err);
+      });
 
       router.push(`/trips/${trip.id}/itinerary`);
     } catch {

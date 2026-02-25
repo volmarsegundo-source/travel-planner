@@ -1,7 +1,7 @@
 # Travel Planner — Architecture Documentation
 
-**Version**: 1.0.0
-**Last Updated**: 2026-02-23
+**Version**: 1.1.0
+**Last Updated**: 2026-02-25
 **Author**: architect
 **Status**: Active
 
@@ -103,6 +103,8 @@ shadcn/ui provê componentes acessíveis (WCAG 2.1 AA via Radix primitives) sem 
 | Vitest | Jest | Vitest é significativamente mais rápido (nativo Vite); API compatível com Jest |
 | Playwright | Cypress | Playwright suporta múltiplos browsers; melhor CI performance; sem limitações de HTTP |
 
+> **UPDATE (Sprint 1)**: TanStack Query v5 was NOT adopted in Sprint 1. Server Actions with `revalidatePath` / `revalidateTag` provide sufficient cache invalidation for the current read/write patterns. TanStack Query will be reconsidered when client-side optimistic updates are needed (Sprint 2B+). The `server/` layer boundary still applies — services are not called directly from components.
+
 ### Consequences
 
 **Positive**:
@@ -150,6 +152,141 @@ Monolito modular com separação clara de camadas via pasta `src/`. Serviços s�
 **Positive**: Deploys simples, sem overhead de orquestração, desenvolvimento ágil.
 **Negative / Trade-offs**: Requer disciplina de módulos — business logic nunca diretamente nos Server Components/Route Handlers.
 **Risks**: Se a equipe crescer para 10+ devs, a fronteira de módulos precisará ser revisitada.
+
+---
+
+## ADR-003: sessionStorage Handoff for AI-Generated Content
+
+**Date**: 2026-02-25
+**Status**: Accepted (temporary — migration to PostgreSQL in Sprint 2)
+**Deciders**: architect, tech-lead
+
+### Context
+
+The AI plan and checklist generation (T-007, T-008, T-010, T-011) needed a fast path from generation to display without requiring an additional DB round-trip. In Sprint 1, the generated data was stored in `sessionStorage` and read on the next page.
+
+### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| sessionStorage handoff | Zero latency for generation → display; no extra DB write in the hot path | Data lost on page refresh; only works in same browser tab; not durable |
+| DB write before redirect | Durable; works across tabs and devices; consistent | Extra round-trip adds latency to generation response; more complex error handling |
+| URL query params | Simple, stateless | Not suitable for large JSON payloads; exposes generated content in browser history |
+
+### Decision
+
+Use `sessionStorage` as a page-to-page handoff mechanism for AI-generated content only. This is explicitly temporary. In Sprint 2, `saveItineraryPlan` and `saveChecklist` Server Actions will persist data to PostgreSQL. The sessionStorage read will remain as a fallback for offline/cached scenarios.
+
+### Consequences
+
+**Positive**:
+- Zero latency for the generation → display transition
+- No extra DB write in the hot path
+
+**Negative / Trade-offs**:
+- Data is lost on page refresh until Sprint 2 persistence is complete
+- Only works within the same browser tab
+
+**Migration**:
+- Sprint 2 implements `itinerary.service.saveItineraryPlan` + `checklist.service.saveChecklist`
+- Itinerary and checklist pages will prefer DB data over sessionStorage once persistence is in place
+- sessionStorage fallback remains for offline/cached scenarios
+
+---
+
+## ADR-004: AI Model Selection (claude-sonnet-4-6 vs claude-haiku-4-5)
+
+**Date**: 2026-02-25
+**Status**: Accepted
+**Deciders**: architect, dev-fullstack-1
+
+### Context
+
+Two different use cases for AI generation required different model trade-offs: full trip itinerary generation (high quality, complex structured JSON output) and travel checklist generation (simpler, faster, cost-sensitive). Using a single model for both would either over-spend on checklists or under-deliver quality on itineraries.
+
+### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| claude-sonnet-4-6 for both | Consistent quality; single model to maintain | ~10x more expensive for checklist; slower response for a simple list |
+| claude-haiku-4-5 for both | Cheapest; fastest | Quality insufficient for complex multi-day itinerary JSON |
+| sonnet for itinerary, haiku for checklist | Right-sized quality and cost per use case | Two models to manage; slightly more integration complexity |
+
+### Decision
+
+- `claude-sonnet-4-6` for `generateTravelPlan`: highest quality, complex multi-day structured JSON, 55s timeout
+- `claude-haiku-4-5-20251001` for `generateChecklist`: faster (~5s), cheaper (~10x), adequate for structured list output, 30s timeout
+
+**Cache strategy**: MD5 hash of `{destination}:{travelStyle}:{budgetRange}:{days}:{language}` with budget bucketed in R$500 increments (maximises cache hit rate). Checklist keyed by month (not exact date) for maximum reuse across trips to the same destination. TTL: 24h for both.
+
+### Consequences
+
+**Positive**:
+- Itinerary quality is maximised where it matters most to the user
+- Checklist generation is ~10x cheaper and ~10x faster than using sonnet
+- Cache bucketing strategy significantly increases hit rate
+
+**Negative / Trade-offs**:
+- Two different model versions to track for updates and deprecation notices
+- haiku model ID includes a date suffix (`20251001`) — must be updated when a new version is released
+
+**Risks**:
+- Model version pinning (`claude-haiku-4-5-20251001`) may become deprecated; set a reminder to review model versions at each sprint planning
+
+---
+
+## ADR-005: Credentials Authentication — password field in User model
+
+**Date**: 2026-02-25
+**Status**: Accepted (replaces Sprint 1 Redis workaround)
+**Deciders**: architect, security-specialist
+
+### Context
+
+Sprint 1 stored the password hash in Redis (`pwd:{email}`, TTL 30d) because the `User` model lacked a `password` column. This was flagged as CRITICAL in `/sprint-review 1` (CWE-312 / OWASP A02:2021 Cryptographic Failures). Storing credential hashes in Redis is architecturally incorrect — Redis is a cache/session store, not a credential store. Password hashes have no valid TTL: a 30-day expiry would silently log users out and creates a window where old password hashes persist after a reset.
+
+### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| Add `password String?` to User model in PostgreSQL | ACID guarantees; no TTL expiry; audit trail via Prisma migrations; correct separation of concerns | Requires a migration; nullable field adds schema complexity |
+| Keep Redis with no TTL | Avoids migration | Redis is not durable by default; no ACID; still architecturally incorrect; does not fix CWE-312 |
+| Separate credentials table | Maximum isolation of auth data | Over-engineering for MVP; adds a join to every auth check |
+
+### Decision
+
+Add `password String?` to the `User` model in `prisma/schema.prisma`. The field is nullable to support OAuth-only users (Google) who have no password. The `confirmPasswordReset` and `registerUser` flows write to this DB field. The `authorize` callback in `src/lib/auth.ts` reads from DB. No password data is stored in Redis.
+
+```prisma
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  emailVerified DateTime?
+  image         String?
+  password      String?   // bcrypt hash — null for OAuth-only users
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+}
+```
+
+### Consequences
+
+**Positive**:
+- Password hash lives in PostgreSQL with full ACID guarantees
+- No TTL expiry risk — credentials are permanent until explicitly changed
+- Audit trail via Prisma migrations (schema change is reviewable in code)
+- Correct separation: Redis holds sessions, PostgreSQL holds credentials
+
+**Negative / Trade-offs**:
+- Requires a migration: `npx prisma migrate dev --name add-user-password`
+- The Sprint 1 Redis workaround (`pwd:{email}` keys) must be explicitly deleted during migration rollout to avoid stale data
+
+**Critical constraint**: The `password` field MUST be excluded from `select` in all non-auth queries. Only `src/lib/auth.ts` and `src/server/services/auth.service.ts` are permitted to read this field. All other service queries must use an explicit `select` that omits `password`.
+
+**Risks**:
+- Developer accidentally includes `password` in a User select — mitigated by code review checklist and ESLint custom rule (to be added)
 
 ---
 
@@ -780,3 +917,4 @@ Docker Compose services:
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0.0 | 2026-02-23 | architect | Initial architecture — ADR-001, ADR-002, system design, conventions |
+| 1.1.0 | 2026-02-25 | architect | ADR-003 (sessionStorage handoff), ADR-004 (AI model selection), ADR-005 (credentials password field); ADR-001 updated: TanStack Query deferred to Sprint 2B+ |
