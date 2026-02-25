@@ -106,6 +106,12 @@
       "COMPLETED": "Concluída",
       "ARCHIVED": "Arquivada"
     },
+    "style": {
+      "adventure": "Aventura",
+      "culture": "Cultura",
+      "relaxation": "Relaxamento",
+      "gastronomy": "Gastronomia"
+    },
     "errors": {
       "limitReached": "Você atingiu o limite de 20 viagens ativas. Archive ou exclua uma viagem para continuar.",
       "notFound": "Viagem não encontrada.",

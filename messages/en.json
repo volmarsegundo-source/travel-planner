@@ -106,6 +106,12 @@
       "COMPLETED": "Completed",
       "ARCHIVED": "Archived"
     },
+    "style": {
+      "adventure": "Adventure",
+      "culture": "Culture",
+      "relaxation": "Relaxation",
+      "gastronomy": "Gastronomy"
+    },
     "errors": {
       "limitReached": "You have reached the limit of 20 active trips. Archive or delete a trip to continue.",
       "notFound": "Trip not found.",
