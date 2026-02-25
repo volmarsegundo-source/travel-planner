@@ -290,6 +290,47 @@ model User {
 
 ---
 
+## ADR-006: Hard-Delete on AI Plan/Checklist Regeneration
+
+**Date**: 2026-02-25
+**Status**: Accepted (exception to soft-delete rule)
+**Deciders**: architect, security-specialist
+**Related**: ADR-001, Sprint 2 Review CRITICAL-1
+
+### Context
+
+`saveItineraryPlan` and `saveChecklist` use `deleteMany` (hard delete) inside their transactions before re-creating rows from a new AI generation. This was flagged as a CRITICAL violation of ADR-001's soft-delete rule in `/sprint-review 2`. The review raised two concerns: (1) breaking the GDPR erasure audit trail and (2) eliminating the soft-delete pattern for user-owned models.
+
+`ItineraryDay` does **not** have a `deletedAt` field, and its `@@unique([tripId, dayNumber])` constraint prevents duplicate day numbers per trip. Adding soft-delete to `ItineraryDay` would require: adding `deletedAt DateTime?`, removing the unique constraint (since re-generated days share the same `dayNumber`), and a full Prisma migration — scope that exceeds the fix window.
+
+### Decision
+
+Retain hard-delete (`deleteMany`) in `saveItineraryPlan` and `saveChecklist`. This is a **justified exception** to the soft-delete rule, under the following conditions:
+
+1. **Scope is AI-generated content only** — `saveItineraryPlan` and `saveChecklist` are called exclusively when the user triggers AI re-generation. They must not be used for user-initiated deletions.
+2. **GDPR compliance path is via FK cascade** — `ItineraryDay` and `ChecklistItem` have `onDelete: Cascade` FK to `Trip`. When a user requests account deletion, `Trip.deletedAt` is set → the purge job hard-deletes the `Trip` row → FK cascade destroys all child `ItineraryDay`, `Activity`, and `ChecklistItem` rows. This cascade IS the erasure mechanism for these models. Hard-deleting AI content on regeneration reduces the data volume subject to erasure — it does not create an erasure gap.
+3. **User-edited activities use soft-delete** — Individual `deleteActivity` and `deleteChecklistItem` (user-initiated removals) use `deletedAt`. If a future sprint allows users to edit activities before re-generation, those edits must be snapshotted to a history table before `saveItineraryPlan` overwrites them. This requirement is documented here as a **pre-condition for implementing user-editable activities**.
+4. **Not equivalent to user data deletion** — AI-generated content is system output derived from trip metadata (dates, destination, travelers). It is not "personal data provided by the data subject" under GDPR Art. 17(1)(a). The source trip metadata is preserved in the `Trip` model.
+
+### Consequences
+
+**Positive**:
+- No schema migration required for `ItineraryDay`
+- Clean re-generation semantics: new AI plan completely replaces old one with no orphaned rows
+- The `@@unique([tripId, dayNumber])` constraint remains valid and prevents duplicate days
+
+**Negative / Constraints**:
+- Activity history is not preserved across re-generations (user loses previous AI plan on regeneration)
+- If user-authored activity edits are added in a future sprint, this ADR must be revisited before implementing that feature
+- Erasure audit trail cannot distinguish "replaced by regeneration" from "never existed" for ItineraryDay rows — accepted risk documented here
+
+**Required actions before removing this exception**:
+- Add `deletedAt DateTime?` to `ItineraryDay` schema + migration
+- Remove `@@unique([tripId, dayNumber])` and replace with `@@index([tripId, dayNumber])` or a partial unique constraint
+- Update `saveItineraryPlan` to soft-delete + the `assertOwnership` and `getItineraryPlan` queries to filter `deletedAt: null` on `ItineraryDay`
+
+---
+
 ## System Architecture
 
 ### High-Level Architecture

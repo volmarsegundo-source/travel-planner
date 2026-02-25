@@ -103,6 +103,15 @@
     "aiPersonalizes": "A IA vai personalizar o itinerário com base na sua escolha.",
     "generatePlanWithAI": "Gerar plano com IA",
     "generatingPlan": "Gerando seu plano...",
+    "destination": "Destino",
+    "travelers": "Viajantes",
+    "styleAriaLabel": "Estilo de viagem",
+    "loadingMessages": {
+      "1": "Analisando o destino...",
+      "2": "Montando o itinerário...",
+      "3": "Selecionando as melhores atrações...",
+      "4": "Finalizando o plano de viagem..."
+    },
     "create": {
       "title": "Nova Viagem",
       "titleLabel": "Nome da viagem",

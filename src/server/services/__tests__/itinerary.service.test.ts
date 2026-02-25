@@ -321,7 +321,7 @@ describe("getItineraryPlan", () => {
     expect(result!.days[0]!.activities[0]!.estimatedCost).toBe(25);
   });
 
-  it("queries with deletedAt: null on activities (BOLA-safe)", async () => {
+  it("queries with explicit select and deletedAt: null on activities (SR-005 + BOLA-safe)", async () => {
     mockTrip.findUnique.mockResolvedValue({ id: TRIP_ID });
     mockItineraryDay.findMany.mockResolvedValue([]);
 
@@ -330,7 +330,7 @@ describe("getItineraryPlan", () => {
     expect(mockItineraryDay.findMany).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { tripId: TRIP_ID },
-        include: expect.objectContaining({
+        select: expect.objectContaining({
           activities: expect.objectContaining({
             where: { deletedAt: null },
           }),
@@ -449,7 +449,8 @@ describe("reorderActivities", () => {
       { id: "act-1", day: { tripId: TRIP_ID } },
       { id: "act-2", day: { tripId: TRIP_ID } },
     ]);
-    mockActivity.update.mockResolvedValue({});
+    mockItineraryDay.findMany.mockResolvedValue([]);
+    mockActivity.update.mockResolvedValue({ id: "act-1" });
   });
 
   it("throws FORBIDDEN when trip not owned by user", async () => {
@@ -475,5 +476,39 @@ describe("reorderActivities", () => {
     await reorderActivities(TRIP_ID, USER_ID, updates);
 
     expect(mockTransaction).toHaveBeenCalled();
+  });
+
+  it("throws FORBIDDEN when a target dayId does not belong to the trip", async () => {
+    const crossDayUpdates = [{ id: "act-1", orderIndex: 0, dayId: "other-day" }];
+    mockItineraryDay.findMany.mockResolvedValue([
+      { id: "other-day", tripId: "other-trip" },
+    ]);
+
+    await expect(reorderActivities(TRIP_ID, USER_ID, crossDayUpdates)).rejects.toMatchObject({
+      code: "FORBIDDEN",
+    });
+  });
+
+  it("updates dayId when a valid target day is provided (cross-day move)", async () => {
+    const TARGET_DAY = "day-999";
+    const crossDayUpdates = [{ id: "act-1", orderIndex: 0, dayId: TARGET_DAY }];
+    // Only one activity in this batch — override the beforeEach mock
+    mockActivity.findMany.mockResolvedValue([{ id: "act-1", day: { tripId: TRIP_ID } }]);
+    mockItineraryDay.findMany.mockResolvedValue([{ id: TARGET_DAY, tripId: TRIP_ID }]);
+
+    await reorderActivities(TRIP_ID, USER_ID, crossDayUpdates);
+
+    expect(mockActivity.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ dayId: TARGET_DAY, orderIndex: 0 }),
+      }),
+    );
+  });
+
+  it("does not set dayId when not provided (same-day reorder)", async () => {
+    await reorderActivities(TRIP_ID, USER_ID, updates);
+
+    const firstCall = mockActivity.update.mock.calls[0] as [{ data: { dayId?: string } }];
+    expect(firstCall[0].data.dayId).toBeUndefined();
   });
 });

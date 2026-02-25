@@ -103,6 +103,15 @@
     "aiPersonalizes": "AI will personalize the itinerary based on your choice.",
     "generatePlanWithAI": "Generate plan with AI",
     "generatingPlan": "Generating your plan...",
+    "destination": "Destination",
+    "travelers": "Travelers",
+    "styleAriaLabel": "Travel style",
+    "loadingMessages": {
+      "1": "Analyzing the destination...",
+      "2": "Building the itinerary...",
+      "3": "Selecting the best attractions...",
+      "4": "Finalizing the travel plan..."
+    },
     "create": {
       "title": "New Trip",
       "titleLabel": "Trip name",

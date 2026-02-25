@@ -105,7 +105,7 @@ export async function deleteActivity(
 
 export async function reorderActivities(
   tripId: string,
-  updates: Array<{ id: string; orderIndex: number; dayNumber?: number }>,
+  updates: Array<{ id: string; orderIndex: number; dayId?: string }>,
 ): Promise<ActionResult> {
   const session = await auth();
   if (!session?.user?.id)

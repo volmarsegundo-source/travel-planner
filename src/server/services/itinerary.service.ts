@@ -84,10 +84,23 @@ export async function getItineraryPlan(
   const days = await db.itineraryDay.findMany({
     where: { tripId },
     orderBy: { dayNumber: "asc" },
-    include: {
+    select: {
+      id: true,
+      dayNumber: true,
+      date: true,
+      title: true,
       activities: {
         where: { deletedAt: null },
         orderBy: { orderIndex: "asc" },
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          startTime: true,
+          type: true,
+          estimatedCost: true,
+          orderIndex: true,
+        },
       },
     },
   });
@@ -210,7 +223,7 @@ export async function deleteActivity(
 export async function reorderActivities(
   tripId: string,
   userId: string,
-  updates: Array<{ id: string; orderIndex: number; dayNumber?: number }>,
+  updates: Array<{ id: string; orderIndex: number; dayId?: string }>,
 ): Promise<void> {
   await assertOwnership(tripId, userId);
 
@@ -228,18 +241,32 @@ export async function reorderActivities(
     throw error;
   }
 
-  await db.$transaction(
-    updates.map((u) => {
-      const updateData: { orderIndex: number; dayId?: string } = {
-        orderIndex: u.orderIndex,
-      };
+  // Verify any provided target dayIds belong to this trip (cross-day move guard)
+  const targetDayIds = [...new Set(updates.filter((u) => u.dayId).map((u) => u.dayId!))];
+  if (targetDayIds.length > 0) {
+    const days = await db.itineraryDay.findMany({
+      where: { id: { in: targetDayIds } },
+      select: { id: true, tripId: true },
+    });
+    const allDaysBelongToTrip =
+      days.length === targetDayIds.length && days.every((d) => d.tripId === tripId);
+    if (!allDaysBelongToTrip) {
+      const error = new Error("One or more target days not found or not authorized");
+      (error as NodeJS.ErrnoException).code = "FORBIDDEN";
+      throw error;
+    }
+  }
 
-      // If dayNumber is provided, resolve to dayId for cross-day moves
-      // For simplicity we update orderIndex only; dayId updates require day lookup
-      return db.activity.update({
+  await db.$transaction(
+    updates.map((u) =>
+      db.activity.update({
         where: { id: u.id },
-        data: updateData,
-      });
-    }),
+        data: {
+          orderIndex: u.orderIndex,
+          ...(u.dayId ? { dayId: u.dayId } : {}),
+        },
+        select: { id: true },
+      }),
+    ),
   );
 }

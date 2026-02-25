@@ -46,12 +46,7 @@ const STYLE_OPTIONS: {
   },
 ];
 
-const LOADING_MESSAGES = [
-  "Analisando o destino...",
-  "Montando o itinerário...",
-  "Selecionando as melhores atrações...",
-  "Finalizando o plano de viagem...",
-];
+const LOADING_MESSAGE_KEYS = ["1", "2", "3", "4"] as const;
 
 interface PlanGeneratorWizardProps {
   trip: TripSummary;
@@ -59,6 +54,7 @@ interface PlanGeneratorWizardProps {
 
 export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
   const t = useTranslations("trips");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [step, setStep] = useState<"confirm" | "style" | "generating">("confirm");
   const [selectedStyle, setSelectedStyle] = useState<TravelStyle | null>(
@@ -77,7 +73,7 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
 
     // Rotate loading messages
     const interval = setInterval(() => {
-      setLoadingMsgIdx((i) => (i + 1) % LOADING_MESSAGES.length);
+      setLoadingMsgIdx((i) => (i + 1) % LOADING_MESSAGE_KEYS.length);
     }, 4000);
 
     try {
@@ -104,7 +100,7 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
       router.push(`/trips/${trip.id}/itinerary`);
     } catch {
       clearInterval(interval);
-      setError("Erro ao conectar com a IA. Tente novamente.");
+      setError(t("errors.aiConnectionError"));
       setStep("style");
     }
   }
@@ -119,14 +115,14 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
           />
         </div>
         <h2 className="mb-2 text-xl font-semibold text-gray-900">
-          Gerando seu plano...
+          {t("generatingPlan")}
         </h2>
         <p
           className="text-sm text-gray-500 transition-opacity duration-500"
           aria-live="polite"
           aria-atomic="true"
         >
-          {LOADING_MESSAGES[loadingMsgIdx]}
+          {t(`loadingMessages.${LOADING_MESSAGE_KEYS[loadingMsgIdx]}` as Parameters<typeof t>[0])}
         </p>
       </div>
     );
@@ -137,29 +133,29 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
       <div className="mx-auto max-w-md space-y-6">
         <div>
           <h2 className="mb-1 text-xl font-bold text-gray-900">
-            Confirmar viagem
+            {t("confirmTrip")}
           </h2>
           <p className="text-sm text-gray-500">
-            Revise os detalhes antes de gerar o plano.
+            {t("reviewDetails")}
           </p>
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 space-y-3">
-          <Detail label="Destino" value={trip.destinationName} />
+          <Detail label={t("destination")} value={trip.destinationName} />
           {trip.startDate && (
             <Detail
-              label="Período"
+              label={t("period")}
               value={formatDateRange(trip.startDate, trip.endDate)}
             />
           )}
           <Detail
-            label="Viajantes"
-            value={`${trip.travelers} ${trip.travelers === 1 ? "pessoa" : "pessoas"}`}
+            label={t("travelers")}
+            value={`${trip.travelers} ${t(trip.travelers === 1 ? "travelerSingular" : "travelerPlural")}`}
           />
           {trip.budgetTotal && (
             <Detail
-              label="Orçamento"
-              value={`${trip.budgetCurrency} ${Number(trip.budgetTotal).toLocaleString("pt-BR")}`}
+              label={t("budget")}
+              value={`${trip.budgetCurrency} ${Number(trip.budgetTotal).toLocaleString()}`}
             />
           )}
         </div>
@@ -168,7 +164,7 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
           onClick={handleNext}
           className="w-full bg-orange-500 text-white hover:bg-orange-600 focus-visible:ring-orange-500"
         >
-          Continuar
+          {tCommon("continue")}
           <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
         </Button>
       </div>
@@ -180,14 +176,14 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
     <div className="mx-auto max-w-md space-y-6">
       <div>
         <h2 className="mb-1 text-xl font-bold text-gray-900">
-          Qual é o seu estilo de viagem?
+          {t("selectTravelStyle")}
         </h2>
         <p className="text-sm text-gray-500">
-          A IA vai personalizar o itinerário com base na sua escolha.
+          {t("aiPersonalizes")}
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label="Estilo de viagem">
+      <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label={t("styleAriaLabel")}>
         {STYLE_OPTIONS.map((opt) => (
           <button
             key={opt.id}
@@ -221,7 +217,7 @@ export function PlanGeneratorWizard({ trip }: PlanGeneratorWizardProps) {
         className="w-full bg-orange-500 text-white hover:bg-orange-600 focus-visible:ring-orange-500 disabled:opacity-50"
       >
         <Sparkles className="mr-2 h-4 w-4" aria-hidden="true" />
-        Gerar plano com IA
+        {t("generatePlanWithAI")}
       </Button>
     </div>
   );
