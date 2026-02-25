@@ -31,6 +31,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "./src"),
+      // Stub Next.js server-only guard for Vitest (runs in Node, not browser)
+      "server-only": resolve(__dirname, "./src/test/stubs/server-only.ts"),
     },
   },
 });
