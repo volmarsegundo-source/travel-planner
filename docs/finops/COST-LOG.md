@@ -59,30 +59,101 @@
 
 ---
 
-## Sprint 2 — [A preencher]
+## Sprint 2 — Fevereiro/2026
 
-**Status:** 🔄 Em andamento  
-**Período:** —  
-**Dados:** A coletar
+**Status:** Concluído
+**Período:** Fevereiro/2026 (semana 2–4)
+**Dados:** Estimados com base no código implementado (sem usuários reais em produção)
 
-### Custos Estimados (pré-sprint)
-| Serviço | Plano Planejado | Custo Estimado |
-|---------|----------------|----------------|
-| Vercel | Hobby (Free) | $0,00 |
-| Railway | Hobby ($5/mês) | $5,00 |
-| Upstash | Free | $0,00 |
-| Mapbox | Free | $0,00 |
-| Sentry | Developer (Free) | $0,00 |
-| Resend | Free (3k emails/mês) | $0,00 |
-| Anthropic API | Pay-as-you-go | $0–2,00 |
-| Claude Pro (dev) | Pro | $20,00 |
-| **TOTAL ESTIMADO** | | **$25–27/mês** |
+### Mudanças Implementadas no Sprint 2
+
+| Componente | Arquivo | Impacto de Custo |
+|-----------|---------|-----------------|
+| Rate limiting por usuário | `src/lib/rate-limit.ts` | +2 ops Redis por request de IA (incr + expire) |
+| Transações DB em persistência | `src/server/actions/ai.actions.ts` | Uso correto de connection pool — sem overhead extra |
+| Lazy Anthropic singleton | `src/server/services/ai.service.ts` | Sem impacto de custo — melhora testabilidade |
+| Health check real (DB + Redis) | `src/app/api/v1/health/route.ts` | +2 queries por chamada ao /health |
+| Pipeline CI completo (5 stages) | `.github/workflows/ci.yml` | ~15–25 min/build — ver análise abaixo |
+| Pipeline Deploy (staging + prod) | `.github/workflows/deploy.yml` | Docker build + push GHCR por merge |
+| Modelo itinerário ajustado | `ai.service.ts` linha 19 | Mudança: Sonnet 4.5 → Sonnet 4.6 |
+
+### Análise de Impacto: Rate Limiting (rate-limit.ts)
+
+O `checkRateLimit` executa **2 operações Redis por request** de IA:
+- `redis.incr(windowKey)` — 1 operação de escrita
+- `redis.expire(windowKey, windowSeconds)` — 1 operação de escrita (apenas no primeiro request da janela)
+
+**Cálculo de impacto no Upstash:**
+- Limite: 10 requests de IA por usuário por hora (`ai:plan:${userId}`, window 3600s)
+- Cada request de IA consome: 1 incr + 1 expire (na 1ª vez) + 1 GET de cache + 1 SET de cache = ~4 ops Redis
+- Com 100 usuários ativos/mês, 2 itinerários/usuário: 100 × 2 × 4 = **800 ops/mês** — irrelevante vs. limite de 300k/mês do Upstash free tier
+- Watchpoint: checklist não tem rate limit separado (apenas BOLA check) — risco de abuso menor pois usa Haiku (mais barato)
+
+### Análise de Impacto: Modelo de IA (ai.service.ts)
+
+**Atenção — modelo de itinerário está em Sonnet 4.6 (não Sonnet 4.5 como planejado):**
+- `PLAN_MODEL = "claude-sonnet-4-6"` — modelo atual do ambiente de desenvolvimento
+- `CHECKLIST_MODEL = "claude-haiku-4-5-20251001"` — correto, Haiku para checklist
+
+Impacto: Sonnet 4.6 ainda não possui precificação pública confirmada distinta do Sonnet 4.5. Assumindo mesma tier de preço ($3,00/$15,00 por MTok). Sem variação de custo estimada, mas deve ser confirmado quando a API estiver em produção.
+
+### Análise de Impacto: CI/CD Pipeline
+
+| Stage CI | Tempo Estimado | Custo GitHub Actions |
+|---------|----------------|---------------------|
+| Lint & Type Check | ~2 min | $0 (free tier — 2.000 min/mês) |
+| Unit + Integration Tests (PostgreSQL + Redis services) | ~5 min | $0 (free tier) |
+| SAST (Semgrep + npm audit) | ~3 min | $0 (free tier) |
+| Docker Build + Trivy Scan | ~8 min | $0 (free tier) |
+| E2E Playwright (apenas PR → main) | ~7 min | $0 (free tier) |
+| **Total por run completo** | **~25 min** | **$0** |
+
+GitHub Actions free tier: 2.000 min/mês para repositórios públicos, ilimitado. Para repositório privado: 2.000 min incluídos, depois $0,008/min.
+
+**Estimativa uso CI:** ~10 PRs/sprint × 25 min = 250 min/sprint — **dentro do free tier**.
+
+### Análise de Impacto: Health Check
+
+`/api/v1/health` executa `SELECT 1` no PostgreSQL e `redis.ping()` a cada chamada.
+
+Se usado como uptime monitor (ex: UptimeRobot a cada 5 min):
+- 288 chamadas/dia × 2 queries = **576 operações/dia**
+- Impacto Railway (PostgreSQL): negligível — queries triviais sem lock
+- Impacto Upstash: 576 ops/dia × 30 = 17.280 ops/mês — **0,006% do limite de 300k/mês**
+
+### Custos Reais Sprint 2
+
+| Serviço | Plano | Custo Real | Observação |
+|---------|-------|-----------|------------|
+| Vercel | Hobby (Free) | $0,00 | Free tier — sem deploy em produção ainda |
+| Railway | Trial → Hobby | $0,00–5,00 | Trial pode ter expirado — verificar urgentemente |
+| Upstash | Free | $0,00 | Free tier — 300k ops/mês, muito abaixo do limite |
+| Mapbox | Free | $0,00 | Free tier |
+| Sentry | Developer (Free) | $0,00 | Free tier |
+| Resend | Free (3k emails/mês) | $0,00 | Configurado no Sprint 2 |
+| Anthropic API | Pay-as-you-go | $0,00 | Sem usuários reais em produção |
+| Claude Pro/Max (dev) | Pro ou Max | $20–100,00 | Sprint intensivo com múltiplos agentes paralelos |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20–105,00** | **Variação depende do plano Claude Code usado** |
+
+### Observação sobre Claude Code (desenvolvimento)
+
+O Sprint 2 envolveu múltiplos agentes em paralelo (dev-fullstack-1, dev-fullstack-2, security-specialist, devops-engineer, qa-engineer + finops-engineer). Sprints intensivos com agentes paralelos podem justificar Claude Max ($100/mês) em vez de Claude Pro ($20/mês). O custo de desenvolvimento é o item dominante nesta fase pré-usuários.
 
 ### Ações FinOps Sprint 2
-- [ ] Ativar Railway Hobby antes do trial expirar
-- [ ] Configurar Resend free tier
-- [ ] Adicionar logging de tokens por endpoint
-- [ ] Documentar custos reais ao final do sprint
+
+- [x] Analisar impacto de custo das mudanças do Sprint 2
+- [ ] Confirmar status do Railway trial — **URGENTE** — pode ter expirado
+- [ ] Confirmar plano Claude Code usado no sprint (Pro $20 ou Max $100)
+- [ ] Adicionar logging de tokens consumidos por endpoint (pendente Sprint 3)
+- [ ] Verificar se checklist precisa de rate limit separado
+
+### Decisões FinOps Sprint 2
+
+- `PLAN_MODEL = "claude-sonnet-4-6"` — modelo ligeiramente diferente do planejado (Sonnet 4.5); sem impacto de custo estimado mas requer confirmação
+- Rate limiting apenas em `generateTravelPlanAction` (10 req/hora/usuário) — checklist sem rate limit próprio; baixo risco dado uso de Haiku
+- Cache Redis de 24h para itinerários (`CACHE_TTL.AI_PLAN = 86400`) — estratégia correta, evita chamadas repetidas para mesma combinação destino/estilo/orçamento/dias/idioma
+- Cache de checklist usa mês em vez de data exata — aumenta taxa de cache hit (múltiplos usuários viajando ao mesmo destino no mesmo mês compartilham cache)
 
 ---
 
