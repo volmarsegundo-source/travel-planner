@@ -32,3 +32,17 @@ export interface UpdateTripInput extends Partial<CreateTripInput> {
   status?: TripStatus;
   visibility?: TripVisibility;
 }
+
+// ─── Shared result types ──────────────────────────────────────────────────────
+
+export type ActionResult<T = undefined> =
+  | { success: true; data?: T }
+  | { success: false; error: string };
+
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
