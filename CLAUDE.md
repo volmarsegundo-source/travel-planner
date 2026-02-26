@@ -168,6 +168,7 @@ Reviews are conducted in parallel and documented in `docs/sprint-reviews/SPRINT-
 | `devops-engineer` | Infrastructure configs, environment variables, Docker and CI/CD settings, deployment pipeline changes, and environment parity between local/staging/production |
 | `tech-lead` | Code quality, design patterns, technical debt, test coverage, and adherence to project conventions and Definition of Done |
 | `release-manager` | Changelog completeness, version bump correctness, migration notes, breaking changes, and environment consistency — **in Sprint 1, pay special attention to differences caused by machine migration (configs, dependencies, .env files)** |
+| `finops-engineer` | Infra and AI costs for the sprint, free tier usage, rate limiting effectiveness, cost impact of new features, optimization opportunities, and updated COST-LOG.md |
 
 ### Sprint Review Checklist
 
@@ -178,6 +179,7 @@ Before marking a sprint as done, confirm:
 - [ ] `devops-engineer` review completed and documented
 - [ ] `tech-lead` review completed and documented
 - [ ] `release-manager` review completed and documented
+- [ ] `finops-engineer` review completed and COST-LOG.md updated
 - [ ] All blockers raised during review are resolved or have an accepted mitigation
 - [ ] `docs/sprint-reviews/SPRINT-XXX-review.md` is committed to the repository
 
