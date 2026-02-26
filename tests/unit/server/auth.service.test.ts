@@ -68,6 +68,7 @@ function makeUser(
     emailVerified: Date | null;
     passwordHash: string | null;
     deletedAt: Date | null;
+    deactivatedAt: Date | null;
   }> = {}
 ) {
   return {
@@ -76,8 +77,8 @@ function makeUser(
     emailVerified: null,
     passwordHash: "hashed-password",
     deletedAt: null,
+    deactivatedAt: null,
     name: null,
-    avatarUrl: null,
     image: null,
     createdAt: new Date(),
     updatedAt: new Date(),

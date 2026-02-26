@@ -3,10 +3,8 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
-import { headers } from "next/headers";
 import { db } from "@/server/db";
 import { UserSignInSchema } from "@/lib/validations/user.schema";
-import { checkRateLimit } from "@/lib/rate-limit";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: PrismaAdapter(db),
@@ -23,15 +21,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     Credentials({
       async authorize(credentials) {
-        // Rate limiting: 10 attempts per 15 minutes per IP
-        const headersList = await headers();
-        const ip =
-          headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-          headersList.get("x-real-ip") ??
-          "unknown";
-        const rl = await checkRateLimit(`login:${ip}`, 10, 900);
-        if (!rl.allowed) return null;
-
         const parsed = UserSignInSchema.safeParse(credentials);
         if (!parsed.success) return null;
 
