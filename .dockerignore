@@ -1,0 +1,15 @@
+.git
+.github
+.next
+node_modules
+coverage
+playwright-report
+test-results
+.env
+.env.local
+.env.staging
+.env.production
+.env.*.local
+*.md
+docs/
+tests/
