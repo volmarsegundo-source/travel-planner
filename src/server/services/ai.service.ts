@@ -4,6 +4,7 @@ import { createHash } from "crypto";
 import { z } from "zod";
 import { redis } from "@/server/cache/redis";
 import { CACHE_TTL } from "@/lib/constants";
+import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { AppError } from "@/lib/errors";
 import type {
@@ -113,7 +114,7 @@ function extractJsonFromResponse(text: string): unknown {
 export class AiService {
   private static getClient(): Anthropic {
     return new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY,
+      apiKey: env.ANTHROPIC_API_KEY,
     });
   }
 
@@ -207,13 +208,13 @@ Respond ONLY with valid JSON in this exact format:
       rawJson = extractJsonFromResponse(responseText);
     } catch (error) {
       logger.error("ai.plan.parse.error", error, { userId });
-      throw new AppError("AI_PARSE_ERROR", "errors.timeout", 502);
+      throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
     }
 
     const parsed = ItineraryPlanSchema.safeParse(rawJson);
     if (!parsed.success) {
       logger.error("ai.plan.schema.error", parsed.error, { userId });
-      throw new AppError("AI_SCHEMA_ERROR", "errors.timeout", 502);
+      throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
     const plan = parsed.data as ItineraryPlan;
@@ -238,7 +239,7 @@ Respond ONLY with valid JSON in this exact format:
     const month = getMonthFromDate(startDate);
     const cacheInput = `${destination}:${month}:${travelers}:${language}`;
     const cacheHash = md5(cacheInput);
-    const cacheKey = `cache:ai-plan:${cacheHash}`;
+    const cacheKey = `cache:ai-checklist:${cacheHash}`;
 
     // Cache hit
     const cached = await redis.get(cacheKey);
@@ -293,13 +294,13 @@ Respond ONLY with valid JSON:
       rawJson = extractJsonFromResponse(responseText);
     } catch (error) {
       logger.error("ai.checklist.parse.error", error, { userId });
-      throw new AppError("AI_PARSE_ERROR", "errors.timeout", 502);
+      throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
     }
 
     const parsed = ChecklistResultSchema.safeParse(rawJson);
     if (!parsed.success) {
       logger.error("ai.checklist.schema.error", parsed.error, { userId });
-      throw new AppError("AI_SCHEMA_ERROR", "errors.timeout", 502);
+      throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
     const result = parsed.data as ChecklistResult;

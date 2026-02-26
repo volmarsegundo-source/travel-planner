@@ -191,6 +191,19 @@ export class TripService {
       throw new ForbiddenError();
     }
 
+    // Verify all provided activity IDs belong to this trip's days (BOLA guard)
+    const activityIds = activities.map(({ id }) => id);
+    const validCount = await db.activity.count({
+      where: {
+        id: { in: activityIds },
+        day: { tripId },
+      },
+    });
+
+    if (validCount !== activityIds.length) {
+      throw new ForbiddenError();
+    }
+
     await db.$transaction(
       activities.map(({ id, orderIndex }) =>
         db.activity.update({

@@ -167,6 +167,8 @@
     "timeout": "A operação demorou demais. Tente novamente.",
     "unauthorized": "Você precisa fazer login para continuar.",
     "forbidden": "Você não tem permissão para realizar esta ação.",
-    "notFound": "Página não encontrada."
+    "notFound": "Página não encontrada.",
+    "aiParseError": "Não foi possível ler a resposta da IA. Tente novamente.",
+    "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente."
   }
 }

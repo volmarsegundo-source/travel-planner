@@ -5,6 +5,7 @@ export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
     REDIS_URL: z.string().url().default("redis://localhost:6379"),
+    ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),
     GOOGLE_CLIENT_ID: z.string().optional(),
@@ -27,6 +28,7 @@ export const env = createEnv({
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
     REDIS_URL: process.env.REDIS_URL,
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,

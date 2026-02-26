@@ -1,4 +1,4 @@
-export const MAX_TRIPS_PER_USER = 50;
+export const MAX_TRIPS_PER_USER = 20;
 export const MAX_TRIP_TITLE_LENGTH = 100;
 export const MAX_TRIP_DESCRIPTION_LENGTH = 500;
 export const MAX_TRIP_DESTINATION_LENGTH = 150;
