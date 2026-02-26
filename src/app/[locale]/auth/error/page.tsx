@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface AuthErrorPageProps {
   searchParams: Promise<{ error?: string }>;
 }
@@ -27,12 +29,12 @@ export default async function AuthErrorPage({
         {process.env.NODE_ENV === "development" && error && (
           <p className="mt-2 text-sm text-gray-400">Error code: {error}</p>
         )}
-        <a
+        <Link
           href="/auth/login"
           className="mt-6 inline-block rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
         >
           Back to login
-        </a>
+        </Link>
       </div>
     </main>
   );
