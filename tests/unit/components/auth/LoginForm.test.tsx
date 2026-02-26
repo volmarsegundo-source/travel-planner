@@ -23,10 +23,6 @@ vi.mock("next-auth/react", () => ({
   signIn: mockSignIn,
 }));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockRouterPush }),
-}));
-
 vi.mock("next-intl", () => ({
   useTranslations: (namespace: string) => (key: string) => `${namespace}.${key}`,
 }));
@@ -41,8 +37,9 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-// next-intl navigation: replace Link with a simple anchor for tests
+// next-intl navigation: stub Link + useRouter (LoginForm imports both from here)
 vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: mockRouterPush }),
   Link: ({
     children,
     href,
@@ -119,7 +116,7 @@ describe("LoginForm", () => {
   });
 
   it("calls signIn with credentials and redirects to /trips on success", async () => {
-    mockSignIn.mockResolvedValueOnce({ error: null });
+    mockSignIn.mockResolvedValueOnce({ ok: true, error: null });
 
     render(<LoginForm />);
 
@@ -138,7 +135,7 @@ describe("LoginForm", () => {
   });
 
   it("shows error alert when credentials are invalid", async () => {
-    mockSignIn.mockResolvedValueOnce({ error: "CredentialsSignin" });
+    mockSignIn.mockResolvedValueOnce({ ok: false, error: "CredentialsSignin" });
 
     render(<LoginForm />);
 
