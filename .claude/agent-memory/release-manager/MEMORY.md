@@ -2,11 +2,12 @@
 
 ## Project State
 
-- **Current version**: 0.1.0 (first release, greenfield)
-- **Changelog**: does not exist yet — will be created when v0.1.0 ships
-- **Release risk register**: does not exist yet — CIA-001 is the first entry
-- **API contracts**: no public REST endpoints exist yet; Server Actions are internal contracts
+- **Current version**: 0.2.0 (Sprint 2 merged — BLOCKED pending Prisma migration)
+- **Changelog**: exists at `C:\travel-planner\CHANGELOG.md` — entries for 0.1.0 and 0.2.0
+- **Release risk register**: exists at `C:\travel-planner\docs\release-risk.md` — CIA-002 open
+- **API contracts**: no public REST endpoints in MVP scope; `/api/v1/health` is the only live REST endpoint
 - **Production users**: zero — system is in Bootstrap Phase 2
+- **Deploy status**: BLOCKED — Sprint 2 schema changes have no versioned Prisma migration
 
 ## Versioning Baseline
 
@@ -23,18 +24,27 @@
 - User data isolation enforced at query level: every Trip query includes `userId` in WHERE clause
 - CUID2 is the ID strategy for all primary keys
 
-## SPEC-001 Open Issues to Track
-
-- OQ-003: `TripService.listTrips` default status filter — must be resolved before implementation
-- OQ-004: `useActionState` React 19 signature — confirm with dev before TripForm implementation
-- OQ-005: Prisma 7 soft-delete uses `$extends`, not `$use` — must be confirmed before db/client.ts implementation
-
 ## CIA Conventions Established
 
 - CIA IDs: CIA-XXX format, sequential
-- CIA-001 covers US-001 / SPEC-001
+- CIA-001 covers US-001 / SPEC-001 — closed
+- CIA-002 covers Sprint 2 Hardening — OPEN, deploy BLOCKED
 - Assessment template follows the standard format defined in the agent persona
-- Deployment order dependency: US-003 (users table) must be deployed before US-001 (trips table)
+
+## Sprint 2 Open Risks (CIA-002)
+
+- RISK-001 CRITICO: No versioned Prisma migration created — `prisma migrate deploy` will not apply schema changes
+- RISK-002 CRITICO: `ci.yml` triggers on `main`/`develop` but repo uses `master` — CI not running on PRs to master
+- RISK-003 ALTO: `avatarUrl` removed without checking for existing data in staging/prod
+- RISK-004 ALTO: Health check 503 behavior change — uptime monitors not yet updated
+- RISK-005 ALTO: `deploy.yml` step is a placeholder `echo` — no real deploy happening
+- RISK-006 ALTO: GitHub Actions secrets not confirmed (RAILWAY_TOKEN, STAGING_DATABASE_URL, etc.)
+
+## Schema Changes Requiring Migration (Sprint 2)
+
+- `users` table: ADD COLUMN `deactivated_at TIMESTAMP NULL`
+- `users` table: DROP COLUMN `avatar_url` (verify data before dropping)
+- CREATE TABLE `checklist_items` with FK to `trips`
 
 ## Communication Language
 
