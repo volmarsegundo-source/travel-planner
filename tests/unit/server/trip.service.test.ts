@@ -282,4 +282,89 @@ describe("TripService", () => {
       );
     });
   });
+
+  // ─── reorderActivities ───────────────────────────────────────────────────────
+
+  describe("reorderActivities", () => {
+    it("verifies ownership then calls db.$transaction with activity updates on happy path", async () => {
+      prismaMock.trip.findFirst.mockResolvedValue(
+        makeTrip({ id: "trip-1", userId: "user-1" })
+      );
+      // $transaction receives an array of promises; mock it to resolve void
+      prismaMock.$transaction.mockResolvedValue([]);
+
+      const activities = [
+        { id: "act-1", orderIndex: 0 },
+        { id: "act-2", orderIndex: 1 },
+        { id: "act-3", orderIndex: 2 },
+      ];
+
+      await expect(
+        TripService.reorderActivities("trip-1", "user-1", activities)
+      ).resolves.toBeUndefined();
+
+      expect(prismaMock.trip.findFirst).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({ id: "trip-1", deletedAt: null }),
+          select: expect.objectContaining({ id: true, userId: true }),
+        })
+      );
+      expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+    });
+
+    it("throws NotFoundError when trip does not exist", async () => {
+      prismaMock.trip.findFirst.mockResolvedValue(null);
+
+      await expect(
+        TripService.reorderActivities("missing-trip", "user-1", [
+          { id: "act-1", orderIndex: 0 },
+        ])
+      ).rejects.toBeInstanceOf(NotFoundError);
+
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it("throws NotFoundError when trip is soft-deleted (findFirst returns null with deletedAt filter)", async () => {
+      // Soft-deleted trip: Prisma returns null because of the deletedAt: null filter
+      prismaMock.trip.findFirst.mockResolvedValue(null);
+
+      await expect(
+        TripService.reorderActivities("deleted-trip", "user-1", [
+          { id: "act-1", orderIndex: 0 },
+        ])
+      ).rejects.toBeInstanceOf(NotFoundError);
+
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it("throws ForbiddenError when trip belongs to a different user (BOLA check)", async () => {
+      prismaMock.trip.findFirst.mockResolvedValue(
+        makeTrip({ id: "trip-1", userId: "other-user" })
+      );
+
+      await expect(
+        TripService.reorderActivities("trip-1", "user-1", [
+          { id: "act-1", orderIndex: 0 },
+        ])
+      ).rejects.toBeInstanceOf(ForbiddenError);
+
+      expect(prismaMock.$transaction).not.toHaveBeenCalled();
+    });
+
+    it("calls db.$transaction with an empty array when activities list is empty", async () => {
+      prismaMock.trip.findFirst.mockResolvedValue(
+        makeTrip({ id: "trip-1", userId: "user-1" })
+      );
+      prismaMock.$transaction.mockResolvedValue([]);
+
+      await expect(
+        TripService.reorderActivities("trip-1", "user-1", [])
+      ).resolves.toBeUndefined();
+
+      expect(prismaMock.$transaction).toHaveBeenCalledOnce();
+      // The array passed to $transaction must be empty
+      const transactionArg = prismaMock.$transaction.mock.calls[0][0] as unknown as unknown[];
+      expect(transactionArg).toHaveLength(0);
+    });
+  });
 });

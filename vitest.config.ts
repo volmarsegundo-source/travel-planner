@@ -17,6 +17,13 @@ export default defineConfig({
         branches: 80,
         statements: 80,
       },
+      include: [
+        "src/server/services/**",
+        "src/lib/validations/**",
+        "src/lib/errors.ts",
+        "src/components/features/auth/**",
+        "src/components/features/onboarding/**",
+      ],
       exclude: [
         "node_modules/**",
         ".next/**",
