@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { redirect, Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getTripByIdAction } from "@/server/actions/trip.actions";
@@ -14,7 +13,7 @@ export default async function GeneratePage({ params }: GeneratePageProps) {
 
   const session = await auth();
   if (!session?.user?.id) {
-    redirect(`/${locale}/auth/login`);
+    redirect({ href: "/auth/login", locale });
   }
 
   const t = await getTranslations("common");
@@ -27,7 +26,7 @@ export default async function GeneratePage({ params }: GeneratePageProps) {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-muted-foreground">{tTrips("errors.notFound")}</p>
         <Link
-          href={`/${locale}/trips`}
+          href="/trips"
           className="text-sm text-primary underline underline-offset-4"
         >
           {t("back")}
@@ -42,7 +41,7 @@ export default async function GeneratePage({ params }: GeneratePageProps) {
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
         <Link
-          href={`/${locale}/trips/${id}`}
+          href={`/trips/${id}`}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           {t("back")}

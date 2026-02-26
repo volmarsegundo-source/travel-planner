@@ -1,10 +1,12 @@
 "use server";
 import "server-only";
+import { headers } from "next/headers";
 import { AuthService } from "@/server/services/auth.service";
 import { UserSignUpSchema } from "@/lib/validations/user.schema";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -17,6 +19,10 @@ export type ActionResult<T = undefined> =
 export async function registerAction(
   formData: FormData
 ): Promise<ActionResult<{ userId: string }>> {
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  const rl = await checkRateLimit(`register:${ip}`, 5, 3600);
+  if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
+
   const raw = {
     email: formData.get("email"),
     password: formData.get("password"),
@@ -77,6 +83,10 @@ const EmailSchema = z.string().email("auth.errors.emailInvalid");
 export async function requestPasswordResetAction(
   email: string
 ): Promise<ActionResult> {
+  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  const rl = await checkRateLimit(`pwd-reset:${ip}`, 3, 900);
+  if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
+
   const parsed = EmailSchema.safeParse(email);
   if (!parsed.success) {
     return { success: false, error: "auth.errors.emailInvalid" };

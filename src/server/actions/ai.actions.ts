@@ -6,6 +6,8 @@ import { AiService } from "@/server/services/ai.service";
 import { UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
+import { mapErrorToKey } from "@/lib/action-utils";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/trip.types";
 import type {
   GeneratePlanParams,
@@ -14,48 +16,41 @@ import type {
   ChecklistResult,
 } from "@/types/ai.types";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function mapErrorToKey(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "errors.generic";
-}
-
 // ─── persistItinerary ─────────────────────────────────────────────────────────
 
 async function persistItinerary(
   tripId: string,
   plan: ItineraryPlan
 ): Promise<void> {
-  // Delete existing days and activities first (re-generation replaces everything)
-  await db.itineraryDay.deleteMany({ where: { tripId } });
+  await db.$transaction(async (tx) => {
+    // Delete existing days and activities first (re-generation replaces everything)
+    await tx.itineraryDay.deleteMany({ where: { tripId } });
 
-  for (const day of plan.days) {
-    const createdDay = await db.itineraryDay.create({
-      data: {
-        tripId,
-        dayNumber: day.dayNumber,
-        date: day.date ? new Date(day.date) : null,
-        notes: day.theme,
-      },
-    });
-
-    if (day.activities.length > 0) {
-      await db.activity.createMany({
-        data: day.activities.map((activity, index) => ({
-          dayId: createdDay.id,
-          title: activity.title,
-          notes: activity.description,
-          startTime: activity.startTime,
-          endTime: activity.endTime,
-          orderIndex: index,
-          activityType: activity.activityType,
-        })),
+    for (const day of plan.days) {
+      const createdDay = await tx.itineraryDay.create({
+        data: {
+          tripId,
+          dayNumber: day.dayNumber,
+          date: day.date ? new Date(day.date) : null,
+          notes: day.theme,
+        },
       });
+
+      if (day.activities.length > 0) {
+        await tx.activity.createMany({
+          data: day.activities.map((activity, index) => ({
+            dayId: createdDay.id,
+            title: activity.title,
+            notes: activity.description,
+            startTime: activity.startTime,
+            endTime: activity.endTime,
+            orderIndex: index,
+            activityType: activity.activityType,
+          })),
+        });
+      }
     }
-  }
+  });
 }
 
 // ─── persistChecklist ─────────────────────────────────────────────────────────
@@ -64,23 +59,25 @@ async function persistChecklist(
   tripId: string,
   result: ChecklistResult
 ): Promise<void> {
-  // Delete existing checklist items before re-generating
-  await db.checklistItem.deleteMany({ where: { tripId } });
+  await db.$transaction(async (tx) => {
+    // Delete existing checklist items before re-generating
+    await tx.checklistItem.deleteMany({ where: { tripId } });
 
-  let globalIndex = 0;
-  for (const categoryData of result.categories) {
-    if (categoryData.items.length > 0) {
-      await db.checklistItem.createMany({
-        data: categoryData.items.map((item) => ({
-          tripId,
-          category: categoryData.category,
-          label: item.label,
-          checked: false,
-          orderIndex: globalIndex++,
-        })),
-      });
+    let globalIndex = 0;
+    for (const categoryData of result.categories) {
+      if (categoryData.items.length > 0) {
+        await tx.checklistItem.createMany({
+          data: categoryData.items.map((item) => ({
+            tripId,
+            category: categoryData.category,
+            label: item.label,
+            checked: false,
+            orderIndex: globalIndex++,
+          })),
+        });
+      }
     }
-  }
+  });
 }
 
 // ─── generateTravelPlanAction ─────────────────────────────────────────────────
@@ -91,6 +88,9 @@ export async function generateTravelPlanAction(
 ): Promise<ActionResult<ItineraryPlan>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
+
+  const rl = await checkRateLimit(`ai:plan:${session.user.id}`, 10, 3600);
+  if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
 
   // BOLA check: verify trip belongs to the authenticated user
   const trip = await db.trip.findFirst({

@@ -2,7 +2,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { AppError, UnauthorizedError } from "@/lib/errors";
+import { UnauthorizedError } from "@/lib/errors";
 import { TripService } from "@/server/services/trip.service";
 import {
   TripCreateSchema,
@@ -11,15 +11,8 @@ import {
 import type { TripCreateInput, TripUpdateInput } from "@/lib/validations/trip.schema";
 import type { ActionResult, PaginatedResult, Trip } from "@/types/trip.types";
 import { logger } from "@/lib/logger";
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function mapErrorToKey(error: unknown): string {
-  if (error instanceof AppError) {
-    return error.message; // message is always an i18n key in this codebase
-  }
-  return "errors.generic";
-}
+import { mapErrorToKey } from "@/lib/action-utils";
+import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
 // ─── createTripAction ─────────────────────────────────────────────────────────
 
@@ -122,7 +115,7 @@ export async function deleteTripAction(
 
 export async function listUserTripsAction(
   page = 1,
-  pageSize = 10
+  pageSize = DEFAULT_PAGE_SIZE
 ): Promise<ActionResult<PaginatedResult<Trip>>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();

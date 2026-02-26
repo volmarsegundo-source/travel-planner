@@ -41,6 +41,19 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
+// next-intl navigation: replace Link with a simple anchor for tests
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({
+    children,
+    href,
+    className,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    className?: string;
+  }) => <a href={href} className={className}>{children}</a>,
+}));
+
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import { LoginForm } from "@/components/features/auth/LoginForm";

@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { listUserTripsAction } from "@/server/actions/trip.actions";
 import { TripDashboard } from "@/components/features/trips/TripDashboard";
@@ -12,7 +12,7 @@ export default async function TripsPage({ params }: TripsPageProps) {
 
   const session = await auth();
   if (!session?.user?.id) {
-    redirect(`/${locale}/auth/login`);
+    redirect({ href: "/auth/login", locale });
   }
 
   // Fetch initial data server-side so the page is not blank on first render.
