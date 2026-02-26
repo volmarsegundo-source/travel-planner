@@ -13,6 +13,9 @@ export const env = createEnv({
     ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),
+    // Auth.js v5 reads AUTH_SECRET; keep NEXTAUTH_SECRET as v4 alias
+    AUTH_SECRET: z.string().min(32),
+    AUTH_URL: z.string().url().default("http://localhost:3000"),
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     MAPBOX_SECRET_TOKEN: z.string().startsWith("sk.").optional(),
@@ -36,6 +39,8 @@ export const env = createEnv({
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    AUTH_SECRET: process.env.AUTH_SECRET,
+    AUTH_URL: process.env.AUTH_URL,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     MAPBOX_SECRET_TOKEN: process.env.MAPBOX_SECRET_TOKEN,

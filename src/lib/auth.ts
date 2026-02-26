@@ -30,28 +30,35 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
     Credentials({
       async authorize(credentials) {
-        const parsed = UserSignInSchema.safeParse(credentials);
-        if (!parsed.success) return null;
+        try {
+          const parsed = UserSignInSchema.safeParse(credentials);
+          if (!parsed.success) return null;
 
-        const user = await db.user.findUnique({
-          where: { email: parsed.data.email, deletedAt: null },
-        });
+          const user = await db.user.findUnique({
+            where: { email: parsed.data.email, deletedAt: null },
+          });
 
-        if (!user?.passwordHash) return null;
-        if (!user.emailVerified) return null;
+          if (!user) return null;
+          if (!user.passwordHash) return null;
 
-        const isValid = await bcrypt.compare(
-          parsed.data.password,
-          user.passwordHash
-        );
-        if (!isValid) return null;
+          // TODO(T-003): restore emailVerified guard when email verification ships
+          // if (!user.emailVerified) return null;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-          image: user.image,
-        };
+          const isValid = await bcrypt.compare(
+            parsed.data.password,
+            user.passwordHash
+          );
+          if (!isValid) return null;
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          };
+        } catch {
+          return null;
+        }
       },
     }),
   ],

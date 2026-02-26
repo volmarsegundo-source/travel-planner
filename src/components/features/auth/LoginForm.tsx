@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/button";
@@ -90,7 +89,7 @@ export function LoginForm() {
         redirect: false,
       });
 
-      if (result?.error) {
+      if (!result?.ok) {
         setErrorKey("errors.invalidCredentials");
         return;
       }

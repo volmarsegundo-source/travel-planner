@@ -53,6 +53,7 @@ export class AuthService {
         email,
         passwordHash,
         name: name ?? null,
+        emailVerified: new Date(), // TODO(T-003): remove when real email verification flow ships
       },
       select: { id: true },
     });

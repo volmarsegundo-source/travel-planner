@@ -37,6 +37,20 @@ export default {
     },
   },
   callbacks: {
+    async signIn({ user, account }) {
+      // With PrismaAdapter + JWT + Credentials, Auth.js v5 requires an explicit
+      // signIn callback to prevent the adapter from attempting a DB session write.
+      if (account?.provider === "credentials") {
+        return !!user?.id;
+      }
+      return true;
+    },
+    jwt({ token, user }) {
+      if (user) {
+        token.sub = user.id;
+      }
+      return token;
+    },
     session({ session, token }) {
       // With JWT strategy, user id comes from token.sub (set by NextAuth from user.id).
       if (session.user && token?.sub) {
