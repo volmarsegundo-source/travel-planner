@@ -148,6 +148,36 @@ export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
 
 ---
 
+## 📋 Mandatory Sprint Review Protocol
+
+At the end of every sprint, the following agents must perform a review **strictly within their own role**. This review is **mandatory before any sprint is marked as done. No exceptions.**
+
+Reviews are conducted in parallel and documented in `docs/sprint-reviews/SPRINT-XXX-review.md`.
+
+### Review Responsibilities
+
+| Agent | Must Review |
+|---|---|
+| `architect` | System design decisions made during the sprint, component boundaries, scalability implications, any deviations from ADRs, and architectural debt introduced |
+| `security-specialist` | Authentication and authorization implementations, data validation, secrets management, any new dependencies for CVEs, and security vulnerabilities introduced |
+| `devops-engineer` | Infrastructure configs, environment variables, Docker and CI/CD settings, deployment pipeline changes, and environment parity between local/staging/production |
+| `tech-lead` | Code quality, design patterns, technical debt, test coverage, and adherence to project conventions and Definition of Done |
+| `release-manager` | Changelog completeness, version bump correctness, migration notes, breaking changes, and environment consistency — **in Sprint 1, pay special attention to differences caused by machine migration (configs, dependencies, .env files)** |
+
+### Sprint Review Checklist
+
+Before marking a sprint as done, confirm:
+
+- [ ] `architect` review completed and documented
+- [ ] `security-specialist` review completed and documented
+- [ ] `devops-engineer` review completed and documented
+- [ ] `tech-lead` review completed and documented
+- [ ] `release-manager` review completed and documented
+- [ ] All blockers raised during review are resolved or have an accepted mitigation
+- [ ] `docs/sprint-reviews/SPRINT-XXX-review.md` is committed to the repository
+
+---
+
 ## 🌐 Global Project Rules
 
 - **Code language**: English (variables, functions, comments, commits)

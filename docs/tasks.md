@@ -399,18 +399,18 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 
 | # | Stories | Tipo | Descrição | Agente |
 |---|---------|------|-----------|--------|
-| T-001 | US-001/002 | Backend | Auth.js — Google OAuth + credentials, verificação de e-mail obrigatória, recuperação de senha 2 passos | dev-fullstack-1 |
+| T-001 | US-001/002 | Backend | ✅ Auth.js — Google OAuth + credentials, verificação de e-mail obrigatória, recuperação de senha 2 passos | dev-fullstack-1 |
 | T-002 | US-001/002 | Frontend | UI autenticação — cadastro máx. 3 campos, login, recuperação — WCAG 2.1 AA, mobile-first 375px | dev-fullstack-2 |
 | T-003 | US-002B | Frontend 🆕 | Trust signals no cadastro — badge de segurança, mini política em 2 linhas, linguagem simples | dev-fullstack-2 |
 | T-004 | US-003 | Frontend 🆕 | Onboarding 3 passos pós-cadastro — animações suaves, progress indicator, skip opcional, aha moment ≤ 60s | dev-fullstack-2 |
-| T-005 | US-004/005 | Backend | CRUD de viagens — Server Actions, validação Zod, autorização BOLA-safe, testes unitários | dev-fullstack-1 |
-| T-006 | US-004/005 | Frontend | UI dashboard de viagens — lista, card visual, modal criação/edição, autocomplete Google Places API | dev-fullstack-2 |
-| T-007 | US-006 | Backend 🆕 | Claude API — prompt engineering para geração de plano (itinerário dia a dia, atividades, custos estimados, cache) | dev-fullstack-1 |
-| T-008 | US-006 | Frontend 🆕 | UI geração de plano — seleção visual de estilo (ícones), slider de orçamento, animação de loading, máx. 3 interações | dev-fullstack-2 |
-| T-009 | US-007 | Frontend | Editor de itinerário — drag-and-drop, add/edit/delete por dia, touch-friendly | dev-fullstack-2 |
-| T-010 | US-008 | Backend | Claude API — prompt engineering para checklist por destino (docs, saúde, moeda, clima, tecnologia) | dev-fullstack-1 |
-| T-011 | US-008 | Frontend | UI checklist — lista editável, checkbox, categorias visuais, add item manual | dev-fullstack-2 |
-| T-012 | US-015 | Backend | Setup i18n (next-intl) — PT-BR e EN, estrutura para novos idiomas, seletor no perfil | dev-fullstack-1 |
+| T-005 | US-004/005 | Backend | ✅ CRUD de viagens — Server Actions, validação Zod, autorização BOLA-safe, testes unitários | dev-fullstack-1 |
+| T-006 | US-004/005 | Frontend | ✅ UI dashboard de viagens — lista, card visual, modal criação/edição, TripDashboard SSR + TanStack Query | dev-fullstack-2 |
+| T-007 | US-006 | Backend 🆕 | ✅ Claude API — prompt engineering para geração de plano (itinerário dia a dia, atividades, custos estimados, cache) | dev-fullstack-1 |
+| T-008 | US-006 | Frontend 🆕 | ✅ UI geração de plano — seleção visual de estilo (ícones), slider de orçamento, animação de loading, máx. 3 interações | dev-fullstack-2 |
+| T-009 | US-007 | Frontend | ✅ Editor de itinerário — drag-and-drop, add/edit/delete por dia, touch-friendly | dev-fullstack-2 |
+| T-010 | US-008 | Backend | ✅ Claude API — prompt engineering para checklist por destino (docs, saúde, moeda, clima, tecnologia) | dev-fullstack-1 |
+| T-011 | US-008 | Frontend | ✅ UI checklist — lista editável, checkbox, categorias visuais, add item manual | dev-fullstack-2 |
+| T-012 | US-015 | Backend | ✅ Setup i18n (next-intl) — PT-BR e EN, estrutura para novos idiomas, seletor no perfil | dev-fullstack-1 |
 | T-013 | ALL | QA | Testes unitários Sprint 1 — cobertura ≥ 80%, foco em auth, IA e CRUD de viagens | qa-engineer |
 | T-014 | ALL | QA | E2E Sprint 1 — cadastro → onboarding → criar viagem → gerar plano → gerar checklist → validar 375px | qa-engineer |
 
@@ -444,7 +444,15 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 
 ## ✅ Concluído
 
-*(vazio — Sprint 1 em andamento)*
+- T-012: i18n setup (next-intl) — PT-BR e EN, namespaces, middleware, locale routing
+- T-001: Auth.js backend — Google OAuth + credentials, verificação de e-mail, recuperação de senha, testes unitários
+- T-005: CRUD de viagens — TripService, Server Actions, BOLA-safe, testes unitários (15 tests)
+- T-006: UI dashboard de viagens — TripDashboard, TripCard, modais, QueryProvider, SSR + TanStack Query
+- T-007: Claude API — AiService.generateTravelPlan, cache Redis MD5, Zod validation, 12 testes unitários
+- T-010: Claude API — AiService.generateChecklist, cache por mês, Zod validation (incluído em T-007)
+- T-008: UI geração de plano — PlanGeneratorWizard 3 passos, LoadingPlanAnimation, page /generate
+- T-009: Editor drag-and-drop — ItineraryEditor (dnd-kit), ItineraryDayCard, ActivityItem, page /itinerary
+- T-011: UI checklist — ChecklistView, ChecklistCategorySection, ChecklistItemRow, page /checklist
 
 ---
 

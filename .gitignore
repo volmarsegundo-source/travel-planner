@@ -1,0 +1,50 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Environment files — NEVER commit these
+.env
+.env.local
+.env.staging
+.env.production
+.env.*.local
+
+# Next.js
+.next/
+out/
+
+# Build outputs
+dist/
+
+# Coverage reports
+coverage/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Prisma
+prisma/*.db
+prisma/*.db-journal
+
+# Vercel
+.vercel
+
+# TypeScript
+*.tsbuildinfo
+next-env.d.ts
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.idea/
+.vscode/settings.json
+*.swp
+*.swo

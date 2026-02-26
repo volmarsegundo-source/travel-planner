@@ -1,0 +1,187 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────────────────────────
+
+enum TripStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+
+enum TripVisibility {
+  PRIVATE
+  PUBLIC
+  SHARED
+}
+
+// ─── Auth.js required models ─────────────────────────────────────────────────
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// ─── User ─────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  emailVerified DateTime?
+  name          String?
+  avatarUrl     String?
+  image         String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  accounts Account[]
+  sessions Session[]
+  trips    Trip[]
+
+  @@index([email])
+  @@index([deletedAt])
+  @@map("users")
+}
+
+// ─── Trip ────────────────────────────────────────────────────────────────────
+
+model Trip {
+  id          String         @id @default(cuid())
+  userId      String
+
+  // Dados principais
+  title       String         @db.VarChar(100)
+  destination String         @db.VarChar(150)
+  description String?        @db.VarChar(500)
+
+  // Datas
+  startDate   DateTime?
+  endDate     DateTime?
+
+  // Capa (v1: nome do gradiente + emoji — sem URL de imagem)
+  coverGradient String       @default("sunset") @db.VarChar(50)
+  coverEmoji    String       @default("✈️")    @db.VarChar(10)
+
+  // Estado
+  status      TripStatus     @default(PLANNING)
+  visibility  TripVisibility @default(PRIVATE)
+
+  // Timestamps
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  deletedAt   DateTime?
+
+  // Relacoes
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itineraryDays ItineraryDay[]
+
+  // Indexes
+  @@index([userId, deletedAt])
+  @@index([userId, status, deletedAt])
+  @@index([userId, startDate, deletedAt])
+  @@map("trips")
+}
+
+// ─── ItineraryDay ─────────────────────────────────────────────────────────────
+
+model ItineraryDay {
+  id        String   @id @default(cuid())
+  tripId    String
+  dayNumber Int
+  date      DateTime?
+  notes     String?  @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trip       Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  activities Activity[]
+
+  @@unique([tripId, dayNumber])
+  @@index([tripId])
+  @@map("itinerary_days")
+}
+
+// ─── Activity ─────────────────────────────────────────────────────────────────
+
+model Activity {
+  id           String   @id @default(cuid())
+  dayId        String
+  title        String   @db.VarChar(200)
+  notes        String?  @db.Text
+  startTime    String?  @db.VarChar(5)
+  endTime      String?  @db.VarChar(5)
+  orderIndex   Int      @default(0)
+  activityType String?  @db.VarChar(50)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  day ItineraryDay @relation(fields: [dayId], references: [id], onDelete: Cascade)
+
+  @@index([dayId, orderIndex])
+  @@map("activities")
+}
+
+// ─── ChecklistItem ─────────────────────────────────────────────────────────────
+
+model ChecklistItem {
+  id       String  @id @default(cuid())
+  tripId   String
+  category String  @db.VarChar(50)
+  label    String  @db.VarChar(200)
+  checked  Boolean @default(false)
+  orderIndex Int   @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tripId, category])
+  @@map("checklist_items")
+}

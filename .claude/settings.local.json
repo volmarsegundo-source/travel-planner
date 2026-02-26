@@ -2,7 +2,32 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "Bash(cd:*)"
+      "Bash(cd:*)",
+      "Bash(git:*)",
+      "Bash(echo:*)",
+      "Bash(cmd.exe:*)",
+      "Bash(cmd:*)",
+      "Bash(powershell.exe:*)",
+      "Bash(grep:*)",
+      "Bash(node:*)",
+      "Bash(winget:*)",
+      "Bash(export:*)",
+      "Bash(cd /c/travel-planner/.claude/worktrees/agent-ae919677/.claude/worktrees/agent-afd1b416 && export PATH=\"/c/Program Files/nodejs:$PATH\" && npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --yes 2>&1)",
+      "Bash(cp:*)",
+      "Bash(cd /c/travel-planner/.claude/worktrees/agent-ae919677/.claude/worktrees/agent-afd1b416 && export PATH=\"/c/Program Files/nodejs:$PATH\" && npm install prisma @prisma/client @auth/prisma-adapter next-auth@beta 2>&1)",
+      "Bash(cd /c/travel-planner/.claude/worktrees/agent-ae919677/.claude/worktrees/agent-afd1b416 && export PATH=\"/c/Program Files/nodejs:$PATH\" && npm install @anthropic-ai/sdk @t3-oss/env-nextjs zod ioredis next-intl 2>&1)",
+      "Bash(cd /c/travel-planner/.claude/worktrees/agent-ae919677/.claude/worktrees/agent-afd1b416 && export PATH=\"/c/Program Files/nodejs:$PATH\" && npm install @tanstack/react-query @tanstack/react-query-devtools react-hook-form @hookform/resolvers bcryptjs 2>&12)",
+      "Bash(cd /c/travel-planner/.claude/worktrees/agent-ae919677/.claude/worktrees/agent-afd1b416 && export PATH=\"/c/Program Files/nodejs:$PATH\" && npm install -D vitest @vitejs/plugin-react jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event vitest-mock-extended @playwright/test @types/bcryptjs 2>&1)",
+      "Bash(cd /c/travel-planner/.claude/worktrees/agent-ae919677/.claude/worktrees/agent-afd1b416 && export PATH=\"/c/Program Files/nodejs:$PATH\" && npx prisma init 2>&1)",
+      "Bash(wc:*)",
+      "Bash(echo no version manager found:*)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npm install 2>&1)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npm audit --audit-level=high 2>&1)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npx prisma generate)",
+      "Bash(echo done:*)",
+      "Bash(head:*)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npx tsc --noEmit 2>&1)",
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npm install clsx 2>&1)"
     ]
   }
 }
