@@ -1,0 +1,124 @@
+{
+  "common": {
+    "appName": "Travel Planner",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "back": "Back",
+    "next": "Next",
+    "skip": "Skip",
+    "finish": "Finish",
+    "confirm": "Confirm",
+    "error": "Something went wrong. Please try again.",
+    "success": "Saved successfully!",
+    "tryAgain": "Try again"
+  },
+  "auth": {
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "signUp": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "name": "Your name",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset password",
+    "sendResetLink": "Send reset link",
+    "continueWithGoogle": "Continue with Google",
+    "orContinueWith": "or continue with",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "verifyEmail": "Verify email",
+    "verifyEmailMessage": "We sent a verification link to {email}. Check your inbox.",
+    "resendEmail": "Resend email",
+    "emailVerified": "Email verified successfully!",
+    "passwordResetSent": "Reset link sent. Check your email.",
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "emailAlreadyExists": "This email is already registered.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email.",
+      "passwordRequired": "Password is required.",
+      "passwordTooShort": "Password must be at least 8 characters.",
+      "passwordsDoNotMatch": "Passwords do not match.",
+      "nameRequired": "Name is required.",
+      "emailNotVerified": "Please verify your email before signing in.",
+      "tokenExpired": "This link has expired. Please request a new one."
+    }
+  },
+  "trustSignals": {
+    "badge": "Your data is protected",
+    "privacy": "We never share your data with third parties. You can delete your account at any time.",
+    "deleteAccount": "Delete my account"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Welcome, {name}!",
+      "subtitle": "You're 60 seconds away from your first travel itinerary.",
+      "cta": "Let's start"
+    },
+    "step2": {
+      "title": "Where are you going?",
+      "subtitle": "Tell us your destination and dates — AI does the rest.",
+      "cta": "Create my trip"
+    },
+    "step3": {
+      "title": "Generating your plan...",
+      "subtitle": "Our AI is building a complete itinerary for you.",
+      "cta": "See my plan"
+    },
+    "progress": "Step {current} of {total}",
+    "skip": "Skip for now"
+  },
+  "trips": {
+    "myTrips": "My trips",
+    "newTrip": "New trip",
+    "noTrips": "You don't have any trips yet.",
+    "noTripsSubtitle": "Create your first trip and let AI build the itinerary.",
+    "createFirst": "Create first trip",
+    "destination": "Destination",
+    "startDate": "Departure date",
+    "endDate": "Return date",
+    "travelers": "Travelers",
+    "title": "Trip name",
+    "description": "Description (optional)",
+    "deleteConfirm": "To confirm, type the trip name:",
+    "errors": {
+      "titleRequired": "Trip name is required.",
+      "destinationRequired": "Destination is required.",
+      "endDateBeforeStart": "Return date must be after departure.",
+      "maxTripsReached": "You have reached the limit of {max} active trips.",
+      "notFound": "Trip not found.",
+      "notAuthorized": "You don't have permission to access this trip."
+    }
+  },
+  "itinerary": {
+    "day": "Day {number}",
+    "addActivity": "Add activity",
+    "editActivity": "Edit activity",
+    "deleteActivity": "Delete activity",
+    "noActivities": "No activities on this day.",
+    "saved": "Saved"
+  },
+  "checklist": {
+    "title": "Travel checklist",
+    "addItem": "Add item",
+    "categories": {
+      "DOCUMENTS": "Documents",
+      "HEALTH": "Health",
+      "CURRENCY": "Money",
+      "WEATHER": "Weather",
+      "TECHNOLOGY": "Technology"
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Connection problem. Check your internet.",
+    "timeout": "The operation took too long. Please try again.",
+    "unauthorized": "You need to sign in to continue.",
+    "forbidden": "You don't have permission to do this.",
+    "notFound": "Page not found."
+  }
+}

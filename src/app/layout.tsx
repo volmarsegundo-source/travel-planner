@@ -1,18 +1,12 @@
-import type { Metadata } from "next";
-import "./globals.css";
-
-export const metadata: Metadata = {
-  title: "Travel Planner",
-  description: "Plan your perfect trip",
-};
-
+// Root layout — minimal shell required by Next.js App Router.
+// All locale-aware content lives in src/app/[locale]/layout.tsx.
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html>
       <body>{children}</body>
     </html>
   );

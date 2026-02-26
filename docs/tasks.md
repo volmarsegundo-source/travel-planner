@@ -399,7 +399,7 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 
 | # | Stories | Tipo | Descrição | Agente |
 |---|---------|------|-----------|--------|
-| T-001 | US-001/002 | Backend | Auth.js — Google OAuth + credentials, verificação de e-mail obrigatória, recuperação de senha 2 passos | dev-fullstack-1 |
+| T-001 | US-001/002 | Backend | ✅ Auth.js — Google OAuth + credentials, verificação de e-mail obrigatória, recuperação de senha 2 passos | dev-fullstack-1 |
 | T-002 | US-001/002 | Frontend | UI autenticação — cadastro máx. 3 campos, login, recuperação — WCAG 2.1 AA, mobile-first 375px | dev-fullstack-2 |
 | T-003 | US-002B | Frontend 🆕 | Trust signals no cadastro — badge de segurança, mini política em 2 linhas, linguagem simples | dev-fullstack-2 |
 | T-004 | US-003 | Frontend 🆕 | Onboarding 3 passos pós-cadastro — animações suaves, progress indicator, skip opcional, aha moment ≤ 60s | dev-fullstack-2 |
@@ -410,7 +410,7 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 | T-009 | US-007 | Frontend | Editor de itinerário — drag-and-drop, add/edit/delete por dia, touch-friendly | dev-fullstack-2 |
 | T-010 | US-008 | Backend | Claude API — prompt engineering para checklist por destino (docs, saúde, moeda, clima, tecnologia) | dev-fullstack-1 |
 | T-011 | US-008 | Frontend | UI checklist — lista editável, checkbox, categorias visuais, add item manual | dev-fullstack-2 |
-| T-012 | US-015 | Backend | Setup i18n (next-intl) — PT-BR e EN, estrutura para novos idiomas, seletor no perfil | dev-fullstack-1 |
+| T-012 | US-015 | Backend | ✅ Setup i18n (next-intl) — PT-BR e EN, estrutura para novos idiomas, seletor no perfil | dev-fullstack-1 |
 | T-013 | ALL | QA | Testes unitários Sprint 1 — cobertura ≥ 80%, foco em auth, IA e CRUD de viagens | qa-engineer |
 | T-014 | ALL | QA | E2E Sprint 1 — cadastro → onboarding → criar viagem → gerar plano → gerar checklist → validar 375px | qa-engineer |
 

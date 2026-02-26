@@ -1,0 +1,33 @@
+import createMiddleware from 'next-intl/middleware';
+import { routing } from './i18n/routing';
+import { auth } from './lib/auth';
+
+const intlMiddleware = createMiddleware(routing);
+
+// Routes that require an authenticated session.
+const PROTECTED_PATH_SEGMENTS = ['/trips', '/onboarding', '/account'] as const;
+
+export default auth((req) => {
+  const { pathname } = req.nextUrl;
+
+  // API routes are handled independently — skip both intl and auth redirects.
+  if (pathname.startsWith('/api')) return;
+
+  // Redirect unauthenticated users away from protected paths.
+  const isProtected = PROTECTED_PATH_SEGMENTS.some((segment) =>
+    pathname.includes(segment)
+  );
+
+  if (isProtected && !req.auth) {
+    const loginUrl = new URL('/auth/login', req.url);
+    loginUrl.searchParams.set('callbackUrl', pathname);
+    return Response.redirect(loginUrl);
+  }
+
+  return intlMiddleware(req);
+});
+
+export const config = {
+  // Match all paths except Next.js internals and static files.
+  matcher: ['/((?!_next|.*\\..*).*)'],
+};

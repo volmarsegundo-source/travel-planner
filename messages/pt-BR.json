@@ -1,0 +1,124 @@
+{
+  "common": {
+    "appName": "Travel Planner",
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "back": "Voltar",
+    "next": "Próximo",
+    "skip": "Pular",
+    "finish": "Concluir",
+    "confirm": "Confirmar",
+    "error": "Ocorreu um erro. Tente novamente.",
+    "success": "Salvo com sucesso!",
+    "tryAgain": "Tentar novamente"
+  },
+  "auth": {
+    "signIn": "Entrar",
+    "signOut": "Sair",
+    "signUp": "Criar conta",
+    "email": "E-mail",
+    "password": "Senha",
+    "confirmPassword": "Confirmar senha",
+    "name": "Seu nome",
+    "forgotPassword": "Esqueceu a senha?",
+    "resetPassword": "Redefinir senha",
+    "sendResetLink": "Enviar link de redefinição",
+    "continueWithGoogle": "Continuar com Google",
+    "orContinueWith": "ou continue com",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "dontHaveAccount": "Não tem uma conta?",
+    "verifyEmail": "Verificar e-mail",
+    "verifyEmailMessage": "Enviamos um link de verificação para {email}. Verifique sua caixa de entrada.",
+    "resendEmail": "Reenviar e-mail",
+    "emailVerified": "E-mail verificado com sucesso!",
+    "passwordResetSent": "Link de redefinição enviado. Verifique seu e-mail.",
+    "errors": {
+      "invalidCredentials": "E-mail ou senha incorretos.",
+      "emailAlreadyExists": "Este e-mail já está cadastrado.",
+      "emailRequired": "E-mail é obrigatório.",
+      "emailInvalid": "Digite um e-mail válido.",
+      "passwordRequired": "Senha é obrigatória.",
+      "passwordTooShort": "A senha deve ter pelo menos 8 caracteres.",
+      "passwordsDoNotMatch": "As senhas não coincidem.",
+      "nameRequired": "Nome é obrigatório.",
+      "emailNotVerified": "Verifique seu e-mail antes de fazer login.",
+      "tokenExpired": "Este link expirou. Solicite um novo."
+    }
+  },
+  "trustSignals": {
+    "badge": "Seus dados estão protegidos",
+    "privacy": "Não compartilhamos seus dados com terceiros. Você pode excluir sua conta a qualquer momento.",
+    "deleteAccount": "Excluir minha conta"
+  },
+  "onboarding": {
+    "step1": {
+      "title": "Bem-vindo, {name}!",
+      "subtitle": "Você está a 60 segundos do seu primeiro roteiro de viagem.",
+      "cta": "Vamos começar"
+    },
+    "step2": {
+      "title": "Para onde você vai?",
+      "subtitle": "Diga seu destino e datas — a IA faz o resto.",
+      "cta": "Criar minha viagem"
+    },
+    "step3": {
+      "title": "Gerando seu plano...",
+      "subtitle": "Nossa IA está montando um itinerário completo para você.",
+      "cta": "Ver meu plano"
+    },
+    "progress": "Passo {current} de {total}",
+    "skip": "Pular por agora"
+  },
+  "trips": {
+    "myTrips": "Minhas viagens",
+    "newTrip": "Nova viagem",
+    "noTrips": "Você ainda não tem viagens.",
+    "noTripsSubtitle": "Crie sua primeira viagem e deixe a IA montar o roteiro.",
+    "createFirst": "Criar primeira viagem",
+    "destination": "Destino",
+    "startDate": "Data de ida",
+    "endDate": "Data de volta",
+    "travelers": "Viajantes",
+    "title": "Nome da viagem",
+    "description": "Descrição (opcional)",
+    "deleteConfirm": "Para confirmar, digite o nome da viagem:",
+    "errors": {
+      "titleRequired": "Nome da viagem é obrigatório.",
+      "destinationRequired": "Destino é obrigatório.",
+      "endDateBeforeStart": "A data de volta deve ser após a ida.",
+      "maxTripsReached": "Você atingiu o limite de {max} viagens ativas.",
+      "notFound": "Viagem não encontrada.",
+      "notAuthorized": "Você não tem permissão para acessar esta viagem."
+    }
+  },
+  "itinerary": {
+    "day": "Dia {number}",
+    "addActivity": "Adicionar atividade",
+    "editActivity": "Editar atividade",
+    "deleteActivity": "Excluir atividade",
+    "noActivities": "Nenhuma atividade neste dia.",
+    "saved": "Salvo"
+  },
+  "checklist": {
+    "title": "Checklist de viagem",
+    "addItem": "Adicionar item",
+    "categories": {
+      "DOCUMENTS": "Documentos",
+      "HEALTH": "Saúde",
+      "CURRENCY": "Dinheiro",
+      "WEATHER": "Clima",
+      "TECHNOLOGY": "Tecnologia"
+    }
+  },
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "network": "Problema de conexão. Verifique sua internet.",
+    "timeout": "A operação demorou demais. Tente novamente.",
+    "unauthorized": "Você precisa fazer login para continuar.",
+    "forbidden": "Você não tem permissão para realizar esta ação.",
+    "notFound": "Página não encontrada."
+  }
+}
