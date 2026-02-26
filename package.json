@@ -78,6 +78,7 @@
     "npm": ">=10.0.0"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma"
+    "schema": "prisma/schema.prisma",
+    "seed": "node --experimental-strip-types prisma/seed.ts"
   }
 }
