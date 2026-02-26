@@ -37,7 +37,7 @@ docs/
 
 ## 🤖 Agent Team
 
-This project uses a team of 5 specialized subagents.
+This project uses a team of 12 specialized subagents.
 Each agent has a defined role, specific tools, and clear boundaries.
 
 ### Team Overview
@@ -63,7 +63,8 @@ tech-lead                ← orchestrates execution (planning, review, quality g
     ├──▶ devops-engineer      ← owns CI/CD, infrastructure, observability
     ├──▶ qa-engineer          ← owns quality, test strategy, and release sign-off
     ├──▶ dev-fullstack-1      ← implements features (full-stack)
-    └──▶ dev-fullstack-2      ← implements features in parallel (full-stack)
+    ├──▶ dev-fullstack-2      ← implements features in parallel (full-stack)
+    └──▶ finops-engineer      ← guards costs, optimizes AI spend, FinOps reporting
 ```
 
 ### Agent Configuration Summary
@@ -81,6 +82,7 @@ tech-lead                ← orchestrates execution (planning, review, quality g
 | `qa-engineer` | opus-4-6 | Read, Write, Bash, WebSearch, WebFetch | project | Test strategy, E2E scenarios, quality gate, sign-off |
 | `dev-fullstack-1` | opus-4-6 | Read, Write, Edit, Bash, WebSearch, WebFetch | project | Full-stack implementation |
 | `dev-fullstack-2` | opus-4-6 | Read, Write, Edit, Bash, WebSearch, WebFetch | project | Full-stack implementation (parallel) |
+| `finops-engineer` | opus-4-6 | Read, Write, Bash, WebSearch, WebFetch | project | Cost monitoring, AI spend optimization, FinOps reporting |
 
 ### When to invoke each agent
 
@@ -109,6 +111,9 @@ tech-lead                ← orchestrates execution (planning, review, quality g
 | Validate a completed feature before release | `qa-engineer` |
 | Triage a bug and decide ship/hold | `qa-engineer` |
 | Implement any backend or frontend feature | `dev-fullstack-1` or `dev-fullstack-2` |
+| Monitor infra/AI costs, emit spending alerts | `finops-engineer` |
+| Audit cost impact of a new feature or ADR | `finops-engineer` |
+| Generate FinOps sprint report or cost projections | `finops-engineer` |
 
 ### Recommended workflow for a new feature
 
@@ -189,3 +194,121 @@ Before marking a sprint as done, confirm:
 - **Copyright**: only MIT, Apache 2.0, BSD, or ISC licensed dependencies
 - **Bias**: all outputs must be inclusive, fair, and free of discriminatory logic
 - **Privacy**: PII must be encrypted — never logged or exposed in API responses
+
+---
+
+## Agente FinOps — finops-engineer
+
+### Adicionado ao Agent Team
+O projeto agora conta com **12 agentes especializados**:
+
+```
+product-owner, ux-designer, architect, data-engineer, tech-lead,
+security-specialist, release-manager, devops-engineer, qa-engineer,
+dev-fullstack-1, dev-fullstack-2, **finops-engineer** (NOVO)
+```
+
+---
+
+## Definição do Agente FinOps
+
+```yaml
+# .claude/agents/finops-engineer.md
+name: finops-engineer
+role: Financial Operations & Cost Optimization Engineer
+reports_to: tech-lead
+collaborates_with: [all agents]
+memory_file: .claude/agent-memory/finops-engineer/MEMORY.md
+activation: per-sprint + on-demand
+```
+
+---
+
+## Como o Tech-Lead Orquestra o FinOps Engineer
+
+### Invocação Padrão por Sprint
+
+**Início de sprint (briefing):**
+```
+Invoke finops-engineer: sprint [N] kickoff briefing.
+Review sprint backlog and estimate cost impact of planned features.
+Alert all agents about FinOps considerations for this sprint.
+```
+
+**Durante o sprint (revisão de feature):**
+```
+Invoke finops-engineer: audit cost of [feature name] before implementation.
+Brief dev-fullstack-[1/2] on token optimization requirements.
+```
+
+**Final do sprint (relatório):**
+```
+Invoke finops-engineer: generate sprint [N] FinOps report.
+Update docs/finops/COST-LOG.md with actuals.
+Update docs/cost-management.docx.
+Provide executive summary for sprint review.
+```
+
+**Alerta de custo:**
+```
+Invoke finops-engineer: check all cost thresholds and emit alerts.
+```
+
+---
+
+## Protocolo de Revisão de Custos por Sprint
+
+O tech-lead DEVE incluir o finops-engineer nas seguintes etapas de cada sprint:
+
+### 1. Sprint Planning (início)
+- finops-engineer analisa backlog e estima impacto de custo de cada story
+- Emite briefing para os agentes de desenvolvimento
+- Identifica stories que requerem atenção especial de custo
+
+### 2. Mid-Sprint Check (meio)
+- finops-engineer verifica se custos estão dentro do esperado
+- Alerta sobre qualquer anomalia identificada
+- Sugere ajustes se necessário
+
+### 3. Sprint Review (final)
+- finops-engineer gera relatório completo do sprint
+- Apresenta otimizações implementadas e economia gerada
+- Atualiza documentação de custos
+- Propõe ações para o próximo sprint
+
+### 4. Cross-Sprint Learning
+- finops-engineer documenta lições aprendidas
+- Atualiza modelos de previsão com dados reais
+- Educa agentes sobre novos padrões identificados
+
+---
+
+## Regra de Ouro — Todos os Agentes
+
+**Antes de implementar qualquer feature que envolva:**
+- Chamadas à API Anthropic
+- Queries ao banco de dados em loop
+- Operações de alto volume
+- Novos serviços de terceiros
+
+**→ Consultar ou notificar o finops-engineer.**
+
+Esta regra deve ser seguida por todos os agentes. O tech-lead é responsável por garantir que o finops-engineer seja incluído no fluxo de decisão.
+
+---
+
+## Localização dos Arquivos FinOps
+
+```
+.claude/
+  agents/
+    finops-engineer.md          # Definição completa do agente
+  agent-memory/
+    finops-engineer/
+      MEMORY.md                 # Memória persistente do agente
+
+docs/
+  finops/
+    COST-LOG.md                 # Histórico de custos reais por sprint
+  cost-management.docx          # Documento executivo de gestão de custos
+```
