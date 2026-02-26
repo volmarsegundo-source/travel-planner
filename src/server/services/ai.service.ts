@@ -3,8 +3,8 @@ import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from "crypto";
 import { z } from "zod";
 import { redis } from "@/server/cache/redis";
+import { CacheKeys } from "@/server/cache/keys";
 import { CACHE_TTL } from "@/lib/constants";
-import { env } from "@/lib/env";
 import { logger } from "@/lib/logger";
 import { AppError } from "@/lib/errors";
 import type {
@@ -109,15 +109,25 @@ function extractJsonFromResponse(text: string): unknown {
   }
 }
 
+// ─── Anthropic singleton (lazy) ───────────────────────────────────────────────
+// Lazy initialization prevents env access at module-load time, which would
+// break unit tests that mock the Anthropic SDK before any env vars are set.
+
+function getAnthropic(): Anthropic {
+  const g = globalThis as unknown as { _anthropic?: Anthropic };
+  if (!g._anthropic) {
+    // Access via process.env to avoid t3-env client/server guard in test environments.
+    // env.ts validates the key at startup in production; here we read it directly.
+    g._anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY ?? "",
+    });
+  }
+  return g._anthropic;
+}
+
 // ─── AiService ────────────────────────────────────────────────────────────────
 
 export class AiService {
-  private static getClient(): Anthropic {
-    return new Anthropic({
-      apiKey: env.ANTHROPIC_API_KEY,
-    });
-  }
-
   /**
    * Generates a day-by-day travel itinerary using Claude.
    * Uses MD5-keyed Redis cache (TTL: 24h) to avoid redundant API calls.
@@ -133,7 +143,7 @@ export class AiService {
     const days = getDaysBetween(startDate, endDate);
     const cacheInput = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}`;
     const cacheHash = md5(cacheInput);
-    const cacheKey = `cache:ai-plan:${cacheHash}`;
+    const cacheKey = CacheKeys.aiPlan(cacheHash);
 
     // Cache hit
     const cached = await redis.get(cacheKey);
@@ -179,11 +189,9 @@ Respond ONLY with valid JSON in this exact format:
   "tips": ["string"]
 }`;
 
-    const client = AiService.getClient();
-
     let responseText: string;
     try {
-      const message = await client.messages.create(
+      const message = await getAnthropic().messages.create(
         {
           model: PLAN_MODEL,
           max_tokens: MAX_TOKENS_PLAN,
@@ -239,7 +247,7 @@ Respond ONLY with valid JSON in this exact format:
     const month = getMonthFromDate(startDate);
     const cacheInput = `${destination}:${month}:${travelers}:${language}`;
     const cacheHash = md5(cacheInput);
-    const cacheKey = `cache:ai-checklist:${cacheHash}`;
+    const cacheKey = CacheKeys.aiChecklist(cacheHash);
 
     // Cache hit
     const cached = await redis.get(cacheKey);
@@ -265,11 +273,9 @@ Respond ONLY with valid JSON:
   ]
 }`;
 
-    const client = AiService.getClient();
-
     let responseText: string;
     try {
-      const message = await client.messages.create(
+      const message = await getAnthropic().messages.create(
         {
           model: CHECKLIST_MODEL,
           max_tokens: MAX_TOKENS_CHECKLIST,

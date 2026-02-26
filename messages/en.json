@@ -169,6 +169,8 @@
     "forbidden": "You don't have permission to do this.",
     "notFound": "Page not found.",
     "aiParseError": "Could not read the AI response. Please try again.",
-    "aiSchemaError": "The AI returned an unexpected format. Please try again."
+    "aiSchemaError": "The AI returned an unexpected format. Please try again.",
+    "rateLimitExceeded": "Too many requests. Please try again later.",
+    "validation": "Invalid input data."
   }
 }

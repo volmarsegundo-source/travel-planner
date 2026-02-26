@@ -1,6 +1,6 @@
 import { verifyEmailAction } from "@/server/actions/auth.actions";
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { getLocale } from "next-intl/server";
+import { redirect, Link } from "@/i18n/navigation";
 
 interface VerifyEmailPageProps {
   searchParams: Promise<{ token?: string }>;
@@ -20,10 +20,11 @@ export default async function VerifyEmailPage({
   const result = await verifyEmailAction(token);
 
   if (result.success) {
-    redirect("/auth/login?verified=true");
+    const locale = await getLocale();
+    redirect({ href: "/auth/login", locale });
   }
 
-  return <VerifyEmailError errorKey={result.error} />;
+  return <VerifyEmailError errorKey={!result.success ? result.error : "errors.generic"} />;
 }
 
 // ─── Sub-components ───────────────────────────────────────────────────────────

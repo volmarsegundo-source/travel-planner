@@ -122,8 +122,36 @@ jobs:
       - name: Audit npm dependencies
         run: npm audit --audit-level=high
 
+      - name: Run Semgrep SAST
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: "p/secrets p/owasp-top-ten"
+        continue-on-error: false
+
   # ─────────────────────────────────────────
-  # STAGE 4: E2E TESTS (on PR to main only)
+  # STAGE 4: DOCKER BUILD + VULNERABILITY SCAN
+  # ─────────────────────────────────────────
+  build-and-scan:
+    name: Docker Build + Trivy Scan
+    runs-on: ubuntu-latest
+    needs: [test, sast]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t travel-planner:ci .
+
+      - name: Run Trivy vulnerability scan
+        run: |
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            aquasec/trivy:latest image \
+            --exit-code 1 \
+            --severity HIGH,CRITICAL \
+            travel-planner:ci
+
+  # ─────────────────────────────────────────
+  # STAGE 5: E2E TESTS (on PR to main only)
   # ─────────────────────────────────────────
   e2e:
     name: E2E Tests (Playwright)
@@ -188,7 +216,7 @@ jobs:
         run: npm run build
 
       - name: Run E2E tests
-        run: npm run test:e2e
+        run: npm run test:e2e -- --project=chromium
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4

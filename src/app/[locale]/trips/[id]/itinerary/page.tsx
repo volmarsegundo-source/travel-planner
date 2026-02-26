@@ -1,5 +1,4 @@
-import { redirect } from "next/navigation";
-import Link from "next/link";
+import { redirect, Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
@@ -14,7 +13,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
 
   const session = await auth();
   if (!session?.user?.id) {
-    redirect(`/${locale}/auth/login`);
+    redirect({ href: "/auth/login", locale });
   }
 
   const t = await getTranslations("common");
@@ -23,7 +22,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
 
   // Fetch trip with ownership check
   const trip = await db.trip.findFirst({
-    where: { id, userId: session.user.id, deletedAt: null },
+    where: { id, userId: session?.user?.id ?? "", deletedAt: null },
     select: {
       id: true,
       title: true,
@@ -44,7 +43,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
       <div className="min-h-screen flex flex-col items-center justify-center gap-4 px-4">
         <p className="text-muted-foreground">{tTrips("errors.notFound")}</p>
         <Link
-          href={`/${locale}/trips`}
+          href="/trips"
           className="text-sm text-primary underline underline-offset-4"
         >
           {t("back")}
@@ -58,7 +57,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         {/* Back link */}
         <Link
-          href={`/${locale}/trips/${id}`}
+          href={`/trips/${id}`}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
         >
           {t("back")}
@@ -72,7 +71,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
           </div>
           {trip.itineraryDays.length === 0 && (
             <Link
-              href={`/${locale}/trips/${id}/generate`}
+              href={`/trips/${id}/generate`}
               className="inline-flex items-center justify-center min-h-[44px] rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               {tItinerary("generate")}

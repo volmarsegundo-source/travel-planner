@@ -169,6 +169,8 @@
     "forbidden": "Você não tem permissão para realizar esta ação.",
     "notFound": "Página não encontrada.",
     "aiParseError": "Não foi possível ler a resposta da IA. Tente novamente.",
-    "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente."
+    "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
+    "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
+    "validation": "Dados de entrada inválidos."
   }
 }

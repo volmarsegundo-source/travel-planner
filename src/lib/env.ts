@@ -4,7 +4,12 @@ import { z } from "zod";
 export const env = createEnv({
   server: {
     DATABASE_URL: z.string().url(),
-    REDIS_URL: z.string().url().default("redis://localhost:6379"),
+    REDIS_URL: z.string().url().refine(
+      // Use REDIS_TLS_REQUIRED=true in production deployments (not tied to NODE_ENV,
+      // which is also "production" during local `npm run build`).
+      (url) => process.env.REDIS_TLS_REQUIRED !== "true" || url.startsWith("rediss://"),
+      { message: "REDIS_URL must use rediss:// (TLS) when REDIS_TLS_REQUIRED=true" }
+    ).default("redis://localhost:6379"),
     ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-"),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),

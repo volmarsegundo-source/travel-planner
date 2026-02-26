@@ -1,11 +1,13 @@
 "use server";
 import "server-only";
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { UnauthorizedError } from "@/lib/errors";
 import { TripService } from "@/server/services/trip.service";
 import { logger } from "@/lib/logger";
+import { mapErrorToKey } from "@/lib/action-utils";
 import type { ActionResult } from "@/types/trip.types";
 import type { ActivityType } from "@/types/ai.types";
 
@@ -43,14 +45,17 @@ export interface ItineraryDayWithActivities {
   activities: Activity[];
 }
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Validation ───────────────────────────────────────────────────────────────
 
-function mapErrorToKey(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "errors.generic";
-}
+const ActivityDataSchema = z.object({
+  title: z.string().min(1).max(200),
+  notes: z.string().max(2000).optional(),
+  startTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  endTime: z.string().regex(/^\d{2}:\d{2}$/).optional(),
+  activityType: z.enum(["SIGHTSEEING", "FOOD", "TRANSPORT", "ACCOMMODATION", "LEISURE", "SHOPPING"]).optional(),
+});
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 async function verifyTripOwnership(
   tripId: string,
@@ -85,6 +90,11 @@ export async function addActivityAction(
   });
   if (!day) {
     return { success: false, error: "trips.errors.notFound" };
+  }
+
+  const parsedData = ActivityDataSchema.safeParse(data);
+  if (!parsedData.success) {
+    return { success: false, error: "errors.validation" };
   }
 
   try {
@@ -142,6 +152,11 @@ export async function updateActivityAction(
   });
   if (!activity) {
     return { success: false, error: "trips.errors.notFound" };
+  }
+
+  const parsedData = ActivityDataSchema.partial().safeParse(data);
+  if (!parsedData.success) {
+    return { success: false, error: "errors.validation" };
   }
 
   try {

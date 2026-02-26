@@ -1,5 +1,5 @@
-export type TripStatus = "PLANNING" | "ACTIVE" | "COMPLETED" | "ARCHIVED";
-export type TripVisibility = "PRIVATE" | "PUBLIC" | "SHARED";
+export type { TripStatus, TripVisibility } from "@prisma/client";
+import type { TripStatus, TripVisibility } from "@prisma/client";
 
 export interface Trip {
   id: string;
@@ -16,21 +16,6 @@ export interface Trip {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
-}
-
-export interface CreateTripInput {
-  title: string;
-  destination: string;
-  description?: string;
-  startDate?: Date;
-  endDate?: Date;
-  coverGradient?: string;
-  coverEmoji?: string;
-}
-
-export interface UpdateTripInput extends Partial<CreateTripInput> {
-  status?: TripStatus;
-  visibility?: TripVisibility;
 }
 
 // ─── Shared result types ──────────────────────────────────────────────────────

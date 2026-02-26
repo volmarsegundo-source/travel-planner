@@ -1,10 +1,12 @@
 "use server";
 import "server-only";
+import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { UnauthorizedError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { mapErrorToKey } from "@/lib/action-utils";
 import type { ActionResult } from "@/types/trip.types";
 import type { ChecklistCategory } from "@/types/ai.types";
 
@@ -22,13 +24,6 @@ export interface ChecklistItem {
 }
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
-
-function mapErrorToKey(error: unknown): string {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return "errors.generic";
-}
 
 async function verifyTripOwnership(
   tripId: string,
@@ -90,8 +85,10 @@ export async function addChecklistItemAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
-  if (!label.trim()) {
-    return { success: false, error: "errors.generic" };
+  try {
+    z.string().min(1).max(200).parse(label.trim());
+  } catch {
+    return { success: false, error: "errors.validation" };
   }
 
   // BOLA check

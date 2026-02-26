@@ -104,7 +104,16 @@ export class TripService {
     }
 
     const trip = await db.trip.create({
-      data: { ...data, userId },
+      data: {
+        title: data.title,
+        destination: data.destination,
+        description: data.description,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        coverGradient: data.coverGradient ?? "sunset",
+        coverEmoji: data.coverEmoji ?? "✈️",
+        userId,
+      },
       select: TRIP_SELECT,
     });
 

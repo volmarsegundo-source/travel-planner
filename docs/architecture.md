@@ -775,8 +775,63 @@ Docker Compose services:
 
 ---
 
+### ADR-003: Claude AI Integration via Anthropic SDK
+**Date**: 2026-02-26
+**Status**: Accepted
+
+**Context**: The app requires AI-generated travel itineraries and checklists.
+
+**Decision**: Use the Anthropic SDK directly with `claude-sonnet-4-6` for itinerary generation and `claude-haiku-4-5-20251001` for checklist generation.
+
+**Implementation details**:
+- Models: `claude-sonnet-4-6` (itinerary), `claude-haiku-4-5-20251001` (checklist)
+- Timeout: 55 seconds via `AbortSignal.timeout`
+- Cache: MD5-keyed Redis, 24h TTL, budget bucketing (nearest 500)
+- Response: JSON-only prompt + Zod validation before persist
+- Error codes: AI_TIMEOUT (504), AI_PARSE_ERROR (502), AI_SCHEMA_ERROR (502)
+
+**Consequences**: Vendor lock-in to Anthropic. Rate limits apply. Cost is variable based on usage.
+
+---
+
+### ADR-004: next-intl for Internationalization
+**Date**: 2026-02-26
+**Status**: Accepted
+
+**Context**: The app must support multiple locales (pt-BR and en).
+
+**Decision**: Use `next-intl` over `react-i18next` for native Next.js App Router support with server components.
+
+**Implementation details**:
+- Locales: `pt-BR` (default), `en`
+- Routing: `[locale]` dynamic segment in App Router
+- Middleware: next-intl middleware wraps Auth.js middleware
+- Messages: JSON files in `messages/` directory
+
+**Consequences**: App Router-native, no client bundle overhead for server components. Migration cost if switching later.
+
+---
+
+### ADR-005: Auth.js Database Session Strategy
+**Date**: 2026-02-26
+**Status**: Accepted (deviates from ADR-001)
+
+**Context**: ADR-001 specified Redis-backed JWT sessions. However, `@auth/prisma-adapter` requires the database session strategy.
+
+**Decision**: Use database session strategy with PrismaAdapter.
+
+**Trade-offs**:
+- +1 DB read per authenticated request
+- Benefit: JWT-less session revocation (immediate invalidation)
+- Benefit: Session data is always consistent with DB state
+
+**Future**: Will re-evaluate for horizontal scale post-MVP. Redis session caching can be layered on top if read latency becomes a concern.
+
+---
+
 ## Document Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0.0 | 2026-02-23 | architect | Initial architecture — ADR-001, ADR-002, system design, conventions |
+| 1.1.0 | 2026-02-26 | architect | Added ADR-003 (Claude AI), ADR-004 (next-intl), ADR-005 (Auth.js database sessions) |

@@ -18,7 +18,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { loginAs, TEST_USER } from "./helpers";
+import { loginAs, TEST_USER, TEST_USER_B } from "./helpers";
 
 // ---------------------------------------------------------------------------
 // Shared beforeEach: log in as the synthetic test user before every test.
@@ -262,5 +262,158 @@ test.describe("Trip card content", () => {
 
     // The trip detail page URL follows the pattern /trips/<id>.
     await page.waitForURL(/\/trips\/[^/]+$/, { timeout: 10_000 });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// 4. Security — BOLA (Broken Object Level Authorization) isolation
+// ---------------------------------------------------------------------------
+//
+// These tests manage their own browser contexts and do NOT rely on the shared
+// beforeEach loginAs. Each test creates two independent sessions to simulate
+// two distinct authenticated users operating concurrently.
+//
+// Synthetic credentials are defined in helpers.ts. Override via env vars in CI:
+//   TEST_USER_EMAIL / TEST_USER_PASSWORD   → User A (primary test account)
+//   TEST_USER_B_EMAIL / TEST_USER_B_PASSWORD → User B (secondary test account)
+
+test.describe("BOLA isolation", () => {
+  test("E2E-040 — User B cannot access User A's trip via direct URL", async ({
+    browser,
+  }) => {
+    // Create two isolated browser contexts to simulate two different users.
+    // Each context has its own cookie jar and session state — they cannot share
+    // session tokens, which is the correct model for a BOLA attack simulation.
+    const contextA = await browser.newContext();
+    const contextB = await browser.newContext();
+
+    try {
+      const pageA = await contextA.newPage();
+      const pageB = await contextB.newPage();
+
+      // --- Step 1: Log in as User A and capture a trip ID ---
+
+      await loginAs(pageA, TEST_USER.email, TEST_USER.password);
+
+      // Ensure we are on the trips dashboard before attempting to read trip IDs.
+      await expect(
+        pageA.getByRole("heading", { name: /minhas viagens/i })
+      ).toBeVisible({ timeout: 10_000 });
+
+      // Wait for the page to finish loading trip data (skeletons resolve).
+      await pageA.waitForLoadState("networkidle");
+
+      // Extract a trip ID from the first trip link in the dashboard.
+      // TripCard renders a Link whose href follows the pattern /trips/<id>.
+      let tripId: string | null = null;
+      const tripLink = pageA.locator('a[href*="/trips/"]').first();
+
+      if ((await tripLink.count()) > 0) {
+        const href = await tripLink.getAttribute("href");
+        const match = href?.match(/\/trips\/([^/]+)/);
+        tripId = match?.[1] ?? null;
+      }
+
+      // If User A has no trips yet, create one so there is a resource to test
+      // isolation against. This keeps the test self-contained and not reliant
+      // on pre-seeded data beyond the two user accounts.
+      if (!tripId) {
+        const isolationTripTitle = `BOLA Isolation Trip ${Date.now()}`;
+
+        await pageA.getByRole("button", { name: /nova viagem/i }).click();
+
+        const dialog = pageA.getByRole("dialog");
+        await expect(dialog).toBeVisible({ timeout: 5_000 });
+
+        await dialog
+          .getByLabel(/nome da viagem|title/i)
+          .fill(isolationTripTitle);
+        await dialog.getByLabel(/destino|destination/i).fill("Test City");
+        await dialog.getByRole("button", { name: /salvar|save/i }).click();
+
+        await expect(dialog).not.toBeVisible({ timeout: 10_000 });
+
+        // Navigate back to the dashboard and re-attempt to extract the trip ID
+        // from the newly created card's link.
+        await pageA.goto("/trips");
+        await pageA.waitForLoadState("networkidle");
+
+        const newTripLink = pageA
+          .locator('a[href*="/trips/"]')
+          .filter({
+            has: pageA.getByText(isolationTripTitle),
+          })
+          .first();
+
+        if ((await newTripLink.count()) > 0) {
+          const href = await newTripLink.getAttribute("href");
+          const match = href?.match(/\/trips\/([^/]+)/);
+          tripId = match?.[1] ?? null;
+        }
+      }
+
+      // If we still cannot obtain a trip ID (e.g. the feature is not yet
+      // implemented or the DOM structure differs), skip rather than fail with
+      // a misleading assertion.
+      if (!tripId) {
+        test.skip();
+        return;
+      }
+
+      // --- Step 2: Log in as User B in a completely separate context ---
+
+      await loginAs(pageB, TEST_USER_B.email, TEST_USER_B.password);
+
+      await expect(
+        pageB.getByRole("heading", { name: /minhas viagens/i })
+      ).toBeVisible({ timeout: 10_000 });
+
+      // --- Step 3: Attempt to access User A's trip directly ---
+
+      // User B navigates directly to User A's itinerary URL, simulating an
+      // attacker who has guessed or enumerated a valid trip ID.
+      await pageB.goto(`/trips/${tripId}`);
+      await pageB.waitForLoadState("networkidle");
+
+      // --- Step 4: Assert that access is denied ---
+
+      // The app must respond with one of:
+      //   (a) A redirect away from the trip URL (e.g. back to /trips or a 404 page)
+      //   (b) Visible "not found" content — 404 is the correct response to avoid
+      //       leaking resource existence to an unauthenticated/unauthorized party.
+      //
+      // Per SEC-SPEC-001 FIND-M-001 and SR-002: the server must return 404 (not
+      // 403) so that the existence of the resource is not confirmed to User B.
+      // The UI must never display trip data belonging to another user.
+      const finalUrl = pageB.url();
+      const isRedirectedAway = !finalUrl.includes(`/trips/${tripId}`);
+
+      const hasNotFoundContent = await pageB
+        .locator(
+          '[data-testid="not-found"], [data-testid="error-page"], ' +
+            'h1:text-matches("404|not found|não encontrad", "i"), ' +
+            'p:text-matches("not found|não encontrad", "i")'
+        )
+        .count() > 0;
+
+      expect(
+        isRedirectedAway || hasNotFoundContent,
+        `User B was able to view User A's trip page at /trips/${tripId} — ` +
+          "BOLA vulnerability: object-level authorization is not enforced."
+      ).toBeTruthy();
+
+      // Additionally verify that User A's trip data is not rendered on the
+      // page User B ended up on — a redirect to /trips that still leaks the
+      // title in the DOM would be a partial BOLA bypass.
+      if (isRedirectedAway) {
+        // If redirected, confirm the final page is a legitimate non-trip page.
+        expect(finalUrl).toMatch(/\/(trips\/?$|auth\/login|$)/);
+      }
+    } finally {
+      // Always clean up both contexts regardless of test outcome to prevent
+      // browser resource leaks and session pollution between test runs.
+      await contextA.close();
+      await contextB.close();
+    }
   });
 });

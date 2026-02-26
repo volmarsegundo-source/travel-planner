@@ -298,6 +298,8 @@ describe("TripService", () => {
         { id: "act-2", orderIndex: 1 },
         { id: "act-3", orderIndex: 2 },
       ];
+      // Mock activity.count BOLA guard: all activities belong to the trip
+      prismaMock.activity.count.mockResolvedValue(activities.length);
 
       await expect(
         TripService.reorderActivities("trip-1", "user-1", activities)
@@ -356,6 +358,8 @@ describe("TripService", () => {
         makeTrip({ id: "trip-1", userId: "user-1" })
       );
       prismaMock.$transaction.mockResolvedValue([]);
+      // Empty activities list: count returns 0 === activityIds.length (0)
+      prismaMock.activity.count.mockResolvedValue(0);
 
       await expect(
         TripService.reorderActivities("trip-1", "user-1", [])
