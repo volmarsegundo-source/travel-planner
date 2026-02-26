@@ -1,3 +1,13 @@
+/**
+ * Full Auth.js v5 configuration — Node.js runtime only.
+ *
+ * Spreads the Edge-safe base config from auth.config.ts and adds
+ * Node.js-only dependencies: PrismaAdapter (db sessions/users) and
+ * bcrypt (password verification in Credentials authorize).
+ *
+ * IMPORTANT: Do NOT import this file from middleware.ts — import auth.config.ts
+ * instead to keep the Edge bundle free of Prisma and ioredis.
+ */
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
@@ -5,15 +15,14 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/server/db";
 import { UserSignInSchema } from "@/lib/validations/user.schema";
+import authConfig from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(db),
-  session: { strategy: "database" },
-  pages: {
-    signIn: "/auth/login",
-    error: "/auth/error",
-    verifyRequest: "/auth/verify-email",
-  },
+  // JWT strategy: session validated via signed JWT cookie — no DB round-trip
+  // in middleware, while user/account data is still persisted via PrismaAdapter.
+  session: { strategy: "jwt" },
   providers: [
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
@@ -46,22 +55,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
     }),
   ],
-  cookies: {
-    sessionToken: {
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
-  callbacks: {
-    session({ session, user }) {
-      if (session.user && user) {
-        session.user.id = user.id;
-      }
-      return session;
-    },
-  },
 });

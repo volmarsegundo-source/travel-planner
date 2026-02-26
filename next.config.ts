@@ -39,4 +39,20 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default withNextIntl(nextConfig);
+// Workaround: next-intl 3.x sets config.experimental.turbo when Turbopack is
+// detected, but Next.js 15 moved that option to config.turbopack (top-level).
+// Migrate the alias map here to suppress the deprecation warning.
+const config = withNextIntl(nextConfig);
+if (config.experimental?.turbo) {
+  config.turbopack = {
+    ...config.turbopack,
+    resolveAlias: {
+      ...(config.turbopack as { resolveAlias?: Record<string, string> })
+        ?.resolveAlias,
+      ...config.experimental.turbo.resolveAlias,
+    },
+  };
+  delete config.experimental.turbo;
+}
+
+export default config;
