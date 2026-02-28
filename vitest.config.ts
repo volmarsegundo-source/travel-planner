@@ -34,7 +34,7 @@ export default defineConfig({
         "src/app/**",
       ],
     },
-    exclude: ["node_modules", ".next", ".claude", "tests/e2e/**"],
+    exclude: ["node_modules", ".next", ".claude", "tests/e2e/**", "**/e2e/**", "travel-planner/**"],
   },
   resolve: {
     alias: {

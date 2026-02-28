@@ -161,6 +161,23 @@
       "TECHNOLOGY": "Technology"
     }
   },
+  "landing": {
+    "hero": {
+      "title": "Plan Your Perfect Trip",
+      "subtitle": "AI-powered travel planning made simple",
+      "cta": "Get Started — It's Free",
+      "loginPrompt": "Already have an account?"
+    },
+    "features": {
+      "ai": { "title": "AI-Powered Planning", "description": "Smart suggestions for your perfect itinerary" },
+      "dnd": { "title": "Drag & Drop", "description": "Reorder activities with ease" },
+      "i18n": { "title": "Multi-language", "description": "Plan in English or Portuguese" },
+      "responsive": { "title": "Responsive Design", "description": "Plan your trips from any device" }
+    },
+    "footer": {
+      "copyright": "© 2026 Travel Planner. All rights reserved."
+    }
+  },
   "errors": {
     "generic": "Something went wrong. Please try again.",
     "network": "Connection problem. Check your internet.",
