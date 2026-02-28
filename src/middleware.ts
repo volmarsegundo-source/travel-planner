@@ -17,7 +17,7 @@ const { auth } = NextAuth(authConfig);
 const intlMiddleware = createMiddleware(routing);
 
 // Routes that require an authenticated session.
-const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account"] as const;
+const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard"] as const;
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;

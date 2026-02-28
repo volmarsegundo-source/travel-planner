@@ -30,13 +30,15 @@ vi.mock("@/server/cache/redis", () => ({
 }));
 
 vi.mock("@anthropic-ai/sdk", () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
+  // Use a regular function (not arrow) so it works as a constructor with `new`
+  function MockAnthropic() {
+    return {
       messages: {
         create: mocks.messagesCreate,
       },
-    })),
-  };
+    };
+  }
+  return { default: MockAnthropic };
 });
 
 vi.mock("@/lib/logger", () => ({
@@ -126,6 +128,8 @@ function makeClaudeTextResponse(text: string) {
 describe("AiService.generateTravelPlan", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    // Clear the Anthropic singleton so the mock constructor is used each time
+    (globalThis as Record<string, unknown>)._anthropic = undefined;
   });
 
   it("returns cached plan on cache hit without calling Claude", async () => {
@@ -203,6 +207,7 @@ describe("AiService.generateTravelPlan", () => {
 describe("AiService.generateChecklist", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    (globalThis as Record<string, unknown>)._anthropic = undefined;
   });
 
   it("returns cached checklist on cache hit without calling Claude", async () => {
