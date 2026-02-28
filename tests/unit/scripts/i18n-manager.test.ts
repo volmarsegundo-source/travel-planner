@@ -4,14 +4,18 @@
  * Tests cover: missing keys, orphaned keys, interpolation mismatches,
  * sync mode, and report generation.
  */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import * as fs from "fs";
+import * as path from "path";
 
 const {
   flattenKeys,
   extractInterpolationVars,
   findMissingKeys,
+  findOrphanedKeys,
   findInterpolationMismatches,
   findLocaleFiles,
+  setNestedValue,
   generateReport,
 } = require("../../../scripts/i18n-manager.js");
 
@@ -100,6 +104,51 @@ describe("i18n-manager: findLocaleFiles", () => {
     expect(result).not.toBeNull();
     expect(result!.files).toContain("en.json");
     expect(result!.files).toContain("pt-BR.json");
+  });
+});
+
+describe("i18n-manager: findOrphanedKeys", () => {
+  let tmpDir: string;
+
+  beforeEach(() => {
+    tmpDir = path.join(__dirname, "__test_i18n_" + Date.now());
+    fs.mkdirSync(tmpDir, { recursive: true });
+  });
+
+  afterEach(() => {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
+  });
+
+  it("detects orphaned keys not referenced in source", () => {
+    const srcFile = path.join(tmpDir, "component.tsx");
+    fs.writeFileSync(srcFile, `const x = t("hello");\n`);
+    const locales = { en: { hello: "Hi", orphanKey: "unused" } };
+    const issues = findOrphanedKeys(locales, [srcFile]);
+    const orphan = issues.find((i: { key: string }) => i.key === "orphanKey");
+    expect(orphan).toBeDefined();
+    expect(orphan.type).toBe("orphaned");
+  });
+
+  it("does not flag keys that are referenced in source", () => {
+    const srcFile = path.join(tmpDir, "component.tsx");
+    fs.writeFileSync(srcFile, `const x = t("hello");\nconst y = t("bye");\n`);
+    const locales = { en: { hello: "Hi", bye: "Bye" } };
+    const issues = findOrphanedKeys(locales, [srcFile]);
+    expect(issues).toHaveLength(0);
+  });
+});
+
+describe("i18n-manager: sync mode (setNestedValue)", () => {
+  it("sets a nested value for sync placeholders", () => {
+    const obj: Record<string, unknown> = { a: { b: "x" } };
+    setNestedValue(obj, "a.c", "[NEEDS TRANSLATION] original");
+    expect((obj.a as Record<string, unknown>).c).toBe("[NEEDS TRANSLATION] original");
+  });
+
+  it("creates intermediate keys when missing", () => {
+    const obj: Record<string, unknown> = {};
+    setNestedValue(obj, "a.b.c", "[NEEDS TRANSLATION] test");
+    expect(((obj.a as Record<string, unknown>).b as Record<string, unknown>).c).toBe("[NEEDS TRANSLATION] test");
   });
 });
 

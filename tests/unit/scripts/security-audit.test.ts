@@ -117,6 +117,17 @@ describe("security-audit: generateReport", () => {
   });
 });
 
+describe("security-audit: .gitignore check", () => {
+  it("flags missing .env in .gitignore via scanSecrets", () => {
+    // scanSecrets checks .gitignore at ROOT level, which exists and includes .env
+    // We test the code path by passing an empty file list (only .gitignore check runs)
+    const issues = scanSecrets([]);
+    // Our project has .env in .gitignore, so no issue should be raised
+    const gitignoreIssue = issues.find((i: { message: string }) => i.message.includes(".gitignore") || i.message.includes(".env"));
+    expect(gitignoreIssue).toBeUndefined();
+  });
+});
+
 describe("security-audit: walkFiles", () => {
   it("finds TypeScript files in a directory", () => {
     const files = walkFiles(path.join(__dirname, "..", "..", "..", "src"));

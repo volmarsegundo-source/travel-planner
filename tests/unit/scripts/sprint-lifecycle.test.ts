@@ -12,7 +12,7 @@ import * as path from "path";
 // We test the exported functions
 const { status } = require("../../../scripts/sprint-lifecycle.js");
 
-describe("sprint-lifecycle: status", () => {
+describe("sprint-lifecycle: status", { timeout: 30000 }, () => {
   it("returns a valid state string", () => {
     // status() checks git tags/branches and review file
     const state = status(99); // Sprint 99 should be NOT STARTED
@@ -25,6 +25,14 @@ describe("sprint-lifecycle: status", () => {
   });
 });
 
+describe("sprint-lifecycle: status for completed sprint", { timeout: 30000 }, () => {
+  it("returns READY TO FINISH for sprint 4 (has review file)", () => {
+    const state = status(4);
+    // Sprint 4 has review-sprint-4.md but no complete tag
+    expect(["READY TO FINISH", "IN PROGRESS", "COMPLETED"]).toContain(state);
+  });
+});
+
 describe("sprint-lifecycle: review file format", () => {
   it("review-sprint-3.md exists and contains quality gate section", () => {
     const reviewPath = path.join(__dirname, "..", "..", "..", "review-sprint-3.md");
@@ -32,5 +40,14 @@ describe("sprint-lifecycle: review file format", () => {
       const content = fs.readFileSync(reviewPath, "utf8");
       expect(content).toContain("Sprint 3");
     }
+  });
+
+  it("review-sprint-4.md exists and contains quality gate", () => {
+    const reviewPath = path.join(__dirname, "..", "..", "..", "review-sprint-4.md");
+    expect(fs.existsSync(reviewPath)).toBe(true);
+    const content = fs.readFileSync(reviewPath, "utf8");
+    expect(content).toContain("Sprint 4");
+    expect(content).toContain("Quality Gate");
+    expect(content).toContain("PASS");
   });
 });

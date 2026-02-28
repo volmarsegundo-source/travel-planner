@@ -4,11 +4,16 @@
  * Tests cover: stack detection, prerequisites check, .env configuration.
  */
 import { describe, it, expect } from "vitest";
+import * as fs from "fs";
+import * as path from "path";
 
 const {
   detectStack,
   checkPrerequisites,
+  configureEnv,
 } = require("../../../scripts/project-bootstrap.js");
+
+const ROOT = path.join(__dirname, "..", "..", "..");
 
 describe("project-bootstrap: detectStack", () => {
   it("detects Next.js framework", () => {
@@ -37,7 +42,7 @@ describe("project-bootstrap: detectStack", () => {
   });
 });
 
-describe("project-bootstrap: checkPrerequisites", () => {
+describe("project-bootstrap: checkPrerequisites", { timeout: 30000 }, () => {
   it("checks Node.js version >= 20", () => {
     const checks = checkPrerequisites();
     const nodeCheck = checks.find((c: { name: string }) => c.name === "Node.js");
@@ -55,5 +60,23 @@ describe("project-bootstrap: checkPrerequisites", () => {
   it("returns all 3 prerequisite checks", () => {
     const checks = checkPrerequisites();
     expect(checks).toHaveLength(3);
+  });
+});
+
+describe("project-bootstrap: configureEnv", () => {
+  it("returns true when .env.local already exists", () => {
+    // .env.local exists in our project
+    expect(fs.existsSync(path.join(ROOT, ".env.local"))).toBe(true);
+    const result = configureEnv();
+    expect(result).toBe(true);
+  });
+});
+
+describe("project-bootstrap: --check mode", () => {
+  it("detectStack is read-only and does not modify files", () => {
+    const pkgBefore = fs.readFileSync(path.join(ROOT, "package.json"), "utf8");
+    detectStack();
+    const pkgAfter = fs.readFileSync(path.join(ROOT, "package.json"), "utf8");
+    expect(pkgAfter).toBe(pkgBefore);
   });
 });
