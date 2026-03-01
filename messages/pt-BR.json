@@ -13,7 +13,21 @@
     "confirm": "Confirmar",
     "error": "Ocorreu um erro. Tente novamente.",
     "success": "Salvo com sucesso!",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "navigation": {
+    "myTrips": "Minhas viagens",
+    "toggleMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "userMenu": "Menu do usuário",
+    "breadcrumb": {
+      "myTrips": "Minhas viagens",
+      "itinerary": "Itinerário",
+      "checklist": "Checklist",
+      "generatePlan": "Gerar plano",
+      "backTo": "Voltar para {name}"
+    }
   },
   "auth": {
     "signIn": "Entrar",

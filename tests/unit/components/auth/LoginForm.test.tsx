@@ -169,6 +169,45 @@ describe("LoginForm", () => {
     });
   });
 
+  it("shows error alert when signIn throws an exception", async () => {
+    mockSignIn.mockRejectedValueOnce(new Error("CredentialsSignin"));
+
+    render(<LoginForm />);
+
+    await userEvent.type(screen.getByLabelText("auth.email"), "bad@example.com");
+    await userEvent.type(screen.getByLabelText("auth.password"), "wrongpass");
+    await submitLoginForm();
+
+    await waitFor(() => {
+      const alert = screen.getByRole("alert");
+      expect(alert).toBeInTheDocument();
+    });
+
+    expect(mockRouterPush).not.toHaveBeenCalled();
+  });
+
+  it("clears error on re-submit", async () => {
+    mockSignIn.mockResolvedValueOnce({ ok: false, error: "CredentialsSignin" });
+
+    render(<LoginForm />);
+
+    await userEvent.type(screen.getByLabelText("auth.email"), "bad@example.com");
+    await userEvent.type(screen.getByLabelText("auth.password"), "wrongpass");
+    await submitLoginForm();
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+
+    // Mock success for second submit
+    mockSignIn.mockResolvedValueOnce({ ok: true, error: null });
+    await submitLoginForm();
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+  });
+
   it("calls signIn('google') with callbackUrl when Google button is clicked", async () => {
     mockSignIn.mockResolvedValue(undefined);
 

@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getTripByIdAction } from "@/server/actions/trip.actions";
 import { PlanGeneratorWizard } from "@/components/features/itinerary/PlanGeneratorWizard";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 interface GeneratePageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -16,8 +17,9 @@ export default async function GeneratePage({ params }: GeneratePageProps) {
     redirect({ href: "/auth/login", locale });
   }
 
-  const t = await getTranslations("common");
+  const tCommon = await getTranslations("common");
   const tTrips = await getTranslations("trips");
+  const tNav = await getTranslations("navigation");
 
   const result = await getTripByIdAction(id);
 
@@ -29,7 +31,7 @@ export default async function GeneratePage({ params }: GeneratePageProps) {
           href="/trips"
           className="text-sm text-primary underline underline-offset-4"
         >
-          {t("back")}
+          {tCommon("back")}
         </Link>
       </div>
     );
@@ -38,17 +40,19 @@ export default async function GeneratePage({ params }: GeneratePageProps) {
   const trip = result.data;
 
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
-        <Link
-          href={`/trips/${id}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-        >
-          {t("back")}
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: tNav("breadcrumb.myTrips"), href: "/trips" },
+            { label: trip.title, href: `/trips/${id}` },
+            { label: tNav("breadcrumb.generatePlan") },
+          ]}
+          backLabel={tNav("breadcrumb.backTo", { name: trip.title })}
+        />
 
         <PlanGeneratorWizard trip={trip} locale={locale} />
       </div>
-    </main>
+    </div>
   );
 }

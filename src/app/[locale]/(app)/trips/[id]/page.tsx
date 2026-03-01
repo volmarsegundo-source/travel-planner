@@ -2,6 +2,7 @@ import { redirect, Link } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { getTripByIdAction } from "@/server/actions/trip.actions";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 interface TripDetailPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -17,6 +18,7 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
 
   const t = await getTranslations("trips");
   const tCommon = await getTranslations("common");
+  const tNav = await getTranslations("navigation");
   const tItinerary = await getTranslations("itinerary");
 
   const result = await getTripByIdAction(id);
@@ -38,15 +40,14 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
   const trip = result.data;
 
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Back link */}
-        <Link
-          href="/trips"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-        >
-          {tCommon("back")}
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: tNav("breadcrumb.myTrips"), href: "/trips" },
+            { label: trip.title },
+          ]}
+        />
 
         {/* Trip header */}
         <header className="mb-8 space-y-1">
@@ -59,6 +60,6 @@ export default async function TripDetailPage({ params }: TripDetailPageProps) {
           <p>{tItinerary("noActivities")}</p>
         </section>
       </div>
-    </main>
+    </div>
   );
 }
