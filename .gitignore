@@ -48,3 +48,11 @@ npm-debug.log*
 .vscode/settings.json
 *.swp
 *.swo
+
+# Claude Code local
+.claude/settings.local.json
+.claude/worktrees/
+
+# Artifacts (external copies, not part of project)
+mnt/
+travel-planner/

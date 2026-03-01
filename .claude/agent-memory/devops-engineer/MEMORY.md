@@ -13,12 +13,23 @@
 
 ## Key Infrastructure Decisions (INFRA-001)
 - Two GitHub Actions workflows: `ci.yml` (all PRs) and `deploy.yml` (main merges)
-- Staging deploys automatically on push to main; production requires manual approval
+- Staging deploys automatically on push to master; production requires manual approval (workflow_dispatch)
 - Docker image published to GitHub Container Registry (ghcr.io)
 - Node.js version locked to 20 LTS for CI/local parity
 - Coverage threshold enforced at 80% — blocks merge if below
 - Trivy scans for CRITICAL/HIGH CVEs — blocks publish if found
-- Semgrep SAST with `p/secrets` ruleset catches hardcoded credentials
+- Semgrep SAST with `p/secrets p/owasp-top-ten` catches hardcoded credentials and OWASP issues
+- REDIS_TLS_REQUIRED=true (not NODE_ENV) controls Redis TLS enforcement — NODE_ENV is "production" in local builds too
+- Health endpoint uses Promise.allSettled for DB + Redis — returns HTTP 503 when degraded
+- Playwright uses npm run start (not dev) in CI — controlled by process.env.CI ternary in webServer.command
+
+## Sprint 2 Open Issues (blockers for staging)
+- C-001: Dockerfile does not exist in repo — CI docker build job fails on every PR
+- C-002: Branch name mismatch — ci.yml targets `main`, deploy.yml targets `master`, repo is on `master`
+- C-003: deploy.yml deploy steps are `echo` placeholders — no real deploy happens
+- C-004: prisma/migrations/ directory missing — prisma migrate deploy has nothing to apply
+- A-001: Trivy uses docker run (not trivy-action) — no SARIF upload to GitHub Security tab
+- A-003: RAILWAY_TOKEN is single secret for both staging+production — violates least privilege
 
 ## Secrets Hierarchy
 - Local: `.env.local` (gitignored, never committed)
