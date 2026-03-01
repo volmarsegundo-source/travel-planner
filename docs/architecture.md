@@ -229,38 +229,33 @@ Browser Request
 travel-planner/
 ├── src/
 │   ├── app/                          # Next.js App Router
-│   │   ├── layout.tsx                # Root layout (fonts, providers, analytics)
+│   │   ├── layout.tsx                # Root layout (html, fonts)
 │   │   ├── globals.css               # Tailwind base + CSS variables
-│   │   ├── (public)/                 # Route group — no auth required
-│   │   │   ├── page.tsx              # Landing page
-│   │   │   ├── destinations/
-│   │   │   │   ├── page.tsx          # Destinations listing (SSG + ISR)
-│   │   │   │   └── [slug]/
-│   │   │   │       └── page.tsx      # Destination detail (ISR, 1h revalidation)
-│   │   │   └── search/
-│   │   │       └── page.tsx          # Search results (SSR, no cache)
-│   │   ├── (auth)/                   # Route group — auth required (middleware)
-│   │   │   ├── trips/
-│   │   │   │   ├── page.tsx          # My trips list
-│   │   │   │   ├── new/
-│   │   │   │   │   └── page.tsx      # Create new trip
-│   │   │   │   └── [id]/
-│   │   │   │       ├── page.tsx      # Trip detail / itinerary builder
-│   │   │   │       └── edit/
-│   │   │   │           └── page.tsx  # Edit trip
-│   │   │   ├── bookmarks/
-│   │   │   │   └── page.tsx          # Saved destinations
-│   │   │   └── account/
-│   │   │       └── page.tsx          # User profile / settings
+│   │   ├── [locale]/                 # i18n dynamic segment (next-intl)
+│   │   │   ├── layout.tsx            # Locale layout (providers, i18n messages)
+│   │   │   ├── page.tsx              # Landing page (Header + Hero + Footer)
+│   │   │   ├── auth/                 # Auth pages (login, register) — own layout
+│   │   │   │   ├── layout.tsx        # Centered card layout (no navbar)
+│   │   │   │   ├── login/page.tsx
+│   │   │   │   ├── register/page.tsx
+│   │   │   │   ├── verify-email/page.tsx
+│   │   │   │   └── error/page.tsx
+│   │   │   └── (app)/               # Route group — authenticated (ADR-006)
+│   │   │       ├── layout.tsx        # AppShell: AuthenticatedNavbar + skip-to-content
+│   │   │       ├── trips/
+│   │   │       │   ├── page.tsx      # Trip dashboard
+│   │   │       │   └── [id]/
+│   │   │       │       ├── page.tsx          # Trip detail
+│   │   │       │       ├── itinerary/page.tsx
+│   │   │       │       ├── checklist/page.tsx
+│   │   │       │       └── generate/page.tsx
+│   │   │       ├── onboarding/page.tsx
+│   │   │       ├── dashboard/page.tsx  # Redirect to /trips
+│   │   │       └── account/page.tsx    # User profile (future)
 │   │   ├── api/
+│   │   │   ├── auth/[...nextauth]/route.ts  # Auth.js handler
 │   │   │   └── v1/                   # REST API (webhooks, external integrations)
-│   │   │       ├── health/
-│   │   │       │   └── route.ts      # GET /api/v1/health
-│   │   │       └── [...]/
-│   │   │           └── route.ts
-│   │   └── auth/
-│   │       └── [...nextauth]/
-│   │           └── route.ts          # Auth.js handler
+│   │   │       └── health/route.ts   # GET /api/v1/health
 │   │
 │   ├── components/
 │   │   ├── ui/                       # shadcn/ui primitives (Button, Input, Card...)
@@ -829,9 +824,68 @@ Docker Compose services:
 
 ---
 
+### ADR-006: Route Group (app) para Layout Autenticado
+**Date**: 2026-03-01
+**Status**: Accepted
+**Deciders**: architect
+
+### Context
+
+As rotas autenticadas (`/trips`, `/onboarding`, `/account`, `/dashboard`) precisam de um layout compartilhado com navbar persistente. Atualmente, cada pagina renderiza seu conteudo diretamente sob `[locale]/layout.tsx`, sem navbar. Tres opcoes foram avaliadas:
+
+### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| Route group `(app)` com layout proprio | Navbar injetada automaticamente em todas as rotas filhas; separacao clara de zonas publica/auth; nao afeta URLs | Requer mover arquivos para nova pasta |
+| Layout condicional no `[locale]/layout.tsx` | Sem mover arquivos | Layout fica complexo (if autenticado / if publica / if auth); viola Single Responsibility |
+| Wrapper component em cada pagina | Sem mudanca de estrutura | Duplicacao; facil esquecer; viola DRY |
+
+### Decision
+
+Route group `(app)` com layout dedicado (`src/app/[locale]/(app)/layout.tsx`). O layout chama `auth()` server-side e renderiza `AuthenticatedNavbar` com dados de sessao. Parenteses no nome `(app)` sao convencao do Next.js App Router -- nao afetam a URL.
+
+### Consequences
+
+**Positive**: Layout limpo, navbar automatica em todas as rotas autenticadas, separacao clara entre zona publica e autenticada.
+**Negative / Trade-offs**: Requer mover 6 arquivos para novo diretorio. Imports com `@/` nao mudam. Middleware checa path segments (`/trips`), nao pastas internas.
+**Risks**: Git rename tracking — usar `git mv` para preservar historico.
+
+---
+
+### ADR-007: LanguageSwitcher Compartilhado entre Header e Navbar
+**Date**: 2026-03-01
+**Status**: Accepted
+**Deciders**: architect
+
+### Context
+
+O componente `LanguageSwitcher` esta em `src/components/landing/` mas precisa ser reutilizado na AuthenticatedNavbar (zona autenticada) e no Header (zona publica).
+
+### Options Considered
+
+| Option | Pros | Cons |
+|---|---|---|
+| Mover para `components/layout/` | Reutilizavel; single source of truth | Requer atualizar imports existentes |
+| Copiar o componente | Sem mudanca de imports existentes | Viola DRY; risco de divergencia visual |
+| Re-export via barrel file | Sem mover fisicamente | Indirection desnecessaria |
+
+### Decision
+
+Mover `LanguageSwitcher.tsx` de `components/landing/` para `components/layout/`. Atualizar o import no `Header.tsx`.
+
+### Consequences
+
+**Positive**: Componente reutilizavel sem duplicacao.
+**Negative / Trade-offs**: Uma unica mudanca de import no `Header.tsx`.
+**Risks**: Nenhum risco significativo.
+
+---
+
 ## Document Revision History
 
 | Version | Date | Author | Changes |
 |---|---|---|---|
 | 1.0.0 | 2026-02-23 | architect | Initial architecture — ADR-001, ADR-002, system design, conventions |
 | 1.1.0 | 2026-02-26 | architect | Added ADR-003 (Claude AI), ADR-004 (next-intl), ADR-005 (Auth.js database sessions) |
+| 1.2.0 | 2026-03-01 | architect | Added ADR-006 (route group for authenticated layout), ADR-007 (shared LanguageSwitcher) |

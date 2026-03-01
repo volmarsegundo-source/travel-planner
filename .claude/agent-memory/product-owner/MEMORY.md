@@ -2,16 +2,20 @@
 
 ## Project: Travel Planner
 
-### Backlog State (as of 2026-02-23)
-- `docs/tasks.md` created at version 1.0.0
-- US-001 (Trip creation & management) is the active P0 story in Sprint 1
-- US-003 (Auth) is P0 and runs in parallel with US-001 (second dev)
-- Full backlog: US-001 through US-010 defined; Won't Have list documented
+### Backlog State (as of 2026-03-01)
+- `docs/tasks.md` at version 3.0.0, Sprint current: 5
+- Sprints 1-4 complete: auth, landing page, dev toolkit, 227 tests passing
+- Sprint 5 added: US-100 to US-103 (navigation + bug fixes from manual testing)
+- US-100 (Navbar autenticada) P0, US-101 (Logout) P0, US-102 (Login error fix) P0, US-103 (Breadcrumbs) P1
+- Tasks T-031 to T-037 defined for Sprint 5
+- Full backlog: US-001 through US-016 + US-100 through US-103; Won't Have list documented
+- Next available US ID: US-104; Next available Task ID: T-038
 
 ### Scoring Formula
-Score = User Value x2 + Business Value x2 + Effort(inv) + Risk(inv) + Dependency
-- Effort and Risk are inverse (5 = low effort/risk, 1 = high)
-- Used this formula in the feature scoring matrix in docs/tasks.md
+Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strategic Align (15%) + Competitive Diff (10%)
+- Each criterion scored 1-5, weighted by percentage
+- Used in Sprint 5 scoring matrix (US-100 to US-103)
+- Previous formula (User Value x2 + Business Value x2 + Effort + Risk + Dep) used in Sprint 1 matrix
 
 ### Key Domain Decisions
 - Trip entity is the central domain object — all other features depend on it

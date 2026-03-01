@@ -1,4 +1,6 @@
-# Sprint 3 — Review
+> **Review formal**: Ver `docs/sprint-reviews/SPRINT-003-review.md` para a review consolidada com 6 agentes.
+
+# Sprint 3 — Review (Informal)
 
 ## Resumo
 

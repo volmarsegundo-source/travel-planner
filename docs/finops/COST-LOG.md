@@ -157,38 +157,68 @@ O Sprint 2 envolveu múltiplos agentes em paralelo (dev-fullstack-1, dev-fullsta
 
 ---
 
-## Sprint 3 — [A preencher]
+## Sprint 3 — Fevereiro/2026
 
-**Status:** 📋 Planejado  
-**Período:** —
+**Status:** ✅ Concluído
+**Período:** Fevereiro/2026 (semana 3–4)
+**Dados:** Reais (desenvolvimento local, sem deploy em produção)
 
-### Foco FinOps Sprint 3
-- Primeiro deploy em produção — dados reais começam aqui
-- Implementar prompt caching (OPT-001) → economia estimada 40-60% em tokens
-- Implementar Batch API (OPT-002) → 50% desconto em operações assíncronas
-- Configurar domínio customizado → Vercel Pro $20/mês
+### Entregas do Sprint 3
+- Landing page completa (Header, Hero, Features, Footer)
+- LanguageSwitcher (EN ↔ PT-BR)
+- Script de setup do ambiente (`scripts/dev-setup.js`)
+- Claude Code skill `dev-environment`
+- 44 testes novos (total: 181)
+- PR #2 merged em `master`
 
-### Custo Estimado Sprint 3
-| Serviço | Custo Estimado |
-|---------|----------------|
-| Infraestrutura total | ~$25–30/mês |
-| IA em Produção (primeiros usuários) | ~$5–15/mês |
-| Claude Pro (dev) | $20/mês |
-| **TOTAL ESTIMADO** | **$50–65/mês** |
+### Custos Reais Sprint 3
+
+| Serviço | Plano | Custo Real | Observação |
+|---------|-------|-----------|------------|
+| Claude Pro (dev) | Pro | $20,00 | Desenvolvimento com agentes |
+| Vercel | Hobby (Free) | $0,00 | Sem deploy |
+| Railway | — | $0,00 | Sem uso (apenas Docker local) |
+| Upstash | — | $0,00 | Sem uso |
+| Anthropic API | — | $0,00 | Sem chamadas em produção |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20,00** | |
+
+### Notas FinOps Sprint 3
+- Sprint focado em frontend (componentes React, i18n, testes) — sem impacto de custo de infraestrutura
+- Não houve deploy em produção, prompt caching (OPT-001) e Batch API (OPT-002) deferidos para sprints futuros
+- Desenvolvimento 100% local com Docker containers (PostgreSQL + Redis)
 
 ---
 
-## Sprint 4 — [A preencher]
+## Sprint 4 — Fevereiro/2026
 
-**Status:** 📋 Planejado  
-**Período:** —
+**Status:** ✅ Concluído
+**Período:** Fevereiro/2026 (semana 4)
+**Dados:** Reais (desenvolvimento local, sem deploy em produção)
 
-### Foco FinOps Sprint 4
-- Dashboard de custos /admin/costs
-- Tabela cost_snapshots + cron job diário
-- Roteamento inteligente de modelos Haiku/Sonnet (OPT-003)
-- Alertas automáticos por email
-- Primeiro relatório 100% baseado em dados reais
+### Entregas do Sprint 4
+- 4 scripts de desenvolvimento (sprint-lifecycle, project-bootstrap, security-audit, i18n-manager)
+- Script de instalação de skills
+- 4 Claude Code skills
+- 46 testes novos (total: 227)
+- PRs #3 + #4 merged em `master`
+
+### Custos Reais Sprint 4
+
+| Serviço | Plano | Custo Real | Observação |
+|---------|-------|-----------|------------|
+| Claude Pro (dev) | Pro | $20,00 | Desenvolvimento com agentes |
+| Vercel | Hobby (Free) | $0,00 | Sem deploy |
+| Railway | — | $0,00 | Sem uso |
+| Upstash | — | $0,00 | Sem uso |
+| Anthropic API | — | $0,00 | Sem chamadas em produção |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20,00** | |
+
+### Notas FinOps Sprint 4
+- Sprint focado em tooling de desenvolvimento — impacto zero em custo de produção
+- Scripts são Node.js puro, sem dependências externas adicionais
+- Dashboard de custos (/admin/costs) e tabela cost_snapshots deferidos para sprints futuros
 
 ---
 

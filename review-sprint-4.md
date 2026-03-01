@@ -1,4 +1,6 @@
-# Sprint 4 — Review
+> **Review formal**: Ver `docs/sprint-reviews/SPRINT-004-review.md` para a review consolidada com 6 agentes.
+
+# Sprint 4 — Review (Informal)
 
 **Date:** 2026-02-28
 
