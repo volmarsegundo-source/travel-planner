@@ -25,6 +25,11 @@ export default auth((req) => {
   // API routes are handled independently — skip both intl and auth redirects.
   if (pathname.startsWith("/api")) return;
 
+  // Server Actions send POST with Next-Action header.  Applying intl rewrites
+  // to these requests causes them to hang indefinitely (known Next.js issue).
+  // See: https://github.com/vercel/next.js/issues/84504
+  if (req.method === "POST" && req.headers.get("next-action")) return;
+
   // Redirect unauthenticated users away from protected paths.
   const isProtected = PROTECTED_PATH_SEGMENTS.some((segment) =>
     pathname.includes(segment)

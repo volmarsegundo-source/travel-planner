@@ -59,7 +59,9 @@
       "passwordsDoNotMatch": "Passwords do not match.",
       "nameRequired": "Name is required.",
       "emailNotVerified": "Please verify your email before signing in.",
-      "tokenExpired": "This link has expired. Please request a new one."
+      "tokenExpired": "This link has expired. Please request a new one.",
+      "generic": "Something went wrong. Please try again.",
+      "rateLimitExceeded": "Too many requests. Please try again later."
     }
   },
   "trustSignals": {
