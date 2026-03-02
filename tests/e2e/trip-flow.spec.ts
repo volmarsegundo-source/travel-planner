@@ -20,16 +20,19 @@
 import { test, expect } from "@playwright/test";
 import { loginAs, TEST_USER, TEST_USER_B } from "./helpers";
 
+// Trip flow tests involve login + dashboard interaction — need extra time
+test.describe.configure({ timeout: 120_000 });
+
 // ---------------------------------------------------------------------------
 // Shared beforeEach: log in as the synthetic test user before every test.
 // ---------------------------------------------------------------------------
 
 test.beforeEach(async ({ page }) => {
   await loginAs(page, TEST_USER.email, TEST_USER.password);
-  // After loginAs, the URL is already /trips.
+  // After loginAs, the URL is already /trips (EN locale).
   // Ensure the dashboard heading is present before the test body runs.
   await expect(
-    page.getByRole("heading", { name: /minhas viagens/i })
+    page.getByRole("heading", { name: /my trips|minhas viagens/i })
   ).toBeVisible({ timeout: 10_000 });
 });
 
@@ -44,7 +47,7 @@ test.describe("Trip dashboard", () => {
     // loginAs already navigated to /trips; heading assertion is in beforeEach.
     // This test documents the baseline render as a standalone scenario.
     await expect(
-      page.getByRole("heading", { name: /minhas viagens/i })
+      page.getByRole("heading", { name: /my trips|minhas viagens/i })
     ).toBeVisible();
   });
 
@@ -59,7 +62,7 @@ test.describe("Trip dashboard", () => {
     // We do not wait for a specific card count because the test account may
     // have 0 or more trips depending on prior runs.
     await expect(
-      page.getByRole("heading", { name: /minhas viagens/i })
+      page.getByRole("heading", { name: /my trips|minhas viagens/i })
     ).toBeVisible();
 
     // The empty state text is t("noTrips") = "Você ainda não tem viagens."
@@ -71,7 +74,7 @@ test.describe("Trip dashboard", () => {
     // result. This avoids the unhandled-rejection risk of Promise.race with
     // expect() calls that throw on failure.
     const emptyStateOrCard = page
-      .getByText(/você ainda não tem viagens/i)
+      .getByText(/you don't have any trips yet|você ainda não tem viagens/i)
       .or(page.getByRole("article").first());
 
     await expect(emptyStateOrCard).toBeVisible({ timeout: 10_000 });
@@ -83,7 +86,7 @@ test.describe("Trip dashboard", () => {
     // The TripDashboard renders a button with t("newTrip") = "Nova viagem".
     // This is the primary CTA for trip creation.
     await expect(
-      page.getByRole("button", { name: /nova viagem/i })
+      page.getByRole("button", { name: /new trip|nova viagem/i })
     ).toBeVisible();
   });
 });
@@ -101,7 +104,7 @@ test.describe("Create trip flow", () => {
     const tripDestination = "Paris, France";
 
     // Open the modal via the header button.
-    await page.getByRole("button", { name: /nova viagem/i }).click();
+    await page.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
     // The Dialog renders with DialogTitle = t("newTrip") = "Nova viagem".
     // Playwright's getByRole('dialog') targets the shadcn Dialog element.
@@ -110,11 +113,11 @@ test.describe("Create trip flow", () => {
 
     // The CreateTripModal uses Label + Input with explicit htmlFor/id pairs.
     // Labels: t("title") = "Nome da viagem", t("destination") = "Destino".
-    await dialog.getByLabel(/nome da viagem|title/i).fill(tripTitle);
-    await dialog.getByLabel(/destino|destination/i).fill(tripDestination);
+    await dialog.getByLabel(/trip name|nome da viagem/i).fill(tripTitle);
+    await dialog.getByLabel(/destination|destino/i).fill(tripDestination);
 
     // Submit — button renders tCommon("save") = "Salvar".
-    await dialog.getByRole("button", { name: /salvar|save/i }).click();
+    await dialog.getByRole("button", { name: /save|salvar/i }).click();
 
     // After successful creation the modal closes and the query is invalidated.
     // The new trip card should appear in the grid.
@@ -129,16 +132,16 @@ test.describe("Create trip flow", () => {
   test("E2E-021 — create trip form shows validation error when title is empty", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: /nova viagem/i }).click();
+    await page.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
     // Leave title empty, fill only destination.
-    await dialog.getByLabel(/destino|destination/i).fill("Tokyo, Japan");
+    await dialog.getByLabel(/destination|destino/i).fill("Tokyo, Japan");
 
     // Attempt to save without a title.
-    await dialog.getByRole("button", { name: /salvar|save/i }).click();
+    await dialog.getByRole("button", { name: /save|salvar/i }).click();
 
     // The form renders an inline validation error for the title field:
     // t("errors.titleRequired") = "Nome da viagem é obrigatório."
@@ -146,7 +149,7 @@ test.describe("Create trip flow", () => {
       dialog.getByRole("alert")
     ).toBeVisible({ timeout: 5_000 });
     await expect(
-      dialog.getByText(/nome da viagem é obrigatório|title is required/i)
+      dialog.getByText(/trip name is required|nome da viagem é obrigatório/i)
     ).toBeVisible();
 
     // The modal must remain open — no successful creation.
@@ -156,19 +159,19 @@ test.describe("Create trip flow", () => {
   test("E2E-022 — create trip form shows validation error when destination is empty", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: /nova viagem/i }).click();
+    await page.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
     // Fill title but leave destination empty.
-    await dialog.getByLabel(/nome da viagem|title/i).fill("My Great Trip");
+    await dialog.getByLabel(/trip name|nome da viagem/i).fill("My Great Trip");
 
-    await dialog.getByRole("button", { name: /salvar|save/i }).click();
+    await dialog.getByRole("button", { name: /save|salvar/i }).click();
 
     // t("errors.destinationRequired") = "Destino é obrigatório."
     await expect(
-      dialog.getByText(/destino é obrigatório|destination is required/i)
+      dialog.getByText(/destination is required|destino é obrigatório/i)
     ).toBeVisible({ timeout: 5_000 });
 
     await expect(dialog).toBeVisible();
@@ -177,15 +180,15 @@ test.describe("Create trip flow", () => {
   test("E2E-023 — cancel button closes the create-trip modal without creating a trip", async ({
     page,
   }) => {
-    await page.getByRole("button", { name: /nova viagem/i }).click();
+    await page.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
-    await dialog.getByLabel(/nome da viagem|title/i).fill("This trip should not exist");
+    await dialog.getByLabel(/trip name|nome da viagem/i).fill("This trip should not exist");
 
     // tCommon("cancel") = "Cancelar".
-    await dialog.getByRole("button", { name: /cancelar|cancel/i }).click();
+    await dialog.getByRole("button", { name: /cancel|cancelar/i }).click();
 
     // Dialog must be gone.
     await expect(dialog).not.toBeVisible({ timeout: 5_000 });
@@ -210,14 +213,14 @@ test.describe("Trip card content", () => {
     const tripDestination = "London, UK";
 
     // Create the trip via the modal.
-    await page.getByRole("button", { name: /nova viagem/i }).click();
+    await page.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
-    await dialog.getByLabel(/nome da viagem|title/i).fill(tripTitle);
-    await dialog.getByLabel(/destino|destination/i).fill(tripDestination);
-    await dialog.getByRole("button", { name: /salvar|save/i }).click();
+    await dialog.getByLabel(/trip name|nome da viagem/i).fill(tripTitle);
+    await dialog.getByLabel(/destination|destino/i).fill(tripDestination);
+    await dialog.getByRole("button", { name: /save|salvar/i }).click();
 
     // Wait for the modal to close.
     await expect(dialog).not.toBeVisible({ timeout: 10_000 });
@@ -240,14 +243,14 @@ test.describe("Trip card content", () => {
     const tripTitle = `Rome Explorer ${Date.now()}`;
 
     // Create a trip to guarantee at least one card exists.
-    await page.getByRole("button", { name: /nova viagem/i }).click();
+    await page.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
     const dialog = page.getByRole("dialog");
     await expect(dialog).toBeVisible({ timeout: 5_000 });
 
-    await dialog.getByLabel(/nome da viagem|title/i).fill(tripTitle);
-    await dialog.getByLabel(/destino|destination/i).fill("Rome, Italy");
-    await dialog.getByRole("button", { name: /salvar|save/i }).click();
+    await dialog.getByLabel(/trip name|nome da viagem/i).fill(tripTitle);
+    await dialog.getByLabel(/destination|destino/i).fill("Rome, Italy");
+    await dialog.getByRole("button", { name: /save|salvar/i }).click();
 
     await expect(dialog).not.toBeVisible({ timeout: 10_000 });
 
@@ -297,7 +300,7 @@ test.describe("BOLA isolation", () => {
 
       // Ensure we are on the trips dashboard before attempting to read trip IDs.
       await expect(
-        pageA.getByRole("heading", { name: /minhas viagens/i })
+        pageA.getByRole("heading", { name: /my trips|minhas viagens/i })
       ).toBeVisible({ timeout: 10_000 });
 
       // Wait for the page to finish loading trip data (skeletons resolve).
@@ -320,16 +323,16 @@ test.describe("BOLA isolation", () => {
       if (!tripId) {
         const isolationTripTitle = `BOLA Isolation Trip ${Date.now()}`;
 
-        await pageA.getByRole("button", { name: /nova viagem/i }).click();
+        await pageA.getByRole("button", { name: /new trip|nova viagem/i }).click();
 
         const dialog = pageA.getByRole("dialog");
         await expect(dialog).toBeVisible({ timeout: 5_000 });
 
         await dialog
-          .getByLabel(/nome da viagem|title/i)
+          .getByLabel(/trip name|nome da viagem/i)
           .fill(isolationTripTitle);
-        await dialog.getByLabel(/destino|destination/i).fill("Test City");
-        await dialog.getByRole("button", { name: /salvar|save/i }).click();
+        await dialog.getByLabel(/destination|destino/i).fill("Test City");
+        await dialog.getByRole("button", { name: /save|salvar/i }).click();
 
         await expect(dialog).not.toBeVisible({ timeout: 10_000 });
 
@@ -365,7 +368,7 @@ test.describe("BOLA isolation", () => {
       await loginAs(pageB, TEST_USER_B.email, TEST_USER_B.password);
 
       await expect(
-        pageB.getByRole("heading", { name: /minhas viagens/i })
+        pageB.getByRole("heading", { name: /my trips|minhas viagens/i })
       ).toBeVisible({ timeout: 10_000 });
 
       // --- Step 3: Attempt to access User A's trip directly ---

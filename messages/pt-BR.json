@@ -13,7 +13,21 @@
     "confirm": "Confirmar",
     "error": "Ocorreu um erro. Tente novamente.",
     "success": "Salvo com sucesso!",
-    "tryAgain": "Tentar novamente"
+    "tryAgain": "Tentar novamente",
+    "skipToContent": "Pular para o conteúdo"
+  },
+  "navigation": {
+    "myTrips": "Minhas viagens",
+    "toggleMenu": "Abrir menu",
+    "closeMenu": "Fechar menu",
+    "userMenu": "Menu do usuário",
+    "breadcrumb": {
+      "myTrips": "Minhas viagens",
+      "itinerary": "Itinerário",
+      "checklist": "Checklist",
+      "generatePlan": "Gerar plano",
+      "backTo": "Voltar para {name}"
+    }
   },
   "auth": {
     "signIn": "Entrar",
@@ -45,7 +59,9 @@
       "passwordsDoNotMatch": "As senhas não coincidem.",
       "nameRequired": "Nome é obrigatório.",
       "emailNotVerified": "Verifique seu e-mail antes de fazer login.",
-      "tokenExpired": "Este link expirou. Solicite um novo."
+      "tokenExpired": "Este link expirou. Solicite um novo.",
+      "generic": "Algo deu errado. Por favor, tente novamente.",
+      "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde."
     }
   },
   "trustSignals": {

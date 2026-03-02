@@ -45,8 +45,9 @@ vi.mock("next/link", () => ({
   }) => <a href={href}>{children}</a>,
 }));
 
-// next-intl navigation: replace Link with a simple anchor for tests
+// next-intl navigation: replace Link and useRouter with test doubles
 vi.mock("@/i18n/navigation", () => ({
+  useRouter: () => ({ push: mockRouterPush }),
   Link: ({
     children,
     href,

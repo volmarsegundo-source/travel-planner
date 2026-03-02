@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 interface ItineraryPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -16,9 +17,10 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
     redirect({ href: "/auth/login", locale });
   }
 
-  const t = await getTranslations("common");
+  const tCommon = await getTranslations("common");
   const tItinerary = await getTranslations("itinerary");
   const tTrips = await getTranslations("trips");
+  const tNav = await getTranslations("navigation");
 
   // Fetch trip with ownership check
   const trip = await db.trip.findFirst({
@@ -46,22 +48,23 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
           href="/trips"
           className="text-sm text-primary underline underline-offset-4"
         >
-          {t("back")}
+          {tCommon("back")}
         </Link>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Back link */}
-        <Link
-          href={`/trips/${id}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-        >
-          {t("back")}
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: tNav("breadcrumb.myTrips"), href: "/trips" },
+            { label: trip.title, href: `/trips/${id}` },
+            { label: tNav("breadcrumb.itinerary") },
+          ]}
+          backLabel={tNav("breadcrumb.backTo", { name: trip.title })}
+        />
 
         {/* Header */}
         <header className="mb-8 space-y-1 flex items-center justify-between">
@@ -86,6 +89,6 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
           locale={locale}
         />
       </div>
-    </main>
+    </div>
   );
 }

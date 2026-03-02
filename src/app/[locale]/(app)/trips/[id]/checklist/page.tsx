@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { ChecklistView } from "@/components/features/checklist/ChecklistView";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 interface ChecklistPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -16,9 +17,10 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
     redirect({ href: "/auth/login", locale });
   }
 
-  const t = await getTranslations("common");
+  const tCommon = await getTranslations("common");
   const tTrips = await getTranslations("trips");
   const tChecklist = await getTranslations("checklist");
+  const tNav = await getTranslations("navigation");
 
   // Fetch trip with BOLA check, plus its checklist items
   const trip = await db.trip.findFirst({
@@ -39,7 +41,7 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
           href="/trips"
           className="text-sm text-primary underline underline-offset-4"
         >
-          {t("back")}
+          {tCommon("back")}
         </Link>
       </div>
     );
@@ -51,15 +53,16 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* Back link */}
-        <Link
-          href={`/trips/${id}`}
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-6"
-        >
-          {t("back")}
-        </Link>
+        <Breadcrumb
+          items={[
+            { label: tNav("breadcrumb.myTrips"), href: "/trips" },
+            { label: trip.title, href: `/trips/${id}` },
+            { label: tNav("breadcrumb.checklist") },
+          ]}
+          backLabel={tNav("breadcrumb.backTo", { name: trip.title })}
+        />
 
         {/* Header */}
         <header className="mb-8 space-y-1">
@@ -76,6 +79,6 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
           initialItems={checklistItems}
         />
       </div>
-    </main>
+    </div>
   );
 }

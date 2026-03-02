@@ -13,7 +13,21 @@
     "confirm": "Confirm",
     "error": "Something went wrong. Please try again.",
     "success": "Saved successfully!",
-    "tryAgain": "Try again"
+    "tryAgain": "Try again",
+    "skipToContent": "Skip to content"
+  },
+  "navigation": {
+    "myTrips": "My trips",
+    "toggleMenu": "Toggle menu",
+    "closeMenu": "Close menu",
+    "userMenu": "User menu",
+    "breadcrumb": {
+      "myTrips": "My trips",
+      "itinerary": "Itinerary",
+      "checklist": "Checklist",
+      "generatePlan": "Generate plan",
+      "backTo": "Back to {name}"
+    }
   },
   "auth": {
     "signIn": "Sign in",
@@ -45,7 +59,9 @@
       "passwordsDoNotMatch": "Passwords do not match.",
       "nameRequired": "Name is required.",
       "emailNotVerified": "Please verify your email before signing in.",
-      "tokenExpired": "This link has expired. Please request a new one."
+      "tokenExpired": "This link has expired. Please request a new one.",
+      "generic": "Something went wrong. Please try again.",
+      "rateLimitExceeded": "Too many requests. Please try again later."
     }
   },
   "trustSignals": {

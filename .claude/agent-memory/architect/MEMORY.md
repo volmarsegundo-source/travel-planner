@@ -1,9 +1,11 @@
 # Architect Memory — Travel Planner
 
 ## Project State
+- Sprint 5 started 2026-03-01; SPEC-005 written
 - Sprint 2 (hardening) complete as of 2026-02-26; Sprint 2 arch review done
-- ADR-001, ADR-002 written 2026-02-23; ADR-003, ADR-004, ADR-005 added 2026-02-26
+- ADR-001-002 (2026-02-23); ADR-003-005 (2026-02-26); ADR-006-007 (2026-03-01)
 - SPEC-001 written: docs/SPEC-001.md (2026-02-23) — Trip Creation & Management (US-001)
+- SPEC-005 written: docs/specs/SPEC-005-authenticated-navigation.md (2026-03-01) — Sprint 5 nav + fixes
 - Source code exists: trips CRUD, AI itinerary/checklist, i18n (next-intl), auth, health check
 
 ## Confirmed Tech Stack (ADR-001, Accepted 2026-02-23)
@@ -31,13 +33,15 @@
 - Monolith over microservices: 2-dev team, MVP stage
 - CUID2 for all primary keys (not UUID)
 - Soft deletes on all user-owned entities (deletedAt); deactivatedAt separate for account suspension
-- Session strategy: database (not JWT+Redis) — ADR-005 deviates from ADR-001; arch diagram outdated
+- Session strategy: JWT (auth.ts has `session: { strategy: "jwt" }`); ADR-005 text says "database" but code uses JWT
 - IDs in API: never expose auto-increment integers — always CUID2
 - Trip cover: gradient name string + emoji string (no image URL in v1)
 - Trip status: PLANNING (default), ACTIVE, COMPLETED, ARCHIVED — as const enum pattern
 - MAX_ACTIVE_TRIPS = 20 (MVP business rule) — enforced in TripService, not only client
 - ChecklistItem and ItineraryDay use onDelete: Cascade (derived/computed data, not user primary data)
 - AI cache: MD5-keyed Redis 24h TTL; budget bucketing to nearest 500; month-level for checklist
+- ADR-006: Route group (app) for authenticated layout — navbar via shared layout.tsx
+- ADR-007: LanguageSwitcher moved to components/layout/ for reuse across public + auth zones
 
 ## Critical Conventions (must be in every spec)
 - `src/server/` is server-only (import "server-only" required)
@@ -70,10 +74,12 @@
 - MEDIO: getAnthropic() bypasses env.ts validation (reads process.env directly)
 - MEDIO: Redis singleton not persisted in globalThis in production (connection leak risk on Railway/Render)
 - MEDIO: auth.ts uses process.env directly for Google credentials (should use env.ts)
-- MEDIO: Architecture diagram still shows Redis as session store (sessions are in PostgreSQL per ADR-005)
+- MEDIO: Architecture diagram still shows Redis as session store (sessions are JWT per actual code; ADR-005 text inconsistent)
+- MEDIO: ADR-005 says "database session strategy" but auth.ts uses `session: { strategy: "jwt" }` — text vs code mismatch
 
 ## Specs Written
 - SPEC-001 (2026-02-23): Trip Creation & Management — docs/SPEC-001.md
+- SPEC-005 (2026-03-01): Authenticated Navigation & Fixes — docs/specs/SPEC-005-authenticated-navigation.md
 
 ## File Locations
 - Architecture: docs/architecture.md
@@ -83,9 +89,20 @@
 - Security: docs/security.md
 - Data architecture: docs/data-architecture.md
 - SPEC-001: docs/SPEC-001.md
+- SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
 - Agent definitions: .claude/agents/
 - i18n routing: src/i18n/routing.ts
 - i18n navigation wrapper: src/i18n/navigation.ts
 - Rate limiter: src/lib/rate-limit.ts
 - Action error mapper: src/lib/action-utils.ts
 - AI service: src/server/services/ai.service.ts
+- LoginForm: src/components/features/auth/LoginForm.tsx
+- Header (public): src/components/layout/Header.tsx
+- LanguageSwitcher: src/components/landing/LanguageSwitcher.tsx (to move to components/layout/ per ADR-007)
+
+## Sprint 5 Findings
+- LoginForm bug: missing catch block in handleCredentialsSubmit — signIn may throw instead of returning { ok: false }
+- Auth session strategy is JWT (code), not database (ADR-005 text) — clarify in future ADR revision
+- Authenticated routes have no shared layout — each page renders raw content without navbar
+- Existing back links in sub-pages (itinerary, checklist, generate) are plain text links, not breadcrumbs
+- LanguageSwitcher in components/landing/ but needed in both public and auth zones

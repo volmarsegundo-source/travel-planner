@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Link } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -132,12 +131,17 @@ export function RegisterForm() {
 
   function resolveError(key: string): string {
     // key format: "auth.errors.xxx" or "errors.xxx"
-    const withoutNs = key.startsWith("auth.") ? key.slice(5) : key;
-    if (withoutNs.startsWith("errors.")) {
-      const sub = withoutNs.slice(7);
-      return t(`errors.${sub as Parameters<typeof t>[0]}`);
+    try {
+      const withoutNs = key.startsWith("auth.") ? key.slice(5) : key;
+      if (withoutNs.startsWith("errors.")) {
+        const sub = withoutNs.slice(7);
+        return t(`errors.${sub as Parameters<typeof t>[0]}`);
+      }
+      return key;
+    } catch {
+      // Fallback if i18n key doesn't exist
+      return key;
     }
-    return key;
   }
 
   async function onSubmit(values: RegisterFormInput) {
@@ -158,6 +162,8 @@ export function RegisterForm() {
       }
 
       router.push("/auth/verify-email");
+    } catch {
+      setServerErrorKey("errors.generic");
     } finally {
       setIsSubmitting(false);
     }

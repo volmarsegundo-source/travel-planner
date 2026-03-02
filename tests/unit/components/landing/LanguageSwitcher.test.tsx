@@ -41,7 +41,7 @@ vi.mock("@/i18n/navigation", () => ({
 
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
-import { LanguageSwitcher } from "@/components/landing/LanguageSwitcher";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 

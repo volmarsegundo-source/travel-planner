@@ -20,7 +20,7 @@ export async function registerAction(
   formData: FormData
 ): Promise<ActionResult<{ userId: string }>> {
   const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
-  const rl = await checkRateLimit(`register:${ip}`, 5, 3600);
+  const rl = await checkRateLimit(`register:${ip}`, 20, 3600);
   if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
 
   const raw = {

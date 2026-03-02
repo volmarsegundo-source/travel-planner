@@ -1,18 +1,18 @@
 # Tech Lead Memory — Travel Planner
 
-## Project State (as of 2026-02-24)
-- Bootstrap Phase 2 complete: SPEC-001, QA-SPEC-001, SEC-SPEC-001, CIA-001 all approved
-- Sprint 1 detailed plan written to docs/tasks.md (section "Sprint 1 — Plano Detalhado")
-- MVP v2.0: 10 user stories Sprint 1, Claude API core, Google Places, i18n from Day 1
-- T-001 to T-014 fully planned with daily subtasks, sync points, risks and DoD
+## Project State (as of 2026-03-01)
+- Sprints 1-4 complete: auth, landing page, dev toolkit, 227 tests passing
+- Sprint 5 planned: Authenticated Navigation & Fixes (US-100..103, T-031..037)
+- SPEC-005 reviewed; ADR-006 (route group) and ADR-007 (shared LanguageSwitcher) accepted
+- T-032 + T-034 start in parallel; T-031 + T-035 after T-032; T-033 after T-031; T-036 after T-035; T-037 last
 
 ## Key Docs Paths
-- docs/tasks.md — backlog + Sprint 1 task breakdown (TASK-001 to TASK-019)
+- docs/tasks.md — backlog + Sprint 5 task breakdown (T-031 to T-037)
+- docs/specs/SPEC-005-authenticated-navigation.md — Sprint 5 spec (navbar, logout, login fix, breadcrumbs)
 - docs/SPEC-001.md — Trip Creation & Management spec
-- docs/QA-SPEC-001.md — Test strategy (unit UT-001..043, integration IT-001..008, E2E E2E-001..010)
-- docs/SEC-SPEC-001.md — CLEARED WITH CONDITIONS (FIND-M-001, FIND-M-002 must be fixed)
-- docs/CIA-001.md — v0.1.0, non-breaking greenfield, users table must exist before trips migration
-- docs/architecture.md — conventions, folder structure, error classes, naming
+- docs/QA-SPEC-001.md — Test strategy
+- docs/SEC-SPEC-001.md — CLEARED WITH CONDITIONS (FIND-M-001, FIND-M-002)
+- docs/architecture.md — conventions, folder structure, ADR-001..007
 
 ## Critical Security Findings to Enforce at PR Review
 - FIND-M-001: redirect() must be OUTSIDE try/catch in all Server Actions (SPEC-001 §11.4 has the correct pattern; §4.1 sample is wrong)

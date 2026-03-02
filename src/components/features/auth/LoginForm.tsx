@@ -89,12 +89,16 @@ export function LoginForm() {
         redirect: false,
       });
 
-      if (!result?.ok) {
+      if (!result?.ok || result?.error) {
         setErrorKey("errors.invalidCredentials");
         return;
       }
 
       router.push("/trips");
+    } catch {
+      // signIn may throw instead of returning { ok: false }
+      // in some Auth.js v5 versions with Credentials provider
+      setErrorKey("errors.invalidCredentials");
     } finally {
       setIsSubmitting(false);
     }
@@ -113,13 +117,16 @@ export function LoginForm() {
 
   // Resolve nested key using dot notation — t() from next-intl supports dot paths directly
   function resolveError(key: string): string {
-    // key like "errors.invalidCredentials" maps to t('errors.invalidCredentials')
-    // next-intl t() can resolve nested via object syntax; we split manually here
-    const parts = key.split(".");
-    if (parts[0] === "errors" && parts[1]) {
-      return t(`errors.${parts[1] as Parameters<typeof t>[0]}`);
+    try {
+      const parts = key.split(".");
+      if (parts[0] === "errors" && parts[1]) {
+        return t(`errors.${parts[1] as Parameters<typeof t>[0]}`);
+      }
+      return key;
+    } catch {
+      // Fallback if i18n key doesn't exist
+      return key;
     }
-    return key;
   }
 
   return (

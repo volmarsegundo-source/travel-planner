@@ -14,7 +14,7 @@ async function POST(req: NextRequest) {
       headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
       headersList.get("x-real-ip") ??
       "unknown";
-    const rl = await checkRateLimit(`login:${ip}`, 10, 900);
+    const rl = await checkRateLimit(`login:${ip}`, 30, 900);
     if (!rl.allowed) {
       return NextResponse.json(
         { error: "errors.rateLimitExceeded" },

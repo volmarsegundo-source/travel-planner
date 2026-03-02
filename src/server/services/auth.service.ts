@@ -61,7 +61,11 @@ export class AuthService {
     logger.info("auth.register", { userId: user.id });
 
     // Fire-and-forget: verification email — real delivery handled in T-003.
-    await AuthService.sendVerificationEmail(user.id, email);
+    // Do NOT await — if Redis is temporarily unavailable the registration
+    // should still succeed (emailVerified is already set).
+    AuthService.sendVerificationEmail(user.id, email).catch((err) => {
+      logger.error("auth.register.emailTokenFailed", err);
+    });
 
     return { userId: user.id };
   }

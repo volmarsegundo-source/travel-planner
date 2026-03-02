@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-03-02
+
+### Added
+- Navbar autenticada (`AuthenticatedNavbar`) persistente em todas as paginas protegidas — logo, link "Minhas Viagens", LanguageSwitcher, UserMenu com avatar
+- Componente `UserMenu` com dropdown (nome, email, botao "Sair") e suporte a avatar com fallback para iniciais
+- Componente `Breadcrumb` reutilizavel com configuracao por rota — integrado em sub-paginas de viagem (itinerary, checklist, generate)
+- Route group `(app)` para agrupar todas as rotas autenticadas sob layout compartilhado (`AppShellLayout`)
+- Paginas 404 (`not-found.tsx`) para rotas autenticadas e publicas
+- Infraestrutura E2E com Playwright (configuracao base, smoke tests)
+- 31 testes novos para componentes de navegacao, UserMenu, Breadcrumb e LoginForm error handling
+- Chaves i18n de navegacao em PT-BR e EN (skip-to-content, toggleMenu, breadcrumbs)
+- ADR-006 (route group `(app)`) e ADR-007 (LanguageSwitcher path) documentados
+
+### Fixed
+- Exibicao de erro no LoginForm — adicionado `catch` explicito em `handleCredentialsSubmit` e fallback defensivo em `resolveError`
+- `LanguageSwitcher` movido de `components/landing/` para `components/layout/` (posicionamento correto no grafo de componentes)
+
+### Changed
+- Total de testes unitarios: 227 → 258 (adicionados 31 testes de navegacao e error handling)
+
+---
+
+## [0.4.0] - 2026-02-28
+
+### Added
+- Script `sprint-lifecycle.js` com comandos `start`, `review`, `finish`, `status` para gerenciamento de ciclo de vida de sprints via `npm run sprint:*`
+- Script `project-bootstrap.js` com validacao de setup do projeto, verificacao de dependencias, e modo `--fix` para correcao automatica via `npm run bootstrap`
+- Script `security-audit.js` com auditoria de seguranca (npm audit, busca de secrets, validacao de .env) via `npm run security`
+- Script `i18n-manager.js` com verificacao de chaves de traducao e sincronizacao entre locales via `npm run i18n`
+- Script `install-skills.js` para instalacao de 4 Claude Code skills (`dev-environment`, `i18n`, `security-audit`, `sprint`)
+- 46 testes unitarios para todos os scripts de desenvolvimento
+
+### Changed
+- Total de testes unitarios: 181 → 227 (adicionados 46 testes para scripts de desenvolvimento)
+
+---
+
+## [0.3.0] - 2026-02-27
+
+### Added
+- Landing page completa com Hero section, Features section (4 cards: AI Planning, Drag & Drop, Multi-language, Responsive), e layout responsivo
+- Header (`src/components/layout/Header.tsx`) com logo, language switcher, links login/signup, hamburger menu mobile
+- Footer (`src/components/layout/Footer.tsx`) com copyright, links login/signup, language switcher
+- Language Switcher (`src/components/landing/LanguageSwitcher.tsx`) para troca EN↔PT preservando rota atual
+- Script de setup do ambiente de desenvolvimento (`scripts/dev-setup.js`) com modos `--check`, `--reset`, `--users-only`, e setup completo
+- Claude Code skill `dev-environment` com arquitetura do ambiente, checklist pre-voo, e guia de troubleshooting
+- Pagina `/dashboard` com redirect automatico para `/trips`
+- Redirect automatico de usuarios autenticados na landing page para `/trips`
+- `/dashboard` adicionado as rotas protegidas no middleware
+- 44 testes unitarios para novos componentes (Header, Footer, HeroSection, FeaturesSection, LanguageSwitcher, dev-setup)
+- Strings i18n da landing page em EN e PT-BR
+
+### Fixed
+- Mock do `@anthropic-ai/sdk` corrigido de arrow function para regular function (compatibilidade Vitest 4.x com construtores)
+- Singleton `globalThis._anthropic` limpo entre testes via `beforeEach`
+- Exclusao de testes duplicados de subdiretorio `travel-planner/` no vitest.config.ts
+- Exclusao de testes E2E (`**/e2e/**`) do vitest.config.ts
+
+### Changed
+- Total de testes unitarios: 137 → 181 (adicionados 44 testes de componentes e scripts)
+
+---
+
 ## [0.2.0] - 2026-02-26
 
 ### Added
@@ -131,5 +194,8 @@ npm run dev
 
 ---
 
+[0.5.0]: https://github.com/your-org/travel-planner/releases/tag/v0.5.0
+[0.4.0]: https://github.com/your-org/travel-planner/releases/tag/v0.4.0
+[0.3.0]: https://github.com/your-org/travel-planner/releases/tag/v0.3.0
 [0.2.0]: https://github.com/your-org/travel-planner/releases/tag/v0.2.0
 [0.1.0]: https://github.com/your-org/travel-planner/releases/tag/v0.1.0
