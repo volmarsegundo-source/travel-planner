@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.5.0] - 2026-03-02
+
+### Added
+- Navbar autenticada (`AuthenticatedNavbar`) persistente em todas as paginas protegidas — logo, link "Minhas Viagens", LanguageSwitcher, UserMenu com avatar
+- Componente `UserMenu` com dropdown (nome, email, botao "Sair") e suporte a avatar com fallback para iniciais
+- Componente `Breadcrumb` reutilizavel com configuracao por rota — integrado em sub-paginas de viagem (itinerary, checklist, generate)
+- Route group `(app)` para agrupar todas as rotas autenticadas sob layout compartilhado (`AppShellLayout`)
+- Paginas 404 (`not-found.tsx`) para rotas autenticadas e publicas
+- Infraestrutura E2E com Playwright (configuracao base, smoke tests)
+- 31 testes novos para componentes de navegacao, UserMenu, Breadcrumb e LoginForm error handling
+- Chaves i18n de navegacao em PT-BR e EN (skip-to-content, toggleMenu, breadcrumbs)
+- ADR-006 (route group `(app)`) e ADR-007 (LanguageSwitcher path) documentados
+
+### Fixed
+- Exibicao de erro no LoginForm — adicionado `catch` explicito em `handleCredentialsSubmit` e fallback defensivo em `resolveError`
+- `LanguageSwitcher` movido de `components/landing/` para `components/layout/` (posicionamento correto no grafo de componentes)
+
+### Changed
+- Total de testes unitarios: 227 → 258 (adicionados 31 testes de navegacao e error handling)
+
+---
+
 ## [0.4.0] - 2026-02-28
 
 ### Added
@@ -172,6 +194,7 @@ npm run dev
 
 ---
 
+[0.5.0]: https://github.com/your-org/travel-planner/releases/tag/v0.5.0
 [0.4.0]: https://github.com/your-org/travel-planner/releases/tag/v0.4.0
 [0.3.0]: https://github.com/your-org/travel-planner/releases/tag/v0.3.0
 [0.2.0]: https://github.com/your-org/travel-planner/releases/tag/v0.2.0

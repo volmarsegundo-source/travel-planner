@@ -1,6 +1,6 @@
 {
   "name": "travel-planner",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "scripts": {
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",

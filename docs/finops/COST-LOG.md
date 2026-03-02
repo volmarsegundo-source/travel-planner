@@ -222,6 +222,47 @@ O Sprint 2 envolveu múltiplos agentes em paralelo (dev-fullstack-1, dev-fullsta
 
 ---
 
+## Sprint 5 — Marco/2026
+
+**Status:** ✅ Concluido
+**Periodo:** Marco/2026 (semana 1)
+**Dados:** Reais (desenvolvimento local, sem deploy em producao)
+
+### Entregas do Sprint 5
+- Navbar autenticada (AuthenticatedNavbar + UserMenu)
+- Botao de logout funcional (signOut + cookie cleanup)
+- Breadcrumbs reutilizaveis em sub-paginas de viagem
+- Fix de exibicao de erro no LoginForm
+- Paginas 404 para rotas autenticadas e publicas
+- Infraestrutura E2E (Playwright)
+- 31 testes novos (total: 258)
+- PR #5 em `master`
+
+### Custos Reais Sprint 5
+
+| Servico | Plano | Custo Real | Observacao |
+|---------|-------|-----------|------------|
+| Claude Pro (dev) | Pro | $20,00 | Assinatura mensal fixa |
+| Vercel | Hobby (Free) | $0,00 | Sem deploy |
+| Railway | — | $0,00 | Sem uso |
+| Upstash | — | $0,00 | Sem uso |
+| Anthropic API | — | $0,00 | Sem chamadas em producao |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20,00** | |
+
+### Notas FinOps Sprint 5
+- Sprint focado em frontend (componentes React de navegacao, layout, CSS) — impacto zero em custo de producao
+- Nenhuma nova chamada a API externa introduzida
+- Nenhum deploy em staging ou producao
+- `generateChecklistAction` identificada como sem rate limit proprio — baixo risco dado uso de Haiku, mas recomendado para Sprint 6
+- Custo acumulado do projeto (Sprints 1–5): $100–160
+
+### Decisoes FinOps Sprint 5
+- Nenhuma decisao de custo necessaria — sprint puramente frontend
+- Rate limit para checklist adiado para Sprint 6 (risco aceito: Haiku e barato)
+
+---
+
 ## Benchmark de Mercado
 
 > Para referência comparativa com outros projetos similares.

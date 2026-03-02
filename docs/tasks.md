@@ -65,7 +65,7 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 
 ---
 
-## 🟡 Sprint 5 — Navegacao Autenticada e Correcoes
+## ✅ Sprint 5 — Navegacao Autenticada e Correcoes
 
 **Objetivo**: Resolver bloqueadores de usabilidade identificados em testes manuais pos-Sprint 4 — navegacao autenticada, logout, feedback de erros e orientacao espacial (breadcrumbs). Sem estas correcoes, o MVP e inutilizavel apos o login.
 
@@ -76,7 +76,7 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 ---
 
 ### US-100: Navbar autenticada (AppShell)
-**Sprint**: 🟡 5 | **Status**: 🔵 Em andamento | **Prioridade**: P0 (bloqueante)
+**Sprint**: ✅ 5 | **Status**: ✅ Done | **Prioridade**: P0 (bloqueante)
 
 **User Story**
 > As a authenticated user (all personas: @leisure-solo, @leisure-family, @business-traveler),
@@ -117,7 +117,7 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 ---
 
 ### US-101: Botao de logout
-**Sprint**: 🟡 5 | **Status**: 🔵 Em andamento | **Prioridade**: P0 (bloqueante)
+**Sprint**: ✅ 5 | **Status**: ✅ Done | **Prioridade**: P0 (bloqueante)
 
 **User Story**
 > As a authenticated user (@leisure-solo, @business-traveler, @leisure-family),
@@ -156,7 +156,7 @@ Uma User Story está **DONE** quando TODOS os critérios abaixo são atendidos:
 ---
 
 ### US-102: Corrigir exibicao de erro no formulario de login
-**Sprint**: 🟡 5 | **Status**: 🔵 Em andamento | **Prioridade**: P0 (bloqueante)
+**Sprint**: ✅ 5 | **Status**: ✅ Done | **Prioridade**: P0 (bloqueante)
 
 **User Story**
 > As a user attempting to sign in with invalid credentials (@leisure-solo, @business-traveler),
@@ -202,7 +202,7 @@ Recomendacao: adicionar `catch (error)` explicito no handler para capturar excec
 ---
 
 ### US-103: Breadcrumbs e navegacao de retorno nas sub-paginas
-**Sprint**: 🟡 5 | **Status**: 🔵 Em andamento | **Prioridade**: P1 (importante, nao bloqueante)
+**Sprint**: ✅ 5 | **Status**: ✅ Done | **Prioridade**: P1 (importante, nao bloqueante)
 
 **User Story**
 > As a user navigating deep into trip details (@leisure-solo, @leisure-family, @group-organizer),
@@ -285,7 +285,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-032: Route group (app) + AppShellLayout + i18n + mover LanguageSwitcher
 **Story**: US-100 | **Dev**: dev-fullstack-1 | **Esforco**: M
 **Depende de**: nenhuma (primeira tarefa do sprint)
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.2.1, Sec.4.1, Sec.6.1 (ADR-006), Sec.6.2 (ADR-007)
 
@@ -327,7 +327,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-034: Fix exibicao de erro no LoginForm
 **Story**: US-102 | **Dev**: dev-fullstack-2 | **Esforco**: S
 **Depende de**: nenhuma (paralelo com T-032)
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.4.5
 
@@ -360,7 +360,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-031: Componentes AuthenticatedNavbar + UserMenu
 **Story**: US-100, US-101 | **Dev**: dev-fullstack-2 | **Esforco**: L
 **Depende de**: T-032 (precisa do `(app)/layout.tsx` e das chaves i18n)
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.4.2 (AuthenticatedNavbar), Sec.4.3 (UserMenu), Sec.9 (Acessibilidade)
 
@@ -427,7 +427,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-033: Validacao completa do fluxo de logout
 **Story**: US-101 | **Dev**: dev-fullstack-2 | **Esforco**: S
 **Depende de**: T-031 (UserMenu com botao "Sair" implementado)
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.2.3 (fluxo logout), Sec.7.2 (limpeza de sessao)
 
@@ -454,7 +454,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-035: Componente Breadcrumb reutilizavel
 **Story**: US-103 | **Dev**: dev-fullstack-1 | **Esforco**: M
 **Depende de**: T-032 (precisa das chaves i18n e do route group para testar posicionamento)
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.4.4 (Breadcrumb), Sec.6.3 (decisao: breadcrumb na pagina), Sec.9.1 (acessibilidade)
 
@@ -498,7 +498,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-036: Integrar breadcrumbs nas sub-paginas de viagem
 **Story**: US-103 | **Dev**: dev-fullstack-1 | **Esforco**: M
 **Depende de**: T-035 (componente Breadcrumb pronto), T-032 (rotas sob (app))
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.4.4 (posicionamento na pagina), Sec.6.3 (decisao: cada pagina renderiza seu breadcrumb)
 
@@ -551,7 +551,7 @@ Apos T-032 concluir, T-031 e T-035 podem rodar em paralelo.
 ### T-037: Testes finais e validacao QA do Sprint 5
 **Story**: ALL | **Dev**: qa-engineer | **Esforco**: M
 **Depende de**: T-031, T-033, T-034, T-035, T-036 (todas as tarefas de implementacao)
-**Status**: [ ] Pendente
+**Status**: [x] Done
 
 **Spec ref**: SPEC-005 Sec.10 (Testing Strategy completa)
 
@@ -612,20 +612,20 @@ Dia 4:  [qa-engineer]     T-037 (testes finais + validacao QA)     ← depende d
 
 ### Definition of Done — Sprint 5
 
-- [ ] T-032: Route group `(app)` criado, rotas movidas, chaves i18n adicionadas
-- [ ] T-034: LoginForm corrigido com catch + resolveError defensivo + testes
-- [ ] T-031: AuthenticatedNavbar + UserMenu implementados com testes
-- [ ] T-033: Logout validado end-to-end (cookie, redirect, middleware)
-- [ ] T-035: Componente Breadcrumb reutilizavel com testes
-- [ ] T-036: Breadcrumbs integrados em todas as sub-paginas de viagem
-- [ ] T-037: QA final — cobertura >= 80%, WCAG validado, mobile 375px OK
-- [ ] Code review aprovado pelo tech-lead para cada PR
-- [ ] Security checklist passado (sem secrets, PII nao logada, inputs validados)
-- [ ] Nenhum risco de bias identificado
-- [ ] Merged em main via PR — nenhum commit direto
-- [ ] `npm run build` sem erros
-- [ ] Total de testes >= 250 passando, 0 falhas
-- [ ] ADRs 006 e 007 documentados em `docs/architecture.md` (ja feito pelo architect)
+- [x] T-032: Route group `(app)` criado, rotas movidas, chaves i18n adicionadas
+- [x] T-034: LoginForm corrigido com catch + resolveError defensivo + testes
+- [x] T-031: AuthenticatedNavbar + UserMenu implementados com testes
+- [x] T-033: Logout validado end-to-end (cookie, redirect, middleware)
+- [x] T-035: Componente Breadcrumb reutilizavel com testes
+- [x] T-036: Breadcrumbs integrados em todas as sub-paginas de viagem
+- [x] T-037: QA final — cobertura >= 80%, WCAG validado, mobile 375px OK
+- [x] Code review aprovado pelo tech-lead para cada PR
+- [x] Security checklist passado (sem secrets, PII nao logada, inputs validados)
+- [x] Nenhum risco de bias identificado
+- [x] Merged em main via PR — nenhum commit direto
+- [x] `npm run build` sem erros
+- [x] Total de testes >= 250 passando, 0 falhas (258 testes)
+- [x] ADRs 006 e 007 documentados em `docs/architecture.md` (ja feito pelo architect)
 
 ---
 
