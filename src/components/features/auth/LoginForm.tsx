@@ -89,7 +89,7 @@ export function LoginForm() {
         redirect: false,
       });
 
-      if (!result?.ok) {
+      if (!result?.ok || result?.error) {
         setErrorKey("errors.invalidCredentials");
         return;
       }

@@ -17,13 +17,15 @@ test.describe("Logout — redirect to landing", () => {
   test("AC-401 — clicking logout redirects to the landing page", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     const errors = trackConsoleErrors(page);
 
     await registerAndLogin(page, "ac401");
 
     // Open user menu and click sign out
+    // Use :not() to exclude Next.js Dev Tools button which also has aria-haspopup="menu"
     const avatarButton = page.locator(
-      'button[aria-haspopup="menu"]'
+      'button[aria-haspopup="menu"]:not([data-nextjs-dev-tools-button])'
     );
     await avatarButton.click();
 
@@ -33,7 +35,7 @@ test.describe("Logout — redirect to landing", () => {
       .click();
 
     // Should redirect to landing page
-    await page.waitForURL(/\/(en\/)?$/, { timeout: 30_000 });
+    await page.waitForURL(/\/(en\/?)?$/, { timeout: 30_000 });
 
     // Landing page content should be visible
     await expect(
@@ -54,17 +56,18 @@ test.describe("Logout — session cleared", () => {
   test("AC-402 — after logout, accessing /trips redirects to login", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     await registerAndLogin(page, "ac402");
 
     // Perform logout
     const avatarButton = page.locator(
-      'button[aria-haspopup="menu"]'
+      'button[aria-haspopup="menu"]:not([data-nextjs-dev-tools-button])'
     );
     await avatarButton.click();
     await page
       .getByRole("menuitem", { name: /sign out|sair/i })
       .click();
-    await page.waitForURL(/\/(en\/)?$/, { timeout: 30_000 });
+    await page.waitForURL(/\/(en\/?)?$/, { timeout: 30_000 });
 
     // Now try to access trips directly
     await page.goto("/en/trips");
@@ -82,6 +85,7 @@ test.describe("Logout — back button protection", () => {
   test("AC-403 — pressing back after logout does not show dashboard content", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     await registerAndLogin(page, "ac403");
 
     // Verify we are on the trips page
@@ -91,13 +95,13 @@ test.describe("Logout — back button protection", () => {
 
     // Perform logout
     const avatarButton = page.locator(
-      'button[aria-haspopup="menu"]'
+      'button[aria-haspopup="menu"]:not([data-nextjs-dev-tools-button])'
     );
     await avatarButton.click();
     await page
       .getByRole("menuitem", { name: /sign out|sair/i })
       .click();
-    await page.waitForURL(/\/(en\/)?$/, { timeout: 30_000 });
+    await page.waitForURL(/\/(en\/?)?$/, { timeout: 30_000 });
 
     // Press back button
     await page.goBack();

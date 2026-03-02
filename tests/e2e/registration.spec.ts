@@ -61,7 +61,7 @@ test.describe("Registration — successful flow", () => {
       .click();
 
     // After successful registration, the app redirects to verify-email
-    await page.waitForURL(/\/auth\/verify-email/, { timeout: 30_000 });
+    await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
   });
 });
 
@@ -73,6 +73,7 @@ test.describe("Registration — duplicate email", () => {
   test("AC-103 — registering with an already-used email shows error message", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     // First, register a user to ensure the email exists
     const dupEmail = `e2e-dup-${Date.now()}@playwright.invalid`;
 
@@ -82,7 +83,7 @@ test.describe("Registration — duplicate email", () => {
     await page
       .getByRole("button", { name: /create account/i })
       .click();
-    await page.waitForURL(/\/auth\/verify-email/, { timeout: 30_000 });
+    await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
 
     // Now try to register again with the same email
     await page.goto("/en/auth/register");
@@ -92,9 +93,9 @@ test.describe("Registration — duplicate email", () => {
       .getByRole("button", { name: /create account/i })
       .click();
 
-    // Error alert should appear — use specific ID
+    // Error alert should appear — use specific ID (may take time for server response)
     const alert = page.locator("#register-server-error");
-    await expect(alert).toBeVisible({ timeout: 10_000 });
+    await expect(alert).toBeVisible({ timeout: 30_000 });
     await expect(alert).toContainText(/email|e-mail|already|cadastrado/i);
 
     // Must stay on the register page

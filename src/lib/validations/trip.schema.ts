@@ -19,8 +19,14 @@ export const TripCreateSchema = z
       .string()
       .max(MAX_TRIP_DESCRIPTION_LENGTH, `Description must be at most ${MAX_TRIP_DESCRIPTION_LENGTH} characters`)
       .optional(),
-    startDate: z.coerce.date().optional(),
-    endDate: z.coerce.date().optional(),
+    startDate: z.preprocess(
+      (val) => (val === "" || val == null ? undefined : val),
+      z.coerce.date().optional()
+    ),
+    endDate: z.preprocess(
+      (val) => (val === "" || val == null ? undefined : val),
+      z.coerce.date().optional()
+    ),
     coverGradient: z.string().max(50).default("sunset"),
     coverEmoji: z.string().max(10).default("✈️"),
   })
@@ -41,8 +47,14 @@ export const TripUpdateSchema = z.object({
   title: z.string().min(1).max(MAX_TRIP_TITLE_LENGTH).optional(),
   destination: z.string().min(1).max(MAX_TRIP_DESTINATION_LENGTH).optional(),
   description: z.string().max(MAX_TRIP_DESCRIPTION_LENGTH).optional(),
-  startDate: z.coerce.date().optional(),
-  endDate: z.coerce.date().optional(),
+  startDate: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : val),
+    z.coerce.date().optional()
+  ),
+  endDate: z.preprocess(
+    (val) => (val === "" || val == null ? undefined : val),
+    z.coerce.date().optional()
+  ),
   coverGradient: z.string().max(50).optional(),
   coverEmoji: z.string().max(10).optional(),
   status: z.enum(["PLANNING", "ACTIVE", "COMPLETED", "ARCHIVED"]).optional(),

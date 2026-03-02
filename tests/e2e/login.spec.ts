@@ -49,6 +49,7 @@ test.describe("Login — valid credentials", () => {
   test("AC-202 — logging in with valid credentials redirects to trips page", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     const errors = trackConsoleErrors(page);
 
     // Register a fresh user so we don't depend on seeded data
@@ -61,7 +62,7 @@ test.describe("Login — valid credentials", () => {
     await page
       .getByRole("button", { name: /create account/i })
       .click();
-    await page.waitForURL(/\/auth\/verify-email/, { timeout: 30_000 });
+    await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
 
     // Now login
     await page.goto("/en/auth/login");
@@ -70,7 +71,7 @@ test.describe("Login — valid credentials", () => {
     await page.getByRole("button", { name: /sign in/i }).click();
 
     // Should redirect to /trips
-    await page.waitForURL(/\/trips/, { timeout: 30_000 });
+    await page.waitForURL(/\/trips/, { timeout: 60_000 });
 
     // Should see dashboard content (heading)
     await expect(
@@ -185,7 +186,7 @@ test.describe("Login — register link", () => {
       .getByRole("link", { name: /create account/i })
       .click();
 
-    await page.waitForURL(/\/auth\/register/, { timeout: 10_000 });
+    await page.waitForURL(/\/auth\/register/, { timeout: 30_000 });
 
     await expect(
       page.getByRole("heading", { name: /create account/i })

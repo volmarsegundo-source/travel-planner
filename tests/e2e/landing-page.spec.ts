@@ -249,6 +249,9 @@ test.describe("Landing page — authenticated redirect", () => {
   test("AC-008 — logged-in user accessing landing page is redirected to trips", async ({
     page,
   }) => {
+    // Increase timeout: registerAndLogin takes ~40s, then redirect needs time
+    test.setTimeout(120_000);
+
     // Register and login to create a session
     await registerAndLogin(page, "ac008");
 
@@ -256,6 +259,6 @@ test.describe("Landing page — authenticated redirect", () => {
     await page.goto("/en/");
 
     // Should be redirected to trips (authenticated users skip the landing)
-    await page.waitForURL(/\/trips/, { timeout: 10_000 });
+    await page.waitForURL(/\/trips/, { timeout: 15_000 });
   });
 });

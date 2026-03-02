@@ -15,7 +15,8 @@ export async function loginAs(
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
 
-  await page.waitForURL(/\/trips/, { timeout: 30_000 });
+  // Turbopack dev server may need extra time for on-demand compilation
+  await page.waitForURL(/\/trips/, { timeout: 60_000 });
 }
 
 /**
@@ -34,14 +35,15 @@ export async function registerAndLogin(
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /create account/i }).click();
-  await page.waitForURL(/\/auth\/verify-email/, { timeout: 30_000 });
+  // Turbopack dev server may need extra time for on-demand compilation
+  await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
 
   // Login with the newly created account
   await page.goto("/en/auth/login");
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/trips/, { timeout: 30_000 });
+  await page.waitForURL(/\/trips/, { timeout: 60_000 });
 
   return { email, password };
 }

@@ -18,6 +18,7 @@ test.describe("Dashboard — authenticated user view", () => {
   test("AC-301 — logged-in user sees trips page with user indication and content", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     const errors = trackConsoleErrors(page);
 
     await registerAndLogin(page, "ac301");
@@ -116,6 +117,7 @@ test.describe("Dashboard — language switch while logged in", () => {
   test("AC-304 — switching language to PT while logged in keeps session and shows Portuguese", async ({
     page,
   }) => {
+    test.setTimeout(120_000);
     await registerAndLogin(page, "ac304");
 
     // Verify we are on EN trips page
