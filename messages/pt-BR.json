@@ -22,6 +22,7 @@
     "closeMenu": "Fechar menu",
     "userMenu": "Menu do usuário",
     "breadcrumb": {
+      "home": "Início",
       "myTrips": "Minhas viagens",
       "itinerary": "Itinerário",
       "checklist": "Checklist",
@@ -49,6 +50,7 @@
     "resendEmail": "Reenviar e-mail",
     "emailVerified": "E-mail verificado com sucesso!",
     "passwordResetSent": "Link de redefinição enviado. Verifique seu e-mail.",
+    "registrationSuccess": "Conta criada com sucesso! Faça login para continuar.",
     "errors": {
       "invalidCredentials": "E-mail ou senha incorretos.",
       "emailAlreadyExists": "Este e-mail já está cadastrado.",
@@ -193,6 +195,11 @@
     "footer": {
       "copyright": "© 2026 Travel Planner. Todos os direitos reservados."
     }
+  },
+  "notFoundPage": {
+    "title": "Página não encontrada",
+    "description": "A página que você procura não existe ou foi movida.",
+    "backHome": "Voltar para o início"
   },
   "errors": {
     "generic": "Algo deu errado. Tente novamente.",

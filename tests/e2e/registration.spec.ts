@@ -13,7 +13,7 @@ import { trackConsoleErrors } from "./helpers/console-errors";
 // ---------------------------------------------------------------------------
 
 test.describe("Registration — form elements", () => {
-  test("AC-101 — register page shows form with email, password, optional name, and submit button", async ({
+  test("AC-101 — register page shows form with email, password, confirm password, optional name, and submit button", async ({
     page,
   }) => {
     const errors = trackConsoleErrors(page);
@@ -29,8 +29,12 @@ test.describe("Registration — form elements", () => {
     await expect(emailInput).toBeVisible();
 
     // Password field with visible label
-    const passwordInput = page.getByLabel(/password/i);
+    const passwordInput = page.getByLabel(/^password$/i);
     await expect(passwordInput).toBeVisible();
+
+    // Confirm password field
+    const confirmPasswordInput = page.getByLabel(/confirm password/i);
+    await expect(confirmPasswordInput).toBeVisible();
 
     // Submit button
     await expect(
@@ -46,7 +50,7 @@ test.describe("Registration — form elements", () => {
 // ---------------------------------------------------------------------------
 
 test.describe("Registration — successful flow", () => {
-  test("AC-102 — registering with valid data creates account and redirects to verify-email", async ({
+  test("AC-102 — registering with valid data creates account and redirects to login with success banner", async ({
     page,
   }) => {
     const uniqueEmail = `e2e-ac102-${Date.now()}@playwright.invalid`;
@@ -54,14 +58,20 @@ test.describe("Registration — successful flow", () => {
     await page.goto("/en/auth/register");
 
     await page.getByLabel(/email/i).fill(uniqueEmail);
-    await page.getByLabel(/password/i).fill("TestPassword@123");
+    await page.getByLabel(/^password$/i).fill("TestPassword@123");
+    await page.getByLabel(/confirm password/i).fill("TestPassword@123");
 
     await page
       .getByRole("button", { name: /create account/i })
       .click();
 
-    // After successful registration, the app redirects to verify-email
-    await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
+    // After successful registration, redirects to /auth/login?registered=true
+    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+
+    // Success banner should be visible
+    await expect(
+      page.getByText(/account created|conta criada/i)
+    ).toBeVisible({ timeout: 5_000 });
   });
 });
 
@@ -79,16 +89,18 @@ test.describe("Registration — duplicate email", () => {
 
     await page.goto("/en/auth/register");
     await page.getByLabel(/email/i).fill(dupEmail);
-    await page.getByLabel(/password/i).fill("TestPassword@123");
+    await page.getByLabel(/^password$/i).fill("TestPassword@123");
+    await page.getByLabel(/confirm password/i).fill("TestPassword@123");
     await page
       .getByRole("button", { name: /create account/i })
       .click();
-    await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
+    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
 
     // Now try to register again with the same email
     await page.goto("/en/auth/register");
     await page.getByLabel(/email/i).fill(dupEmail);
-    await page.getByLabel(/password/i).fill("TestPassword@123");
+    await page.getByLabel(/^password$/i).fill("TestPassword@123");
+    await page.getByLabel(/confirm password/i).fill("TestPassword@123");
     await page
       .getByRole("button", { name: /create account/i })
       .click();
@@ -118,7 +130,8 @@ test.describe("Registration — password validation", () => {
     await page
       .getByLabel(/email/i)
       .fill("ac104-test@playwright.invalid");
-    await page.getByLabel(/password/i).fill("short");
+    await page.getByLabel(/^password$/i).fill("short");
+    await page.getByLabel(/confirm password/i).fill("short");
 
     await page
       .getByRole("button", { name: /create account/i })
@@ -127,6 +140,30 @@ test.describe("Registration — password validation", () => {
     // Inline validation error for password
     await expect(
       page.getByText(/at least 8 characters|pelo menos 8 caracteres/i)
+    ).toBeVisible({ timeout: 5_000 });
+
+    // Must stay on register page
+    await expect(page).toHaveURL(/\/auth\/register/);
+  });
+
+  test("AC-104b — mismatched confirm password shows validation error", async ({
+    page,
+  }) => {
+    await page.goto("/en/auth/register");
+
+    await page
+      .getByLabel(/email/i)
+      .fill("ac104b-test@playwright.invalid");
+    await page.getByLabel(/^password$/i).fill("TestPassword@123");
+    await page.getByLabel(/confirm password/i).fill("DifferentPassword@456");
+
+    await page
+      .getByRole("button", { name: /create account/i })
+      .click();
+
+    // Inline validation error for password mismatch
+    await expect(
+      page.getByText(/passwords do not match|senhas não coincidem/i)
     ).toBeVisible({ timeout: 5_000 });
 
     // Must stay on register page
@@ -181,7 +218,10 @@ test.describe("Registration — Portuguese locale", () => {
       await expect(page.getByText("E-mail")).toBeVisible();
 
       // Password label in Portuguese
-      await expect(page.getByText("Senha")).toBeVisible();
+      await expect(page.getByLabel(/^senha$/i)).toBeVisible();
+
+      // Confirm password label in Portuguese
+      await expect(page.getByLabel(/confirmar senha/i)).toBeVisible();
 
       // Submit button in Portuguese
       await expect(
