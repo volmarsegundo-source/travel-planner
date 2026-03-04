@@ -28,9 +28,13 @@ const RegisterFormSchema = UserSignUpSchema.extend({
     .string()
     .transform((val) => (val.trim() === "" ? undefined : val))
     .pipe(z.string().min(1).max(100).optional()),
+  confirmPassword: z.string().min(1, "Confirm password is required"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
-type RegisterFormInput = z.infer<typeof RegisterFormSchema>;
+type RegisterFormInput = z.input<typeof RegisterFormSchema>;
 
 // Inline SVG spinner
 function Spinner() {
@@ -105,6 +109,8 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
   "Invalid email address": "errors.emailInvalid",
   "Password must be at least 8 characters": "errors.passwordTooShort",
   "Password must be at most 72 characters": "errors.passwordTooShort",
+  "Confirm password is required": "errors.passwordRequired",
+  "Passwords do not match": "errors.passwordsDoNotMatch",
   "Name is required": "errors.nameRequired",
 };
 
@@ -124,6 +130,7 @@ export function RegisterForm() {
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
       name: "",
     },
     mode: "onSubmit",
@@ -161,7 +168,7 @@ export function RegisterForm() {
         return;
       }
 
-      router.push("/auth/verify-email");
+      router.push("/auth/login?registered=true");
     } catch {
       setServerErrorKey("errors.generic");
     } finally {
@@ -188,6 +195,7 @@ export function RegisterForm() {
 
   const emailError = getFieldError(form.formState.errors.email);
   const passwordError = getFieldError(form.formState.errors.password);
+  const confirmPasswordError = getFieldError(form.formState.errors.confirmPassword);
   // name errors can come from the pipe transform result
   const nameError = getFieldError(
     form.formState.errors.name as { message?: string } | undefined
@@ -278,6 +286,37 @@ export function RegisterForm() {
                     className="text-destructive text-sm"
                   >
                     {passwordError}
+                  </p>
+                )}
+              </FormItem>
+            )}
+          />
+
+          {/* Confirm Password */}
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("confirmPassword")}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    disabled={isSubmitting}
+                    aria-describedby={
+                      confirmPasswordError ? `${field.name}-error` : undefined
+                    }
+                    {...field}
+                  />
+                </FormControl>
+                {confirmPasswordError && (
+                  <p
+                    id={`${field.name}-error`}
+                    role="alert"
+                    className="text-destructive text-sm"
+                  >
+                    {confirmPasswordError}
                   </p>
                 )}
               </FormItem>

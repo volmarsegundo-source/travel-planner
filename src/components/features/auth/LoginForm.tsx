@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useRouter, Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { signIn } from "next-auth/react";
@@ -66,6 +67,9 @@ function GoogleIcon() {
 export function LoginForm() {
   const t = useTranslations("auth");
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const justRegistered = searchParams.get("registered") === "true";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -134,6 +138,16 @@ export function LoginForm() {
       <div>
         <h2 className="text-2xl font-semibold text-gray-900">{t("signIn")}</h2>
       </div>
+
+      {/* Registration success banner */}
+      {justRegistered && errorKey === null && (
+        <div
+          role="status"
+          className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700 border border-green-200"
+        >
+          {t("registrationSuccess")}
+        </div>
+      )}
 
       {/* Error message */}
       {errorKey !== null && (

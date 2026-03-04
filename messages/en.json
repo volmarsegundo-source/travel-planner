@@ -22,6 +22,7 @@
     "closeMenu": "Close menu",
     "userMenu": "User menu",
     "breadcrumb": {
+      "home": "Home",
       "myTrips": "My trips",
       "itinerary": "Itinerary",
       "checklist": "Checklist",
@@ -49,6 +50,7 @@
     "resendEmail": "Resend email",
     "emailVerified": "Email verified successfully!",
     "passwordResetSent": "Reset link sent. Check your email.",
+    "registrationSuccess": "Account created successfully! Please sign in.",
     "errors": {
       "invalidCredentials": "Invalid email or password.",
       "emailAlreadyExists": "This email is already registered.",
@@ -193,6 +195,11 @@
     "footer": {
       "copyright": "© 2026 Travel Planner. All rights reserved."
     }
+  },
+  "notFoundPage": {
+    "title": "Page not found",
+    "description": "The page you are looking for does not exist or has been moved.",
+    "backHome": "Back to home"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

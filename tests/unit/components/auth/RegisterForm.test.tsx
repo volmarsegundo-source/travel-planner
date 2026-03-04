@@ -66,9 +66,13 @@ import { RegisterForm } from "@/components/features/auth/RegisterForm";
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /** Fills in form fields and submits the form via fireEvent.submit. */
-async function fillAndSubmitForm(email: string, password: string) {
+async function fillAndSubmitForm(email: string, password: string, confirmPassword?: string) {
   await userEvent.type(screen.getByLabelText("auth.email"), email);
   await userEvent.type(screen.getByLabelText("auth.password"), password);
+  await userEvent.type(
+    screen.getByLabelText("auth.confirmPassword"),
+    confirmPassword ?? password
+  );
   // Submit the form element directly — works reliably with react-hook-form
   const form = screen.getByLabelText("auth.email").closest("form")!;
   fireEvent.submit(form);
@@ -141,7 +145,13 @@ describe("RegisterForm", () => {
     expect(nameSection?.querySelector("input[type='text']")).toBeInTheDocument();
   });
 
-  it("calls registerAction and redirects to verify-email on success", async () => {
+  it("renders confirm password field with accessible label", () => {
+    render(<RegisterForm />);
+
+    expect(screen.getByLabelText("auth.confirmPassword")).toBeInTheDocument();
+  });
+
+  it("calls registerAction and redirects to login on success", async () => {
     mockRegisterAction.mockResolvedValueOnce({
       success: true,
       data: { userId: "user-123" },
@@ -156,8 +166,21 @@ describe("RegisterForm", () => {
     });
 
     await waitFor(() => {
-      expect(mockRouterPush).toHaveBeenCalledWith("/auth/verify-email");
+      expect(mockRouterPush).toHaveBeenCalledWith("/auth/login?registered=true");
     });
+  });
+
+  it("shows validation error when passwords do not match", async () => {
+    render(<RegisterForm />);
+
+    await fillAndSubmitForm("new@example.com", "SecurePass1!", "DifferentPass!");
+
+    await waitFor(() => {
+      const errorMessages = screen.getAllByRole("alert");
+      expect(errorMessages.length).toBeGreaterThanOrEqual(1);
+    });
+
+    expect(mockRegisterAction).not.toHaveBeenCalled();
   });
 
   it("shows server error alert when registerAction returns failure", async () => {
@@ -199,6 +222,7 @@ describe("RegisterForm", () => {
 
     await userEvent.type(screen.getByLabelText("auth.email"), "new@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "SecurePass1!");
+    await userEvent.type(screen.getByLabelText("auth.confirmPassword"), "SecurePass1!");
 
     const form = screen.getByLabelText("auth.email").closest("form")!;
     fireEvent.submit(form);

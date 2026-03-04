@@ -12,15 +12,20 @@ import userEvent from "@testing-library/user-event";
 
 // ─── Hoist mocks so factories can reference them ──────────────────────────────
 
-const { mockSignIn, mockRouterPush } = vi.hoisted(() => ({
+const { mockSignIn, mockRouterPush, mockUseSearchParams } = vi.hoisted(() => ({
   mockSignIn: vi.fn(),
   mockRouterPush: vi.fn(),
+  mockUseSearchParams: vi.fn(() => new URLSearchParams()),
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
 vi.mock("next-auth/react", () => ({
   signIn: mockSignIn,
+}));
+
+vi.mock("next/navigation", () => ({
+  useSearchParams: mockUseSearchParams,
 }));
 
 vi.mock("next-intl", () => ({
@@ -68,6 +73,7 @@ async function submitLoginForm() {
 describe("LoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseSearchParams.mockReturnValue(new URLSearchParams());
   });
 
   it("renders email field with accessible label", () => {
@@ -221,5 +227,40 @@ describe("LoginForm", () => {
     expect(mockSignIn).toHaveBeenCalledWith("google", {
       callbackUrl: "/trips",
     });
+  });
+
+  it("shows registration success banner when ?registered=true", () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("registered=true"));
+
+    render(<LoginForm />);
+
+    expect(screen.getByRole("status")).toHaveTextContent("auth.registrationSuccess");
+  });
+
+  it("hides success banner when there is a login error", async () => {
+    mockUseSearchParams.mockReturnValue(new URLSearchParams("registered=true"));
+    mockSignIn.mockResolvedValueOnce({ ok: false, error: "CredentialsSignin" });
+
+    render(<LoginForm />);
+
+    // Banner should be visible initially
+    expect(screen.getByRole("status")).toBeInTheDocument();
+
+    await userEvent.type(screen.getByLabelText("auth.email"), "bad@example.com");
+    await userEvent.type(screen.getByLabelText("auth.password"), "wrongpass");
+    await submitLoginForm();
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+
+    // Success banner should be hidden when error is showing
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("does not show success banner without registered query param", () => {
+    render(<LoginForm />);
+
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 });
