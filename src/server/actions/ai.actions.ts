@@ -127,6 +127,9 @@ export async function generateChecklistAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const rl = await checkRateLimit(`ai:checklist:${session.user.id}`, 5, 3600);
+  if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
+
   // BOLA check: verify trip belongs to the authenticated user
   const trip = await db.trip.findFirst({
     where: { id: tripId, userId: session.user.id, deletedAt: null },

@@ -6,7 +6,12 @@
  *
  * The JWT session cookie is validated here without any database access.
  * Protected routes redirect unauthenticated users to /auth/login.
+ *
+ * CSP nonce: a random nonce is generated per request and injected into the
+ * Content-Security-Policy header. The nonce is forwarded to the layout via
+ * the `x-nonce` request header so that inline scripts can include it.
  */
+import { NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
@@ -18,6 +23,31 @@ const intlMiddleware = createMiddleware(routing);
 
 // Routes that require an authenticated session.
 const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard"] as const;
+
+const isDev = process.env.NODE_ENV === "development";
+
+function buildCsp(nonce: string): string {
+  if (isDev) {
+    // Development: allow eval for HMR/Turbopack and inline styles for dev tooling
+    return [
+      "default-src 'self'",
+      `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`,
+      `style-src 'self' 'unsafe-inline'`,
+      "img-src 'self' data: https:",
+      "connect-src 'self' https: ws:",
+      "font-src 'self'",
+    ].join("; ");
+  }
+
+  return [
+    "default-src 'self'",
+    `script-src 'self' 'nonce-${nonce}'`,
+    `style-src 'self' 'unsafe-inline'`,
+    "img-src 'self' data: https:",
+    "connect-src 'self' https:",
+    "font-src 'self'",
+  ].join("; ");
+}
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -41,7 +71,49 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
-  return intlMiddleware(req);
+  // Generate a per-request CSP nonce
+  const nonce = crypto.randomUUID();
+
+  // Forward nonce to the layout via request header
+  const requestHeaders = new Headers(req.headers);
+  requestHeaders.set("x-nonce", nonce);
+
+  // Run the intl middleware to get the response (rewrites, locale redirects)
+  const intlResponse = intlMiddleware(req);
+
+  // Build final response preserving intl middleware rewrites
+  const response = intlResponse
+    ? NextResponse.next({
+        request: { headers: requestHeaders },
+        headers: intlResponse.headers,
+      })
+    : NextResponse.next({ request: { headers: requestHeaders } });
+
+  // Copy over any redirect/rewrite from intl middleware
+  if (intlResponse?.headers) {
+    intlResponse.headers.forEach((value, key) => {
+      response.headers.set(key, value);
+    });
+  }
+
+  // Set security headers
+  response.headers.set("Content-Security-Policy", buildCsp(nonce));
+  response.headers.set("X-Frame-Options", "DENY");
+  response.headers.set("X-Content-Type-Options", "nosniff");
+  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+  response.headers.set(
+    "Permissions-Policy",
+    "camera=(), microphone=(), geolocation=()"
+  );
+
+  if (!isDev) {
+    response.headers.set(
+      "Strict-Transport-Security",
+      "max-age=31536000; includeSubDomains"
+    );
+  }
+
+  return response;
 });
 
 export const config = {

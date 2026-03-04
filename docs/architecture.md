@@ -807,20 +807,26 @@ Docker Compose services:
 
 ---
 
-### ADR-005: Auth.js Database Session Strategy
+### ADR-005: Auth.js JWT Session Strategy
 **Date**: 2026-02-26
-**Status**: Accepted (deviates from ADR-001)
+**Status**: Accepted (revised 2026-03-04)
 
-**Context**: ADR-001 specified Redis-backed JWT sessions. However, `@auth/prisma-adapter` requires the database session strategy.
+**Context**: ADR-001 specified Redis-backed JWT sessions. The initial implementation documented here incorrectly stated database sessions were required by `@auth/prisma-adapter`. In reality, PrismaAdapter persists User and Account records but does not require database-backed sessions — `strategy: "jwt"` is used (see `src/lib/auth.ts:25`).
 
-**Decision**: Use database session strategy with PrismaAdapter.
+**Decision**: Use JWT session strategy (`session: { strategy: "jwt" }`) with PrismaAdapter.
+
+**How it works**:
+- PrismaAdapter persists User and Account records to PostgreSQL
+- Sessions are stateless JWT tokens stored in a signed cookie
+- No DB round-trip for session validation in middleware (Edge-compatible)
+- The `jwt` and `session` callbacks in `auth.config.ts` enrich the token with `user.id`
 
 **Trade-offs**:
-- +1 DB read per authenticated request
-- Benefit: JWT-less session revocation (immediate invalidation)
-- Benefit: Session data is always consistent with DB state
+- Sessions cannot be individually revoked (no server-side session store)
+- Benefit: No +1 DB read per authenticated request — faster, Edge-compatible
+- Benefit: Horizontally scalable without shared session store
 
-**Future**: Will re-evaluate for horizontal scale post-MVP. Redis session caching can be layered on top if read latency becomes a concern.
+**Future**: If session revocation becomes a requirement, a Redis-backed deny-list can be layered on top of JWT validation.
 
 ---
 

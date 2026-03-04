@@ -7,10 +7,12 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 interface TripsPageProps {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function TripsPage({ params }: TripsPageProps) {
+export default async function TripsPage({ params, searchParams }: TripsPageProps) {
   const { locale } = await params;
+  const query = await searchParams;
 
   const session = await auth();
   if (!session?.user?.id) {
@@ -22,6 +24,13 @@ export default async function TripsPage({ params }: TripsPageProps) {
   // Fetch initial data server-side so the page is not blank on first render.
   const initialResult = await listUserTripsAction();
   const initialData = initialResult.success ? initialResult.data : undefined;
+
+  // Redirect first-time users (0 trips) to onboarding, unless they already
+  // came from onboarding (skip loop) via ?from=onboarding.
+  const fromOnboarding = query.from === "onboarding";
+  if (!fromOnboarding && initialData && initialData.data.length === 0) {
+    redirect({ href: "/onboarding", locale });
+  }
 
   return (
     <>

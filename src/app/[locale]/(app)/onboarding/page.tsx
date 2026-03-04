@@ -4,10 +4,10 @@ import { auth } from "@/lib/auth";
 import { OnboardingWizard } from "@/components/features/onboarding/OnboardingWizard";
 
 export default async function OnboardingPage() {
+  const locale = await getLocale();
   const session = await auth();
 
   if (!session?.user) {
-    const locale = await getLocale();
     redirect({ href: "/auth/login", locale });
   }
 
@@ -18,5 +18,5 @@ export default async function OnboardingPage() {
     session?.user?.email?.split("@")[0] ??
     "Traveler";
 
-  return <OnboardingWizard userName={userName} />;
+  return <OnboardingWizard userName={userName} locale={locale} />;
 }

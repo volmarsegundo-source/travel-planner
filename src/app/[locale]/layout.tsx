@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -26,13 +27,17 @@ export default async function LocaleLayout({
     notFound();
   }
 
+  // Read the CSP nonce forwarded from middleware via request header.
+  const headerStore = await headers();
+  const nonce = headerStore.get("x-nonce") ?? "";
+
   // Load messages server-side and pass them to the client provider.
   const messages = await getMessages();
 
   return (
     <html lang={locale}>
       <body>
-        <NextIntlClientProvider messages={messages}>
+        <NextIntlClientProvider messages={messages} nonce={nonce}>
           <QueryProvider>{children}</QueryProvider>
         </NextIntlClientProvider>
       </body>
