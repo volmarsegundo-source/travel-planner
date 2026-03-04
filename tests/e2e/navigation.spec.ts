@@ -99,5 +99,8 @@ test.describe("Navigation — 404 page", () => {
     // Should NOT be a blank page — some content must be rendered
     const bodyText = await page.textContent("body");
     expect(bodyText?.trim().length).toBeGreaterThan(0);
+
+    // Header and Footer should be present (Bug 4 fix)
+    await expect(page.getByText("Travel Planner").first()).toBeVisible();
   });
 });

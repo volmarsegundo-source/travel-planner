@@ -58,14 +58,20 @@ test.describe("Login — valid credentials", () => {
 
     await page.goto("/en/auth/register");
     await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
+    await page.getByLabel(/^password$/i).fill(password);
+    await page.getByLabel(/confirm password/i).fill(password);
     await page
       .getByRole("button", { name: /create account/i })
       .click();
-    await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
+    // After registration, redirects to /auth/login?registered=true
+    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
 
-    // Now login
-    await page.goto("/en/auth/login");
+    // Verify success banner is visible
+    await expect(
+      page.getByText(/account created|conta criada/i)
+    ).toBeVisible({ timeout: 5_000 });
+
+    // Already on login page — fill credentials
     await page.getByLabel(/email/i).fill(email);
     await page.getByLabel(/password/i).fill(password);
     await page.getByRole("button", { name: /sign in/i }).click();

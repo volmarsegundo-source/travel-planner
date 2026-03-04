@@ -33,13 +33,13 @@ export async function registerAndLogin(
   // Register
   await page.goto("/en/auth/register");
   await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
+  await page.getByLabel(/^password$/i).fill(password);
+  await page.getByLabel(/confirm password/i).fill(password);
   await page.getByRole("button", { name: /create account/i }).click();
-  // Turbopack dev server may need extra time for on-demand compilation
-  await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
+  // After successful registration, redirects to /auth/login?registered=true
+  await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
 
-  // Login with the newly created account
-  await page.goto("/en/auth/login");
+  // Already on login page — fill credentials and sign in
   await page.getByLabel(/email/i).fill(email);
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();

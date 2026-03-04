@@ -54,21 +54,24 @@ test("complete user journey from landing to logout", async ({
 
   // ── Step 3: Fill registration form ───────────────────────────────────────
   await page.getByLabel(/email/i).fill(uniqueEmail);
-  await page.getByLabel(/password/i).fill(password);
+  await page.getByLabel(/^password$/i).fill(password);
+  await page.getByLabel(/confirm password/i).fill(password);
 
   await page
     .getByRole("button", { name: /create account/i })
     .click();
 
-  // After successful registration → verify-email page
-  await page.waitForURL(/\/auth\/verify-email/, { timeout: 60_000 });
+  // After successful registration → redirects to /auth/login?registered=true
+  await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
 
-  // ── Step 4: Navigate to login (since email is auto-verified) ─────────────
-  await page.goto("/en/auth/login");
-
+  // ── Step 4: Verify success banner and login page ─────────────────────────
   await expect(
     page.getByRole("heading", { name: /sign in/i })
   ).toBeVisible();
+
+  await expect(
+    page.getByText(/account created|conta criada/i)
+  ).toBeVisible({ timeout: 5_000 });
 
   // ── Step 5: Log in with the newly created credentials ────────────────────
   await page.getByLabel(/email/i).fill(uniqueEmail);
