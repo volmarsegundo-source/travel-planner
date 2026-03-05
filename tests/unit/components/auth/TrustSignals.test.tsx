@@ -12,8 +12,8 @@ vi.mock("next-intl", () => ({
   useTranslations: (namespace: string) => (key: string) => `${namespace}.${key}`,
 }));
 
-vi.mock("next/link", () => ({
-  default: ({
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({
     children,
     href,
   }: {

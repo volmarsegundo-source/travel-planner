@@ -7,36 +7,8 @@ const nextConfig: NextConfig = {
   output: "standalone",
   // typedRoutes disabled: incompatible with next-intl's dynamic [locale] routing.
   // Migrate to next-intl createNavigation() for full type safety (post-MVP task).
-  async headers() {
-    const securityHeaders = [
-      { key: "X-Frame-Options", value: "DENY" },
-      { key: "X-Content-Type-Options", value: "nosniff" },
-      { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-      {
-        key: "Permissions-Policy",
-        value: "camera=(), microphone=(), geolocation=()",
-      },
-      {
-        key: "Content-Security-Policy",
-        value:
-          "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; connect-src 'self' https:;",
-      },
-    ];
-
-    if (process.env.NODE_ENV === "production") {
-      securityHeaders.push({
-        key: "Strict-Transport-Security",
-        value: "max-age=31536000; includeSubDomains",
-      });
-    }
-
-    return [
-      {
-        source: "/(.*)",
-        headers: securityHeaders,
-      },
-    ];
-  },
+  // Security headers (CSP, X-Frame-Options, etc.) are set dynamically in
+  // middleware.ts with a per-request nonce — no static headers() needed here.
 };
 
 // Workaround: next-intl 3.x sets config.experimental.turbo when Turbopack is

@@ -80,12 +80,32 @@
     "step2": {
       "title": "Para onde você vai?",
       "subtitle": "Diga seu destino e datas — a IA faz o resto.",
-      "cta": "Criar minha viagem"
+      "cta": "Próximo",
+      "destination": "Destino",
+      "destinationPlaceholder": "ex: Paris, Tóquio, Nova York",
+      "startDate": "Data de ida",
+      "endDate": "Data de volta",
+      "travelers": "Viajantes",
+      "errors": {
+        "destinationRequired": "Destino é obrigatório.",
+        "startDateRequired": "Data de ida é obrigatória.",
+        "endDateRequired": "Data de volta é obrigatória.",
+        "endDateBeforeStart": "A data de volta deve ser após a ida.",
+        "travelersMin": "Pelo menos 1 viajante."
+      }
     },
     "step3": {
-      "title": "Gerando seu plano...",
-      "subtitle": "Nossa IA está montando um itinerário completo para você.",
-      "cta": "Ver meu plano"
+      "title": "Personalize sua viagem",
+      "subtitle": "Escolha seu estilo de viagem e orçamento — a IA faz o resto.",
+      "cta": "Gerar meu plano",
+      "travelStyle": "Estilo de viagem",
+      "styleAdventure": "Aventura",
+      "styleCulture": "Cultura",
+      "styleRelaxation": "Relaxamento",
+      "styleGastronomy": "Gastronomia",
+      "budget": "Orçamento",
+      "currency": "Moeda",
+      "generating": "Gerando seu plano..."
     },
     "progress": "Passo {current} de {total}",
     "skip": "Pular por agora"

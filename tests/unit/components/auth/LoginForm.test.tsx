@@ -263,4 +263,17 @@ describe("LoginForm", () => {
 
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
+
+  it("renders TrustSignals component", () => {
+    render(<LoginForm />);
+
+    // TrustSignals renders text with trustSignals.badge key
+    expect(screen.getByText("trustSignals.badge")).toBeInTheDocument();
+  });
+
+  it("renders delete account link from TrustSignals", () => {
+    render(<LoginForm />);
+
+    expect(screen.getByText("trustSignals.deleteAccount")).toBeInTheDocument();
+  });
 });

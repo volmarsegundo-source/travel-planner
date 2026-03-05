@@ -80,12 +80,32 @@
     "step2": {
       "title": "Where are you going?",
       "subtitle": "Tell us your destination and dates — AI does the rest.",
-      "cta": "Create my trip"
+      "cta": "Next",
+      "destination": "Destination",
+      "destinationPlaceholder": "e.g. Paris, Tokyo, New York",
+      "startDate": "Departure date",
+      "endDate": "Return date",
+      "travelers": "Travelers",
+      "errors": {
+        "destinationRequired": "Destination is required.",
+        "startDateRequired": "Departure date is required.",
+        "endDateRequired": "Return date is required.",
+        "endDateBeforeStart": "Return date must be after departure.",
+        "travelersMin": "At least 1 traveler."
+      }
     },
     "step3": {
-      "title": "Generating your plan...",
-      "subtitle": "Our AI is building a complete itinerary for you.",
-      "cta": "See my plan"
+      "title": "Customize your trip",
+      "subtitle": "Choose your travel style and budget — AI does the rest.",
+      "cta": "Generate my plan",
+      "travelStyle": "Travel style",
+      "styleAdventure": "Adventure",
+      "styleCulture": "Culture",
+      "styleRelaxation": "Relaxation",
+      "styleGastronomy": "Gastronomy",
+      "budget": "Budget",
+      "currency": "Currency",
+      "generating": "Generating your plan..."
     },
     "progress": "Step {current} of {total}",
     "skip": "Skip for now"

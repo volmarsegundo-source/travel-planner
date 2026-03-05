@@ -1,12 +1,13 @@
 # Architect Memory — Travel Planner
 
 ## Project State
-- Sprint 5 started 2026-03-01; SPEC-005 written
-- Sprint 2 (hardening) complete as of 2026-02-26; Sprint 2 arch review done
+- Sprint 6 review done 2026-03-04; Sprint 6 APPROVED WITH OBSERVATIONS
+- Sprint 5 complete; Sprint 2 (hardening) complete as of 2026-02-26
 - ADR-001-002 (2026-02-23); ADR-003-005 (2026-02-26); ADR-006-007 (2026-03-01)
-- SPEC-001 written: docs/SPEC-001.md (2026-02-23) — Trip Creation & Management (US-001)
-- SPEC-005 written: docs/specs/SPEC-005-authenticated-navigation.md (2026-03-01) — Sprint 5 nav + fixes
-- Source code exists: trips CRUD, AI itinerary/checklist, i18n (next-intl), auth, health check
+- ADR-005 revised 2026-03-04: corrected from "database sessions" to "JWT sessions"
+- SPEC-001 written: docs/SPEC-001.md (2026-02-23)
+- SPEC-005 written: docs/specs/SPEC-005-authenticated-navigation.md (2026-03-01)
+- 297 tests passing, 0 failures
 
 ## Confirmed Tech Stack (ADR-001, Accepted 2026-02-23)
 - Framework: Next.js 15 App Router (full-stack monolito modular)
@@ -15,7 +16,7 @@
 - ORM: Prisma 7 (pure TS, schema-first, safe migrations)
 - Database: PostgreSQL 16
 - Cache/Sessions: Redis via ioredis (Upstash-compatible); singleton in src/server/cache/redis.ts
-- Auth: Auth.js v5 / NextAuth v5 — DATABASE session strategy (PrismaAdapter) — see ADR-005
+- Auth: Auth.js v5 / NextAuth v5 — JWT session strategy (PrismaAdapter for User/Account) — ADR-005 revised
 - AI: Anthropic SDK, claude-sonnet-4-6 (itinerary), claude-haiku-4-5-20251001 (checklist)
 - i18n: next-intl with [locale] routing, locales: pt-BR (default), en — see ADR-004
 - Maps: Mapbox GL JS 3.x
@@ -33,15 +34,17 @@
 - Monolith over microservices: 2-dev team, MVP stage
 - CUID2 for all primary keys (not UUID)
 - Soft deletes on all user-owned entities (deletedAt); deactivatedAt separate for account suspension
-- Session strategy: JWT (auth.ts has `session: { strategy: "jwt" }`); ADR-005 text says "database" but code uses JWT
+- Session strategy: JWT (`session: { strategy: "jwt" }`) — ADR-005 corrected Sprint 6
 - IDs in API: never expose auto-increment integers — always CUID2
 - Trip cover: gradient name string + emoji string (no image URL in v1)
 - Trip status: PLANNING (default), ACTIVE, COMPLETED, ARCHIVED — as const enum pattern
-- MAX_ACTIVE_TRIPS = 20 (MVP business rule) — enforced in TripService, not only client
-- ChecklistItem and ItineraryDay use onDelete: Cascade (derived/computed data, not user primary data)
+- MAX_ACTIVE_TRIPS = 20 (MVP business rule) — enforced in TripService
+- ChecklistItem and ItineraryDay use onDelete: Cascade (derived/computed data)
 - AI cache: MD5-keyed Redis 24h TTL; budget bucketing to nearest 500; month-level for checklist
 - ADR-006: Route group (app) for authenticated layout — navbar via shared layout.tsx
 - ADR-007: LanguageSwitcher moved to components/layout/ for reuse across public + auth zones
+- CSP: nonce per request via middleware (Sprint 6); unsafe-inline only in style-src (Tailwind limitation)
+- Rate limiter: atomic Lua script (INCR + conditional EXPIRE) via redis.eval (Sprint 6)
 
 ## Critical Conventions (must be in every spec)
 - `src/server/` is server-only (import "server-only" required)
@@ -58,24 +61,36 @@
 - BOLA mitigation: always include userId in Prisma where clause (never fetch by id alone)
 - Mass assignment: never spread user input into Prisma create/update — map fields explicitly
   - createTrip: fixed in Sprint 2 (explicit field mapping)
-  - updateTrip: STILL USES SPREAD — must fix in Sprint 3 (DT-004)
+  - updateTrip: STILL USES SPREAD — must fix (DT-004)
 - redirect() from next/navigation must NOT be inside try/catch blocks (throws internally)
 - Prisma 7: use db.$extends (not deprecated db.$use) for global middleware/soft-delete
-- Rate limiting: checkRateLimit() in src/lib/rate-limit.ts — BUT has race condition (INCR+EXPIRE not atomic)
+- Rate limiting: checkRateLimit() in src/lib/rate-limit.ts — atomic Lua script (fixed Sprint 6)
 - i18n navigation: use src/i18n/navigation.ts exports (Link, redirect, usePathname, useRouter) — NOT next/link
 - typedRoutes disabled in next.config.ts (incompatible with next-intl [locale] routing)
 
-## Known Issues / Open Defects (from Sprint 2 arch review)
-- CRITICO: CSP has unsafe-eval + unsafe-inline in script-src — neutralizes XSS protection
-- ALTO: generateChecklistAction has no rate limit (financial exposure to Anthropic API)
+## Known Issues / Open Defects
+### Resolved in Sprint 6
+- ~~CRITICO: CSP unsafe-eval + unsafe-inline in script-src~~ RESOLVED (T-038)
+- ~~ALTO: generateChecklistAction no rate limit~~ RESOLVED (T-041, 5 req/hr/user)
+- ~~ALTO: Rate limiter race condition~~ RESOLVED (T-039, Lua script)
+- ~~MEDIO: ADR-005 text vs code mismatch~~ RESOLVED (T-040)
+
+### Still Open
+- ALTO: updateTrip uses implicit spread — mass assignment risk (DT-004)
 - ALTO: ChecklistItem.priority field missing from Prisma schema — silently discarded
-- ALTO: Rate limiter race condition (INCR + EXPIRE not atomic — use Lua script)
-- ALTO: updateTrip uses implicit spread — mass assignment risk if schema expands
+- ALTO: TrustSignals.tsx uses next/link instead of @/i18n/navigation — broken in prod (DT-010)
+- MEDIO: OnboardingWizard.tsx uses useRouter from next/navigation instead of @/i18n/navigation (DT-011)
 - MEDIO: getAnthropic() bypasses env.ts validation (reads process.env directly)
-- MEDIO: Redis singleton not persisted in globalThis in production (connection leak risk on Railway/Render)
+- MEDIO: Redis singleton not persisted in globalThis in production (connection leak risk)
 - MEDIO: auth.ts uses process.env directly for Google credentials (should use env.ts)
-- MEDIO: Architecture diagram still shows Redis as session store (sessions are JWT per actual code; ADR-005 text inconsistent)
-- MEDIO: ADR-005 says "database session strategy" but auth.ts uses `session: { strategy: "jwt" }` — text vs code mismatch
+- MEDIO: TrustSignals link to /account/delete points to nonexistent route (DT-014, Sprint 7)
+- BAIXO: OnboardingWizard Step 3 back button tautological ternary (DT-013)
+
+## Rate Limits (current)
+- generateTravelPlanAction: 10 req/hr/user (ai:plan:{userId})
+- generateChecklistAction: 5 req/hr/user (ai:checklist:{userId})
+- registerAction: 5 req/15min
+- loginAction: 10 req/15min
 
 ## Specs Written
 - SPEC-001 (2026-02-23): Trip Creation & Management — docs/SPEC-001.md
@@ -88,21 +103,31 @@
 - UX patterns: docs/ux-patterns.md
 - Security: docs/security.md
 - Data architecture: docs/data-architecture.md
+- Sprint reviews: docs/sprint-reviews/
 - SPEC-001: docs/SPEC-001.md
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
 - Agent definitions: .claude/agents/
 - i18n routing: src/i18n/routing.ts
 - i18n navigation wrapper: src/i18n/navigation.ts
-- Rate limiter: src/lib/rate-limit.ts
+- Rate limiter: src/lib/rate-limit.ts (atomic Lua script)
 - Action error mapper: src/lib/action-utils.ts
+- AI actions: src/server/actions/ai.actions.ts
 - AI service: src/server/services/ai.service.ts
 - LoginForm: src/components/features/auth/LoginForm.tsx
+- TrustSignals: src/components/features/auth/TrustSignals.tsx
+- OnboardingWizard: src/components/features/onboarding/OnboardingWizard.tsx
+- ProgressIndicator: src/components/features/onboarding/ProgressIndicator.tsx
 - Header (public): src/components/layout/Header.tsx
-- LanguageSwitcher: src/components/landing/LanguageSwitcher.tsx (to move to components/layout/ per ADR-007)
+- LanguageSwitcher: src/components/layout/LanguageSwitcher.tsx
+- Auth layout: src/app/[locale]/auth/layout.tsx (Header + Footer)
+- AppShellLayout: src/app/[locale]/(app)/layout.tsx
+- Middleware: src/middleware.ts (auth + i18n + CSP nonce)
 
-## Sprint 5 Findings
-- LoginForm bug: missing catch block in handleCredentialsSubmit — signIn may throw instead of returning { ok: false }
-- Auth session strategy is JWT (code), not database (ADR-005 text) — clarify in future ADR revision
-- Authenticated routes have no shared layout — each page renders raw content without navbar
-- Existing back links in sub-pages (itinerary, checklist, generate) are plain text links, not breadcrumbs
-- LanguageSwitcher in components/landing/ but needed in both public and auth zones
+## Sprint 6 Findings
+- CSP nonce via crypto.randomUUID() in Edge middleware — production removes unsafe-eval from script-src
+- style-src still has unsafe-inline (Tailwind limitation, accepted trade-off)
+- Middleware accumulates 4 responsibilities (auth, i18n, route protection, CSP) — monitor complexity
+- OnboardingWizard is monolithic (397 lines) — extract steps if it grows
+- Fixed window rate limiter has 2x burst at window boundary — acceptable for MVP
+- TrustSignals uses wrong Link import (next/link vs @/i18n/navigation) — MUST fix Sprint 7
+- buildCsp() not exported from middleware — tests replicate logic instead of testing directly

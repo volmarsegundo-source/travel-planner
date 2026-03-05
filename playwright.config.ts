@@ -6,9 +6,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: 1,
+  workers: process.env.CI ? 1 : undefined,
   reporter: [["html"], ["list"]],
-  timeout: 90_000,
+  timeout: process.env.CI ? 90_000 : 45_000,
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL ?? "http://localhost:3000",
     trace: "on-first-retry",

@@ -1,7 +1,7 @@
 # Travel Planner — Release Risk Register
 
 **Maintainer**: release-manager
-**Last Updated**: 2026-02-26
+**Last Updated**: 2026-03-04
 **Format**: Assessment ID | Severity | Status | Description | Owner | Resolution
 
 ---
@@ -10,8 +10,9 @@
 
 | CIA ID | Sprint | Data | Titulo | Veredicto | Status |
 |---|---|---|---|---|---|
-| CIA-001 | Sprint 1 | 2026-02-26 | US-001 / SPEC-001 — Trip CRUD + Schema inicial | Non-Breaking (schema novo) | Fechado |
-| CIA-002 | Sprint 2 | 2026-02-26 | Sprint 2 Hardening — Schema, headers, health check, CI/CD | BLOQUEADO — breaking change sem migration | Aberto |
+| CIA-001 | Sprint 1 | 2026-02-26 | US-001 / SPEC-001 -- Trip CRUD + Schema inicial | Non-Breaking (schema novo) | Fechado |
+| CIA-002 | Sprint 2 | 2026-02-26 | Sprint 2 Hardening -- Schema, headers, health check, CI/CD | BLOQUEADO -- breaking change sem migration | Aberto |
+| CIA-003 | Sprint 6 | 2026-03-04 | Debitos Tecnicos + Onboarding Wizard + Auth UX | Non-Breaking (MINOR) | Fechado |
 
 ---
 
@@ -36,11 +37,21 @@
 | RISK-006 | ALTO | Secrets | `RAILWAY_TOKEN`, `STAGING_DATABASE_URL`, `PRODUCTION_DATABASE_URL` referenciados no deploy.yml — nao confirmado se estao configurados nos environments do GitHub Actions | Aberto | devops-engineer | Antes do deploy |
 | RISK-007 | MEDIO | Dependencias | `next-auth` fixado em `5.0.0-beta.25` sem caret — patches de seguranca nao sao aplicados automaticamente | Aberto | dev-fullstack-1 | Monitorar — acompanhar release estavel |
 | RISK-008 | MEDIO | Documentacao | Diagrama de schema em `docs/architecture.md` desatualizado — ainda mostra `avatarUrl`, nao mostra `ChecklistItem` nem `deactivatedAt` | Aberto | architect | Antes do proximo sprint |
-| RISK-009 | BAIXO | Type safety | `typedRoutes` desabilitado — links internos sem verificacao de tipo em tempo de compilacao | Aberto | dev-fullstack-2 | Pos-MVP |
+| RISK-009 | BAIXO | Type safety | `typedRoutes` desabilitado -- links internos sem verificacao de tipo em tempo de compilacao | Aberto | dev-fullstack-2 | Pos-MVP |
 
 ---
 
-### Breaking Changes Identificados — Sprint 2
+### Riscos Identificados (Sprint 6)
+
+| Risk ID | Severidade | Categoria | Descricao | Status | Owner | Prazo |
+|---|---|---|---|---|---|---|
+| RISK-010 | MEDIO | Seguranca | Rotas `/api/*` nao recebem mais headers de seguranca (CSP, X-Frame-Options, etc.) porque o middleware faz `return` antes de seta-los. No Sprint 2 esses headers eram aplicados via `next.config.ts headers()` a todas as rotas | Aberto | dev-fullstack-1 | Sprint 7 |
+| RISK-011 | BAIXO | Seguranca | CSP nonce gerado no middleware mas nao propagado para o HTML (layout nao le header `x-nonce`). Quando scripts inline forem necessarios, sera preciso ler o nonce do header e injeta-lo | Aberto | dev-fullstack-1 | Quando necessario |
+| RISK-012 | BAIXO | UX/i18n | OnboardingWizard.tsx importa `useRouter` de `next/navigation` em vez de `@/i18n/navigation` -- pode causar navegacao sem locale prefix em edge cases | Aberto | dev-fullstack-1 | Sprint 7 |
+
+---
+
+### Breaking Changes Identificados -- Sprint 2
 
 #### BC-001: `User.avatarUrl` removido do schema
 - **Tipo**: Database schema + TypeScript type
@@ -91,7 +102,9 @@
 | 0.1.0 | 2026-02-26 | Inicial (greenfield) | Primeira release — Sprint 1 completo |
 | 0.2.0 | 2026-02-26 | MINOR | Breaking changes de schema + comportamento de health check + novas features (checklist, CI/CD, headers de seguranca) |
 | 0.3.0 | 2026-02-27 | MINOR | Landing page, Header, Footer, LanguageSwitcher, dev-setup script — sem breaking changes |
-| 0.4.0 | 2026-02-28 | MINOR | Development Toolkit — 4 skills, 5 scripts, installer — sem breaking changes |
+| 0.4.0 | 2026-02-28 | MINOR | Development Toolkit -- 4 skills, 5 scripts, installer -- sem breaking changes |
+| 0.5.0 | 2026-03-02 | MINOR | Navegacao autenticada, logout, breadcrumbs, error fix -- sem breaking changes |
+| 0.6.0 | 2026-03-04 | MINOR | Debitos tecnicos (CSP nonce, rate limiter atomico) + Onboarding Wizard + Trust Signals + Auth layout -- sem breaking changes |
 
 ---
 
@@ -104,7 +117,10 @@ As acoes abaixo bloqueiam o deploy em staging ou producao:
 - [ ] **RISK-003**: `SELECT COUNT(*) FROM users WHERE avatar_url IS NOT NULL` — executar no banco alvo e verificar com PO
 - [ ] **RISK-004**: Atualizar configuracao de uptime monitors para aceitar 503 como estado degradado
 - [ ] **RISK-006**: Auditar e confirmar todos os secrets nos environments do GitHub Actions
-- [x] Atualizar `"version"` em `package.json` — ✅ Atualizado para `"0.4.0"`
+- [x] Atualizar `"version"` em `package.json` -- Atualizado para `"0.4.0"` (Sprint 4)
+- [ ] **Sprint 6**: Atualizar `"version"` em `package.json` de `0.5.0` para `0.6.0`
+- [ ] **Sprint 6**: Adicionar entrada `[0.6.0]` no `CHANGELOG.md`
+- [ ] **RISK-010**: Restaurar headers de seguranca para rotas `/api/*` (Sprint 7)
 
 ---
 
