@@ -3,6 +3,7 @@
 import { useState, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -234,7 +235,14 @@ export function ProfileForm({
           disabled={isSubmitting}
           className="w-full sm:w-auto"
         >
-          {isSubmitting ? tCommon("loading") : t("saveChanges")}
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+              {t("saving")}
+            </>
+          ) : (
+            t("saveChanges")
+          )}
         </Button>
       </div>
     </form>

@@ -227,3 +227,68 @@ docker compose down -v
 ```
 
 Para parar o dev server: `Ctrl+C` no terminal onde roda o `npm run dev`.
+
+---
+
+## Automação de Plano de Testes (Sprint 7+)
+
+O projeto inclui um gerador automático de planos de teste por sprint.
+
+### Como usar
+
+```bash
+# Gerar plano de testes para o sprint atual
+npm run test:plan 7
+
+# Equivale a:
+node scripts/generate-test-plan.js 7
+```
+
+### O que faz
+
+1. **Lê o sprint plan** (`sprint-N-plan.md`) e extrai as tarefas
+2. **Analisa arquivos modificados** (`git diff master...HEAD`) e detecta áreas afetadas
+3. **Gera um plano de testes completo** em `docs/test-results/test-plan-sprint-N.md`
+
+### Seções geradas
+
+| Seção | Descrição |
+|-------|-----------|
+| **Ambiente de Teste** | Pré-requisitos (Docker, Node, ports) |
+| **Happy Path** | Cenários ideais por área funcional detectada |
+| **Edge Cases** | Validações, inputs inválidos, estados limite |
+| **Regressão** | Funcionalidades existentes que devem continuar funcionando |
+| **Mobile / Responsivo** | Checklist 375px e 393px |
+| **Acessibilidade** | WCAG 2.1 AA — teclado, ARIA, contraste |
+| **i18n** | PT-BR ↔ EN — traduções, locale, formatação |
+| **Performance** | Lighthouse, FCP, bundle size |
+
+### Áreas detectadas automaticamente
+
+O script detecta áreas afetadas pelos arquivos modificados:
+`auth`, `trips`, `itinerary`, `checklist`, `account`, `onboarding`, `navigation`, `landing`, `footer`, `loading-states`, `error-handling`, `i18n`
+
+Cada área ativa gera cenários específicos no plano.
+
+### Integração com Sprint Lifecycle
+
+```
+npm run sprint:start 8      → cria branch e sprint plan
+npm run test:plan 8          → gera plano de testes baseado no plan + changed files
+npm run sprint:review 8      → quality gate automático (tests, lint, types, security)
+npm run sprint:finish 8      → finaliza sprint (changelog, tag)
+```
+
+### Exemplo de output
+
+```
+📝 Generating Test Plan for Sprint 7
+
+  ✓ Read sprint plan: 6 task(s) found
+  ℹ 21 file(s) changed since master
+  ℹ Feature areas detected: account, i18n, loading-states, error-handling
+  ✓ Test plan saved to docs/test-results/test-plan-sprint-7.md
+
+  Test plan generated!
+  ℹ 63 test cases across 8 sections
+```

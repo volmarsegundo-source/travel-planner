@@ -14,6 +14,8 @@
     "error": "Something went wrong. Please try again.",
     "success": "Saved successfully!",
     "tryAgain": "Try again",
+    "saving": "Saving...",
+    "goBackToTrips": "Go back to trips",
     "skipToContent": "Skip to content"
   },
   "navigation": {
@@ -142,6 +144,7 @@
     "noActivities": "No activities on this day.",
     "saved": "Saved",
     "addDay": "Add day",
+    "addingDay": "Adding day...",
     "generate": "Generate itinerary with AI",
     "dragHandle": "Drag activity",
     "activityTypes": {
@@ -193,6 +196,11 @@
     "deleteItem": "Delete item",
     "errorGenerate": "Could not generate the checklist. Please try again.",
     "newItemPlaceholder": "New item...",
+    "generatingMessages": {
+      "analyzing": "Analyzing your destination...",
+      "building": "Building your checklist...",
+      "finalizing": "Almost done..."
+    },
     "categories": {
       "DOCUMENTS": "Documents",
       "HEALTH": "Health",
@@ -230,6 +238,7 @@
     "email": "Email",
     "emailReadOnly": "Email cannot be changed",
     "preferredLocale": "Preferred language",
+    "saving": "Saving...",
     "saveChanges": "Save changes",
     "profileUpdated": "Profile updated successfully!",
     "deleteAccount": "Delete my account",
@@ -254,6 +263,15 @@
     "backHome": "Back to home"
   },
   "errors": {
+    "boundary": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred. Please try again or go back.",
+      "tryAgain": "Try again",
+      "goBack": "Go back"
+    },
+    "tripNotFound": {
+      "description": "This trip doesn't exist or you don't have access."
+    },
     "generic": "Something went wrong. Please try again.",
     "network": "Connection problem. Check your internet.",
     "timeout": "The operation took too long. Please try again.",

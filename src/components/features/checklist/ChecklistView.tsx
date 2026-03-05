@@ -3,6 +3,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ChecklistCategorySection } from "./ChecklistCategorySection";
+import { ChecklistGeneratingSkeleton } from "./ChecklistGeneratingSkeleton";
 import { generateChecklistAction } from "@/server/actions/ai.actions";
 import type { ChecklistItem } from "@/server/actions/checklist.actions";
 import type { ChecklistCategory } from "@/types/ai.types";
@@ -99,8 +100,8 @@ export function ChecklistView({
 
   return (
     <div className="space-y-4">
-      {/* Generate button */}
-      {!hasItems && (
+      {/* Generate button or generating skeleton */}
+      {!hasItems && !isPending && (
         <div className="rounded-xl border bg-card p-8 text-center space-y-4">
           <p className="text-muted-foreground">{t("noItems")}</p>
           <p className="text-sm text-muted-foreground">{t("noItemsSubtitle")}</p>
@@ -109,10 +110,12 @@ export function ChecklistView({
             disabled={isPending}
             className="min-h-[44px]"
           >
-            {isPending ? t("generating") : t("generate")}
+            {t("generate")}
           </Button>
         </div>
       )}
+
+      {!hasItems && isPending && <ChecklistGeneratingSkeleton />}
 
       {hasItems && (
         <>

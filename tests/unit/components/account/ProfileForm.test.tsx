@@ -311,7 +311,7 @@ describe("ProfileForm", () => {
 
     await waitFor(() => {
       expect(submitButton).toBeDisabled();
-      expect(submitButton).toHaveTextContent("common.loading");
+      expect(submitButton).toHaveTextContent("account.saving");
     });
   });
 

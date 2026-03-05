@@ -80,6 +80,7 @@ function makeUser(
     deactivatedAt: null,
     name: null,
     image: null,
+    preferredLocale: null,
     createdAt: new Date(),
     updatedAt: new Date(),
     ...overrides,

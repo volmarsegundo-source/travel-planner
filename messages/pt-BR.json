@@ -14,6 +14,8 @@
     "error": "Ocorreu um erro. Tente novamente.",
     "success": "Salvo com sucesso!",
     "tryAgain": "Tentar novamente",
+    "saving": "Salvando...",
+    "goBackToTrips": "Voltar às viagens",
     "skipToContent": "Pular para o conteúdo"
   },
   "navigation": {
@@ -142,6 +144,7 @@
     "noActivities": "Nenhuma atividade neste dia.",
     "saved": "Salvo",
     "addDay": "Adicionar dia",
+    "addingDay": "Adicionando dia...",
     "generate": "Gerar itinerário com IA",
     "dragHandle": "Arrastar atividade",
     "activityTypes": {
@@ -193,6 +196,11 @@
     "deleteItem": "Excluir item",
     "errorGenerate": "Não foi possível gerar o checklist. Tente novamente.",
     "newItemPlaceholder": "Novo item...",
+    "generatingMessages": {
+      "analyzing": "Analisando seu destino...",
+      "building": "Montando seu checklist...",
+      "finalizing": "Quase pronto..."
+    },
     "categories": {
       "DOCUMENTS": "Documentos",
       "HEALTH": "Saúde",
@@ -230,6 +238,7 @@
     "email": "E-mail",
     "emailReadOnly": "O e-mail não pode ser alterado",
     "preferredLocale": "Idioma preferido",
+    "saving": "Salvando...",
     "saveChanges": "Salvar alterações",
     "profileUpdated": "Perfil atualizado com sucesso!",
     "deleteAccount": "Excluir minha conta",
@@ -254,6 +263,15 @@
     "backHome": "Voltar para o início"
   },
   "errors": {
+    "boundary": {
+      "title": "Algo deu errado",
+      "description": "Ocorreu um erro inesperado. Tente novamente ou volte.",
+      "tryAgain": "Tentar novamente",
+      "goBack": "Voltar"
+    },
+    "tripNotFound": {
+      "description": "Esta viagem não existe ou você não tem acesso."
+    },
     "generic": "Algo deu errado. Tente novamente.",
     "network": "Problema de conexão. Verifique sua internet.",
     "timeout": "A operação demorou demais. Tente novamente.",

@@ -11,7 +11,9 @@ import {
 } from "@dnd-kit/core";
 import { arrayMove } from "@dnd-kit/sortable";
 import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ItineraryDayCard } from "./ItineraryDayCard";
 import {
   reorderActivitiesAction,
@@ -152,13 +154,29 @@ export function ItineraryEditor({
         )}
       </DndContext>
 
+      {/* Skeleton placeholder when adding a new day */}
+      {isPending && (
+        <div className="rounded-xl border border-dashed bg-card p-6 space-y-3" role="status" aria-label={t("addingDay")}>
+          <Skeleton className="h-5 w-24" />
+          <Skeleton className="h-4 w-full" />
+          <Skeleton className="h-4 w-3/4" />
+        </div>
+      )}
+
       <Button
         variant="outline"
         onClick={handleAddDay}
         disabled={isPending}
         className="w-full min-h-[44px]"
       >
-        + {t("addDay")}
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+            {t("addingDay")}
+          </>
+        ) : (
+          <>+ {t("addDay")}</>
+        )}
       </Button>
     </div>
   );
