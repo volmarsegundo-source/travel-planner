@@ -116,6 +116,8 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
       const tripResult = await createTripAction({
         title: tripForm.destination,
         destination: tripForm.destination,
+        coverGradient: "from-blue-500 to-cyan-400",
+        coverEmoji: "✈️",
         startDate: new Date(tripForm.startDate),
         endDate: new Date(tripForm.endDate),
       });

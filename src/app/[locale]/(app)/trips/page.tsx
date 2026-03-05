@@ -28,7 +28,7 @@ export default async function TripsPage({ params, searchParams }: TripsPageProps
   // Redirect first-time users (0 trips) to onboarding, unless they already
   // came from onboarding (skip loop) via ?from=onboarding.
   const fromOnboarding = query.from === "onboarding";
-  if (!fromOnboarding && initialData && initialData.data.length === 0) {
+  if (!fromOnboarding && initialData && initialData.items.length === 0) {
     redirect({ href: "/onboarding", locale });
   }
 
