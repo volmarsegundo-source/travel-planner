@@ -55,6 +55,9 @@ export async function updateUserProfileAction(
     };
   }
 
+  // ⚠️ IMPORTANT: Do NOT place redirect() inside this try/catch block.
+  // Next.js redirect() throws a NEXT_REDIRECT error internally — catching it
+  // will swallow the redirect and break navigation. Keep redirect() outside try/catch.
   try {
     const updateData: { name: string; preferredLocale?: string } = {
       name: parsed.data.name,
@@ -105,6 +108,9 @@ export async function deleteUserAccountAction(
     };
   }
 
+  // ⚠️ IMPORTANT: Do NOT place redirect() inside this try/catch block.
+  // Next.js redirect() throws a NEXT_REDIRECT error internally — catching it
+  // will swallow the redirect and break navigation. Keep redirect() outside try/catch.
   try {
     // Fetch user to verify email match (BOLA-safe: only own record)
     const user = await db.user.findFirst({

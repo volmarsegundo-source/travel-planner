@@ -1250,3 +1250,29 @@ Restricoes criticas:
 ---
 
 *Plano elaborado pelo tech-lead em 2026-02-24 com base no user-story-map-v2.docx, docs/architecture.md e restricoes de seguranca de SEC-SPEC-001*
+
+---
+
+## Sprint 8 — Itens Prioritarios (Tech Debt)
+
+> Identificados na Sprint Review 7. Devem ser resolvidos antes de novas features.
+
+### P0 — Obrigatorio
+
+- [ ] **DT-004**: `updateTrip` Server Action aceita qualquer campo via spread — vulneravel a mass assignment. Adicionar whitelist explicita de campos permitidos. (Pendente desde Sprint 2, identificado pelo architect)
+- [ ] **IMP-001**: `PlanGeneratorWizard.tsx` (linha 3) importa `useRouter` de `next/navigation` em vez de `@/i18n/navigation`. Pode causar navegacao sem locale prefix
+- [ ] **IMP-002**: `TripCard.tsx` (linha 2) importa `Link` de `next/link` em vez de `@/i18n/navigation`. Pode gerar links sem locale prefix
+- [ ] **SEC-S7-001**: Account deletion nao limpa OAuth tokens (`accounts` table) nem sessions. Adicionar `tx.account.deleteMany` e `tx.session.deleteMany` na transacao de exclusao
+
+### P1 — Alta prioridade
+
+- [ ] **RISK-013 / BUG-S7-001**: `updateUserProfileAction` loga `userId` em texto claro — usar hash como `deleteUserAccountAction`
+- [ ] **RISK-015 / BUG-S7-004**: Footer links `/terms`, `/privacy`, `/support` → 404. Criar paginas ou remover links
+- [ ] **BUG-S7-007**: Codigo duplicado entre `error.tsx` (app) e `error.tsx` (trip) — extrair componente `ErrorCard` reutilizavel
+
+### P2 — Baixa prioridade
+
+- [ ] **RISK-014 / BUG-S7-002**: "Portugues (Brasil)" sem acento no ProfileForm
+- [ ] **RISK-016 / BUG-S7-006**: `aria-label="Loading"` hardcoded em ingles nos loading skeletons
+- [ ] **BUG-S7-005**: "Traveler" hardcoded como fallback em ingles
+- [ ] **BUG-S7-003**: Sem teste para `DeleteAccountSection` wrapper

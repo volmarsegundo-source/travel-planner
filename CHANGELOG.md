@@ -7,6 +7,47 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.7.0] - 2026-03-05
+
+### Added
+- Pagina de perfil do usuario (`/account`) com edicao de nome e idioma preferido
+- Exclusao de conta com anonimizacao de PII (LGPD) — fluxo em 2 passos com confirmacao por email, soft delete + anonimizacao em transacao atomica
+- Campo `preferredLocale` no modelo `User` (migration: `20260305014239_add_user_preferred_locale`)
+- Link "Minha conta" no `UserMenu` dropdown com navegacao para `/account`
+- Footer persistente em todas as paginas autenticadas (variante `authenticated` com links Terms, Privacy, Support)
+- 4 loading skeletons: `/trips`, `/trips/[id]`, `/account`, e app-level — todos com `role="status"` e `aria-label`
+- 2 error boundaries: app-level e trip-level — com botao "Tentar novamente" e link "Voltar"
+- Skeleton animado para geracao de checklist com mensagens rotativas (`ChecklistGeneratingSkeleton`)
+- Skeleton e spinner no botao "Adicionar dia" do editor de itinerario
+- Estilizacao "trip not found" com card AlertCircle em 4 paginas de detalhe de viagem
+- Script `generate-test-plan.js` para automacao de planos de teste por sprint (`npm run test:plan`)
+- Documentacao de testes atualizada (`docs/dev-testing-guide.md`)
+- 152 testes novos (total: 297 → 449)
+- Chaves i18n completas para perfil e erros em PT-BR e EN (namespace `account`, `errors.boundary`, `errors.tripNotFound`)
+
+### Changed
+- Total de testes unitarios: 297 → 449 (adicionados 152 testes para perfil, exclusao de conta, skeletons, error boundaries, loading states e script de plano de testes)
+
+### Fixed
+- `OnboardingWizard` agora importa `useRouter` de `@/i18n/navigation` em vez de `next/navigation` (correcao de RISK-012)
+
+---
+
+## [0.6.0] - 2026-03-04
+
+### Added
+- Onboarding Wizard de 3 passos para novos usuarios (welcome, destino, estilo+IA)
+- Indicador visual de progresso (`ProgressIndicator`) para o wizard
+- Trust Signals badge com aviso de privacidade (LGPD) na tela de registro
+- Layout dedicado para paginas de autenticacao (`auth/layout.tsx`) com Header e Footer
+- Rate limiter atomico com script Lua para Redis (`src/lib/rate-limit.ts`)
+
+### Changed
+- CSP (Content-Security-Policy) migrado de `next.config.ts` para middleware com nonce per-request via `crypto.randomUUID()`
+- Total de testes unitarios: 258 → 297
+
+---
+
 ## [0.5.0] - 2026-03-02
 
 ### Added
@@ -194,6 +235,8 @@ npm run dev
 
 ---
 
+[0.7.0]: https://github.com/your-org/travel-planner/releases/tag/v0.7.0
+[0.6.0]: https://github.com/your-org/travel-planner/releases/tag/v0.6.0
 [0.5.0]: https://github.com/your-org/travel-planner/releases/tag/v0.5.0
 [0.4.0]: https://github.com/your-org/travel-planner/releases/tag/v0.4.0
 [0.3.0]: https://github.com/your-org/travel-planner/releases/tag/v0.3.0
