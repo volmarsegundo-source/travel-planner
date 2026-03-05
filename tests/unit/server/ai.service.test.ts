@@ -38,6 +38,13 @@ vi.mock("@anthropic-ai/sdk", () => {
       },
     };
   }
+  // Expose SDK error classes so instanceof checks work in service code
+  class AuthenticationError extends Error { name = "AuthenticationError"; }
+  class NotFoundError extends Error { name = "NotFoundError"; }
+  class RateLimitError extends Error { name = "RateLimitError"; }
+  MockAnthropic.AuthenticationError = AuthenticationError;
+  MockAnthropic.NotFoundError = NotFoundError;
+  MockAnthropic.RateLimitError = RateLimitError;
   return { default: MockAnthropic };
 });
 
@@ -117,9 +124,10 @@ const BASE_CHECKLIST_PARAMS = {
   language: "en" as const,
 };
 
-function makeClaudeTextResponse(text: string) {
+function makeClaudeTextResponse(text: string, stopReason = "end_turn") {
   return {
     content: [{ type: "text", text }],
+    stop_reason: stopReason,
   };
 }
 
@@ -201,6 +209,58 @@ describe("AiService.generateTravelPlan", () => {
 
     const result = await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
     expect(result.destination).toBe("Paris, France");
+  });
+
+  it("retries with higher token budget when first attempt is truncated", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // First call: truncated response (stop_reason: max_tokens)
+    const truncatedJson = '{"destination":"Paris","totalDays":3';
+    mocks.messagesCreate
+      .mockResolvedValueOnce(makeClaudeTextResponse(truncatedJson, "max_tokens"))
+      // Second call: complete response
+      .mockResolvedValueOnce(
+        makeClaudeTextResponse(JSON.stringify(VALID_PLAN_RESPONSE), "end_turn")
+      );
+
+    const result = await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    expect(result.destination).toBe("Paris, France");
+    expect(mocks.messagesCreate).toHaveBeenCalledTimes(2);
+    // Second call should have higher max_tokens
+    const firstCallTokens = (mocks.messagesCreate.mock.calls[0] as unknown[])[0] as { max_tokens: number };
+    const secondCallTokens = (mocks.messagesCreate.mock.calls[1] as unknown[])[0] as { max_tokens: number };
+    expect(secondCallTokens.max_tokens).toBeGreaterThan(firstCallTokens.max_tokens);
+  });
+
+  it("uses dynamic token budget based on trip duration", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.messagesCreate.mockResolvedValue(
+      makeClaudeTextResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // 3-day trip (BASE_PLAN_PARAMS: June 1-3) → min 4096
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+    const shortTripTokens = (mocks.messagesCreate.mock.calls[0] as unknown[])[0] as { max_tokens: number };
+
+    vi.clearAllMocks();
+    (globalThis as Record<string, unknown>)._anthropic = undefined;
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.messagesCreate.mockResolvedValue(
+      makeClaudeTextResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // 14-day trip → should use more tokens
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      endDate: "2026-06-14",
+    });
+    const longTripTokens = (mocks.messagesCreate.mock.calls[0] as unknown[])[0] as { max_tokens: number };
+
+    expect(longTripTokens.max_tokens).toBeGreaterThan(shortTripTokens.max_tokens);
   });
 });
 
