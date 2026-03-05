@@ -18,6 +18,7 @@
   },
   "navigation": {
     "myTrips": "My trips",
+    "myAccount": "My account",
     "toggleMenu": "Toggle menu",
     "closeMenu": "Close menu",
     "userMenu": "User menu",
@@ -27,7 +28,8 @@
       "itinerary": "Itinerary",
       "checklist": "Checklist",
       "generatePlan": "Generate plan",
-      "backTo": "Back to {name}"
+      "backTo": "Back to {name}",
+      "account": "My account"
     }
   },
   "auth": {
@@ -213,7 +215,37 @@
       "responsive": { "title": "Responsive Design", "description": "Plan your trips from any device" }
     },
     "footer": {
-      "copyright": "© 2026 Travel Planner. All rights reserved."
+      "copyright": "© 2026 Travel Planner. All rights reserved.",
+      "terms": "Terms of use",
+      "privacy": "Privacy policy",
+      "support": "Support"
+    }
+  },
+  "account": {
+    "title": "My account",
+    "personalInfo": "Personal information",
+    "preferences": "Preferences",
+    "accountSection": "Account",
+    "name": "Name",
+    "email": "Email",
+    "emailReadOnly": "Email cannot be changed",
+    "preferredLocale": "Preferred language",
+    "saveChanges": "Save changes",
+    "profileUpdated": "Profile updated successfully!",
+    "deleteAccount": "Delete my account",
+    "deleteWarning": "This action is permanent and cannot be undone. All your data (trips, itineraries, checklists) will be anonymized and marked for deletion.",
+    "deleteConfirmTitle": "Are you sure?",
+    "deleteConfirmMessage": "To confirm, type your email address below:",
+    "deleteConfirmPlaceholder": "Type your email to confirm",
+    "accountDeleted": "Your account has been deleted.",
+    "errors": {
+      "nameTooShort": "Name must be at least 2 characters.",
+      "nameTooLong": "Name must be at most 100 characters.",
+      "invalidLocale": "Invalid language selection.",
+      "invalidEmail": "Please enter a valid email.",
+      "emailMismatch": "The email you entered does not match your account email.",
+      "accountNotFound": "Account not found.",
+      "deleteFailed": "Could not delete account. Please try again."
     }
   },
   "notFoundPage": {

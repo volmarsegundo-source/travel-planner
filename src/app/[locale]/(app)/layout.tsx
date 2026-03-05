@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { AuthenticatedNavbar } from "@/components/layout/AuthenticatedNavbar";
+import { Footer } from "@/components/layout/Footer";
 
 interface AppShellLayoutProps {
   children: React.ReactNode;
@@ -26,7 +27,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     ?? "Traveler";
 
   return (
-    <>
+    <div className="flex min-h-screen flex-col">
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
@@ -41,6 +42,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
       <main id="main-content" className="flex-1">
         {children}
       </main>
-    </>
+      <Footer variant="authenticated" />
+    </div>
   );
 }

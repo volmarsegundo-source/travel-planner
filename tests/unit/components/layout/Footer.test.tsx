@@ -1,7 +1,8 @@
 /**
  * Behavior tests for Footer component.
  *
- * Tests cover: copyright text, login/sign-up links, language switcher.
+ * Tests cover: copyright text, login/sign-up links (public variant),
+ * terms/privacy/support links (authenticated variant), language switcher.
  */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -40,37 +41,97 @@ import { Footer } from "@/components/layout/Footer";
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("Footer", () => {
-  it("renders the copyright text", () => {
-    render(<Footer />);
+  describe("public variant (default)", () => {
+    it("renders the copyright text", () => {
+      render(<Footer />);
 
-    expect(screen.getByText("landing.footer.copyright")).toBeInTheDocument();
+      expect(screen.getByText("landing.footer.copyright")).toBeInTheDocument();
+    });
+
+    it("renders a Login link pointing to /auth/login", () => {
+      render(<Footer />);
+
+      const loginLink = screen.getByRole("link", { name: "auth.signIn" });
+      expect(loginLink).toHaveAttribute("href", "/auth/login");
+    });
+
+    it("renders a Sign Up link pointing to /auth/register", () => {
+      render(<Footer />);
+
+      const signUpLink = screen.getByRole("link", { name: "auth.signUp" });
+      expect(signUpLink).toHaveAttribute("href", "/auth/register");
+    });
+
+    it("does not render terms, privacy, or support links", () => {
+      render(<Footer />);
+
+      expect(screen.queryByRole("link", { name: "landing.footer.terms" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "landing.footer.privacy" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "landing.footer.support" })).not.toBeInTheDocument();
+    });
+
+    it("renders the language switcher", () => {
+      render(<Footer />);
+
+      expect(screen.getByText("EN")).toBeInTheDocument();
+      expect(screen.getByText("PT")).toBeInTheDocument();
+    });
+
+    it("renders inside a footer element", () => {
+      render(<Footer />);
+
+      const footer = document.querySelector("footer");
+      expect(footer).toBeInTheDocument();
+    });
   });
 
-  it("renders a Login link pointing to /auth/login", () => {
-    render(<Footer />);
+  describe("authenticated variant", () => {
+    it("renders the copyright text", () => {
+      render(<Footer variant="authenticated" />);
 
-    const loginLink = screen.getByRole("link", { name: "auth.signIn" });
-    expect(loginLink).toHaveAttribute("href", "/auth/login");
-  });
+      expect(screen.getByText("landing.footer.copyright")).toBeInTheDocument();
+    });
 
-  it("renders a Sign Up link pointing to /auth/register", () => {
-    render(<Footer />);
+    it("renders a terms link pointing to /terms", () => {
+      render(<Footer variant="authenticated" />);
 
-    const signUpLink = screen.getByRole("link", { name: "auth.signUp" });
-    expect(signUpLink).toHaveAttribute("href", "/auth/register");
-  });
+      const termsLink = screen.getByRole("link", { name: "landing.footer.terms" });
+      expect(termsLink).toHaveAttribute("href", "/terms");
+    });
 
-  it("renders the language switcher", () => {
-    render(<Footer />);
+    it("renders a privacy link pointing to /privacy", () => {
+      render(<Footer variant="authenticated" />);
 
-    expect(screen.getByText("EN")).toBeInTheDocument();
-    expect(screen.getByText("PT")).toBeInTheDocument();
-  });
+      const privacyLink = screen.getByRole("link", { name: "landing.footer.privacy" });
+      expect(privacyLink).toHaveAttribute("href", "/privacy");
+    });
 
-  it("renders inside a footer element", () => {
-    render(<Footer />);
+    it("renders a support link pointing to /support", () => {
+      render(<Footer variant="authenticated" />);
 
-    const footer = document.querySelector("footer");
-    expect(footer).toBeInTheDocument();
+      const supportLink = screen.getByRole("link", { name: "landing.footer.support" });
+      expect(supportLink).toHaveAttribute("href", "/support");
+    });
+
+    it("does not render sign in or sign up links", () => {
+      render(<Footer variant="authenticated" />);
+
+      expect(screen.queryByRole("link", { name: "auth.signIn" })).not.toBeInTheDocument();
+      expect(screen.queryByRole("link", { name: "auth.signUp" })).not.toBeInTheDocument();
+    });
+
+    it("renders the language switcher", () => {
+      render(<Footer variant="authenticated" />);
+
+      expect(screen.getByText("EN")).toBeInTheDocument();
+      expect(screen.getByText("PT")).toBeInTheDocument();
+    });
+
+    it("renders inside a footer element", () => {
+      render(<Footer variant="authenticated" />);
+
+      const footer = document.querySelector("footer");
+      expect(footer).toBeInTheDocument();
+    });
   });
 });
