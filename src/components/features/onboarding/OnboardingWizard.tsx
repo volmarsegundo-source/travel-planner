@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -366,7 +366,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                   className="flex-1"
                   onClick={() => goToStep(2)}
                 >
-                  {t("step2.cta") === t("step2.cta") ? "\u2190" : "\u2190"}
+                  {"\u2190"}
                 </Button>
                 <Button
                   type="button"

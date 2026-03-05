@@ -23,13 +23,23 @@
 - Health endpoint uses Promise.allSettled for DB + Redis — returns HTTP 503 when degraded
 - Playwright uses npm run start (not dev) in CI — controlled by process.env.CI ternary in webServer.command
 
-## Sprint 2 Open Issues (blockers for staging)
-- C-001: Dockerfile does not exist in repo — CI docker build job fails on every PR
-- C-002: Branch name mismatch — ci.yml targets `main`, deploy.yml targets `master`, repo is on `master`
-- C-003: deploy.yml deploy steps are `echo` placeholders — no real deploy happens
+## Open Issues (tracked since Sprint 2, updated Sprint 6)
+- C-001: RESOLVED — Dockerfile now exists in repo
+- C-002: RESOLVED — ci.yml and deploy.yml both target `master` (actual branch)
+- C-003: PENDING — deploy.yml deploy steps are `echo` placeholders — no real deploy happens
 - C-004: prisma/migrations/ directory missing — prisma migrate deploy has nothing to apply
-- A-001: Trivy uses docker run (not trivy-action) — no SARIF upload to GitHub Security tab
-- A-003: RAILWAY_TOKEN is single secret for both staging+production — violates least privilege
+- A-001: PENDING — Trivy uses docker run (not trivy-action) — no SARIF upload to GitHub Security tab
+- A-003: PENDING — RAILWAY_TOKEN is single secret for both staging+production — violates least privilege
+
+## Sprint 6 Infrastructure Changes
+- CSP nonce per request via middleware (crypto.randomUUID)
+- style-src still uses 'unsafe-inline' (Tailwind/Radix limitation) — acceptable for MVP
+- x-nonce header forwarded but not yet consumed by layout — document before inline scripts needed
+- Rate limiter atomized with Redis Lua script (INCR + conditional EXPIRE)
+- Lua scripts confirmed compatible with Upstash
+- Rate limit fallback: allowed=true when Redis is down
+- REDIS_HOST/REDIS_PORT in .env.example but NOT consumed by code (REDIS_URL only)
+- Playwright CI: workers=1, timeout=90s, retries=2 — optimized for GitHub Actions runners
 
 ## Secrets Hierarchy
 - Local: `.env.local` (gitignored, never committed)
