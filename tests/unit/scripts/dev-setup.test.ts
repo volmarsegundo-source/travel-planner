@@ -122,9 +122,9 @@ describe("dev-setup: scanRoutes", () => {
   it("discovers routes from the actual src/app directory", () => {
     const actualAppDir = path.join(__dirname, "..", "..", "..", "src", "app");
     const routes = scanRoutes(actualAppDir);
-    // Should find at least the root page and some auth pages
+    // Should find locale routes and some auth pages
     expect(routes.length).toBeGreaterThanOrEqual(3);
-    expect(routes).toContain("/");
+    expect(routes).toContain("/[locale]");
   });
 });
 

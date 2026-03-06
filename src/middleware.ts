@@ -71,32 +71,19 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
-  // Generate a per-request CSP nonce
-  const nonce = crypto.randomUUID();
+  // Run the intl middleware — its response carries rewrites/redirects for
+  // locale routing (e.g. `/account` → internal `/pt-BR/account`).
+  // We MUST return this response directly; creating a new NextResponse.next()
+  // would discard the rewrite and cause a white screen for the default locale.
+  const response = intlMiddleware(req);
 
-  // Forward nonce to the layout via request header
-  const requestHeaders = new Headers(req.headers);
-  requestHeaders.set("x-nonce", nonce);
-
-  // Run the intl middleware to get the response (rewrites, locale redirects)
-  const intlResponse = intlMiddleware(req);
-
-  // Build final response preserving intl middleware rewrites
-  const response = intlResponse
-    ? NextResponse.next({
-        request: { headers: requestHeaders },
-        headers: intlResponse.headers,
-      })
-    : NextResponse.next({ request: { headers: requestHeaders } });
-
-  // Copy over any redirect/rewrite from intl middleware
-  if (intlResponse?.headers) {
-    intlResponse.headers.forEach((value, key) => {
-      response.headers.set(key, value);
-    });
+  if (!response) {
+    return NextResponse.next();
   }
 
-  // Set security headers
+  // Generate a per-request CSP nonce and set security headers
+  const nonce = crypto.randomUUID();
+
   response.headers.set("Content-Security-Policy", buildCsp(nonce));
   response.headers.set("X-Frame-Options", "DENY");
   response.headers.set("X-Content-Type-Options", "nosniff");

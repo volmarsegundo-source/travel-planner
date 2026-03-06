@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { signOut } from "next-auth/react";
+import { Link } from "@/i18n/navigation";
 
 interface UserMenuProps {
   userName: string;
@@ -14,6 +15,7 @@ interface UserMenuProps {
 
 export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuProps) {
   const t = useTranslations("auth");
+  const tNav = useTranslations("navigation");
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -68,6 +70,13 @@ export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuPro
             <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
           </div>
         </div>
+        <Link
+          href="/account"
+          role="menuitem"
+          className="block min-h-[44px] rounded-md px-2 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors leading-[28px]"
+        >
+          {tNav("myAccount")}
+        </Link>
         <button
           type="button"
           role="menuitem"
@@ -103,6 +112,14 @@ export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuPro
             <p className="truncate text-sm font-medium text-foreground">{userName}</p>
             <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
           </div>
+          <Link
+            href="/account"
+            role="menuitem"
+            className="block w-full min-h-[44px] px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors leading-[28px]"
+            onClick={() => setOpen(false)}
+          >
+            {tNav("myAccount")}
+          </Link>
           <button
             type="button"
             role="menuitem"

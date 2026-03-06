@@ -25,6 +25,11 @@ vi.mock("next-auth/react", () => ({
   signOut: mockSignOut,
 }));
 
+vi.mock("@/i18n/navigation", () => ({
+  Link: ({ children, href }: { children: React.ReactNode; href: string }) => <a href={href}>{children}</a>,
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import { UserMenu } from "@/components/layout/UserMenu";

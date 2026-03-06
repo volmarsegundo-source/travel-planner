@@ -4,7 +4,11 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
-export function Footer() {
+interface FooterProps {
+  variant?: "public" | "authenticated";
+}
+
+export function Footer({ variant = "public" }: FooterProps) {
   const t = useTranslations();
 
   return (
@@ -15,18 +19,43 @@ export function Footer() {
         </p>
 
         <div className="flex items-center gap-6">
-          <Link
-            href="/auth/login"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {t("auth.signIn")}
-          </Link>
-          <Link
-            href="/auth/register"
-            className="text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            {t("auth.signUp")}
-          </Link>
+          {variant === "authenticated" ? (
+            <>
+              <Link
+                href="/terms"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("landing.footer.terms")}
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("landing.footer.privacy")}
+              </Link>
+              <Link
+                href="/support"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("landing.footer.support")}
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/auth/login"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("auth.signIn")}
+              </Link>
+              <Link
+                href="/auth/register"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("auth.signUp")}
+              </Link>
+            </>
+          )}
           <LanguageSwitcher />
         </div>
       </div>

@@ -40,6 +40,25 @@ Integration test must verify soft-deleted records do not appear in `findMany`. T
 ### AC Coverage Approach
 Every AC from `docs/tasks.md` must map to at least one test in QA-SPEC. Coverage Summary table is the traceability matrix.
 
+### Sprint 7 Test Locations
+- `tests/unit/server/account.actions.test.ts` — updateProfile + deleteAccount Server Actions
+- `tests/unit/lib/validations/account.schema.test.ts` — Zod schema edge cases
+- `tests/unit/components/account/ProfileForm.test.tsx` — ProfileForm behavior + a11y
+- `tests/unit/components/account/ProfileForm-spinner.test.tsx` — Loader2 spinner state
+- `tests/unit/components/account/DeleteAccountModal.test.tsx` — 2-step modal, focus trap, signOut
+- `tests/unit/app/loading-*.test.tsx` — 4 loading skeleton tests
+- `tests/unit/app/error-app.test.tsx` + `error-trip.test.tsx` — error boundary tests
+- `tests/unit/components/checklist/ChecklistGeneratingSkeleton.test.tsx` — rotating message
+- `tests/unit/components/itinerary/ItineraryEditor-skeleton.test.tsx` — add day skeleton
+- `tests/unit/components/layout/Footer.test.tsx` — public + authenticated variants
+- `tests/unit/scripts/generate-test-plan.test.ts` — test plan generator
+
+### Sprint 7 Findings (QA-REL-007)
+- No DeleteAccountSection test file (thin wrapper, covered indirectly)
+- Hardcoded strings: "Portugues (Brasil)" in ProfileForm locale options, "Loading" in loading.tsx aria-labels, "Traveler" fallback in layout.tsx
+- Footer links to /terms, /privacy, /support pages that do not exist yet (dead links)
+- userId logged in logger.info/logger.error (acceptable per current logger config, PII concern noted)
+
 ## Key Docs for QA Context
 - `docs/SPEC-001.md` — data model, Server Actions, business logic
 - `docs/ux-patterns.md` — UX-001 screen specs, error states, accessibility checklist

@@ -14,10 +14,13 @@
     "error": "Ocorreu um erro. Tente novamente.",
     "success": "Salvo com sucesso!",
     "tryAgain": "Tentar novamente",
+    "saving": "Salvando...",
+    "goBackToTrips": "Voltar às viagens",
     "skipToContent": "Pular para o conteúdo"
   },
   "navigation": {
     "myTrips": "Minhas viagens",
+    "myAccount": "Minha conta",
     "toggleMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
     "userMenu": "Menu do usuário",
@@ -27,7 +30,8 @@
       "itinerary": "Itinerário",
       "checklist": "Checklist",
       "generatePlan": "Gerar plano",
-      "backTo": "Voltar para {name}"
+      "backTo": "Voltar para {name}",
+      "account": "Minha conta"
     }
   },
   "auth": {
@@ -140,6 +144,7 @@
     "noActivities": "Nenhuma atividade neste dia.",
     "saved": "Salvo",
     "addDay": "Adicionar dia",
+    "addingDay": "Adicionando dia...",
     "generate": "Gerar itinerário com IA",
     "dragHandle": "Arrastar atividade",
     "activityTypes": {
@@ -168,6 +173,19 @@
       "styleCulture": "Cultura",
       "styleRelaxation": "Relaxamento",
       "styleGastronomy": "Gastronomia",
+      "styleRomantic": "Romântico",
+      "styleFamily": "Família",
+      "styleBusiness": "Negócios",
+      "styleBackpacker": "Mochilão",
+      "styleLuxury": "Luxo",
+      "travelNotes": "Notas adicionais",
+      "travelNotesPlaceholder": "Conte-nos mais sobre suas preferências, lugares imperdíveis, necessidades alimentares...",
+      "travelNotesCounter": "{count}/500",
+      "tripTitle": "Nome da viagem",
+      "editDestination": "Destino",
+      "editStartDate": "Data de ida",
+      "editEndDate": "Data de volta",
+      "budgetInput": "Valor do orçamento",
       "budget": "Orçamento total",
       "currency": "Moeda",
       "travelers": "Viajantes",
@@ -178,6 +196,9 @@
       "loadingBuilding": "Montando itinerário...",
       "loadingFinalizing": "Finalizando plano...",
       "errorGenerate": "Não foi possível gerar o plano. Tente novamente.",
+      "errorTimeout": "A geração demorou mais que o esperado. Tente novamente.",
+      "errorAuth": "Erro de configuração da IA. Verifique a chave da API.",
+      "errorRateLimit": "Muitas solicitações. Aguarde alguns minutos e tente novamente.",
       "step": "Passo {current} de {total}"
     }
   },
@@ -191,6 +212,11 @@
     "deleteItem": "Excluir item",
     "errorGenerate": "Não foi possível gerar o checklist. Tente novamente.",
     "newItemPlaceholder": "Novo item...",
+    "generatingMessages": {
+      "analyzing": "Analisando seu destino...",
+      "building": "Montando seu checklist...",
+      "finalizing": "Quase pronto..."
+    },
     "categories": {
       "DOCUMENTS": "Documentos",
       "HEALTH": "Saúde",
@@ -213,7 +239,38 @@
       "responsive": { "title": "Design Responsivo", "description": "Planeje suas viagens de qualquer dispositivo" }
     },
     "footer": {
-      "copyright": "© 2026 Travel Planner. Todos os direitos reservados."
+      "copyright": "© 2026 Travel Planner. Todos os direitos reservados.",
+      "terms": "Termos de uso",
+      "privacy": "Politica de privacidade",
+      "support": "Suporte"
+    }
+  },
+  "account": {
+    "title": "Minha conta",
+    "personalInfo": "Informações pessoais",
+    "preferences": "Preferências",
+    "accountSection": "Conta",
+    "name": "Nome",
+    "email": "E-mail",
+    "emailReadOnly": "O e-mail não pode ser alterado",
+    "preferredLocale": "Idioma preferido",
+    "saving": "Salvando...",
+    "saveChanges": "Salvar alterações",
+    "profileUpdated": "Perfil atualizado com sucesso!",
+    "deleteAccount": "Excluir minha conta",
+    "deleteWarning": "Esta ação é permanente e não pode ser desfeita. Todos os seus dados (viagens, itinerários, checklists) serão anonimizados e marcados para exclusão.",
+    "deleteConfirmTitle": "Tem certeza?",
+    "deleteConfirmMessage": "Para confirmar, digite seu endereço de e-mail abaixo:",
+    "deleteConfirmPlaceholder": "Digite seu e-mail para confirmar",
+    "accountDeleted": "Sua conta foi excluída.",
+    "errors": {
+      "nameTooShort": "O nome deve ter pelo menos 2 caracteres.",
+      "nameTooLong": "O nome deve ter no máximo 100 caracteres.",
+      "invalidLocale": "Seleção de idioma inválida.",
+      "invalidEmail": "Digite um e-mail válido.",
+      "emailMismatch": "O e-mail digitado não corresponde ao e-mail da sua conta.",
+      "accountNotFound": "Conta não encontrada.",
+      "deleteFailed": "Não foi possível excluir a conta. Tente novamente."
     }
   },
   "notFoundPage": {
@@ -222,12 +279,23 @@
     "backHome": "Voltar para o início"
   },
   "errors": {
+    "boundary": {
+      "title": "Algo deu errado",
+      "description": "Ocorreu um erro inesperado. Tente novamente ou volte.",
+      "tryAgain": "Tentar novamente",
+      "goBack": "Voltar"
+    },
+    "tripNotFound": {
+      "description": "Esta viagem não existe ou você não tem acesso."
+    },
     "generic": "Algo deu errado. Tente novamente.",
     "network": "Problema de conexão. Verifique sua internet.",
     "timeout": "A operação demorou demais. Tente novamente.",
     "unauthorized": "Você precisa fazer login para continuar.",
     "forbidden": "Você não tem permissão para realizar esta ação.",
     "notFound": "Página não encontrada.",
+    "aiAuthError": "Erro de configuração da IA. Verifique a chave da API.",
+    "aiModelError": "Modelo de IA indisponível. Tente novamente mais tarde.",
     "aiParseError": "Não foi possível ler a resposta da IA. Tente novamente.",
     "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
     "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",

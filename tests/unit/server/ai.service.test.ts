@@ -1,7 +1,7 @@
 /**
  * Unit tests for AiService.
  *
- * All external dependencies (Anthropic SDK, ioredis) are mocked so
+ * All external dependencies (AI provider, ioredis) are mocked so
  * these tests run in isolation with no infrastructure required.
  *
  * Mocking pattern: vi.mock() factories are hoisted above all const
@@ -15,7 +15,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mocks = vi.hoisted(() => ({
   redisGet: vi.fn(),
   redisSet: vi.fn(),
-  messagesCreate: vi.fn(),
+  generateResponse: vi.fn(),
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -29,16 +29,15 @@ vi.mock("@/server/cache/redis", () => ({
   },
 }));
 
-vi.mock("@anthropic-ai/sdk", () => {
-  // Use a regular function (not arrow) so it works as a constructor with `new`
-  function MockAnthropic() {
+vi.mock("@/server/services/providers/claude.provider", () => {
+  // Use a regular function so it works as a constructor with `new`
+  function MockClaudeProvider() {
     return {
-      messages: {
-        create: mocks.messagesCreate,
-      },
+      name: "claude",
+      generateResponse: mocks.generateResponse,
     };
   }
-  return { default: MockAnthropic };
+  return { ClaudeProvider: MockClaudeProvider };
 });
 
 vi.mock("@/lib/logger", () => ({
@@ -117,9 +116,12 @@ const BASE_CHECKLIST_PARAMS = {
   language: "en" as const,
 };
 
-function makeClaudeTextResponse(text: string) {
+function makeProviderResponse(text: string, wasTruncated = false) {
   return {
-    content: [{ type: "text", text }],
+    text,
+    wasTruncated,
+    inputTokens: 100,
+    outputTokens: 200,
   };
 }
 
@@ -128,24 +130,22 @@ function makeClaudeTextResponse(text: string) {
 describe("AiService.generateTravelPlan", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Clear the Anthropic singleton so the mock constructor is used each time
-    (globalThis as Record<string, unknown>)._anthropic = undefined;
   });
 
-  it("returns cached plan on cache hit without calling Claude", async () => {
+  it("returns cached plan on cache hit without calling the provider", async () => {
     mocks.redisGet.mockResolvedValue(JSON.stringify(VALID_PLAN_RESPONSE));
 
     const result = await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
 
     expect(result).toEqual(VALID_PLAN_RESPONSE);
-    expect(mocks.messagesCreate).not.toHaveBeenCalled();
+    expect(mocks.generateResponse).not.toHaveBeenCalled();
     expect(mocks.redisSet).not.toHaveBeenCalled();
   });
 
-  it("calls Claude API on cache miss and caches the result", async () => {
+  it("calls AI provider on cache miss and caches the result", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
     );
     mocks.redisSet.mockResolvedValue("OK");
 
@@ -153,17 +153,17 @@ describe("AiService.generateTravelPlan", () => {
 
     expect(result.destination).toBe("Paris, France");
     expect(result.totalDays).toBe(3);
-    expect(mocks.messagesCreate).toHaveBeenCalledOnce();
+    expect(mocks.generateResponse).toHaveBeenCalledOnce();
     expect(mocks.redisSet).toHaveBeenCalledOnce();
     // Verify TTL argument is present
     const [, , , ttl] = mocks.redisSet.mock.calls[0] as unknown[];
     expect(ttl).toBe(86400);
   });
 
-  it("throws AppError when Claude returns malformed JSON", async () => {
+  it("throws AppError when provider returns malformed JSON", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse("This is not JSON at all.")
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse("This is not JSON at all.")
     );
 
     await expect(
@@ -171,12 +171,11 @@ describe("AiService.generateTravelPlan", () => {
     ).rejects.toBeInstanceOf(AppError);
   });
 
-  it("throws AppError when Claude response fails Zod validation", async () => {
+  it("throws AppError when provider response fails Zod validation", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    // Missing required fields like 'currency'
     const badResponse = { destination: "Paris", days: [], tips: [] };
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse(JSON.stringify(badResponse))
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(badResponse))
     );
 
     await expect(
@@ -184,60 +183,158 @@ describe("AiService.generateTravelPlan", () => {
     ).rejects.toBeInstanceOf(AppError);
   });
 
-  it("throws AppError when Claude API call throws (network/timeout)", async () => {
+  it("throws AppError when provider throws", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockRejectedValue(new Error("Network error"));
+    mocks.generateResponse.mockRejectedValue(
+      new AppError("AI_TIMEOUT", "errors.timeout", 504)
+    );
 
     await expect(
       AiService.generateTravelPlan(BASE_PLAN_PARAMS)
     ).rejects.toBeInstanceOf(AppError);
   });
 
-  it("parses Claude response wrapped in markdown code block", async () => {
+  it("parses provider response wrapped in markdown code block", async () => {
     mocks.redisGet.mockResolvedValue(null);
     const wrapped = "```json\n" + JSON.stringify(VALID_PLAN_RESPONSE) + "\n```";
-    mocks.messagesCreate.mockResolvedValue(makeClaudeTextResponse(wrapped));
+    mocks.generateResponse.mockResolvedValue(makeProviderResponse(wrapped));
     mocks.redisSet.mockResolvedValue("OK");
 
     const result = await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
     expect(result.destination).toBe("Paris, France");
+  });
+
+  it("retries with higher token budget when first attempt is truncated", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // First call: truncated response
+    mocks.generateResponse
+      .mockResolvedValueOnce(
+        makeProviderResponse('{"destination":"Paris","totalDays":3', true)
+      )
+      // Second call: complete response
+      .mockResolvedValueOnce(
+        makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+      );
+
+    const result = await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    expect(result.destination).toBe("Paris, France");
+    expect(mocks.generateResponse).toHaveBeenCalledTimes(2);
+    // Second call should have higher max_tokens
+    const firstCallTokens = (mocks.generateResponse.mock.calls[0] as unknown[])[1] as number;
+    const secondCallTokens = (mocks.generateResponse.mock.calls[1] as unknown[])[1] as number;
+    expect(secondCallTokens).toBeGreaterThan(firstCallTokens);
+  });
+
+  it("uses dynamic token budget based on trip duration", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // 3-day trip (BASE_PLAN_PARAMS: June 1-3)
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+    const shortTripTokens = (mocks.generateResponse.mock.calls[0] as unknown[])[1] as number;
+
+    vi.clearAllMocks();
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // 14-day trip → should use more tokens
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      endDate: "2026-06-14",
+    });
+    const longTripTokens = (mocks.generateResponse.mock.calls[0] as unknown[])[1] as number;
+
+    expect(longTripTokens).toBeGreaterThan(shortTripTokens);
+  });
+
+  it("includes travelNotes in the prompt when provided", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      travelNotes: "I love museums and local food",
+    });
+
+    const prompt = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(prompt).toContain("Additional traveler notes");
+    expect(prompt).toContain("I love museums and local food");
+  });
+
+  it("uses different cache keys with and without travelNotes", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // Without notes
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+    const key1 = mocks.redisGet.mock.calls[0]?.[0] as string;
+
+    vi.clearAllMocks();
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // With notes
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      travelNotes: "I love museums",
+    });
+    const key2 = mocks.redisGet.mock.calls[0]?.[0] as string;
+
+    expect(key1).not.toBe(key2);
   });
 });
 
 describe("AiService.generateChecklist", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (globalThis as Record<string, unknown>)._anthropic = undefined;
   });
 
-  it("returns cached checklist on cache hit without calling Claude", async () => {
+  it("returns cached checklist on cache hit without calling the provider", async () => {
     mocks.redisGet.mockResolvedValue(JSON.stringify(VALID_CHECKLIST_RESPONSE));
 
     const result = await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
 
     expect(result.categories).toHaveLength(2);
-    expect(mocks.messagesCreate).not.toHaveBeenCalled();
+    expect(mocks.generateResponse).not.toHaveBeenCalled();
     expect(mocks.redisSet).not.toHaveBeenCalled();
   });
 
-  it("calls Claude API on cache miss and caches the result", async () => {
+  it("calls AI provider on cache miss and caches the result", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
     );
     mocks.redisSet.mockResolvedValue("OK");
 
     const result = await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
 
     expect(result.categories[0]?.category).toBe("DOCUMENTS");
-    expect(mocks.messagesCreate).toHaveBeenCalledOnce();
+    expect(mocks.generateResponse).toHaveBeenCalledOnce();
     expect(mocks.redisSet).toHaveBeenCalledOnce();
   });
 
-  it("throws AppError when Claude returns malformed JSON for checklist", async () => {
+  it("throws AppError when provider returns malformed JSON for checklist", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse("not valid json { broken")
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse("not valid json { broken")
     );
 
     await expect(
@@ -247,7 +344,6 @@ describe("AiService.generateChecklist", () => {
 
   it("throws AppError when checklist response fails Zod schema validation", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    // categories array has an invalid category value
     const badResponse = {
       categories: [
         {
@@ -256,8 +352,8 @@ describe("AiService.generateChecklist", () => {
         },
       ],
     };
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse(JSON.stringify(badResponse))
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(badResponse))
     );
 
     await expect(
@@ -266,24 +362,22 @@ describe("AiService.generateChecklist", () => {
   });
 
   it("uses month-based cache key (not exact date) for better reuse", async () => {
-    // Both params have the same month — should hit the same cache key
     const params1 = { ...BASE_CHECKLIST_PARAMS, startDate: "2026-06-01" };
     const params2 = { ...BASE_CHECKLIST_PARAMS, startDate: "2026-06-15" };
 
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
     );
     mocks.redisSet.mockResolvedValue("OK");
 
     await AiService.generateChecklist(params1);
-    // Extract the cache key used in first call
     const key1 = mocks.redisGet.mock.calls[0]?.[0] as string;
 
     vi.clearAllMocks();
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockResolvedValue(
-      makeClaudeTextResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
     );
     mocks.redisSet.mockResolvedValue("OK");
 
@@ -294,9 +388,11 @@ describe("AiService.generateChecklist", () => {
     expect(key1).toBe(key2);
   });
 
-  it("throws AppError when checklist API call throws", async () => {
+  it("throws AppError when checklist provider call throws", async () => {
     mocks.redisGet.mockResolvedValue(null);
-    mocks.messagesCreate.mockRejectedValue(new Error("API unavailable"));
+    mocks.generateResponse.mockRejectedValue(
+      new AppError("AI_TIMEOUT", "errors.timeout", 504)
+    );
 
     await expect(
       AiService.generateChecklist(BASE_CHECKLIST_PARAMS)

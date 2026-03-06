@@ -1,13 +1,10 @@
-// Root layout — minimal shell required by Next.js App Router.
-// All locale-aware content lives in src/app/[locale]/layout.tsx.
+// Root layout — pass-through shell required by Next.js App Router.
+// The real <html>/<body> tags live in src/app/[locale]/layout.tsx.
+// Rendering them here too would produce invalid nested <html><body> tags.
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <html>
-      <body>{children}</body>
-    </html>
-  );
+  return children;
 }
