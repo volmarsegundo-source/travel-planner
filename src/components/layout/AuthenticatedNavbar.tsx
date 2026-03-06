@@ -28,7 +28,8 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [mobileMenuOpen]);
 
-  const isTripsActive = pathname === "/trips" || pathname.startsWith("/trips/");
+  const isDashboardActive = pathname === "/dashboard" || pathname.startsWith("/expedition");
+  const isProfileActive = pathname === "/profile";
 
   return (
     <header
@@ -41,7 +42,7 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
       >
         {/* Logo */}
         <Link
-          href="/trips"
+          href="/dashboard"
           className="flex items-center gap-2 text-xl font-bold text-foreground"
         >
           <span aria-hidden="true">🌍</span>
@@ -51,15 +52,26 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
         {/* Desktop nav */}
         <div className="hidden items-center gap-4 md:flex">
           <Link
-            href="/trips"
+            href="/dashboard"
             className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              isTripsActive
+              isDashboardActive
                 ? "bg-primary/10 font-semibold text-primary"
                 : "text-foreground hover:bg-accent"
             }`}
-            aria-current={isTripsActive ? "page" : undefined}
+            aria-current={isDashboardActive ? "page" : undefined}
           >
-            {tNav("myTrips")}
+            {tNav("myAtlas")}
+          </Link>
+          <Link
+            href="/profile"
+            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              isProfileActive
+                ? "bg-primary/10 font-semibold text-primary"
+                : "text-foreground hover:bg-accent"
+            }`}
+            aria-current={isProfileActive ? "page" : undefined}
+          >
+            {tNav("myProfile")}
           </Link>
           <LanguageSwitcher />
           <UserMenu
@@ -98,16 +110,28 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
         >
           <div className="flex flex-col gap-3">
             <Link
-              href="/trips"
+              href="/dashboard"
               className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                isTripsActive
+                isDashboardActive
                   ? "bg-primary/10 font-semibold text-primary"
                   : "text-foreground hover:bg-accent"
               }`}
-              aria-current={isTripsActive ? "page" : undefined}
+              aria-current={isDashboardActive ? "page" : undefined}
               onClick={() => setMobileMenuOpen(false)}
             >
-              {tNav("myTrips")}
+              {tNav("myAtlas")}
+            </Link>
+            <Link
+              href="/profile"
+              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                isProfileActive
+                  ? "bg-primary/10 font-semibold text-primary"
+                  : "text-foreground hover:bg-accent"
+              }`}
+              aria-current={isProfileActive ? "page" : undefined}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {tNav("myProfile")}
             </Link>
             <div className="border-t border-border/40 pt-2">
               <LanguageSwitcher />

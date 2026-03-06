@@ -181,6 +181,33 @@ export class TripService {
   }
 
   /**
+   * Returns user trips with expedition phase data included.
+   */
+  static async getUserTripsWithExpeditionData(userId: string) {
+    const trips = await db.trip.findMany({
+      where: { userId, deletedAt: null },
+      orderBy: { createdAt: "desc" },
+      select: {
+        ...TRIP_SELECT,
+        phases: {
+          select: {
+            phaseNumber: true,
+            status: true,
+            completedAt: true,
+          },
+          orderBy: { phaseNumber: "asc" },
+        },
+      },
+    });
+
+    return trips.map((trip) => ({
+      ...trip,
+      completedPhases: trip.phases.filter((p) => p.status === "completed").length,
+      totalPhases: trip.phases.length,
+    }));
+  }
+
+  /**
    * Reorders activities within a trip atomically.
    * BOLA guard: verifies trip ownership before touching any activity rows.
    */

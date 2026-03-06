@@ -136,7 +136,7 @@ describe("LoginForm", () => {
         password: "password123",
         redirect: false,
       });
-      expect(mockRouterPush).toHaveBeenCalledWith("/trips");
+      expect(mockRouterPush).toHaveBeenCalledWith("/dashboard");
     });
   });
 
@@ -225,7 +225,7 @@ describe("LoginForm", () => {
     await userEvent.click(googleButton);
 
     expect(mockSignIn).toHaveBeenCalledWith("google", {
-      callbackUrl: "/trips",
+      callbackUrl: "/dashboard",
     });
   });
 

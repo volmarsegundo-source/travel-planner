@@ -20,6 +20,8 @@
   },
   "navigation": {
     "myTrips": "Minhas viagens",
+    "myAtlas": "Meu Atlas",
+    "myProfile": "Perfil",
     "myAccount": "Minha conta",
     "toggleMenu": "Abrir menu",
     "closeMenu": "Fechar menu",
@@ -31,7 +33,10 @@
       "checklist": "Checklist",
       "generatePlan": "Gerar plano",
       "backTo": "Voltar para {name}",
-      "account": "Minha conta"
+      "account": "Minha conta",
+      "atlas": "Meu Atlas",
+      "profile": "Perfil",
+      "expedition": "Expedição"
     }
   },
   "auth": {
@@ -277,6 +282,177 @@
     "title": "Página não encontrada",
     "description": "A página que você procura não existe ou foi movida.",
     "backHome": "Voltar para o início"
+  },
+  "dashboard": {
+    "title": "Meu Atlas",
+    "greeting": "Bem-vindo de volta, {name}!",
+    "emptyState": {
+      "title": "Comece sua primeira expedição",
+      "subtitle": "Planeje uma viagem e ganhe pontos ao longo do caminho.",
+      "cta": "Iniciar Expedição"
+    },
+    "newExpedition": "Nova Expedição",
+    "phaseProgress": "{completed} de {total} fases",
+    "currentPhase": "Fase {number}",
+    "viewExpedition": "Continuar"
+  },
+  "profile": {
+    "title": "Perfil do Explorador",
+    "rank": "Rank",
+    "totalPoints": "Pontos Totais",
+    "availablePoints": "Pontos Disponíveis",
+    "streak": "{days} dias seguidos",
+    "transactions": {
+      "title": "Atividade Recente",
+      "empty": "Nenhuma atividade ainda.",
+      "phaseComplete": "Fase concluída",
+      "aiUsage": "Uso de IA",
+      "dailyLogin": "Login diário",
+      "purchase": "Bônus de boas-vindas",
+      "referral": "Bônus de indicação",
+      "checklist": "Bônus de checklist"
+    },
+    "badges": {
+      "title": "Carimbos do Passaporte",
+      "locked": "Bloqueado",
+      "firstStep": "Primeiro Passo",
+      "navigator": "Navegador",
+      "host": "Anfitrião",
+      "cartographer": "Cartógrafo",
+      "treasurer": "Tesoureiro",
+      "pathfinder": "Desbravador",
+      "ambassador": "Embaixador"
+    },
+    "stats": {
+      "expeditions": "Expedições",
+      "badgesEarned": "Carimbos Conquistados",
+      "phasesCompleted": "Fases Concluídas"
+    }
+  },
+  "expedition": {
+    "phase1": {
+      "title": "O Chamado",
+      "subtitle": "Para onde sua próxima aventura vai te levar?",
+      "step1": {
+        "title": "Escolha seu destino",
+        "placeholder": "ex: Paris, Tóquio, Nova York"
+      },
+      "step2": {
+        "title": "Quando você vai viajar?",
+        "startDate": "Data de ida",
+        "endDate": "Data de volta",
+        "flexibleDates": "Minhas datas são flexíveis"
+      },
+      "step3": {
+        "title": "Quantos viajantes?",
+        "travelers": "Viajantes"
+      },
+      "step4": {
+        "title": "Pronto para começar?",
+        "summary": "Resumo da expedição",
+        "destination": "Destino",
+        "dates": "Datas",
+        "travelers": "Viajantes",
+        "flexibleDates": "Datas flexíveis",
+        "yes": "Sim",
+        "no": "Não",
+        "cta": "Iniciar Expedição"
+      },
+      "errors": {
+        "destinationRequired": "Destino é obrigatório.",
+        "travelersMin": "Pelo menos 1 viajante."
+      }
+    },
+    "phase2": {
+      "title": "O Explorador",
+      "subtitle": "Defina seu estilo de viagem e preferências.",
+      "step1": {
+        "title": "Que tipo de viajante você é?",
+        "solo": "Solo",
+        "couple": "Casal",
+        "family": "Família",
+        "group": "Grupo",
+        "soloEmoji": "🧑",
+        "coupleEmoji": "👫",
+        "familyEmoji": "👨‍👩‍👧‍👦",
+        "groupEmoji": "👥"
+      },
+      "step2": {
+        "title": "Estilo de hospedagem",
+        "budget": "Econômico",
+        "comfort": "Conforto",
+        "luxury": "Luxo",
+        "adventure": "Aventura",
+        "budgetEmoji": "🏠",
+        "comfortEmoji": "🏨",
+        "luxuryEmoji": "🏰",
+        "adventureEmoji": "⛺"
+      },
+      "step3": {
+        "title": "Ritmo de viagem",
+        "intense": "Intenso",
+        "relaxed": "Relaxado"
+      },
+      "step4": {
+        "title": "Orçamento",
+        "amount": "Valor do orçamento",
+        "currency": "Moeda"
+      },
+      "step5": {
+        "title": "Pronto para explorar?",
+        "summary": "Suas preferências",
+        "travelerType": "Tipo de viajante",
+        "accommodation": "Hospedagem",
+        "pace": "Ritmo",
+        "budget": "Orçamento",
+        "cta": "Concluir e Ganhar Pontos"
+      },
+      "errors": {
+        "travelerTypeRequired": "Escolha um tipo de viajante.",
+        "accommodationRequired": "Escolha um estilo de hospedagem.",
+        "budgetMin": "O orçamento deve ser pelo menos 100.",
+        "budgetMax": "O orçamento deve ser no máximo 100.000.",
+        "soloRequiresOne": "Solo requer exatamente 1 viajante.",
+        "coupleRequiresTwo": "Casal requer exatamente 2 viajantes."
+      }
+    },
+    "hub": {
+      "title": "Expedição",
+      "comingSoon": "A Fase {number} está chegando!",
+      "comingSoonSubtitle": "Esta fase ainda não está disponível. Fique ligado!"
+    },
+    "animation": {
+      "pointsEarned": "+{points} pontos!",
+      "badgeEarned": "Carimbo conquistado: {badge}!",
+      "rankUp": "Novo rank: {rank}!"
+    },
+    "transition": {
+      "phaseCompleted": "Fase {phase} concluída!",
+      "advancingTo": "Avançando para a Fase {phase}...",
+      "continue": "Continuar"
+    },
+    "progress": "Passo {current} de {total}"
+  },
+  "gamification": {
+    "ranks": {
+      "traveler": "Viajante",
+      "explorer": "Explorador",
+      "navigator": "Navegador",
+      "cartographer": "Cartógrafo",
+      "pathfinder": "Desbravador",
+      "ambassador": "Embaixador"
+    },
+    "phases": {
+      "theCalling": "O Chamado",
+      "theExplorer": "O Explorador",
+      "theRoute": "A Rota",
+      "theShelter": "O Abrigo",
+      "theDayMap": "O Mapa dos Dias",
+      "theTreasure": "O Tesouro",
+      "theExpedition": "A Expedição",
+      "theLegacy": "O Legado"
+    },
+    "points": "pts"
   },
   "errors": {
     "boundary": {

@@ -99,7 +99,7 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/trips");
+      router.push("/dashboard");
     } catch {
       // signIn may throw instead of returning { ok: false }
       // in some Auth.js v5 versions with Credentials provider
@@ -112,7 +112,7 @@ export function LoginForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/trips" });
+      await signIn("google", { callbackUrl: "/dashboard" });
     } finally {
       // signIn with redirect does not return here in normal flow;
       // reset loading only on error path

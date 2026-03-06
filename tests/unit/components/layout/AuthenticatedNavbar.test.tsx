@@ -10,7 +10,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 // ─── Hoist mocks ─────────────────────────────────────────────────────────────
 
 const { mockUsePathname, mockSignOut } = vi.hoisted(() => ({
-  mockUsePathname: vi.fn(() => "/trips"),
+  mockUsePathname: vi.fn(() => "/dashboard"),
   mockSignOut: vi.fn(),
 }));
 
@@ -63,30 +63,46 @@ const defaultProps = {
 describe("AuthenticatedNavbar", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockUsePathname.mockReturnValue("/trips");
+    mockUsePathname.mockReturnValue("/dashboard");
   });
 
-  it("renders the app logo/name linking to /trips", () => {
+  it("renders the app logo/name linking to /dashboard", () => {
     render(<AuthenticatedNavbar {...defaultProps} />);
 
     const logo = screen.getByText("common.appName");
-    expect(logo.closest("a")).toHaveAttribute("href", "/trips");
+    expect(logo.closest("a")).toHaveAttribute("href", "/dashboard");
   });
 
-  it("renders My Trips link", () => {
+  it("renders My Atlas link", () => {
     render(<AuthenticatedNavbar {...defaultProps} />);
 
-    const links = screen.getAllByText("navigation.myTrips");
+    const links = screen.getAllByText("navigation.myAtlas");
     expect(links.length).toBeGreaterThanOrEqual(1);
-    expect(links[0].closest("a")).toHaveAttribute("href", "/trips");
+    expect(links[0].closest("a")).toHaveAttribute("href", "/dashboard");
   });
 
-  it("highlights My Trips link when pathname starts with /trips", () => {
-    mockUsePathname.mockReturnValue("/trips/some-id");
+  it("highlights My Atlas link when pathname is /dashboard", () => {
+    mockUsePathname.mockReturnValue("/dashboard");
     render(<AuthenticatedNavbar {...defaultProps} />);
 
-    const links = screen.getAllByText("navigation.myTrips");
+    const links = screen.getAllByText("navigation.myAtlas");
     expect(links[0].closest("a")?.className).toContain("font-semibold");
+  });
+
+  it("highlights My Atlas link when pathname starts with /expedition", () => {
+    mockUsePathname.mockReturnValue("/expedition/some-id");
+    render(<AuthenticatedNavbar {...defaultProps} />);
+
+    const links = screen.getAllByText("navigation.myAtlas");
+    expect(links[0].closest("a")?.className).toContain("font-semibold");
+  });
+
+  it("renders My Profile link", () => {
+    render(<AuthenticatedNavbar {...defaultProps} />);
+
+    const links = screen.getAllByText("navigation.myProfile");
+    expect(links.length).toBeGreaterThanOrEqual(1);
+    expect(links[0].closest("a")).toHaveAttribute("href", "/profile");
   });
 
   it("renders the LanguageSwitcher with EN and PT", () => {
@@ -140,8 +156,8 @@ describe("AuthenticatedNavbar", () => {
     const button = screen.getByRole("button", { name: "navigation.toggleMenu" });
     fireEvent.click(button);
 
-    // Click the mobile "My Trips" link
-    const mobileLinks = screen.getAllByText("navigation.myTrips");
+    // Click the mobile "My Atlas" link
+    const mobileLinks = screen.getAllByText("navigation.myAtlas");
     const mobileLink = mobileLinks[mobileLinks.length - 1];
     fireEvent.click(mobileLink);
 
