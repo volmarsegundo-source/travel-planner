@@ -81,9 +81,12 @@ model User {
   deletedAt       DateTime?
   deactivatedAt   DateTime?
 
-  accounts Account[]
-  sessions Session[]
-  trips    Trip[]
+  accounts          Account[]
+  sessions          Session[]
+  trips             Trip[]
+  progress          UserProgress?
+  badges            UserBadge[]
+  pointTransactions PointTransaction[]
 
   @@index([email])
   @@index([deletedAt])
@@ -118,10 +121,15 @@ model Trip {
   updatedAt   DateTime       @updatedAt
   deletedAt   DateTime?
 
+  // Atlas Gamification
+  expeditionMode Boolean        @default(true)
+  currentPhase   Int            @default(1)
+
   // Relacoes
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   itineraryDays ItineraryDay[]
   checklist     ChecklistItem[]
+  phases        ExpeditionPhase[]
 
   // Indexes
   @@index([userId, deletedAt])
@@ -188,4 +196,69 @@ model ChecklistItem {
 
   @@index([tripId, category])
   @@map("checklist_items")
+}
+
+// ─── Atlas Gamification ─────────────────────────────────────────────────────
+
+model UserProgress {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  totalPoints     Int       @default(0)
+  availablePoints Int       @default(500)
+  currentRank     String    @default("traveler") @db.VarChar(50)
+  streakDays      Int       @default(0)
+  lastLoginDate   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_progress")
+}
+
+model ExpeditionPhase {
+  id           String    @id @default(cuid())
+  tripId       String
+  phaseNumber  Int
+  status       String    @default("locked") @db.VarChar(20)
+  completedAt  DateTime?
+  pointsEarned Int       @default(0)
+  metadata     Json?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, phaseNumber])
+  @@index([tripId])
+  @@map("expedition_phases")
+}
+
+model PointTransaction {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  type        String   @db.VarChar(50)
+  description String   @db.VarChar(255)
+  tripId      String?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, type])
+  @@map("point_transactions")
+}
+
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeKey String   @db.VarChar(50)
+  earnedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeKey])
+  @@index([userId])
+  @@map("user_badges")
 }

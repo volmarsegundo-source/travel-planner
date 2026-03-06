@@ -16,6 +16,8 @@ export interface Trip {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
+  expeditionMode: boolean;
+  currentPhase: number;
 }
 
 // ─── Shared result types ──────────────────────────────────────────────────────

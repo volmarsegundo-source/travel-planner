@@ -27,7 +27,16 @@
       "Bash(echo done:*)",
       "Bash(head:*)",
       "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npx tsc --noEmit 2>&1)",
-      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npm install clsx 2>&1)"
+      "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npm install clsx 2>&1)",
+      "Bash(ls:*)",
+      "Bash(python3:*)",
+      "Bash(python:*)",
+      "Bash(cd /c/travel-planner && npx prisma migrate dev --name atlas_gamification_models 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run 2>&1)",
+      "Bash(cd /c/travel-planner && npm run build 2>&1)",
+      "Bash(cd /c/travel-planner && npx prisma migrate status 2>&1)",
+      "Bash(find:*)",
+      "Bash(tail:*)"
     ]
   }
 }

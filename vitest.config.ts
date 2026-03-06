@@ -21,6 +21,7 @@ export default defineConfig({
         "src/server/services/**",
         "src/lib/validations/**",
         "src/lib/errors.ts",
+        "src/lib/engines/**",
         "src/components/features/auth/**",
         "src/components/features/onboarding/**",
       ],
