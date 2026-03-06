@@ -263,6 +263,226 @@ O Sprint 2 envolveu múltiplos agentes em paralelo (dev-fullstack-1, dev-fullsta
 
 ---
 
+## Sprint 6 — Marco/2026
+
+**Status:** ✅ Concluido
+**Periodo:** Marco/2026 (semana 1)
+**Dados:** Estimados (desenvolvimento local, sem deploy em producao)
+
+### Entregas do Sprint 6
+- Debitos tecnicos (CSP nonce, rate limit atomico Lua)
+- Onboarding Wizard (3 passos)
+- Auth UX (TrustSignals, layout auth)
+- 39 testes novos (total: 297)
+- PR #7 merged em `master`
+
+### Custos Reais Sprint 6
+
+| Servico | Plano | Custo Real | Observacao |
+|---------|-------|-----------|------------|
+| Claude Pro (dev) | Pro | $20,00 | Assinatura mensal fixa |
+| Vercel | Hobby (Free) | $0,00 | Sem deploy |
+| Anthropic API | — | $0,00 | Sem chamadas em producao |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20,00** | |
+
+### Decisoes FinOps Sprint 6
+- Rate limit para checklist **implementado** (5 req/hora/usuario) — resolvendo pendencia dos Sprints 4-5
+- Rate limit atomico com Lua script — elimina race condition no Redis (custo neutro, melhora confiabilidade)
+- Sprint focado em frontend + seguranca — impacto zero em custo de producao de IA
+
+---
+
+## Sprint 7 — Marco/2026
+
+**Status:** ✅ Concluido
+**Periodo:** Marco/2026 (semana 1-2)
+**Dados:** Estimados (desenvolvimento local, sem deploy em producao)
+
+### Entregas do Sprint 7
+- Perfil de usuario (Server Actions + frontend)
+- Footer no layout autenticado
+- Polimento e empty states
+- Automacao de plano de testes
+- QA final
+- 152 testes novos (total: 449)
+- Versao 0.7.0
+
+### Custos Reais Sprint 7
+
+| Servico | Plano | Custo Real | Observacao |
+|---------|-------|-----------|------------|
+| Claude Pro (dev) | Pro | $20,00 | Assinatura mensal fixa |
+| Vercel | Hobby (Free) | $0,00 | Sem deploy |
+| Anthropic API | — | $0,00 | Sem chamadas em producao |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20,00** | |
+
+### Notas FinOps Sprint 7
+- Sprint focado em UX/perfil — sem impacto em custo de IA
+- Migration `preferredLocale` adicionada — sem custo adicional de infra
+- Custo acumulado do projeto (Sprints 1-7): $140-220
+
+---
+
+## Sprint 8 — Marco/2026
+
+**Status:** Em revisao
+**Periodo:** Marco/2026 (semana 2)
+**Dados:** Estimados (desenvolvimento local, sem deploy em producao)
+
+### Entregas do Sprint 8
+- Wizard melhorado: budget max 10k → 100k, 9 estilos (vs 4), campo travelNotes
+- AI Provider Abstraction Layer: interface AiProvider, ClaudeProvider, factory getProvider()
+- Preparacao para modelo freemium (Sprint 9)
+
+### Mudancas com Impacto de Custo
+
+| Componente | Arquivo | Impacto |
+|-----------|---------|---------|
+| 9 travel styles (vs 4) | `ai.types.ts`, `PlanGeneratorWizard.tsx` | +125% variacao na cache key (style) |
+| travelNotes no prompt | `ai.service.ts` L209-211 | +100-500 tokens input por request |
+| travelNotes na cache key | `ai.service.ts` L188-189 | Reducao significativa do cache hit rate |
+| Budget max 100k (vs 10k) | `PlanGeneratorWizard.tsx` L17 | Impacto minimo (~2-5 chars no prompt) |
+| Budget bucketing (500) | `ai.service.ts` L186 | Mitigacao positiva — agrupa budgets similares |
+| Provider abstraction | `ai-provider.interface.ts`, `claude.provider.ts` | Zero impacto em custo (refatoracao) |
+
+### Analise Detalhada: Cache Hit Rate
+
+**Antes (Sprint 7):**
+Cache key = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}`
+- 4 estilos x N destinos x M budgets x K dias x 2 idiomas
+- Probabilidade de cache hit: MEDIA-ALTA (usuarios com mesmo destino/estilo/orcamento/duracao compartilham)
+
+**Depois (Sprint 8):**
+Cache key = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}:${md5(travelNotes)}`
+- 9 estilos x N destinos x M budgets x K dias x 2 idiomas x **L notas unicas**
+- Probabilidade de cache hit: **BAIXA** (notas sao texto livre, quase sempre unicas)
+
+**Impacto estimado:**
+- Sem travelNotes (campo vazio): cache key identica ao formato anterior — sem degradacao
+- Com travelNotes: cada nota diferente gera hash MD5 diferente → cache miss garantido
+- Estimativa: se 40% dos usuarios usam travelNotes, o cache hit rate global cai ~30-40%
+
+**Mitigacao implementada (positiva):**
+- `notesHash = travelNotes ? `:${md5(travelNotes)}` : ""` — quando notas sao vazias, a cache key nao muda. Boa decisao de design.
+- Budget bucketing a cada 500 unidades — boa pratica para aumentar colisoes de cache
+
+### Analise Detalhada: Token Usage
+
+**Input tokens adicionais por travelNotes:**
+
+| Cenario | Chars | Tokens estimados | Custo incremental (Sonnet) |
+|---------|-------|-----------------|---------------------------|
+| Nota curta (50 chars) | 50 | ~15-20 | ~$0,000045-0,000060 |
+| Nota media (200 chars) | 200 | ~60-80 | ~$0,000180-0,000240 |
+| Nota longa (500 chars max) | 500 | ~150-200 | ~$0,000450-0,000600 |
+
+- Custo base de input por request (prompt sem notas): ~800-1000 tokens → ~$0,0024-0,003
+- Acrescimo maximo com travelNotes (500 chars): ~200 tokens → +20% no input cost
+- Output tokens nao mudam (o plano gerado tem tamanho similar independente das notas)
+
+**Impacto em escala:**
+
+| Usuarios/mes | Requests com notas (40%) | Custo extra input/mes |
+|-------------|------------------------|----------------------|
+| 100 | 80 | ~$0,02-0,05 |
+| 1.000 | 800 | ~$0,15-0,48 |
+| 10.000 | 8.000 | ~$1,44-4,80 |
+
+**Veredito token usage:** Impacto marginal e aceitavel. O travelNotes adiciona no maximo ~20% ao custo de input tokens, que ja e o componente menor do custo total (output tokens com Sonnet custam 5x mais que input).
+
+### Analise: Aumento de Estilos (4 → 9)
+
+- Novos estilos: ROMANTIC, FAMILY, BUSINESS, BACKPACKER, LUXURY
+- Cache key inclui `travelStyle` — mais variantes = mais fragmentacao do cache
+- **Impacto teorico:** cardinalidade da cache key aumenta 2,25x (9/4)
+- **Impacto pratico:** distribuicao nao e uniforme — estilos populares (CULTURE, ADVENTURE, RELAXATION) concentram >60% dos requests
+- **Risco:** BAIXO. Estilos de nicho (BUSINESS, LUXURY) geram menos volume, portanto menos cache misses absolutos
+
+### Analise: Provider Abstraction Layer
+
+**Arquivos criados/modificados:**
+- `src/server/services/ai-provider.interface.ts` — interface limpa com `AiProviderResponse` (inclui `inputTokens`, `outputTokens`)
+- `src/server/services/providers/claude.provider.ts` — implementacao Claude com error mapping
+- `src/server/services/ai.service.ts` — factory `getProvider()` com TODO para Sprint 9
+
+**Observacoes positivas:**
+1. Interface retorna `inputTokens` e `outputTokens` — essencial para monitoramento FinOps futuro
+2. Factory pattern permite trocar provider sem alterar AiService
+3. Separacao de modelo por tipo (`"plan"` → Sonnet, `"checklist"` → Haiku) — boa pratica de custo
+
+**Preparacao freemium (Sprint 9):**
+- A factory `getProvider()` esta pronta para aceitar parametro de tier do usuario
+- Gemini Flash (free tier: 250 req/dia, ~30x mais barato) pode ser plugado sem alterar AiService
+- **Economia projetada:** se 70% dos usuarios forem free tier usando Gemini Flash:
+  - Custo Sonnet evitado: ~$0,056/req × 70% = ~$0,039/req economizado
+  - Com 1.000 usuarios (700 free): economia de ~$27-55/mes em API calls
+
+**Pontos de atencao:**
+- `getProvider()` cria nova instancia de `ClaudeProvider` a cada chamada — considerar singleton ou pool para Sprint 9
+- Nao ha fallback: se Claude falhar, nao tenta Gemini (e vice-versa) — considerar implementar para resiliencia
+
+### Custos Reais Sprint 8
+
+| Servico | Plano | Custo Real | Observacao |
+|---------|-------|-----------|------------|
+| Claude Pro (dev) | Pro | $20,00 | Assinatura mensal fixa |
+| Vercel | Hobby (Free) | $0,00 | Sem deploy |
+| Anthropic API | — | $0,00 | Sem chamadas em producao |
+| GitHub Actions | Free | $0,00 | Dentro do free tier |
+| **TOTAL** | | **$20,00** | |
+
+### Projecao de Custo Pos-Sprint 8 (em producao)
+
+| Cenario | Custo API/mes | Variacao vs Sprint 7 |
+|---------|-------------|---------------------|
+| 100 usuarios, sem travelNotes | ~$16 | +0% (sem mudanca) |
+| 100 usuarios, 40% com notas | ~$17-18 | +6-12% |
+| 1.000 usuarios, sem travelNotes | ~$122 | +0% |
+| 1.000 usuarios, 40% com notas | ~$135-145 | +11-19% |
+| 1.000 usuarios, 40% notas + freemium (Sprint 9) | ~$45-55 | **-55-63%** |
+
+### Otimizacoes Sugeridas
+
+| ID | Otimizacao | Prioridade | Sprint | Economia estimada |
+|----|-----------|-----------|--------|-------------------|
+| OPT-S8-001 | **Normalizar travelNotes antes do hash**: lowercase, remover acentos, trim whitespace excessivo — aumenta colisoes de cache | MEDIA | 9 | +5-10% cache hits |
+| OPT-S8-002 | **Singleton para provider**: `getProvider()` cria nova instancia a cada chamada — usar singleton com lazy init | BAIXA | 9 | Negligivel (mas melhor pratica) |
+| OPT-S8-003 | **Implementar prompt caching Anthropic**: usar `cache_control` para prefixo do system prompt — reduz input tokens em ~40% | ALTA | 9-10 | -40% input cost (~$0,001/req) |
+| OPT-S8-004 | **Fallback cross-provider**: se Claude falhar (429/503), tentar Gemini — melhora disponibilidade sem custo extra | MEDIA | 10 | Reducao de erros, nao de custo direto |
+| OPT-S8-005 | **Metricas de token usage**: logar `inputTokens` + `outputTokens` retornados pelo provider para monitoramento real | ALTA | 9 | Visibilidade — base para todas as outras otimizacoes |
+| OPT-S8-006 | **Cache de similaridade para travelNotes**: hash dos primeiros 100 chars ou keywords extraidas em vez de texto completo | BAIXA | 10+ | +10-15% cache hits com notas |
+
+### Acoes FinOps Sprint 8
+
+- [x] Analisar impacto de custo das mudancas do Sprint 8
+- [x] Avaliar degradacao de cache hit rate
+- [x] Estimar custo incremental de travelNotes
+- [x] Revisar provider abstraction para FinOps readiness
+- [ ] Implementar logging de token usage (OPT-S8-005) — Sprint 9
+- [ ] Implementar prompt caching Anthropic (OPT-S8-003) — Sprint 9
+- [ ] Normalizar travelNotes para melhor cache (OPT-S8-001) — Sprint 9
+
+### Decisoes FinOps Sprint 8
+
+1. **travelNotes na cache key com md5**: decisao correta — texto vazio nao afeta cache key (boa mitigacao)
+2. **9 estilos**: risco aceitavel — fragmentacao adicional e compensada por distribuicao nao-uniforme
+3. **Budget 100k**: sem impacto relevante — budget ja era parte do prompt
+4. **Provider abstraction**: investimento estrategico correto — habilita economia de 55-63% no Sprint 9 com freemium
+5. **Custo acumulado do projeto (Sprints 1-8):** $160-240
+
+### Veredito
+
+[x] **APROVADO COM RESSALVAS**
+
+**Ressalvas:**
+1. **OPT-S8-005 (logging de tokens) e obrigatoria para Sprint 9** — sem metricas reais de consumo, nao e possivel validar projecoes
+2. **OPT-S8-003 (prompt caching Anthropic) deve ser priorizada no Sprint 9** — maior economia individual (~40% no input cost)
+3. **Monitorar cache hit rate em producao** apos deploy — se cair abaixo de 20%, implementar OPT-S8-001 (normalizacao de travelNotes) com urgencia
+
+---
+
 ## Benchmark de Mercado
 
 > Para referência comparativa com outros projetos similares.

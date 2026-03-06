@@ -1,25 +1,22 @@
 # i18n Consistency Report
 
-**Date:** 2026-02-28
+**Date:** 2026-03-05
 
 ## Summary
 
 | Check | Issues |
 |-------|--------|
 | Missing keys | 0 |
-| Orphaned keys | 20 |
+| Orphaned keys | 17 |
 | Interpolation mismatches | 0 |
 | Hardcoded strings | 6 |
 
-**Total issues:** 26
+**Total issues:** 23
 
 ## Orphaned Keys
 
 - **[LOW]** `common.finish` — not referenced in source code
-- **[LOW]** `common.confirm` — not referenced in source code
-- **[LOW]** `common.success` — not referenced in source code
-- **[LOW]** `common.tryAgain` — not referenced in source code
-- **[LOW]** `auth.signOut` — not referenced in source code
+- **[LOW]** `navigation.userMenu` — not referenced in source code
 - **[LOW]** `auth.resetPassword` — not referenced in source code
 - **[LOW]** `auth.sendResetLink` — not referenced in source code
 - **[LOW]** `auth.verifyEmailMessage` — not referenced in source code
@@ -27,11 +24,11 @@
 - **[LOW]** `auth.emailVerified` — not referenced in source code
 - **[LOW]** `auth.passwordResetSent` — not referenced in source code
 - **[LOW]** `auth.errors.emailRequired` — not referenced in source code
-- **[LOW]** `auth.errors.passwordRequired` — not referenced in source code
-- **[LOW]** `auth.errors.passwordsDoNotMatch` — not referenced in source code
 - **[LOW]** `auth.errors.emailNotVerified` — not referenced in source code
 - **[LOW]** `trips.errors.notAuthorized` — not referenced in source code
 - **[LOW]** `itinerary.wizard.stepDestination` — not referenced in source code
+- **[LOW]** `account.accountDeleted` — not referenced in source code
+- **[LOW]** `account.errors.deleteFailed` — not referenced in source code
 - **[LOW]** `errors.network` — not referenced in source code
 - **[LOW]** `errors.unauthorized` — not referenced in source code
 - **[LOW]** `errors.forbidden` — not referenced in source code

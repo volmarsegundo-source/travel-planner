@@ -1,11 +1,12 @@
 "use client";
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { LoadingPlanAnimation } from "./LoadingPlanAnimation";
 import { generateTravelPlanAction } from "@/server/actions/ai.actions";
+import { updateTripAction } from "@/server/actions/trip.actions";
 import type { Trip } from "@/types/trip.types";
 import type { TravelStyle } from "@/types/ai.types";
 
@@ -13,10 +14,11 @@ import type { TravelStyle } from "@/types/ai.types";
 
 const TOTAL_STEPS = 3;
 const BUDGET_MIN = 0;
-const BUDGET_MAX = 10000;
+const BUDGET_MAX = 100_000;
 const BUDGET_STEP = 500;
 const DEFAULT_BUDGET = 3000;
 const DEFAULT_TRAVELERS = 1;
+const TRAVEL_NOTES_MAX = 500;
 
 const CURRENCIES = ["BRL", "USD", "EUR"] as const;
 type Currency = (typeof CURRENCIES)[number];
@@ -25,7 +27,12 @@ type WizardKey =
   | "styleAdventure"
   | "styleCulture"
   | "styleRelaxation"
-  | "styleGastronomy";
+  | "styleGastronomy"
+  | "styleRomantic"
+  | "styleFamily"
+  | "styleBusiness"
+  | "styleBackpacker"
+  | "styleLuxury";
 
 interface StyleOption {
   value: TravelStyle;
@@ -38,6 +45,11 @@ const STYLE_OPTIONS: StyleOption[] = [
   { value: "CULTURE", emoji: "🏛️", labelKey: "styleCulture" },
   { value: "RELAXATION", emoji: "🏖️", labelKey: "styleRelaxation" },
   { value: "GASTRONOMY", emoji: "🍽️", labelKey: "styleGastronomy" },
+  { value: "ROMANTIC", emoji: "💕", labelKey: "styleRomantic" },
+  { value: "FAMILY", emoji: "👨‍👩‍👧‍👦", labelKey: "styleFamily" },
+  { value: "BUSINESS", emoji: "💼", labelKey: "styleBusiness" },
+  { value: "BACKPACKER", emoji: "🎒", labelKey: "styleBackpacker" },
+  { value: "LUXURY", emoji: "💎", labelKey: "styleLuxury" },
 ];
 
 interface PlanGeneratorWizardProps {
@@ -55,18 +67,43 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
   const [budget, setBudget] = useState(DEFAULT_BUDGET);
   const [currency, setCurrency] = useState<Currency>("USD");
   const [travelers, setTravelers] = useState(DEFAULT_TRAVELERS);
+  const [travelNotes, setTravelNotes] = useState("");
   const [error, setError] = useState<string | null>(null);
+
+  // Editable trip fields (step 1)
+  const [tripTitle, setTripTitle] = useState(trip.title);
+  const [destination, setDestination] = useState(trip.destination);
+  const [startDate, setStartDate] = useState(
+    trip.startDate ? trip.startDate.toISOString().split("T")[0] : ""
+  );
+  const [endDate, setEndDate] = useState(
+    trip.endDate ? trip.endDate.toISOString().split("T")[0] : ""
+  );
 
   const language = locale === "pt-BR" ? "pt-BR" : "en";
 
-  const startDate = trip.startDate
-    ? trip.startDate.toISOString().split("T")[0]
-    : new Date().toISOString().split("T")[0];
-  const endDate = trip.endDate
-    ? trip.endDate.toISOString().split("T")[0]
-    : startDate;
+  const effectiveStartDate = startDate || new Date().toISOString().split("T")[0];
+  const effectiveEndDate = endDate || effectiveStartDate;
 
   function handleNext() {
+    if (step === 1) {
+      // Persist edited trip fields before advancing
+      setError(null);
+      startTransition(async () => {
+        const result = await updateTripAction(trip.id, {
+          title: tripTitle,
+          destination,
+          startDate: startDate ? new Date(startDate) : undefined,
+          endDate: endDate ? new Date(endDate) : undefined,
+        });
+        if (result.success) {
+          setStep(2);
+        } else {
+          setError(result.error || t("errorGenerate"));
+        }
+      });
+      return;
+    }
     if (step < TOTAL_STEPS) {
       setStep((s) => s + 1);
     }
@@ -82,22 +119,39 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
     setError(null);
     startTransition(async () => {
       const result = await generateTravelPlanAction(trip.id, {
-        destination: trip.destination,
-        startDate,
-        endDate,
+        destination,
+        startDate: effectiveStartDate,
+        endDate: effectiveEndDate,
         travelStyle,
         budgetTotal: budget,
         budgetCurrency: currency,
         travelers,
         language,
+        travelNotes: travelNotes.trim() || undefined,
       });
 
       if (result.success) {
-        router.push(`/${locale}/trips/${trip.id}/itinerary`);
+        router.push(`/trips/${trip.id}/itinerary`);
       } else {
-        setError(t("errorGenerate"));
+        const errorMap: Record<string, string> = {
+          "errors.timeout": t("errorTimeout"),
+          "errors.aiAuthError": t("errorAuth"),
+          "errors.rateLimitExceeded": t("errorRateLimit"),
+        };
+        setError(
+          (result.error && errorMap[result.error]) || t("errorGenerate")
+        );
       }
     });
+  }
+
+  function handleBudgetInputChange(value: string) {
+    const num = parseInt(value, 10);
+    if (isNaN(num)) {
+      setBudget(BUDGET_MIN);
+    } else {
+      setBudget(Math.max(BUDGET_MIN, Math.min(BUDGET_MAX, num)));
+    }
   }
 
   if (isPending) {
@@ -111,7 +165,7 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
         {t("step", { current: step, total: TOTAL_STEPS })}
       </p>
 
-      {/* Step 1: Confirm destination + dates */}
+      {/* Step 1: Edit destination + dates */}
       {step === 1 && (
         <section aria-labelledby="step1-heading" className="space-y-6">
           <h1
@@ -121,48 +175,92 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
             {t("confirmDetails")}
           </h1>
 
-          <div className="rounded-xl border bg-card p-6 space-y-4">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                {t("destination")}
-              </p>
-              <p className="mt-1 text-lg font-semibold">{trip.destination}</p>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <label htmlFor="trip-title-input" className="text-sm font-medium">
+                {t("tripTitle")}
+              </label>
+              <input
+                id="trip-title-input"
+                type="text"
+                maxLength={100}
+                value={tripTitle}
+                onChange={(e) => setTripTitle(e.target.value)}
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
             </div>
 
-            {trip.startDate && trip.endDate && (
-              <div>
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {t("dates")}
-                </p>
-                <p className="mt-1 text-base">
-                  {startDate} &rarr; {endDate}
-                </p>
+            <div className="space-y-2">
+              <label htmlFor="destination-input" className="text-sm font-medium">
+                {t("editDestination")}
+              </label>
+              <input
+                id="destination-input"
+                type="text"
+                maxLength={150}
+                value={destination}
+                onChange={(e) => setDestination(e.target.value)}
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
+                <label htmlFor="start-date-input" className="text-sm font-medium">
+                  {t("editStartDate")}
+                </label>
+                <input
+                  id="start-date-input"
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
+                />
               </div>
-            )}
+              <div className="space-y-2">
+                <label htmlFor="end-date-input" className="text-sm font-medium">
+                  {t("editEndDate")}
+                </label>
+                <input
+                  id="end-date-input"
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label
+                htmlFor="travelers-input"
+                className="text-sm font-medium"
+              >
+                {t("travelers")}
+              </label>
+              <input
+                id="travelers-input"
+                type="number"
+                min={1}
+                max={20}
+                value={travelers}
+                onChange={(e) =>
+                  setTravelers(Math.max(1, parseInt(e.target.value, 10) || 1))
+                }
+                className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label
-              htmlFor="travelers-input"
-              className="text-sm font-medium"
-            >
-              {t("travelers")}
-            </label>
-            <input
-              id="travelers-input"
-              type="number"
-              min={1}
-              max={20}
-              value={travelers}
-              onChange={(e) =>
-                setTravelers(Math.max(1, parseInt(e.target.value, 10) || 1))
-              }
-              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
+          {error && (
+            <p role="alert" className="text-sm text-destructive text-center">
+              {error}
+            </p>
+          )}
 
           <Button
             onClick={handleNext}
+            disabled={!destination.trim() || !tripTitle.trim()}
             className="w-full min-h-[44px]"
           >
             {t("next")}
@@ -170,7 +268,7 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
         </section>
       )}
 
-      {/* Step 2: Travel style selector */}
+      {/* Step 2: Travel style selector + notes */}
       {step === 2 && (
         <section aria-labelledby="step2-heading" className="space-y-6">
           <h1
@@ -180,7 +278,7 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
             {t("stepStyle")}
           </h1>
 
-          <div className="grid grid-cols-2 gap-3" role="radiogroup">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="radiogroup">
             {STYLE_OPTIONS.map((option) => {
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const label = t(option.labelKey as any);
@@ -206,6 +304,25 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
             })}
           </div>
 
+          {/* Travel notes textarea */}
+          <div className="space-y-2">
+            <label htmlFor="travel-notes" className="text-sm font-medium">
+              {t("travelNotes")}
+            </label>
+            <textarea
+              id="travel-notes"
+              maxLength={TRAVEL_NOTES_MAX}
+              rows={3}
+              value={travelNotes}
+              onChange={(e) => setTravelNotes(e.target.value)}
+              placeholder={t("travelNotesPlaceholder")}
+              className="w-full rounded-lg border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+            />
+            <p className="text-xs text-muted-foreground text-right">
+              {t("travelNotesCounter", { count: travelNotes.length })}
+            </p>
+          </div>
+
           <div className="flex gap-3">
             <Button
               variant="outline"
@@ -224,7 +341,7 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
         </section>
       )}
 
-      {/* Step 3: Budget slider */}
+      {/* Step 3: Budget slider + numeric input */}
       {step === 3 && (
         <section aria-labelledby="step3-heading" className="space-y-6">
           <h1
@@ -254,13 +371,26 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
               </select>
             </div>
 
-            {/* Budget slider */}
+            {/* Budget slider + numeric input */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-medium">{t("budget")}</label>
-                <span className="text-lg font-bold text-primary">
-                  {currency} {budget.toLocaleString()}
-                </span>
+              <div className="flex items-center justify-between gap-3">
+                <label htmlFor="budget-input" className="text-sm font-medium">
+                  {t("budget")}
+                </label>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-muted-foreground">{currency}</span>
+                  <input
+                    id="budget-input"
+                    type="number"
+                    min={BUDGET_MIN}
+                    max={BUDGET_MAX}
+                    step={BUDGET_STEP}
+                    value={budget}
+                    onChange={(e) => handleBudgetInputChange(e.target.value)}
+                    aria-label={t("budgetInput")}
+                    className="w-28 rounded-lg border bg-background px-2 py-1 text-right text-lg font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                </div>
               </div>
               <Slider
                 min={BUDGET_MIN}

@@ -15,7 +15,7 @@ const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
 
 const LOCALE_OPTIONS = [
-  { value: "pt-BR", label: "Portugues (Brasil)" },
+  { value: "pt-BR", label: "Português (Brasil)" },
   { value: "en", label: "English" },
 ] as const;
 

@@ -101,11 +101,17 @@ export async function generateTravelPlanAction(
     return { success: false, error: "trips.errors.notFound" };
   }
 
+  // Sanitize travelNotes: trim and truncate to 500 chars
+  const sanitizedParams = {
+    ...params,
+    userId: session.user.id,
+    travelNotes: params.travelNotes
+      ? params.travelNotes.trim().slice(0, 500)
+      : undefined,
+  };
+
   try {
-    const plan = await AiService.generateTravelPlan({
-      ...params,
-      userId: session.user.id,
-    });
+    const plan = await AiService.generateTravelPlan(sanitizedParams);
     await persistItinerary(tripId, plan);
     revalidatePath(`/trips/${tripId}`);
     revalidatePath(`/trips/${tripId}/itinerary`);

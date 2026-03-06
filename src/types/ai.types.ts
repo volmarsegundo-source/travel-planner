@@ -1,4 +1,13 @@
-export type TravelStyle = "ADVENTURE" | "CULTURE" | "RELAXATION" | "GASTRONOMY";
+export type TravelStyle =
+  | "ADVENTURE"
+  | "CULTURE"
+  | "RELAXATION"
+  | "GASTRONOMY"
+  | "ROMANTIC"
+  | "FAMILY"
+  | "BUSINESS"
+  | "BACKPACKER"
+  | "LUXURY";
 export type ActivityType =
   | "SIGHTSEEING"
   | "FOOD"
@@ -24,6 +33,7 @@ export interface GeneratePlanParams {
   budgetCurrency: string;
   travelers: number;
   language: "pt-BR" | "en";
+  travelNotes?: string;
 }
 
 export interface DayActivity {

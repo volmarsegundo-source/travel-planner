@@ -1,5 +1,4 @@
 import "server-only";
-import Anthropic from "@anthropic-ai/sdk";
 import { createHash } from "crypto";
 import { z } from "zod";
 import { redis } from "@/server/cache/redis";
@@ -7,6 +6,8 @@ import { CacheKeys } from "@/server/cache/keys";
 import { CACHE_TTL } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { AppError } from "@/lib/errors";
+import { ClaudeProvider } from "./providers/claude.provider";
+import type { AiProvider } from "./ai-provider.interface";
 import type {
   GeneratePlanParams,
   ItineraryPlan,
@@ -16,18 +17,13 @@ import type {
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PLAN_MODEL = "claude-sonnet-4-6";
-const CHECKLIST_MODEL = "claude-haiku-4-5-20251001";
-const CLAUDE_TIMEOUT_MS = 90_000;
-const MAX_TOKENS_CHECKLIST = 2048;
-
-// ─── Dynamic token budget for travel plans ───────────────────────────────────
 // ~600 tokens per day (activities + descriptions) + 500 for structure/tips.
 // Clamped between 4096 (short trips) and 16000 (max safe output for Sonnet).
 const TOKENS_PER_DAY = 600;
 const TOKENS_OVERHEAD = 500;
 const MIN_PLAN_TOKENS = 4096;
 const MAX_PLAN_TOKENS = 16000;
+const MAX_TOKENS_CHECKLIST = 2048;
 
 function calculatePlanTokenBudget(days: number): number {
   const estimated = days * TOKENS_PER_DAY + TOKENS_OVERHEAD;
@@ -96,14 +92,10 @@ function getDaysBetween(startDate: string, endDate: string): number {
 }
 
 function getMonthFromDate(dateStr: string): string {
-  // Use string slicing to avoid timezone-related date shifts.
-  // Input is expected as "YYYY-MM-DD" — extract "YYYY-MM" directly.
   return dateStr.slice(0, 7);
 }
 
 function repairTruncatedJson(text: string): string {
-  // Attempt to close unclosed brackets/braces in truncated JSON.
-  // Walk the string tracking open delimiters outside of strings.
   let inString = false;
   let escape = false;
   const stack: string[] = [];
@@ -128,14 +120,10 @@ function repairTruncatedJson(text: string): string {
     else if (ch === "}" || ch === "]") stack.pop();
   }
 
-  // If we're inside a string, close it first
   let repaired = text;
   if (inString) repaired += '"';
-
-  // Remove any trailing comma before closing
   repaired = repaired.replace(/,\s*$/, "");
 
-  // Close all open delimiters in reverse order
   while (stack.length > 0) {
     repaired += stack.pop();
   }
@@ -144,20 +132,17 @@ function repairTruncatedJson(text: string): string {
 }
 
 function extractJsonFromResponse(text: string): unknown {
-  // Try direct parse first
   try {
     return JSON.parse(text);
   } catch {
-    // Try to extract JSON block from markdown-fenced output
     const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
     if (match?.[1]) {
       try {
         return JSON.parse(match[1].trim());
       } catch {
-        // Fenced block may also be truncated — fall through to repair
+        // Fall through to repair
       }
     }
-    // Try to find raw JSON object
     const start = text.indexOf("{");
     const end = text.lastIndexOf("}");
     if (start !== -1 && end !== -1 && end > start) {
@@ -167,7 +152,6 @@ function extractJsonFromResponse(text: string): unknown {
         // Fall through to repair
       }
     }
-    // Last resort: try to repair truncated JSON
     const jsonStart = text.indexOf("{");
     if (jsonStart !== -1) {
       const repaired = repairTruncatedJson(text.slice(jsonStart));
@@ -177,39 +161,32 @@ function extractJsonFromResponse(text: string): unknown {
   }
 }
 
-// ─── Anthropic singleton (lazy) ───────────────────────────────────────────────
-// Lazy initialization prevents env access at module-load time, which would
-// break unit tests that mock the Anthropic SDK before any env vars are set.
+// ─── Provider factory ─────────────────────────────────────────────────────────
 
-function getAnthropic(): Anthropic {
-  const g = globalThis as unknown as { _anthropic?: Anthropic };
-  if (!g._anthropic) {
-    // Access via process.env to avoid t3-env client/server guard in test environments.
-    // env.ts validates the key at startup in production; here we read it directly.
-    g._anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY ?? "",
-    });
-  }
-  return g._anthropic;
+function getProvider(): AiProvider {
+  // For now, always returns Claude. In Sprint 9, this factory will accept
+  // a user tier parameter and return GeminiProvider for free-tier users.
+  return new ClaudeProvider();
 }
 
 // ─── AiService ────────────────────────────────────────────────────────────────
 
 export class AiService {
   /**
-   * Generates a day-by-day travel itinerary using Claude.
+   * Generates a day-by-day travel itinerary using AI.
    * Uses MD5-keyed Redis cache (TTL: 24h) to avoid redundant API calls.
    * Never logs PII — only userId is logged.
    */
   static async generateTravelPlan(
     params: GeneratePlanParams
   ): Promise<ItineraryPlan> {
-    const { userId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language } = params;
+    const { userId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes } = params;
 
     // Bucket budget to nearest 500 for better cache reuse
     const budgetRange = Math.floor(budgetTotal / 500) * 500;
     const days = getDaysBetween(startDate, endDate);
-    const cacheInput = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}`;
+    const notesHash = travelNotes ? `:${md5(travelNotes)}` : "";
+    const cacheInput = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}${notesHash}`;
     const cacheHash = md5(cacheInput);
     const cacheKey = CacheKeys.aiPlan(cacheHash);
 
@@ -228,7 +205,11 @@ export class AiService {
     // Dynamic token budget based on trip duration
     const tokenBudget = calculatePlanTokenBudget(days);
 
-    // Build prompt — includes conciseness instructions and token-awareness
+    // Build prompt
+    const notesSection = travelNotes
+      ? `\nAdditional traveler notes: ${travelNotes}\n`
+      : "";
+
     const prompt = `You are a professional travel planner. Create a day-by-day itinerary as a single valid JSON object.
 
 Trip details:
@@ -238,7 +219,7 @@ Trip details:
 - Budget: ${budgetTotal} ${budgetCurrency}
 - Travelers: ${travelers} person(s)
 - Language: ${language}
-
+${notesSection}
 IMPORTANT CONSTRAINTS:
 - Your max_tokens budget is ${tokenBudget}. You MUST fit the entire JSON within this limit.
 - Keep each activity description to 1 short sentence (max 15 words).
@@ -272,7 +253,7 @@ Respond ONLY with this JSON structure:
   "tips": ["string (max 15 words each)"]
 }`;
 
-    const plan = await this.callClaudeForPlan(prompt, tokenBudget, userId);
+    const plan = await this.callProviderForPlan(prompt, tokenBudget, userId);
 
     // Cache result (non-blocking if Redis is down)
     try {
@@ -286,14 +267,15 @@ Respond ONLY with this JSON structure:
   }
 
   /**
-   * Calls the Claude API and parses/validates the plan response.
+   * Calls the AI provider and parses/validates the plan response.
    * Retries once with doubled token budget if the response is truncated.
    */
-  private static async callClaudeForPlan(
+  private static async callProviderForPlan(
     prompt: string,
     tokenBudget: number,
     userId: string,
   ): Promise<ItineraryPlan> {
+    const provider = getProvider();
     const maxAttempts = 2;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -301,50 +283,19 @@ Respond ONLY with this JSON structure:
         ? tokenBudget
         : Math.min(tokenBudget * 2, MAX_PLAN_TOKENS);
 
-      let responseText: string;
-      let wasTruncated = false;
+      const response = await provider.generateResponse(prompt, currentBudget, "plan");
 
-      try {
-        const message = await getAnthropic().messages.create(
-          {
-            model: PLAN_MODEL,
-            max_tokens: currentBudget,
-            messages: [{ role: "user", content: prompt }],
-          },
-          { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) }
-        );
-
-        const content = message.content[0];
-        if (!content || content.type !== "text") {
-          throw new Error("Unexpected Claude response structure");
-        }
-        responseText = content.text;
-        wasTruncated = message.stop_reason === "max_tokens";
-
-        if (wasTruncated) {
-          logger.warn("ai.plan.truncated", {
-            userId,
-            attempt,
-            responseLength: responseText.length,
-            maxTokens: currentBudget,
-          });
-        }
-      } catch (error) {
-        logger.error("ai.plan.api.error", error, { userId });
-        if (error instanceof Anthropic.AuthenticationError) {
-          throw new AppError("AI_AUTH_ERROR", "errors.aiAuthError", 401);
-        }
-        if (error instanceof Anthropic.NotFoundError) {
-          throw new AppError("AI_MODEL_ERROR", "errors.aiModelError", 404);
-        }
-        if (error instanceof Anthropic.RateLimitError) {
-          throw new AppError("AI_RATE_LIMIT", "errors.rateLimitExceeded", 429);
-        }
-        throw new AppError("AI_TIMEOUT", "errors.timeout", 504);
+      if (response.wasTruncated) {
+        logger.warn("ai.plan.truncated", {
+          userId,
+          attempt,
+          responseLength: response.text.length,
+          maxTokens: currentBudget,
+        });
       }
 
       // If truncated on first attempt and we can retry with more tokens, do so
-      if (wasTruncated && attempt < maxAttempts && currentBudget < MAX_PLAN_TOKENS) {
+      if (response.wasTruncated && attempt < maxAttempts && currentBudget < MAX_PLAN_TOKENS) {
         logger.info("ai.plan.retry", { userId, nextBudget: Math.min(tokenBudget * 2, MAX_PLAN_TOKENS) });
         continue;
       }
@@ -352,7 +303,7 @@ Respond ONLY with this JSON structure:
       // Parse and validate
       let rawJson: unknown;
       try {
-        rawJson = extractJsonFromResponse(responseText);
+        rawJson = extractJsonFromResponse(response.text);
       } catch (error) {
         logger.error("ai.plan.parse.error", error, { userId, attempt });
         throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
@@ -372,7 +323,7 @@ Respond ONLY with this JSON structure:
   }
 
   /**
-   * Generates a pre-trip checklist using Claude Haiku (cheaper/faster).
+   * Generates a pre-trip checklist using AI (cheaper/faster model).
    * Cache key uses month instead of exact date for better reuse.
    * Never logs PII — only userId is logged.
    */
@@ -415,40 +366,13 @@ Respond ONLY with valid JSON:
   ]
 }`;
 
-    let responseText: string;
-    try {
-      const message = await getAnthropic().messages.create(
-        {
-          model: CHECKLIST_MODEL,
-          max_tokens: MAX_TOKENS_CHECKLIST,
-          messages: [{ role: "user", content: prompt }],
-        },
-        { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) }
-      );
-
-      const content = message.content[0];
-      if (!content || content.type !== "text") {
-        throw new Error("Unexpected Claude response structure");
-      }
-      responseText = content.text;
-    } catch (error) {
-      logger.error("ai.checklist.api.error", error, { userId });
-      if (error instanceof Anthropic.AuthenticationError) {
-        throw new AppError("AI_AUTH_ERROR", "errors.aiAuthError", 401);
-      }
-      if (error instanceof Anthropic.NotFoundError) {
-        throw new AppError("AI_MODEL_ERROR", "errors.aiModelError", 404);
-      }
-      if (error instanceof Anthropic.RateLimitError) {
-        throw new AppError("AI_RATE_LIMIT", "errors.rateLimitExceeded", 429);
-      }
-      throw new AppError("AI_TIMEOUT", "errors.timeout", 504);
-    }
+    const provider = getProvider();
+    const response = await provider.generateResponse(prompt, MAX_TOKENS_CHECKLIST, "checklist");
 
     // Parse and validate
     let rawJson: unknown;
     try {
-      rawJson = extractJsonFromResponse(responseText);
+      rawJson = extractJsonFromResponse(response.text);
     } catch (error) {
       logger.error("ai.checklist.parse.error", error, { userId });
       throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
