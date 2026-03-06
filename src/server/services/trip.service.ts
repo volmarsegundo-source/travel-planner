@@ -22,6 +22,8 @@ const TRIP_SELECT = {
   createdAt: true,
   updatedAt: true,
   deletedAt: true,
+  expeditionMode: true,
+  currentPhase: true,
 } as const;
 
 // ─── TripService ──────────────────────────────────────────────────────────────

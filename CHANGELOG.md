@@ -7,6 +7,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.9.0] - 2026-03-06
+
+### Added
+- Atlas gamification engine — points, phases, badges, ranks
+- 4 new Prisma models: `UserProgress`, `ExpeditionPhase`, `PointTransaction`, `UserBadge`
+- `PointsEngine`: earn, spend, daily login, badge, rank, transaction history
+- `PhaseEngine`: 8-phase expedition lifecycle with BOLA guards
+- Phase configuration with point rewards, AI costs, badges, and rank promotions
+- `Trip.expeditionMode` and `Trip.currentPhase` fields
+- Zod schemas for gamification inputs (`CompletePhase`, `SpendPoints`, `UseAiInPhase`)
+- Gamification TypeScript types (`Rank`, `BadgeKey`, `PhaseNumber`, `PhaseStatus`, etc.)
+
+### Fixed
+- `spendPoints()` TOCTOU race condition — wrapped in `$transaction` (CRITICAL)
+- `getPhaseStatus()` missing BOLA ownership guard — added `userId` param (HIGH)
+- `metadata` schema accepts unlimited keys — capped at 20 keys, key max 100 chars (HIGH)
+- `getTransactionHistory()` unbounded `pageSize` — capped at 100 (MEDIUM)
+
+### Changed
+- `TRIP_SELECT` now includes `expeditionMode` and `currentPhase`
+- `Trip` interface updated with gamification fields
+
+---
+
+## [0.8.0] - 2026-03-05
+
+### Added
+- Onboarding wizard Step 1: editable trip title, destination, and dates
+- Onboarding wizard Step 2: 9 travel styles with `travelNotes` textarea (500 chars)
+- Onboarding wizard Step 3: budget slider + numeric input synced (max 100,000)
+- `AiProvider` interface with `ClaudeProvider` implementation
+- `GOOGLE_AI_API_KEY` environment variable prepared for future Gemini provider
+- `ANTHROPIC_API_KEY` made optional (graceful degradation when not set)
+
+### Changed
+- AI service refactored to use `getProvider()` factory pattern
+- Wizard flow improved with editable fields and validation
+
+---
+
 ## [0.7.0] - 2026-03-05
 
 ### Added
@@ -235,6 +275,8 @@ npm run dev
 
 ---
 
+[0.9.0]: https://github.com/your-org/travel-planner/releases/tag/v0.9.0
+[0.8.0]: https://github.com/your-org/travel-planner/releases/tag/v0.8.0
 [0.7.0]: https://github.com/your-org/travel-planner/releases/tag/v0.7.0
 [0.6.0]: https://github.com/your-org/travel-planner/releases/tag/v0.6.0
 [0.5.0]: https://github.com/your-org/travel-planner/releases/tag/v0.5.0
