@@ -20,6 +20,8 @@
   },
   "navigation": {
     "myTrips": "My trips",
+    "myAtlas": "My Atlas",
+    "myProfile": "Profile",
     "myAccount": "My account",
     "toggleMenu": "Toggle menu",
     "closeMenu": "Close menu",
@@ -31,7 +33,10 @@
       "checklist": "Checklist",
       "generatePlan": "Generate plan",
       "backTo": "Back to {name}",
-      "account": "My account"
+      "account": "My account",
+      "atlas": "My Atlas",
+      "profile": "Profile",
+      "expedition": "Expedition"
     }
   },
   "auth": {
@@ -277,6 +282,177 @@
     "title": "Page not found",
     "description": "The page you are looking for does not exist or has been moved.",
     "backHome": "Back to home"
+  },
+  "dashboard": {
+    "title": "My Atlas",
+    "greeting": "Welcome back, {name}!",
+    "emptyState": {
+      "title": "Start your first expedition",
+      "subtitle": "Plan a trip and earn points along the way.",
+      "cta": "Start Expedition"
+    },
+    "newExpedition": "New Expedition",
+    "phaseProgress": "{completed} of {total} phases",
+    "currentPhase": "Phase {number}",
+    "viewExpedition": "Continue"
+  },
+  "profile": {
+    "title": "Explorer Profile",
+    "rank": "Rank",
+    "totalPoints": "Total Points",
+    "availablePoints": "Available Points",
+    "streak": "{days} day streak",
+    "transactions": {
+      "title": "Recent Activity",
+      "empty": "No activity yet.",
+      "phaseComplete": "Phase completed",
+      "aiUsage": "AI usage",
+      "dailyLogin": "Daily login",
+      "purchase": "Welcome bonus",
+      "referral": "Referral bonus",
+      "checklist": "Checklist bonus"
+    },
+    "badges": {
+      "title": "Passport Stamps",
+      "locked": "Locked",
+      "firstStep": "First Step",
+      "navigator": "Navigator",
+      "host": "Host",
+      "cartographer": "Cartographer",
+      "treasurer": "Treasurer",
+      "pathfinder": "Pathfinder",
+      "ambassador": "Ambassador"
+    },
+    "stats": {
+      "expeditions": "Expeditions",
+      "badgesEarned": "Badges Earned",
+      "phasesCompleted": "Phases Completed"
+    }
+  },
+  "expedition": {
+    "phase1": {
+      "title": "The Calling",
+      "subtitle": "Where will your next adventure take you?",
+      "step1": {
+        "title": "Choose your destination",
+        "placeholder": "e.g. Paris, Tokyo, New York"
+      },
+      "step2": {
+        "title": "When are you traveling?",
+        "startDate": "Departure date",
+        "endDate": "Return date",
+        "flexibleDates": "My dates are flexible"
+      },
+      "step3": {
+        "title": "How many travelers?",
+        "travelers": "Travelers"
+      },
+      "step4": {
+        "title": "Ready to start?",
+        "summary": "Your expedition summary",
+        "destination": "Destination",
+        "dates": "Dates",
+        "travelers": "Travelers",
+        "flexibleDates": "Flexible dates",
+        "yes": "Yes",
+        "no": "No",
+        "cta": "Start Expedition"
+      },
+      "errors": {
+        "destinationRequired": "Destination is required.",
+        "travelersMin": "At least 1 traveler."
+      }
+    },
+    "phase2": {
+      "title": "The Explorer",
+      "subtitle": "Define your travel style and preferences.",
+      "step1": {
+        "title": "What type of traveler are you?",
+        "solo": "Solo",
+        "couple": "Couple",
+        "family": "Family",
+        "group": "Group",
+        "soloEmoji": "🧑",
+        "coupleEmoji": "👫",
+        "familyEmoji": "👨‍👩‍👧‍👦",
+        "groupEmoji": "👥"
+      },
+      "step2": {
+        "title": "Accommodation style",
+        "budget": "Budget",
+        "comfort": "Comfort",
+        "luxury": "Luxury",
+        "adventure": "Adventure",
+        "budgetEmoji": "🏠",
+        "comfortEmoji": "🏨",
+        "luxuryEmoji": "🏰",
+        "adventureEmoji": "⛺"
+      },
+      "step3": {
+        "title": "Travel pace",
+        "intense": "Intense",
+        "relaxed": "Relaxed"
+      },
+      "step4": {
+        "title": "Budget",
+        "amount": "Budget amount",
+        "currency": "Currency"
+      },
+      "step5": {
+        "title": "Ready to explore?",
+        "summary": "Your preferences",
+        "travelerType": "Traveler type",
+        "accommodation": "Accommodation",
+        "pace": "Pace",
+        "budget": "Budget",
+        "cta": "Complete & Earn Points"
+      },
+      "errors": {
+        "travelerTypeRequired": "Choose a traveler type.",
+        "accommodationRequired": "Choose an accommodation style.",
+        "budgetMin": "Budget must be at least 100.",
+        "budgetMax": "Budget must be at most 100,000.",
+        "soloRequiresOne": "Solo requires exactly 1 traveler.",
+        "coupleRequiresTwo": "Couple requires exactly 2 travelers."
+      }
+    },
+    "hub": {
+      "title": "Expedition",
+      "comingSoon": "Phase {number} is coming soon!",
+      "comingSoonSubtitle": "This phase is not yet available. Stay tuned!"
+    },
+    "animation": {
+      "pointsEarned": "+{points} points!",
+      "badgeEarned": "Badge earned: {badge}!",
+      "rankUp": "Rank up: {rank}!"
+    },
+    "transition": {
+      "phaseCompleted": "Phase {phase} completed!",
+      "advancingTo": "Advancing to Phase {phase}...",
+      "continue": "Continue"
+    },
+    "progress": "Step {current} of {total}"
+  },
+  "gamification": {
+    "ranks": {
+      "traveler": "Traveler",
+      "explorer": "Explorer",
+      "navigator": "Navigator",
+      "cartographer": "Cartographer",
+      "pathfinder": "Pathfinder",
+      "ambassador": "Ambassador"
+    },
+    "phases": {
+      "theCalling": "The Calling",
+      "theExplorer": "The Explorer",
+      "theRoute": "The Route",
+      "theShelter": "The Shelter",
+      "theDayMap": "The Day Map",
+      "theTreasure": "The Treasure",
+      "theExpedition": "The Expedition",
+      "theLegacy": "The Legacy"
+    },
+    "points": "pts"
   },
   "errors": {
     "boundary": {

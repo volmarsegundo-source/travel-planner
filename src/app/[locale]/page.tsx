@@ -15,7 +15,7 @@ export default async function HomePage({ params }: HomePageProps) {
 
   if (session) {
     const prefix = locale === "pt-BR" ? "" : `/${locale}`;
-    redirect(`${prefix}/trips`);
+    redirect(`${prefix}/dashboard`);
   }
 
   return (

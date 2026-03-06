@@ -12,6 +12,10 @@ export const CACHE_TTL = {
   USER_TRIPS: 60,    // 1 minute
 } as const;
 
+export const MAX_TRAVELERS = 10;
+export const BUDGET_MIN = 100;
+export const BUDGET_MAX = 100000;
+
 export const RATE_LIMIT = {
   PUBLIC_PER_MINUTE: 60,
   AUTH_PER_MINUTE: 120,
