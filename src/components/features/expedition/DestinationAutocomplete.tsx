@@ -160,18 +160,18 @@ export function DestinationAutocomplete({
           activeIndex >= 0 ? `${id}-option-${activeIndex}` : undefined
         }
         autoComplete="off"
-        className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:opacity-50"
+        className="w-full rounded-lg border border-border bg-background text-foreground px-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
       />
       {isLoading && (
         <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-500" />
+          <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-ring" />
         </div>
       )}
       {isOpen && results.length > 0 && (
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg"
+          className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg"
         >
           {results.map((result, index) => (
             <li
@@ -183,8 +183,8 @@ export function DestinationAutocomplete({
               onMouseEnter={() => setActiveIndex(index)}
               className={`cursor-pointer px-4 py-2 text-sm ${
                 index === activeIndex
-                  ? "bg-blue-50 text-blue-700"
-                  : "text-gray-700 hover:bg-gray-50"
+                  ? "bg-accent text-accent-foreground"
+                  : "text-foreground/80 hover:bg-muted"
               }`}
             >
               {result.displayName}

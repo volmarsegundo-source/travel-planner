@@ -28,12 +28,12 @@ export function TransactionList({ transactions }: TransactionListProps) {
 
   if (transactions.length === 0) {
     return (
-      <p className="py-6 text-center text-sm text-gray-400">{t("empty")}</p>
+      <p className="py-6 text-center text-sm text-muted-foreground/70">{t("empty")}</p>
     );
   }
 
   return (
-    <ul className="divide-y divide-gray-100">
+    <ul className="divide-y divide-border/50">
       {transactions.map((tx) => {
         const typeKey = TYPE_KEY_MAP[tx.type] ?? tx.type;
         const isPositive = tx.amount > 0;
@@ -42,16 +42,16 @@ export function TransactionList({ transactions }: TransactionListProps) {
         return (
           <li key={tx.id} className="flex items-center justify-between py-3">
             <div>
-              <p className="text-sm font-medium text-gray-900">
+              <p className="text-sm font-medium text-foreground">
                 {t(typeKey)}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 {date.toLocaleDateString()}
               </p>
             </div>
             <span
               className={`text-sm font-semibold ${
-                isPositive ? "text-green-600" : "text-red-500"
+                isPositive ? "text-atlas-teal-light" : "text-destructive"
               }`}
             >
               {isPositive ? "+" : ""}

@@ -28,7 +28,20 @@
       "Bash(head:*)",
       "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npx tsc --noEmit 2>&1)",
       "Bash(export PATH=\"/c/Program Files/nodejs:$PATH\" && cd /c/travel-planner && npm install clsx 2>&1)",
-      "Bash(cd /c/travel-planner && gh pr merge 9 --merge 2>&1)"
+      "Bash(cd /c/travel-planner && gh pr merge 9 --merge 2>&1)",
+      "Bash(tail:*)",
+      "Bash(cd /c/travel-planner && npx prisma generate 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/lib/crypto.test.ts 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/lib/engines/points-engine-profile.test.ts tests/unit/lib/guards/age-guard.test.ts tests/unit/lib/travel/ 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/api/destinations-search-route.test.ts tests/unit/components/features/expedition/DestinationAutocomplete.test.tsx 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/components/features/expedition/DestinationAutocomplete.test.tsx 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/server/ai.actions.test.ts 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/lib/validations/expedition.schema.test.ts tests/unit/components/features/profile/ProfileAccordion.test.tsx 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/lib/validations/expedition.schema.test.ts 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run 2>&1)",
+      "Bash(cd /c/travel-planner && npm run build 2>&1)",
+      "Bash(cd /c/travel-planner && gh pr merge 11 --merge --delete-branch 2>&1)",
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/components/layout/ThemeToggle.test.tsx tests/unit/components/layout/Header.test.tsx tests/unit/components/layout/AuthenticatedNavbar.test.tsx 2>&1)"
     ]
   }
 }

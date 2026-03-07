@@ -61,10 +61,10 @@ describe("Header", () => {
     expect(screen.getByText("common.appName")).toBeInTheDocument();
   });
 
-  it("renders the globe emoji as decorative", () => {
+  it("renders the compass emoji as decorative", () => {
     render(<Header />);
 
-    const emoji = screen.getByText("🌍");
+    const emoji = screen.getByText("🧭");
     expect(emoji).toHaveAttribute("aria-hidden", "true");
   });
 

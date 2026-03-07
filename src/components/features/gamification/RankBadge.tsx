@@ -4,12 +4,12 @@ import { useTranslations } from "next-intl";
 import type { Rank } from "@/types/gamification.types";
 
 const RANK_COLORS: Record<Rank, string> = {
-  traveler: "bg-gray-100 text-gray-700",
-  explorer: "bg-blue-100 text-blue-700",
-  navigator: "bg-cyan-100 text-cyan-700",
-  cartographer: "bg-purple-100 text-purple-700",
-  pathfinder: "bg-amber-100 text-amber-700",
-  ambassador: "bg-emerald-100 text-emerald-700",
+  traveler: "bg-muted text-muted-foreground",
+  explorer: "bg-accent text-accent-foreground",
+  navigator: "bg-atlas-teal/15 text-atlas-teal-light",
+  cartographer: "bg-atlas-gold/10 text-atlas-gold",
+  pathfinder: "bg-atlas-gold/15 text-atlas-gold-light",
+  ambassador: "bg-atlas-gold/20 text-atlas-gold-light border border-atlas-gold/40",
 };
 
 const RANK_EMOJIS: Record<Rank, string> = {

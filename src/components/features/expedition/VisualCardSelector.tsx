@@ -44,10 +44,10 @@ export function VisualCardSelector({
           className={[
             "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors",
             option.disabled
-              ? "cursor-not-allowed border-gray-100 bg-gray-50 opacity-50"
+              ? "cursor-not-allowed border-border/50 bg-muted opacity-50"
               : value === option.value
-                ? "border-gray-900 bg-gray-50"
-                : "border-gray-200 hover:border-gray-300",
+                ? "border-atlas-gold bg-atlas-gold/10"
+                : "border-border hover:border-atlas-gold/40",
           ].join(" ")}
         >
           <span className="text-2xl" aria-hidden="true">

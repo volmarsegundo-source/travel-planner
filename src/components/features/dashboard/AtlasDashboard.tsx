@@ -46,12 +46,12 @@ export function AtlasDashboard({
         <div className="mt-8">
           {expeditions.length === 0 ? (
             /* Empty state */
-            <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-gray-200 py-16 text-center">
+            <div className="flex flex-col items-center gap-4 rounded-xl border-2 border-dashed border-border py-16 text-center">
               <span className="text-5xl" aria-hidden="true">🧭</span>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="font-heading text-xl font-semibold text-foreground">
                 {t("emptyState.title")}
               </h2>
-              <p className="max-w-sm text-gray-500">
+              <p className="max-w-sm text-muted-foreground">
                 {t("emptyState.subtitle")}
               </p>
               <Link href="/expedition/new">
@@ -62,7 +62,7 @@ export function AtlasDashboard({
             /* Expedition list */
             <div className="flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">
+                <h2 className="font-heading text-lg font-semibold text-foreground">
                   {t("title")}
                 </h2>
                 <Link href="/expedition/new">

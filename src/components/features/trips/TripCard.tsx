@@ -10,11 +10,11 @@ import type { Trip, TripStatus } from "@/types/trip.types";
 // ─── Gradient presets ─────────────────────────────────────────────────────────
 
 const GRADIENT_PRESETS: Record<string, string> = {
-  sunset: "from-orange-400 to-pink-500",
-  ocean: "from-blue-400 to-teal-500",
-  forest: "from-green-400 to-emerald-600",
-  city: "from-purple-400 to-gray-500",
-  desert: "from-amber-400 to-orange-500",
+  sunset: "from-atlas-gold to-atlas-rust",
+  ocean: "from-atlas-teal to-atlas-teal-light",
+  forest: "from-atlas-teal to-atlas-gold",
+  city: "from-atlas-ink to-atlas-gold/60",
+  desert: "from-atlas-gold-light to-atlas-rust",
 };
 
 const DEFAULT_GRADIENT = GRADIENT_PRESETS.sunset;

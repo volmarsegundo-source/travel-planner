@@ -13,11 +13,11 @@ export default function NotFound() {
       <Header />
       <main className="flex flex-1 flex-col items-center justify-center p-8">
         <div className="w-full max-w-md text-center">
-          <h1 className="text-6xl font-bold text-gray-300">404</h1>
-          <h2 className="mt-4 text-2xl font-semibold text-gray-900">
+          <h1 className="font-heading text-6xl font-bold text-muted-foreground/50">404</h1>
+          <h2 className="mt-4 font-heading text-2xl font-semibold text-foreground">
             {t("title")}
           </h2>
-          <p className="mt-2 text-gray-600">{t("description")}</p>
+          <p className="mt-2 text-muted-foreground">{t("description")}</p>
           <Link
             href="/"
             className="mt-6 inline-block rounded-md bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"

@@ -204,7 +204,7 @@ export function RegisterForm() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">{t("signUp")}</h2>
+        <h2 className="text-2xl font-semibold text-foreground">{t("signUp")}</h2>
       </div>
 
       {/* Server-side error */}
@@ -213,7 +213,7 @@ export function RegisterForm() {
           id={serverErrorId}
           role="alert"
           aria-live="assertive"
-          className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200"
+          className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
         >
           {resolveError(serverErrorKey)}
         </div>
@@ -328,7 +328,7 @@ export function RegisterForm() {
             <button
               type="button"
               onClick={() => setNameOpen((prev) => !prev)}
-              className="flex w-full items-center justify-between text-sm text-gray-500 hover:text-gray-900"
+              className="flex w-full items-center justify-between text-sm text-muted-foreground hover:text-foreground"
               aria-expanded={nameOpen}
               aria-controls="register-name-section"
             >
@@ -387,7 +387,7 @@ export function RegisterForm() {
       {/* Divider */}
       <div className="flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-sm text-gray-500">{t("orContinueWith")}</span>
+        <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
         <Separator className="flex-1" />
       </div>
 
@@ -405,11 +405,11 @@ export function RegisterForm() {
       </Button>
 
       {/* Login link */}
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-muted-foreground">
         {t("alreadyHaveAccount")}{" "}
         <Link
           href="/auth/login"
-          className="font-medium text-gray-900 underline-offset-2 hover:underline"
+          className="font-medium text-foreground underline-offset-2 hover:underline"
         >
           {t("signIn")}
         </Link>

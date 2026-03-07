@@ -8,7 +8,7 @@ export function AtlasHeroMap() {
     >
       <svg
         viewBox="0 0 800 400"
-        className="h-full w-full text-primary/10"
+        className="h-full w-full text-atlas-gold/10"
         xmlns="http://www.w3.org/2000/svg"
         preserveAspectRatio="xMidYMid slice"
       >

@@ -8,7 +8,7 @@ function LockIcon() {
   return (
     <svg
       aria-hidden="true"
-      className="size-4 shrink-0 text-gray-400"
+      className="size-4 shrink-0 text-muted-foreground/70"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -30,16 +30,16 @@ export function TrustSignals() {
       {/* Security badge */}
       <div className="flex items-center gap-1.5">
         <LockIcon />
-        <span className="text-sm font-medium text-gray-500">{t("badge")}</span>
+        <span className="text-sm font-medium text-muted-foreground">{t("badge")}</span>
       </div>
 
       {/* Privacy statement */}
-      <p className="text-sm text-gray-500">{t("privacy")}</p>
+      <p className="text-sm text-muted-foreground">{t("privacy")}</p>
 
       {/* Delete account link */}
       <Link
         href="/account/delete"
-        className="text-sm text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline"
+        className="text-sm text-muted-foreground/70 underline-offset-2 hover:text-muted-foreground hover:underline"
       >
         {t("deleteAccount")}
       </Link>

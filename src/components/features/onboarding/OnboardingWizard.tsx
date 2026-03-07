@@ -116,7 +116,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
       const tripResult = await createTripAction({
         title: tripForm.destination,
         destination: tripForm.destination,
-        coverGradient: "from-blue-500 to-cyan-400",
+        coverGradient: "ocean",
         coverEmoji: "✈️",
         startDate: new Date(tripForm.startDate),
         endDate: new Date(tripForm.endDate),
@@ -178,7 +178,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
           {errorMessage && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200"
+              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
             >
               {errorMessage}
             </div>
@@ -187,10 +187,10 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
           {/* ─── Step 1: Welcome ─── */}
           {currentStep === 1 && (
             <div className="flex flex-col items-center gap-6 text-center">
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="font-heading text-3xl font-bold text-foreground">
                 {t("step1.title", { name: userName })}
               </h1>
-              <p className="text-lg text-gray-600">{t("step1.subtitle")}</p>
+              <p className="text-lg text-muted-foreground">{t("step1.subtitle")}</p>
               <Button
                 onClick={handleStep1Cta}
                 size="lg"
@@ -205,8 +205,8 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
           {currentStep === 2 && (
             <div className="flex flex-col gap-6">
               <div className="text-center">
-                <h1 className="text-3xl font-bold text-gray-900">{t("step2.title")}</h1>
-                <p className="mt-2 text-lg text-gray-600">{t("step2.subtitle")}</p>
+                <h1 className="font-heading text-3xl font-bold text-foreground">{t("step2.title")}</h1>
+                <p className="mt-2 text-lg text-muted-foreground">{t("step2.subtitle")}</p>
               </div>
 
               <form
@@ -229,7 +229,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                     aria-describedby={formErrors.destination ? "dest-error" : undefined}
                   />
                   {formErrors.destination && (
-                    <p id="dest-error" role="alert" className="text-sm text-red-600">
+                    <p id="dest-error" role="alert" className="text-sm text-destructive">
                       {formErrors.destination}
                     </p>
                   )}
@@ -247,7 +247,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                       aria-describedby={formErrors.startDate ? "start-error" : undefined}
                     />
                     {formErrors.startDate && (
-                      <p id="start-error" role="alert" className="text-sm text-red-600">
+                      <p id="start-error" role="alert" className="text-sm text-destructive">
                         {formErrors.startDate}
                       </p>
                     )}
@@ -262,7 +262,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                       aria-describedby={formErrors.endDate ? "end-error" : undefined}
                     />
                     {formErrors.endDate && (
-                      <p id="end-error" role="alert" className="text-sm text-red-600">
+                      <p id="end-error" role="alert" className="text-sm text-destructive">
                         {formErrors.endDate}
                       </p>
                     )}
@@ -282,7 +282,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                     aria-describedby={formErrors.travelers ? "travelers-error" : undefined}
                   />
                   {formErrors.travelers && (
-                    <p id="travelers-error" role="alert" className="text-sm text-red-600">
+                    <p id="travelers-error" role="alert" className="text-sm text-destructive">
                       {formErrors.travelers}
                     </p>
                   )}
@@ -299,8 +299,8 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
           {currentStep === 3 && (
             <div className="flex flex-col gap-6">
               <div className="text-center">
-                <h1 className="text-3xl font-bold text-gray-900">{t("step3.title")}</h1>
-                <p className="mt-2 text-lg text-gray-600">{t("step3.subtitle")}</p>
+                <h1 className="font-heading text-3xl font-bold text-foreground">{t("step3.title")}</h1>
+                <p className="mt-2 text-lg text-muted-foreground">{t("step3.subtitle")}</p>
               </div>
 
               {/* Travel style cards */}
@@ -317,8 +317,8 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                       className={[
                         "flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-colors",
                         travelStyle === style.value
-                          ? "border-gray-900 bg-gray-50"
-                          : "border-gray-200 hover:border-gray-300",
+                          ? "border-atlas-gold bg-atlas-gold/10"
+                          : "border-border hover:border-atlas-gold/40",
                       ].join(" ")}
                     >
                       <span className="text-2xl" aria-hidden="true">{style.emoji}</span>
@@ -386,7 +386,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
           <button
             type="button"
             onClick={handleSkip}
-            className="text-sm text-gray-400 underline-offset-2 hover:text-gray-600 hover:underline"
+            className="text-sm text-muted-foreground/70 underline-offset-2 hover:text-muted-foreground hover:underline"
           >
             {t("skip")}
           </button>

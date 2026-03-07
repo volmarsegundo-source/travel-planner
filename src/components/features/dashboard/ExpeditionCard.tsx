@@ -27,24 +27,24 @@ export function ExpeditionCard({
   return (
     <Link
       href={`/expedition/${tripId}`}
-      className="group block rounded-xl border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
+      className="group block rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md hover:shadow-atlas-gold/5"
     >
       <div className="flex items-start gap-4">
         <span className="text-3xl" aria-hidden="true">
           {coverEmoji}
         </span>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900 group-hover:text-primary">
+          <h3 className="font-semibold text-foreground group-hover:text-atlas-gold">
             {destination}
           </h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-muted-foreground">
             {t("currentPhase", { number: currentPhase })} &middot;{" "}
             {t("phaseProgress", { completed: completedPhases, total: totalPhases })}
           </p>
           {/* Progress bar */}
-          <div className="mt-3 h-2 w-full rounded-full bg-gray-100">
+          <div className="mt-3 h-2 w-full rounded-full bg-muted">
             <div
-              className="h-2 rounded-full bg-primary transition-all"
+              className="h-2 rounded-full bg-atlas-gold transition-all"
               style={{ width: `${progressPercent}%` }}
               role="progressbar"
               aria-valuenow={completedPhases}

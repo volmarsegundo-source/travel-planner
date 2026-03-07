@@ -13,17 +13,17 @@ export default async function AuthLayout({ children }: AuthLayoutProps) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex flex-1 flex-col items-center justify-center bg-gray-50 p-4">
+      <main className="flex flex-1 flex-col items-center justify-center bg-muted p-4">
         <div className="w-full max-w-md">
           {/* App logo / name */}
           <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
               {t("appName")} ✈️
             </h1>
           </div>
 
           {/* Card wrapping the page content */}
-          <div className="rounded-xl border border-gray-200 bg-white p-8 shadow-sm">
+          <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
             {children}
           </div>
         </div>

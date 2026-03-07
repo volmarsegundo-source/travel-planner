@@ -54,21 +54,21 @@ export function ExplorerProfile({
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6 lg:px-8">
-      <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
+      <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
 
       {/* Rank + Points summary */}
       <div className="mt-6 flex flex-wrap items-center gap-4">
         <RankBadge rank={rank} size="lg" />
         <div className="flex flex-col">
-          <span className="text-sm text-gray-500">{t("totalPoints")}</span>
+          <span className="text-sm text-muted-foreground">{t("totalPoints")}</span>
           <PointsDisplay points={totalPoints} size="lg" />
         </div>
         <div className="flex flex-col">
-          <span className="text-sm text-gray-500">{t("availablePoints")}</span>
+          <span className="text-sm text-muted-foreground">{t("availablePoints")}</span>
           <PointsDisplay points={availablePoints} />
         </div>
         {streakDays > 0 && (
-          <span className="rounded-full bg-orange-100 px-3 py-1 text-sm font-medium text-orange-700">
+          <span className="rounded-full bg-atlas-gold/15 px-3 py-1 text-sm font-medium text-atlas-gold">
             🔥 {t("streak", { days: streakDays })}
           </span>
         )}
@@ -76,7 +76,7 @@ export function ExplorerProfile({
 
       {/* Profile completion */}
       <section className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
           {t("profileSection")}
         </h2>
         <ProfileAccordion profile={profile} />
@@ -84,7 +84,7 @@ export function ExplorerProfile({
 
       {/* Passport stamps */}
       <section className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
           {t("badges.title")}
         </h2>
         <PassportStamps earnedBadges={earnedBadges} />
@@ -92,7 +92,7 @@ export function ExplorerProfile({
 
       {/* Transaction history */}
       <section className="mt-8">
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+        <h2 className="mb-4 text-lg font-semibold text-foreground">
           {t("transactions.title")}
         </h2>
         <TransactionList transactions={transactions} />

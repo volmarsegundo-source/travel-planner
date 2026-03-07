@@ -235,9 +235,21 @@
       "title": "Plan Your Perfect Trip",
       "subtitle": "AI-powered travel planning made simple",
       "cta": "Get Started — It's Free",
-      "loginPrompt": "Already have an account?"
+      "loginPrompt": "Already have an account?",
+      "eyebrow": "Your Journey Starts Here",
+      "titleHighlight": "Expeditions",
+      "description": "Atlas turns your travel aspirations into carefully crafted expedition plans. AI-powered itineraries, gamified exploration, and a passport of memories.",
+      "secondaryCta": "Learn More",
+      "stat1Value": "50+",
+      "stat1Label": "Destinations",
+      "stat2Value": "1000+",
+      "stat2Label": "Expeditions Planned",
+      "stat3Value": "4.9",
+      "stat3Label": "Explorer Rating"
     },
     "features": {
+      "sectionTag": "What We Offer",
+      "sectionTitle": "Everything You Need to Explore",
       "ai": { "title": "AI-Powered Planning", "description": "Smart suggestions for your perfect itinerary" },
       "dnd": { "title": "Drag & Drop", "description": "Reorder activities with ease" },
       "i18n": { "title": "Multi-language", "description": "Plan in English or Portuguese" },

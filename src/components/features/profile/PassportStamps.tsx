@@ -30,8 +30,8 @@ export function PassportStamps({ earnedBadges }: PassportStampsProps) {
             key={badge.key}
             className={`flex flex-col items-center gap-1 rounded-xl border p-3 text-center transition-colors ${
               earned
-                ? "border-amber-200 bg-amber-50"
-                : "border-gray-100 bg-gray-50 opacity-40"
+                ? "border-atlas-gold/40 bg-atlas-gold/10"
+                : "border-border/50 bg-muted/50 opacity-40"
             }`}
           >
             <span className="text-2xl" aria-hidden="true">

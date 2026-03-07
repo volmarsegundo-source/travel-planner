@@ -27,15 +27,28 @@ export function FeaturesSection() {
   const t = useTranslations("landing.features");
 
   return (
-    <section className="bg-background px-4 py-20 sm:px-6 lg:px-8">
+    <section id="features" className="bg-background px-4 py-20 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl">
+        {/* Gold divider */}
+        <div className="atlas-gold-divider mx-auto max-w-xs" />
+
+        {/* Section header */}
+        <div className="mt-12 mb-12 text-center">
+          <p className="font-mono text-xs uppercase tracking-widest text-atlas-teal-light">
+            {t("sectionTag")}
+          </p>
+          <h2 className="mt-3 font-heading text-3xl font-bold text-foreground sm:text-4xl">
+            {t("sectionTitle")}
+          </h2>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURE_KEYS.map((key, index) => (
             <div
               key={key}
-              className="group rounded-xl border border-border bg-card p-6 shadow-sm transition-all hover:shadow-md"
+              className="group rounded-xl border border-atlas-line bg-card p-6 shadow-sm transition-all hover:shadow-md"
             >
-              <div className="mb-4 inline-flex rounded-lg bg-primary/10 p-3 text-primary">
+              <div className="mb-4 inline-flex rounded-lg bg-atlas-gold/10 p-3 text-atlas-gold">
                 {FEATURE_ICONS[index]}
               </div>
               <h3 className="mb-2 text-lg font-semibold text-card-foreground">

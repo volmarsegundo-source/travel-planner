@@ -235,9 +235,21 @@
       "title": "Planeje Sua Viagem Perfeita",
       "subtitle": "Planejamento de viagens com inteligência artificial",
       "cta": "Comece Agora — É Grátis",
-      "loginPrompt": "Já tem uma conta?"
+      "loginPrompt": "Já tem uma conta?",
+      "eyebrow": "Sua Jornada Começa Aqui",
+      "titleHighlight": "Expedições",
+      "description": "O Atlas transforma suas aspirações de viagem em planos de expedição cuidadosamente elaborados. Roteiros com IA, exploração gamificada e um passaporte de memórias.",
+      "secondaryCta": "Saiba Mais",
+      "stat1Value": "50+",
+      "stat1Label": "Destinos",
+      "stat2Value": "1000+",
+      "stat2Label": "Expedições Planejadas",
+      "stat3Value": "4.9",
+      "stat3Label": "Avaliação dos Exploradores"
     },
     "features": {
+      "sectionTag": "O Que Oferecemos",
+      "sectionTitle": "Tudo Que Voce Precisa Para Explorar",
       "ai": { "title": "Planejamento com IA", "description": "Sugestões inteligentes para seu roteiro perfeito" },
       "dnd": { "title": "Arrastar e Soltar", "description": "Reorganize atividades facilmente" },
       "i18n": { "title": "Multi-idioma", "description": "Planeje em Inglês ou Português" },

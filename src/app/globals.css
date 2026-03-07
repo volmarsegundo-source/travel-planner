@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    /* ── Radius ── */
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
@@ -12,6 +13,8 @@
     --radius-2xl: calc(var(--radius) + 8px);
     --radius-3xl: calc(var(--radius) + 12px);
     --radius-4xl: calc(var(--radius) + 16px);
+
+    /* ── shadcn semantic tokens ── */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -43,82 +46,181 @@
     --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
+
+    /* ── Atlas palette tokens ── */
+    --color-atlas-gold: var(--atlas-gold);
+    --color-atlas-gold-light: var(--atlas-gold-light);
+    --color-atlas-gold-pale: var(--atlas-gold-pale);
+    --color-atlas-teal: var(--atlas-teal);
+    --color-atlas-teal-light: var(--atlas-teal-light);
+    --color-atlas-rust: var(--atlas-rust);
+    --color-atlas-ink: var(--atlas-ink);
+    --color-atlas-parchment: var(--atlas-parchment);
+    --color-atlas-cream: var(--atlas-cream);
+    --color-atlas-fog: var(--atlas-fog);
+    --color-atlas-line: var(--atlas-line);
+
+    /* ── Font families ── */
+    --font-heading: var(--font-heading), Georgia, 'Times New Roman', serif;
+    --font-body: var(--font-body), 'Segoe UI', Roboto, sans-serif;
+    --font-mono: var(--font-mono), 'Courier New', monospace;
 }
 
+/* ── Light mode (parchment/sépia) ── */
 :root {
     --radius: 0.625rem;
-    --background: oklch(1 0 0);
-    --foreground: oklch(0.129 0.042 264.695);
-    --card: oklch(1 0 0);
-    --card-foreground: oklch(0.129 0.042 264.695);
-    --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.129 0.042 264.695);
-    --primary: oklch(0.208 0.042 265.755);
-    --primary-foreground: oklch(0.984 0.003 247.858);
-    --secondary: oklch(0.968 0.007 247.896);
-    --secondary-foreground: oklch(0.208 0.042 265.755);
-    --muted: oklch(0.968 0.007 247.896);
-    --muted-foreground: oklch(0.554 0.046 257.417);
-    --accent: oklch(0.968 0.007 247.896);
-    --accent-foreground: oklch(0.208 0.042 265.755);
-    --destructive: oklch(0.577 0.245 27.325);
-    --border: oklch(0.929 0.013 255.508);
-    --input: oklch(0.929 0.013 255.508);
-    --ring: oklch(0.704 0.04 256.788);
-    --chart-1: oklch(0.646 0.222 41.116);
-    --chart-2: oklch(0.6 0.118 184.704);
-    --chart-3: oklch(0.398 0.07 227.392);
-    --chart-4: oklch(0.828 0.189 84.429);
-    --chart-5: oklch(0.769 0.188 70.08);
-    --sidebar: oklch(0.984 0.003 247.858);
-    --sidebar-foreground: oklch(0.129 0.042 264.695);
-    --sidebar-primary: oklch(0.208 0.042 265.755);
-    --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-accent: oklch(0.968 0.007 247.896);
-    --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
-    --sidebar-border: oklch(0.929 0.013 255.508);
-    --sidebar-ring: oklch(0.704 0.04 256.788);
+
+    /* Atlas palette core */
+    --atlas-ink: #0D0F14;
+    --atlas-parchment: #F5EFE0;
+    --atlas-gold: #C9973A;
+    --atlas-gold-light: #E8B84B;
+    --atlas-gold-pale: #F5DFA0;
+    --atlas-teal: #2A7A6F;
+    --atlas-teal-light: #3AADA0;
+    --atlas-rust: #C04E2A;
+    --atlas-cream: #FAF6EC;
+    --atlas-fog: rgba(245,239,224,0.06);
+    --atlas-line: rgba(201,151,58,0.2);
+
+    /* shadcn semantic — light */
+    --background: #FAF6EC;
+    --foreground: #1A1510;
+    --card: #FFFFFF;
+    --card-foreground: #1A1510;
+    --popover: #FFFFFF;
+    --popover-foreground: #1A1510;
+    --primary: #C9973A;
+    --primary-foreground: #FFFFFF;
+    --secondary: #F0E8D8;
+    --secondary-foreground: #3A3020;
+    --muted: #F0E8D8;
+    --muted-foreground: #8A7A60;
+    --accent: #E8F5F2;
+    --accent-foreground: #2A7A6F;
+    --destructive: #C04E2A;
+    --border: #E0D8C8;
+    --input: #E0D8C8;
+    --ring: #C9973A;
+    --chart-1: #C9973A;
+    --chart-2: #2A7A6F;
+    --chart-3: #E8B84B;
+    --chart-4: #3AADA0;
+    --chart-5: #C04E2A;
+    --sidebar: #F0E8D8;
+    --sidebar-foreground: #1A1510;
+    --sidebar-primary: #C9973A;
+    --sidebar-primary-foreground: #FFFFFF;
+    --sidebar-accent: #E8F5F2;
+    --sidebar-accent-foreground: #2A7A6F;
+    --sidebar-border: #E0D8C8;
+    --sidebar-ring: #C9973A;
 }
 
+/* ── Dark mode (ink/luxury) — DEFAULT ── */
 .dark {
-    --background: oklch(0.129 0.042 264.695);
-    --foreground: oklch(0.984 0.003 247.858);
-    --card: oklch(0.208 0.042 265.755);
-    --card-foreground: oklch(0.984 0.003 247.858);
-    --popover: oklch(0.208 0.042 265.755);
-    --popover-foreground: oklch(0.984 0.003 247.858);
-    --primary: oklch(0.929 0.013 255.508);
-    --primary-foreground: oklch(0.208 0.042 265.755);
-    --secondary: oklch(0.279 0.041 260.031);
-    --secondary-foreground: oklch(0.984 0.003 247.858);
-    --muted: oklch(0.279 0.041 260.031);
-    --muted-foreground: oklch(0.704 0.04 256.788);
-    --accent: oklch(0.279 0.041 260.031);
-    --accent-foreground: oklch(0.984 0.003 247.858);
-    --destructive: oklch(0.704 0.191 22.216);
-    --border: oklch(1 0 0 / 10%);
-    --input: oklch(1 0 0 / 15%);
-    --ring: oklch(0.551 0.027 264.364);
-    --chart-1: oklch(0.488 0.243 264.376);
-    --chart-2: oklch(0.696 0.17 162.48);
-    --chart-3: oklch(0.769 0.188 70.08);
-    --chart-4: oklch(0.627 0.265 303.9);
-    --chart-5: oklch(0.645 0.246 16.439);
-    --sidebar: oklch(0.208 0.042 265.755);
-    --sidebar-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-primary: oklch(0.488 0.243 264.376);
-    --sidebar-primary-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-accent: oklch(0.279 0.041 260.031);
-    --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
-    --sidebar-border: oklch(1 0 0 / 10%);
-    --sidebar-ring: oklch(0.551 0.027 264.364);
+    --background: #0D0F14;
+    --foreground: #F5EFE0;
+    --card: rgba(245,239,224,0.06);
+    --card-foreground: #F5EFE0;
+    --popover: #141820;
+    --popover-foreground: #F5EFE0;
+    --primary: #C9973A;
+    --primary-foreground: #0D0F14;
+    --secondary: rgba(245,239,224,0.08);
+    --secondary-foreground: #F5EFE0;
+    --muted: rgba(245,239,224,0.06);
+    --muted-foreground: rgba(245,239,224,0.5);
+    --accent: rgba(42,122,111,0.15);
+    --accent-foreground: #3AADA0;
+    --destructive: #C04E2A;
+    --border: rgba(201,151,58,0.2);
+    --input: rgba(201,151,58,0.15);
+    --ring: #C9973A;
+    --chart-1: #E8B84B;
+    --chart-2: #3AADA0;
+    --chart-3: #C9973A;
+    --chart-4: #2A7A6F;
+    --chart-5: #C04E2A;
+    --sidebar: #141820;
+    --sidebar-foreground: #F5EFE0;
+    --sidebar-primary: #C9973A;
+    --sidebar-primary-foreground: #0D0F14;
+    --sidebar-accent: rgba(42,122,111,0.15);
+    --sidebar-accent-foreground: #3AADA0;
+    --sidebar-border: rgba(201,151,58,0.2);
+    --sidebar-ring: #C9973A;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+    * {
+        @apply border-border outline-ring/50;
     }
-  body {
-    @apply bg-background text-foreground;
+    body {
+        @apply bg-background text-foreground;
+        font-family: var(--font-body);
+    }
+    h1, h2, h3, h4 {
+        font-family: var(--font-heading);
+    }
+    code, pre, kbd {
+        font-family: var(--font-mono);
+    }
+}
+
+/* ── Noise texture overlay ── */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.35;
+}
+
+.light body::before,
+:root:not(.dark) body::before {
+    opacity: 0.12;
+}
+
+/* ── Atlas keyframe animations ── */
+@keyframes atlas-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+@keyframes atlas-compass-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes atlas-scroll {
+    0%, 100% { transform: scaleY(1); opacity: 0.3; }
+    50% { transform: scaleY(0.5); opacity: 0.8; }
+}
+
+@keyframes atlas-fade-up {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Atlas utility classes ── */
+@layer utilities {
+    .atlas-gold-divider {
+        background: linear-gradient(to right, transparent, var(--atlas-gold), transparent);
+        height: 1px;
+    }
+
+    .atlas-teal-divider {
+        background: linear-gradient(to right, transparent, var(--atlas-teal), transparent);
+        height: 1px;
+    }
+
+    .atlas-grid-lines {
+        background-image:
+            linear-gradient(rgba(201,151,58,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(201,151,58,0.04) 1px, transparent 1px);
+        background-size: 60px 60px;
     }
 }

@@ -12,7 +12,7 @@ export function PhaseProgressBar({ currentStep, totalSteps }: PhaseProgressBarPr
 
   return (
     <div className="flex flex-col items-center gap-2">
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-muted-foreground">
         {t("progress", { current: currentStep, total: totalSteps })}
       </p>
       <div className="flex gap-2">
@@ -20,7 +20,7 @@ export function PhaseProgressBar({ currentStep, totalSteps }: PhaseProgressBarPr
           <div
             key={i}
             className={`h-2 w-8 rounded-full transition-colors ${
-              i < currentStep ? "bg-primary" : "bg-gray-200"
+              i < currentStep ? "bg-atlas-gold" : "bg-muted"
             }`}
             aria-hidden="true"
           />

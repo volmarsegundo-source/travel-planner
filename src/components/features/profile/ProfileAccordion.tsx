@@ -139,14 +139,14 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
   return (
     <div className="flex flex-col gap-4">
       {/* Progress bar */}
-      <div className="rounded-xl border border-gray-200 bg-white p-4">
+      <div className="rounded-xl border border-border bg-card p-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="font-medium text-gray-700">{t("profileCompletion")}</span>
-          <span className="font-bold text-blue-600">{progressPercent}%</span>
+          <span className="font-medium text-foreground/80">{t("profileCompletion")}</span>
+          <span className="font-bold text-atlas-gold">{progressPercent}%</span>
         </div>
-        <div className="mt-2 h-2 w-full rounded-full bg-gray-100">
+        <div className="mt-2 h-2 w-full rounded-full bg-muted">
           <div
-            className="h-2 rounded-full bg-blue-500 transition-all duration-300"
+            className="h-2 rounded-full bg-primary transition-all duration-300"
             style={{ width: `${progressPercent}%` }}
             role="progressbar"
             aria-valuenow={progressPercent}
@@ -154,7 +154,7 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
             aria-valuemax={100}
           />
         </div>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-muted-foreground/70">
           {t("fieldsCompleted", { filled: filledCount, total: totalFields })}
         </p>
       </div>
@@ -163,22 +163,22 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
       {SECTIONS.map((section) => (
         <div
           key={section.key}
-          className="rounded-xl border border-gray-200 bg-white overflow-hidden"
+          className="rounded-xl border border-border bg-card overflow-hidden"
         >
           <button
             type="button"
             onClick={() => toggleSection(section.key)}
-            className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-gray-50"
+            className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-muted"
             aria-expanded={openSection === section.key}
           >
-            <span className="font-medium text-gray-900">{t(section.titleKey)}</span>
-            <span className="text-gray-400">
+            <span className="font-medium text-foreground">{t(section.titleKey)}</span>
+            <span className="text-muted-foreground/70">
               {openSection === section.key ? "▲" : "▼"}
             </span>
           </button>
 
           {openSection === section.key && (
-            <div className="border-t border-gray-100 px-4 py-4">
+            <div className="border-t border-border/50 px-4 py-4">
               <div className="flex flex-col gap-4">
                 {section.fields.map((field) => (
                   <div key={field.key} className="flex flex-col gap-1.5">
@@ -191,7 +191,7 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
                           onChange={(e) => handleFieldChange(field.key, e.target.value)}
                           maxLength={field.maxLength}
                           rows={3}
-                          className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                          className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30"
                         />
                       ) : (
                         <Input
@@ -222,7 +222,7 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
                       </Button>
                     </div>
                     {errorField === field.key && (
-                      <p className="text-xs text-red-500">{t("saveError")}</p>
+                      <p className="text-xs text-destructive">{t("saveError")}</p>
                     )}
                   </div>
                 ))}
