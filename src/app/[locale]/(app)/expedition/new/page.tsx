@@ -21,10 +21,15 @@ export default async function ExpeditionNewPage({ params }: ExpeditionNewPagePro
   const tNav = await getTranslations("navigation");
 
   // Fetch user profile for passport expiry warning and trip classification
-  const userProfile = await db.userProfile.findUnique({
-    where: { userId: session.user.id },
-    select: { passportExpiry: true, country: true },
-  });
+  let userProfile: { passportExpiry: Date | null; country: string | null } | null = null;
+  try {
+    userProfile = await db.userProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { passportExpiry: true, country: true },
+    });
+  } catch {
+    // Gracefully degrade if user_profiles table is unavailable
+  }
 
   return (
     <>
