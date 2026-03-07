@@ -191,8 +191,8 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
         <PhaseProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
         <div className="mt-2 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-          <p className="mt-1 text-gray-500">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <div
@@ -205,7 +205,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
           {errorMessage && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200"
+              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
             >
               {errorMessage}
             </div>
@@ -242,7 +242,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                 <button
                   type="button"
                   onClick={() => setGroupSize(Math.max(2, groupSize - 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 text-lg font-bold hover:border-gray-400"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
                   aria-label={t("groupSize.decrease")}
                 >
                   -
@@ -253,7 +253,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                 <button
                   type="button"
                   onClick={() => setGroupSize(Math.min(20, groupSize + 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 text-lg font-bold hover:border-gray-400"
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
                   aria-label={t("groupSize.increase")}
                 >
                   +
@@ -295,7 +295,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
           {currentStep === "pace" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step3.title")}</h2>
-              <div className="flex justify-between text-sm text-gray-500">
+              <div className="flex justify-between text-sm text-muted-foreground">
                 <span>{t("step3.intense")}</span>
                 <span>{t("step3.relaxed")}</span>
               </div>
@@ -371,7 +371,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
           {currentStep === "preferences" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("preferences.title")}</h2>
-              <p className="text-sm text-gray-500">{t("preferences.subtitle")}</p>
+              <p className="text-sm text-muted-foreground">{t("preferences.subtitle")}</p>
 
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor="phase2-dietary">{t("preferences.dietary")}</Label>
@@ -397,7 +397,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                 />
               </div>
 
-              <p className="text-xs text-gray-400">{t("preferences.optional")}</p>
+              <p className="text-xs text-muted-foreground/70">{t("preferences.optional")}</p>
 
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleBack} className="flex-1">
@@ -414,31 +414,31 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
           {currentStep === "confirmation" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step5.title")}</h2>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <h3 className="mb-3 text-sm font-medium text-gray-500">
+              <div className="rounded-xl border border-border bg-muted p-4">
+                <h3 className="mb-3 text-sm font-medium text-muted-foreground">
                   {t("step5.summary")}
                 </h3>
                 <dl className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step5.travelerType")}</dt>
+                    <dt className="text-muted-foreground">{t("step5.travelerType")}</dt>
                     <dd className="font-medium capitalize">{travelerType}</dd>
                   </div>
                   {(travelerType === "family" || travelerType === "group") && (
                     <div className="flex justify-between">
-                      <dt className="text-gray-500">{t("step5.groupSize")}</dt>
+                      <dt className="text-muted-foreground">{t("step5.groupSize")}</dt>
                       <dd className="font-medium">{groupSize}</dd>
                     </div>
                   )}
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step5.accommodation")}</dt>
+                    <dt className="text-muted-foreground">{t("step5.accommodation")}</dt>
                     <dd className="font-medium capitalize">{accommodationStyle}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step5.pace")}</dt>
+                    <dt className="text-muted-foreground">{t("step5.pace")}</dt>
                     <dd className="font-medium">{travelPace}/10</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step5.budget")}</dt>
+                    <dt className="text-muted-foreground">{t("step5.budget")}</dt>
                     <dd className="font-medium">
                       {budget.toLocaleString()} {currency}
                     </dd>

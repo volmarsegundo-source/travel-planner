@@ -289,10 +289,10 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
                   role="radio"
                   aria-checked={isSelected}
                   onClick={() => setTravelStyle(option.value)}
-                  className={`min-h-[44px] flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-colors focus:outline-none focus:ring-2 focus:ring-primary ${
+                  className={`min-h-[44px] flex flex-col items-center justify-center gap-2 rounded-xl border p-4 transition-colors focus:outline-none focus:ring-2 focus:ring-ring ${
                     isSelected
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-card hover:bg-muted"
+                      ? "border-atlas-gold bg-atlas-gold/10 text-atlas-gold"
+                      : "border-border bg-card hover:bg-muted hover:border-atlas-gold/40"
                   }`}
                 >
                   <span className="text-3xl" aria-hidden="true">

@@ -20,8 +20,13 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
   const t = await getTranslations("expedition.hub");
   const tNav = await getTranslations("navigation");
 
-  const currentPhase = await PhaseEngine.getCurrentPhase(tripId, session.user.id);
-  const phaseNumber = currentPhase?.phaseNumber ?? 1;
+  let phaseNumber = 1;
+  try {
+    const currentPhase = await PhaseEngine.getCurrentPhase(tripId, session.user.id);
+    phaseNumber = currentPhase?.phaseNumber ?? 1;
+  } catch {
+    // Gracefully degrade — default to phase 1 redirect
+  }
 
   // Route to the correct phase wizard
   if (phaseNumber === 1) {

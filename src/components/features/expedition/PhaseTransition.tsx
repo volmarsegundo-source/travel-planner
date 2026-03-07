@@ -41,17 +41,17 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
       role="status"
       aria-live="polite"
     >
-      <div className="flex flex-col items-center gap-6 rounded-2xl bg-white p-8 shadow-2xl text-center">
+      <div className="flex flex-col items-center gap-6 rounded-2xl bg-card p-8 shadow-2xl text-center">
         <div className="text-5xl" aria-hidden="true">
           {showAdvancing ? "🚀" : "✅"}
         </div>
 
         {!showAdvancing ? (
           <div className="flex flex-col gap-2">
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-foreground">
               {t("phaseCompleted", { phase: fromPhase })}
             </p>
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               {tPhases(phaseNameKeys[fromPhase] ?? "theCalling")}
             </p>
           </div>
@@ -60,7 +60,7 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
             <p className="text-2xl font-bold text-primary">
               {t("advancingTo", { phase: toPhase })}
             </p>
-            <p className="text-gray-500">
+            <p className="text-muted-foreground">
               {tPhases(phaseNameKeys[toPhase] ?? "theExplorer")}
             </p>
             <Button onClick={() => onContinueRef.current()} size="lg">

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",
-    "dev": "next dev --turbopack",
-    "build": "next build",
+    "dev": "NODE_OPTIONS='--max-old-space-size=2048' next dev --turbopack",
+    "build": "NODE_OPTIONS='--max-old-space-size=3072' next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -58,10 +58,12 @@
     "next": "^15.1.0",
     "next-auth": "^5.0.0-beta.30",
     "next-intl": "^3.26.0",
+    "next-themes": "^0.4.6",
     "radix-ui": "^1.4.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.71.2",
+    "react-simple-maps": "^3.0.0",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.5.0",
     "zod": "^3.25.76"

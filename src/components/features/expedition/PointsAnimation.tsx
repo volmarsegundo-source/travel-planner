@@ -45,17 +45,17 @@ export function PointsAnimation({ points, badge, rank, onDismiss }: PointsAnimat
       role="status"
       aria-live="polite"
     >
-      <div className="flex flex-col items-center gap-4 rounded-2xl bg-white p-8 shadow-2xl">
+      <div className="flex flex-col items-center gap-4 rounded-2xl bg-card p-8 shadow-2xl">
         <p className="text-3xl font-bold text-primary">
           {t("pointsEarned", { points })}
         </p>
         {badge && (
-          <p className="text-lg text-amber-600">
+          <p className="text-lg text-atlas-gold-light">
             {t("badgeEarned", { badge: tBadges(badgeNameMap[badge]) })}
           </p>
         )}
         {rank && (
-          <p className="text-lg text-purple-600">
+          <p className="text-lg text-accent-foreground">
             {t("rankUp", { rank: tRanks(rank) })}
           </p>
         )}

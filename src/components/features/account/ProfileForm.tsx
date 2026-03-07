@@ -220,8 +220,8 @@ export function ProfileForm({
           aria-live="polite"
           className={`mt-4 rounded-md px-4 py-3 text-sm ${
             feedback.type === "success"
-              ? "border border-green-200 bg-green-50 text-green-700"
-              : "border border-red-200 bg-red-50 text-red-700"
+              ? "border border-atlas-teal/30 bg-atlas-teal/10 text-atlas-teal-light"
+              : "border border-destructive/30 bg-destructive/10 text-destructive"
           }`}
         >
           {feedback.message}

@@ -12,11 +12,14 @@ export function Footer({ variant = "public" }: FooterProps) {
   const t = useTranslations();
 
   return (
-    <footer className="border-t border-border bg-muted/50 px-4 py-8 sm:px-6 lg:px-8">
+    <footer className="border-t border-atlas-line bg-muted/50 px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          {t("landing.footer.copyright")}
-        </p>
+        <div className="flex items-center gap-3">
+          <span className="font-heading text-atlas-gold" aria-hidden="true">🧭 ATLAS</span>
+          <p className="font-mono text-xs text-muted-foreground">
+            {t("landing.footer.copyright")}
+          </p>
+        </div>
 
         <div className="flex items-center gap-6">
           {variant === "authenticated" ? (

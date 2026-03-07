@@ -137,14 +137,14 @@ export function LoginForm() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h2 className="text-2xl font-semibold text-gray-900">{t("signIn")}</h2>
+        <h2 className="text-2xl font-semibold text-foreground">{t("signIn")}</h2>
       </div>
 
       {/* Registration success banner */}
       {justRegistered && errorKey === null && (
         <div
           role="status"
-          className="rounded-md bg-green-50 px-4 py-3 text-sm text-green-700 border border-green-200"
+          className="rounded-md bg-atlas-teal/10 px-4 py-3 text-sm text-atlas-teal-light border border-atlas-teal/30"
         >
           {t("registrationSuccess")}
         </div>
@@ -156,7 +156,7 @@ export function LoginForm() {
           id={errorId}
           role="alert"
           aria-live="assertive"
-          className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200"
+          className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
         >
           {resolveError(errorKey)}
         </div>
@@ -191,7 +191,7 @@ export function LoginForm() {
             <Label htmlFor="login-password">{t("password")}</Label>
             <Link
               href="/auth/forgot-password"
-              className="text-sm text-gray-500 hover:text-gray-900 underline-offset-2 hover:underline"
+              className="text-sm text-muted-foreground hover:text-foreground underline-offset-2 hover:underline"
             >
               {t("forgotPassword")}
             </Link>
@@ -223,7 +223,7 @@ export function LoginForm() {
       {/* Divider */}
       <div className="flex items-center gap-3">
         <Separator className="flex-1" />
-        <span className="text-sm text-gray-500">{t("orContinueWith")}</span>
+        <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
         <Separator className="flex-1" />
       </div>
 
@@ -241,11 +241,11 @@ export function LoginForm() {
       </Button>
 
       {/* Register link */}
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-muted-foreground">
         {t("dontHaveAccount")}{" "}
         <Link
           href="/auth/register"
-          className="font-medium text-gray-900 underline-offset-2 hover:underline"
+          className="font-medium text-foreground underline-offset-2 hover:underline"
         >
           {t("signUp")}
         </Link>

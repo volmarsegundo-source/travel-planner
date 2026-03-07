@@ -23,12 +23,12 @@ const ACTIVITY_TYPES: ActivityType[] = [
 ];
 
 const TYPE_COLORS: Record<ActivityType, string> = {
-  SIGHTSEEING: "bg-blue-100 text-blue-800",
-  FOOD: "bg-orange-100 text-orange-800",
-  TRANSPORT: "bg-gray-100 text-gray-800",
-  ACCOMMODATION: "bg-purple-100 text-purple-800",
-  LEISURE: "bg-green-100 text-green-800",
-  SHOPPING: "bg-pink-100 text-pink-800",
+  SIGHTSEEING: "bg-accent text-accent-foreground",
+  FOOD: "bg-atlas-gold/15 text-atlas-gold",
+  TRANSPORT: "bg-muted text-muted-foreground",
+  ACCOMMODATION: "bg-atlas-teal/15 text-atlas-teal-light",
+  LEISURE: "bg-atlas-teal/10 text-atlas-teal-light",
+  SHOPPING: "bg-atlas-gold/10 text-atlas-gold-light",
 };
 
 interface ActivityItemProps {
@@ -109,7 +109,7 @@ export function ActivityItem({
 
   const typeColor =
     TYPE_COLORS[(activity.activityType as ActivityType) ?? "SIGHTSEEING"] ??
-    "bg-gray-100 text-gray-800";
+    "bg-muted text-muted-foreground";
 
   return (
     <div

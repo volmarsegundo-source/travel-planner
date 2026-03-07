@@ -17,7 +17,7 @@ export function DashboardHeader({ userName, rank, totalPoints }: DashboardHeader
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="font-heading text-2xl font-bold text-foreground">
           {t("greeting", { name: userName })}
         </h1>
         <div className="mt-2 flex items-center gap-3">

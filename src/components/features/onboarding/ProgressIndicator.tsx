@@ -16,7 +16,7 @@ export function ProgressIndicator({
   return (
     <div className="flex flex-col items-center gap-3">
       {/* Text indicator */}
-      <p className="text-sm text-gray-500" aria-live="polite" aria-atomic="true">
+      <p className="text-sm text-muted-foreground" aria-live="polite" aria-atomic="true">
         {t("progress", { current: currentStep, total: totalSteps })}
       </p>
 
@@ -39,10 +39,10 @@ export function ProgressIndicator({
               className={[
                 "h-2.5 rounded-full transition-all duration-300",
                 isCompleted
-                  ? "w-6 bg-gray-700"
+                  ? "w-6 bg-atlas-gold"
                   : isCurrent
-                    ? "w-6 bg-gray-900 ring-2 ring-gray-900 ring-offset-2"
-                    : "w-2.5 bg-gray-300",
+                    ? "w-6 bg-atlas-gold ring-2 ring-atlas-gold ring-offset-2 ring-offset-background"
+                    : "w-2.5 bg-muted",
               ].join(" ")}
             />
           );

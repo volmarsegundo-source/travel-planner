@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { UserMenu } from "@/components/layout/UserMenu";
 
 interface AuthenticatedNavbarProps {
@@ -43,10 +44,10 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
         {/* Logo */}
         <Link
           href="/dashboard"
-          className="flex items-center gap-2 text-xl font-bold text-foreground"
+          className="flex items-center gap-2 text-xl font-bold"
         >
-          <span aria-hidden="true">🌍</span>
-          <span>{t("common.appName")}</span>
+          <span aria-hidden="true">🧭</span>
+          <span className="font-heading text-atlas-gold-light">{t("common.appName")}</span>
         </Link>
 
         {/* Desktop nav */}
@@ -55,7 +56,7 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
             href="/dashboard"
             className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               isDashboardActive
-                ? "bg-primary/10 font-semibold text-primary"
+                ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
                 : "text-foreground hover:bg-accent"
             }`}
             aria-current={isDashboardActive ? "page" : undefined}
@@ -66,13 +67,14 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
             href="/profile"
             className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
               isProfileActive
-                ? "bg-primary/10 font-semibold text-primary"
+                ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
                 : "text-foreground hover:bg-accent"
             }`}
             aria-current={isProfileActive ? "page" : undefined}
           >
             {tNav("myProfile")}
           </Link>
+          <ThemeToggle />
           <LanguageSwitcher />
           <UserMenu
             userName={userName}
@@ -113,7 +115,7 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
               href="/dashboard"
               className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 isDashboardActive
-                  ? "bg-primary/10 font-semibold text-primary"
+                  ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
                   : "text-foreground hover:bg-accent"
               }`}
               aria-current={isDashboardActive ? "page" : undefined}
@@ -125,7 +127,7 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
               href="/profile"
               className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
                 isProfileActive
-                  ? "bg-primary/10 font-semibold text-primary"
+                  ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
                   : "text-foreground hover:bg-accent"
               }`}
               aria-current={isProfileActive ? "page" : undefined}
@@ -133,6 +135,9 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
             >
               {tNav("myProfile")}
             </Link>
+            <div className="border-t border-border/40 pt-2">
+              <ThemeToggle />
+            </div>
             <div className="border-t border-border/40 pt-2">
               <LanguageSwitcher />
             </div>

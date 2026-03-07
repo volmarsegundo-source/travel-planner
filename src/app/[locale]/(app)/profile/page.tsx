@@ -23,13 +23,34 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
 
   const tNav = await getTranslations("navigation");
 
-  const [progress, history, userProfile] = await Promise.all([
-    PointsEngine.getProgressSummary(session.user.id),
-    PointsEngine.getTransactionHistory(session.user.id, 1, 10),
-    db.userProfile.findUnique({
-      where: { userId: session.user.id },
-    }),
-  ]);
+  let progress: Awaited<ReturnType<typeof PointsEngine.getProgressSummary>> = {
+    totalPoints: 0,
+    availablePoints: 0,
+    currentRank: "traveler" as Rank,
+    streakDays: 0,
+    lastLoginDate: null,
+    badges: [],
+  };
+  let history: Awaited<ReturnType<typeof PointsEngine.getTransactionHistory>> = {
+    transactions: [],
+    total: 0,
+    page: 1,
+    pageSize: 10,
+    totalPages: 0,
+  };
+  let userProfile: Awaited<ReturnType<typeof db.userProfile.findUnique>> = null;
+
+  try {
+    [progress, history, userProfile] = await Promise.all([
+      PointsEngine.getProgressSummary(session.user.id),
+      PointsEngine.getTransactionHistory(session.user.id, 1, 10),
+      db.userProfile.findUnique({
+        where: { userId: session.user.id },
+      }),
+    ]);
+  } catch {
+    // Gracefully degrade — render page with defaults
+  }
 
   // Decrypt sensitive fields safely
   let passportNumber: string | null = null;

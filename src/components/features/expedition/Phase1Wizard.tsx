@@ -188,8 +188,8 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
         <PhaseProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
         <div className="mt-2 text-center">
-          <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
-          <p className="mt-1 text-gray-500">{t("subtitle")}</p>
+          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
 
         <div
@@ -202,7 +202,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
           {errorMessage && (
             <div
               role="alert"
-              className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700 border border-red-200"
+              className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
             >
               {errorMessage}
             </div>
@@ -219,7 +219,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                 placeholder={t("step1.placeholder")}
               />
               {tripType && (
-                <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">
+                <div className="flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm text-accent-foreground">
                   <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
                   <span>{t(`tripType.${TRIP_TYPE_BADGES[tripType].key}`)}</span>
                 </div>
@@ -255,7 +255,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                 </div>
               </div>
               {showPassportWarning && (
-                <div className="flex items-start gap-2 rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800">
+                <div className="flex items-start gap-2 rounded-lg bg-atlas-gold/10 border border-atlas-gold/30 px-4 py-3 text-sm text-atlas-gold">
                   <span className="mt-0.5">{"\u26A0\uFE0F"}</span>
                   <span>{t("passportExpiryWarning")}</span>
                 </div>
@@ -265,7 +265,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                   type="checkbox"
                   checked={flexibleDates}
                   onChange={(e) => setFlexibleDates(e.target.checked)}
-                  className="rounded border-gray-300"
+                  className="rounded border-border"
                 />
                 {t("step2.flexibleDates")}
               </label>
@@ -284,7 +284,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
           {currentStep === 3 && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step3.title")}</h2>
-              <p className="text-sm text-gray-500">{t("step3.subtitle")}</p>
+              <p className="text-sm text-muted-foreground">{t("step3.subtitle")}</p>
 
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-1.5">
@@ -340,14 +340,14 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                     onChange={(e) => setBio(e.target.value)}
                     maxLength={500}
                     rows={3}
-                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full rounded-lg border border-border bg-background text-foreground px-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50"
                     placeholder={t("step3.bioPlaceholder")}
                   />
-                  <span className="text-xs text-gray-400">{bio.length}/500</span>
+                  <span className="text-xs text-muted-foreground/70">{bio.length}/500</span>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-400">{t("step3.optional")}</p>
+              <p className="text-xs text-muted-foreground/70">{t("step3.optional")}</p>
 
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => goToStep(2)} className="flex-1">
@@ -364,17 +364,17 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
           {currentStep === 4 && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step4.title")}</h2>
-              <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <h3 className="mb-3 text-sm font-medium text-gray-500">
+              <div className="rounded-xl border border-border bg-muted p-4">
+                <h3 className="mb-3 text-sm font-medium text-muted-foreground">
                   {t("step4.summary")}
                 </h3>
                 <dl className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step4.destination")}</dt>
+                    <dt className="text-muted-foreground">{t("step4.destination")}</dt>
                     <dd className="font-medium">{destination}</dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step4.dates")}</dt>
+                    <dt className="text-muted-foreground">{t("step4.dates")}</dt>
                     <dd className="font-medium">
                       {startDate && endDate
                         ? `${startDate} \u2192 ${endDate}`
@@ -384,7 +384,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                     </dd>
                   </div>
                   <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step4.flexibleDates")}</dt>
+                    <dt className="text-muted-foreground">{t("step4.flexibleDates")}</dt>
                     <dd className="font-medium">
                       {flexibleDates ? t("step4.yes") : t("step4.no")}
                     </dd>
