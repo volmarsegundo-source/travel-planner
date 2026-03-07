@@ -34,7 +34,7 @@ export function AtlasDashboard({
 
   return (
     <div className="relative mx-auto min-h-[400px] max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <AtlasHeroMap />
+      <AtlasHeroMap destinations={expeditions.map((e) => e.destination)} />
 
       <div className="relative z-10">
         <DashboardHeader
