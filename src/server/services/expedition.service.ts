@@ -74,7 +74,6 @@ export class ExpeditionService {
           pointsEarned: 100,
           metadata: {
             destination: data.destination,
-            travelers: data.travelers,
             flexibleDates: data.flexibleDates,
           },
         },

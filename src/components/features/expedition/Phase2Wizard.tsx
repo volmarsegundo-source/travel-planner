@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -14,19 +14,19 @@ import { VisualCardSelector } from "./VisualCardSelector";
 import { completePhase2Action } from "@/server/actions/expedition.actions";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
-const TOTAL_STEPS = 5;
-
 interface Phase2WizardProps {
   tripId: string;
-  travelers?: number;
 }
 
-export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
+// Step definitions (order matters)
+type StepKey = "travelerType" | "groupSize" | "accommodation" | "pace" | "budget" | "preferences" | "confirmation";
+
+export function Phase2Wizard({ tripId }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
   const tCommon = useTranslations("common");
   const router = useRouter();
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -39,15 +39,31 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
 
   // Form data
   const [travelerType, setTravelerType] = useState<string | null>(null);
+  const [groupSize, setGroupSize] = useState(3);
   const [accommodationStyle, setAccommodationStyle] = useState<string | null>(null);
   const [travelPace, setTravelPace] = useState(5);
   const [budget, setBudget] = useState(1000);
   const [currency, setCurrency] = useState("USD");
+  const [dietaryRestrictions, setDietaryRestrictions] = useState("");
+  const [accessibility, setAccessibility] = useState("");
 
   const stepContentRef = useRef<HTMLDivElement>(null);
 
-  function goToStep(step: number) {
-    setCurrentStep(step);
+  // Dynamic step array based on traveler type
+  const steps = useMemo((): StepKey[] => {
+    const base: StepKey[] = ["travelerType"];
+    if (travelerType === "family" || travelerType === "group") {
+      base.push("groupSize");
+    }
+    base.push("accommodation", "pace", "budget", "preferences", "confirmation");
+    return base;
+  }, [travelerType]);
+
+  const currentStep = steps[currentStepIndex];
+  const totalSteps = steps.length;
+
+  function goToStep(index: number) {
+    setCurrentStepIndex(index);
     setErrorMessage(null);
     requestAnimationFrame(() => {
       const firstInput = stepContentRef.current?.querySelector<HTMLElement>(
@@ -57,36 +73,31 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
     });
   }
 
-  function handleStep1Next() {
-    if (!travelerType) {
+  function handleNext() {
+    // Validate current step
+    if (currentStep === "travelerType" && !travelerType) {
       setErrorMessage(t("errors.travelerTypeRequired"));
       return;
     }
-    goToStep(2);
-  }
-
-  function handleStep2Next() {
-    if (!accommodationStyle) {
+    if (currentStep === "groupSize" && groupSize < 2) {
+      setErrorMessage(t("errors.groupSizeMin"));
+      return;
+    }
+    if (currentStep === "accommodation" && !accommodationStyle) {
       setErrorMessage(t("errors.accommodationRequired"));
       return;
     }
-    goToStep(3);
+    if (currentStep === "budget") {
+      if (budget < 100) { setErrorMessage(t("errors.budgetMin")); return; }
+      if (budget > 100000) { setErrorMessage(t("errors.budgetMax")); return; }
+    }
+    goToStep(currentStepIndex + 1);
   }
 
-  function handleStep3Next() {
-    goToStep(4);
-  }
-
-  function handleStep4Next() {
-    if (budget < 100) {
-      setErrorMessage(t("errors.budgetMin"));
-      return;
+  function handleBack() {
+    if (currentStepIndex > 0) {
+      goToStep(currentStepIndex - 1);
     }
-    if (budget > 100000) {
-      setErrorMessage(t("errors.budgetMax"));
-      return;
-    }
-    goToStep(5);
   }
 
   async function handleSubmit() {
@@ -95,13 +106,18 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    const needsTravelers = travelerType === "family" || travelerType === "group";
+
     try {
       const result = await completePhase2Action(tripId, {
-        travelerType: travelerType as "solo" | "couple" | "family" | "group",
+        travelerType: travelerType as "solo" | "couple" | "family" | "group" | "business" | "student",
         accommodationStyle: accommodationStyle as "budget" | "comfort" | "luxury" | "adventure",
         travelPace,
         budget,
         currency: currency as "USD" | "EUR" | "BRL",
+        travelers: needsTravelers ? groupSize : undefined,
+        dietaryRestrictions: dietaryRestrictions.trim() || undefined,
+        accessibility: accessibility.trim() || undefined,
       });
 
       if (!result.success) {
@@ -133,22 +149,12 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
   }
 
   const travelerTypeOptions = [
-    {
-      value: "solo",
-      label: t("step1.solo"),
-      emoji: t("step1.soloEmoji"),
-      disabled: travelers > 1,
-      disabledReason: travelers > 1 ? t("errors.soloRequiresOne") : undefined,
-    },
-    {
-      value: "couple",
-      label: t("step1.couple"),
-      emoji: t("step1.coupleEmoji"),
-      disabled: travelers !== 2,
-      disabledReason: travelers !== 2 ? t("errors.coupleRequiresTwo") : undefined,
-    },
+    { value: "solo", label: t("step1.solo"), emoji: t("step1.soloEmoji") },
+    { value: "couple", label: t("step1.couple"), emoji: t("step1.coupleEmoji") },
     { value: "family", label: t("step1.family"), emoji: t("step1.familyEmoji") },
     { value: "group", label: t("step1.group"), emoji: t("step1.groupEmoji") },
+    { value: "business", label: t("step1.business"), emoji: t("step1.businessEmoji") },
+    { value: "student", label: t("step1.student"), emoji: t("step1.studentEmoji") },
   ];
 
   const accommodationOptions = [
@@ -182,7 +188,7 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <PhaseProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
+        <PhaseProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
         <div className="mt-2 text-center">
           <h1 className="text-2xl font-bold text-gray-900">{t("title")}</h1>
@@ -205,24 +211,67 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
             </div>
           )}
 
-          {/* Step 1: Traveler Type */}
-          {currentStep === 1 && (
+          {/* Traveler Type */}
+          {currentStep === "travelerType" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step1.title")}</h2>
               <VisualCardSelector
                 options={travelerTypeOptions}
                 value={travelerType}
-                onChange={setTravelerType}
+                onChange={(val) => {
+                  setTravelerType(val);
+                  // Reset group size when switching away from group/family
+                  if (val !== "family" && val !== "group") {
+                    setGroupSize(3);
+                  }
+                }}
                 label={t("step1.title")}
               />
-              <Button onClick={handleStep1Next} size="lg" className="w-full">
+              <Button onClick={handleNext} size="lg" className="w-full">
                 {tCommon("next")}
               </Button>
             </div>
           )}
 
-          {/* Step 2: Accommodation */}
-          {currentStep === 2 && (
+          {/* Group Size (conditional) */}
+          {currentStep === "groupSize" && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold">{t("groupSize.title")}</h2>
+              <Label htmlFor="phase2-group-size">{t("groupSize.label")}</Label>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setGroupSize(Math.max(2, groupSize - 1))}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 text-lg font-bold hover:border-gray-400"
+                  aria-label={t("groupSize.decrease")}
+                >
+                  -
+                </button>
+                <span className="min-w-[3rem] text-center text-2xl font-bold">
+                  {groupSize}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setGroupSize(Math.min(20, groupSize + 1))}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 text-lg font-bold hover:border-gray-400"
+                  aria-label={t("groupSize.increase")}
+                >
+                  +
+                </button>
+              </div>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  &larr;
+                </Button>
+                <Button onClick={handleNext} className="flex-[3]">
+                  {tCommon("next")}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Accommodation */}
+          {currentStep === "accommodation" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step2.title")}</h2>
               <VisualCardSelector
@@ -232,18 +281,18 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
                 label={t("step2.title")}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(1)} className="flex-1">
-                  ←
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  &larr;
                 </Button>
-                <Button onClick={handleStep2Next} className="flex-[3]">
+                <Button onClick={handleNext} className="flex-[3]">
                   {tCommon("next")}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 3: Travel Pace */}
-          {currentStep === 3 && (
+          {/* Travel Pace */}
+          {currentStep === "pace" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step3.title")}</h2>
               <div className="flex justify-between text-sm text-gray-500">
@@ -259,18 +308,18 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
               />
               <p className="text-center text-lg font-semibold">{travelPace}/10</p>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(2)} className="flex-1">
-                  ←
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  &larr;
                 </Button>
-                <Button onClick={handleStep3Next} className="flex-[3]">
+                <Button onClick={handleNext} className="flex-[3]">
                   {tCommon("next")}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 4: Budget */}
-          {currentStep === 4 && (
+          {/* Budget */}
+          {currentStep === "budget" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step4.title")}</h2>
               <div className="grid grid-cols-3 gap-3">
@@ -308,18 +357,61 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
                 step={100}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(3)} className="flex-1">
-                  ←
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  &larr;
                 </Button>
-                <Button onClick={handleStep4Next} className="flex-[3]">
+                <Button onClick={handleNext} className="flex-[3]">
                   {tCommon("next")}
                 </Button>
               </div>
             </div>
           )}
 
-          {/* Step 5: Confirmation */}
-          {currentStep === 5 && (
+          {/* Preferences */}
+          {currentStep === "preferences" && (
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold">{t("preferences.title")}</h2>
+              <p className="text-sm text-gray-500">{t("preferences.subtitle")}</p>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="phase2-dietary">{t("preferences.dietary")}</Label>
+                <Input
+                  id="phase2-dietary"
+                  type="text"
+                  value={dietaryRestrictions}
+                  onChange={(e) => setDietaryRestrictions(e.target.value)}
+                  maxLength={300}
+                  placeholder={t("preferences.dietaryPlaceholder")}
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="phase2-accessibility">{t("preferences.accessibility")}</Label>
+                <Input
+                  id="phase2-accessibility"
+                  type="text"
+                  value={accessibility}
+                  onChange={(e) => setAccessibility(e.target.value)}
+                  maxLength={300}
+                  placeholder={t("preferences.accessibilityPlaceholder")}
+                />
+              </div>
+
+              <p className="text-xs text-gray-400">{t("preferences.optional")}</p>
+
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  &larr;
+                </Button>
+                <Button onClick={handleNext} className="flex-[3]">
+                  {tCommon("next")}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Confirmation */}
+          {currentStep === "confirmation" && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step5.title")}</h2>
               <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
@@ -331,6 +423,12 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
                     <dt className="text-gray-500">{t("step5.travelerType")}</dt>
                     <dd className="font-medium capitalize">{travelerType}</dd>
                   </div>
+                  {(travelerType === "family" || travelerType === "group") && (
+                    <div className="flex justify-between">
+                      <dt className="text-gray-500">{t("step5.groupSize")}</dt>
+                      <dd className="font-medium">{groupSize}</dd>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <dt className="text-gray-500">{t("step5.accommodation")}</dt>
                     <dd className="font-medium capitalize">{accommodationStyle}</dd>
@@ -348,8 +446,8 @@ export function Phase2Wizard({ tripId, travelers = 1 }: Phase2WizardProps) {
                 </dl>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(4)} className="flex-1">
-                  ←
+                <Button variant="outline" onClick={handleBack} className="flex-1">
+                  &larr;
                 </Button>
                 <Button
                   onClick={handleSubmit}

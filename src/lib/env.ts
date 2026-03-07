@@ -20,6 +20,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     MAPBOX_SECRET_TOKEN: z.string().startsWith("sk.").optional(),
+    ENCRYPTION_KEY: z.string().length(64, "ENCRYPTION_KEY must be 64 hex chars (32 bytes)").optional(),
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
     NODE_ENV: z
@@ -46,6 +47,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     MAPBOX_SECRET_TOKEN: process.env.MAPBOX_SECRET_TOKEN,
+    ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
     NODE_ENV: process.env.NODE_ENV,

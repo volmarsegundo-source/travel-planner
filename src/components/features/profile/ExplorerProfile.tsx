@@ -5,6 +5,7 @@ import { RankBadge } from "@/components/features/gamification/RankBadge";
 import { PointsDisplay } from "@/components/features/gamification/PointsDisplay";
 import { TransactionList } from "./TransactionList";
 import { PassportStamps } from "./PassportStamps";
+import { ProfileAccordion } from "./ProfileAccordion";
 import type { Rank, BadgeKey } from "@/types/gamification.types";
 
 interface Transaction {
@@ -15,6 +16,21 @@ interface Transaction {
   createdAt: Date | string;
 }
 
+interface ProfileData {
+  birthDate: string | null;
+  phone: string | null;
+  country: string | null;
+  city: string | null;
+  address: string | null;
+  passportNumber: string | null;
+  passportExpiry: string | null;
+  nationalId: string | null;
+  bio: string | null;
+  dietaryRestrictions: string | null;
+  accessibility: string | null;
+  completionScore: number;
+}
+
 interface ExplorerProfileProps {
   rank: Rank;
   totalPoints: number;
@@ -22,6 +38,7 @@ interface ExplorerProfileProps {
   streakDays: number;
   earnedBadges: BadgeKey[];
   transactions: Transaction[];
+  profile: ProfileData;
 }
 
 export function ExplorerProfile({
@@ -31,6 +48,7 @@ export function ExplorerProfile({
   streakDays,
   earnedBadges,
   transactions,
+  profile,
 }: ExplorerProfileProps) {
   const t = useTranslations("profile");
 
@@ -55,6 +73,14 @@ export function ExplorerProfile({
           </span>
         )}
       </div>
+
+      {/* Profile completion */}
+      <section className="mt-8">
+        <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          {t("profileSection")}
+        </h2>
+        <ProfileAccordion profile={profile} />
+      </section>
 
       {/* Passport stamps */}
       <section className="mt-8">

@@ -12,6 +12,7 @@ import type {
 import type { AiSpendType } from "@/types/gamification.types";
 import type { Prisma } from "@prisma/client";
 import { AppError, ForbiddenError } from "@/lib/errors";
+import { canUseAI } from "@/lib/guards/age-guard";
 
 // ─── Phase Engine ───────────────────────────────────────────────────────────
 
@@ -354,6 +355,19 @@ export class PhaseEngine {
         "PHASE_NOT_ACTIVE",
         `Phase ${phaseNumber} is not active`,
         400
+      );
+    }
+
+    // Age guard: check if user is 18+
+    const userProfile = await db.userProfile.findUnique({
+      where: { userId },
+      select: { birthDate: true },
+    });
+    if (!canUseAI(userProfile?.birthDate)) {
+      throw new AppError(
+        "AI_AGE_RESTRICTED",
+        "User must be 18 or older to use AI features",
+        403
       );
     }
 

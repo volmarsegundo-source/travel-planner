@@ -7,6 +7,7 @@ import { UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { canUseAI } from "@/lib/guards/age-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/trip.types";
 import type {
@@ -101,6 +102,15 @@ export async function generateTravelPlanAction(
     return { success: false, error: "trips.errors.notFound" };
   }
 
+  // Age guard: check if user is 18+
+  const userProfile = await db.userProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { birthDate: true },
+  });
+  if (!canUseAI(userProfile?.birthDate)) {
+    return { success: false, error: "errors.aiAgeRestricted" };
+  }
+
   // Sanitize travelNotes: trim and truncate to 500 chars
   const sanitizedParams = {
     ...params,
@@ -143,6 +153,15 @@ export async function generateChecklistAction(
   });
   if (!trip) {
     return { success: false, error: "trips.errors.notFound" };
+  }
+
+  // Age guard: check if user is 18+
+  const checklistUserProfile = await db.userProfile.findUnique({
+    where: { userId: session.user.id },
+    select: { birthDate: true },
+  });
+  if (!canUseAI(checklistUserProfile?.birthDate)) {
+    return { success: false, error: "errors.aiAgeRestricted" };
   }
 
   try {

@@ -8,10 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ─── Hoist mocks ──────────────────────────────────────────────────────────────
 
-const { mockAuth, mockCheckRateLimit, mockFindFirst } = vi.hoisted(() => ({
+const { mockAuth, mockCheckRateLimit, mockFindFirst, mockProfileFindUnique } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockCheckRateLimit: vi.fn(),
   mockFindFirst: vi.fn(),
+  mockProfileFindUnique: vi.fn(),
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -33,8 +34,13 @@ vi.mock("@/lib/rate-limit", () => ({
 vi.mock("@/server/db", () => ({
   db: {
     trip: { findFirst: mockFindFirst },
+    userProfile: { findUnique: mockProfileFindUnique },
     $transaction: vi.fn(),
   },
+}));
+
+vi.mock("@/lib/guards/age-guard", () => ({
+  canUseAI: vi.fn().mockReturnValue(true),
 }));
 
 vi.mock("@/server/services/ai.service", () => ({
@@ -67,6 +73,7 @@ describe("generateChecklistAction", () => {
     mockAuth.mockResolvedValue(session);
     mockCheckRateLimit.mockResolvedValue({ allowed: true, remaining: 4, resetAt: Date.now() + 3600000 });
     mockFindFirst.mockResolvedValue({ id: "trip-1" });
+    mockProfileFindUnique.mockResolvedValue(null);
   });
 
   it("calls checkRateLimit with ai:checklist:{userId} key", async () => {
@@ -119,6 +126,7 @@ describe("generateTravelPlanAction", () => {
     mockAuth.mockResolvedValue(session);
     mockCheckRateLimit.mockResolvedValue({ allowed: true, remaining: 9, resetAt: Date.now() + 3600000 });
     mockFindFirst.mockResolvedValue({ id: "trip-1" });
+    mockProfileFindUnique.mockResolvedValue(null);
   });
 
   it("calls checkRateLimit with ai:plan:{userId} key", async () => {

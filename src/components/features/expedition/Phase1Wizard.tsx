@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -9,11 +9,25 @@ import { Label } from "@/components/ui/label";
 import { PhaseProgressBar } from "./PhaseProgressBar";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
+import { DestinationAutocomplete } from "./DestinationAutocomplete";
 import { createExpeditionAction } from "@/server/actions/expedition.actions";
+import { classifyTrip, type TripType } from "@/lib/travel/trip-classifier";
 
 const TOTAL_STEPS = 4;
 
-export function Phase1Wizard() {
+const TRIP_TYPE_BADGES: Record<TripType, { emoji: string; key: string }> = {
+  domestic: { emoji: "\u{1F3E0}", key: "domestic" },
+  mercosul: { emoji: "\u{1F33F}", key: "mercosul" },
+  international: { emoji: "\u{1F30D}", key: "international" },
+  schengen: { emoji: "\u{1F1EA}\u{1F1FA}", key: "schengen" },
+};
+
+interface Phase1WizardProps {
+  passportExpiry?: string;
+  userCountry?: string;
+}
+
+export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps) {
   const t = useTranslations("expedition.phase1");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -30,13 +44,39 @@ export function Phase1Wizard() {
 
   // Form data
   const [destination, setDestination] = useState("");
+  const [destinationCountry, setDestinationCountry] = useState<string | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [flexibleDates, setFlexibleDates] = useState(false);
-  const [travelers, setTravelers] = useState(1);
+
+  // Profile fields (Step 3: About You)
+  const [birthDate, setBirthDate] = useState("");
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("");
+  const [city, setCity] = useState("");
+  const [bio, setBio] = useState("");
 
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>("");
+
+  // Trip type classification
+  const tripType = useMemo(() => {
+    if (userCountry && destinationCountry) {
+      return classifyTrip(userCountry, destinationCountry);
+    }
+    return null;
+  }, [userCountry, destinationCountry]);
+
+  // Passport expiry warning
+  const showPassportWarning = useMemo(() => {
+    if (!passportExpiry || !endDate) return false;
+    const passportDate = new Date(passportExpiry);
+    const tripEndDate = new Date(endDate);
+    // Warning: passport expires within 6 months of trip end
+    const sixMonthsAfterEnd = new Date(tripEndDate);
+    sixMonthsAfterEnd.setMonth(sixMonthsAfterEnd.getMonth() + 6);
+    return passportDate < sixMonthsAfterEnd;
+  }, [passportExpiry, endDate]);
 
   function goToStep(step: number) {
     setCurrentStep(step);
@@ -58,14 +98,14 @@ export function Phase1Wizard() {
   }
 
   function handleStep2Next() {
+    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
+      setErrorMessage(t("errors.endDateBeforeStart"));
+      return;
+    }
     goToStep(3);
   }
 
   function handleStep3Next() {
-    if (travelers < 1) {
-      setErrorMessage(t("errors.travelersMin"));
-      return;
-    }
     goToStep(4);
   }
 
@@ -73,13 +113,21 @@ export function Phase1Wizard() {
     setIsSubmitting(true);
     setErrorMessage(null);
 
+    // Build profile fields (only non-empty)
+    const profileFields: Record<string, string | undefined> = {};
+    if (birthDate) profileFields.birthDate = birthDate;
+    if (phone) profileFields.phone = phone;
+    if (country) profileFields.country = country;
+    if (city) profileFields.city = city;
+    if (bio) profileFields.bio = bio;
+
     try {
       const result = await createExpeditionAction({
         destination: destination.trim(),
         startDate: startDate || undefined,
         endDate: endDate || undefined,
-        travelers,
         flexibleDates,
+        profileFields: Object.keys(profileFields).length > 0 ? profileFields : undefined,
       });
 
       if (!result.success) {
@@ -108,6 +156,10 @@ export function Phase1Wizard() {
   function handleTransitionContinue() {
     setShowTransition(false);
     router.push(`/expedition/${tripIdRef.current}/phase-2`);
+  }
+
+  function handleDestinationSelect(result: { displayName: string; country: string | null }) {
+    setDestinationCountry(result.country);
   }
 
   if (showAnimation) {
@@ -159,15 +211,19 @@ export function Phase1Wizard() {
           {/* Step 1: Destination */}
           {currentStep === 1 && (
             <div className="flex flex-col gap-4">
-              <Label htmlFor="expedition-destination">{t("step1.title")}</Label>
-              <Input
-                id="expedition-destination"
-                type="text"
-                placeholder={t("step1.placeholder")}
+              <Label htmlFor="destination">{t("step1.title")}</Label>
+              <DestinationAutocomplete
                 value={destination}
-                onChange={(e) => setDestination(e.target.value)}
-                maxLength={150}
+                onChange={setDestination}
+                onSelect={handleDestinationSelect}
+                placeholder={t("step1.placeholder")}
               />
+              {tripType && (
+                <div className="flex items-center gap-2 rounded-lg bg-blue-50 px-3 py-2 text-sm text-blue-700">
+                  <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
+                  <span>{t(`tripType.${TRIP_TYPE_BADGES[tripType].key}`)}</span>
+                </div>
+              )}
               <Button onClick={handleStep1Next} size="lg" className="w-full">
                 {tCommon("next")}
               </Button>
@@ -198,6 +254,12 @@ export function Phase1Wizard() {
                   />
                 </div>
               </div>
+              {showPassportWarning && (
+                <div className="flex items-start gap-2 rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800">
+                  <span className="mt-0.5">{"\u26A0\uFE0F"}</span>
+                  <span>{t("passportExpiryWarning")}</span>
+                </div>
+              )}
               <label className="flex items-center gap-2 text-sm">
                 <input
                   type="checkbox"
@@ -209,7 +271,7 @@ export function Phase1Wizard() {
               </label>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => goToStep(1)} className="flex-1">
-                  ←
+                  {"\u2190"}
                 </Button>
                 <Button onClick={handleStep2Next} className="flex-[3]">
                   {tCommon("next")}
@@ -218,35 +280,78 @@ export function Phase1Wizard() {
             </div>
           )}
 
-          {/* Step 3: Travelers */}
+          {/* Step 3: About You */}
           {currentStep === 3 && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step3.title")}</h2>
-              <Label htmlFor="expedition-travelers">{t("step3.travelers")}</Label>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setTravelers(Math.max(1, travelers - 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 text-lg font-bold hover:border-gray-400"
-                  aria-label="Decrease travelers"
-                >
-                  −
-                </button>
-                <span className="min-w-[3rem] text-center text-2xl font-bold">
-                  {travelers}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setTravelers(Math.min(10, travelers + 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-gray-200 text-lg font-bold hover:border-gray-400"
-                  aria-label="Increase travelers"
-                >
-                  +
-                </button>
+              <p className="text-sm text-gray-500">{t("step3.subtitle")}</p>
+
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="profile-birthdate">{t("step3.birthDate")}</Label>
+                  <Input
+                    id="profile-birthdate"
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="profile-phone">{t("step3.phone")}</Label>
+                  <Input
+                    id="profile-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    maxLength={20}
+                    placeholder={t("step3.phonePlaceholder")}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="profile-country">{t("step3.country")}</Label>
+                    <Input
+                      id="profile-country"
+                      type="text"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      maxLength={100}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="profile-city">{t("step3.city")}</Label>
+                    <Input
+                      id="profile-city"
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      maxLength={100}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="profile-bio">{t("step3.bio")}</Label>
+                  <textarea
+                    id="profile-bio"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    maxLength={500}
+                    rows={3}
+                    className="w-full rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    placeholder={t("step3.bioPlaceholder")}
+                  />
+                  <span className="text-xs text-gray-400">{bio.length}/500</span>
+                </div>
               </div>
+
+              <p className="text-xs text-gray-400">{t("step3.optional")}</p>
+
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => goToStep(2)} className="flex-1">
-                  ←
+                  {"\u2190"}
                 </Button>
                 <Button onClick={handleStep3Next} className="flex-[3]">
                   {tCommon("next")}
@@ -272,15 +377,11 @@ export function Phase1Wizard() {
                     <dt className="text-gray-500">{t("step4.dates")}</dt>
                     <dd className="font-medium">
                       {startDate && endDate
-                        ? `${startDate} → ${endDate}`
+                        ? `${startDate} \u2192 ${endDate}`
                         : flexibleDates
                           ? t("step4.yes")
-                          : "—"}
+                          : "\u2014"}
                     </dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-gray-500">{t("step4.travelers")}</dt>
-                    <dd className="font-medium">{travelers}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-gray-500">{t("step4.flexibleDates")}</dt>
@@ -292,7 +393,7 @@ export function Phase1Wizard() {
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => goToStep(3)} className="flex-1">
-                  ←
+                  {"\u2190"}
                 </Button>
                 <Button
                   onClick={handleSubmit}

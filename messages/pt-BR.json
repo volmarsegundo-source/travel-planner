@@ -298,10 +298,36 @@
   },
   "profile": {
     "title": "Perfil do Explorador",
+    "profileSection": "Seu Perfil",
     "rank": "Rank",
     "totalPoints": "Pontos Totais",
     "availablePoints": "Pontos Disponíveis",
     "streak": "{days} dias seguidos",
+    "accordion": {
+      "profileCompletion": "Completude do Perfil",
+      "fieldsCompleted": "{filled} de {total} campos preenchidos",
+      "save": "Salvar",
+      "saveError": "Não foi possível salvar. Tente novamente.",
+      "sections": {
+        "personal": "Informações Pessoais",
+        "documents": "Documentos de Viagem",
+        "about": "Sobre Mim",
+        "preferences": "Preferências e Necessidades"
+      },
+      "fields": {
+        "birthDate": "Data de nascimento",
+        "phone": "Telefone",
+        "country": "País",
+        "city": "Cidade",
+        "address": "Endereço",
+        "passportNumber": "Número do passaporte",
+        "passportExpiry": "Validade do passaporte",
+        "nationalId": "RG/CPF",
+        "bio": "Mini bio",
+        "dietaryRestrictions": "Restrições alimentares",
+        "accessibility": "Necessidades de acessibilidade"
+      }
+    },
     "transactions": {
       "title": "Atividade Recente",
       "empty": "Nenhuma atividade ainda.",
@@ -333,6 +359,8 @@
     "phase1": {
       "title": "O Chamado",
       "subtitle": "Para onde sua próxima aventura vai te levar?",
+      "destinationPlaceholder": "Busque uma cidade...",
+      "passportExpiryWarning": "Seu passaporte pode expirar antes ou durante a viagem. Verifique a validade antes de continuar.",
       "step1": {
         "title": "Escolha seu destino",
         "placeholder": "ex: Paris, Tóquio, Nova York"
@@ -344,23 +372,36 @@
         "flexibleDates": "Minhas datas são flexíveis"
       },
       "step3": {
-        "title": "Quantos viajantes?",
-        "travelers": "Viajantes"
+        "title": "Sobre você",
+        "subtitle": "Nos ajude a personalizar sua viagem. Preencha o que puder — cada campo ganha Coordenadas!",
+        "birthDate": "Data de nascimento",
+        "phone": "Telefone",
+        "phonePlaceholder": "+55 11 99999-9999",
+        "country": "País",
+        "city": "Cidade",
+        "bio": "Mini bio",
+        "bioPlaceholder": "Conte um pouco sobre você como viajante...",
+        "optional": "Todos os campos são opcionais. Você pode completar seu perfil depois."
       },
       "step4": {
         "title": "Pronto para começar?",
         "summary": "Resumo da expedição",
         "destination": "Destino",
         "dates": "Datas",
-        "travelers": "Viajantes",
         "flexibleDates": "Datas flexíveis",
         "yes": "Sim",
         "no": "Não",
         "cta": "Iniciar Expedição"
       },
+      "tripType": {
+        "domestic": "Viagem nacional",
+        "mercosul": "Viagem Mercosul",
+        "international": "Viagem internacional",
+        "schengen": "Viagem Schengen"
+      },
       "errors": {
         "destinationRequired": "Destino é obrigatório.",
-        "travelersMin": "Pelo menos 1 viajante."
+        "endDateBeforeStart": "A data de retorno deve ser posterior à data de partida."
       }
     },
     "phase2": {
@@ -372,10 +413,14 @@
         "couple": "Casal",
         "family": "Família",
         "group": "Grupo",
+        "business": "Negócios",
+        "student": "Estudante",
         "soloEmoji": "🧑",
         "coupleEmoji": "👫",
         "familyEmoji": "👨‍👩‍👧‍👦",
-        "groupEmoji": "👥"
+        "groupEmoji": "👥",
+        "businessEmoji": "💼",
+        "studentEmoji": "🎓"
       },
       "step2": {
         "title": "Estilo de hospedagem",
@@ -398,10 +443,26 @@
         "amount": "Valor do orçamento",
         "currency": "Moeda"
       },
+      "groupSize": {
+        "title": "Quantas pessoas?",
+        "label": "Número de viajantes",
+        "decrease": "Diminuir viajantes",
+        "increase": "Aumentar viajantes"
+      },
+      "preferences": {
+        "title": "Preferências Pessoais",
+        "subtitle": "Nos ajude a tornar sua viagem mais confortável.",
+        "dietary": "Restrições alimentares",
+        "dietaryPlaceholder": "ex. vegetariano, sem glúten, halal...",
+        "accessibility": "Necessidades de acessibilidade",
+        "accessibilityPlaceholder": "ex. acesso para cadeirantes, aparelhos auditivos...",
+        "optional": "Todos os campos são opcionais."
+      },
       "step5": {
         "title": "Pronto para explorar?",
         "summary": "Suas preferências",
         "travelerType": "Tipo de viajante",
+        "groupSize": "Tamanho do grupo",
         "accommodation": "Hospedagem",
         "pace": "Ritmo",
         "budget": "Orçamento",
@@ -412,8 +473,7 @@
         "accommodationRequired": "Escolha um estilo de hospedagem.",
         "budgetMin": "O orçamento deve ser pelo menos 100.",
         "budgetMax": "O orçamento deve ser no máximo 100.000.",
-        "soloRequiresOne": "Solo requer exatamente 1 viajante.",
-        "coupleRequiresTwo": "Casal requer exatamente 2 viajantes."
+        "groupSizeMin": "Mínimo de 2 viajantes."
       }
     },
     "hub": {
