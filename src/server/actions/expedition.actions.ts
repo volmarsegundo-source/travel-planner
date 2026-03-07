@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { ExpeditionService } from "@/server/services/expedition.service";
+import { ProfileService } from "@/server/services/profile.service";
 import { PhaseEngine } from "@/lib/engines/phase-engine";
 import { Phase1Schema, Phase2Schema } from "@/lib/validations/expedition.schema";
 import type { Phase1Input, Phase2Input } from "@/lib/validations/expedition.schema";
@@ -34,6 +35,23 @@ export async function createExpeditionAction(
       session.user.id,
       parsed.data
     );
+
+    // Save profile fields if provided
+    if (parsed.data.profileFields) {
+      try {
+        await ProfileService.saveAndAwardProfileFields(
+          session.user.id,
+          parsed.data.profileFields as Record<string, string | undefined>
+        );
+        await ProfileService.recalculateCompletionScore(session.user.id);
+      } catch (profileError) {
+        // Profile save failure should not block expedition creation
+        logger.error("expedition.profileFields.error", profileError, {
+          userId: session.user.id,
+        });
+      }
+    }
+
     revalidatePath("/dashboard");
     revalidatePath("/trips");
     return { success: true, data: result };

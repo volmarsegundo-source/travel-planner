@@ -13,7 +13,6 @@ import {
 describe("Phase1Schema", () => {
   const validPhase1 = {
     destination: "Paris",
-    travelers: 2,
     flexibleDates: false,
   };
 
@@ -52,30 +51,9 @@ describe("Phase1Schema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects travelers less than 1", () => {
-    const result = Phase1Schema.safeParse({ ...validPhase1, travelers: 0 });
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects travelers greater than 10", () => {
-    const result = Phase1Schema.safeParse({ ...validPhase1, travelers: 11 });
-    expect(result.success).toBe(false);
-  });
-
-  it("accepts travelers of exactly 10", () => {
-    const result = Phase1Schema.safeParse({ ...validPhase1, travelers: 10 });
-    expect(result.success).toBe(true);
-  });
-
-  it("rejects non-integer travelers", () => {
-    const result = Phase1Schema.safeParse({ ...validPhase1, travelers: 2.5 });
-    expect(result.success).toBe(false);
-  });
-
   it("defaults flexibleDates to false when omitted", () => {
     const result = Phase1Schema.safeParse({
       destination: "Tokyo",
-      travelers: 1,
     });
     expect(result.success).toBe(true);
     if (result.success) {
@@ -101,6 +79,75 @@ describe("Phase1Schema", () => {
       expect(result.data.startDate).toBeUndefined();
     }
   });
+
+  // endDate >= startDate refine
+  it("accepts endDate equal to startDate", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      startDate: "2026-06-01",
+      endDate: "2026-06-01",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts endDate after startDate", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      startDate: "2026-06-01",
+      endDate: "2026-06-10",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects endDate before startDate", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      startDate: "2026-06-10",
+      endDate: "2026-06-01",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("allows no dates (both optional)", () => {
+    const result = Phase1Schema.safeParse(validPhase1);
+    expect(result.success).toBe(true);
+  });
+
+  // profileFields
+  it("accepts profileFields with all fields", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      profileFields: {
+        birthDate: "2000-01-01",
+        phone: "+5511999999999",
+        country: "Brazil",
+        city: "São Paulo",
+        bio: "I love traveling!",
+      },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts profileFields with partial fields", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      profileFields: { country: "Brazil" },
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts without profileFields (optional)", () => {
+    const result = Phase1Schema.safeParse(validPhase1);
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects profileFields.bio longer than 500 chars", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      profileFields: { bio: "A".repeat(501) },
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 // ─── Phase2Schema ─────────────────────────────────────────────────────────────
@@ -119,13 +166,96 @@ describe("Phase2Schema", () => {
     expect(result.success).toBe(true);
   });
 
-  it.each(["solo", "couple", "family", "group"] as const)(
+  it.each(["solo", "couple"] as const)(
     "accepts travelerType: %s",
     (type) => {
       const result = Phase2Schema.safeParse({ ...validPhase2, travelerType: type });
       expect(result.success).toBe(true);
     }
   );
+
+  it.each(["business", "student"] as const)(
+    "accepts travelerType: %s",
+    (type) => {
+      const result = Phase2Schema.safeParse({ ...validPhase2, travelerType: type });
+      expect(result.success).toBe(true);
+    }
+  );
+
+  it("accepts travelers for family type", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      travelerType: "family",
+      travelers: 4,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts travelers for group type", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      travelerType: "group",
+      travelers: 8,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects family type without travelers", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      travelerType: "family",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects group type without travelers", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      travelerType: "group",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("allows solo without travelers field", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      travelerType: "solo",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts dietaryRestrictions", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      dietaryRestrictions: "vegetarian",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts accessibility", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      accessibility: "wheelchair access",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects travelers greater than 20", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      travelerType: "group",
+      travelers: 21,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects dietaryRestrictions longer than 300 chars", () => {
+    const result = Phase2Schema.safeParse({
+      ...validPhase2,
+      dietaryRestrictions: "A".repeat(301),
+    });
+    expect(result.success).toBe(false);
+  });
 
   it("rejects invalid travelerType", () => {
     const result = Phase2Schema.safeParse({ ...validPhase2, travelerType: "unknown" });

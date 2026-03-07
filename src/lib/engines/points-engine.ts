@@ -229,6 +229,43 @@ export class PointsEngine {
   }
 
   /**
+   * Award points for completing a profile field. Idempotent per field.
+   */
+  static async awardProfileCompletion(
+    userId: string,
+    fieldKey: string,
+    points: number,
+    tx?: Tx
+  ): Promise<void> {
+    const client = tx ?? db;
+    const description = `Profile field: ${fieldKey}`;
+
+    // Idempotent: check if already awarded for this field
+    const existing = await client.pointTransaction.findFirst({
+      where: {
+        userId,
+        type: "profile_completion",
+        description,
+      },
+    });
+    if (existing) return;
+
+    await PointsEngine.earnPoints(
+      userId,
+      points,
+      "profile_completion",
+      description,
+      undefined,
+      tx
+    );
+    logger.info("gamification.profileFieldAwarded", {
+      userId,
+      fieldKey,
+      points,
+    });
+  }
+
+  /**
    * Update user rank. Called by PhaseEngine during phase completion.
    */
   static async updateRank(

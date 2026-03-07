@@ -26,7 +26,8 @@ export type PointTransactionType =
   | "daily_login"
   | "purchase"
   | "referral"
-  | "checklist";
+  | "checklist"
+  | "profile_completion";
 
 export type AiSpendType =
   | "ai_itinerary"
@@ -79,4 +80,18 @@ export const EARNING_AMOUNTS = {
   checklist: 20,
   review: 500,
   referral: 300,
+} as const;
+
+export const PROFILE_FIELD_POINTS: Record<string, number> = {
+  birthDate: 25,
+  phone: 25,
+  country: 25,
+  city: 25,
+  address: 25,
+  passportNumber: 25,
+  passportExpiry: 25,
+  nationalId: 25,
+  bio: 25,
+  dietaryRestrictions: 25,
+  accessibility: 25,
 } as const;

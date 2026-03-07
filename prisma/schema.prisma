@@ -87,6 +87,7 @@ model User {
   progress          UserProgress?
   badges            UserBadge[]
   pointTransactions PointTransaction[]
+  profile           UserProfile?
 
   @@index([email])
   @@index([deletedAt])
@@ -124,6 +125,7 @@ model Trip {
   // Atlas Gamification
   expeditionMode Boolean        @default(true)
   currentPhase   Int            @default(1)
+  tripType       String         @default("international") @db.VarChar(20)
 
   // Relacoes
   user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -261,4 +263,27 @@ model UserBadge {
   @@unique([userId, badgeKey])
   @@index([userId])
   @@map("user_badges")
+}
+
+// ─── User Profile (Progressive) ───────────────────────────────────────────
+
+model UserProfile {
+  userId              String    @id
+  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  birthDate           DateTime?
+  phone               String?   @db.VarChar(20)
+  country             String?   @db.VarChar(100)
+  city                String?   @db.VarChar(100)
+  address             String?   @db.VarChar(300)
+  passportNumberEnc   String?   @db.Text
+  passportExpiry      DateTime?
+  nationalIdEnc       String?   @db.Text
+  bio                 String?   @db.VarChar(500)
+  dietaryRestrictions String?   @db.VarChar(300)
+  accessibility       String?   @db.VarChar(300)
+  completionScore     Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@map("user_profiles")
 }
