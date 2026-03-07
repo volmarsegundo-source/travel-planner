@@ -249,11 +249,11 @@
     },
     "features": {
       "sectionTag": "O Que Oferecemos",
-      "sectionTitle": "Tudo Que Voce Precisa Para Explorar",
-      "ai": { "title": "Planejamento com IA", "description": "Sugestões inteligentes para seu roteiro perfeito" },
-      "dnd": { "title": "Arrastar e Soltar", "description": "Reorganize atividades facilmente" },
-      "i18n": { "title": "Multi-idioma", "description": "Planeje em Inglês ou Português" },
-      "responsive": { "title": "Design Responsivo", "description": "Planeje suas viagens de qualquer dispositivo" }
+      "sectionTitle": "Tudo Que Você Precisa Para Explorar",
+      "phases": { "title": "8 Fases de Planejamento", "description": "Da Faísca ao Legado — cada expedição passa por 8 fases guiadas que transformam um sonho em realidade" },
+      "coordinates": { "title": "Sistema de Coordenadas", "description": "Ganhe pontos, suba de rank e colecione badges enquanto planeja. De Viajante a Embaixador" },
+      "intelligence": { "title": "Inteligência de Viagem", "description": "IA generativa para roteiros + checklists automáticos adaptados ao seu tipo de rota" },
+      "routes": { "title": "4 Tipos de Rota", "description": "Nacional, Mercosul, Internacional ou Schengen — cada tipo com documentação e regras específicas" }
     },
     "footer": {
       "copyright": "© 2026 Travel Planner. Todos os direitos reservados.",

@@ -24,10 +24,10 @@ describe("FeaturesSection", () => {
     render(<FeaturesSection />);
 
     const titles = [
-      "ai.title",
-      "dnd.title",
-      "i18n.title",
-      "responsive.title",
+      "phases.title",
+      "coordinates.title",
+      "intelligence.title",
+      "routes.title",
     ];
 
     for (const title of titles) {
@@ -39,10 +39,10 @@ describe("FeaturesSection", () => {
     render(<FeaturesSection />);
 
     const descriptions = [
-      "ai.description",
-      "dnd.description",
-      "i18n.description",
-      "responsive.description",
+      "phases.description",
+      "coordinates.description",
+      "intelligence.description",
+      "routes.description",
     ];
 
     for (const desc of descriptions) {

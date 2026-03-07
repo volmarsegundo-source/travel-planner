@@ -250,10 +250,10 @@
     "features": {
       "sectionTag": "What We Offer",
       "sectionTitle": "Everything You Need to Explore",
-      "ai": { "title": "AI-Powered Planning", "description": "Smart suggestions for your perfect itinerary" },
-      "dnd": { "title": "Drag & Drop", "description": "Reorder activities with ease" },
-      "i18n": { "title": "Multi-language", "description": "Plan in English or Portuguese" },
-      "responsive": { "title": "Responsive Design", "description": "Plan your trips from any device" }
+      "phases": { "title": "8 Planning Phases", "description": "From the Spark to the Legacy — each expedition follows 8 guided phases that turn a dream into reality" },
+      "coordinates": { "title": "Coordinate System", "description": "Earn points, rank up and collect badges as you plan. From Traveler to Ambassador" },
+      "intelligence": { "title": "Travel Intelligence", "description": "Generative AI for itineraries + automatic checklists tailored to your route type" },
+      "routes": { "title": "4 Route Types", "description": "Domestic, Mercosur, International or Schengen — each with specific documentation and rules" }
     },
     "footer": {
       "copyright": "© 2026 Travel Planner. All rights reserved.",
