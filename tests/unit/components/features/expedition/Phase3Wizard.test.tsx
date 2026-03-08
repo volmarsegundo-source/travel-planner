@@ -187,7 +187,7 @@ describe("Phase3Wizard", () => {
   it("calls togglePhase3ItemAction when clicking an item", async () => {
     renderWizard();
 
-    const passportButton = screen.getByRole("button", {
+    const passportButton = screen.getByRole("checkbox", {
       name: "expedition.phase3.items.passport_valid_6m",
     });
     fireEvent.click(passportButton);
@@ -203,7 +203,7 @@ describe("Phase3Wizard", () => {
   it("updates item state after successful toggle", async () => {
     renderWizard();
 
-    const passportButton = screen.getByRole("button", {
+    const passportButton = screen.getByRole("checkbox", {
       name: "expedition.phase3.items.passport_valid_6m",
     });
     fireEvent.click(passportButton);
@@ -248,7 +248,7 @@ describe("Phase3Wizard", () => {
 
     renderWizard();
 
-    const passportButton = screen.getByRole("button", {
+    const passportButton = screen.getByRole("checkbox", {
       name: "expedition.phase3.items.passport_valid_6m",
     });
     fireEvent.click(passportButton);

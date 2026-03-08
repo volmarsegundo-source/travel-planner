@@ -13,6 +13,19 @@ import type { ActionResult } from "@/types/trip.types";
 // Fields stored encrypted in the database
 const ENCRYPTED_FIELDS = ["passportNumber", "nationalId"] as const;
 
+// Maximum lengths per field (matches Prisma @db.VarChar constraints)
+const FIELD_MAX_LENGTHS: Record<string, number> = {
+  phone: 20,
+  country: 100,
+  city: 100,
+  address: 300,
+  passportNumber: 50,
+  nationalId: 50,
+  bio: 500,
+  dietaryRestrictions: 300,
+  accessibility: 300,
+};
+
 // Map field keys to their database column names
 function getDbKey(fieldKey: string): string {
   if (ENCRYPTED_FIELDS.includes(fieldKey as typeof ENCRYPTED_FIELDS[number])) {
@@ -119,16 +132,28 @@ export async function updateProfileFieldAction(
     return { success: false, error: "errors.invalidField" };
   }
 
+  // Sanitize: trim whitespace
+  const trimmedValue = value.trim();
+  if (trimmedValue.length === 0) {
+    return { success: false, error: "errors.validation" };
+  }
+
+  // Validate length against DB constraints
+  const maxLen = FIELD_MAX_LENGTHS[fieldKey];
+  if (maxLen && trimmedValue.length > maxLen) {
+    return { success: false, error: "errors.validation" };
+  }
+
   try {
     const dbKey = getDbKey(fieldKey);
     let dbValue: unknown;
 
     if (fieldKey === "birthDate" || fieldKey === "passportExpiry") {
-      dbValue = new Date(value);
+      dbValue = new Date(trimmedValue);
     } else if (ENCRYPTED_FIELDS.includes(fieldKey as typeof ENCRYPTED_FIELDS[number])) {
-      dbValue = encrypt(value);
+      dbValue = encrypt(trimmedValue);
     } else {
-      dbValue = value;
+      dbValue = trimmedValue;
     }
 
     // Upsert profile

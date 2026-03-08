@@ -34,7 +34,7 @@ export function FeaturesSection() {
 
         {/* Section header */}
         <div className="mt-12 mb-12 text-center">
-          <p className="font-mono text-xs uppercase tracking-widest text-atlas-teal-light">
+          <p className="font-mono text-xs uppercase tracking-widest text-atlas-teal dark:text-atlas-teal-light">
             {t("sectionTag")}
           </p>
           <h2 className="mt-3 font-heading text-3xl font-bold text-foreground sm:text-4xl">

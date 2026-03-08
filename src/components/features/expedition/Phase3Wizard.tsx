@@ -171,7 +171,7 @@ export function Phase3Wizard({
         <div className="mt-4 text-center">
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
-          <p className="mt-2 text-sm text-atlas-teal-light">
+          <p className="mt-2 text-sm text-atlas-teal dark:text-atlas-teal-light">
             {destination} — {t(`tripTypes.${tripType}`)}
           </p>
         </div>
@@ -303,6 +303,8 @@ function ChecklistRow({
   return (
     <button
       type="button"
+      role="checkbox"
+      aria-checked={item.completed}
       onClick={() => onToggle(item.itemKey)}
       disabled={toggling}
       className={`relative flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all ${
