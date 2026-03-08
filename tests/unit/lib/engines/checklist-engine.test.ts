@@ -281,7 +281,7 @@ describe("ChecklistEngine.toggleItem", () => {
     expect(PointsEngine.earnPoints).toHaveBeenCalledWith(
       TEST_USER_ID,
       15,
-      "checklist",
+      "phase_checklist",
       "Checklist item: emergency_contacts (phase 3)",
       TEST_TRIP_ID
     );

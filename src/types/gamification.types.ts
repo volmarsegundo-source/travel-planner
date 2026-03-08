@@ -27,7 +27,10 @@ export type PointTransactionType =
   | "purchase"
   | "referral"
   | "checklist"
-  | "profile_completion";
+  | "profile_completion"
+  | "phase_checklist"
+  | "phase_accommodation"
+  | "phase_connectivity";
 
 export type Phase3ItemKey =
   | "passport_valid_6m"

@@ -110,14 +110,14 @@ export class ChecklistEngine {
     if (newCompleted && item.pointsValue > 0) {
       const description = `Checklist item: ${itemKey} (phase ${phaseNumber})`;
       const existingTx = await db.pointTransaction.findFirst({
-        where: { userId, type: "checklist", description, tripId },
+        where: { userId, type: "phase_checklist", description, tripId },
       });
       if (!existingTx) {
         pointsAwarded = item.pointsValue;
         await PointsEngine.earnPoints(
           userId,
           pointsAwarded,
-          "checklist",
+          "phase_checklist",
           description,
           tripId
         );
