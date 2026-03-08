@@ -27,7 +27,22 @@ export type PointTransactionType =
   | "purchase"
   | "referral"
   | "checklist"
-  | "profile_completion";
+  | "profile_completion"
+  | "phase_checklist"
+  | "phase_accommodation"
+  | "phase_connectivity";
+
+export type Phase3ItemKey =
+  | "passport_valid_6m"
+  | "visa_required"
+  | "travel_insurance"
+  | "yellow_fever_vaccine"
+  | "etias_eta"
+  | "emergency_contacts"
+  | "copies_documents"
+  | "local_currency";
+
+export type ConnectivityOption = "chip_local" | "esim" | "roaming" | "wifi_only";
 
 export type AiSpendType =
   | "ai_itinerary"

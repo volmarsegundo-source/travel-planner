@@ -488,6 +488,89 @@
         "groupSizeMin": "Mínimo de 2 viajantes."
       }
     },
+    "phase3": {
+      "title": "A Rota",
+      "subtitle": "Complete seu checklist de preparação de viagem.",
+      "requiredSection": "Obrigatório",
+      "recommendedSection": "Recomendado",
+      "progress": "{completed}/{total} itens obrigatórios",
+      "deadline": "Até {date}",
+      "cta": "Completar Fase e Ganhar Pontos",
+      "ctaDisabled": "Complete todos os itens obrigatórios",
+      "tripTypes": {
+        "domestic": "Nacional",
+        "mercosul": "Mercosul",
+        "international": "Internacional",
+        "schengen": "Schengen"
+      },
+      "items": {
+        "passport_valid_6m": "Passaporte válido por 6+ meses",
+        "visa_required": "Requisitos de visto verificados",
+        "travel_insurance": "Seguro viagem",
+        "yellow_fever_vaccine": "Vacina contra febre amarela",
+        "etias_eta": "Autorização ETIAS/ETA",
+        "emergency_contacts": "Contatos de emergência cadastrados",
+        "copies_documents": "Cópias de documentos importantes",
+        "local_currency": "Moeda local trocada"
+      }
+    },
+    "phase4": {
+      "title": "O Abrigo",
+      "subtitle": "Planeje seu transporte terrestre e documentação de direção.",
+      "carRentalQuestion": "Você vai precisar alugar um carro?",
+      "carRentalHint": "Isso determina se você precisa de documentação especial para dirigir.",
+      "carRentalYes": "Sim, vou",
+      "carRentalNo": "Não, obrigado",
+      "cinhRequired": "CNH Internacional (CINH) Necessária",
+      "cinhDescription": "Para dirigir neste destino, você precisa da CNH Internacional (Permissão Internacional para Dirigir). Solicite em um DETRAN.",
+      "cinhDeadline": "Obtenha até {date}",
+      "cinhLeadTime": "O processo leva até {days} dias",
+      "cinhConfirm": "Confirmo que vou obter ou já possuo minha CNH Internacional (CINH)",
+      "cnhBrasileiraValid": "Sua CNH brasileira é válida",
+      "cnhBrasileiraDescription": "Para países do Mercosul, sua CNH brasileira regular é aceita. Nenhuma documentação adicional necessária.",
+      "cnhRegularValid": "Sua CNH regular é suficiente",
+      "cnhRegularDescription": "Para viagens nacionais, sua CNH regular é tudo que você precisa.",
+      "noCarRental": "Sem aluguel de carro — você pode avançar para a próxima fase.",
+      "cta": "Completar Fase e Ganhar Pontos",
+      "ctaDisabled": "Confirme o status da sua CINH para prosseguir",
+      "tripTypes": {
+        "domestic": "Nacional",
+        "mercosul": "Mercosul",
+        "international": "Internacional",
+        "schengen": "Schengen"
+      }
+    },
+    "phase5": {
+      "title": "O Mapa dos Dias",
+      "subtitle": "Escolha seu plano de conectividade para a viagem.",
+      "selectPlan": "Selecione uma opção de conectividade",
+      "selectPlanHint": "Fique conectado no exterior com o melhor plano para sua região.",
+      "recommended": "Recomendado",
+      "free": "Grátis",
+      "perWeek": "/semana",
+      "cta": "Completar Fase e Ganhar Pontos",
+      "ctaDisabled": "Selecione um plano de conectividade",
+      "regions": {
+        "south_america": "América do Sul",
+        "north_america": "América do Norte",
+        "europe": "Europa",
+        "asia": "Ásia",
+        "africa": "África",
+        "oceania": "Oceania"
+      },
+      "options": {
+        "chip_local": "Chip Local",
+        "esim": "eSIM",
+        "roaming": "Roaming Internacional",
+        "wifi_only": "Apenas Wi-Fi"
+      },
+      "descriptions": {
+        "chip_local": "Compre um chip local no destino para as melhores tarifas.",
+        "esim": "Ative um eSIM antes de viajar — sem cartão físico necessário.",
+        "roaming": "Use o plano de roaming internacional da sua operadora atual.",
+        "wifi_only": "Dependa de redes Wi-Fi de hotéis, cafés e espaços públicos."
+      }
+    },
     "hub": {
       "title": "Expedição",
       "comingSoon": "A Fase {number} está chegando!",
@@ -503,7 +586,8 @@
       "advancingTo": "Avançando para a Fase {phase}...",
       "continue": "Continuar"
     },
-    "progress": "Passo {current} de {total}"
+    "progress": "Passo {current} de {total}",
+    "phaseProgress": "Fase {current} de {total}"
   },
   "gamification": {
     "ranks": {

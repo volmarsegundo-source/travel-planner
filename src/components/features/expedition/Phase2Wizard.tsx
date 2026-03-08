@@ -145,7 +145,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
 
   function handleTransitionContinue() {
     setShowTransition(false);
-    router.push("/dashboard");
+    router.push(`/expedition/${tripId}/phase-3`);
   }
 
   const travelerTypeOptions = [

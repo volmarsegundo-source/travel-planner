@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",
-    "dev": "NODE_OPTIONS='--max-old-space-size=2048' next dev --turbopack",
-    "build": "NODE_OPTIONS='--max-old-space-size=3072' next build",
+    "dev": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next dev --turbopack",
+    "build": "cross-env NODE_OPTIONS=--max-old-space-size=3072 next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -82,6 +82,7 @@
     "@types/react-dom": "^19.0.0",
     "@vitejs/plugin-react": "^4.3.0",
     "@vitest/coverage-v8": "^4.0.18",
+    "cross-env": "^10.1.0",
     "eslint": "^9.16.0",
     "eslint-config-next": "^15.1.0",
     "jsdom": "^25.0.1",

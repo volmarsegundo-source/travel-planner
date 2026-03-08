@@ -488,6 +488,89 @@
         "groupSizeMin": "At least 2 travelers required."
       }
     },
+    "phase3": {
+      "title": "The Route",
+      "subtitle": "Complete your travel preparation checklist.",
+      "requiredSection": "Required",
+      "recommendedSection": "Recommended",
+      "progress": "{completed}/{total} required items",
+      "deadline": "By {date}",
+      "cta": "Complete Phase & Earn Points",
+      "ctaDisabled": "Complete all required items first",
+      "tripTypes": {
+        "domestic": "Domestic",
+        "mercosul": "Mercosul",
+        "international": "International",
+        "schengen": "Schengen"
+      },
+      "items": {
+        "passport_valid_6m": "Passport valid for 6+ months",
+        "visa_required": "Visa requirements checked",
+        "travel_insurance": "Travel insurance",
+        "yellow_fever_vaccine": "Yellow fever vaccine",
+        "etias_eta": "ETIAS/ETA authorization",
+        "emergency_contacts": "Emergency contacts registered",
+        "copies_documents": "Copies of important documents",
+        "local_currency": "Local currency exchanged"
+      }
+    },
+    "phase4": {
+      "title": "The Shelter",
+      "subtitle": "Plan your ground transportation and driving requirements.",
+      "carRentalQuestion": "Will you need a rental car?",
+      "carRentalHint": "This determines if you need any special driving documentation.",
+      "carRentalYes": "Yes, I will",
+      "carRentalNo": "No, thanks",
+      "cinhRequired": "CNH Internacional (CINH) Required",
+      "cinhDescription": "For driving in this destination, you need a CNH Internacional (International Driving Permit). Apply at a DETRAN office in Brazil.",
+      "cinhDeadline": "Get it by {date}",
+      "cinhLeadTime": "Processing takes up to {days} days",
+      "cinhConfirm": "I confirm I will obtain or already have my CNH Internacional (CINH)",
+      "cnhBrasileiraValid": "Your Brazilian CNH is valid",
+      "cnhBrasileiraDescription": "For Mercosul countries, your regular Brazilian CNH is accepted. No additional documentation needed.",
+      "cnhRegularValid": "Your regular CNH is sufficient",
+      "cnhRegularDescription": "For domestic travel, your regular CNH is all you need.",
+      "noCarRental": "No car rental needed — you can proceed to the next phase.",
+      "cta": "Complete Phase & Earn Points",
+      "ctaDisabled": "Confirm your CINH status to proceed",
+      "tripTypes": {
+        "domestic": "Domestic",
+        "mercosul": "Mercosul",
+        "international": "International",
+        "schengen": "Schengen"
+      }
+    },
+    "phase5": {
+      "title": "The Day Map",
+      "subtitle": "Choose your connectivity plan for the trip.",
+      "selectPlan": "Select a connectivity option",
+      "selectPlanHint": "Stay connected abroad with the best plan for your region.",
+      "recommended": "Recommended",
+      "free": "Free",
+      "perWeek": "/week",
+      "cta": "Complete Phase & Earn Points",
+      "ctaDisabled": "Select a connectivity plan",
+      "regions": {
+        "south_america": "South America",
+        "north_america": "North America",
+        "europe": "Europe",
+        "asia": "Asia",
+        "africa": "Africa",
+        "oceania": "Oceania"
+      },
+      "options": {
+        "chip_local": "Local SIM Card",
+        "esim": "eSIM",
+        "roaming": "International Roaming",
+        "wifi_only": "Wi-Fi Only"
+      },
+      "descriptions": {
+        "chip_local": "Buy a local SIM at your destination for the best rates.",
+        "esim": "Activate an eSIM before you travel — no physical card needed.",
+        "roaming": "Use your current carrier's international roaming plan.",
+        "wifi_only": "Rely on hotel, café, and public Wi-Fi networks."
+      }
+    },
     "hub": {
       "title": "Expedition",
       "comingSoon": "Phase {number} is coming soon!",
@@ -503,7 +586,8 @@
       "advancingTo": "Advancing to Phase {phase}...",
       "continue": "Continue"
     },
-    "progress": "Step {current} of {total}"
+    "progress": "Step {current} of {total}",
+    "phaseProgress": "Phase {current} of {total}"
   },
   "gamification": {
     "ranks": {

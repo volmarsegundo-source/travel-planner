@@ -1,4 +1,5 @@
 import type { TripType } from "./trip-classifier";
+import type { Phase3ItemKey } from "@/types/gamification.types";
 
 export type ChecklistItemKey =
   | "national_id"
@@ -67,4 +68,79 @@ export const CHECKLIST_RULES: Record<TripType, ChecklistRule[]> = {
     { key: "flight_tickets", required: true, phase: 3 },
     { key: "accommodation", required: true, phase: 4 },
   ],
+};
+
+// ─── Phase 3 Checklist Rules (A Rota) ─────────────────────────────────────
+
+export interface Phase3ChecklistRule {
+  key: Phase3ItemKey;
+  requiredFor: TripType[];
+  recommendedFor: TripType[];
+  deadlineDaysBefore: number;
+}
+
+export const PHASE3_CHECKLIST: Phase3ChecklistRule[] = [
+  {
+    key: "passport_valid_6m",
+    requiredFor: ["international", "schengen"],
+    recommendedFor: ["mercosul"],
+    deadlineDaysBefore: 90,
+  },
+  {
+    key: "visa_required",
+    requiredFor: ["international", "schengen"],
+    recommendedFor: [],
+    deadlineDaysBefore: 60,
+  },
+  {
+    key: "travel_insurance",
+    requiredFor: ["international", "schengen"],
+    recommendedFor: ["domestic", "mercosul"],
+    deadlineDaysBefore: 30,
+  },
+  {
+    key: "yellow_fever_vaccine",
+    requiredFor: [],
+    recommendedFor: ["mercosul", "international"],
+    deadlineDaysBefore: 60,
+  },
+  {
+    key: "etias_eta",
+    requiredFor: ["schengen"],
+    recommendedFor: [],
+    deadlineDaysBefore: 30,
+  },
+  {
+    key: "emergency_contacts",
+    requiredFor: ["domestic", "mercosul", "international", "schengen"],
+    recommendedFor: [],
+    deadlineDaysBefore: 14,
+  },
+  {
+    key: "copies_documents",
+    requiredFor: ["international", "schengen"],
+    recommendedFor: ["domestic", "mercosul"],
+    deadlineDaysBefore: 14,
+  },
+  {
+    key: "local_currency",
+    requiredFor: ["mercosul", "international", "schengen"],
+    recommendedFor: [],
+    deadlineDaysBefore: 7,
+  },
+];
+
+// ─── Phase 4 CNH Rules (O Abrigo) ─────────────────────────────────────────
+
+export interface CnhRule {
+  required: boolean;
+  type: "cnh_brasileira" | "cinh" | null;
+  leadTimeDays: number;
+}
+
+export const CNH_RULES: Record<TripType, CnhRule> = {
+  domestic: { required: false, type: null, leadTimeDays: 0 },
+  mercosul: { required: false, type: "cnh_brasileira", leadTimeDays: 0 },
+  international: { required: true, type: "cinh", leadTimeDays: 45 },
+  schengen: { required: true, type: "cinh", leadTimeDays: 45 },
 };
