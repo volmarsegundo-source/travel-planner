@@ -306,7 +306,12 @@
     "newExpedition": "Nova Expedição",
     "phaseProgress": "{completed} de {total} fases",
     "currentPhase": "Fase {number}",
-    "viewExpedition": "Continuar"
+    "viewExpedition": "Continuar",
+    "checklist": {
+      "items": "{done}/{total} itens",
+      "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
+      "ariaLabel": "Progresso do checklist: {done} de {total} itens obrigatórios completos"
+    }
   },
   "profile": {
     "title": "Perfil do Explorador",
@@ -497,6 +502,9 @@
       "deadline": "Até {date}",
       "cta": "Completar Fase e Ganhar Pontos",
       "ctaDisabled": "Complete todos os itens obrigatórios",
+      "advancePending": "Avançar (checklist pendente)",
+      "advancePartial": "Avançar ({count} itens pendentes)",
+      "advanceComplete": "Fase Completa — Avançar →",
       "tripTypes": {
         "domestic": "Nacional",
         "mercosul": "Mercosul",
@@ -533,6 +541,9 @@
       "noCarRental": "Sem aluguel de carro — você pode avançar para a próxima fase.",
       "cta": "Completar Fase e Ganhar Pontos",
       "ctaDisabled": "Confirme o status da sua CINH para prosseguir",
+      "advancePending": "Avançar (aluguel de carro pendente)",
+      "advancePartial": "Avançar ({count} itens pendentes)",
+      "advanceComplete": "Fase Completa — Avançar →",
       "tripTypes": {
         "domestic": "Nacional",
         "mercosul": "Mercosul",

@@ -27,11 +27,11 @@ vi.mock("@/i18n/navigation", () => ({
 }));
 
 const mockToggleAction = vi.fn();
-const mockCompleteAction = vi.fn();
+const mockAdvanceAction = vi.fn();
 
 vi.mock("@/server/actions/expedition.actions", () => ({
   togglePhase3ItemAction: (...args: unknown[]) => mockToggleAction(...args),
-  completePhase3Action: (...args: unknown[]) => mockCompleteAction(...args),
+  advanceFromPhaseAction: (...args: unknown[]) => mockAdvanceAction(...args),
 }));
 
 // ─── Import SUT ───────────────────────────────────────────────────────────────
@@ -94,14 +94,18 @@ beforeEach(() => {
     success: true,
     data: { completed: true, pointsAwarded: 15 },
   });
-  mockCompleteAction.mockResolvedValue({
+  mockAdvanceAction.mockResolvedValue({
     success: true,
     data: {
-      phaseNumber: 3,
-      pointsEarned: 75,
-      badgeAwarded: "navigator",
-      newRank: null,
-      nextPhaseUnlocked: 4,
+      nextPhase: 4,
+      completed: true,
+      phaseResult: {
+        phaseNumber: 3,
+        pointsEarned: 75,
+        badgeAwarded: "navigator",
+        newRank: null,
+        nextPhaseUnlocked: 4,
+      },
     },
   });
 });
@@ -162,26 +166,38 @@ describe("Phase3Wizard", () => {
     expect(screen.getByText(/progress\[1,3\]/)).toBeInTheDocument();
   });
 
-  it("disables complete button when required items are incomplete", () => {
+  it("advance button is always enabled even when required items are incomplete", () => {
     renderWizard();
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.ctaDisabled/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase3\.advancePartial/,
     });
-    expect(completeButton).toBeDisabled();
+    expect(advanceButton).not.toBeDisabled();
   });
 
-  it("enables complete button when all required items are complete", () => {
+  it("shows advancePending text when 0 required items are done", () => {
+    const noneDone = MOCK_ITEMS.map((item) => ({
+      ...item,
+      completed: false,
+    }));
+    renderWizard(noneDone);
+
+    expect(
+      screen.getByRole("button", { name: /expedition\.phase3\.advancePending/ })
+    ).toBeInTheDocument();
+  });
+
+  it("shows advanceComplete text when all required items are complete", () => {
     const allDone = MOCK_ITEMS.map((item) => ({
       ...item,
       completed: item.required ? true : item.completed,
     }));
     renderWizard(allDone);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase3\.advanceComplete/,
     });
-    expect(completeButton).not.toBeDisabled();
+    expect(advanceButton).not.toBeDisabled();
   });
 
   it("calls togglePhase3ItemAction when clicking an item", async () => {
@@ -223,20 +239,33 @@ describe("Phase3Wizard", () => {
     expect(screen.getByText("+8")).toBeInTheDocument();
   });
 
-  it("calls completePhase3Action when clicking complete", async () => {
+  it("calls advanceFromPhaseAction when clicking advance", async () => {
     const allDone = MOCK_ITEMS.map((item) => ({
       ...item,
       completed: item.required ? true : item.completed,
     }));
     renderWizard(allDone);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase3\.advanceComplete/,
     });
-    fireEvent.click(completeButton);
+    fireEvent.click(advanceButton);
 
     await waitFor(() => {
-      expect(mockCompleteAction).toHaveBeenCalledWith("trip-001");
+      expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 3);
+    });
+  });
+
+  it("calls advanceFromPhaseAction even with incomplete items", async () => {
+    renderWizard();
+
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase3\.advancePartial/,
+    });
+    fireEvent.click(advanceButton);
+
+    await waitFor(() => {
+      expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 3);
     });
   });
 

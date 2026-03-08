@@ -59,6 +59,7 @@ export interface PhaseDefinition {
   aiCost: number;
   badgeKey: BadgeKey | null;
   rankPromotion: Rank | null;
+  nonBlocking: boolean;
 }
 
 export interface PhaseCompletionResult {

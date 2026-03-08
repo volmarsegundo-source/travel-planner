@@ -306,7 +306,12 @@
     "newExpedition": "New Expedition",
     "phaseProgress": "{completed} of {total} phases",
     "currentPhase": "Phase {number}",
-    "viewExpedition": "Continue"
+    "viewExpedition": "Continue",
+    "checklist": {
+      "items": "{done}/{total} items",
+      "tooltip": "{required} required · {recommended} recommended pending",
+      "ariaLabel": "Checklist progress: {done} of {total} required items done"
+    }
   },
   "profile": {
     "title": "Explorer Profile",
@@ -497,6 +502,9 @@
       "deadline": "By {date}",
       "cta": "Complete Phase & Earn Points",
       "ctaDisabled": "Complete all required items first",
+      "advancePending": "Advance (checklist pending)",
+      "advancePartial": "Advance ({count} items pending)",
+      "advanceComplete": "Phase Complete — Advance →",
       "tripTypes": {
         "domestic": "Domestic",
         "mercosul": "Mercosul",
@@ -533,6 +541,9 @@
       "noCarRental": "No car rental needed — you can proceed to the next phase.",
       "cta": "Complete Phase & Earn Points",
       "ctaDisabled": "Confirm your CINH status to proceed",
+      "advancePending": "Advance (car rental pending)",
+      "advancePartial": "Advance ({count} items pending)",
+      "advanceComplete": "Phase Complete — Advance →",
       "tripTypes": {
         "domestic": "Domestic",
         "mercosul": "Mercosul",

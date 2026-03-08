@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
+import { ChecklistProgressMini } from "./ChecklistProgressMini";
 
 interface ExpeditionCardProps {
   tripId: string;
@@ -10,6 +11,9 @@ interface ExpeditionCardProps {
   completedPhases: number;
   totalPhases: number;
   coverEmoji: string;
+  checklistRequired: number;
+  checklistRequiredDone: number;
+  checklistRecommendedPending: number;
 }
 
 export function ExpeditionCard({
@@ -19,6 +23,9 @@ export function ExpeditionCard({
   completedPhases,
   totalPhases,
   coverEmoji,
+  checklistRequired,
+  checklistRequiredDone,
+  checklistRecommendedPending,
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
 
@@ -52,6 +59,15 @@ export function ExpeditionCard({
               aria-valuemax={totalPhases}
             />
           </div>
+          {/* Checklist badge — visible from phase 3 onward */}
+          {currentPhase >= 3 && checklistRequired > 0 && (
+            <ChecklistProgressMini
+              tripId={tripId}
+              requiredTotal={checklistRequired}
+              requiredDone={checklistRequiredDone}
+              recommendedPending={checklistRecommendedPending}
+            />
+          )}
         </div>
         <span className="text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
           {t("viewExpedition")}

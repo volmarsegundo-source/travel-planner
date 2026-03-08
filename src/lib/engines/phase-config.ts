@@ -12,6 +12,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 0,
     badgeKey: "first_step",
     rankPromotion: null,
+    nonBlocking: false,
   },
   {
     phaseNumber: 2,
@@ -22,6 +23,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 0,
     badgeKey: null,
     rankPromotion: "explorer",
+    nonBlocking: false,
   },
   {
     phaseNumber: 3,
@@ -32,6 +34,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 100,
     badgeKey: "navigator",
     rankPromotion: null,
+    nonBlocking: true,
   },
   {
     phaseNumber: 4,
@@ -42,6 +45,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 100,
     badgeKey: "host",
     rankPromotion: null,
+    nonBlocking: true,
   },
   {
     phaseNumber: 5,
@@ -52,6 +56,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 150,
     badgeKey: null,
     rankPromotion: "cartographer",
+    nonBlocking: false,
   },
   {
     phaseNumber: 6,
@@ -62,6 +67,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 0,
     badgeKey: "treasurer",
     rankPromotion: null,
+    nonBlocking: false,
   },
   {
     phaseNumber: 7,
@@ -72,6 +78,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 0,
     badgeKey: null,
     rankPromotion: "pathfinder",
+    nonBlocking: false,
   },
   {
     phaseNumber: 8,
@@ -82,6 +89,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     aiCost: 0,
     badgeKey: "ambassador",
     rankPromotion: null,
+    nonBlocking: false,
   },
 ] as const;
 

@@ -129,13 +129,29 @@ export class PhaseEngine {
       );
     }
 
-    // 2. Validate phase order
-    if (phaseNumber !== trip.currentPhase) {
-      throw new AppError(
-        "PHASE_ORDER_VIOLATION",
-        `Expected phase ${trip.currentPhase}, got ${phaseNumber}`,
-        400
-      );
+    // 2. Validate phase order (non-blocking phases can be completed retroactively)
+    const definition = getPhaseDefinition(phaseNumber);
+    if (!definition) {
+      throw new AppError("INVALID_PHASE", `Phase ${phaseNumber} not found`, 400);
+    }
+
+    if (definition.nonBlocking) {
+      // Non-blocking: allow completing if phaseNumber <= currentPhase
+      if (phaseNumber > trip.currentPhase) {
+        throw new AppError(
+          "PHASE_ORDER_VIOLATION",
+          `Expected phase ${trip.currentPhase} or earlier, got ${phaseNumber}`,
+          400
+        );
+      }
+    } else {
+      if (phaseNumber !== trip.currentPhase) {
+        throw new AppError(
+          "PHASE_ORDER_VIOLATION",
+          `Expected phase ${trip.currentPhase}, got ${phaseNumber}`,
+          400
+        );
+      }
     }
 
     // 3. Validate phase status
@@ -143,7 +159,7 @@ export class PhaseEngine {
       where: { tripId_phaseNumber: { tripId, phaseNumber } },
     });
 
-    if (!phase || phase.status !== "active") {
+    if (!phase || phase.status === "locked") {
       throw new AppError(
         "PHASE_NOT_ACTIVE",
         `Phase ${phaseNumber} is not active`,
@@ -151,9 +167,13 @@ export class PhaseEngine {
       );
     }
 
-    const definition = getPhaseDefinition(phaseNumber);
-    if (!definition) {
-      throw new AppError("INVALID_PHASE", `Phase ${phaseNumber} not found`, 400);
+    // Non-blocking phases that are already completed cannot be completed again
+    if (phase.status === "completed") {
+      throw new AppError(
+        "PHASE_ALREADY_COMPLETED",
+        `Phase ${phaseNumber} is already completed`,
+        400
+      );
     }
 
     // 3.5 Validate phase prerequisites for phases 3-5
@@ -219,10 +239,11 @@ export class PhaseEngine {
         nextPhaseUnlocked = nextPhase;
       }
 
-      // f. Update trip currentPhase
+      // f. Update trip currentPhase (use Math.max to avoid regressing for non-blocking phases)
+      const newCurrentPhase = Math.min(phaseNumber + 1, TOTAL_PHASES);
       await tx.trip.update({
         where: { id: tripId },
-        data: { currentPhase: Math.min(phaseNumber + 1, TOTAL_PHASES) },
+        data: { currentPhase: Math.max(newCurrentPhase, trip.currentPhase) },
       });
 
       return {
@@ -244,6 +265,90 @@ export class PhaseEngine {
     });
 
     return result;
+  }
+
+  /**
+   * Advance from a non-blocking phase without completing it.
+   * Unlocks the next phase and updates trip.currentPhase but does NOT
+   * award points, badges, or mark the phase as "completed".
+   */
+  static async advanceFromPhase(
+    tripId: string,
+    userId: string,
+    phaseNumber: PhaseNumber
+  ): Promise<{ nextPhase: PhaseNumber }> {
+    // 1. Validate trip + BOLA + expeditionMode
+    const trip = await db.trip.findFirst({
+      where: { id: tripId, userId, deletedAt: null },
+    });
+
+    if (!trip) {
+      throw new ForbiddenError();
+    }
+
+    if (!trip.expeditionMode) {
+      throw new AppError(
+        "NOT_EXPEDITION",
+        "Trip is not in expedition mode",
+        400
+      );
+    }
+
+    // 2. Must be current phase
+    if (phaseNumber !== trip.currentPhase) {
+      throw new AppError(
+        "PHASE_ORDER_VIOLATION",
+        `Can only advance from current phase ${trip.currentPhase}, got ${phaseNumber}`,
+        400
+      );
+    }
+
+    // 3. Phase must be active and non-blocking
+    const phase = await db.expeditionPhase.findUnique({
+      where: { tripId_phaseNumber: { tripId, phaseNumber } },
+    });
+
+    if (!phase || phase.status !== "active") {
+      throw new AppError(
+        "PHASE_NOT_ACTIVE",
+        `Phase ${phaseNumber} is not active`,
+        400
+      );
+    }
+
+    const definition = getPhaseDefinition(phaseNumber);
+    if (!definition || !definition.nonBlocking) {
+      throw new AppError(
+        "PHASE_NOT_NON_BLOCKING",
+        `Phase ${phaseNumber} cannot be skipped — it must be completed`,
+        400
+      );
+    }
+
+    // 4. Transaction: unlock next phase + update trip.currentPhase
+    const nextPhase = (phaseNumber + 1) as PhaseNumber;
+    await db.$transaction(async (tx: Tx) => {
+      // Unlock next phase (idempotent)
+      await tx.expeditionPhase.update({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: nextPhase } },
+        data: { status: "active" },
+      });
+
+      // Update trip currentPhase
+      await tx.trip.update({
+        where: { id: tripId },
+        data: { currentPhase: nextPhase },
+      });
+    });
+
+    logger.info("gamification.phaseAdvanced", {
+      tripId,
+      userId,
+      phaseNumber,
+      nextPhase,
+    });
+
+    return { nextPhase };
   }
 
   /**

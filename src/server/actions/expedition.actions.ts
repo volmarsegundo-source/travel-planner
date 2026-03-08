@@ -228,6 +228,112 @@ export async function completePhase5Action(
   }
 }
 
+// ─── advanceFromPhaseAction ─────────────────────────────────────────────────
+
+export async function advanceFromPhaseAction(
+  tripId: string,
+  phaseNumber: number,
+  metadata?: { needsCarRental?: boolean; cnhResolved?: boolean }
+): Promise<
+  ActionResult<{
+    nextPhase: number;
+    completed: boolean;
+    phaseResult?: PhaseCompletionResult;
+  }>
+> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    // For phase 4, save metadata first if provided
+    if (phaseNumber === 4 && metadata) {
+      const phase = await db.expeditionPhase.findUnique({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      });
+      if (phase) {
+        await db.expeditionPhase.update({
+          where: { id: phase.id },
+          data: {
+            metadata: {
+              needsCarRental: metadata.needsCarRental ?? false,
+              cnhResolved: metadata.cnhResolved ?? false,
+            },
+          },
+        });
+      }
+    }
+
+    // Check if prerequisites are met
+    let prerequisitesMet = false;
+
+    if (phaseNumber === 3) {
+      const requiredIncomplete = await db.phaseChecklistItem.count({
+        where: { tripId, phaseNumber: 3, required: true, completed: false },
+      });
+      prerequisitesMet = requiredIncomplete === 0;
+    } else if (phaseNumber === 4) {
+      const phase = await db.expeditionPhase.findUnique({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      });
+      const phaseMeta = phase?.metadata as Record<string, unknown> | null;
+      const trip = await db.trip.findFirst({
+        where: { id: tripId, userId: session.user.id, deletedAt: null },
+        select: { tripType: true },
+      });
+      const needsCinh =
+        trip?.tripType === "international" || trip?.tripType === "schengen";
+      if (phaseMeta?.needsCarRental === true) {
+        prerequisitesMet = !needsCinh || phaseMeta?.cnhResolved === true;
+      } else {
+        // No car rental or hasn't decided yet
+        prerequisitesMet = phaseMeta?.needsCarRental === false;
+      }
+    }
+
+    if (prerequisitesMet) {
+      // Full completion: awards points, badge, rank
+      const phaseResult = await PhaseEngine.completePhase(
+        tripId,
+        session.user.id,
+        phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+      );
+      revalidatePath("/dashboard");
+      revalidatePath(`/expedition/${tripId}`);
+      return {
+        success: true,
+        data: {
+          nextPhase: phaseResult.nextPhaseUnlocked ?? phaseNumber,
+          completed: true,
+          phaseResult,
+        },
+      };
+    } else {
+      // Non-blocking advance: skip without points
+      const result = await PhaseEngine.advanceFromPhase(
+        tripId,
+        session.user.id,
+        phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+      );
+      revalidatePath("/dashboard");
+      revalidatePath(`/expedition/${tripId}`);
+      return {
+        success: true,
+        data: {
+          nextPhase: result.nextPhase,
+          completed: false,
+        },
+      };
+    }
+  } catch (error) {
+    logger.error("expedition.advanceFromPhase.error", error, {
+      userId: session.user.id,
+      tripId,
+      phaseNumber,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
 // ─── getExpeditionPhasesAction ───────────────────────────────────────────────
 
 export async function getExpeditionPhasesAction(
