@@ -7,6 +7,7 @@ import { ExpeditionService } from "@/server/services/expedition.service";
 import { ProfileService } from "@/server/services/profile.service";
 import { PhaseEngine } from "@/lib/engines/phase-engine";
 import { ChecklistEngine } from "@/lib/engines/checklist-engine";
+import { db } from "@/server/db";
 import { Phase1Schema, Phase2Schema } from "@/lib/validations/expedition.schema";
 import type { Phase1Input, Phase2Input } from "@/lib/validations/expedition.schema";
 import type { ActionResult } from "@/types/trip.types";
@@ -142,6 +143,45 @@ export async function completePhase3Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase3.error", error, {
+      userId: session.user.id,
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── completePhase4Action ───────────────────────────────────────────────────
+
+export async function completePhase4Action(
+  tripId: string,
+  data: { needsCarRental: boolean; cnhResolved: boolean }
+): Promise<ActionResult<PhaseCompletionResult>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    // Save metadata on the phase BEFORE completing (prerequisite validation reads it)
+    const phase = await db.expeditionPhase.findUnique({
+      where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+    });
+    if (phase) {
+      await db.expeditionPhase.update({
+        where: { id: phase.id },
+        data: {
+          metadata: {
+            needsCarRental: data.needsCarRental,
+            cnhResolved: data.cnhResolved,
+          },
+        },
+      });
+    }
+
+    const result = await PhaseEngine.completePhase(tripId, session.user.id, 4);
+    revalidatePath("/dashboard");
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: result };
+  } catch (error) {
+    logger.error("expedition.completePhase4.error", error, {
       userId: session.user.id,
       tripId,
     });

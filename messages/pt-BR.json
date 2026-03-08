@@ -514,6 +514,32 @@
         "local_currency": "Moeda local trocada"
       }
     },
+    "phase4": {
+      "title": "O Abrigo",
+      "subtitle": "Planeje seu transporte terrestre e documentação de direção.",
+      "carRentalQuestion": "Você vai precisar alugar um carro?",
+      "carRentalHint": "Isso determina se você precisa de documentação especial para dirigir.",
+      "carRentalYes": "Sim, vou",
+      "carRentalNo": "Não, obrigado",
+      "cinhRequired": "CNH Internacional (CINH) Necessária",
+      "cinhDescription": "Para dirigir neste destino, você precisa da CNH Internacional (Permissão Internacional para Dirigir). Solicite em um DETRAN.",
+      "cinhDeadline": "Obtenha até {date}",
+      "cinhLeadTime": "O processo leva até {days} dias",
+      "cinhConfirm": "Confirmo que vou obter ou já possuo minha CNH Internacional (CINH)",
+      "cnhBrasileiraValid": "Sua CNH brasileira é válida",
+      "cnhBrasileiraDescription": "Para países do Mercosul, sua CNH brasileira regular é aceita. Nenhuma documentação adicional necessária.",
+      "cnhRegularValid": "Sua CNH regular é suficiente",
+      "cnhRegularDescription": "Para viagens nacionais, sua CNH regular é tudo que você precisa.",
+      "noCarRental": "Sem aluguel de carro — você pode avançar para a próxima fase.",
+      "cta": "Completar Fase e Ganhar Pontos",
+      "ctaDisabled": "Confirme o status da sua CINH para prosseguir",
+      "tripTypes": {
+        "domestic": "Nacional",
+        "mercosul": "Mercosul",
+        "international": "Internacional",
+        "schengen": "Schengen"
+      }
+    },
     "hub": {
       "title": "Expedição",
       "comingSoon": "A Fase {number} está chegando!",

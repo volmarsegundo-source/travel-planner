@@ -123,7 +123,7 @@ export function Phase3Wizard({
 
   function handleTransitionContinue() {
     setShowTransition(false);
-    router.push("/dashboard");
+    router.push(`/expedition/${tripId}/phase-4`);
   }
 
   function formatDeadline(iso: string | null): string | null {
