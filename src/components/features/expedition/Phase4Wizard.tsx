@@ -118,7 +118,7 @@ export function Phase4Wizard({
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <ExpeditionProgressBar currentPhase={4} totalPhases={8} />
+        <ExpeditionProgressBar currentPhase={4} totalPhases={8} tripId={tripId} />
 
         {/* Header */}
         <div className="mt-4 text-center">
