@@ -586,7 +586,8 @@
       "advancingTo": "Avançando para a Fase {phase}...",
       "continue": "Continuar"
     },
-    "progress": "Passo {current} de {total}"
+    "progress": "Passo {current} de {total}",
+    "phaseProgress": "Fase {current} de {total}"
   },
   "gamification": {
     "ranks": {

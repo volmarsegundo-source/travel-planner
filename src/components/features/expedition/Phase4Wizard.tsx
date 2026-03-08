@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
+import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import { completePhase4Action } from "@/server/actions/expedition.actions";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
@@ -113,8 +114,10 @@ export function Phase4Wizard({
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
+        <ExpeditionProgressBar currentPhase={4} totalPhases={8} />
+
         {/* Header */}
-        <div className="text-center">
+        <div className="mt-4 text-center">
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
           <p className="mt-2 text-sm text-atlas-teal-light">
