@@ -52,3 +52,69 @@ export const CONNECTIVITY_DATA: Record<ConnectivityRegion, ConnectivityPlan[]> =
     { option: "wifi_only", costPerWeekUSD: 0, recommended: false },
   ],
 };
+
+// ─── Region Detection ────────────────────────────────────────────────────────
+
+const REGION_KEYWORDS: Record<ConnectivityRegion, string[]> = {
+  south_america: [
+    "brazil", "brasil", "argentina", "chile", "colombia", "peru",
+    "uruguay", "paraguai", "paraguay", "bolivia", "ecuador", "venezuela",
+    "guyana", "suriname", "são paulo", "rio de janeiro", "buenos aires",
+    "santiago", "bogotá", "lima",
+  ],
+  north_america: [
+    "usa", "united states", "estados unidos", "canada", "canadá",
+    "mexico", "méxico", "new york", "los angeles", "toronto", "vancouver",
+    "miami", "chicago", "san francisco",
+  ],
+  europe: [
+    "france", "frança", "germany", "alemanha", "italy", "itália",
+    "spain", "espanha", "portugal", "uk", "united kingdom", "reino unido",
+    "netherlands", "holanda", "belgium", "bélgica", "switzerland", "suíça",
+    "austria", "áustria", "greece", "grécia", "sweden", "suécia",
+    "paris", "london", "londres", "rome", "roma", "berlin", "berlim",
+    "madrid", "barcelona", "lisbon", "lisboa", "amsterdam",
+  ],
+  asia: [
+    "japan", "japão", "china", "south korea", "coreia do sul", "india",
+    "índia", "thailand", "tailândia", "vietnam", "vietnã", "indonesia",
+    "indonésia", "malaysia", "malásia", "singapore", "singapura",
+    "tokyo", "tóquio", "bangkok", "seoul", "seul", "delhi",
+  ],
+  africa: [
+    "south africa", "áfrica do sul", "egypt", "egito", "morocco",
+    "marrocos", "kenya", "quênia", "nigeria", "nigéria", "tanzania",
+    "tanzânia", "cape town", "cairo", "marrakech", "nairobi",
+  ],
+  oceania: [
+    "australia", "austrália", "new zealand", "nova zelândia",
+    "sydney", "melbourne", "auckland", "fiji",
+  ],
+};
+
+/**
+ * Detect connectivity region from destination string and trip type.
+ * Falls back to south_america for domestic/mercosul, europe for schengen,
+ * and europe for unknown international destinations.
+ */
+export function detectRegion(
+  destination: string,
+  tripType: string
+): ConnectivityRegion {
+  const lower = destination.toLowerCase();
+
+  for (const [region, keywords] of Object.entries(REGION_KEYWORDS)) {
+    if (keywords.some((kw) => lower.includes(kw))) {
+      return region as ConnectivityRegion;
+    }
+  }
+
+  // Fallback by trip type
+  if (tripType === "domestic" || tripType === "mercosul") {
+    return "south_america";
+  }
+  if (tripType === "schengen") {
+    return "europe";
+  }
+  return "europe";
+}

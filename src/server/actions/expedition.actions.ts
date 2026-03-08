@@ -189,6 +189,45 @@ export async function completePhase4Action(
   }
 }
 
+// ─── completePhase5Action ───────────────────────────────────────────────────
+
+export async function completePhase5Action(
+  tripId: string,
+  data: { connectivityChoice: string; region: string }
+): Promise<ActionResult<PhaseCompletionResult>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    // Save metadata on the phase BEFORE completing (prerequisite validation reads it)
+    const phase = await db.expeditionPhase.findUnique({
+      where: { tripId_phaseNumber: { tripId, phaseNumber: 5 } },
+    });
+    if (phase) {
+      await db.expeditionPhase.update({
+        where: { id: phase.id },
+        data: {
+          metadata: {
+            connectivityChoice: data.connectivityChoice,
+            region: data.region,
+          },
+        },
+      });
+    }
+
+    const result = await PhaseEngine.completePhase(tripId, session.user.id, 5);
+    revalidatePath("/dashboard");
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: result };
+  } catch (error) {
+    logger.error("expedition.completePhase5.error", error, {
+      userId: session.user.id,
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
 // ─── getExpeditionPhasesAction ───────────────────────────────────────────────
 
 export async function getExpeditionPhasesAction(

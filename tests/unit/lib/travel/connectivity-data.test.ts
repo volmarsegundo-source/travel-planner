@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   CONNECTIVITY_DATA,
+  detectRegion,
   type ConnectivityRegion,
 } from "@/lib/travel/connectivity-data";
 
@@ -69,5 +70,51 @@ describe("CONNECTIVITY_DATA", () => {
         expect(plan.costPerWeekUSD).toBeGreaterThanOrEqual(0);
       }
     }
+  });
+});
+
+describe("detectRegion", () => {
+  it("detects europe from Paris", () => {
+    expect(detectRegion("Paris, France", "international")).toBe("europe");
+  });
+
+  it("detects south_america from Buenos Aires", () => {
+    expect(detectRegion("Buenos Aires, Argentina", "mercosul")).toBe("south_america");
+  });
+
+  it("detects north_america from New York", () => {
+    expect(detectRegion("New York, USA", "international")).toBe("north_america");
+  });
+
+  it("detects asia from Tokyo", () => {
+    expect(detectRegion("Tokyo, Japan", "international")).toBe("asia");
+  });
+
+  it("detects africa from Cape Town", () => {
+    expect(detectRegion("Cape Town, South Africa", "international")).toBe("africa");
+  });
+
+  it("detects oceania from Sydney", () => {
+    expect(detectRegion("Sydney, Australia", "international")).toBe("oceania");
+  });
+
+  it("falls back to south_america for domestic trips", () => {
+    expect(detectRegion("Unknown City", "domestic")).toBe("south_america");
+  });
+
+  it("falls back to south_america for mercosul trips", () => {
+    expect(detectRegion("Unknown City", "mercosul")).toBe("south_america");
+  });
+
+  it("falls back to europe for schengen trips", () => {
+    expect(detectRegion("Unknown City", "schengen")).toBe("europe");
+  });
+
+  it("falls back to europe for unknown international destinations", () => {
+    expect(detectRegion("Unknown City", "international")).toBe("europe");
+  });
+
+  it("is case-insensitive", () => {
+    expect(detectRegion("PARIS, FRANCE", "international")).toBe("europe");
   });
 });
