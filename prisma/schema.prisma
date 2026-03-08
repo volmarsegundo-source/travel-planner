@@ -234,6 +234,7 @@ model ExpeditionPhase {
 
   @@unique([tripId, phaseNumber])
   @@index([tripId])
+  @@index([tripId, status])
   @@map("expedition_phases")
 }
 
@@ -250,6 +251,7 @@ model PointTransaction {
 
   @@index([userId, createdAt])
   @@index([userId, type])
+  @@index([userId, type, tripId])
   @@map("point_transactions")
 }
 
