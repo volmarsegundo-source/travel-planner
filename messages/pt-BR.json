@@ -488,6 +488,32 @@
         "groupSizeMin": "Mínimo de 2 viajantes."
       }
     },
+    "phase3": {
+      "title": "A Rota",
+      "subtitle": "Complete seu checklist de preparação de viagem.",
+      "requiredSection": "Obrigatório",
+      "recommendedSection": "Recomendado",
+      "progress": "{completed}/{total} itens obrigatórios",
+      "deadline": "Até {date}",
+      "cta": "Completar Fase e Ganhar Pontos",
+      "ctaDisabled": "Complete todos os itens obrigatórios",
+      "tripTypes": {
+        "domestic": "Nacional",
+        "mercosul": "Mercosul",
+        "international": "Internacional",
+        "schengen": "Schengen"
+      },
+      "items": {
+        "passport_valid_6m": "Passaporte válido por 6+ meses",
+        "visa_required": "Requisitos de visto verificados",
+        "travel_insurance": "Seguro viagem",
+        "yellow_fever_vaccine": "Vacina contra febre amarela",
+        "etias_eta": "Autorização ETIAS/ETA",
+        "emergency_contacts": "Contatos de emergência cadastrados",
+        "copies_documents": "Cópias de documentos importantes",
+        "local_currency": "Moeda local trocada"
+      }
+    },
     "hub": {
       "title": "Expedição",
       "comingSoon": "A Fase {number} está chegando!",

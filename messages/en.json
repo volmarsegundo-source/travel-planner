@@ -488,6 +488,32 @@
         "groupSizeMin": "At least 2 travelers required."
       }
     },
+    "phase3": {
+      "title": "The Route",
+      "subtitle": "Complete your travel preparation checklist.",
+      "requiredSection": "Required",
+      "recommendedSection": "Recommended",
+      "progress": "{completed}/{total} required items",
+      "deadline": "By {date}",
+      "cta": "Complete Phase & Earn Points",
+      "ctaDisabled": "Complete all required items first",
+      "tripTypes": {
+        "domestic": "Domestic",
+        "mercosul": "Mercosul",
+        "international": "International",
+        "schengen": "Schengen"
+      },
+      "items": {
+        "passport_valid_6m": "Passport valid for 6+ months",
+        "visa_required": "Visa requirements checked",
+        "travel_insurance": "Travel insurance",
+        "yellow_fever_vaccine": "Yellow fever vaccine",
+        "etias_eta": "ETIAS/ETA authorization",
+        "emergency_contacts": "Emergency contacts registered",
+        "copies_documents": "Copies of important documents",
+        "local_currency": "Local currency exchanged"
+      }
+    },
     "hub": {
       "title": "Expedition",
       "comingSoon": "Phase {number} is coming soon!",

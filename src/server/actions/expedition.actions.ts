@@ -6,6 +6,7 @@ import { UnauthorizedError } from "@/lib/errors";
 import { ExpeditionService } from "@/server/services/expedition.service";
 import { ProfileService } from "@/server/services/profile.service";
 import { PhaseEngine } from "@/lib/engines/phase-engine";
+import { ChecklistEngine } from "@/lib/engines/checklist-engine";
 import { Phase1Schema, Phase2Schema } from "@/lib/validations/expedition.schema";
 import type { Phase1Input, Phase2Input } from "@/lib/validations/expedition.schema";
 import type { ActionResult } from "@/types/trip.types";
@@ -93,6 +94,56 @@ export async function completePhase2Action(
   } catch (error) {
     logger.error("expedition.completePhase2.error", error, {
       userId: session.user.id,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── togglePhase3ItemAction ──────────────────────────────────────────────────
+
+export async function togglePhase3ItemAction(
+  tripId: string,
+  itemKey: string
+): Promise<ActionResult<{ completed: boolean; pointsAwarded: number }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    const result = await ChecklistEngine.toggleItem(
+      tripId,
+      session.user.id,
+      3,
+      itemKey
+    );
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: result };
+  } catch (error) {
+    logger.error("expedition.togglePhase3Item.error", error, {
+      userId: session.user.id,
+      tripId,
+      itemKey,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── completePhase3Action ───────────────────────────────────────────────────
+
+export async function completePhase3Action(
+  tripId: string
+): Promise<ActionResult<PhaseCompletionResult>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    const result = await PhaseEngine.completePhase(tripId, session.user.id, 3);
+    revalidatePath("/dashboard");
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: result };
+  } catch (error) {
+    logger.error("expedition.completePhase3.error", error, {
+      userId: session.user.id,
+      tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
   }
