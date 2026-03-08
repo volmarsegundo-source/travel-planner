@@ -61,6 +61,7 @@ function createMockTrip(overrides: Record<string, unknown> = {}) {
     title: "Test Trip",
     expeditionMode: true,
     currentPhase: 1,
+    tripType: "international",
     deletedAt: null,
     createdAt: new Date(),
     updatedAt: new Date(),
@@ -940,5 +941,165 @@ describe("PhaseEngine.useAiInPhase", () => {
       "AI usage in phase 5: O Mapa dos Dias (ai_itinerary)",
       TEST_TRIP_ID
     );
+  });
+});
+
+// ─── Phase prerequisites ─────────────────────────────────────────────────────
+
+describe("PhaseEngine.completePhase — prerequisites", () => {
+  it("throws PHASE_PREREQUISITES_NOT_MET for phase 3 with incomplete required items", async () => {
+    const trip = createMockTrip({ currentPhase: 3 });
+    const phase = createMockPhase(3, "active");
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.phaseChecklistItem.count.mockResolvedValue(2 as never);
+
+    await expect(
+      PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 3)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 3);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_PREREQUISITES_NOT_MET");
+    }
+  });
+
+  it("succeeds for phase 3 when all required checklist items are complete", async () => {
+    const trip = createMockTrip({ currentPhase: 3 });
+    const phase = createMockPhase(3, "active");
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.phaseChecklistItem.count.mockResolvedValue(0 as never);
+
+    const result = await PhaseEngine.completePhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      3
+    );
+
+    expect(result.phaseNumber).toBe(3);
+    expect(result.pointsEarned).toBe(75);
+    expect(result.badgeAwarded).toBe("navigator");
+  });
+
+  it("throws PHASE_PREREQUISITES_NOT_MET for phase 4 when CINH unresolved for international", async () => {
+    const trip = createMockTrip({ currentPhase: 4, tripType: "international" });
+    const phase = createMockPhase(4, "active", {
+      metadata: { needsCarRental: true },
+    });
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    await expect(
+      PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 4)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 4);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_PREREQUISITES_NOT_MET");
+    }
+  });
+
+  it("succeeds for phase 4 when car rental not needed", async () => {
+    const trip = createMockTrip({ currentPhase: 4 });
+    const phase = createMockPhase(4, "active", {
+      metadata: { needsCarRental: false },
+    });
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    const result = await PhaseEngine.completePhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      4
+    );
+
+    expect(result.phaseNumber).toBe(4);
+    expect(result.pointsEarned).toBe(50);
+  });
+
+  it("succeeds for phase 4 when CINH is resolved for international trip", async () => {
+    const trip = createMockTrip({ currentPhase: 4, tripType: "international" });
+    const phase = createMockPhase(4, "active", {
+      metadata: { needsCarRental: true, cnhResolved: true },
+    });
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    const result = await PhaseEngine.completePhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      4
+    );
+
+    expect(result.phaseNumber).toBe(4);
+  });
+
+  it("succeeds for phase 4 with car rental on domestic trip (no CINH needed)", async () => {
+    const trip = createMockTrip({ currentPhase: 4, tripType: "domestic" });
+    const phase = createMockPhase(4, "active", {
+      metadata: { needsCarRental: true },
+    });
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    const result = await PhaseEngine.completePhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      4
+    );
+
+    expect(result.phaseNumber).toBe(4);
+  });
+
+  it("throws PHASE_PREREQUISITES_NOT_MET for phase 5 without connectivity choice", async () => {
+    const trip = createMockTrip({ currentPhase: 5 });
+    const phase = createMockPhase(5, "active", { metadata: null });
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    await expect(
+      PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 5)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 5);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_PREREQUISITES_NOT_MET");
+    }
+  });
+
+  it("succeeds for phase 5 with connectivity choice set", async () => {
+    const trip = createMockTrip({ currentPhase: 5 });
+    const phase = createMockPhase(5, "active", {
+      metadata: { connectivityChoice: "esim", region: "europe" },
+    });
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    const result = await PhaseEngine.completePhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      5
+    );
+
+    expect(result.phaseNumber).toBe(5);
+    expect(result.pointsEarned).toBe(40);
+    expect(result.newRank).toBe("cartographer");
   });
 });

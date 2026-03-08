@@ -24,12 +24,13 @@ describe("PHASE_DEFINITIONS", () => {
     expect(phaseNumbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
   });
 
-  it("sums to 2100 total points reward across all phases", () => {
+  it("sums to 1565 total points reward across all phases", () => {
     const totalReward = PHASE_DEFINITIONS.reduce(
       (sum, p) => sum + p.pointsReward,
       0
     );
-    expect(totalReward).toBe(2100);
+    // 100+150+75+50+40+250+400+500 = 1565
+    expect(totalReward).toBe(1565);
   });
 
   it("marks phases 1-5 as free and phases 6-8 as not free", () => {

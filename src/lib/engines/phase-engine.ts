@@ -156,6 +156,15 @@ export class PhaseEngine {
       throw new AppError("INVALID_PHASE", `Phase ${phaseNumber} not found`, 400);
     }
 
+    // 3.5 Validate phase prerequisites for phases 3-5
+    if (phaseNumber >= 3 && phaseNumber <= 5) {
+      await PhaseEngine.validatePhasePrerequisites(
+        tripId,
+        phaseNumber,
+        trip.tripType
+      );
+    }
+
     // 4. Execute in transaction
     const result = await db.$transaction(async (tx: Tx) => {
       // a. Mark phase completed
@@ -319,6 +328,63 @@ export class PhaseEngine {
     });
 
     logger.info("gamification.expeditionReset", { tripId, userId });
+  }
+
+  /**
+   * Validate prerequisites for completing a phase.
+   * Phase 3: all required checklist items must be completed.
+   * Phase 4: if car rental needed for international/schengen, CINH must be resolved.
+   * Phase 5: connectivity choice must be made.
+   */
+  private static async validatePhasePrerequisites(
+    tripId: string,
+    phaseNumber: PhaseNumber,
+    tripType: string
+  ): Promise<void> {
+    if (phaseNumber === 3) {
+      const requiredIncomplete = await db.phaseChecklistItem.count({
+        where: { tripId, phaseNumber: 3, required: true, completed: false },
+      });
+      if (requiredIncomplete > 0) {
+        throw new AppError(
+          "PHASE_PREREQUISITES_NOT_MET",
+          `Phase 3 has ${requiredIncomplete} required checklist items incomplete`,
+          400
+        );
+      }
+    }
+
+    if (phaseNumber === 4) {
+      const phase = await db.expeditionPhase.findUnique({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      });
+      const metadata = phase?.metadata as Record<string, unknown> | null;
+      if (metadata?.needsCarRental === true) {
+        const needsCinh =
+          tripType === "international" || tripType === "schengen";
+        if (needsCinh && metadata?.cnhResolved !== true) {
+          throw new AppError(
+            "PHASE_PREREQUISITES_NOT_MET",
+            "CNH Internacional (CINH) must be resolved before completing Phase 4",
+            400
+          );
+        }
+      }
+    }
+
+    if (phaseNumber === 5) {
+      const phase = await db.expeditionPhase.findUnique({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: 5 } },
+      });
+      const metadata = phase?.metadata as Record<string, unknown> | null;
+      if (!metadata?.connectivityChoice) {
+        throw new AppError(
+          "PHASE_PREREQUISITES_NOT_MET",
+          "A connectivity plan must be selected before completing Phase 5",
+          400
+        );
+      }
+    }
   }
 
   /**

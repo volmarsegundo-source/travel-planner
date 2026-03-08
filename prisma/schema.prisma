@@ -128,10 +128,11 @@ model Trip {
   tripType       String         @default("international") @db.VarChar(20)
 
   // Relacoes
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  itineraryDays ItineraryDay[]
-  checklist     ChecklistItem[]
-  phases        ExpeditionPhase[]
+  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itineraryDays  ItineraryDay[]
+  checklist      ChecklistItem[]
+  phases         ExpeditionPhase[]
+  phaseChecklist PhaseChecklistItem[]
 
   // Indexes
   @@index([userId, deletedAt])
@@ -263,6 +264,28 @@ model UserBadge {
   @@unique([userId, badgeKey])
   @@index([userId])
   @@map("user_badges")
+}
+
+// ─── Phase Checklist Items (Phases 3/4/5) ─────────────────────────────────
+
+model PhaseChecklistItem {
+  id          String    @id @default(cuid())
+  tripId      String
+  phaseNumber Int
+  itemKey     String    @db.VarChar(50)
+  required    Boolean   @default(false)
+  completed   Boolean   @default(false)
+  deadline    DateTime?
+  pointsValue Int       @default(0)
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, phaseNumber, itemKey])
+  @@index([tripId, phaseNumber])
+  @@map("phase_checklist_items")
 }
 
 // ─── User Profile (Progressive) ───────────────────────────────────────────
