@@ -97,28 +97,10 @@ describe("AuthenticatedNavbar", () => {
     expect(links[0].closest("a")?.className).toContain("font-semibold");
   });
 
-  it("renders My Trips link", () => {
+  it("does not render My Trips link (deactivated in Sprint 15)", () => {
     render(<AuthenticatedNavbar {...defaultProps} />);
 
-    const links = screen.getAllByText("navigation.myTrips");
-    expect(links.length).toBeGreaterThanOrEqual(1);
-    expect(links[0].closest("a")).toHaveAttribute("href", "/trips");
-  });
-
-  it("highlights My Trips link when pathname is /trips", () => {
-    mockUsePathname.mockReturnValue("/trips");
-    render(<AuthenticatedNavbar {...defaultProps} />);
-
-    const links = screen.getAllByText("navigation.myTrips");
-    expect(links[0].closest("a")?.className).toContain("font-semibold");
-  });
-
-  it("highlights My Trips link when on a trip detail page", () => {
-    mockUsePathname.mockReturnValue("/trips/some-id");
-    render(<AuthenticatedNavbar {...defaultProps} />);
-
-    const links = screen.getAllByText("navigation.myTrips");
-    expect(links[0].closest("a")?.className).toContain("font-semibold");
+    expect(screen.queryByText("navigation.myTrips")).not.toBeInTheDocument();
   });
 
   it("renders My Profile link", () => {

@@ -134,6 +134,7 @@ model Trip {
   phases            ExpeditionPhase[]
   phaseChecklist    PhaseChecklistItem[]
   destinationGuide  DestinationGuide?
+  itineraryPlan     ItineraryPlan?
 
   // Indexes
   @@index([userId, deletedAt])
@@ -331,4 +332,20 @@ model DestinationGuide {
   trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
 
   @@map("destination_guides")
+}
+
+// ─── Itinerary Plan (Phase 6 — AI-generated itinerary tracker) ───────────
+
+model ItineraryPlan {
+  id              String    @id @default(cuid())
+  tripId          String    @unique
+  generationCount Int       @default(0)
+  locale          String    @db.VarChar(10)
+  generatedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@map("itinerary_plans")
 }

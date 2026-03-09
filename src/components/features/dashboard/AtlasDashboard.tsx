@@ -18,6 +18,7 @@ interface ExpeditionTrip {
   checklistRequired: number;
   checklistRequiredDone: number;
   checklistRecommendedPending: number;
+  hasItineraryPlan?: boolean;
 }
 
 interface AtlasDashboardProps {
@@ -86,6 +87,7 @@ export function AtlasDashboard({
                   checklistRequired={exp.checklistRequired}
                   checklistRequiredDone={exp.checklistRequiredDone}
                   checklistRecommendedPending={exp.checklistRecommendedPending}
+                  hasItineraryPlan={exp.hasItineraryPlan}
                 />
               ))}
             </div>

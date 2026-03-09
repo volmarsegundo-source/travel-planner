@@ -311,7 +311,8 @@
       "items": "{done}/{total} items",
       "tooltip": "{required} required · {recommended} recommended pending",
       "ariaLabel": "Checklist progress: {done} of {total} required items done"
-    }
+    },
+    "itineraryGenerated": "Itinerary generated"
   },
   "profile": {
     "title": "Explorer Profile",
@@ -349,11 +350,15 @@
       "title": "Recent Activity",
       "empty": "No activity yet.",
       "phaseComplete": "Phase completed",
-      "aiUsage": "AI usage",
+      "aiUsage": "AI-generated itinerary",
       "dailyLogin": "Daily login",
       "purchase": "Welcome bonus",
       "referral": "Referral bonus",
-      "checklist": "Checklist bonus"
+      "checklist": "Checklist bonus",
+      "profileCompletion": "Profile updated",
+      "phaseChecklist": "Checklist item completed",
+      "phaseAccommodation": "Accommodation selected",
+      "phaseConnectivity": "Destination guide explored"
     },
     "badges": {
       "title": "Passport Stamps",
@@ -408,6 +413,8 @@
         "flexibleDates": "Flexible dates",
         "yes": "Yes",
         "no": "No",
+        "profileSummary": "Your profile info",
+        "location": "Location",
         "cta": "Start Expedition"
       },
       "tripType": {
@@ -483,6 +490,8 @@
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
+        "dietaryRestrictions": "Dietary restrictions",
+        "accessibility": "Accessibility needs",
         "cta": "Complete & Earn Points"
       },
       "errors": {
@@ -558,6 +567,7 @@
       "generateCta": "Generate Destination Guide",
       "regenerateCta": "Update guide ({remaining} remaining)",
       "completeCta": "Complete Phase & Earn Points",
+      "viewAllSectionsHint": "Read all sections to complete this phase ({viewed}/{total})",
       "sections": {
         "timezone": "Timezone",
         "currency": "Currency",
@@ -566,6 +576,19 @@
         "connectivity": "Connectivity",
         "cultural_tips": "Cultural Tips"
       }
+    },
+    "phase6": {
+      "title": "The Itinerary",
+      "subtitle": "Your day-by-day travel plan, powered by AI.",
+      "generateHint": "Generate a personalized itinerary based on your destination, travel style, and budget. You can edit and reorganize activities after generation.",
+      "generateCta": "Generate Itinerary with AI",
+      "regenerateCta": "Regenerate Itinerary",
+      "generating": "Charting your route...",
+      "errorGenerate": "Failed to generate itinerary. Please try again.",
+      "errorTimeout": "The request timed out. Please try again.",
+      "errorAuth": "AI authentication error. Please try again later.",
+      "errorRateLimit": "Too many requests. Please wait a moment.",
+      "errorAgeRestricted": "You must be 18+ to use AI features."
     },
     "hub": {
       "title": "Expedition",

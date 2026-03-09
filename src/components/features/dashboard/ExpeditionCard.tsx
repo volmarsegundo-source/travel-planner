@@ -14,6 +14,7 @@ interface ExpeditionCardProps {
   checklistRequired: number;
   checklistRequiredDone: number;
   checklistRecommendedPending: number;
+  hasItineraryPlan?: boolean;
 }
 
 export function ExpeditionCard({
@@ -26,6 +27,7 @@ export function ExpeditionCard({
   checklistRequired,
   checklistRequiredDone,
   checklistRecommendedPending,
+  hasItineraryPlan = false,
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
 
@@ -67,6 +69,12 @@ export function ExpeditionCard({
               requiredDone={checklistRequiredDone}
               recommendedPending={checklistRecommendedPending}
             />
+          )}
+          {/* Itinerary badge — visible when plan has been generated */}
+          {hasItineraryPlan && (
+            <p className="mt-2 text-xs text-atlas-teal">
+              {t("itineraryGenerated")}
+            </p>
           )}
         </div>
         <span className="text-sm font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">

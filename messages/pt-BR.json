@@ -311,7 +311,8 @@
       "items": "{done}/{total} itens",
       "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
       "ariaLabel": "Progresso do checklist: {done} de {total} itens obrigatórios completos"
-    }
+    },
+    "itineraryGenerated": "Roteiro gerado"
   },
   "profile": {
     "title": "Perfil do Explorador",
@@ -349,11 +350,15 @@
       "title": "Atividade Recente",
       "empty": "Nenhuma atividade ainda.",
       "phaseComplete": "Fase concluída",
-      "aiUsage": "Uso de IA",
+      "aiUsage": "Roteiro gerado com IA",
       "dailyLogin": "Login diário",
       "purchase": "Bônus de boas-vindas",
       "referral": "Bônus de indicação",
-      "checklist": "Bônus de checklist"
+      "checklist": "Bônus de checklist",
+      "profileCompletion": "Perfil atualizado",
+      "phaseChecklist": "Item do checklist concluído",
+      "phaseAccommodation": "Hospedagem selecionada",
+      "phaseConnectivity": "Guia de destino explorado"
     },
     "badges": {
       "title": "Carimbos do Passaporte",
@@ -408,6 +413,8 @@
         "flexibleDates": "Datas flexíveis",
         "yes": "Sim",
         "no": "Não",
+        "profileSummary": "Suas informações de perfil",
+        "location": "Localização",
         "cta": "Iniciar Expedição"
       },
       "tripType": {
@@ -483,6 +490,8 @@
         "accommodation": "Hospedagem",
         "pace": "Ritmo",
         "budget": "Orçamento",
+        "dietaryRestrictions": "Restrições alimentares",
+        "accessibility": "Necessidades de acessibilidade",
         "cta": "Concluir e Ganhar Pontos"
       },
       "errors": {
@@ -558,6 +567,7 @@
       "generateCta": "Gerar Guia do Destino",
       "regenerateCta": "Atualizar guia ({remaining} restantes)",
       "completeCta": "Completar Fase e Ganhar Pontos",
+      "viewAllSectionsHint": "Leia todas as seções para completar esta fase ({viewed}/{total})",
       "sections": {
         "timezone": "Fuso Horário",
         "currency": "Moeda",
@@ -566,6 +576,19 @@
         "connectivity": "Conectividade",
         "cultural_tips": "Dicas Culturais"
       }
+    },
+    "phase6": {
+      "title": "O Roteiro",
+      "subtitle": "Seu plano dia a dia, gerado por IA.",
+      "generateHint": "Gere um roteiro personalizado baseado no seu destino, estilo de viagem e orçamento. Você pode editar e reorganizar atividades após a geração.",
+      "generateCta": "Gerar Roteiro com IA",
+      "regenerateCta": "Regerar Roteiro",
+      "generating": "Traçando sua rota...",
+      "errorGenerate": "Falha ao gerar roteiro. Tente novamente.",
+      "errorTimeout": "A requisição expirou. Tente novamente.",
+      "errorAuth": "Erro de autenticação com a IA. Tente mais tarde.",
+      "errorRateLimit": "Muitas requisições. Aguarde um momento.",
+      "errorAgeRestricted": "Você precisa ter 18+ para usar recursos de IA."
     },
     "hub": {
       "title": "Expedição",

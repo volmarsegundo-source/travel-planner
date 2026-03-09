@@ -199,13 +199,14 @@ export class AiService {
   static async generateTravelPlan(
     params: GeneratePlanParams
   ): Promise<ItineraryPlan> {
-    const { userId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes } = params;
+    const { userId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext } = params;
 
     // Bucket budget to nearest 500 for better cache reuse
     const budgetRange = Math.floor(budgetTotal / 500) * 500;
     const days = getDaysBetween(startDate, endDate);
     const notesHash = travelNotes ? `:${md5(travelNotes)}` : "";
-    const cacheInput = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}${notesHash}`;
+    const ctxHash = expeditionContext ? `:${md5(JSON.stringify(expeditionContext))}` : "";
+    const cacheInput = `${destination}:${travelStyle}:${budgetRange}:${days}:${language}${notesHash}${ctxHash}`;
     const cacheHash = md5(cacheInput);
     const cacheKey = CacheKeys.aiPlan(cacheHash);
 
@@ -229,6 +230,34 @@ export class AiService {
       ? `\nAdditional traveler notes: ${travelNotes}\n`
       : "";
 
+    // Build expedition context section from prior phases
+    let expeditionSection = "";
+    if (expeditionContext) {
+      const ctxParts: string[] = [];
+      if (expeditionContext.tripType) {
+        ctxParts.push(`- Trip type: ${expeditionContext.tripType}`);
+      }
+      if (expeditionContext.travelerType) {
+        ctxParts.push(`- Traveler type: ${expeditionContext.travelerType}`);
+      }
+      if (expeditionContext.accommodationStyle) {
+        ctxParts.push(`- Accommodation preference: ${expeditionContext.accommodationStyle}`);
+      }
+      if (expeditionContext.travelPace) {
+        ctxParts.push(`- Travel pace: ${expeditionContext.travelPace}/10`);
+      }
+      if (expeditionContext.budget) {
+        const ctxCurrency = expeditionContext.currency ?? budgetCurrency;
+        ctxParts.push(`- Traveler budget preference: ${expeditionContext.budget} ${ctxCurrency}`);
+      }
+      if (expeditionContext.destinationGuideContext) {
+        ctxParts.push(`- Destination insights: ${expeditionContext.destinationGuideContext}`);
+      }
+      if (ctxParts.length > 0) {
+        expeditionSection = `\nExpedition context (use to personalize the itinerary):\n${ctxParts.join("\n")}\n`;
+      }
+    }
+
     const prompt = `You are a professional travel planner. Create a day-by-day itinerary as a single valid JSON object.
 
 Trip details:
@@ -238,7 +267,7 @@ Trip details:
 - Budget: ${budgetTotal} ${budgetCurrency}
 - Travelers: ${travelers} person(s)
 - Language: ${language}
-${notesSection}
+${notesSection}${expeditionSection}
 IMPORTANT CONSTRAINTS:
 - Your max_tokens budget is ${tokenBudget}. You MUST fit the entire JSON within this limit.
 - Keep each activity description to 1 short sentence (max 15 words).

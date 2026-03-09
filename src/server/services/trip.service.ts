@@ -203,6 +203,12 @@ export class TripService {
             completed: true,
           },
         },
+        itineraryPlan: {
+          select: {
+            id: true,
+            generatedAt: true,
+          },
+        },
       },
     });
 
@@ -216,6 +222,7 @@ export class TripService {
         checklistRequired: requiredItems.length,
         checklistRequiredDone: requiredItems.filter((i) => i.completed).length,
         checklistRecommendedPending: recommendedItems.filter((i) => !i.completed).length,
+        hasItineraryPlan: trip.itineraryPlan?.generatedAt != null,
       };
     });
   }

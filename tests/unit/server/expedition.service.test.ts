@@ -145,10 +145,10 @@ describe("ExpeditionService", () => {
       prismaMock.$transaction.mockImplementation(async (fn: any) => {
         const txMock = mockDeep<PrismaClient>();
         txMock.trip.create.mockResolvedValue({ id: "trip-x" } as any);
-        txMock.expeditionPhase.createMany.mockImplementation(async (args: any) => {
+        txMock.expeditionPhase.createMany.mockImplementation((async (args: any) => {
           capturedPhases = args.data;
           return { count: 8 };
-        });
+        }) as any);
         txMock.expeditionPhase.update.mockResolvedValue({} as any);
         txMock.trip.update.mockResolvedValue({} as any);
         return fn(txMock);

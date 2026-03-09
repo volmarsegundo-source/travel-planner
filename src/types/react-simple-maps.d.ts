@@ -34,6 +34,8 @@ declare module "react-simple-maps" {
     outline?: string;
     fill?: string;
     stroke?: string;
+    opacity?: number;
+    fillOpacity?: number;
   }
 
   interface GeographyProps {

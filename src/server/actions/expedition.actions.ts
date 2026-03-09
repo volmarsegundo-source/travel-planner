@@ -248,7 +248,7 @@ export async function generateDestinationGuideAction(
     const content = await AiService.generateDestinationGuide({
       userId: session.user.id,
       destination: trip.destination,
-      language: locale === "pt" ? "pt-BR" : "en",
+      language: locale.startsWith("pt") ? "pt-BR" : "en",
     });
 
     // Upsert guide
@@ -256,14 +256,14 @@ export async function generateDestinationGuideAction(
       where: { tripId },
       create: {
         tripId,
-        content: content as unknown as Record<string, unknown>,
+        content: JSON.parse(JSON.stringify(content)),
         destination: trip.destination,
         locale,
         generationCount: 1,
         viewedSections: [],
       },
       update: {
-        content: content as unknown as Record<string, unknown>,
+        content: JSON.parse(JSON.stringify(content)),
         locale,
         generationCount: (existing?.generationCount ?? 0) + 1,
         viewedSections: [],
@@ -449,16 +449,11 @@ export async function advanceFromPhaseAction(
         where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
       });
       const phaseMeta = phase?.metadata as Record<string, unknown> | null;
-      const trip = await db.trip.findFirst({
-        where: { id: tripId, userId: session.user.id, deletedAt: null },
-        select: { tripType: true },
-      });
-      const needsCinh =
-        trip?.tripType === "international" || trip?.tripType === "schengen";
       if (phaseMeta?.needsCarRental === true) {
-        prerequisitesMet = !needsCinh || phaseMeta?.cnhResolved === true;
+        // CNH is required for any trip with car rental
+        prerequisitesMet = phaseMeta?.cnhResolved === true;
       } else {
-        // No car rental or hasn't decided yet
+        // No car rental needed
         prerequisitesMet = phaseMeta?.needsCarRental === false;
       }
     }

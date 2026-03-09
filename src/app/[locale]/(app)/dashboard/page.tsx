@@ -44,6 +44,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       checklistRequired: t.checklistRequired,
       checklistRequiredDone: t.checklistRequiredDone,
       checklistRecommendedPending: t.checklistRecommendedPending,
+      hasItineraryPlan: t.hasItineraryPlan,
     }));
 
   return (

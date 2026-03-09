@@ -55,7 +55,12 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
     return null;
   }
 
-  // Phase 6+ — coming soon
+  if (phaseNumber === 6) {
+    redirect({ href: `/expedition/${tripId}/phase-6`, locale });
+    return null;
+  }
+
+  // Phase 7+ — coming soon
   return (
     <>
       <div className="mx-auto max-w-md px-4 pt-6 sm:px-6">

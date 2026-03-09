@@ -16,6 +16,7 @@ const PHASE_ROUTES: Record<number, string> = {
   3: "/phase-3",
   4: "/phase-4",
   5: "/phase-5",
+  6: "/phase-6",
 };
 
 export function ExpeditionProgressBar({
