@@ -7,10 +7,10 @@ import { CACHE_TTL } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { AppError } from "@/lib/errors";
 import {
-  PLAN_SYSTEM_PROMPT,
-  CHECKLIST_SYSTEM_PROMPT,
-  GUIDE_SYSTEM_PROMPT,
-} from "@/lib/prompts/system-prompts";
+  travelPlanPrompt,
+  checklistPrompt,
+  destinationGuidePrompt,
+} from "@/lib/prompts";
 import { ClaudeProvider } from "./providers/claude.provider";
 import type { AiProvider, AiProviderResponse, ModelType } from "./ai-provider.interface";
 import type {
@@ -32,8 +32,6 @@ const TOKENS_PER_DAY = 600;
 const TOKENS_OVERHEAD = 500;
 const MIN_PLAN_TOKENS = 2048;
 const MAX_PLAN_TOKENS = 16000;
-const MAX_TOKENS_CHECKLIST = 2048;
-const MAX_TOKENS_GUIDE = 2048;
 
 function calculatePlanTokenBudget(days: number): number {
   const estimated = days * TOKENS_PER_DAY + TOKENS_OVERHEAD;
@@ -257,48 +255,21 @@ export class AiService {
     // Dynamic token budget based on trip duration
     const tokenBudget = calculatePlanTokenBudget(days);
 
-    // Build user message with only dynamic/variable content
-    const notesSection = travelNotes
-      ? `\nAdditional traveler notes: ${travelNotes}\n`
-      : "";
-
-    // Build expedition context section from prior phases
-    let expeditionSection = "";
-    if (expeditionContext) {
-      const ctxParts: string[] = [];
-      if (expeditionContext.tripType) {
-        ctxParts.push(`- Trip type: ${expeditionContext.tripType}`);
-      }
-      if (expeditionContext.travelerType) {
-        ctxParts.push(`- Traveler type: ${expeditionContext.travelerType}`);
-      }
-      if (expeditionContext.accommodationStyle) {
-        ctxParts.push(`- Accommodation preference: ${expeditionContext.accommodationStyle}`);
-      }
-      if (expeditionContext.travelPace) {
-        ctxParts.push(`- Travel pace: ${expeditionContext.travelPace}/10`);
-      }
-      if (expeditionContext.budget) {
-        const ctxCurrency = expeditionContext.currency ?? budgetCurrency;
-        ctxParts.push(`- Traveler budget preference: ${expeditionContext.budget} ${ctxCurrency}`);
-      }
-      if (expeditionContext.destinationGuideContext) {
-        ctxParts.push(`- Destination insights: ${expeditionContext.destinationGuideContext}`);
-      }
-      if (ctxParts.length > 0) {
-        expeditionSection = `\nExpedition context (use to personalize the itinerary):\n${ctxParts.join("\n")}\n`;
-      }
-    }
-
-    const userMessage = `Trip details:
-- Destination: ${destination}
-- Dates: ${startDate} to ${endDate} (${days} days)
-- Travel style: ${travelStyle}
-- Budget: ${budgetTotal} ${budgetCurrency}
-- Travelers: ${travelers} person(s)
-- Language: ${language}
-- Token budget: ${tokenBudget} (fit entire JSON within this limit)
-${notesSection}${expeditionSection}`;
+    // Build user message using versioned prompt template
+    const userMessage = travelPlanPrompt.buildUserPrompt({
+      destination,
+      startDate,
+      endDate,
+      days,
+      travelStyle,
+      budgetTotal,
+      budgetCurrency,
+      travelers,
+      language,
+      tokenBudget,
+      travelNotes,
+      expeditionContext,
+    });
 
     const plan = await this.callProviderForPlan(userMessage, tokenBudget, userId);
 
@@ -333,8 +304,8 @@ ${notesSection}${expeditionSection}`;
       const response = await provider.generateResponse(
         userMessage,
         currentBudget,
-        "plan",
-        { systemPrompt: PLAN_SYSTEM_PROMPT },
+        travelPlanPrompt.model,
+        { systemPrompt: travelPlanPrompt.system },
       );
 
       logTokenUsage(response, { userId, generationType: "plan", provider: provider.name });
@@ -403,15 +374,19 @@ ${notesSection}${expeditionSection}`;
       return JSON.parse(cached) as ChecklistResult;
     }
 
-    const userMessage = `Trip: ${destination}, ${month}, ${travelers} traveler(s)
-Language: ${language}`;
+    const userMessage = checklistPrompt.buildUserPrompt({
+      destination,
+      month,
+      travelers,
+      language,
+    });
 
     const provider = getProvider();
     const response = await provider.generateResponse(
       userMessage,
-      MAX_TOKENS_CHECKLIST,
-      "checklist",
-      { systemPrompt: CHECKLIST_SYSTEM_PROMPT },
+      checklistPrompt.maxTokens,
+      checklistPrompt.model,
+      { systemPrompt: checklistPrompt.system },
     );
 
     logTokenUsage(response, { userId, generationType: "checklist", provider: provider.name });
@@ -470,17 +445,17 @@ Language: ${language}`;
       return JSON.parse(cached) as DestinationGuideContent;
     }
 
-    const lang = language === "pt-BR" ? "Brazilian Portuguese" : "English";
-
-    const userMessage = `Destination: ${destination}
-Respond in: ${lang}`;
+    const userMessage = destinationGuidePrompt.buildUserPrompt({
+      destination,
+      language,
+    });
 
     const provider = getProvider();
     const response = await provider.generateResponse(
       userMessage,
-      MAX_TOKENS_GUIDE,
-      "guide",
-      { systemPrompt: GUIDE_SYSTEM_PROMPT },
+      destinationGuidePrompt.maxTokens,
+      destinationGuidePrompt.model,
+      { systemPrompt: destinationGuidePrompt.system },
     );
 
     logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
