@@ -7,6 +7,7 @@ import { CACHE_TTL } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
+import { calculateEstimatedCost } from "@/lib/cost-calculator";
 import {
   travelPlanPrompt,
   checklistPrompt,
@@ -194,11 +195,20 @@ function getProvider(): AiProvider {
   return new ClaudeProvider();
 }
 
+// ─── Model ID resolution for cost tracking ───────────────────────────────────
+
+const MODEL_ID_MAP: Record<ModelType, string> = {
+  plan: "claude-sonnet-4-6",
+  checklist: "claude-haiku-4-5-20251001",
+  guide: "claude-haiku-4-5-20251001",
+};
+
 // ─── Token usage logging ──────────────────────────────────────────────────────
 
 /**
  * Logs structured token usage data after each AI call.
  * Enables FinOps monitoring and cost tracking without PII exposure.
+ * Includes estimated cost in USD for FinOps dashboards.
  */
 function logTokenUsage(
   response: AiProviderResponse,
@@ -208,14 +218,30 @@ function logTokenUsage(
     provider: string;
   },
 ): void {
+  const inputTokens = response.inputTokens ?? 0;
+  const outputTokens = response.outputTokens ?? 0;
+  const cacheReadTokens = response.cacheReadInputTokens ?? 0;
+  const cacheWriteTokens = response.cacheCreationInputTokens ?? 0;
+
+  const modelId = MODEL_ID_MAP[params.generationType];
+  const cost = calculateEstimatedCost(
+    modelId,
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+  );
+
   logger.info("ai.tokens.usage", {
     userId: hashUserId(params.userId),
     generationType: params.generationType,
     model: params.provider,
-    inputTokens: response.inputTokens ?? 0,
-    outputTokens: response.outputTokens ?? 0,
-    cacheReadTokens: response.cacheReadInputTokens ?? 0,
-    cacheWriteTokens: response.cacheCreationInputTokens ?? 0,
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+    estimatedCostUSD: cost.totalCost,
+    costBreakdown: cost,
   });
 }
 

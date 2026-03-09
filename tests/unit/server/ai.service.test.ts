@@ -695,6 +695,12 @@ describe("Token usage logging", () => {
       cacheReadTokens: 50,
       cacheWriteTokens: 100,
     });
+    // Verify cost data is included
+    expect(meta).toHaveProperty("estimatedCostUSD");
+    expect(meta).toHaveProperty("costBreakdown");
+    const breakdown = (meta as Record<string, unknown>).costBreakdown as Record<string, number>;
+    expect(breakdown.totalCost).toBeGreaterThan(0);
+    expect(breakdown.outputCost).toBeGreaterThan(0);
   });
 
   it("logs token usage after checklist generation", async () => {
