@@ -568,6 +568,7 @@
       "regenerateCta": "Atualizar guia ({remaining} restantes)",
       "completeCta": "Completar Fase e Ganhar Pontos",
       "viewAllSectionsHint": "Leia todas as seções para completar esta fase ({viewed}/{total})",
+      "aiDisclaimer": "Este guia foi gerado por Inteligência Artificial e requer revisão humana.",
       "sections": {
         "timezone": "Fuso Horário",
         "currency": "Moeda",

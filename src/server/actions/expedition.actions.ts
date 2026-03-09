@@ -274,7 +274,12 @@ export async function generateDestinationGuideAction(
       language: locale.startsWith("pt") ? "pt-BR" : "en",
     });
 
-    // Upsert guide
+    // All sections are auto-viewed on generation
+    const allSections: GuideSectionKey[] = [
+      "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+    ];
+
+    // Upsert guide with all sections marked as viewed
     const guide = await db.destinationGuide.upsert({
       where: { tripId },
       create: {
@@ -283,18 +288,18 @@ export async function generateDestinationGuideAction(
         destination: trip.destination,
         locale,
         generationCount: 1,
-        viewedSections: [],
+        viewedSections: allSections,
       },
       update: {
         content: JSON.parse(JSON.stringify(content)),
         locale,
         generationCount: (existing?.generationCount ?? 0) + 1,
-        viewedSections: [],
+        viewedSections: allSections,
         generatedAt: new Date(),
       },
     });
 
-    // Award 30 points for generating guide (only first time)
+    // Award points on first generation: 30 (guide) + 30 (6 sections × 5)
     if (!existing) {
       await PointsEngine.earnPoints(
         session.user.id,
@@ -303,6 +308,16 @@ export async function generateDestinationGuideAction(
         "Generated destination guide for phase 5",
         tripId
       );
+      // Auto-award section viewing points (5 per section × 6 sections = 30)
+      for (const section of allSections) {
+        await PointsEngine.earnPoints(
+          session.user.id,
+          5,
+          "phase_connectivity",
+          `Auto-viewed guide section: ${section}`,
+          tripId
+        );
+      }
     }
 
     revalidatePath(`/expedition/${tripId}`);

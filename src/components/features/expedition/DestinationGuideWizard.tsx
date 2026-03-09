@@ -35,8 +35,6 @@ const SECTION_ORDER: GuideSectionKey[] = [
   "cultural_tips",
 ];
 
-const MAX_GENERATIONS = 3;
-
 export function DestinationGuideWizard({
   tripId,
   destination,
@@ -82,7 +80,8 @@ export function DestinationGuideWizard({
 
       setGuide(result.data!.content);
       setGenerationCount(result.data!.generationCount);
-      setViewedSections([]);
+      // All sections are auto-viewed after generation (scoring is automatic)
+      setViewedSections([...SECTION_ORDER]);
       setExpandedSection(null);
     } catch {
       setErrorMessage("errors.generic");
@@ -294,40 +293,16 @@ export function DestinationGuideWizard({
               })}
             </div>
 
-            {/* Regenerate button */}
-            {generationCount < MAX_GENERATIONS && (
-              <div className="mt-4 text-center">
-                <button
-                  type="button"
-                  onClick={handleGenerate}
-                  disabled={isGenerating}
-                  className="text-sm text-muted-foreground underline hover:text-foreground disabled:opacity-50"
-                >
-                  {isGenerating
-                    ? tCommon("loading")
-                    : t("regenerateCta", {
-                        remaining: MAX_GENERATIONS - generationCount,
-                      })}
-                </button>
-              </div>
-            )}
+            {/* AI disclaimer */}
+            <p className="mt-4 text-center text-xs text-muted-foreground italic">
+              {t("aiDisclaimer")}
+            </p>
 
             {/* Complete button */}
             <div className="mt-6">
-              {viewedSections.length < SECTION_ORDER.length && (
-                <p className="mb-2 text-center text-sm text-muted-foreground">
-                  {t("viewAllSectionsHint", {
-                    viewed: viewedSections.length,
-                    total: SECTION_ORDER.length,
-                  })}
-                </p>
-              )}
               <Button
                 onClick={handleComplete}
-                disabled={
-                  isCompleting ||
-                  viewedSections.length < SECTION_ORDER.length
-                }
+                disabled={isCompleting}
                 size="lg"
                 className="w-full"
               >

@@ -381,9 +381,28 @@ describe("DestinationGuideWizard", () => {
     expect(mockViewSection).not.toHaveBeenCalled();
   });
 
-  // ─── Regeneration ──────────────────────────────────────────────────
+  // ─── AI Disclaimer ────────────────────────────────────────────────
 
-  it("shows regenerate button when under limit", () => {
+  it("shows AI disclaimer when guide is displayed", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: ALL_SECTIONS_VIEWED,
+        }}
+      />
+    );
+
+    expect(
+      screen.getByText("expedition.phase5.aiDisclaimer")
+    ).toBeInTheDocument();
+  });
+
+  it("enables complete button immediately when guide exists (no section view required)", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -397,28 +416,8 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    expect(
-      screen.getByText(/expedition\.phase5\.regenerateCta/)
-    ).toBeInTheDocument();
-  });
-
-  it("hides regenerate button when at limit", () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 3,
-          viewedSections: [],
-        }}
-      />
-    );
-
-    expect(
-      screen.queryByText(/expedition\.phase5\.regenerateCta/)
-    ).not.toBeInTheDocument();
+    const completeBtn = screen.getByText("expedition.phase5.completeCta");
+    expect(completeBtn.closest("button")).not.toBeDisabled();
   });
 
   // ─── Phase Completion ───────────────────────────────────────────────
