@@ -17,6 +17,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { AiService } from "@/server/services/ai.service";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { hashUserId } from "@/lib/hash";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 
@@ -54,7 +55,7 @@ export async function createExpeditionAction(
       } catch (profileError) {
         // Profile save failure should not block expedition creation
         logger.error("expedition.profileFields.error", profileError, {
-          userId: session.user.id,
+          userId: hashUserId(session.user.id),
         });
       }
     }
@@ -64,7 +65,7 @@ export async function createExpeditionAction(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.createExpedition.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -112,7 +113,7 @@ export async function completePhase2Action(
         await ProfileService.recalculateCompletionScore(session.user.id);
       } catch (profileError) {
         logger.error("expedition.phase2.profileFields.error", profileError, {
-          userId: session.user.id,
+          userId: hashUserId(session.user.id),
         });
       }
     }
@@ -122,7 +123,7 @@ export async function completePhase2Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase2.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -148,7 +149,7 @@ export async function togglePhase3ItemAction(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.togglePhase3Item.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
       itemKey,
     });
@@ -171,7 +172,7 @@ export async function completePhase3Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase3.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -210,7 +211,7 @@ export async function completePhase4Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase4.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -232,7 +233,7 @@ export async function completePhase5Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase5.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -345,7 +346,7 @@ export async function generateDestinationGuideAction(
     };
   } catch (error) {
     logger.error("expedition.generateGuide.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -392,7 +393,7 @@ export async function getDestinationGuideAction(
     };
   } catch (error) {
     logger.error("expedition.getGuide.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -447,7 +448,7 @@ export async function viewGuideSectionAction(
     return { success: true, data: { pointsAwarded: 5 } };
   } catch (error) {
     logger.error("expedition.viewGuideSection.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -547,7 +548,7 @@ export async function advanceFromPhaseAction(
     }
   } catch (error) {
     logger.error("expedition.advanceFromPhase.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
       phaseNumber,
     });
@@ -568,7 +569,7 @@ export async function getExpeditionPhasesAction(
     return { success: true, data: phases };
   } catch (error) {
     logger.error("expedition.getPhases.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
