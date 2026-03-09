@@ -654,5 +654,110 @@
     "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
     "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
     "validation": "Dados de entrada inválidos."
+  },
+  "legal": {
+    "terms": {
+      "title": "Termos de Uso",
+      "breadcrumb": "Termos de Uso",
+      "lastUpdated": "Atualizado em: Março de 2026",
+      "intro": "Bem-vindo ao Atlas Travel Planner. Ao usar nosso serviço, você concorda com os seguintes termos e condições.",
+      "sections": {
+        "acceptance": {
+          "title": "1. Aceitação dos Termos",
+          "content": "Ao acessar ou usar o serviço Atlas Travel Planner, você concorda em ficar vinculado a estes Termos de Uso. Se você não concordar com estes termos, por favor não use nosso serviço."
+        },
+        "service": {
+          "title": "2. Descrição do Serviço",
+          "content": "O Atlas Travel Planner fornece ferramentas de planejamento de viagem assistidas por IA, incluindo geração de roteiros, guias de destino e checklists pré-viagem. O serviço é fornecido para uso pessoal e não comercial."
+        },
+        "accounts": {
+          "title": "3. Contas de Usuário",
+          "content": "Você é responsável por manter a confidencialidade das suas credenciais de conta. Você concorda em nos notificar imediatamente sobre qualquer uso não autorizado da sua conta."
+        },
+        "ai": {
+          "title": "4. Conteúdo Gerado por IA",
+          "content": "Recomendações de viagem e roteiros são gerados por IA e devem ser usados apenas como sugestões. Sempre verifique informações importantes como requisitos de visto, avisos de saúde e regulamentações locais através de fontes oficiais."
+        },
+        "privacy": {
+          "title": "5. Privacidade",
+          "content": "O uso do serviço também é regido pela nossa Política de Privacidade. Por favor, revise nossa Política de Privacidade para entender nossas práticas."
+        },
+        "liability": {
+          "title": "6. Limitação de Responsabilidade",
+          "content": "O Atlas Travel Planner é fornecido 'como está', sem garantias de qualquer tipo. Não somos responsáveis por quaisquer danos decorrentes do uso de recomendações de viagem geradas por IA."
+        },
+        "changes": {
+          "title": "7. Alterações nos Termos",
+          "content": "Reservamos o direito de modificar estes termos a qualquer momento. O uso continuado do serviço após as alterações constitui aceitação dos termos modificados."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Política de Privacidade",
+      "breadcrumb": "Política de Privacidade",
+      "lastUpdated": "Atualizado em: Março de 2026",
+      "intro": "Sua privacidade é importante para nós. Esta política explica como o Atlas Travel Planner coleta, usa e protege suas informações pessoais.",
+      "sections": {
+        "collection": {
+          "title": "1. Informações que Coletamos",
+          "content": "Coletamos informações que você fornece diretamente, como nome, email e preferências de viagem. Também coletamos dados de uso para melhorar nosso serviço."
+        },
+        "usage": {
+          "title": "2. Como Usamos Suas Informações",
+          "content": "Usamos suas informações para fornecer e melhorar nosso serviço de planejamento de viagem, personalizar sua experiência e comunicar atualizações do serviço."
+        },
+        "ai": {
+          "title": "3. Processamento por IA",
+          "content": "Suas preferências de viagem são processadas por modelos de IA para gerar recomendações personalizadas. Não compartilhamos seus dados pessoais de viagem com provedores de IA de terceiros em formato identificável."
+        },
+        "storage": {
+          "title": "4. Armazenamento e Segurança de Dados",
+          "content": "Dados sensíveis como números de passaporte são criptografados em repouso usando AES-256-GCM. Implementamos medidas de segurança padrão da indústria para proteger suas informações."
+        },
+        "rights": {
+          "title": "5. Seus Direitos",
+          "content": "Você tem o direito de acessar, corrigir ou excluir seus dados pessoais. Você pode gerenciar seus dados através das configurações da sua conta ou entrando em contato com nossa equipe de suporte."
+        },
+        "cookies": {
+          "title": "6. Cookies e Rastreamento",
+          "content": "Usamos cookies essenciais para autenticação e gerenciamento de sessão. Nenhum cookie de rastreamento de terceiros é utilizado."
+        },
+        "contact": {
+          "title": "7. Contato",
+          "content": "Para consultas relacionadas à privacidade, entre em contato com nossa equipe de suporte através da página de Suporte."
+        }
+      }
+    },
+    "support": {
+      "title": "Suporte",
+      "breadcrumb": "Suporte",
+      "intro": "Precisa de ajuda com o Atlas Travel Planner? Encontre respostas para perguntas frequentes ou entre em contato com nossa equipe.",
+      "faq": {
+        "title": "Perguntas Frequentes",
+        "items": {
+          "q1": {
+            "question": "Como crio uma nova viagem?",
+            "answer": "Navegue até seu painel e clique em 'Nova Expedição' para começar a planejar uma nova viagem com nosso assistente guiado."
+          },
+          "q2": {
+            "question": "Como funciona a geração de roteiro por IA?",
+            "answer": "Nossa IA analisa suas preferências de viagem, orçamento e datas para criar um roteiro personalizado dia a dia. Você pode regenerar ou personalizar conforme necessário."
+          },
+          "q3": {
+            "question": "Meus dados pessoais estão seguros?",
+            "answer": "Sim. Dados sensíveis como números de passaporte são criptografados usando AES-256-GCM. Nunca registramos informações pessoalmente identificáveis e seguimos as diretrizes LGPD/GDPR."
+          },
+          "q4": {
+            "question": "Como excluo minha conta?",
+            "answer": "Vá em Configurações da Conta e role até a seção Zona de Perigo. A exclusão da conta é permanente e anonimiza todos os seus dados."
+          }
+        }
+      },
+      "contact": {
+        "title": "Entre em Contato",
+        "description": "Se você não encontrou a resposta que precisa, entre em contato com nossa equipe.",
+        "email": "support@atlas-travel.app"
+      }
+    }
   }
 }
