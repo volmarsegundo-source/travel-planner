@@ -248,7 +248,7 @@ export async function generateDestinationGuideAction(
     const content = await AiService.generateDestinationGuide({
       userId: session.user.id,
       destination: trip.destination,
-      language: locale === "pt" ? "pt-BR" : "en",
+      language: locale.startsWith("pt") ? "pt-BR" : "en",
     });
 
     // Upsert guide
