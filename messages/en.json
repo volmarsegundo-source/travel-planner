@@ -567,6 +567,19 @@
         "cultural_tips": "Cultural Tips"
       }
     },
+    "phase6": {
+      "title": "The Itinerary",
+      "subtitle": "Your day-by-day travel plan, powered by AI.",
+      "generateHint": "Generate a personalized itinerary based on your destination, travel style, and budget. You can edit and reorganize activities after generation.",
+      "generateCta": "Generate Itinerary with AI",
+      "regenerateCta": "Regenerate Itinerary",
+      "generating": "Charting your route...",
+      "errorGenerate": "Failed to generate itinerary. Please try again.",
+      "errorTimeout": "The request timed out. Please try again.",
+      "errorAuth": "AI authentication error. Please try again later.",
+      "errorRateLimit": "Too many requests. Please wait a moment.",
+      "errorAgeRestricted": "You must be 18+ to use AI features."
+    },
     "hub": {
       "title": "Expedition",
       "comingSoon": "Phase {number} is coming soon!",

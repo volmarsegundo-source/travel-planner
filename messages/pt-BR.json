@@ -567,6 +567,19 @@
         "cultural_tips": "Dicas Culturais"
       }
     },
+    "phase6": {
+      "title": "O Roteiro",
+      "subtitle": "Seu plano dia a dia, gerado por IA.",
+      "generateHint": "Gere um roteiro personalizado baseado no seu destino, estilo de viagem e orçamento. Você pode editar e reorganizar atividades após a geração.",
+      "generateCta": "Gerar Roteiro com IA",
+      "regenerateCta": "Regerar Roteiro",
+      "generating": "Traçando sua rota...",
+      "errorGenerate": "Falha ao gerar roteiro. Tente novamente.",
+      "errorTimeout": "A requisição expirou. Tente novamente.",
+      "errorAuth": "Erro de autenticação com a IA. Tente mais tarde.",
+      "errorRateLimit": "Muitas requisições. Aguarde um momento.",
+      "errorAgeRestricted": "Você precisa ter 18+ para usar recursos de IA."
+    },
     "hub": {
       "title": "Expedição",
       "comingSoon": "A Fase {number} está chegando!",
