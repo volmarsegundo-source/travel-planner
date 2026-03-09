@@ -491,7 +491,7 @@ Each section has: title (short label), icon (single emoji), summary (1-2 sentenc
 }`;
 
     const provider = getProvider();
-    const response = await provider.generateResponse(prompt, MAX_TOKENS_GUIDE, "checklist");
+    const response = await provider.generateResponse(prompt, MAX_TOKENS_GUIDE, "guide");
 
     let rawJson: unknown;
     try {

@@ -6,11 +6,21 @@
  * while AiService orchestrates prompts, caching, and validation.
  */
 
+/**
+ * Model selection hint passed to the provider.
+ * - "plan": full itinerary generation (heavier model, e.g. Sonnet)
+ * - "checklist": pre-trip checklist (lighter model, e.g. Haiku)
+ * - "guide": destination pocket guide (lighter model, e.g. Haiku)
+ */
+export type ModelType = "plan" | "checklist" | "guide";
+
 export interface AiProviderResponse {
   text: string;
   wasTruncated: boolean;
   inputTokens?: number;
   outputTokens?: number;
+  cacheReadInputTokens?: number;
+  cacheCreationInputTokens?: number;
 }
 
 export interface AiProvider {
@@ -25,6 +35,6 @@ export interface AiProvider {
   generateResponse(
     prompt: string,
     maxTokens: number,
-    model: "plan" | "checklist",
+    model: ModelType,
   ): Promise<AiProviderResponse>;
 }

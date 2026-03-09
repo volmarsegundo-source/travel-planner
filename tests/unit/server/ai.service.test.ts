@@ -467,3 +467,86 @@ describe("AiService.generateChecklist", () => {
     ).rejects.toBeInstanceOf(AppError);
   });
 });
+
+// ─── Destination Guide Tests ────────────────────────────────────────────────
+
+const VALID_GUIDE_RESPONSE = {
+  timezone: { title: "Timezone", icon: "clock", summary: "CET (UTC+1)", tips: ["Adjust your clock on arrival"] },
+  currency: { title: "Currency", icon: "euro", summary: "Euro (EUR)", tips: ["Cards widely accepted"] },
+  language: { title: "Language", icon: "speech", summary: "French", tips: ["Learn basic greetings"] },
+  electricity: { title: "Electricity", icon: "plug", summary: "Type C/E, 230V", tips: ["Bring an adapter"] },
+  connectivity: { title: "Connectivity", icon: "wifi", summary: "Good 4G coverage", tips: ["Get a local SIM"] },
+  cultural_tips: { title: "Culture", icon: "star", summary: "Rich history", tips: ["Greet with bonjour"] },
+};
+
+const BASE_GUIDE_PARAMS = {
+  userId: "user-1",
+  destination: "Paris, France",
+  language: "en" as const,
+};
+
+describe("AiService.generateDestinationGuide", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes 'guide' as model type to the provider (not 'checklist')", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    expect(mocks.generateResponse).toHaveBeenCalledOnce();
+    const modelArg = (mocks.generateResponse.mock.calls[0] as unknown[])[2] as string;
+    expect(modelArg).toBe("guide");
+  });
+
+  it("returns cached guide on cache hit without calling the provider", async () => {
+    mocks.redisGet.mockResolvedValue(JSON.stringify(VALID_GUIDE_RESPONSE));
+
+    const result = await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    expect(result.timezone.title).toBe("Timezone");
+    expect(mocks.generateResponse).not.toHaveBeenCalled();
+  });
+
+  it("calls AI provider on cache miss and caches the result", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    const result = await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    expect(result.currency.summary).toBe("Euro (EUR)");
+    expect(mocks.generateResponse).toHaveBeenCalledOnce();
+    expect(mocks.redisSet).toHaveBeenCalledOnce();
+  });
+
+  it("throws AppError when guide response fails Zod validation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    const badResponse = { timezone: { title: "TZ" } }; // incomplete
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(badResponse))
+    );
+
+    await expect(
+      AiService.generateDestinationGuide(BASE_GUIDE_PARAMS)
+    ).rejects.toBeInstanceOf(AppError);
+  });
+
+  it("throws AppError when provider returns malformed JSON for guide", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse("not json at all")
+    );
+
+    await expect(
+      AiService.generateDestinationGuide(BASE_GUIDE_PARAMS)
+    ).rejects.toBeInstanceOf(AppError);
+  });
+});
