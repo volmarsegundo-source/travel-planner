@@ -767,6 +767,20 @@ describe("Token usage logging", () => {
     expect(tokenLogCall).toBeUndefined();
   });
 
+  it("uses 2300 tokens for a 3-day trip (MIN_PLAN_TOKENS=2048)", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // 3-day trip: 3*600 + 500 = 2300, which is above MIN_PLAN_TOKENS (2048)
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const tokenBudget = (mocks.generateResponse.mock.calls[0] as unknown[])[1] as number;
+    expect(tokenBudget).toBe(2300);
+  });
+
   it("does not include PII in token usage log", async () => {
     mocks.redisGet.mockResolvedValue(null);
     mocks.generateResponse.mockResolvedValue(

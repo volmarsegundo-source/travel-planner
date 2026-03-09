@@ -25,10 +25,12 @@ import type {
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 // ~600 tokens per day (activities + descriptions) + 500 for structure/tips.
-// Clamped between 4096 (short trips) and 16000 (max safe output for Sonnet).
+// Clamped between 2048 (short trips) and 16000 (max safe output for Sonnet).
+// MIN_PLAN_TOKENS reduced from 4096 to 2048 per OPT-005 — short trips (1-3 days)
+// don't need 4K tokens; the retry mechanism doubles budget if truncated.
 const TOKENS_PER_DAY = 600;
 const TOKENS_OVERHEAD = 500;
-const MIN_PLAN_TOKENS = 4096;
+const MIN_PLAN_TOKENS = 2048;
 const MAX_PLAN_TOKENS = 16000;
 const MAX_TOKENS_CHECKLIST = 2048;
 const MAX_TOKENS_GUIDE = 2048;
