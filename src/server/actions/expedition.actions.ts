@@ -188,6 +188,10 @@ export async function completePhase4Action(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
+    // Mass assignment safe: explicit fields only
+    const needsCarRental = Boolean(data.needsCarRental);
+    const cnhResolved = Boolean(data.cnhResolved);
+
     // Save metadata on the phase BEFORE completing (prerequisite validation reads it)
     const phase = await db.expeditionPhase.findUnique({
       where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
@@ -197,8 +201,8 @@ export async function completePhase4Action(
         where: { id: phase.id },
         data: {
           metadata: {
-            needsCarRental: data.needsCarRental,
-            cnhResolved: data.cnhResolved,
+            needsCarRental,
+            cnhResolved,
           },
         },
       });
@@ -471,7 +475,7 @@ export async function advanceFromPhaseAction(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
-    // For phase 4, save metadata first if provided
+    // Mass assignment safe: explicit fields only for phase 4 metadata
     if (phaseNumber === 4 && metadata) {
       const phase = await db.expeditionPhase.findUnique({
         where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
@@ -481,8 +485,8 @@ export async function advanceFromPhaseAction(
           where: { id: phase.id },
           data: {
             metadata: {
-              needsCarRental: metadata.needsCarRental ?? false,
-              cnhResolved: metadata.cnhResolved ?? false,
+              needsCarRental: Boolean(metadata.needsCarRental ?? false),
+              cnhResolved: Boolean(metadata.cnhResolved ?? false),
             },
           },
         });

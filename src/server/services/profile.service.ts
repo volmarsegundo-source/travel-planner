@@ -10,6 +10,9 @@ type Tx = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 const ENCRYPTED_FIELDS = ["passportNumber", "nationalId"] as const;
 const TOTAL_PROFILE_FIELDS = Object.keys(PROFILE_FIELD_POINTS).length;
 
+// Mass assignment safe: only these field keys are allowed in profile updates
+const ALLOWED_PROFILE_FIELDS = new Set(Object.keys(PROFILE_FIELD_POINTS));
+
 export class ProfileService {
   /**
    * Save profile fields and award points for each new field.
@@ -24,10 +27,11 @@ export class ProfileService {
     let pointsAwarded = 0;
     const fieldsUpdated: string[] = [];
 
-    // Build update data, encrypting sensitive fields
+    // Mass assignment safe: only accept fields in ALLOWED_PROFILE_FIELDS
     const updateData: Record<string, unknown> = {};
     for (const [key, value] of Object.entries(fields)) {
       if (value === undefined || value === "") continue;
+      if (!ALLOWED_PROFILE_FIELDS.has(key)) continue;
 
       const isEncryptedField = ENCRYPTED_FIELDS.includes(key as typeof ENCRYPTED_FIELDS[number]);
       const dbKey = isEncryptedField ? `${key}Enc` : key;

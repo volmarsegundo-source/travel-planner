@@ -10,7 +10,7 @@ export const env = createEnv({
       (url) => process.env.REDIS_TLS_REQUIRED !== "true" || url.startsWith("rediss://"),
       { message: "REDIS_URL must use rediss:// (TLS) when REDIS_TLS_REQUIRED=true" }
     ).default("redis://localhost:6379"),
-    ANTHROPIC_API_KEY: z.string().startsWith("sk-ant-").optional(),
+    ANTHROPIC_API_KEY: z.string().min(1, "ANTHROPIC_API_KEY cannot be empty").startsWith("sk-ant-").optional(),
     GOOGLE_AI_API_KEY: z.string().optional(),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),

@@ -90,19 +90,71 @@ const MEDIUM_CONFIDENCE_PATTERNS: readonly RegExp[] = [
   /\bfinja\s+(que\s+)?(voce\s+)?e\b/i,
 ];
 
+// ─── Cyrillic Homoglyph Transliteration (T-S17-008) ─────────────────────────
+
+/**
+ * Maps common Cyrillic characters that visually resemble Latin letters
+ * to their Latin equivalents. These survive NFKD normalization because
+ * they are distinct Unicode codepoints, not composed characters.
+ *
+ * Only applied to the normalized copy used for detection — the original
+ * text is never modified.
+ */
+const CYRILLIC_HOMOGLYPH_MAP: ReadonlyMap<string, string> = new Map([
+  ["\u0430", "a"], // а → a
+  ["\u0435", "e"], // е → e
+  ["\u043E", "o"], // о → o
+  ["\u0440", "p"], // р → p
+  ["\u0441", "c"], // с → c
+  ["\u0443", "y"], // у → y
+  ["\u0456", "i"], // і → i (Ukrainian)
+  ["\u0455", "s"], // ѕ → s (Macedonian)
+  ["\u04BB", "h"], // һ → h
+  ["\u0458", "j"], // ј → j (Serbian)
+  ["\u0501", "d"], // ԁ → d
+  ["\u051D", "w"], // ԝ → w
+  ["\u0410", "A"], // А → A (uppercase)
+  ["\u0412", "B"], // В → B
+  ["\u0415", "E"], // Е → E
+  ["\u041A", "K"], // К → K
+  ["\u041C", "M"], // М → M
+  ["\u041D", "H"], // Н → H
+  ["\u041E", "O"], // О → O
+  ["\u0420", "P"], // Р → P
+  ["\u0421", "C"], // С → C
+  ["\u0422", "T"], // Т → T
+  ["\u0425", "X"], // Х → X
+]);
+
+/**
+ * Transliterates Cyrillic homoglyphs to their Latin equivalents.
+ * Applied AFTER NFKD normalization, BEFORE pattern matching.
+ */
+function transliterateCyrillicHomoglyphs(text: string): string {
+  let result = "";
+  for (const char of text) {
+    result += CYRILLIC_HOMOGLYPH_MAP.get(char) ?? char;
+  }
+  return result;
+}
+
 // ─── Normalization ───────────────────────────────────────────────────────────
 
 /**
  * Normalizes text with NFKD to prevent Unicode bypass attacks
  * (e.g., fullwidth characters, Cyrillic lookalikes).
- * Strips combining marks after decomposition.
+ * Strips combining marks after decomposition, then transliterates
+ * Cyrillic homoglyphs to Latin equivalents (T-S17-008).
  */
 function normalizeText(text: string): string {
-  // NFKD decomposes characters (e.g., fullwidth 'A' -> 'A', ligatures, etc.)
-  // Then strip combining marks (diacritics) so accented chars become base letters
-  // e.g., "c\u0327" -> "c", "e\u0302" -> "e", enabling ASCII-only regex patterns
+  // 1. NFKD decomposes characters (e.g., fullwidth 'A' -> 'A', ligatures, etc.)
+  // 2. Strip combining marks (diacritics) so accented chars become base letters
+  //    e.g., "c\u0327" -> "c", "e\u0302" -> "e", enabling ASCII-only regex patterns
+  // 3. Transliterate Cyrillic homoglyphs that survive NFKD
+  //    e.g., "а" (U+0430 Cyrillic) -> "a" (Latin)
   // eslint-disable-next-line no-control-regex
-  return text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  const nfkd = text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  return transliterateCyrillicHomoglyphs(nfkd);
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────

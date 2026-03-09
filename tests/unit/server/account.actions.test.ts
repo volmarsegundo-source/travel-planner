@@ -262,7 +262,7 @@ describe("Account Actions", () => {
   // ─── deleteUserAccountAction ──────────────────────────────────────────
 
   describe("deleteUserAccountAction", () => {
-    it("soft deletes user, anonymizes PII, and cascades to trips on success", async () => {
+    it("soft deletes user, anonymizes PII, cleans up OAuth accounts/sessions, and cascades to trips on success", async () => {
       mockAuth.mockResolvedValue(makeSession());
       prismaMock.user.findFirst.mockResolvedValue(
         makeUser({ id: "user-1", email: "test@example.com" }) as never
@@ -270,6 +270,8 @@ describe("Account Actions", () => {
 
       // Mock the transaction — Prisma $transaction receives a callback
       const mockTx = {
+        account: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
+        session: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
         user: { update: vi.fn().mockResolvedValue(undefined) },
         trip: { updateMany: vi.fn().mockResolvedValue({ count: 3 }) },
       };
@@ -287,6 +289,16 @@ describe("Account Actions", () => {
       });
 
       expect(result.success).toBe(true);
+
+      // Verify OAuth accounts were deleted (T-S17-002)
+      expect(mockTx.account.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+
+      // Verify sessions were deleted (T-S17-002)
+      expect(mockTx.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
 
       // Verify user was soft deleted + anonymized
       expect(mockTx.user.update).toHaveBeenCalledWith(
@@ -387,6 +399,8 @@ describe("Account Actions", () => {
       );
 
       const mockTx = {
+        account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        session: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
         user: { update: vi.fn().mockResolvedValue(undefined) },
         trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       };
@@ -419,6 +433,8 @@ describe("Account Actions", () => {
       );
 
       const mockTx = {
+        account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        session: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
         user: { update: vi.fn().mockResolvedValue(undefined) },
         trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       };
@@ -458,6 +474,70 @@ describe("Account Actions", () => {
       }
     });
 
+    it("deletes OAuth accounts before soft-deleting user (T-S17-002)", async () => {
+      mockAuth.mockResolvedValue(makeSession());
+      prismaMock.user.findFirst.mockResolvedValue(
+        makeUser({ id: "user-1", email: "test@example.com" }) as never
+      );
+
+      const callOrder: string[] = [];
+      const mockTx = {
+        account: {
+          deleteMany: vi.fn().mockImplementation(() => {
+            callOrder.push("account.deleteMany");
+            return Promise.resolve({ count: 2 });
+          }),
+        },
+        session: {
+          deleteMany: vi.fn().mockImplementation(() => {
+            callOrder.push("session.deleteMany");
+            return Promise.resolve({ count: 1 });
+          }),
+        },
+        user: {
+          update: vi.fn().mockImplementation(() => {
+            callOrder.push("user.update");
+            return Promise.resolve(undefined);
+          }),
+        },
+        trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+      };
+      prismaMock.$transaction.mockImplementation(async (fn) => {
+        if (typeof fn === "function") {
+          return fn(mockTx as never);
+        }
+        return undefined as never;
+      });
+
+      vi.spyOn(console, "log").mockImplementation(() => {});
+
+      const result = await deleteUserAccountAction({
+        confirmEmail: "test@example.com",
+      });
+
+      expect(result.success).toBe(true);
+
+      // OAuth accounts must be deleted
+      expect(mockTx.account.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+
+      // Sessions must be deleted
+      expect(mockTx.session.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+
+      // OAuth + session cleanup must happen BEFORE user anonymization
+      expect(callOrder.indexOf("account.deleteMany")).toBeLessThan(
+        callOrder.indexOf("user.update")
+      );
+      expect(callOrder.indexOf("session.deleteMany")).toBeLessThan(
+        callOrder.indexOf("user.update")
+      );
+
+      vi.restoreAllMocks();
+    });
+
     it("does not log PII in audit events", async () => {
       mockAuth.mockResolvedValue(makeSession({ email: "private@sensitive.com" }));
       prismaMock.user.findFirst.mockResolvedValue(
@@ -469,6 +549,8 @@ describe("Account Actions", () => {
       );
 
       const mockTx = {
+        account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        session: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
         user: { update: vi.fn().mockResolvedValue(undefined) },
         trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       };
