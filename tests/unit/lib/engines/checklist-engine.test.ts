@@ -95,8 +95,8 @@ describe("ChecklistEngine.initializePhase3Checklist", () => {
     expect(prismaMock.phaseChecklistItem.createMany).toHaveBeenCalledOnce();
 
     const createCall =
-      prismaMock.phaseChecklistItem.createMany.mock.calls[0][0];
-    const data = createCall.data as Array<{
+      prismaMock.phaseChecklistItem.createMany.mock.calls[0]![0];
+    const data = createCall!.data as Array<{
       tripId: string;
       phaseNumber: number;
       itemKey: string;
@@ -125,8 +125,8 @@ describe("ChecklistEngine.initializePhase3Checklist", () => {
     );
 
     const createCall =
-      prismaMock.phaseChecklistItem.createMany.mock.calls[0][0];
-    const data = createCall.data as Array<{ itemKey: string }>;
+      prismaMock.phaseChecklistItem.createMany.mock.calls[0]![0];
+    const data = createCall!.data as Array<{ itemKey: string }>;
 
     // Domestic only gets: travel_insurance (rec), emergency_contacts (req), copies_documents (rec)
     expect(data.length).toBe(3);
@@ -166,8 +166,8 @@ describe("ChecklistEngine.initializePhase3Checklist", () => {
     );
 
     const createCall =
-      prismaMock.phaseChecklistItem.createMany.mock.calls[0][0];
-    const data = createCall.data as Array<{
+      prismaMock.phaseChecklistItem.createMany.mock.calls[0]![0];
+    const data = createCall!.data as Array<{
       itemKey: string;
       deadline: Date | null;
     }>;
@@ -201,8 +201,8 @@ describe("ChecklistEngine.initializePhase3Checklist", () => {
     );
 
     const createCall =
-      prismaMock.phaseChecklistItem.createMany.mock.calls[0][0];
-    const data = createCall.data as Array<{
+      prismaMock.phaseChecklistItem.createMany.mock.calls[0]![0];
+    const data = createCall!.data as Array<{
       itemKey: string;
       required: boolean;
       pointsValue: number;

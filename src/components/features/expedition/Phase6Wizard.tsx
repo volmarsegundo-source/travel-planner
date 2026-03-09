@@ -42,7 +42,7 @@ export function Phase6Wizard({
   const t = useTranslations("expedition.phase6");
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
-  const [days, setDays] = useState(initialDays);
+  const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
 
   const hasItinerary = days.length > 0;
@@ -69,11 +69,7 @@ export function Phase6Wizard({
       });
 
       if (result.success) {
-        // Reload to get fresh days from server
         router.refresh();
-        setTimeout(() => {
-          window.location.reload();
-        }, 500);
       } else {
         const errorMap: Record<string, string> = {
           "errors.timeout": t("errorTimeout"),

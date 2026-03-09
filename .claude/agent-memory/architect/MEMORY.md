@@ -1,6 +1,7 @@
 # Architect Memory — Travel Planner
 
 ## Project State
+- Sprint 15 review done 2026-03-09; Sprint 15 APPROVED WITH NOTES (architect)
 - Sprint 9 review done 2026-03-06; Sprint 9 APPROVED WITH OBSERVATIONS (architect)
 - Sprint 6 review done 2026-03-04; Sprint 6 APPROVED WITH OBSERVATIONS
 - Sprint 5 complete; Sprint 2 (hardening) complete as of 2026-02-26
@@ -9,7 +10,6 @@
 - ADR-008 PENDING: engines convention (src/lib/engines/ vs src/server/services/)
 - SPEC-001 written: docs/SPEC-001.md (2026-02-23)
 - SPEC-005 written: docs/specs/SPEC-005-authenticated-navigation.md (2026-03-01)
-- 588 tests passing, 0 failures
 
 ## Confirmed Tech Stack (ADR-001, Accepted 2026-02-23)
 - Framework: Next.js 15 App Router (full-stack monolito modular)
@@ -121,6 +121,12 @@
 - SPEC-001 (2026-02-23): Trip Creation & Management — docs/SPEC-001.md
 - SPEC-005 (2026-03-01): Authenticated Navigation & Fixes — docs/specs/SPEC-005-authenticated-navigation.md
 
+## File Locations (Sprint 15 additions)
+- ItineraryPlanService: src/server/services/itinerary-plan.service.ts
+- Phase6Wizard: src/components/features/expedition/Phase6Wizard.tsx
+- Phase 6 page: src/app/[locale]/(app)/expedition/[tripId]/phase-6/page.tsx
+- Migration: prisma/migrations/20260309010315_itinerary_plan_phase6/
+
 ## File Locations (Sprint 9 additions)
 - Gamification types: src/types/gamification.types.ts
 - Phase config (isomorphic): src/lib/engines/phase-config.ts
@@ -155,6 +161,24 @@
 - Auth layout: src/app/[locale]/auth/layout.tsx (Header + Footer)
 - AppShellLayout: src/app/[locale]/(app)/layout.tsx
 - Middleware: src/middleware.ts (auth + i18n + CSP nonce)
+
+## Sprint 15 — Phase 6 (AI Itinerary in Expedition)
+- New model: ItineraryPlan (1:1 with Trip, onDelete: Cascade, tripId @unique)
+- New service: ItineraryPlanService (getOrCreateItineraryPlan, recordGeneration, getExpeditionContext)
+- Phase6Wizard: client component (188 lines), 3 states (empty/generating/generated)
+- /trips route deactivated (redirects to /dashboard); navbar link removed
+- Expedition context enrichment: Phase 2 metadata + Phase 5 guide injected into AI prompt
+- generateTravelPlanAction extended (not duplicated) for expedition flow
+- TRIP_SELECT now includes expeditionMode + currentPhase (DT-S9-002 resolved)
+- getUserTripsWithExpeditionData includes itineraryPlan relation for dashboard badge
+- Migration: 20260309010315_itinerary_plan_phase6
+
+### Sprint 15 Debt
+- LOW: DT-S15-001 — getOrCreateItineraryPlan race condition (no upsert/P2002 catch)
+- LOW: DT-S15-002 — window.location.reload() workaround in Phase6Wizard
+- BAIXO: DT-S15-003 — Itinerary generation points use type "purchase" (same as DT-S9-005)
+- BAIXO: DT-S15-004 — Redundant trip ownership check (page + service)
+- MEDIO: DT-S15-005 — recordGeneration empty catch block swallows all errors silently
 
 ## Sprint 9 Findings
 - Engines pattern (static class methods) pragmatic for MVP — essentially namespaces

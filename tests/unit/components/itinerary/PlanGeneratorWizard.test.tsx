@@ -114,6 +114,8 @@ const MOCK_TRIP: Trip = {
   coverEmoji: "✈️",
   status: "PLANNING",
   visibility: "PRIVATE",
+  expeditionMode: false,
+  currentPhase: 0,
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,

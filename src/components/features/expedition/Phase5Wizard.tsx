@@ -59,10 +59,7 @@ export function Phase5Wizard({
     setErrorMessage(null);
 
     try {
-      const result = await completePhase5Action(tripId, {
-        connectivityChoice: selectedOption,
-        region,
-      });
+      const result = await completePhase5Action(tripId);
 
       if (!result.success) {
         setErrorMessage(result.error);

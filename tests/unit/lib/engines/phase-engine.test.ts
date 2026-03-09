@@ -142,8 +142,8 @@ describe("PhaseEngine.initializeExpedition", () => {
 
     expect(prismaMock.expeditionPhase.createMany).toHaveBeenCalledOnce();
 
-    const createCall = prismaMock.expeditionPhase.createMany.mock.calls[0][0];
-    const data = createCall.data as Array<{
+    const createCall = prismaMock.expeditionPhase.createMany.mock.calls[0]![0];
+    const data = createCall!.data as Array<{
       tripId: string;
       phaseNumber: number;
       status: string;

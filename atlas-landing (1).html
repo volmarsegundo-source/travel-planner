@@ -1,0 +1,1329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Atlas — Transforme Sonhos em Expedições</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0D0F14;
+    --parchment: #F5EFE0;
+    --gold: #C9973A;
+    --gold-light: #E8B84B;
+    --gold-pale: #F5DFA0;
+    --teal: #2A7A6F;
+    --teal-light: #3AADA0;
+    --rust: #C04E2A;
+    --cream: #FAF6EC;
+    --fog: rgba(245,239,224,0.06);
+    --line: rgba(201,151,58,0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--ink);
+    color: var(--parchment);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1000;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    padding: 20px 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(13,15,20,0.95), transparent);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.08em;
+    text-decoration: none;
+  }
+
+  .nav-logo .compass {
+    font-size: 1.4rem;
+    animation: spin-slow 20s linear infinite;
+  }
+
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: rgba(245,239,224,0.6);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold-light); }
+
+  .nav-cta {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold-light) !important;
+    padding: 10px 24px;
+    border-radius: 2px;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.1em !important;
+    transition: all 0.3s !important;
+    cursor: pointer;
+  }
+
+  .nav-cta:hover {
+    background: var(--gold) !important;
+    color: var(--ink) !important;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+
+  .hero-map-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.08;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='500' viewBox='0 0 800 500'%3E%3Cg fill='none' stroke='%23C9973A' stroke-width='0.5'%3E%3Cellipse cx='400' cy='250' rx='380' ry='230'/%3E%3Cellipse cx='400' cy='250' rx='300' ry='180'/%3E%3Cellipse cx='400' cy='250' rx='200' ry='120'/%3E%3Cellipse cx='400' cy='250' rx='100' ry='60'/%3E%3Cline x1='400' y1='20' x2='400' y2='480'/%3E%3Cline x1='20' y1='250' x2='780' y2='250'/%3E%3Cline x1='130' y1='60' x2='670' y2='440'/%3E%3Cline x1='670' y1='60' x2='130' y2='440'/%3E%3Ccircle cx='400' cy='250' r='5' fill='%23C9973A'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 900px;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  /* Grid lines */
+  .hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(201,151,58,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(201,151,58,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+
+  /* Radial glow */
+  .hero-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, rgba(42,122,111,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-glow-gold {
+    position: absolute;
+    top: 30%;
+    right: 10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(201,151,58,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 10;
+    padding: 0 48px;
+    max-width: 780px;
+    animation: fadeUp 1s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--teal-light);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 1s ease 0.1s both;
+  }
+
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 32px;
+    height: 1px;
+    background: var(--teal-light);
+  }
+
+  .hero-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(3.5rem, 7vw, 6rem);
+    font-weight: 300;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+    margin-bottom: 8px;
+    animation: fadeUp 1s ease 0.2s both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .hero-title .outline {
+    -webkit-text-stroke: 1px var(--parchment);
+    color: transparent;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(1.2rem, 2.5vw, 1.8rem);
+    font-weight: 300;
+    font-style: italic;
+    color: rgba(245,239,224,0.5);
+    margin-bottom: 40px;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+
+  .hero-desc {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(245,239,224,0.65);
+    max-width: 520px;
+    margin-bottom: 48px;
+    font-weight: 300;
+    animation: fadeUp 1s ease 0.4s both;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    animation: fadeUp 1s ease 0.5s both;
+  }
+
+  .btn-primary {
+    background: var(--gold);
+    color: var(--ink);
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .btn-primary:hover {
+    background: var(--gold-light);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(201,151,58,0.3);
+  }
+
+  .btn-primary:hover::after { opacity: 1; }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--parchment);
+    border: none;
+    font-size: 0.9rem;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .btn-ghost:hover { opacity: 1; }
+
+  .hero-stats {
+    position: absolute;
+    right: 48px;
+    bottom: 80px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    animation: fadeUp 1s ease 0.6s both;
+  }
+
+  .stat-item {
+    text-align: right;
+  }
+
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.4rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.72rem;
+    color: rgba(245,239,224,0.4);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .hero-scroll {
+    position: absolute;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(245,239,224,0.3);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    animation: fadeUp 1s ease 0.8s both;
+  }
+
+  .scroll-line {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, rgba(245,239,224,0.3), transparent);
+    animation: scrollAnim 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollAnim {
+    0%, 100% { transform: scaleY(1); opacity: 0.3; }
+    50% { transform: scaleY(0.5); opacity: 0.8; }
+  }
+
+  /* ── PHASES SECTION ── */
+  .phases {
+    padding: 120px 48px;
+    position: relative;
+  }
+
+  .phases::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 80px;
+  }
+
+  .section-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--teal-light);
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: block;
+  }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    font-weight: 300;
+    line-height: 1.15;
+    color: var(--parchment);
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .phases-timeline {
+    position: relative;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  /* Vertical line */
+  .phases-timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--line) 10%, var(--line) 90%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .phase-item {
+    display: grid;
+    grid-template-columns: 1fr 80px 1fr;
+    gap: 0;
+    margin-bottom: 64px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+
+  .phase-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .phase-item:nth-child(odd) .phase-content { grid-column: 1; text-align: right; }
+  .phase-item:nth-child(odd) .phase-empty { grid-column: 3; }
+  .phase-item:nth-child(even) .phase-content { grid-column: 3; text-align: left; }
+  .phase-item:nth-child(even) .phase-empty { grid-column: 1; }
+
+  .phase-node {
+    grid-column: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .phase-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--gold);
+    background: var(--ink);
+    z-index: 2;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .phase-item:hover .phase-circle {
+    background: var(--gold);
+    color: var(--ink);
+    box-shadow: 0 0 30px rgba(201,151,58,0.4);
+  }
+
+  .phase-content {
+    padding: 8px 32px;
+  }
+
+  .phase-tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .phase-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+
+  .phase-desc {
+    font-size: 0.88rem;
+    color: rgba(245,239,224,0.5);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  .phase-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .badge-free { background: rgba(42,122,111,0.2); color: var(--teal-light); border: 1px solid rgba(42,122,111,0.3); }
+  .badge-premium { background: rgba(201,151,58,0.1); color: var(--gold-light); border: 1px solid rgba(201,151,58,0.25); }
+
+  /* Phase colors */
+  .p1 .phase-tag { color: #4A90D9; }
+  .p1 .phase-circle { border-color: #4A90D9; color: #4A90D9; }
+  .p1:hover .phase-circle { background: #4A90D9; color: var(--ink); }
+
+  .p2 .phase-tag { color: #5BA85A; }
+  .p2 .phase-circle { border-color: #5BA85A; color: #5BA85A; }
+  .p2:hover .phase-circle { background: #5BA85A; color: var(--ink); }
+
+  .p3 .phase-tag { color: #E67E22; }
+  .p3 .phase-circle { border-color: #E67E22; color: #E67E22; }
+  .p3:hover .phase-circle { background: #E67E22; color: var(--ink); }
+
+  .p4 .phase-tag { color: #9B59B6; }
+  .p4 .phase-circle { border-color: #9B59B6; color: #9B59B6; }
+  .p4:hover .phase-circle { background: #9B59B6; color: var(--ink); }
+
+  .p5 .phase-tag { color: #2ECC71; }
+  .p5 .phase-circle { border-color: #2ECC71; color: #2ECC71; }
+  .p5:hover .phase-circle { background: #2ECC71; color: var(--ink); }
+
+  .p6 .phase-tag { color: #E74C3C; }
+  .p6 .phase-circle { border-color: #E74C3C; color: #E74C3C; }
+  .p6:hover .phase-circle { background: #E74C3C; color: var(--ink); }
+
+  .p7 .phase-tag { color: #F39C12; }
+  .p7 .phase-circle { border-color: #F39C12; color: #F39C12; }
+  .p7:hover .phase-circle { background: #F39C12; color: var(--ink); }
+
+  .p8 .phase-tag { color: #1ABC9C; }
+  .p8 .phase-circle { border-color: #1ABC9C; color: #1ABC9C; }
+  .p8:hover .phase-circle { background: #1ABC9C; color: var(--ink); }
+
+  /* ── GAMIFICATION SECTION ── */
+  .gamification {
+    padding: 120px 48px;
+    background: linear-gradient(180deg, transparent, rgba(42,122,111,0.04), transparent);
+    position: relative;
+  }
+
+  .gamification::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--teal), transparent);
+  }
+
+  .gami-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  .gami-left .section-header {
+    text-align: left;
+    margin-bottom: 48px;
+  }
+
+  .ranks-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .rank-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+    border: 1px solid rgba(201,151,58,0.1);
+    border-radius: 4px;
+    background: rgba(201,151,58,0.03);
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .rank-item:hover {
+    border-color: rgba(201,151,58,0.3);
+    background: rgba(201,151,58,0.06);
+    transform: translateX(4px);
+  }
+
+  .rank-icon { font-size: 1.4rem; width: 36px; text-align: center; }
+
+  .rank-info { flex: 1; }
+
+  .rank-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 2px;
+  }
+
+  .rank-desc {
+    font-size: 0.78rem;
+    color: rgba(245,239,224,0.4);
+  }
+
+  .rank-pts {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--teal-light);
+    white-space: nowrap;
+  }
+
+  /* Points card */
+  .points-card {
+    background: linear-gradient(135deg, rgba(13,15,20,0.9), rgba(20,25,35,0.9));
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .points-card::before {
+    content: '🧭';
+    position: absolute;
+    top: -20px;
+    right: -20px;
+    font-size: 8rem;
+    opacity: 0.05;
+    transform: rotate(15deg);
+  }
+
+  .points-card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--gold-light);
+  }
+
+  .points-card-sub {
+    font-size: 0.85rem;
+    color: rgba(245,239,224,0.4);
+    margin-bottom: 32px;
+    line-height: 1.5;
+  }
+
+  .points-examples {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .points-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(201,151,58,0.08);
+    font-size: 0.85rem;
+  }
+
+  .points-row:last-child { border-bottom: none; }
+
+  .points-action { color: rgba(245,239,224,0.65); }
+
+  .points-value {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    padding: 3px 10px;
+    border-radius: 12px;
+  }
+
+  .pts-earn { background: rgba(42,122,111,0.15); color: var(--teal-light); }
+  .pts-spend { background: rgba(201,151,58,0.1); color: var(--gold); }
+
+  /* ── TRIP TYPE SECTION ── */
+  .trip-types {
+    padding: 120px 48px;
+    position: relative;
+  }
+
+  .trip-types::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+  }
+
+  .types-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+    margin: 60px auto 0;
+  }
+
+  .type-card {
+    padding: 40px 32px;
+    background: rgba(245,239,224,0.02);
+    border: 1px solid rgba(201,151,58,0.08);
+    transition: all 0.4s;
+    cursor: default;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .type-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    transform: scaleX(0);
+    transition: transform 0.4s;
+  }
+
+  .type-card:hover {
+    background: rgba(245,239,224,0.04);
+    transform: translateY(-4px);
+  }
+
+  .type-card:hover::before { transform: scaleX(1); }
+
+  .type-domestic::before { background: #4A90D9; }
+  .type-mercosul::before { background: #2ECC71; }
+  .type-international::before { background: var(--gold); }
+  .type-schengen::before { background: #9B59B6; }
+
+  .type-icon { font-size: 2rem; margin-bottom: 20px; display: block; }
+
+  .type-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: var(--parchment);
+  }
+
+  .type-desc {
+    font-size: 0.82rem;
+    color: rgba(245,239,224,0.45);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .type-items {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .type-items li {
+    font-size: 0.78rem;
+    color: rgba(245,239,224,0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .type-items li::before {
+    content: '—';
+    color: rgba(201,151,58,0.4);
+    font-size: 0.7rem;
+  }
+
+  .type-items li.required {
+    color: rgba(245,239,224,0.7);
+  }
+
+  .type-items li.required::before {
+    content: '✓';
+    color: var(--teal-light);
+    font-weight: bold;
+  }
+
+  /* ── CTA SECTION ── */
+  .cta-section {
+    padding: 160px 48px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .cta-bg {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(42,122,111,0.1) 0%, transparent 70%);
+  }
+
+  .cta-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--teal), transparent);
+  }
+
+  .cta-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    font-weight: 300;
+    line-height: 1.1;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .cta-title em {
+    font-style: italic;
+    color: var(--gold-light);
+  }
+
+  .cta-sub {
+    font-size: 1rem;
+    color: rgba(245,239,224,0.5);
+    max-width: 480px;
+    margin: 0 auto 48px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .cta-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .btn-large {
+    padding: 20px 56px;
+    font-size: 1rem;
+    letter-spacing: 0.1em;
+  }
+
+  .cta-note {
+    margin-top: 24px;
+    font-size: 0.78rem;
+    color: rgba(245,239,224,0.25);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.08em;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    padding: 48px;
+    border-top: 1px solid rgba(201,151,58,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .footer-logo {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.2rem;
+    color: var(--gold);
+    letter-spacing: 0.1em;
+  }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: rgba(245,239,224,0.25);
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 0.06em;
+  }
+
+  /* ── SCROLL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: all 0.7s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── FLOATING COORDINATES ── */
+  .floating-coord {
+    position: absolute;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: rgba(201,151,58,0.15);
+    letter-spacing: 0.08em;
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+
+  .coord-1 { top: 20%; left: 5%; animation-delay: 0s; }
+  .coord-2 { top: 60%; left: 3%; animation-delay: 2s; }
+  .coord-3 { top: 35%; right: 4%; animation-delay: 4s; }
+  .coord-4 { top: 75%; right: 6%; animation-delay: 1s; }
+
+  /* Passport stamp decoration */
+  .stamp {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border: 2px solid rgba(201,151,58,0.12);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.55rem;
+    color: rgba(201,151,58,0.15);
+    text-align: center;
+    letter-spacing: 0.05em;
+    transform: rotate(-15deg);
+    pointer-events: none;
+  }
+
+  .stamp-1 { top: 15%; right: 8%; }
+  .stamp-2 { bottom: 20%; left: 5%; transform: rotate(10deg); }
+
+</style>
+</head>
+<body>
+
+<!-- Floating coordinates -->
+<span class="floating-coord coord-1">23°S 43°W</span>
+<span class="floating-coord coord-2">48°N 2°E</span>
+<span class="floating-coord coord-3">35°N 139°E</span>
+<span class="floating-coord coord-4">51°N 0°W</span>
+
+<!-- Passport stamps -->
+<div class="stamp stamp-1">ATLAS<br>APPROVED<br>2026</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="compass">🧭</span>
+    ATLAS
+  </a>
+  <ul class="nav-links">
+    <li><a href="#jornada">A Jornada</a></li>
+    <li><a href="#coordenadas">Coordenadas</a></li>
+    <li><a href="#tipos">Tipos de Viagem</a></li>
+    <li><a href="#" class="nav-cta">Começar Expedição</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-map-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-glow-gold"></div>
+
+  <div class="hero-content">
+    <div class="hero-eyebrow">Plataforma de Viagem Gamificada</div>
+    <h1 class="hero-title">
+      Toda grande<br>
+      viagem começa<br>
+      com um <em>chamado</em>
+    </h1>
+    <p class="hero-subtitle">Transforme seu sonho em expedição.</p>
+    <p class="hero-desc">
+      O Atlas guia você por 8 fases da jornada perfeita — do destino ao legado.
+      Cada passo conquistado vira pontos. Cada expedição, uma história.
+    </p>
+    <div class="hero-actions">
+      <button class="btn-primary">Iniciar Expedição</button>
+      <button class="btn-ghost">
+        <span>▶</span> Ver como funciona
+      </button>
+    </div>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-number">8</div>
+      <div class="stat-label">Fases da Jornada</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">275<span style="font-size:1.2rem">pts</span></div>
+      <div class="stat-label">Coordenadas de Perfil</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number">4</div>
+      <div class="stat-label">Tipos de Rota</div>
+    </div>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    <span>Explorar</span>
+  </div>
+</section>
+
+<!-- PHASES -->
+<section class="phases" id="jornada">
+  <div class="section-header">
+    <span class="section-tag">A Jornada do Explorador</span>
+    <h2 class="section-title">Oito territórios<br>a <em>conquistar</em></h2>
+  </div>
+
+  <div class="phases-timeline">
+
+    <div class="phase-item p1 reveal">
+      <div class="phase-content">
+        <div class="phase-tag">Fase 01 · Free</div>
+        <div class="phase-name">O Chamado</div>
+        <div class="phase-desc">Sonhe. Decida. Comece. Escolha seu destino e defina as datas da sua próxima grande aventura.</div>
+        <span class="phase-badge badge-free">+100 🧭 + pontos de perfil</span>
+      </div>
+      <div class="phase-node"><div class="phase-circle">01</div></div>
+      <div class="phase-empty"></div>
+    </div>
+
+    <div class="phase-item p2 reveal">
+      <div class="phase-empty"></div>
+      <div class="phase-node"><div class="phase-circle">02</div></div>
+      <div class="phase-content">
+        <div class="phase-tag">Fase 02 · Free</div>
+        <div class="phase-name">O Explorador</div>
+        <div class="phase-desc">Quem é você como viajante? Ritmo, interesses, hospedagem preferida e orçamento — tudo para personalizar sua expedição.</div>
+        <span class="phase-badge badge-free">+150 🧭</span>
+      </div>
+    </div>
+
+    <div class="phase-item p3 reveal">
+      <div class="phase-content">
+        <div class="phase-tag">Fase 03 · Free</div>
+        <div class="phase-name">A Rota</div>
+        <div class="phase-desc">Voos, documentos, visto, vacinas e seguro. A IA detecta o tipo da sua rota e mostra exatamente o que você precisa.</div>
+        <span class="phase-badge badge-free">+200 🧭 · IA -100🧭</span>
+      </div>
+      <div class="phase-node"><div class="phase-circle">03</div></div>
+      <div class="phase-empty"></div>
+    </div>
+
+    <div class="phase-item p4 reveal">
+      <div class="phase-empty"></div>
+      <div class="phase-node"><div class="phase-circle">04</div></div>
+      <div class="phase-content">
+        <div class="phase-tag">Fase 04 · Free</div>
+        <div class="phase-name">O Abrigo</div>
+        <div class="phase-desc">Encontre onde descansar. A IA sugere bairros e opções com base no seu perfil e orçamento.</div>
+        <span class="phase-badge badge-free">+200 🧭 · IA -100🧭</span>
+      </div>
+    </div>
+
+    <div class="phase-item p5 reveal">
+      <div class="phase-content">
+        <div class="phase-tag">Fase 05 · Free</div>
+        <div class="phase-name">O Mapa dos Dias</div>
+        <div class="phase-desc">Itinerário dia a dia gerado pela IA, editável via drag-and-drop. Cada atividade é um território conquistado.</div>
+        <span class="phase-badge badge-free">+300 🧭 · IA -150🧭</span>
+      </div>
+      <div class="phase-node"><div class="phase-circle">05</div></div>
+      <div class="phase-empty"></div>
+    </div>
+
+    <div class="phase-item p6 reveal">
+      <div class="phase-empty"></div>
+      <div class="phase-node"><div class="phase-circle">06</div></div>
+      <div class="phase-content">
+        <div class="phase-tag">Fase 06 · Premium</div>
+        <div class="phase-name">O Tesouro</div>
+        <div class="phase-desc">Controle cada centavo da expedição. Budget por categoria, registro de gastos em tempo real e alertas inteligentes.</div>
+        <span class="phase-badge badge-premium">+250 🧭 · Premium</span>
+      </div>
+    </div>
+
+    <div class="phase-item p7 reveal">
+      <div class="phase-content">
+        <div class="phase-tag">Fase 07 · Premium</div>
+        <div class="phase-name">A Expedição</div>
+        <div class="phase-desc">Você partiu. Modo viagem ativa: checklist de embarque, acompanhamento do itinerário e contatos de emergência.</div>
+        <span class="phase-badge badge-premium">+400 🧭 · Premium</span>
+      </div>
+      <div class="phase-node"><div class="phase-circle">07</div></div>
+      <div class="phase-empty"></div>
+    </div>
+
+    <div class="phase-item p8 reveal">
+      <div class="phase-empty"></div>
+      <div class="phase-node"><div class="phase-circle">08</div></div>
+      <div class="phase-content">
+        <div class="phase-tag">Fase 08 · Premium</div>
+        <div class="phase-name">O Legado</div>
+        <div class="phase-desc">A viagem acabou, a expedição não. Memórias, avaliações, compartilhamento e o poder de inspirar outros exploradores.</div>
+        <span class="phase-badge badge-premium">+500 🧭 · Embaixador</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- GAMIFICATION -->
+<section class="gamification" id="coordenadas">
+  <div class="gami-grid">
+    <div class="gami-left reveal">
+      <div class="section-header">
+        <span class="section-tag">Sistema de Coordenadas</span>
+        <h2 class="section-title">Cada ação<br>tem <em>peso</em></h2>
+      </div>
+      <div class="ranks-list">
+        <div class="rank-item">
+          <span class="rank-icon">🌱</span>
+          <div class="rank-info">
+            <div class="rank-name">Viajante</div>
+            <div class="rank-desc">Início da jornada. O mundo aguarda.</div>
+          </div>
+          <span class="rank-pts">0 🧭</span>
+        </div>
+        <div class="rank-item">
+          <span class="rank-icon">🧭</span>
+          <div class="rank-info">
+            <div class="rank-name">Explorador</div>
+            <div class="rank-desc">Perfil completo. Primeira expedição.</div>
+          </div>
+          <span class="rank-pts">500 🧭</span>
+        </div>
+        <div class="rank-item">
+          <span class="rank-icon">🗺️</span>
+          <div class="rank-info">
+            <div class="rank-name">Navegador</div>
+            <div class="rank-desc">Rotas traçadas com maestria.</div>
+          </div>
+          <span class="rank-pts">1.200 🧭</span>
+        </div>
+        <div class="rank-item">
+          <span class="rank-icon">📍</span>
+          <div class="rank-info">
+            <div class="rank-name">Cartógrafo</div>
+            <div class="rank-desc">Itinerários perfeitos. Territórios mapeados.</div>
+          </div>
+          <span class="rank-pts">2.500 🧭</span>
+        </div>
+        <div class="rank-item">
+          <span class="rank-icon">🏔️</span>
+          <div class="rank-info">
+            <div class="rank-name">Pathfinder</div>
+            <div class="rank-desc">Expedições reais concluídas.</div>
+          </div>
+          <span class="rank-pts">5.000 🧭</span>
+        </div>
+        <div class="rank-item">
+          <span class="rank-icon">🏆</span>
+          <div class="rank-info">
+            <div class="rank-name">Embaixador</div>
+            <div class="rank-desc">Lendário. Inspira outros exploradores.</div>
+          </div>
+          <span class="rank-pts">10.000 🧭</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="animation-delay: 0.2s">
+      <div class="points-card">
+        <div class="points-card-title">Coordenadas 🧭</div>
+        <div class="points-card-sub">A moeda do explorador. Ganhe completando fases e perfil. Gaste para acessar o poder da IA.</div>
+        <div class="points-examples">
+          <div class="points-row">
+            <span class="points-action">Completar Fase 1 (O Chamado)</span>
+            <span class="points-value pts-earn">+100</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">Cadastrar data de nascimento</span>
+            <span class="points-value pts-earn">+30</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">Cadastrar passaporte</span>
+            <span class="points-value pts-earn">+50</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">Login diário</span>
+            <span class="points-value pts-earn">+10</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">Convidar um amigo</span>
+            <span class="points-value pts-earn">+300</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">IA gerar itinerário completo</span>
+            <span class="points-value pts-spend">-150</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">IA sugerir hospedagem</span>
+            <span class="points-value pts-spend">-100</span>
+          </div>
+          <div class="points-row">
+            <span class="points-action">IA regenerar rota</span>
+            <span class="points-value pts-spend">-80</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRIP TYPES -->
+<section class="trip-types" id="tipos">
+  <div class="section-header">
+    <span class="section-tag">Inteligência de Rota</span>
+    <h2 class="section-title">O Atlas conhece<br>a sua <em>rota</em></h2>
+    <p style="color:rgba(245,239,224,0.45); font-size:0.95rem; margin-top:16px; max-width:520px; margin-left:auto; margin-right:auto; line-height:1.7; font-weight:300;">
+      Com base na sua cidade de origem e destino, o Atlas detecta automaticamente o tipo da viagem e mostra apenas o checklist relevante para você.
+    </p>
+  </div>
+
+  <div class="types-grid reveal">
+    <div class="type-card type-domestic">
+      <span class="type-icon">🏠</span>
+      <div class="type-name">Nacional</div>
+      <div class="type-desc">Mesmo país. Menos burocracia, mais foco na experiência.</div>
+      <ul class="type-items">
+        <li class="required">Documento nacional (RG)</li>
+        <li class="required">Passagem e hospedagem</li>
+        <li>Seguro viagem (recomendado)</li>
+      </ul>
+    </div>
+
+    <div class="type-card type-mercosul">
+      <span class="type-icon">🌿</span>
+      <div class="type-name">Mercosul</div>
+      <div class="type-desc">Argentina, Uruguai, Chile, Paraguai, Bolívia. RG aceito.</div>
+      <ul class="type-items">
+        <li class="required">RG brasileiro (aceito)</li>
+        <li class="required">Câmbio de moeda</li>
+        <li>Passaporte (recomendado)</li>
+        <li>Seguro viagem</li>
+      </ul>
+    </div>
+
+    <div class="type-card type-international">
+      <span class="type-icon">🌍</span>
+      <div class="type-name">Internacional</div>
+      <div class="type-desc">Qualquer fronteira além do Mercosul. Preparação completa.</div>
+      <ul class="type-items">
+        <li class="required">Passaporte (6+ meses)</li>
+        <li class="required">Verificar visto</li>
+        <li class="required">Seguro viagem</li>
+        <li class="required">Vacinas do destino</li>
+        <li class="required">Câmbio + avisar banco</li>
+      </ul>
+    </div>
+
+    <div class="type-card type-schengen">
+      <span class="type-icon">🇪🇺</span>
+      <div class="type-name">Área Schengen</div>
+      <div class="type-desc">26 países europeus. Seguro de €30k obrigatório por lei.</div>
+      <ul class="type-items">
+        <li class="required">Passaporte válido</li>
+        <li class="required">Seguro €30.000 mínimo</li>
+        <li class="required">ETA/ETIAS (2026)</li>
+        <li class="required">Visto Schengen (se necessário)</li>
+        <li class="required">Câmbio + avisar banco</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-bg"></div>
+  <h2 class="cta-title" style="position:relative;">
+    Seu próximo destino<br>está esperando<br>um <em>explorador</em>
+  </h2>
+  <p class="cta-sub">
+    Comece de graça. As 5 primeiras fases são livres. Transforme qualquer viagem numa expedição inesquecível.
+  </p>
+  <div class="cta-actions">
+    <button class="btn-primary btn-large">Criar Minha Expedição</button>
+  </div>
+  <p class="cta-note">Grátis para sempre · Sem cartão de crédito</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">🧭 ATLAS</div>
+  <div class="footer-copy">© 2026 Atlas Travel Planner · Todos os territórios reservados</div>
+</footer>
+
+<script>
+  // Intersection Observer for reveal animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, entry.target.dataset.delay || 0);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  document.querySelectorAll('.reveal, .phase-item').forEach((el, i) => {
+    el.dataset.delay = (i % 3) * 100;
+    observer.observe(el);
+  });
+
+  // Parallax on hero
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const heroBg = document.querySelector('.hero-map-bg');
+    const heroGrid = document.querySelector('.hero-grid');
+    if (heroBg) heroBg.style.transform = `translateY(${scrolled * 0.3}px)`;
+    if (heroGrid) heroGrid.style.transform = `translateY(${scrolled * 0.15}px)`;
+  });
+
+  // Nav opacity on scroll
+  const nav = document.querySelector('nav');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 80) {
+      nav.style.background = 'rgba(13,15,20,0.96)';
+    } else {
+      nav.style.background = 'linear-gradient(to bottom, rgba(13,15,20,0.95), transparent)';
+    }
+  });
+</script>
+</body>
+</html>

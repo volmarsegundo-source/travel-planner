@@ -147,7 +147,7 @@ export async function generateTravelPlanAction(
       await PointsEngine.earnPoints(
         session.user.id,
         50,
-        "purchase",
+        "ai_usage",
         "Itinerary generation",
         tripId
       );

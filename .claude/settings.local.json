@@ -41,7 +41,30 @@
       "Bash(cd /c/travel-planner && npx vitest run 2>&1)",
       "Bash(cd /c/travel-planner && npm run build 2>&1)",
       "Bash(cd /c/travel-planner && gh pr merge 11 --merge --delete-branch 2>&1)",
-      "Bash(cd /c/travel-planner && npx vitest run tests/unit/components/layout/ThemeToggle.test.tsx tests/unit/components/layout/Header.test.tsx tests/unit/components/layout/AuthenticatedNavbar.test.tsx 2>&1)"
+      "Bash(cd /c/travel-planner && npx vitest run tests/unit/components/layout/ThemeToggle.test.tsx tests/unit/components/layout/Header.test.tsx tests/unit/components/layout/AuthenticatedNavbar.test.tsx 2>&1)",
+      "Bash(netstat:*)",
+      "Bash(curl:*)",
+      "Bash(cd /c/travel-planner && npx prisma migrate status 2>&1)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(cd /c/travel-planner && NODE_OPTIONS='--max-old-space-size=4096' npx next build 2>&1)",
+      "Bash(tee:*)",
+      "Bash(cd /c/travel-planner && npx next --version 2>&1)",
+      "Bash(echo EXIT_CODE=$?:*)",
+      "Bash(npm install:*)",
+      "Bash(npm info:*)",
+      "Bash(npm run:*)",
+      "Bash(npx vitest:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm ls:*)",
+      "Bash(npx playwright:*)",
+      "Bash(gh pr:*)",
+      "Bash(tasklist:*)",
+      "Bash(rm:*)",
+      "Bash(GIT_TRACE=1 git commit:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx next:*)"
     ]
   }
 }

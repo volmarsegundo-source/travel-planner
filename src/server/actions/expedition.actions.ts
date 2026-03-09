@@ -256,14 +256,14 @@ export async function generateDestinationGuideAction(
       where: { tripId },
       create: {
         tripId,
-        content: content as unknown as Record<string, unknown>,
+        content: JSON.parse(JSON.stringify(content)),
         destination: trip.destination,
         locale,
         generationCount: 1,
         viewedSections: [],
       },
       update: {
-        content: content as unknown as Record<string, unknown>,
+        content: JSON.parse(JSON.stringify(content)),
         locale,
         generationCount: (existing?.generationCount ?? 0) + 1,
         viewedSections: [],
