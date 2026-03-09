@@ -147,10 +147,17 @@ export async function generateTravelPlanAction(
     }
   }
 
+  // Mass assignment safe: explicit fields only
   const sanitizedParams: GeneratePlanParams = {
-    ...params,
     userId: session.user.id,
     destination: sanitizedDestination,
+    startDate: params.startDate,
+    endDate: params.endDate,
+    travelStyle: params.travelStyle,
+    budgetTotal: params.budgetTotal,
+    budgetCurrency: params.budgetCurrency,
+    travelers: params.travelers,
+    language: params.language,
     travelNotes: sanitizedTravelNotes,
   };
 
@@ -243,10 +250,13 @@ export async function generateChecklistAction(
   }
 
   try {
+    // Mass assignment safe: explicit fields only
     const result = await AiService.generateChecklist({
-      ...params,
-      destination: sanitizedDestination,
       userId: session.user.id,
+      destination: sanitizedDestination,
+      startDate: params.startDate,
+      travelers: params.travelers,
+      language: params.language,
     });
     await persistChecklist(tripId, result);
     revalidatePath(`/trips/${tripId}`);

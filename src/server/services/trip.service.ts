@@ -144,9 +144,21 @@ export class TripService {
       throw new ForbiddenError();
     }
 
+    // Mass assignment safe: explicit fields only
+    const updateData: Record<string, unknown> = {};
+    if (data.title !== undefined) updateData.title = data.title;
+    if (data.destination !== undefined) updateData.destination = data.destination;
+    if (data.description !== undefined) updateData.description = data.description;
+    if (data.startDate !== undefined) updateData.startDate = data.startDate;
+    if (data.endDate !== undefined) updateData.endDate = data.endDate;
+    if (data.coverGradient !== undefined) updateData.coverGradient = data.coverGradient;
+    if (data.coverEmoji !== undefined) updateData.coverEmoji = data.coverEmoji;
+    if (data.status !== undefined) updateData.status = data.status;
+    if (data.visibility !== undefined) updateData.visibility = data.visibility;
+
     const updated = await db.trip.update({
       where: { id: tripId },
-      data,
+      data: updateData,
       select: TRIP_SELECT,
     });
 

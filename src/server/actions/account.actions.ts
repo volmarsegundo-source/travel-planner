@@ -59,6 +59,7 @@ export async function updateUserProfileAction(
   // Next.js redirect() throws a NEXT_REDIRECT error internally — catching it
   // will swallow the redirect and break navigation. Keep redirect() outside try/catch.
   try {
+    // Mass assignment safe: explicit fields only
     const updateData: { name: string; preferredLocale?: string } = {
       name: parsed.data.name,
     };
