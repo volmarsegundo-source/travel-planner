@@ -9,7 +9,7 @@ import { PhaseTransition } from "./PhaseTransition";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import {
   togglePhase3ItemAction,
-  completePhase3Action,
+  advanceFromPhaseAction,
 } from "@/server/actions/expedition.actions";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
@@ -92,12 +92,12 @@ export function Phase3Wizard({
     }
   }
 
-  async function handleComplete() {
+  async function handleAdvance() {
     setIsCompleting(true);
     setErrorMessage(null);
 
     try {
-      const result = await completePhase3Action(tripId);
+      const result = await advanceFromPhaseAction(tripId, 3);
 
       if (!result.success) {
         setErrorMessage(result.error);
@@ -105,12 +105,18 @@ export function Phase3Wizard({
         return;
       }
 
-      setAnimationData({
-        points: result.data!.pointsEarned,
-        badge: result.data!.badgeAwarded as BadgeKey | null,
-        rank: result.data!.newRank as Rank | null,
-      });
-      setShowAnimation(true);
+      if (result.data!.completed && result.data!.phaseResult) {
+        // All prerequisites met — show points animation first
+        setAnimationData({
+          points: result.data!.phaseResult.pointsEarned,
+          badge: result.data!.phaseResult.badgeAwarded as BadgeKey | null,
+          rank: result.data!.phaseResult.newRank as Rank | null,
+        });
+        setShowAnimation(true);
+      } else {
+        // Skipped ahead — go straight to phase transition
+        setShowTransition(true);
+      }
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
@@ -165,7 +171,7 @@ export function Phase3Wizard({
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <ExpeditionProgressBar currentPhase={3} totalPhases={8} />
+        <ExpeditionProgressBar currentPhase={3} totalPhases={8} tripId={tripId} />
 
         {/* Header */}
         <div className="mt-4 text-center">
@@ -259,19 +265,27 @@ export function Phase3Wizard({
           </div>
         )}
 
-        {/* Complete button */}
+        {/* Advance button — always enabled */}
         <div className="mt-8">
           <Button
-            onClick={handleComplete}
-            disabled={!allRequiredDone || isCompleting}
+            onClick={handleAdvance}
+            disabled={isCompleting}
             size="lg"
-            className="w-full"
+            className={`w-full ${
+              allRequiredDone
+                ? ""
+                : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+            }`}
           >
             {isCompleting
               ? tCommon("loading")
               : allRequiredDone
-                ? t("cta")
-                : t("ctaDisabled")}
+                ? t("advanceComplete")
+                : requiredCompleted === 0
+                  ? t("advancePending")
+                  : t("advancePartial", {
+                      count: requiredItems.length - requiredCompleted,
+                    })}
           </Button>
         </div>
       </div>

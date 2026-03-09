@@ -15,6 +15,9 @@ interface ExpeditionTrip {
   completedPhases: number;
   totalPhases: number;
   coverEmoji: string;
+  checklistRequired: number;
+  checklistRequiredDone: number;
+  checklistRecommendedPending: number;
 }
 
 interface AtlasDashboardProps {
@@ -80,6 +83,9 @@ export function AtlasDashboard({
                   completedPhases={exp.completedPhases}
                   totalPhases={exp.totalPhases}
                   coverEmoji={exp.coverEmoji}
+                  checklistRequired={exp.checklistRequired}
+                  checklistRequiredDone={exp.checklistRequiredDone}
+                  checklistRecommendedPending={exp.checklistRecommendedPending}
                 />
               ))}
             </div>

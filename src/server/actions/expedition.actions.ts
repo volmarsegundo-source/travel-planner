@@ -12,6 +12,9 @@ import { Phase1Schema, Phase2Schema } from "@/lib/validations/expedition.schema"
 import type { Phase1Input, Phase2Input } from "@/lib/validations/expedition.schema";
 import type { ActionResult } from "@/types/trip.types";
 import type { PhaseCompletionResult } from "@/types/gamification.types";
+import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
+import { PointsEngine } from "@/lib/engines/points-engine";
+import { AiService } from "@/server/services/ai.service";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 
@@ -192,29 +195,12 @@ export async function completePhase4Action(
 // ─── completePhase5Action ───────────────────────────────────────────────────
 
 export async function completePhase5Action(
-  tripId: string,
-  data: { connectivityChoice: string; region: string }
+  tripId: string
 ): Promise<ActionResult<PhaseCompletionResult>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
-    // Save metadata on the phase BEFORE completing (prerequisite validation reads it)
-    const phase = await db.expeditionPhase.findUnique({
-      where: { tripId_phaseNumber: { tripId, phaseNumber: 5 } },
-    });
-    if (phase) {
-      await db.expeditionPhase.update({
-        where: { id: phase.id },
-        data: {
-          metadata: {
-            connectivityChoice: data.connectivityChoice,
-            region: data.region,
-          },
-        },
-      });
-    }
-
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 5);
     revalidatePath("/dashboard");
     revalidatePath(`/expedition/${tripId}`);
@@ -223,6 +209,299 @@ export async function completePhase5Action(
     logger.error("expedition.completePhase5.error", error, {
       userId: session.user.id,
       tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── generateDestinationGuideAction ─────────────────────────────────────────
+
+const MAX_GUIDE_GENERATIONS = 3;
+
+export async function generateDestinationGuideAction(
+  tripId: string,
+  locale: string
+): Promise<ActionResult<{ content: DestinationGuideContent; generationCount: number }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    const trip = await db.trip.findFirst({
+      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      select: { id: true, destination: true },
+    });
+
+    if (!trip) {
+      return { success: false, error: "errors.notFound" };
+    }
+
+    // Check generation count
+    const existing = await db.destinationGuide.findUnique({
+      where: { tripId },
+    });
+
+    if (existing && existing.generationCount >= MAX_GUIDE_GENERATIONS) {
+      return { success: false, error: "errors.guideGenerationLimit" };
+    }
+
+    // Generate guide via AI
+    const content = await AiService.generateDestinationGuide({
+      userId: session.user.id,
+      destination: trip.destination,
+      language: locale === "pt" ? "pt-BR" : "en",
+    });
+
+    // Upsert guide
+    const guide = await db.destinationGuide.upsert({
+      where: { tripId },
+      create: {
+        tripId,
+        content: content as unknown as Record<string, unknown>,
+        destination: trip.destination,
+        locale,
+        generationCount: 1,
+        viewedSections: [],
+      },
+      update: {
+        content: content as unknown as Record<string, unknown>,
+        locale,
+        generationCount: (existing?.generationCount ?? 0) + 1,
+        viewedSections: [],
+        generatedAt: new Date(),
+      },
+    });
+
+    // Award 30 points for generating guide (only first time)
+    if (!existing) {
+      await PointsEngine.earnPoints(
+        session.user.id,
+        30,
+        "phase_connectivity",
+        "Generated destination guide for phase 5",
+        tripId
+      );
+    }
+
+    revalidatePath(`/expedition/${tripId}`);
+    return {
+      success: true,
+      data: {
+        content,
+        generationCount: guide.generationCount,
+      },
+    };
+  } catch (error) {
+    logger.error("expedition.generateGuide.error", error, {
+      userId: session.user.id,
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── getDestinationGuideAction ──────────────────────────────────────────────
+
+export async function getDestinationGuideAction(
+  tripId: string
+): Promise<ActionResult<{
+  content: DestinationGuideContent;
+  generationCount: number;
+  viewedSections: string[];
+} | null>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    const trip = await db.trip.findFirst({
+      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      select: { id: true },
+    });
+
+    if (!trip) {
+      return { success: false, error: "errors.notFound" };
+    }
+
+    const guide = await db.destinationGuide.findUnique({
+      where: { tripId },
+    });
+
+    if (!guide) {
+      return { success: true, data: null };
+    }
+
+    return {
+      success: true,
+      data: {
+        content: guide.content as unknown as DestinationGuideContent,
+        generationCount: guide.generationCount,
+        viewedSections: (guide.viewedSections as string[]) ?? [],
+      },
+    };
+  } catch (error) {
+    logger.error("expedition.getGuide.error", error, {
+      userId: session.user.id,
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── viewGuideSectionAction ─────────────────────────────────────────────────
+
+const GUIDE_SECTION_KEYS: GuideSectionKey[] = [
+  "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+];
+
+export async function viewGuideSectionAction(
+  tripId: string,
+  sectionKey: string
+): Promise<ActionResult<{ pointsAwarded: number }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  if (!GUIDE_SECTION_KEYS.includes(sectionKey as GuideSectionKey)) {
+    return { success: false, error: "errors.invalidSection" };
+  }
+
+  try {
+    const guide = await db.destinationGuide.findUnique({
+      where: { tripId },
+    });
+
+    if (!guide) {
+      return { success: false, error: "errors.notFound" };
+    }
+
+    const viewed = (guide.viewedSections as string[]) ?? [];
+    if (viewed.includes(sectionKey)) {
+      return { success: true, data: { pointsAwarded: 0 } };
+    }
+
+    // Mark section as viewed and award 5 points
+    await db.destinationGuide.update({
+      where: { tripId },
+      data: { viewedSections: [...viewed, sectionKey] },
+    });
+
+    await PointsEngine.earnPoints(
+      session.user.id,
+      5,
+      "phase_connectivity",
+      `Viewed guide section: ${sectionKey}`,
+      tripId
+    );
+
+    return { success: true, data: { pointsAwarded: 5 } };
+  } catch (error) {
+    logger.error("expedition.viewGuideSection.error", error, {
+      userId: session.user.id,
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── advanceFromPhaseAction ─────────────────────────────────────────────────
+
+export async function advanceFromPhaseAction(
+  tripId: string,
+  phaseNumber: number,
+  metadata?: { needsCarRental?: boolean; cnhResolved?: boolean }
+): Promise<
+  ActionResult<{
+    nextPhase: number;
+    completed: boolean;
+    phaseResult?: PhaseCompletionResult;
+  }>
+> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    // For phase 4, save metadata first if provided
+    if (phaseNumber === 4 && metadata) {
+      const phase = await db.expeditionPhase.findUnique({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      });
+      if (phase) {
+        await db.expeditionPhase.update({
+          where: { id: phase.id },
+          data: {
+            metadata: {
+              needsCarRental: metadata.needsCarRental ?? false,
+              cnhResolved: metadata.cnhResolved ?? false,
+            },
+          },
+        });
+      }
+    }
+
+    // Check if prerequisites are met
+    let prerequisitesMet = false;
+
+    if (phaseNumber === 3) {
+      const requiredIncomplete = await db.phaseChecklistItem.count({
+        where: { tripId, phaseNumber: 3, required: true, completed: false },
+      });
+      prerequisitesMet = requiredIncomplete === 0;
+    } else if (phaseNumber === 4) {
+      const phase = await db.expeditionPhase.findUnique({
+        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      });
+      const phaseMeta = phase?.metadata as Record<string, unknown> | null;
+      const trip = await db.trip.findFirst({
+        where: { id: tripId, userId: session.user.id, deletedAt: null },
+        select: { tripType: true },
+      });
+      const needsCinh =
+        trip?.tripType === "international" || trip?.tripType === "schengen";
+      if (phaseMeta?.needsCarRental === true) {
+        prerequisitesMet = !needsCinh || phaseMeta?.cnhResolved === true;
+      } else {
+        // No car rental or hasn't decided yet
+        prerequisitesMet = phaseMeta?.needsCarRental === false;
+      }
+    }
+
+    if (prerequisitesMet) {
+      // Full completion: awards points, badge, rank
+      const phaseResult = await PhaseEngine.completePhase(
+        tripId,
+        session.user.id,
+        phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+      );
+      revalidatePath("/dashboard");
+      revalidatePath(`/expedition/${tripId}`);
+      return {
+        success: true,
+        data: {
+          nextPhase: phaseResult.nextPhaseUnlocked ?? phaseNumber,
+          completed: true,
+          phaseResult,
+        },
+      };
+    } else {
+      // Non-blocking advance: skip without points
+      const result = await PhaseEngine.advanceFromPhase(
+        tripId,
+        session.user.id,
+        phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+      );
+      revalidatePath("/dashboard");
+      revalidatePath(`/expedition/${tripId}`);
+      return {
+        success: true,
+        data: {
+          nextPhase: result.nextPhase,
+          completed: false,
+        },
+      };
+    }
+  } catch (error) {
+    logger.error("expedition.advanceFromPhase.error", error, {
+      userId: session.user.id,
+      tripId,
+      phaseNumber,
     });
     return { success: false, error: mapErrorToKey(error) };
   }

@@ -197,14 +197,27 @@ export class TripService {
           },
           orderBy: { phaseNumber: "asc" },
         },
+        phaseChecklist: {
+          select: {
+            required: true,
+            completed: true,
+          },
+        },
       },
     });
 
-    return trips.map((trip) => ({
-      ...trip,
-      completedPhases: trip.phases.filter((p) => p.status === "completed").length,
-      totalPhases: trip.phases.length,
-    }));
+    return trips.map((trip) => {
+      const requiredItems = trip.phaseChecklist.filter((i) => i.required);
+      const recommendedItems = trip.phaseChecklist.filter((i) => !i.required);
+      return {
+        ...trip,
+        completedPhases: trip.phases.filter((p) => p.status === "completed").length,
+        totalPhases: trip.phases.length,
+        checklistRequired: requiredItems.length,
+        checklistRequiredDone: requiredItems.filter((i) => i.completed).length,
+        checklistRecommendedPending: recommendedItems.filter((i) => !i.completed).length,
+      };
+    });
   }
 
   /**

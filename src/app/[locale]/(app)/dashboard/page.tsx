@@ -41,6 +41,9 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
       completedPhases: t.completedPhases,
       totalPhases: t.totalPhases,
       coverEmoji: t.coverEmoji,
+      checklistRequired: t.checklistRequired,
+      checklistRequiredDone: t.checklistRequiredDone,
+      checklistRecommendedPending: t.checklistRecommendedPending,
     }));
 
   return (

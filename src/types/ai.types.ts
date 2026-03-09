@@ -82,3 +82,28 @@ export interface ChecklistCategoryData {
 export interface ChecklistResult {
   categories: ChecklistCategoryData[];
 }
+
+// ─── Destination Guide (Phase 5) ────────────────────────────────────────────
+
+export interface GuideSectionData {
+  title: string;
+  icon: string;
+  summary: string;
+  tips: string[];
+}
+
+export type GuideSectionKey =
+  | "timezone"
+  | "currency"
+  | "language"
+  | "electricity"
+  | "connectivity"
+  | "cultural_tips";
+
+export type DestinationGuideContent = Record<GuideSectionKey, GuideSectionData>;
+
+export interface GenerateGuideParams {
+  userId: string;
+  destination: string;
+  language: "pt-BR" | "en";
+}

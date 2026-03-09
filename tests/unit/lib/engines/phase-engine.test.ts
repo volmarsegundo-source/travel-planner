@@ -1064,12 +1064,13 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
     expect(result.phaseNumber).toBe(4);
   });
 
-  it("throws PHASE_PREREQUISITES_NOT_MET for phase 5 without connectivity choice", async () => {
+  it("throws PHASE_PREREQUISITES_NOT_MET for phase 5 without destination guide", async () => {
     const trip = createMockTrip({ currentPhase: 5 });
-    const phase = createMockPhase(5, "active", { metadata: null });
+    const phase = createMockPhase(5, "active");
 
     prismaMock.trip.findFirst.mockResolvedValue(trip as never);
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.destinationGuide.findUnique.mockResolvedValue(null as never);
 
     await expect(
       PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 5)
@@ -1082,15 +1083,25 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
     }
   });
 
-  it("succeeds for phase 5 with connectivity choice set", async () => {
+  it("succeeds for phase 5 with destination guide present", async () => {
     const trip = createMockTrip({ currentPhase: 5 });
-    const phase = createMockPhase(5, "active", {
-      metadata: { connectivityChoice: "esim", region: "europe" },
-    });
+    const phase = createMockPhase(5, "active");
     setupTransactionMock();
 
     prismaMock.trip.findFirst.mockResolvedValue(trip as never);
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.destinationGuide.findUnique.mockResolvedValue({
+      id: "guide-1",
+      tripId: TEST_TRIP_ID,
+      content: {},
+      destination: "Paris",
+      locale: "en",
+      generationCount: 1,
+      viewedSections: [],
+      generatedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as never);
 
     const result = await PhaseEngine.completePhase(
       TEST_TRIP_ID,
@@ -1101,5 +1112,220 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
     expect(result.phaseNumber).toBe(5);
     expect(result.pointsEarned).toBe(40);
     expect(result.newRank).toBe("cartographer");
+  });
+});
+
+// ─── advanceFromPhase ──────────────────────────────────────────────────────
+
+describe("PhaseEngine.advanceFromPhase", () => {
+  it("unlocks next phase and updates currentPhase without awarding points", async () => {
+    const trip = createMockTrip({ currentPhase: 3 });
+    const phase = createMockPhase(3, "active");
+    const mockTx = setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    const result = await PhaseEngine.advanceFromPhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      3
+    );
+
+    expect(result).toEqual({ nextPhase: 4 });
+
+    // Verify next phase was unlocked
+    expect(mockTx.expeditionPhase.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          tripId_phaseNumber: { tripId: TEST_TRIP_ID, phaseNumber: 4 },
+        },
+        data: { status: "active" },
+      })
+    );
+
+    // Verify trip.currentPhase updated
+    expect(mockTx.trip.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: TEST_TRIP_ID },
+        data: { currentPhase: 4 },
+      })
+    );
+
+    // Verify no points were awarded
+    expect(PointsEngine.earnPoints).not.toHaveBeenCalled();
+    expect(PointsEngine.awardBadge).not.toHaveBeenCalled();
+  });
+
+  it("works for phase 4 (also non-blocking)", async () => {
+    const trip = createMockTrip({ currentPhase: 4 });
+    const phase = createMockPhase(4, "active");
+    const mockTx = setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    const result = await PhaseEngine.advanceFromPhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      4
+    );
+
+    expect(result).toEqual({ nextPhase: 5 });
+    expect(mockTx.trip.update).toHaveBeenCalledWith(
+      expect.objectContaining({ data: { currentPhase: 5 } })
+    );
+  });
+
+  it("throws PHASE_NOT_NON_BLOCKING for blocking phases (phase 1)", async () => {
+    const trip = createMockTrip({ currentPhase: 1 });
+    const phase = createMockPhase(1, "active");
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    await expect(
+      PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 1)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 1);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_NOT_NON_BLOCKING");
+    }
+  });
+
+  it("throws PHASE_NOT_NON_BLOCKING for blocking phases (phase 2)", async () => {
+    const trip = createMockTrip({ currentPhase: 2 });
+    const phase = createMockPhase(2, "active");
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    await expect(
+      PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 2)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 2);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_NOT_NON_BLOCKING");
+    }
+  });
+
+  it("throws PHASE_NOT_NON_BLOCKING for blocking phases (phase 5)", async () => {
+    const trip = createMockTrip({ currentPhase: 5 });
+    const phase = createMockPhase(5, "active");
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    await expect(
+      PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 5)
+    ).rejects.toThrow(AppError);
+  });
+
+  it("throws PHASE_ORDER_VIOLATION when phaseNumber !== currentPhase", async () => {
+    const trip = createMockTrip({ currentPhase: 3 });
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+
+    await expect(
+      PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 4)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 4);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_ORDER_VIOLATION");
+    }
+  });
+
+  it("throws ForbiddenError when trip not found", async () => {
+    prismaMock.trip.findFirst.mockResolvedValue(null as never);
+
+    await expect(
+      PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 3)
+    ).rejects.toThrow(ForbiddenError);
+  });
+
+  it("logs gamification.phaseAdvanced on success", async () => {
+    const trip = createMockTrip({ currentPhase: 3 });
+    const phase = createMockPhase(3, "active");
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+
+    await PhaseEngine.advanceFromPhase(TEST_TRIP_ID, TEST_USER_ID, 3);
+
+    expect(logger.info).toHaveBeenCalledWith(
+      "gamification.phaseAdvanced",
+      expect.objectContaining({
+        tripId: TEST_TRIP_ID,
+        userId: TEST_USER_ID,
+        phaseNumber: 3,
+        nextPhase: 4,
+      })
+    );
+  });
+});
+
+// ─── completePhase — non-blocking retroactive ──────────────────────────────
+
+describe("PhaseEngine.completePhase — non-blocking retroactive completion", () => {
+  it("allows completing phase 3 when currentPhase has advanced past it", async () => {
+    const trip = createMockTrip({ currentPhase: 5 });
+    const phase = createMockPhase(3, "active");
+    setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.phaseChecklistItem.count.mockResolvedValue(0 as never);
+
+    const result = await PhaseEngine.completePhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID,
+      3
+    );
+
+    expect(result.phaseNumber).toBe(3);
+    expect(result.pointsEarned).toBe(75);
+    expect(result.badgeAwarded).toBe("navigator");
+  });
+
+  it("uses Math.max to avoid regressing currentPhase", async () => {
+    const trip = createMockTrip({ currentPhase: 5 });
+    const phase = createMockPhase(3, "active");
+    const mockTx = setupTransactionMock();
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.phaseChecklistItem.count.mockResolvedValue(0 as never);
+
+    await PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 3);
+
+    // Math.max(4, 5) = 5 — should not regress
+    expect(mockTx.trip.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: { currentPhase: 5 },
+      })
+    );
+  });
+
+  it("still blocks non-blocking phase if phaseNumber > currentPhase", async () => {
+    const trip = createMockTrip({ currentPhase: 2 });
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+
+    await expect(
+      PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 3)
+    ).rejects.toThrow(AppError);
+
+    try {
+      await PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 3);
+    } catch (err) {
+      expect((err as AppError).code).toBe("PHASE_ORDER_VIOLATION");
+    }
   });
 });

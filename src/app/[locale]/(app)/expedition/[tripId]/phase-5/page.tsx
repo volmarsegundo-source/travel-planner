@@ -2,13 +2,9 @@ import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/server/db";
-import { Phase5Wizard } from "@/components/features/expedition/Phase5Wizard";
+import { DestinationGuideWizard } from "@/components/features/expedition/DestinationGuideWizard";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
-import {
-  CONNECTIVITY_DATA,
-  type ConnectivityRegion,
-} from "@/lib/travel/connectivity-data";
-import { detectRegion } from "@/lib/travel/connectivity-data";
+import type { DestinationGuideContent } from "@/types/ai.types";
 
 interface Phase5PageProps {
   params: Promise<{ locale: string; tripId: string }>;
@@ -29,19 +25,28 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
     where: { id: tripId, userId: session.user.id, deletedAt: null },
     select: {
       id: true,
-      tripType: true,
       destination: true,
       currentPhase: true,
     },
   });
 
-  if (!trip || trip.currentPhase !== 5) {
+  if (!trip || trip.currentPhase < 5) {
     redirect({ href: "/dashboard", locale });
     return null;
   }
 
-  const region = detectRegion(trip.destination, trip.tripType);
-  const plans = CONNECTIVITY_DATA[region];
+  // Fetch existing guide if any
+  const guide = await db.destinationGuide.findUnique({
+    where: { tripId },
+  });
+
+  const initialGuide = guide
+    ? {
+        content: guide.content as unknown as DestinationGuideContent,
+        generationCount: guide.generationCount,
+        viewedSections: (guide.viewedSections as string[]) ?? [],
+      }
+    : null;
 
   return (
     <>
@@ -53,11 +58,11 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
           ]}
         />
       </div>
-      <Phase5Wizard
+      <DestinationGuideWizard
         tripId={tripId}
-        region={region}
         destination={trip.destination}
-        plans={plans}
+        locale={locale}
+        initialGuide={initialGuide}
       />
     </>
   );

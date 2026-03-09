@@ -27,10 +27,10 @@ vi.mock("@/i18n/navigation", () => ({
     <a {...props}>{children as React.ReactNode}</a>,
 }));
 
-const mockCompleteAction = vi.fn();
+const mockAdvanceAction = vi.fn();
 
 vi.mock("@/server/actions/expedition.actions", () => ({
-  completePhase4Action: (...args: unknown[]) => mockCompleteAction(...args),
+  advanceFromPhaseAction: (...args: unknown[]) => mockAdvanceAction(...args),
 }));
 
 // ─── Import SUT ───────────────────────────────────────────────────────────────
@@ -63,14 +63,18 @@ function renderWizard(opts: RenderOptions = {}) {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockCompleteAction.mockResolvedValue({
+  mockAdvanceAction.mockResolvedValue({
     success: true,
     data: {
-      phaseNumber: 4,
-      pointsEarned: 50,
-      badgeAwarded: "host",
-      newRank: null,
-      nextPhaseUnlocked: 5,
+      nextPhase: 5,
+      completed: true,
+      phaseResult: {
+        phaseNumber: 4,
+        pointsEarned: 50,
+        badgeAwarded: "host",
+        newRank: null,
+        nextPhaseUnlocked: 5,
+      },
     },
   });
 });
@@ -107,12 +111,13 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("does not show complete button before answering car rental question", () => {
+  it("shows advance button even before answering car rental question", () => {
     renderWizard();
 
-    expect(
-      screen.queryByRole("button", { name: /expedition\.phase4\.cta/ })
-    ).not.toBeInTheDocument();
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advancePending/,
+    });
+    expect(advanceButton).not.toBeDisabled();
   });
 
   it("shows CINH alert when car rental = yes for international trip", () => {
@@ -163,19 +168,19 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("disables complete button when CINH not confirmed for international", () => {
+  it("shows amber advance button when CINH not confirmed for international", () => {
     renderWizard({ tripType: "international" });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.ctaDisabled/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advancePartial/,
     });
-    expect(completeButton).toBeDisabled();
+    expect(advanceButton).not.toBeDisabled();
   });
 
-  it("enables complete button when CINH checkbox is confirmed", () => {
+  it("shows gold advanceComplete button when CINH checkbox is confirmed", () => {
     renderWizard({ tripType: "international" });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
@@ -184,10 +189,10 @@ describe("Phase4Wizard", () => {
     const checkbox = screen.getByRole("checkbox");
     fireEvent.click(checkbox);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    expect(completeButton).not.toBeDisabled();
+    expect(advanceButton).not.toBeDisabled();
   });
 
   it("shows CNH brasileira info for mercosul trip with car rental", () => {
@@ -215,19 +220,19 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("enables complete button for mercosul without CINH checkbox", () => {
+  it("shows advanceComplete for mercosul without CINH checkbox", () => {
     renderWizard({ tripType: "mercosul" });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    expect(completeButton).not.toBeDisabled();
+    expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows no car rental message and enables complete when selecting no", () => {
+  it("shows no car rental message and advanceComplete when selecting no", () => {
     renderWizard();
 
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
@@ -237,32 +242,32 @@ describe("Phase4Wizard", () => {
       screen.getByText("expedition.phase4.noCarRental")
     ).toBeInTheDocument();
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    expect(completeButton).not.toBeDisabled();
+    expect(advanceButton).not.toBeDisabled();
   });
 
-  it("calls completePhase4Action with needsCarRental=false when no car rental", async () => {
+  it("calls advanceFromPhaseAction with metadata when no car rental", async () => {
     renderWizard();
 
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    fireEvent.click(completeButton);
+    fireEvent.click(advanceButton);
 
     await waitFor(() => {
-      expect(mockCompleteAction).toHaveBeenCalledWith("trip-001", {
+      expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
         needsCarRental: false,
         cnhResolved: true,
       });
     });
   });
 
-  it("calls completePhase4Action with cnhResolved=true for international with confirmed checkbox", async () => {
+  it("calls advanceFromPhaseAction with cnhResolved=true for international with confirmed checkbox", async () => {
     renderWizard({ tripType: "international" });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
@@ -271,40 +276,56 @@ describe("Phase4Wizard", () => {
     const checkbox = screen.getByRole("checkbox");
     fireEvent.click(checkbox);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    fireEvent.click(completeButton);
+    fireEvent.click(advanceButton);
 
     await waitFor(() => {
-      expect(mockCompleteAction).toHaveBeenCalledWith("trip-001", {
+      expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
         needsCarRental: true,
         cnhResolved: true,
       });
     });
   });
 
-  it("calls completePhase4Action with cnhResolved=true for mercosul car rental", async () => {
+  it("calls advanceFromPhaseAction with cnhResolved=true for mercosul car rental", async () => {
     renderWizard({ tripType: "mercosul" });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    fireEvent.click(completeButton);
+    fireEvent.click(advanceButton);
 
     await waitFor(() => {
-      expect(mockCompleteAction).toHaveBeenCalledWith("trip-001", {
+      expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
         needsCarRental: true,
+        cnhResolved: true,
+      });
+    });
+  });
+
+  it("advance button works without car rental selection (non-blocking)", async () => {
+    renderWizard();
+
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advancePending/,
+    });
+    fireEvent.click(advanceButton);
+
+    await waitFor(() => {
+      expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
+        needsCarRental: false,
         cnhResolved: true,
       });
     });
   });
 
   it("shows error message when action fails", async () => {
-    mockCompleteAction.mockResolvedValue({
+    mockAdvanceAction.mockResolvedValue({
       success: false,
       error: "errors.generic",
     });
@@ -314,10 +335,10 @@ describe("Phase4Wizard", () => {
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
 
-    const completeButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.cta/,
+    const advanceButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.advanceComplete/,
     });
-    fireEvent.click(completeButton);
+    fireEvent.click(advanceButton);
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeInTheDocument();

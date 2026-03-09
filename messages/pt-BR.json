@@ -306,7 +306,12 @@
     "newExpedition": "Nova Expedição",
     "phaseProgress": "{completed} de {total} fases",
     "currentPhase": "Fase {number}",
-    "viewExpedition": "Continuar"
+    "viewExpedition": "Continuar",
+    "checklist": {
+      "items": "{done}/{total} itens",
+      "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
+      "ariaLabel": "Progresso do checklist: {done} de {total} itens obrigatórios completos"
+    }
   },
   "profile": {
     "title": "Perfil do Explorador",
@@ -497,6 +502,9 @@
       "deadline": "Até {date}",
       "cta": "Completar Fase e Ganhar Pontos",
       "ctaDisabled": "Complete todos os itens obrigatórios",
+      "advancePending": "Avançar (checklist pendente)",
+      "advancePartial": "Avançar ({count} itens pendentes)",
+      "advanceComplete": "Fase Completa — Avançar →",
       "tripTypes": {
         "domestic": "Nacional",
         "mercosul": "Mercosul",
@@ -533,6 +541,9 @@
       "noCarRental": "Sem aluguel de carro — você pode avançar para a próxima fase.",
       "cta": "Completar Fase e Ganhar Pontos",
       "ctaDisabled": "Confirme o status da sua CINH para prosseguir",
+      "advancePending": "Avançar (aluguel de carro pendente)",
+      "advancePartial": "Avançar ({count} itens pendentes)",
+      "advanceComplete": "Fase Completa — Avançar →",
       "tripTypes": {
         "domestic": "Nacional",
         "mercosul": "Mercosul",
@@ -542,33 +553,18 @@
     },
     "phase5": {
       "title": "O Mapa dos Dias",
-      "subtitle": "Escolha seu plano de conectividade para a viagem.",
-      "selectPlan": "Selecione uma opção de conectividade",
-      "selectPlanHint": "Fique conectado no exterior com o melhor plano para sua região.",
-      "recommended": "Recomendado",
-      "free": "Grátis",
-      "perWeek": "/semana",
-      "cta": "Completar Fase e Ganhar Pontos",
-      "ctaDisabled": "Selecione um plano de conectividade",
-      "regions": {
-        "south_america": "América do Sul",
-        "north_america": "América do Norte",
-        "europe": "Europa",
-        "asia": "Ásia",
-        "africa": "África",
-        "oceania": "Oceania"
-      },
-      "options": {
-        "chip_local": "Chip Local",
-        "esim": "eSIM",
-        "roaming": "Roaming Internacional",
-        "wifi_only": "Apenas Wi-Fi"
-      },
-      "descriptions": {
-        "chip_local": "Compre um chip local no destino para as melhores tarifas.",
-        "esim": "Ative um eSIM antes de viajar — sem cartão físico necessário.",
-        "roaming": "Use o plano de roaming internacional da sua operadora atual.",
-        "wifi_only": "Dependa de redes Wi-Fi de hotéis, cafés e espaços públicos."
+      "subtitle": "Seu guia de bolso para o destino.",
+      "generateHint": "Gere um guia com IA com informações essenciais sobre o destino: fuso horário, moeda, idioma, eletricidade, conectividade e dicas culturais.",
+      "generateCta": "Gerar Guia do Destino",
+      "regenerateCta": "Atualizar guia ({remaining} restantes)",
+      "completeCta": "Completar Fase e Ganhar Pontos",
+      "sections": {
+        "timezone": "Fuso Horário",
+        "currency": "Moeda",
+        "language": "Idioma",
+        "electricity": "Eletricidade",
+        "connectivity": "Conectividade",
+        "cultural_tips": "Dicas Culturais"
       }
     },
     "hub": {

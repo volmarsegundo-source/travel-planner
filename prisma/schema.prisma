@@ -128,11 +128,12 @@ model Trip {
   tripType       String         @default("international") @db.VarChar(20)
 
   // Relacoes
-  user           User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  itineraryDays  ItineraryDay[]
-  checklist      ChecklistItem[]
-  phases         ExpeditionPhase[]
-  phaseChecklist PhaseChecklistItem[]
+  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  itineraryDays     ItineraryDay[]
+  checklist         ChecklistItem[]
+  phases            ExpeditionPhase[]
+  phaseChecklist    PhaseChecklistItem[]
+  destinationGuide  DestinationGuide?
 
   // Indexes
   @@index([userId, deletedAt])
@@ -311,4 +312,23 @@ model UserProfile {
   updatedAt           DateTime  @updatedAt
 
   @@map("user_profiles")
+}
+
+// ─── Destination Guide (Phase 5 — AI-generated) ──────────────────────────
+
+model DestinationGuide {
+  id              String   @id @default(cuid())
+  tripId          String   @unique
+  content         Json
+  destination     String   @db.VarChar(200)
+  locale          String   @db.VarChar(10)
+  generationCount Int      @default(1)
+  viewedSections  Json     @default("[]")
+  generatedAt     DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@map("destination_guides")
 }

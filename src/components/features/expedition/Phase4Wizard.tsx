@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
-import { completePhase4Action } from "@/server/actions/expedition.actions";
+import { advanceFromPhaseAction } from "@/server/actions/expedition.actions";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
 interface Phase4WizardProps {
@@ -50,15 +50,13 @@ export function Phase4Wizard({
     (needsCarRental === true && !needsCinh) ||
     (needsCarRental === true && needsCinh && cnhConfirmed);
 
-  async function handleComplete() {
-    if (needsCarRental === null) return;
-
+  async function handleAdvance() {
     setIsCompleting(true);
     setErrorMessage(null);
 
     try {
-      const result = await completePhase4Action(tripId, {
-        needsCarRental,
+      const result = await advanceFromPhaseAction(tripId, 4, {
+        needsCarRental: needsCarRental ?? false,
         cnhResolved: needsCarRental ? (needsCinh ? cnhConfirmed : true) : true,
       });
 
@@ -68,12 +66,18 @@ export function Phase4Wizard({
         return;
       }
 
-      setAnimationData({
-        points: result.data!.pointsEarned,
-        badge: result.data!.badgeAwarded as BadgeKey | null,
-        rank: result.data!.newRank as Rank | null,
-      });
-      setShowAnimation(true);
+      if (result.data!.completed && result.data!.phaseResult) {
+        // All prerequisites met — show points animation first
+        setAnimationData({
+          points: result.data!.phaseResult.pointsEarned,
+          badge: result.data!.phaseResult.badgeAwarded as BadgeKey | null,
+          rank: result.data!.phaseResult.newRank as Rank | null,
+        });
+        setShowAnimation(true);
+      } else {
+        // Skipped ahead — go straight to phase transition
+        setShowTransition(true);
+      }
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
@@ -114,7 +118,7 @@ export function Phase4Wizard({
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
-        <ExpeditionProgressBar currentPhase={4} totalPhases={8} />
+        <ExpeditionProgressBar currentPhase={4} totalPhases={8} tripId={tripId} />
 
         {/* Header */}
         <div className="mt-4 text-center">
@@ -278,23 +282,27 @@ export function Phase4Wizard({
           </div>
         )}
 
-        {/* Complete button */}
-        {needsCarRental !== null && (
-          <div className="mt-8">
-            <Button
-              onClick={handleComplete}
-              disabled={!canComplete || isCompleting}
-              size="lg"
-              className="w-full"
-            >
-              {isCompleting
-                ? tCommon("loading")
-                : canComplete
-                  ? t("cta")
-                  : t("ctaDisabled")}
-            </Button>
-          </div>
-        )}
+        {/* Advance button — always visible */}
+        <div className="mt-8">
+          <Button
+            onClick={handleAdvance}
+            disabled={isCompleting}
+            size="lg"
+            className={`w-full ${
+              canComplete
+                ? ""
+                : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+            }`}
+          >
+            {isCompleting
+              ? tCommon("loading")
+              : canComplete
+                ? t("advanceComplete")
+                : needsCarRental === null
+                  ? t("advancePending")
+                  : t("advancePartial", { count: 1 })}
+          </Button>
+        </div>
       </div>
     </div>
   );
