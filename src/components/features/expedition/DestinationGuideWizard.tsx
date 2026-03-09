@@ -314,9 +314,20 @@ export function DestinationGuideWizard({
 
             {/* Complete button */}
             <div className="mt-6">
+              {viewedSections.length < SECTION_ORDER.length && (
+                <p className="mb-2 text-center text-sm text-muted-foreground">
+                  {t("viewAllSectionsHint", {
+                    viewed: viewedSections.length,
+                    total: SECTION_ORDER.length,
+                  })}
+                </p>
+              )}
               <Button
                 onClick={handleComplete}
-                disabled={isCompleting}
+                disabled={
+                  isCompleting ||
+                  viewedSections.length < SECTION_ORDER.length
+                }
                 size="lg"
                 className="w-full"
               >

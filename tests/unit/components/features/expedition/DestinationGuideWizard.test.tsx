@@ -89,6 +89,10 @@ const MOCK_GUIDE: DestinationGuideContent = {
   },
 };
 
+const ALL_SECTIONS_VIEWED = [
+  "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+];
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
@@ -458,7 +462,7 @@ describe("DestinationGuideWizard", () => {
         initialGuide={{
           content: MOCK_GUIDE,
           generationCount: 1,
-          viewedSections: [],
+          viewedSections: ALL_SECTIONS_VIEWED,
         }}
       />
     );
@@ -543,7 +547,7 @@ describe("DestinationGuideWizard", () => {
         initialGuide={{
           content: MOCK_GUIDE,
           generationCount: 1,
-          viewedSections: [],
+          viewedSections: ALL_SECTIONS_VIEWED,
         }}
       />
     );
