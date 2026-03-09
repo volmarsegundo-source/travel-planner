@@ -12,7 +12,7 @@ import {
   GUIDE_SYSTEM_PROMPT,
 } from "@/lib/prompts/system-prompts";
 import { ClaudeProvider } from "./providers/claude.provider";
-import type { AiProvider } from "./ai-provider.interface";
+import type { AiProvider, AiProviderResponse, ModelType } from "./ai-provider.interface";
 import type {
   GeneratePlanParams,
   ItineraryPlan,
@@ -193,6 +193,31 @@ function getProvider(): AiProvider {
   return new ClaudeProvider();
 }
 
+// ─── Token usage logging ──────────────────────────────────────────────────────
+
+/**
+ * Logs structured token usage data after each AI call.
+ * Enables FinOps monitoring and cost tracking without PII exposure.
+ */
+function logTokenUsage(
+  response: AiProviderResponse,
+  params: {
+    userId: string;
+    generationType: ModelType;
+    provider: string;
+  },
+): void {
+  logger.info("ai.tokens.usage", {
+    userId: params.userId,
+    generationType: params.generationType,
+    model: params.provider,
+    inputTokens: response.inputTokens ?? 0,
+    outputTokens: response.outputTokens ?? 0,
+    cacheReadTokens: response.cacheReadInputTokens ?? 0,
+    cacheWriteTokens: response.cacheCreationInputTokens ?? 0,
+  });
+}
+
 // ─── AiService ────────────────────────────────────────────────────────────────
 
 export class AiService {
@@ -310,6 +335,8 @@ ${notesSection}${expeditionSection}`;
         { systemPrompt: PLAN_SYSTEM_PROMPT },
       );
 
+      logTokenUsage(response, { userId, generationType: "plan", provider: provider.name });
+
       if (response.wasTruncated) {
         logger.warn("ai.plan.truncated", {
           userId,
@@ -385,6 +412,8 @@ Language: ${language}`;
       { systemPrompt: CHECKLIST_SYSTEM_PROMPT },
     );
 
+    logTokenUsage(response, { userId, generationType: "checklist", provider: provider.name });
+
     // Parse and validate
     let rawJson: unknown;
     try {
@@ -451,6 +480,8 @@ Respond in: ${lang}`;
       "guide",
       { systemPrompt: GUIDE_SYSTEM_PROMPT },
     );
+
+    logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
 
     let rawJson: unknown;
     try {

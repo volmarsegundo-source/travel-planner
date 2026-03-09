@@ -52,6 +52,7 @@ vi.mock("@/lib/logger", () => ({
 
 import { AiService } from "@/server/services/ai.service";
 import { AppError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -654,5 +655,137 @@ describe("System prompt passing", () => {
     expect(userMessage).toContain("English");
     // Should not contain the system instructions
     expect(userMessage).not.toContain("You are a travel expert");
+  });
+});
+
+// ─── Token Usage Logging Tests ──────────────────────────────────────────────
+
+describe("Token usage logging", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("logs token usage after plan generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue({
+      text: JSON.stringify(VALID_PLAN_RESPONSE),
+      wasTruncated: false,
+      inputTokens: 150,
+      outputTokens: 500,
+      cacheReadInputTokens: 50,
+      cacheCreationInputTokens: 100,
+    });
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const meta = tokenLogCall?.[1];
+    expect(meta).toMatchObject({
+      userId: "user-1",
+      generationType: "plan",
+      model: "claude",
+      inputTokens: 150,
+      outputTokens: 500,
+      cacheReadTokens: 50,
+      cacheWriteTokens: 100,
+    });
+  });
+
+  it("logs token usage after checklist generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue({
+      text: JSON.stringify(VALID_CHECKLIST_RESPONSE),
+      wasTruncated: false,
+      inputTokens: 80,
+      outputTokens: 300,
+    });
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const meta = tokenLogCall?.[1];
+    expect(meta).toMatchObject({
+      userId: "user-1",
+      generationType: "checklist",
+      model: "claude",
+      inputTokens: 80,
+      outputTokens: 300,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+    });
+  });
+
+  it("logs token usage after guide generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue({
+      text: JSON.stringify(VALID_GUIDE_RESPONSE),
+      wasTruncated: false,
+      inputTokens: 90,
+      outputTokens: 400,
+      cacheReadInputTokens: 30,
+    });
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const meta = tokenLogCall?.[1];
+    expect(meta).toMatchObject({
+      userId: "user-1",
+      generationType: "guide",
+      model: "claude",
+      inputTokens: 90,
+      outputTokens: 400,
+      cacheReadTokens: 30,
+      cacheWriteTokens: 0,
+    });
+  });
+
+  it("does not log token usage on cache hit", async () => {
+    mocks.redisGet.mockResolvedValue(JSON.stringify(VALID_PLAN_RESPONSE));
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeUndefined();
+  });
+
+  it("does not include PII in token usage log", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      travelNotes: "Contact me at john@example.com",
+    });
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const metaStr = JSON.stringify(tokenLogCall?.[1]);
+    expect(metaStr).not.toContain("john@example.com");
+    expect(metaStr).not.toContain("Contact me");
   });
 });
