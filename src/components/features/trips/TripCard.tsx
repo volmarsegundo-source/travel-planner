@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { format } from "date-fns";
 import { Pencil, Trash2 } from "lucide-react";
@@ -45,14 +45,15 @@ function statusVariant(
 
 interface TripCardProps {
   trip: Trip;
-  locale: string;
+  /** @deprecated locale is no longer needed — Link from @/i18n/navigation handles it automatically */
+  locale?: string;
   onEdit: (trip: Trip) => void;
   onDelete: (trip: Trip) => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function TripCard({ trip, locale, onEdit, onDelete }: TripCardProps) {
+export function TripCard({ trip, onEdit, onDelete }: TripCardProps) {
   const tCommon = useTranslations("common");
 
   const gradientClasses = resolveGradient(trip.coverGradient);
@@ -68,7 +69,7 @@ export function TripCard({ trip, locale, onEdit, onDelete }: TripCardProps) {
     <article className="rounded-xl overflow-hidden border bg-card shadow-sm hover:shadow-md transition-shadow">
       {/* Cover gradient */}
       <Link
-        href={`/${locale}/trips/${trip.id}`}
+        href={`/trips/${trip.id}`}
         aria-label={trip.title}
         className="block"
       >
@@ -82,7 +83,7 @@ export function TripCard({ trip, locale, onEdit, onDelete }: TripCardProps) {
 
       <div className="p-4 space-y-2">
         {/* Title */}
-        <Link href={`/${locale}/trips/${trip.id}`}>
+        <Link href={`/trips/${trip.id}`}>
           <h2 className="font-semibold text-base leading-tight line-clamp-1 hover:underline">
             {trip.title}
           </h2>
