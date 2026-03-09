@@ -23,6 +23,16 @@ export type ChecklistCategory =
   | "TECHNOLOGY";
 export type Priority = "HIGH" | "MEDIUM" | "LOW";
 
+export interface ExpeditionContext {
+  tripType?: string;
+  travelerType?: string;
+  accommodationStyle?: string;
+  travelPace?: number;
+  budget?: number;
+  currency?: string;
+  destinationGuideContext?: string;
+}
+
 export interface GeneratePlanParams {
   userId: string;
   destination: string;
@@ -34,6 +44,7 @@ export interface GeneratePlanParams {
   travelers: number;
   language: "pt-BR" | "en";
   travelNotes?: string;
+  expeditionContext?: ExpeditionContext;
 }
 
 export interface DayActivity {

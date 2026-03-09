@@ -273,6 +273,74 @@ describe("AiService.generateTravelPlan", () => {
     expect(prompt).toContain("I love museums and local food");
   });
 
+  it("includes expedition context in prompt when provided", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      expeditionContext: {
+        tripType: "international",
+        travelerType: "solo",
+        accommodationStyle: "comfort",
+        travelPace: 7,
+        destinationGuideContext: "Timezone: CET. Currency: EUR.",
+      },
+    });
+
+    const prompt = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(prompt).toContain("Expedition context");
+    expect(prompt).toContain("Trip type: international");
+    expect(prompt).toContain("Traveler type: solo");
+    expect(prompt).toContain("Accommodation preference: comfort");
+    expect(prompt).toContain("Travel pace: 7/10");
+    expect(prompt).toContain("Destination insights: Timezone: CET. Currency: EUR.");
+  });
+
+  it("omits expedition context section when not provided", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const prompt = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(prompt).not.toContain("Expedition context");
+  });
+
+  it("uses different cache keys with and without expeditionContext", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // Without context
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+    const key1 = mocks.redisGet.mock.calls[0]?.[0] as string;
+
+    vi.clearAllMocks();
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // With context
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      expeditionContext: { tripType: "international", travelerType: "solo" },
+    });
+    const key2 = mocks.redisGet.mock.calls[0]?.[0] as string;
+
+    expect(key1).not.toBe(key2);
+  });
+
   it("uses different cache keys with and without travelNotes", async () => {
     mocks.redisGet.mockResolvedValue(null);
     mocks.generateResponse.mockResolvedValue(

@@ -58,6 +58,13 @@ vi.mock("@/lib/action-utils", () => ({
   mapErrorToKey: (e: Error) => e.message,
 }));
 
+vi.mock("@/server/services/itinerary-plan.service", () => ({
+  ItineraryPlanService: {
+    getExpeditionContext: vi.fn().mockResolvedValue(null),
+    recordGeneration: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import { generateChecklistAction, generateTravelPlanAction } from "@/server/actions/ai.actions";

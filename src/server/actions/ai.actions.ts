@@ -10,6 +10,7 @@ import { mapErrorToKey } from "@/lib/action-utils";
 import { canUseAI } from "@/lib/guards/age-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/trip.types";
+import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import type {
   GeneratePlanParams,
   ItineraryPlan,
@@ -112,7 +113,7 @@ export async function generateTravelPlanAction(
   }
 
   // Sanitize travelNotes: trim and truncate to 500 chars
-  const sanitizedParams = {
+  const sanitizedParams: GeneratePlanParams = {
     ...params,
     userId: session.user.id,
     travelNotes: params.travelNotes
@@ -121,8 +122,25 @@ export async function generateTravelPlanAction(
   };
 
   try {
+    // Enrich with expedition context (Phase 2 preferences + Phase 5 guide)
+    const expeditionContext = await ItineraryPlanService.getExpeditionContext(
+      tripId,
+      session.user.id
+    );
+    if (expeditionContext) {
+      sanitizedParams.expeditionContext = expeditionContext;
+    }
+
     const plan = await AiService.generateTravelPlan(sanitizedParams);
     await persistItinerary(tripId, plan);
+
+    // Record generation on ItineraryPlan if it exists
+    try {
+      await ItineraryPlanService.recordGeneration(tripId);
+    } catch {
+      // ItineraryPlan may not exist yet (non-expedition trips) — ignore
+    }
+
     revalidatePath(`/trips/${tripId}`);
     revalidatePath(`/trips/${tripId}/itinerary`);
     return { success: true, data: plan };
