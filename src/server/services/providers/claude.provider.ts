@@ -17,9 +17,18 @@ const CLAUDE_TIMEOUT_MS = 90_000;
 function getAnthropic(): Anthropic {
   const g = globalThis as unknown as { _anthropic?: Anthropic };
   if (!g._anthropic) {
-    g._anthropic = new Anthropic({
-      apiKey: process.env.ANTHROPIC_API_KEY ?? "",
-    });
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+
+    // Guard against missing or empty API key (T-S17-009)
+    if (!apiKey || apiKey.trim() === "") {
+      throw new AppError(
+        "AI_CONFIG_ERROR",
+        "errors.aiConfigError",
+        500
+      );
+    }
+
+    g._anthropic = new Anthropic({ apiKey });
   }
   return g._anthropic;
 }
