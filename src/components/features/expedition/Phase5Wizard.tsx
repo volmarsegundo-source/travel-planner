@@ -86,7 +86,7 @@ export function Phase5Wizard({
 
   function handleTransitionContinue() {
     setShowTransition(false);
-    router.push("/dashboard");
+    router.push(`/expedition/${tripId}/phase-6`);
   }
 
   if (showAnimation) {
