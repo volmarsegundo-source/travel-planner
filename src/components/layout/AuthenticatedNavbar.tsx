@@ -30,7 +30,6 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
   }, [mobileMenuOpen]);
 
   const isDashboardActive = pathname === "/dashboard" || pathname.startsWith("/expedition");
-  const isTripsActive = pathname === "/trips" || pathname.startsWith("/trips/");
   const isProfileActive = pathname === "/profile";
 
   return (
@@ -63,17 +62,6 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
             aria-current={isDashboardActive ? "page" : undefined}
           >
             {tNav("myAtlas")}
-          </Link>
-          <Link
-            href="/trips"
-            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              isTripsActive
-                ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
-                : "text-foreground hover:bg-accent"
-            }`}
-            aria-current={isTripsActive ? "page" : undefined}
-          >
-            {tNav("myTrips")}
           </Link>
           <Link
             href="/profile"
@@ -134,18 +122,6 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
               onClick={() => setMobileMenuOpen(false)}
             >
               {tNav("myAtlas")}
-            </Link>
-            <Link
-              href="/trips"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                isTripsActive
-                  ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
-                  : "text-foreground hover:bg-accent"
-              }`}
-              aria-current={isTripsActive ? "page" : undefined}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {tNav("myTrips")}
             </Link>
             <Link
               href="/profile"
