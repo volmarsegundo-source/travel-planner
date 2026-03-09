@@ -18,6 +18,11 @@ import { maskPII } from "@/lib/prompts/pii-masker";
 import type { ActionResult } from "@/types/trip.types";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { PointsEngine } from "@/lib/engines/points-engine";
+import {
+  GeneratePlanParamsSchema,
+  GenerateChecklistParamsSchema,
+  TripIdSchema,
+} from "@/lib/validations/ai.schema";
 import type {
   GeneratePlanParams,
   ItineraryPlan,
@@ -98,12 +103,24 @@ export async function generateTravelPlanAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  // Validate tripId
+  const tripIdResult = TripIdSchema.safeParse(tripId);
+  if (!tripIdResult.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
+  // Validate params with Zod (SEC-S6-001)
+  const parsed = GeneratePlanParamsSchema.safeParse(params);
+  if (!parsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   const rl = await checkRateLimit(`ai:plan:${session.user.id}`, 10, 3600);
   if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
 
   // BOLA check: verify trip belongs to the authenticated user
   const trip = await db.trip.findFirst({
-    where: { id: tripId, userId: session.user.id, deletedAt: null },
+    where: { id: tripIdResult.data, userId: session.user.id, deletedAt: null },
     select: { id: true },
   });
   if (!trip) {
@@ -122,7 +139,7 @@ export async function generateTravelPlanAction(
   // Sanitize destination: injection guard + PII masking
   let sanitizedDestination: string;
   try {
-    const sanitized = sanitizeForPrompt(params.destination, "destination", 200);
+    const sanitized = sanitizeForPrompt(parsed.data.destination, "destination", 200);
     const { masked } = maskPII(sanitized, "destination");
     sanitizedDestination = masked;
   } catch (error) {
@@ -134,9 +151,9 @@ export async function generateTravelPlanAction(
 
   // Sanitize travelNotes: injection guard + PII masking + truncation
   let sanitizedTravelNotes: string | undefined;
-  if (params.travelNotes) {
+  if (parsed.data.travelNotes) {
     try {
-      const sanitized = sanitizeForPrompt(params.travelNotes, "travelNotes", 500);
+      const sanitized = sanitizeForPrompt(parsed.data.travelNotes, "travelNotes", 500);
       const { masked } = maskPII(sanitized, "travelNotes");
       sanitizedTravelNotes = masked;
     } catch (error) {
@@ -151,13 +168,13 @@ export async function generateTravelPlanAction(
   const sanitizedParams: GeneratePlanParams = {
     userId: session.user.id,
     destination: sanitizedDestination,
-    startDate: params.startDate,
-    endDate: params.endDate,
-    travelStyle: params.travelStyle,
-    budgetTotal: params.budgetTotal,
-    budgetCurrency: params.budgetCurrency,
-    travelers: params.travelers,
-    language: params.language,
+    startDate: parsed.data.startDate,
+    endDate: parsed.data.endDate,
+    travelStyle: parsed.data.travelStyle,
+    budgetTotal: parsed.data.budgetTotal,
+    budgetCurrency: parsed.data.budgetCurrency,
+    travelers: parsed.data.travelers,
+    language: parsed.data.language,
     travelNotes: sanitizedTravelNotes,
   };
 
@@ -215,12 +232,24 @@ export async function generateChecklistAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  // Validate tripId
+  const checklistTripIdResult = TripIdSchema.safeParse(tripId);
+  if (!checklistTripIdResult.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
+  // Validate params with Zod (SEC-S6-001)
+  const checklistParsed = GenerateChecklistParamsSchema.safeParse(params);
+  if (!checklistParsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   const rl = await checkRateLimit(`ai:checklist:${session.user.id}`, 5, 3600);
   if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
 
   // BOLA check: verify trip belongs to the authenticated user
   const trip = await db.trip.findFirst({
-    where: { id: tripId, userId: session.user.id, deletedAt: null },
+    where: { id: checklistTripIdResult.data, userId: session.user.id, deletedAt: null },
     select: { id: true },
   });
   if (!trip) {
@@ -239,7 +268,7 @@ export async function generateChecklistAction(
   // Sanitize destination: injection guard + PII masking
   let sanitizedDestination: string;
   try {
-    const sanitized = sanitizeForPrompt(params.destination, "destination", 200);
+    const sanitized = sanitizeForPrompt(checklistParsed.data.destination, "destination", 200);
     const { masked } = maskPII(sanitized, "destination");
     sanitizedDestination = masked;
   } catch (error) {
@@ -254,9 +283,9 @@ export async function generateChecklistAction(
     const result = await AiService.generateChecklist({
       userId: session.user.id,
       destination: sanitizedDestination,
-      startDate: params.startDate,
-      travelers: params.travelers,
-      language: params.language,
+      startDate: checklistParsed.data.startDate,
+      travelers: checklistParsed.data.travelers,
+      language: checklistParsed.data.language,
     });
     await persistChecklist(tripId, result);
     revalidatePath(`/trips/${tripId}`);
