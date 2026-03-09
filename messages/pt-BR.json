@@ -558,7 +558,6 @@
       "generateCta": "Gerar Guia do Destino",
       "regenerateCta": "Atualizar guia ({remaining} restantes)",
       "completeCta": "Completar Fase e Ganhar Pontos",
-      "viewAllSectionsHint": "Leia todas as seções para completar esta fase ({viewed}/{total})",
       "sections": {
         "timezone": "Fuso Horário",
         "currency": "Moeda",

@@ -558,7 +558,6 @@
       "generateCta": "Generate Destination Guide",
       "regenerateCta": "Update guide ({remaining} remaining)",
       "completeCta": "Complete Phase & Earn Points",
-      "viewAllSectionsHint": "Read all sections to complete this phase ({viewed}/{total})",
       "sections": {
         "timezone": "Timezone",
         "currency": "Currency",
