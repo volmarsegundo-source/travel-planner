@@ -3,7 +3,6 @@
   "version": "0.11.0",
   "private": true,
   "scripts": {
-    "postinstall": "npx prisma generate",
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next dev --turbopack",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=3072 next build",
