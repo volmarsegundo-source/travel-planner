@@ -134,7 +134,18 @@ export async function deleteUserAccountAction(
 
     // Execute soft delete + PII anonymization + cascade in a transaction
     await db.$transaction(async (tx) => {
-      // 1. Soft delete and anonymize the user record
+      // 1. Delete OAuth provider accounts (tokens, refresh_tokens, etc.)
+      // Soft-delete does NOT trigger Prisma cascade, so explicit cleanup is required
+      await tx.account.deleteMany({
+        where: { userId: user.id },
+      });
+
+      // 2. Delete active sessions to invalidate all logins immediately
+      await tx.session.deleteMany({
+        where: { userId: user.id },
+      });
+
+      // 3. Soft delete and anonymize the user record
       await tx.user.update({
         where: { id: user.id },
         data: {
@@ -146,7 +157,7 @@ export async function deleteUserAccountAction(
         },
       });
 
-      // 2. Cascade soft delete: mark all user's trips as deleted
+      // 4. Cascade soft delete: mark all user's trips as deleted
       await tx.trip.updateMany({
         where: { userId: user.id, deletedAt: null },
         data: { deletedAt: now },
