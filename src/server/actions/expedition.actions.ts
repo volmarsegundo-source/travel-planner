@@ -449,16 +449,11 @@ export async function advanceFromPhaseAction(
         where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
       });
       const phaseMeta = phase?.metadata as Record<string, unknown> | null;
-      const trip = await db.trip.findFirst({
-        where: { id: tripId, userId: session.user.id, deletedAt: null },
-        select: { tripType: true },
-      });
-      const needsCinh =
-        trip?.tripType === "international" || trip?.tripType === "schengen";
       if (phaseMeta?.needsCarRental === true) {
-        prerequisitesMet = !needsCinh || phaseMeta?.cnhResolved === true;
+        // CNH is required for any trip with car rental
+        prerequisitesMet = phaseMeta?.cnhResolved === true;
       } else {
-        // No car rental or hasn't decided yet
+        // No car rental needed
         prerequisitesMet = phaseMeta?.needsCarRental === false;
       }
     }
