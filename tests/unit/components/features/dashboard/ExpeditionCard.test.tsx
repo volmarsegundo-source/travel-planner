@@ -121,7 +121,7 @@ describe("ExpeditionCard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows itinerary badge when hasItineraryPlan is true", () => {
+  it("shows itinerary shortcut when hasItineraryPlan is true", () => {
     render(
       <ExpeditionCard
         tripId="trip-001"
@@ -137,16 +137,38 @@ describe("ExpeditionCard", () => {
       />
     );
 
-    expect(
-      screen.getByText("dashboard.itineraryGenerated")
-    ).toBeInTheDocument();
+    const itineraryLink = screen.getByText("dashboard.viewItinerary");
+    expect(itineraryLink).toBeInTheDocument();
+    expect(itineraryLink.closest("a")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/expedition/trip-001/phase-6")
+    );
   });
 
-  it("hides itinerary badge when hasItineraryPlan is false", () => {
+  it("hides itinerary shortcut when hasItineraryPlan is false", () => {
     renderCard();
 
     expect(
-      screen.queryByText("dashboard.itineraryGenerated")
+      screen.queryByText("dashboard.viewItinerary")
+    ).not.toBeInTheDocument();
+  });
+
+  it("shows checklist shortcut when currentPhase >= 5", () => {
+    renderCard({ currentPhase: 5 });
+
+    const checklistLink = screen.getByText("dashboard.viewChecklist");
+    expect(checklistLink).toBeInTheDocument();
+    expect(checklistLink.closest("a")).toHaveAttribute(
+      "href",
+      expect.stringContaining("/expedition/trip-001/phase-5")
+    );
+  });
+
+  it("hides checklist shortcut when currentPhase < 5", () => {
+    renderCard({ currentPhase: 4 });
+
+    expect(
+      screen.queryByText("dashboard.viewChecklist")
     ).not.toBeInTheDocument();
   });
 

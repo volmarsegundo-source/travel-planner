@@ -312,7 +312,9 @@
       "tooltip": "{required} required · {recommended} recommended pending",
       "ariaLabel": "Checklist progress: {done} of {total} required items done"
     },
-    "itineraryGenerated": "Itinerary generated"
+    "itineraryGenerated": "Itinerary generated",
+    "viewChecklist": "Checklist",
+    "viewItinerary": "Itinerary"
   },
   "profile": {
     "title": "Explorer Profile",
