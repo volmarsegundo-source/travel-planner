@@ -2,7 +2,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { UnauthorizedError } from "@/lib/errors";
+import { AppError, UnauthorizedError } from "@/lib/errors";
 import { ExpeditionService } from "@/server/services/expedition.service";
 import { ProfileService } from "@/server/services/profile.service";
 import { PhaseEngine } from "@/lib/engines/phase-engine";
@@ -17,6 +17,8 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { AiService } from "@/server/services/ai.service";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
+import { maskPII } from "@/lib/prompts/pii-masker";
 
 // ─── createExpeditionAction ──────────────────────────────────────────────────
 
@@ -258,6 +260,19 @@ export async function generateDestinationGuideAction(
       return { success: false, error: "errors.notFound" };
     }
 
+    // Sanitize destination: injection guard + PII masking
+    let sanitizedDestination: string;
+    try {
+      const sanitized = sanitizeForPrompt(trip.destination, "destination", 200);
+      const { masked } = maskPII(sanitized, "destination");
+      sanitizedDestination = masked;
+    } catch (error) {
+      if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+        return { success: false, error: "errors.invalidInput" };
+      }
+      throw error;
+    }
+
     // Check generation count
     const existing = await db.destinationGuide.findUnique({
       where: { tripId },
@@ -270,7 +285,7 @@ export async function generateDestinationGuideAction(
     // Generate guide via AI
     const content = await AiService.generateDestinationGuide({
       userId: session.user.id,
-      destination: trip.destination,
+      destination: sanitizedDestination,
       language: locale.startsWith("pt") ? "pt-BR" : "en",
     });
 
