@@ -14,6 +14,7 @@
 
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { maskPII } from "@/lib/prompts/pii-masker";
 
 // ─── Injection Patterns ──────────────────────────────────────────────────────
 
@@ -135,7 +136,7 @@ export function checkPromptInjection(
         context,
         pattern: pattern.source,
         confidence: "high",
-        inputPreview: normalized.slice(0, 50),
+        inputPreview: maskPII(normalized.slice(0, 50)).masked,
       });
       return {
         safe: false,

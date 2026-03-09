@@ -119,6 +119,19 @@ export async function generateTravelPlanAction(
     return { success: false, error: "errors.aiAgeRestricted" };
   }
 
+  // Sanitize destination: injection guard + PII masking
+  let sanitizedDestination: string;
+  try {
+    const sanitized = sanitizeForPrompt(params.destination, "destination", 200);
+    const { masked } = maskPII(sanitized, "destination");
+    sanitizedDestination = masked;
+  } catch (error) {
+    if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+      return { success: false, error: "errors.invalidInput" };
+    }
+    throw error;
+  }
+
   // Sanitize travelNotes: injection guard + PII masking + truncation
   let sanitizedTravelNotes: string | undefined;
   if (params.travelNotes) {
@@ -137,6 +150,7 @@ export async function generateTravelPlanAction(
   const sanitizedParams: GeneratePlanParams = {
     ...params,
     userId: session.user.id,
+    destination: sanitizedDestination,
     travelNotes: sanitizedTravelNotes,
   };
 
