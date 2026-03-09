@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { UnauthorizedError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { hashUserId as hashForLog } from "@/lib/hash";
 import { mapErrorToKey } from "@/lib/action-utils";
 import {
   UpdateUserProfileSchema,
@@ -59,6 +60,7 @@ export async function updateUserProfileAction(
   // Next.js redirect() throws a NEXT_REDIRECT error internally — catching it
   // will swallow the redirect and break navigation. Keep redirect() outside try/catch.
   try {
+    // Mass assignment safe: explicit fields only
     const updateData: { name: string; preferredLocale?: string } = {
       name: parsed.data.name,
     };
@@ -78,14 +80,14 @@ export async function updateUserProfileAction(
       },
     });
 
-    logger.info("account.profileUpdated", { userId: session.user.id });
+    logger.info("account.profileUpdated", { userId: hashForLog(session.user.id) });
 
     revalidatePath("/account");
 
     return { success: true, data: updatedUser };
   } catch (error) {
     logger.error("account.updateProfile.error", error, {
-      userId: session.user.id,
+      userId: hashForLog(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -133,7 +135,18 @@ export async function deleteUserAccountAction(
 
     // Execute soft delete + PII anonymization + cascade in a transaction
     await db.$transaction(async (tx) => {
-      // 1. Soft delete and anonymize the user record
+      // 1. Delete OAuth provider accounts (tokens, refresh_tokens, etc.)
+      // Soft-delete does NOT trigger Prisma cascade, so explicit cleanup is required
+      await tx.account.deleteMany({
+        where: { userId: user.id },
+      });
+
+      // 2. Delete active sessions to invalidate all logins immediately
+      await tx.session.deleteMany({
+        where: { userId: user.id },
+      });
+
+      // 3. Soft delete and anonymize the user record
       await tx.user.update({
         where: { id: user.id },
         data: {
@@ -145,7 +158,7 @@ export async function deleteUserAccountAction(
         },
       });
 
-      // 2. Cascade soft delete: mark all user's trips as deleted
+      // 4. Cascade soft delete: mark all user's trips as deleted
       await tx.trip.updateMany({
         where: { userId: user.id, deletedAt: null },
         data: { deletedAt: now },
@@ -170,7 +183,7 @@ export async function deleteUserAccountAction(
     return { success: true };
   } catch (error) {
     logger.error("account.deleteAccount.error", error, {
-      userId: session.user.id,
+      userId: hashForLog(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

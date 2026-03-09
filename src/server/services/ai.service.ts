@@ -5,12 +5,14 @@ import { redis } from "@/server/cache/redis";
 import { CacheKeys } from "@/server/cache/keys";
 import { CACHE_TTL } from "@/lib/constants";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
+import { calculateEstimatedCost } from "@/lib/cost-calculator";
 import {
-  PLAN_SYSTEM_PROMPT,
-  CHECKLIST_SYSTEM_PROMPT,
-  GUIDE_SYSTEM_PROMPT,
-} from "@/lib/prompts/system-prompts";
+  travelPlanPrompt,
+  checklistPrompt,
+  destinationGuidePrompt,
+} from "@/lib/prompts";
 import { ClaudeProvider } from "./providers/claude.provider";
 import type { AiProvider, AiProviderResponse, ModelType } from "./ai-provider.interface";
 import type {
@@ -32,8 +34,6 @@ const TOKENS_PER_DAY = 600;
 const TOKENS_OVERHEAD = 500;
 const MIN_PLAN_TOKENS = 2048;
 const MAX_PLAN_TOKENS = 16000;
-const MAX_TOKENS_CHECKLIST = 2048;
-const MAX_TOKENS_GUIDE = 2048;
 
 function calculatePlanTokenBudget(days: number): number {
   const estimated = days * TOKENS_PER_DAY + TOKENS_OVERHEAD;
@@ -195,11 +195,20 @@ function getProvider(): AiProvider {
   return new ClaudeProvider();
 }
 
+// ─── Model ID resolution for cost tracking ───────────────────────────────────
+
+const MODEL_ID_MAP: Record<ModelType, string> = {
+  plan: "claude-sonnet-4-6",
+  checklist: "claude-haiku-4-5-20251001",
+  guide: "claude-haiku-4-5-20251001",
+};
+
 // ─── Token usage logging ──────────────────────────────────────────────────────
 
 /**
  * Logs structured token usage data after each AI call.
  * Enables FinOps monitoring and cost tracking without PII exposure.
+ * Includes estimated cost in USD for FinOps dashboards.
  */
 function logTokenUsage(
   response: AiProviderResponse,
@@ -209,14 +218,30 @@ function logTokenUsage(
     provider: string;
   },
 ): void {
+  const inputTokens = response.inputTokens ?? 0;
+  const outputTokens = response.outputTokens ?? 0;
+  const cacheReadTokens = response.cacheReadInputTokens ?? 0;
+  const cacheWriteTokens = response.cacheCreationInputTokens ?? 0;
+
+  const modelId = MODEL_ID_MAP[params.generationType];
+  const cost = calculateEstimatedCost(
+    modelId,
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+  );
+
   logger.info("ai.tokens.usage", {
-    userId: params.userId,
+    userId: hashUserId(params.userId),
     generationType: params.generationType,
     model: params.provider,
-    inputTokens: response.inputTokens ?? 0,
-    outputTokens: response.outputTokens ?? 0,
-    cacheReadTokens: response.cacheReadInputTokens ?? 0,
-    cacheWriteTokens: response.cacheCreationInputTokens ?? 0,
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+    estimatedCostUSD: cost.totalCost,
+    costBreakdown: cost,
   });
 }
 
@@ -232,6 +257,7 @@ export class AiService {
     params: GeneratePlanParams
   ): Promise<ItineraryPlan> {
     const { userId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext } = params;
+    const hid = hashUserId(userId);
 
     // Bucket budget to nearest 500 for better cache reuse
     const budgetRange = Math.floor(budgetTotal / 500) * 500;
@@ -247,58 +273,31 @@ export class AiService {
     try {
       cached = await redis.get(cacheKey);
     } catch (err) {
-      logger.warn("ai.plan.cache.error", { userId, error: String(err) });
+      logger.warn("ai.plan.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.plan.cache.hit", { userId });
+      logger.info("ai.plan.cache.hit", { userId: hid });
       return JSON.parse(cached) as ItineraryPlan;
     }
 
     // Dynamic token budget based on trip duration
     const tokenBudget = calculatePlanTokenBudget(days);
 
-    // Build user message with only dynamic/variable content
-    const notesSection = travelNotes
-      ? `\nAdditional traveler notes: ${travelNotes}\n`
-      : "";
-
-    // Build expedition context section from prior phases
-    let expeditionSection = "";
-    if (expeditionContext) {
-      const ctxParts: string[] = [];
-      if (expeditionContext.tripType) {
-        ctxParts.push(`- Trip type: ${expeditionContext.tripType}`);
-      }
-      if (expeditionContext.travelerType) {
-        ctxParts.push(`- Traveler type: ${expeditionContext.travelerType}`);
-      }
-      if (expeditionContext.accommodationStyle) {
-        ctxParts.push(`- Accommodation preference: ${expeditionContext.accommodationStyle}`);
-      }
-      if (expeditionContext.travelPace) {
-        ctxParts.push(`- Travel pace: ${expeditionContext.travelPace}/10`);
-      }
-      if (expeditionContext.budget) {
-        const ctxCurrency = expeditionContext.currency ?? budgetCurrency;
-        ctxParts.push(`- Traveler budget preference: ${expeditionContext.budget} ${ctxCurrency}`);
-      }
-      if (expeditionContext.destinationGuideContext) {
-        ctxParts.push(`- Destination insights: ${expeditionContext.destinationGuideContext}`);
-      }
-      if (ctxParts.length > 0) {
-        expeditionSection = `\nExpedition context (use to personalize the itinerary):\n${ctxParts.join("\n")}\n`;
-      }
-    }
-
-    const userMessage = `Trip details:
-- Destination: ${destination}
-- Dates: ${startDate} to ${endDate} (${days} days)
-- Travel style: ${travelStyle}
-- Budget: ${budgetTotal} ${budgetCurrency}
-- Travelers: ${travelers} person(s)
-- Language: ${language}
-- Token budget: ${tokenBudget} (fit entire JSON within this limit)
-${notesSection}${expeditionSection}`;
+    // Build user message using versioned prompt template
+    const userMessage = travelPlanPrompt.buildUserPrompt({
+      destination,
+      startDate,
+      endDate,
+      days,
+      travelStyle,
+      budgetTotal,
+      budgetCurrency,
+      travelers,
+      language,
+      tokenBudget,
+      travelNotes,
+      expeditionContext,
+    });
 
     const plan = await this.callProviderForPlan(userMessage, tokenBudget, userId);
 
@@ -306,10 +305,10 @@ ${notesSection}${expeditionSection}`;
     try {
       await redis.set(cacheKey, JSON.stringify(plan), "EX", CACHE_TTL.AI_PLAN);
     } catch {
-      logger.warn("ai.plan.cache.set.error", { userId });
+      logger.warn("ai.plan.cache.set.error", { userId: hid });
     }
 
-    logger.info("ai.plan.generated", { userId, destination });
+    logger.info("ai.plan.generated", { userId: hid, destination });
     return plan;
   }
 
@@ -323,6 +322,7 @@ ${notesSection}${expeditionSection}`;
     userId: string,
   ): Promise<ItineraryPlan> {
     const provider = getProvider();
+    const hid = hashUserId(userId);
     const maxAttempts = 2;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -333,15 +333,15 @@ ${notesSection}${expeditionSection}`;
       const response = await provider.generateResponse(
         userMessage,
         currentBudget,
-        "plan",
-        { systemPrompt: PLAN_SYSTEM_PROMPT },
+        travelPlanPrompt.model,
+        { systemPrompt: travelPlanPrompt.system },
       );
 
       logTokenUsage(response, { userId, generationType: "plan", provider: provider.name });
 
       if (response.wasTruncated) {
         logger.warn("ai.plan.truncated", {
-          userId,
+          userId: hid,
           attempt,
           responseLength: response.text.length,
           maxTokens: currentBudget,
@@ -350,7 +350,7 @@ ${notesSection}${expeditionSection}`;
 
       // If truncated on first attempt and we can retry with more tokens, do so
       if (response.wasTruncated && attempt < maxAttempts && currentBudget < MAX_PLAN_TOKENS) {
-        logger.info("ai.plan.retry", { userId, nextBudget: Math.min(tokenBudget * 2, MAX_PLAN_TOKENS) });
+        logger.info("ai.plan.retry", { userId: hid, nextBudget: Math.min(tokenBudget * 2, MAX_PLAN_TOKENS) });
         continue;
       }
 
@@ -359,13 +359,13 @@ ${notesSection}${expeditionSection}`;
       try {
         rawJson = extractJsonFromResponse(response.text);
       } catch (error) {
-        logger.error("ai.plan.parse.error", error, { userId, attempt });
+        logger.error("ai.plan.parse.error", error, { userId: hid, attempt });
         throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
       }
 
       const parsed = ItineraryPlanSchema.safeParse(rawJson);
       if (!parsed.success) {
-        logger.error("ai.plan.schema.error", parsed.error, { userId, attempt });
+        logger.error("ai.plan.schema.error", parsed.error, { userId: hid, attempt });
         throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
       }
 
@@ -385,6 +385,7 @@ ${notesSection}${expeditionSection}`;
     params: GenerateChecklistParams
   ): Promise<ChecklistResult> {
     const { userId, destination, startDate, travelers, language } = params;
+    const hid = hashUserId(userId);
 
     const month = getMonthFromDate(startDate);
     const cacheInput = `${destination}:${month}:${travelers}:${language}`;
@@ -396,22 +397,26 @@ ${notesSection}${expeditionSection}`;
     try {
       cached = await redis.get(cacheKey);
     } catch (err) {
-      logger.warn("ai.checklist.cache.error", { userId, error: String(err) });
+      logger.warn("ai.checklist.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.checklist.cache.hit", { userId });
+      logger.info("ai.checklist.cache.hit", { userId: hid });
       return JSON.parse(cached) as ChecklistResult;
     }
 
-    const userMessage = `Trip: ${destination}, ${month}, ${travelers} traveler(s)
-Language: ${language}`;
+    const userMessage = checklistPrompt.buildUserPrompt({
+      destination,
+      month,
+      travelers,
+      language,
+    });
 
     const provider = getProvider();
     const response = await provider.generateResponse(
       userMessage,
-      MAX_TOKENS_CHECKLIST,
-      "checklist",
-      { systemPrompt: CHECKLIST_SYSTEM_PROMPT },
+      checklistPrompt.maxTokens,
+      checklistPrompt.model,
+      { systemPrompt: checklistPrompt.system },
     );
 
     logTokenUsage(response, { userId, generationType: "checklist", provider: provider.name });
@@ -421,13 +426,13 @@ Language: ${language}`;
     try {
       rawJson = extractJsonFromResponse(response.text);
     } catch (error) {
-      logger.error("ai.checklist.parse.error", error, { userId });
+      logger.error("ai.checklist.parse.error", error, { userId: hid });
       throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
     }
 
     const parsed = ChecklistResultSchema.safeParse(rawJson);
     if (!parsed.success) {
-      logger.error("ai.checklist.schema.error", parsed.error, { userId });
+      logger.error("ai.checklist.schema.error", parsed.error, { userId: hid });
       throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
@@ -437,10 +442,10 @@ Language: ${language}`;
     try {
       await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
     } catch {
-      logger.warn("ai.checklist.cache.set.error", { userId });
+      logger.warn("ai.checklist.cache.set.error", { userId: hid });
     }
 
-    logger.info("ai.checklist.generated", { userId });
+    logger.info("ai.checklist.generated", { userId: hid });
     return result;
   }
 
@@ -453,6 +458,7 @@ Language: ${language}`;
     params: GenerateGuideParams
   ): Promise<DestinationGuideContent> {
     const { userId, destination, language } = params;
+    const hid = hashUserId(userId);
 
     const cacheInput = `${destination}:${language}`;
     const cacheHash = md5(cacheInput);
@@ -463,24 +469,24 @@ Language: ${language}`;
     try {
       cached = await redis.get(cacheKey);
     } catch (err) {
-      logger.warn("ai.guide.cache.error", { userId, error: String(err) });
+      logger.warn("ai.guide.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.guide.cache.hit", { userId });
+      logger.info("ai.guide.cache.hit", { userId: hid });
       return JSON.parse(cached) as DestinationGuideContent;
     }
 
-    const lang = language === "pt-BR" ? "Brazilian Portuguese" : "English";
-
-    const userMessage = `Destination: ${destination}
-Respond in: ${lang}`;
+    const userMessage = destinationGuidePrompt.buildUserPrompt({
+      destination,
+      language,
+    });
 
     const provider = getProvider();
     const response = await provider.generateResponse(
       userMessage,
-      MAX_TOKENS_GUIDE,
-      "guide",
-      { systemPrompt: GUIDE_SYSTEM_PROMPT },
+      destinationGuidePrompt.maxTokens,
+      destinationGuidePrompt.model,
+      { systemPrompt: destinationGuidePrompt.system },
     );
 
     logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
@@ -489,13 +495,13 @@ Respond in: ${lang}`;
     try {
       rawJson = extractJsonFromResponse(response.text);
     } catch (error) {
-      logger.error("ai.guide.parse.error", error, { userId });
+      logger.error("ai.guide.parse.error", error, { userId: hid });
       throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
     }
 
     const parsed = DestinationGuideContentSchema.safeParse(rawJson);
     if (!parsed.success) {
-      logger.error("ai.guide.schema.error", parsed.error, { userId });
+      logger.error("ai.guide.schema.error", parsed.error, { userId: hid });
       throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
@@ -505,10 +511,10 @@ Respond in: ${lang}`;
     try {
       await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
     } catch {
-      logger.warn("ai.guide.cache.set.error", { userId });
+      logger.warn("ai.guide.cache.set.error", { userId: hid });
     }
 
-    logger.info("ai.guide.generated", { userId, destination });
+    logger.info("ai.guide.generated", { userId: hid, destination });
     return result;
   }
 }

@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
 import { Header } from "@/components/layout/Header";
 import { HeroSection } from "@/components/landing/HeroSection";
@@ -14,8 +14,7 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
 
   if (session) {
-    const prefix = locale === "pt-BR" ? "" : `/${locale}`;
-    redirect(`${prefix}/dashboard`);
+    redirect({ href: "/dashboard", locale });
   }
 
   return (

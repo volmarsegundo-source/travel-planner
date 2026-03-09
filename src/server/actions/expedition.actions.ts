@@ -17,6 +17,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { AiService } from "@/server/services/ai.service";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { hashUserId } from "@/lib/hash";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 
@@ -54,7 +55,7 @@ export async function createExpeditionAction(
       } catch (profileError) {
         // Profile save failure should not block expedition creation
         logger.error("expedition.profileFields.error", profileError, {
-          userId: session.user.id,
+          userId: hashUserId(session.user.id),
         });
       }
     }
@@ -64,7 +65,7 @@ export async function createExpeditionAction(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.createExpedition.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -112,7 +113,7 @@ export async function completePhase2Action(
         await ProfileService.recalculateCompletionScore(session.user.id);
       } catch (profileError) {
         logger.error("expedition.phase2.profileFields.error", profileError, {
-          userId: session.user.id,
+          userId: hashUserId(session.user.id),
         });
       }
     }
@@ -122,7 +123,7 @@ export async function completePhase2Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase2.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -148,7 +149,7 @@ export async function togglePhase3ItemAction(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.togglePhase3Item.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
       itemKey,
     });
@@ -171,7 +172,7 @@ export async function completePhase3Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase3.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -188,6 +189,10 @@ export async function completePhase4Action(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
+    // Mass assignment safe: explicit fields only
+    const needsCarRental = Boolean(data.needsCarRental);
+    const cnhResolved = Boolean(data.cnhResolved);
+
     // Save metadata on the phase BEFORE completing (prerequisite validation reads it)
     const phase = await db.expeditionPhase.findUnique({
       where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
@@ -197,8 +202,8 @@ export async function completePhase4Action(
         where: { id: phase.id },
         data: {
           metadata: {
-            needsCarRental: data.needsCarRental,
-            cnhResolved: data.cnhResolved,
+            needsCarRental,
+            cnhResolved,
           },
         },
       });
@@ -210,7 +215,7 @@ export async function completePhase4Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase4.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -232,7 +237,7 @@ export async function completePhase5Action(
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase5.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -345,7 +350,7 @@ export async function generateDestinationGuideAction(
     };
   } catch (error) {
     logger.error("expedition.generateGuide.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -392,7 +397,7 @@ export async function getDestinationGuideAction(
     };
   } catch (error) {
     logger.error("expedition.getGuide.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -447,7 +452,7 @@ export async function viewGuideSectionAction(
     return { success: true, data: { pointsAwarded: 5 } };
   } catch (error) {
     logger.error("expedition.viewGuideSection.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
@@ -471,7 +476,7 @@ export async function advanceFromPhaseAction(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
-    // For phase 4, save metadata first if provided
+    // Mass assignment safe: explicit fields only for phase 4 metadata
     if (phaseNumber === 4 && metadata) {
       const phase = await db.expeditionPhase.findUnique({
         where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
@@ -481,8 +486,8 @@ export async function advanceFromPhaseAction(
           where: { id: phase.id },
           data: {
             metadata: {
-              needsCarRental: metadata.needsCarRental ?? false,
-              cnhResolved: metadata.cnhResolved ?? false,
+              needsCarRental: Boolean(metadata.needsCarRental ?? false),
+              cnhResolved: Boolean(metadata.cnhResolved ?? false),
             },
           },
         });
@@ -547,7 +552,7 @@ export async function advanceFromPhaseAction(
     }
   } catch (error) {
     logger.error("expedition.advanceFromPhase.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       tripId,
       phaseNumber,
     });
@@ -568,7 +573,7 @@ export async function getExpeditionPhasesAction(
     return { success: true, data: phases };
   } catch (error) {
     logger.error("expedition.getPhases.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

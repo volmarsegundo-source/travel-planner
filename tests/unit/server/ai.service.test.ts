@@ -9,6 +9,7 @@
  * vi.mock factory MUST be created with vi.hoisted().
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { hashUserId } from "@/lib/hash";
 
 // ─── Hoisted mock handles ──────────────────────────────────────────────────────
 
@@ -686,7 +687,7 @@ describe("Token usage logging", () => {
     expect(tokenLogCall).toBeDefined();
     const meta = tokenLogCall?.[1];
     expect(meta).toMatchObject({
-      userId: "user-1",
+      userId: hashUserId("user-1"),
       generationType: "plan",
       model: "claude",
       inputTokens: 150,
@@ -694,6 +695,12 @@ describe("Token usage logging", () => {
       cacheReadTokens: 50,
       cacheWriteTokens: 100,
     });
+    // Verify cost data is included
+    expect(meta).toHaveProperty("estimatedCostUSD");
+    expect(meta).toHaveProperty("costBreakdown");
+    const breakdown = (meta as Record<string, unknown>).costBreakdown as Record<string, number>;
+    expect(breakdown.totalCost).toBeGreaterThan(0);
+    expect(breakdown.outputCost).toBeGreaterThan(0);
   });
 
   it("logs token usage after checklist generation", async () => {
@@ -715,7 +722,7 @@ describe("Token usage logging", () => {
     expect(tokenLogCall).toBeDefined();
     const meta = tokenLogCall?.[1];
     expect(meta).toMatchObject({
-      userId: "user-1",
+      userId: hashUserId("user-1"),
       generationType: "checklist",
       model: "claude",
       inputTokens: 80,
@@ -745,7 +752,7 @@ describe("Token usage logging", () => {
     expect(tokenLogCall).toBeDefined();
     const meta = tokenLogCall?.[1];
     expect(meta).toMatchObject({
-      userId: "user-1",
+      userId: hashUserId("user-1"),
       generationType: "guide",
       model: "claude",
       inputTokens: 90,
