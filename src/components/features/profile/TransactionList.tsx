@@ -21,6 +21,10 @@ const TYPE_KEY_MAP: Record<string, string> = {
   purchase: "purchase",
   referral: "referral",
   checklist: "checklist",
+  profile_completion: "profileCompletion",
+  phase_checklist: "phaseChecklist",
+  phase_accommodation: "phaseAccommodation",
+  phase_connectivity: "phaseConnectivity",
 };
 
 export function TransactionList({ transactions }: TransactionListProps) {

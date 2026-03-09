@@ -350,11 +350,15 @@
       "title": "Atividade Recente",
       "empty": "Nenhuma atividade ainda.",
       "phaseComplete": "Fase concluída",
-      "aiUsage": "Uso de IA",
+      "aiUsage": "Roteiro gerado com IA",
       "dailyLogin": "Login diário",
       "purchase": "Bônus de boas-vindas",
       "referral": "Bônus de indicação",
-      "checklist": "Bônus de checklist"
+      "checklist": "Bônus de checklist",
+      "profileCompletion": "Perfil atualizado",
+      "phaseChecklist": "Item do checklist concluído",
+      "phaseAccommodation": "Hospedagem selecionada",
+      "phaseConnectivity": "Guia de destino explorado"
     },
     "badges": {
       "title": "Carimbos do Passaporte",

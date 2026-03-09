@@ -350,11 +350,15 @@
       "title": "Recent Activity",
       "empty": "No activity yet.",
       "phaseComplete": "Phase completed",
-      "aiUsage": "AI usage",
+      "aiUsage": "AI-generated itinerary",
       "dailyLogin": "Daily login",
       "purchase": "Welcome bonus",
       "referral": "Referral bonus",
-      "checklist": "Checklist bonus"
+      "checklist": "Checklist bonus",
+      "profileCompletion": "Profile updated",
+      "phaseChecklist": "Checklist item completed",
+      "phaseAccommodation": "Accommodation selected",
+      "phaseConnectivity": "Destination guide explored"
     },
     "badges": {
       "title": "Passport Stamps",
