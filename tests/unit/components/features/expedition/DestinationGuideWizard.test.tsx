@@ -498,7 +498,7 @@ describe("DestinationGuideWizard", () => {
         initialGuide={{
           content: MOCK_GUIDE,
           generationCount: 1,
-          viewedSections: [],
+          viewedSections: ALL_SECTIONS_VIEWED,
         }}
       />
     );
