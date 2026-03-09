@@ -2,7 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import type { AiProvider, AiProviderResponse, ModelType } from "../ai-provider.interface";
+import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } from "../ai-provider.interface";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -33,16 +33,34 @@ export class ClaudeProvider implements AiProvider {
     prompt: string,
     maxTokens: number,
     model: ModelType,
+    options?: AiProviderOptions,
   ): Promise<AiProviderResponse> {
     const modelId = this.resolveModel(model);
 
     try {
+      // Build system parameter with cache_control for Anthropic prompt caching
+      const system = options?.systemPrompt
+        ? [
+            {
+              type: "text" as const,
+              text: options.systemPrompt,
+              cache_control: { type: "ephemeral" as const },
+            },
+          ]
+        : undefined;
+
+      const createParams: Record<string, unknown> = {
+        model: modelId,
+        max_tokens: maxTokens,
+        messages: [{ role: "user", content: prompt }],
+      };
+
+      if (system) {
+        createParams.system = system;
+      }
+
       const message = await getAnthropic().messages.create(
-        {
-          model: modelId,
-          max_tokens: maxTokens,
-          messages: [{ role: "user", content: prompt }],
-        },
+        createParams as unknown as Anthropic.MessageCreateParamsNonStreaming,
         { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) },
       );
 

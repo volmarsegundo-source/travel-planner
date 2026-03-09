@@ -550,3 +550,109 @@ describe("AiService.generateDestinationGuide", () => {
     ).rejects.toBeInstanceOf(AppError);
   });
 });
+
+// ─── System Prompt Tests ────────────────────────────────────────────────────
+
+describe("System prompt passing", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes system prompt to provider for plan generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
+    expect(options).toBeDefined();
+    expect(options.systemPrompt).toBeDefined();
+    expect(options.systemPrompt).toContain("professional travel planner");
+    expect(options.systemPrompt).toContain("JSON");
+  });
+
+  it("passes system prompt to provider for checklist generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
+
+    const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
+    expect(options).toBeDefined();
+    expect(options.systemPrompt).toBeDefined();
+    expect(options.systemPrompt).toContain("travel expert");
+    expect(options.systemPrompt).toContain("checklist");
+  });
+
+  it("passes system prompt to provider for guide generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
+    expect(options).toBeDefined();
+    expect(options.systemPrompt).toBeDefined();
+    expect(options.systemPrompt).toContain("pocket guide");
+    expect(options.systemPrompt).toContain("6 sections");
+  });
+
+  it("user message for plan contains trip details, not system instructions", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const userMessage = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    // User message should have dynamic data
+    expect(userMessage).toContain("Paris, France");
+    expect(userMessage).toContain("2026-06-01");
+    expect(userMessage).toContain("CULTURE");
+    // User message should NOT repeat the full system instructions
+    expect(userMessage).not.toContain("Respond ONLY with this JSON structure");
+  });
+
+  it("user message for checklist contains trip details, not system instructions", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
+
+    const userMessage = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(userMessage).toContain("Paris, France");
+    expect(userMessage).toContain("2026-06");
+    // Should not contain the system instructions that are now in the system prompt
+    expect(userMessage).not.toContain("You are a travel expert");
+  });
+
+  it("user message for guide contains destination and language, not system instructions", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    const userMessage = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(userMessage).toContain("Paris, France");
+    expect(userMessage).toContain("English");
+    // Should not contain the system instructions
+    expect(userMessage).not.toContain("You are a travel expert");
+  });
+});

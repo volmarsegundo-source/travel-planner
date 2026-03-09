@@ -6,6 +6,11 @@ import { CacheKeys } from "@/server/cache/keys";
 import { CACHE_TTL } from "@/lib/constants";
 import { logger } from "@/lib/logger";
 import { AppError } from "@/lib/errors";
+import {
+  PLAN_SYSTEM_PROMPT,
+  CHECKLIST_SYSTEM_PROMPT,
+  GUIDE_SYSTEM_PROMPT,
+} from "@/lib/prompts/system-prompts";
 import { ClaudeProvider } from "./providers/claude.provider";
 import type { AiProvider } from "./ai-provider.interface";
 import type {
@@ -225,7 +230,7 @@ export class AiService {
     // Dynamic token budget based on trip duration
     const tokenBudget = calculatePlanTokenBudget(days);
 
-    // Build prompt
+    // Build user message with only dynamic/variable content
     const notesSection = travelNotes
       ? `\nAdditional traveler notes: ${travelNotes}\n`
       : "";
@@ -258,50 +263,17 @@ export class AiService {
       }
     }
 
-    const prompt = `You are a professional travel planner. Create a day-by-day itinerary as a single valid JSON object.
-
-Trip details:
+    const userMessage = `Trip details:
 - Destination: ${destination}
 - Dates: ${startDate} to ${endDate} (${days} days)
 - Travel style: ${travelStyle}
 - Budget: ${budgetTotal} ${budgetCurrency}
 - Travelers: ${travelers} person(s)
 - Language: ${language}
-${notesSection}${expeditionSection}
-IMPORTANT CONSTRAINTS:
-- Your max_tokens budget is ${tokenBudget}. You MUST fit the entire JSON within this limit.
-- Keep each activity description to 1 short sentence (max 15 words).
-- Plan 3-5 activities per day. For trips longer than 10 days, plan 3 activities per day.
-- Keep tips to 3-5 items max, each under 15 words.
-- Do NOT include markdown, code fences, or any text outside the JSON.
+- Token budget: ${tokenBudget} (fit entire JSON within this limit)
+${notesSection}${expeditionSection}`;
 
-Respond ONLY with this JSON structure:
-{
-  "destination": "string",
-  "totalDays": number,
-  "estimatedBudgetUsed": number,
-  "currency": "string",
-  "days": [
-    {
-      "dayNumber": number,
-      "date": "YYYY-MM-DD",
-      "theme": "string (max 5 words)",
-      "activities": [
-        {
-          "title": "string (max 8 words)",
-          "description": "string (max 15 words)",
-          "startTime": "HH:MM",
-          "endTime": "HH:MM",
-          "estimatedCost": number,
-          "activityType": "SIGHTSEEING|FOOD|TRANSPORT|ACCOMMODATION|LEISURE|SHOPPING"
-        }
-      ]
-    }
-  ],
-  "tips": ["string (max 15 words each)"]
-}`;
-
-    const plan = await this.callProviderForPlan(prompt, tokenBudget, userId);
+    const plan = await this.callProviderForPlan(userMessage, tokenBudget, userId);
 
     // Cache result (non-blocking if Redis is down)
     try {
@@ -319,7 +291,7 @@ Respond ONLY with this JSON structure:
    * Retries once with doubled token budget if the response is truncated.
    */
   private static async callProviderForPlan(
-    prompt: string,
+    userMessage: string,
     tokenBudget: number,
     userId: string,
   ): Promise<ItineraryPlan> {
@@ -331,7 +303,12 @@ Respond ONLY with this JSON structure:
         ? tokenBudget
         : Math.min(tokenBudget * 2, MAX_PLAN_TOKENS);
 
-      const response = await provider.generateResponse(prompt, currentBudget, "plan");
+      const response = await provider.generateResponse(
+        userMessage,
+        currentBudget,
+        "plan",
+        { systemPrompt: PLAN_SYSTEM_PROMPT },
+      );
 
       if (response.wasTruncated) {
         logger.warn("ai.plan.truncated", {
@@ -397,25 +374,16 @@ Respond ONLY with this JSON structure:
       return JSON.parse(cached) as ChecklistResult;
     }
 
-    const prompt = `You are a travel expert. Create a practical pre-trip checklist.
-
-Trip: ${destination}, ${month}, ${travelers} traveler(s)
-Language: ${language}
-
-Respond ONLY with valid JSON:
-{
-  "categories": [
-    {
-      "category": "DOCUMENTS|HEALTH|CURRENCY|WEATHER|TECHNOLOGY",
-      "items": [
-        { "label": "string", "priority": "HIGH|MEDIUM|LOW" }
-      ]
-    }
-  ]
-}`;
+    const userMessage = `Trip: ${destination}, ${month}, ${travelers} traveler(s)
+Language: ${language}`;
 
     const provider = getProvider();
-    const response = await provider.generateResponse(prompt, MAX_TOKENS_CHECKLIST, "checklist");
+    const response = await provider.generateResponse(
+      userMessage,
+      MAX_TOKENS_CHECKLIST,
+      "checklist",
+      { systemPrompt: CHECKLIST_SYSTEM_PROMPT },
+    );
 
     // Parse and validate
     let rawJson: unknown;
@@ -473,25 +441,16 @@ Respond ONLY with valid JSON:
 
     const lang = language === "pt-BR" ? "Brazilian Portuguese" : "English";
 
-    const prompt = `You are a travel expert. Create a practical pocket guide for a traveler visiting ${destination}.
-
-Respond in ${lang}. Respond ONLY with valid JSON (no markdown, no code fences).
-
-The JSON must have exactly 6 sections: timezone, currency, language, electricity, connectivity, cultural_tips.
-
-Each section has: title (short label), icon (single emoji), summary (1-2 sentences), tips (array of 1-3 practical tips, each under 20 words).
-
-{
-  "timezone": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "currency": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "language": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "electricity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "connectivity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "cultural_tips": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] }
-}`;
+    const userMessage = `Destination: ${destination}
+Respond in: ${lang}`;
 
     const provider = getProvider();
-    const response = await provider.generateResponse(prompt, MAX_TOKENS_GUIDE, "guide");
+    const response = await provider.generateResponse(
+      userMessage,
+      MAX_TOKENS_GUIDE,
+      "guide",
+      { systemPrompt: GUIDE_SYSTEM_PROMPT },
+    );
 
     let rawJson: unknown;
     try {

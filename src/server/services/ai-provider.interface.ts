@@ -23,6 +23,14 @@ export interface AiProviderResponse {
   cacheCreationInputTokens?: number;
 }
 
+export interface AiProviderOptions {
+  /**
+   * Optional system prompt with stable instructions (role, format, constraints).
+   * Providers that support prompt caching should mark this with cache_control.
+   */
+  systemPrompt?: string;
+}
+
 export interface AiProvider {
   /** Provider identifier, e.g. "claude" or "gemini". */
   readonly name: string;
@@ -31,10 +39,16 @@ export interface AiProvider {
    * Sends a prompt and returns the raw text response.
    * The provider handles model selection, timeouts, and SDK-specific errors,
    * mapping them to AppError before re-throwing.
+   *
+   * @param prompt - User message with dynamic/variable content
+   * @param maxTokens - Maximum tokens for the response
+   * @param model - Model selection hint
+   * @param options - Optional parameters including systemPrompt
    */
   generateResponse(
     prompt: string,
     maxTokens: number,
     model: ModelType,
+    options?: AiProviderOptions,
   ): Promise<AiProviderResponse>;
 }
