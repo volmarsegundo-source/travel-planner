@@ -92,6 +92,29 @@ export async function completePhase2Action(
       session.user.id,
       parsed.data
     );
+
+    // Persist preference fields to UserProfile (like Phase 1 does for profile fields)
+    const profileFields: Record<string, string | undefined> = {};
+    if (parsed.data.dietaryRestrictions) {
+      profileFields.dietaryRestrictions = parsed.data.dietaryRestrictions;
+    }
+    if (parsed.data.accessibility) {
+      profileFields.accessibility = parsed.data.accessibility;
+    }
+    if (Object.keys(profileFields).length > 0) {
+      try {
+        await ProfileService.saveAndAwardProfileFields(
+          session.user.id,
+          profileFields
+        );
+        await ProfileService.recalculateCompletionScore(session.user.id);
+      } catch (profileError) {
+        logger.error("expedition.phase2.profileFields.error", profileError, {
+          userId: session.user.id,
+        });
+      }
+    }
+
     revalidatePath("/dashboard");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
