@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.10.0] - 2026-03-09
+
+### Added
+- System prompts dedicados para cada tipo de chamada AI (plan, checklist, guide) com `cache_control` para prompt caching via Anthropic API — reduz custo de tokens repetidos (T-S16-002)
+- PII masker para conformidade LGPD — detecta e mascara CPF, email, telefone, e nomes proprios antes de enviar texto para provedores AI (T-S16-005)
+- Logging estruturado de uso de tokens (input, output, cache read/write) em todas as chamadas AI — visibilidade de custo por requisicao (T-S16-003)
+- Testes de integracao para fluxo completo de sanitizacao: injection guard + PII masker + system prompts + token logging (T-S16-008)
+- Agente `prompt-engineer` (#13) adicionado ao time de agentes do projeto
+- Botoes de acesso rapido "Checklist" e "Itinerario" no card de expedicao do dashboard (MELHORIA-2)
+- Auto-score na Phase 5 (guia de destino) com disclaimer de IA (MELHORIA-1)
+- Documentacao: auditoria de prompt engineering, backlog de otimizacao, plano de tarefas Sprint 16
+
+### Changed
+- Tipo `model` na interface `AiProvider` expandido de `string` para union type `plan | checklist | guide` — tipagem mais estrita para chamadas AI (T-S16-001)
+- Injection guard melhorado: padroes pt-BR, normalizacao NFKD para caracteres Unicode, regex refinada para deteccao de instrucoes `system:` (T-S16-004)
+- Injection guard e PII masker integrados em todas as server actions de AI (plan, checklist, guide, travel notes) — sanitizacao automatica antes de cada chamada (T-S16-006)
+- `MIN_PLAN_TOKENS` reduzido de 4096 para 2048 — permite respostas mais curtas sem erro de validacao (T-S16-007)
+- `ClaudeProvider` refatorado para suportar system prompts com blocos de cache e logging de token usage
+
+### Fixed
+- Timeout silencioso na geracao de itinerario AI — adicionado tratamento explicito de erro e feedback ao usuario (BUG-B)
+- Preferencias alimentares e de acessibilidade nao persistidas no UserProfile durante Phase 2 da expedicao (BUG-C)
+
+### Security
+- Sanitizacao de destino na action `generatePlan` contra injecao de prompt via input do usuario (SEC-S16-008)
+- Mascaramento de PII em logs de chamadas AI — dados sensiveis nao sao mais registrados em texto claro (SEC-S16-002)
+
+---
+
 ## [0.9.0] - 2026-03-06
 
 ### Added
@@ -275,6 +304,7 @@ npm run dev
 
 ---
 
+[0.10.0]: https://github.com/your-org/travel-planner/releases/tag/v0.10.0
 [0.9.0]: https://github.com/your-org/travel-planner/releases/tag/v0.9.0
 [0.8.0]: https://github.com/your-org/travel-planner/releases/tag/v0.8.0
 [0.7.0]: https://github.com/your-org/travel-planner/releases/tag/v0.7.0
