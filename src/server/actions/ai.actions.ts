@@ -11,6 +11,7 @@ import { AppError, UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { hashUserId } from "@/lib/hash";
 import { canUseAI } from "@/lib/guards/age-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
@@ -217,7 +218,7 @@ export async function generateTravelPlanAction(
     return { success: true, data: plan };
   } catch (error) {
     logger.error("ai.generateTravelPlanAction.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -293,7 +294,7 @@ export async function generateChecklistAction(
     return { success: true, data: result };
   } catch (error) {
     logger.error("ai.generateChecklistAction.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

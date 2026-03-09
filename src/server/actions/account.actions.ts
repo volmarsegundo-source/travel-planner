@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { UnauthorizedError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { hashUserId as hashForLog } from "@/lib/hash";
 import { mapErrorToKey } from "@/lib/action-utils";
 import {
   UpdateUserProfileSchema,
@@ -79,14 +80,14 @@ export async function updateUserProfileAction(
       },
     });
 
-    logger.info("account.profileUpdated", { userId: session.user.id });
+    logger.info("account.profileUpdated", { userId: hashForLog(session.user.id) });
 
     revalidatePath("/account");
 
     return { success: true, data: updatedUser };
   } catch (error) {
     logger.error("account.updateProfile.error", error, {
-      userId: session.user.id,
+      userId: hashForLog(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -182,7 +183,7 @@ export async function deleteUserAccountAction(
     return { success: true };
   } catch (error) {
     logger.error("account.deleteAccount.error", error, {
-      userId: session.user.id,
+      userId: hashForLog(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

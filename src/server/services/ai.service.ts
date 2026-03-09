@@ -5,7 +5,9 @@ import { redis } from "@/server/cache/redis";
 import { CacheKeys } from "@/server/cache/keys";
 import { CACHE_TTL } from "@/lib/constants";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
+import { calculateEstimatedCost } from "@/lib/cost-calculator";
 import {
   travelPlanPrompt,
   checklistPrompt,
@@ -193,11 +195,20 @@ function getProvider(): AiProvider {
   return new ClaudeProvider();
 }
 
+// ─── Model ID resolution for cost tracking ───────────────────────────────────
+
+const MODEL_ID_MAP: Record<ModelType, string> = {
+  plan: "claude-sonnet-4-6",
+  checklist: "claude-haiku-4-5-20251001",
+  guide: "claude-haiku-4-5-20251001",
+};
+
 // ─── Token usage logging ──────────────────────────────────────────────────────
 
 /**
  * Logs structured token usage data after each AI call.
  * Enables FinOps monitoring and cost tracking without PII exposure.
+ * Includes estimated cost in USD for FinOps dashboards.
  */
 function logTokenUsage(
   response: AiProviderResponse,
@@ -207,14 +218,30 @@ function logTokenUsage(
     provider: string;
   },
 ): void {
+  const inputTokens = response.inputTokens ?? 0;
+  const outputTokens = response.outputTokens ?? 0;
+  const cacheReadTokens = response.cacheReadInputTokens ?? 0;
+  const cacheWriteTokens = response.cacheCreationInputTokens ?? 0;
+
+  const modelId = MODEL_ID_MAP[params.generationType];
+  const cost = calculateEstimatedCost(
+    modelId,
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+  );
+
   logger.info("ai.tokens.usage", {
-    userId: params.userId,
+    userId: hashUserId(params.userId),
     generationType: params.generationType,
     model: params.provider,
-    inputTokens: response.inputTokens ?? 0,
-    outputTokens: response.outputTokens ?? 0,
-    cacheReadTokens: response.cacheReadInputTokens ?? 0,
-    cacheWriteTokens: response.cacheCreationInputTokens ?? 0,
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+    estimatedCostUSD: cost.totalCost,
+    costBreakdown: cost,
   });
 }
 
@@ -230,6 +257,7 @@ export class AiService {
     params: GeneratePlanParams
   ): Promise<ItineraryPlan> {
     const { userId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext } = params;
+    const hid = hashUserId(userId);
 
     // Bucket budget to nearest 500 for better cache reuse
     const budgetRange = Math.floor(budgetTotal / 500) * 500;
@@ -245,10 +273,10 @@ export class AiService {
     try {
       cached = await redis.get(cacheKey);
     } catch (err) {
-      logger.warn("ai.plan.cache.error", { userId, error: String(err) });
+      logger.warn("ai.plan.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.plan.cache.hit", { userId });
+      logger.info("ai.plan.cache.hit", { userId: hid });
       return JSON.parse(cached) as ItineraryPlan;
     }
 
@@ -277,10 +305,10 @@ export class AiService {
     try {
       await redis.set(cacheKey, JSON.stringify(plan), "EX", CACHE_TTL.AI_PLAN);
     } catch {
-      logger.warn("ai.plan.cache.set.error", { userId });
+      logger.warn("ai.plan.cache.set.error", { userId: hid });
     }
 
-    logger.info("ai.plan.generated", { userId, destination });
+    logger.info("ai.plan.generated", { userId: hid, destination });
     return plan;
   }
 
@@ -294,6 +322,7 @@ export class AiService {
     userId: string,
   ): Promise<ItineraryPlan> {
     const provider = getProvider();
+    const hid = hashUserId(userId);
     const maxAttempts = 2;
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -312,7 +341,7 @@ export class AiService {
 
       if (response.wasTruncated) {
         logger.warn("ai.plan.truncated", {
-          userId,
+          userId: hid,
           attempt,
           responseLength: response.text.length,
           maxTokens: currentBudget,
@@ -321,7 +350,7 @@ export class AiService {
 
       // If truncated on first attempt and we can retry with more tokens, do so
       if (response.wasTruncated && attempt < maxAttempts && currentBudget < MAX_PLAN_TOKENS) {
-        logger.info("ai.plan.retry", { userId, nextBudget: Math.min(tokenBudget * 2, MAX_PLAN_TOKENS) });
+        logger.info("ai.plan.retry", { userId: hid, nextBudget: Math.min(tokenBudget * 2, MAX_PLAN_TOKENS) });
         continue;
       }
 
@@ -330,13 +359,13 @@ export class AiService {
       try {
         rawJson = extractJsonFromResponse(response.text);
       } catch (error) {
-        logger.error("ai.plan.parse.error", error, { userId, attempt });
+        logger.error("ai.plan.parse.error", error, { userId: hid, attempt });
         throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
       }
 
       const parsed = ItineraryPlanSchema.safeParse(rawJson);
       if (!parsed.success) {
-        logger.error("ai.plan.schema.error", parsed.error, { userId, attempt });
+        logger.error("ai.plan.schema.error", parsed.error, { userId: hid, attempt });
         throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
       }
 
@@ -356,6 +385,7 @@ export class AiService {
     params: GenerateChecklistParams
   ): Promise<ChecklistResult> {
     const { userId, destination, startDate, travelers, language } = params;
+    const hid = hashUserId(userId);
 
     const month = getMonthFromDate(startDate);
     const cacheInput = `${destination}:${month}:${travelers}:${language}`;
@@ -367,10 +397,10 @@ export class AiService {
     try {
       cached = await redis.get(cacheKey);
     } catch (err) {
-      logger.warn("ai.checklist.cache.error", { userId, error: String(err) });
+      logger.warn("ai.checklist.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.checklist.cache.hit", { userId });
+      logger.info("ai.checklist.cache.hit", { userId: hid });
       return JSON.parse(cached) as ChecklistResult;
     }
 
@@ -396,13 +426,13 @@ export class AiService {
     try {
       rawJson = extractJsonFromResponse(response.text);
     } catch (error) {
-      logger.error("ai.checklist.parse.error", error, { userId });
+      logger.error("ai.checklist.parse.error", error, { userId: hid });
       throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
     }
 
     const parsed = ChecklistResultSchema.safeParse(rawJson);
     if (!parsed.success) {
-      logger.error("ai.checklist.schema.error", parsed.error, { userId });
+      logger.error("ai.checklist.schema.error", parsed.error, { userId: hid });
       throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
@@ -412,10 +442,10 @@ export class AiService {
     try {
       await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
     } catch {
-      logger.warn("ai.checklist.cache.set.error", { userId });
+      logger.warn("ai.checklist.cache.set.error", { userId: hid });
     }
 
-    logger.info("ai.checklist.generated", { userId });
+    logger.info("ai.checklist.generated", { userId: hid });
     return result;
   }
 
@@ -428,6 +458,7 @@ export class AiService {
     params: GenerateGuideParams
   ): Promise<DestinationGuideContent> {
     const { userId, destination, language } = params;
+    const hid = hashUserId(userId);
 
     const cacheInput = `${destination}:${language}`;
     const cacheHash = md5(cacheInput);
@@ -438,10 +469,10 @@ export class AiService {
     try {
       cached = await redis.get(cacheKey);
     } catch (err) {
-      logger.warn("ai.guide.cache.error", { userId, error: String(err) });
+      logger.warn("ai.guide.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.guide.cache.hit", { userId });
+      logger.info("ai.guide.cache.hit", { userId: hid });
       return JSON.parse(cached) as DestinationGuideContent;
     }
 
@@ -464,13 +495,13 @@ export class AiService {
     try {
       rawJson = extractJsonFromResponse(response.text);
     } catch (error) {
-      logger.error("ai.guide.parse.error", error, { userId });
+      logger.error("ai.guide.parse.error", error, { userId: hid });
       throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
     }
 
     const parsed = DestinationGuideContentSchema.safeParse(rawJson);
     if (!parsed.success) {
-      logger.error("ai.guide.schema.error", parsed.error, { userId });
+      logger.error("ai.guide.schema.error", parsed.error, { userId: hid });
       throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
@@ -480,10 +511,10 @@ export class AiService {
     try {
       await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
     } catch {
-      logger.warn("ai.guide.cache.set.error", { userId });
+      logger.warn("ai.guide.cache.set.error", { userId: hid });
     }
 
-    logger.info("ai.guide.generated", { userId, destination });
+    logger.info("ai.guide.generated", { userId: hid, destination });
     return result;
   }
 }

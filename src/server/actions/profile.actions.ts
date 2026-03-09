@@ -8,6 +8,7 @@ import { PROFILE_FIELD_POINTS } from "@/types/gamification.types";
 import { encrypt, decrypt } from "@/lib/crypto";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { hashUserId } from "@/lib/hash";
 import type { ActionResult } from "@/types/trip.types";
 
 // Fields stored encrypted in the database
@@ -114,7 +115,7 @@ export async function getProfileAction(): Promise<ActionResult<ProfileData>> {
     };
   } catch (error) {
     logger.error("profile.getProfile.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -196,7 +197,7 @@ export async function updateProfileFieldAction(
     }
 
     logger.info("profile.fieldUpdated", {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       fieldKey,
       pointsAwarded: points,
     });
@@ -204,7 +205,7 @@ export async function updateProfileFieldAction(
     return { success: true, data: { pointsAwarded: points } };
   } catch (error) {
     logger.error("profile.updateField.error", error, {
-      userId: session.user.id,
+      userId: hashUserId(session.user.id),
       fieldKey,
     });
     return { success: false, error: mapErrorToKey(error) };
