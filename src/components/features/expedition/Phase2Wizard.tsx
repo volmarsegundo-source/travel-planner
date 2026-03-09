@@ -443,6 +443,18 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                       {budget.toLocaleString()} {currency}
                     </dd>
                   </div>
+                  {dietaryRestrictions && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t("step5.dietaryRestrictions")}</dt>
+                      <dd className="font-medium">{dietaryRestrictions}</dd>
+                    </div>
+                  )}
+                  {accessibility && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t("step5.accessibility")}</dt>
+                      <dd className="font-medium">{accessibility}</dd>
+                    </div>
+                  )}
                 </dl>
               </div>
               <div className="flex gap-3">

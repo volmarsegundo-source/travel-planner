@@ -409,6 +409,8 @@
         "flexibleDates": "Flexible dates",
         "yes": "Yes",
         "no": "No",
+        "profileSummary": "Your profile info",
+        "location": "Location",
         "cta": "Start Expedition"
       },
       "tripType": {
@@ -484,6 +486,8 @@
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
+        "dietaryRestrictions": "Dietary restrictions",
+        "accessibility": "Accessibility needs",
         "cta": "Complete & Earn Points"
       },
       "errors": {

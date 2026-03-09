@@ -390,6 +390,35 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                     </dd>
                   </div>
                 </dl>
+                {(birthDate || phone || country || city) && (
+                  <>
+                    <h3 className="mb-3 mt-4 text-sm font-medium text-muted-foreground">
+                      {t("step4.profileSummary")}
+                    </h3>
+                    <dl className="space-y-2 text-sm">
+                      {birthDate && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step3.birthDate")}</dt>
+                          <dd className="font-medium">{birthDate}</dd>
+                        </div>
+                      )}
+                      {phone && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step3.phone")}</dt>
+                          <dd className="font-medium">{phone}</dd>
+                        </div>
+                      )}
+                      {(country || city) && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step4.location")}</dt>
+                          <dd className="font-medium">
+                            {[city, country].filter(Boolean).join(", ")}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
+                  </>
+                )}
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => goToStep(3)} className="flex-1">
