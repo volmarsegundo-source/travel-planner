@@ -5,6 +5,7 @@
   "scripts": {
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next dev --turbopack",
+    "prebuild": "prisma generate",
     "build": "cross-env NODE_OPTIONS=--max-old-space-size=3072 next build",
     "start": "next start",
     "lint": "next lint",
