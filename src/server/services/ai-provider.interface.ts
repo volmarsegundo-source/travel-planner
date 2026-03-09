@@ -6,11 +6,29 @@
  * while AiService orchestrates prompts, caching, and validation.
  */
 
+/**
+ * Model selection hint passed to the provider.
+ * - "plan": full itinerary generation (heavier model, e.g. Sonnet)
+ * - "checklist": pre-trip checklist (lighter model, e.g. Haiku)
+ * - "guide": destination pocket guide (lighter model, e.g. Haiku)
+ */
+export type ModelType = "plan" | "checklist" | "guide";
+
 export interface AiProviderResponse {
   text: string;
   wasTruncated: boolean;
   inputTokens?: number;
   outputTokens?: number;
+  cacheReadInputTokens?: number;
+  cacheCreationInputTokens?: number;
+}
+
+export interface AiProviderOptions {
+  /**
+   * Optional system prompt with stable instructions (role, format, constraints).
+   * Providers that support prompt caching should mark this with cache_control.
+   */
+  systemPrompt?: string;
 }
 
 export interface AiProvider {
@@ -21,10 +39,16 @@ export interface AiProvider {
    * Sends a prompt and returns the raw text response.
    * The provider handles model selection, timeouts, and SDK-specific errors,
    * mapping them to AppError before re-throwing.
+   *
+   * @param prompt - User message with dynamic/variable content
+   * @param maxTokens - Maximum tokens for the response
+   * @param model - Model selection hint
+   * @param options - Optional parameters including systemPrompt
    */
   generateResponse(
     prompt: string,
     maxTokens: number,
-    model: "plan" | "checklist",
+    model: ModelType,
+    options?: AiProviderOptions,
   ): Promise<AiProviderResponse>;
 }

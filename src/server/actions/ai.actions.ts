@@ -1,14 +1,20 @@
 "use server";
 import "server-only";
+
+// Allow AI generation actions up to 120s (Anthropic SDK timeout is 90s)
+export const maxDuration = 120;
+
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { AiService } from "@/server/services/ai.service";
-import { UnauthorizedError } from "@/lib/errors";
+import { AppError, UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { canUseAI } from "@/lib/guards/age-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
+import { maskPII } from "@/lib/prompts/pii-masker";
 import type { ActionResult } from "@/types/trip.types";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -113,13 +119,39 @@ export async function generateTravelPlanAction(
     return { success: false, error: "errors.aiAgeRestricted" };
   }
 
-  // Sanitize travelNotes: trim and truncate to 500 chars
+  // Sanitize destination: injection guard + PII masking
+  let sanitizedDestination: string;
+  try {
+    const sanitized = sanitizeForPrompt(params.destination, "destination", 200);
+    const { masked } = maskPII(sanitized, "destination");
+    sanitizedDestination = masked;
+  } catch (error) {
+    if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+      return { success: false, error: "errors.invalidInput" };
+    }
+    throw error;
+  }
+
+  // Sanitize travelNotes: injection guard + PII masking + truncation
+  let sanitizedTravelNotes: string | undefined;
+  if (params.travelNotes) {
+    try {
+      const sanitized = sanitizeForPrompt(params.travelNotes, "travelNotes", 500);
+      const { masked } = maskPII(sanitized, "travelNotes");
+      sanitizedTravelNotes = masked;
+    } catch (error) {
+      if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+        return { success: false, error: "errors.invalidInput" };
+      }
+      throw error;
+    }
+  }
+
   const sanitizedParams: GeneratePlanParams = {
     ...params,
     userId: session.user.id,
-    travelNotes: params.travelNotes
-      ? params.travelNotes.trim().slice(0, 500)
-      : undefined,
+    destination: sanitizedDestination,
+    travelNotes: sanitizedTravelNotes,
   };
 
   try {
@@ -197,9 +229,23 @@ export async function generateChecklistAction(
     return { success: false, error: "errors.aiAgeRestricted" };
   }
 
+  // Sanitize destination: injection guard + PII masking
+  let sanitizedDestination: string;
+  try {
+    const sanitized = sanitizeForPrompt(params.destination, "destination", 200);
+    const { masked } = maskPII(sanitized, "destination");
+    sanitizedDestination = masked;
+  } catch (error) {
+    if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+      return { success: false, error: "errors.invalidInput" };
+    }
+    throw error;
+  }
+
   try {
     const result = await AiService.generateChecklist({
       ...params,
+      destination: sanitizedDestination,
       userId: session.user.id,
     });
     await persistChecklist(tripId, result);

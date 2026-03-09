@@ -2,12 +2,14 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
-import type { AiProvider, AiProviderResponse } from "../ai-provider.interface";
+import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } from "../ai-provider.interface";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const PLAN_MODEL = "claude-sonnet-4-6";
 const CHECKLIST_MODEL = "claude-haiku-4-5-20251001";
+/** Guide uses Haiku — intentional cost optimization. Factual structured output does not require Sonnet. */
+const GUIDE_MODEL = "claude-haiku-4-5-20251001";
 const CLAUDE_TIMEOUT_MS = 90_000;
 
 // ─── Anthropic singleton (lazy) ───────────────────────────────────────────────
@@ -30,17 +32,35 @@ export class ClaudeProvider implements AiProvider {
   async generateResponse(
     prompt: string,
     maxTokens: number,
-    model: "plan" | "checklist",
+    model: ModelType,
+    options?: AiProviderOptions,
   ): Promise<AiProviderResponse> {
-    const modelId = model === "plan" ? PLAN_MODEL : CHECKLIST_MODEL;
+    const modelId = this.resolveModel(model);
 
     try {
+      // Build system parameter with cache_control for Anthropic prompt caching
+      const system = options?.systemPrompt
+        ? [
+            {
+              type: "text" as const,
+              text: options.systemPrompt,
+              cache_control: { type: "ephemeral" as const },
+            },
+          ]
+        : undefined;
+
+      const createParams: Record<string, unknown> = {
+        model: modelId,
+        max_tokens: maxTokens,
+        messages: [{ role: "user", content: prompt }],
+      };
+
+      if (system) {
+        createParams.system = system;
+      }
+
       const message = await getAnthropic().messages.create(
-        {
-          model: modelId,
-          max_tokens: maxTokens,
-          messages: [{ role: "user", content: prompt }],
-        },
+        createParams as unknown as Anthropic.MessageCreateParamsNonStreaming,
         { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) },
       );
 
@@ -49,11 +69,14 @@ export class ClaudeProvider implements AiProvider {
         throw new Error("Unexpected Claude response structure");
       }
 
+      const usage = message.usage as unknown as Record<string, number | undefined>;
       return {
         text: content.text,
         wasTruncated: message.stop_reason === "max_tokens",
-        inputTokens: message.usage?.input_tokens,
-        outputTokens: message.usage?.output_tokens,
+        inputTokens: usage.input_tokens,
+        outputTokens: usage.output_tokens,
+        cacheReadInputTokens: usage.cache_read_input_tokens,
+        cacheCreationInputTokens: usage.cache_creation_input_tokens,
       };
     } catch (error) {
       if (error instanceof AppError) throw error;
@@ -70,6 +93,23 @@ export class ClaudeProvider implements AiProvider {
         throw new AppError("AI_RATE_LIMIT", "errors.rateLimitExceeded", 429);
       }
       throw new AppError("AI_TIMEOUT", "errors.timeout", 504);
+    }
+  }
+
+  /**
+   * Maps a ModelType hint to the concrete Anthropic model ID.
+   * - "plan" -> Sonnet (complex reasoning for itineraries)
+   * - "checklist" -> Haiku (simple structured extraction)
+   * - "guide" -> Haiku (factual structured output, cost-optimized)
+   */
+  private resolveModel(model: ModelType): string {
+    switch (model) {
+      case "plan":
+        return PLAN_MODEL;
+      case "checklist":
+        return CHECKLIST_MODEL;
+      case "guide":
+        return GUIDE_MODEL;
     }
   }
 }

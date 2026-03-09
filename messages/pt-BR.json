@@ -312,7 +312,9 @@
       "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
       "ariaLabel": "Progresso do checklist: {done} de {total} itens obrigatórios completos"
     },
-    "itineraryGenerated": "Roteiro gerado"
+    "itineraryGenerated": "Roteiro gerado",
+    "viewChecklist": "Checklist",
+    "viewItinerary": "Roteiro"
   },
   "profile": {
     "title": "Perfil do Explorador",
@@ -568,6 +570,7 @@
       "regenerateCta": "Atualizar guia ({remaining} restantes)",
       "completeCta": "Completar Fase e Ganhar Pontos",
       "viewAllSectionsHint": "Leia todas as seções para completar esta fase ({viewed}/{total})",
+      "aiDisclaimer": "Este guia foi gerado por Inteligência Artificial e requer revisão humana.",
       "sections": {
         "timezone": "Fuso Horário",
         "currency": "Moeda",

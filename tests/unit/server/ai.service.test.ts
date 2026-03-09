@@ -52,6 +52,7 @@ vi.mock("@/lib/logger", () => ({
 
 import { AiService } from "@/server/services/ai.service";
 import { AppError } from "@/lib/errors";
+import { logger } from "@/lib/logger";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -465,5 +466,340 @@ describe("AiService.generateChecklist", () => {
     await expect(
       AiService.generateChecklist(BASE_CHECKLIST_PARAMS)
     ).rejects.toBeInstanceOf(AppError);
+  });
+});
+
+// ─── Destination Guide Tests ────────────────────────────────────────────────
+
+const VALID_GUIDE_RESPONSE = {
+  timezone: { title: "Timezone", icon: "clock", summary: "CET (UTC+1)", tips: ["Adjust your clock on arrival"] },
+  currency: { title: "Currency", icon: "euro", summary: "Euro (EUR)", tips: ["Cards widely accepted"] },
+  language: { title: "Language", icon: "speech", summary: "French", tips: ["Learn basic greetings"] },
+  electricity: { title: "Electricity", icon: "plug", summary: "Type C/E, 230V", tips: ["Bring an adapter"] },
+  connectivity: { title: "Connectivity", icon: "wifi", summary: "Good 4G coverage", tips: ["Get a local SIM"] },
+  cultural_tips: { title: "Culture", icon: "star", summary: "Rich history", tips: ["Greet with bonjour"] },
+};
+
+const BASE_GUIDE_PARAMS = {
+  userId: "user-1",
+  destination: "Paris, France",
+  language: "en" as const,
+};
+
+describe("AiService.generateDestinationGuide", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes 'guide' as model type to the provider (not 'checklist')", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    expect(mocks.generateResponse).toHaveBeenCalledOnce();
+    const modelArg = (mocks.generateResponse.mock.calls[0] as unknown[])[2] as string;
+    expect(modelArg).toBe("guide");
+  });
+
+  it("returns cached guide on cache hit without calling the provider", async () => {
+    mocks.redisGet.mockResolvedValue(JSON.stringify(VALID_GUIDE_RESPONSE));
+
+    const result = await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    expect(result.timezone.title).toBe("Timezone");
+    expect(mocks.generateResponse).not.toHaveBeenCalled();
+  });
+
+  it("calls AI provider on cache miss and caches the result", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    const result = await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    expect(result.currency.summary).toBe("Euro (EUR)");
+    expect(mocks.generateResponse).toHaveBeenCalledOnce();
+    expect(mocks.redisSet).toHaveBeenCalledOnce();
+  });
+
+  it("throws AppError when guide response fails Zod validation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    const badResponse = { timezone: { title: "TZ" } }; // incomplete
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(badResponse))
+    );
+
+    await expect(
+      AiService.generateDestinationGuide(BASE_GUIDE_PARAMS)
+    ).rejects.toBeInstanceOf(AppError);
+  });
+
+  it("throws AppError when provider returns malformed JSON for guide", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse("not json at all")
+    );
+
+    await expect(
+      AiService.generateDestinationGuide(BASE_GUIDE_PARAMS)
+    ).rejects.toBeInstanceOf(AppError);
+  });
+});
+
+// ─── System Prompt Tests ────────────────────────────────────────────────────
+
+describe("System prompt passing", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("passes system prompt to provider for plan generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
+    expect(options).toBeDefined();
+    expect(options.systemPrompt).toBeDefined();
+    expect(options.systemPrompt).toContain("professional travel planner");
+    expect(options.systemPrompt).toContain("JSON");
+  });
+
+  it("passes system prompt to provider for checklist generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
+
+    const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
+    expect(options).toBeDefined();
+    expect(options.systemPrompt).toBeDefined();
+    expect(options.systemPrompt).toContain("travel expert");
+    expect(options.systemPrompt).toContain("checklist");
+  });
+
+  it("passes system prompt to provider for guide generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
+    expect(options).toBeDefined();
+    expect(options.systemPrompt).toBeDefined();
+    expect(options.systemPrompt).toContain("pocket guide");
+    expect(options.systemPrompt).toContain("6 sections");
+  });
+
+  it("user message for plan contains trip details, not system instructions", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const userMessage = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    // User message should have dynamic data
+    expect(userMessage).toContain("Paris, France");
+    expect(userMessage).toContain("2026-06-01");
+    expect(userMessage).toContain("CULTURE");
+    // User message should NOT repeat the full system instructions
+    expect(userMessage).not.toContain("Respond ONLY with this JSON structure");
+  });
+
+  it("user message for checklist contains trip details, not system instructions", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_CHECKLIST_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
+
+    const userMessage = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(userMessage).toContain("Paris, France");
+    expect(userMessage).toContain("2026-06");
+    // Should not contain the system instructions that are now in the system prompt
+    expect(userMessage).not.toContain("You are a travel expert");
+  });
+
+  it("user message for guide contains destination and language, not system instructions", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_GUIDE_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    const userMessage = (mocks.generateResponse.mock.calls[0] as unknown[])[0] as string;
+    expect(userMessage).toContain("Paris, France");
+    expect(userMessage).toContain("English");
+    // Should not contain the system instructions
+    expect(userMessage).not.toContain("You are a travel expert");
+  });
+});
+
+// ─── Token Usage Logging Tests ──────────────────────────────────────────────
+
+describe("Token usage logging", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("logs token usage after plan generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue({
+      text: JSON.stringify(VALID_PLAN_RESPONSE),
+      wasTruncated: false,
+      inputTokens: 150,
+      outputTokens: 500,
+      cacheReadInputTokens: 50,
+      cacheCreationInputTokens: 100,
+    });
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const meta = tokenLogCall?.[1];
+    expect(meta).toMatchObject({
+      userId: "user-1",
+      generationType: "plan",
+      model: "claude",
+      inputTokens: 150,
+      outputTokens: 500,
+      cacheReadTokens: 50,
+      cacheWriteTokens: 100,
+    });
+  });
+
+  it("logs token usage after checklist generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue({
+      text: JSON.stringify(VALID_CHECKLIST_RESPONSE),
+      wasTruncated: false,
+      inputTokens: 80,
+      outputTokens: 300,
+    });
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateChecklist(BASE_CHECKLIST_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const meta = tokenLogCall?.[1];
+    expect(meta).toMatchObject({
+      userId: "user-1",
+      generationType: "checklist",
+      model: "claude",
+      inputTokens: 80,
+      outputTokens: 300,
+      cacheReadTokens: 0,
+      cacheWriteTokens: 0,
+    });
+  });
+
+  it("logs token usage after guide generation", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue({
+      text: JSON.stringify(VALID_GUIDE_RESPONSE),
+      wasTruncated: false,
+      inputTokens: 90,
+      outputTokens: 400,
+      cacheReadInputTokens: 30,
+    });
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const meta = tokenLogCall?.[1];
+    expect(meta).toMatchObject({
+      userId: "user-1",
+      generationType: "guide",
+      model: "claude",
+      inputTokens: 90,
+      outputTokens: 400,
+      cacheReadTokens: 30,
+      cacheWriteTokens: 0,
+    });
+  });
+
+  it("does not log token usage on cache hit", async () => {
+    mocks.redisGet.mockResolvedValue(JSON.stringify(VALID_PLAN_RESPONSE));
+
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeUndefined();
+  });
+
+  it("uses 2300 tokens for a 3-day trip (MIN_PLAN_TOKENS=2048)", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    // 3-day trip: 3*600 + 500 = 2300, which is above MIN_PLAN_TOKENS (2048)
+    await AiService.generateTravelPlan(BASE_PLAN_PARAMS);
+
+    const tokenBudget = (mocks.generateResponse.mock.calls[0] as unknown[])[1] as number;
+    expect(tokenBudget).toBe(2300);
+  });
+
+  it("does not include PII in token usage log", async () => {
+    mocks.redisGet.mockResolvedValue(null);
+    mocks.generateResponse.mockResolvedValue(
+      makeProviderResponse(JSON.stringify(VALID_PLAN_RESPONSE))
+    );
+    mocks.redisSet.mockResolvedValue("OK");
+
+    await AiService.generateTravelPlan({
+      ...BASE_PLAN_PARAMS,
+      travelNotes: "Contact me at john@example.com",
+    });
+
+    const loggerInfo = vi.mocked(logger.info);
+    const tokenLogCall = loggerInfo.mock.calls.find(
+      (call) => call[0] === "ai.tokens.usage"
+    );
+    expect(tokenLogCall).toBeDefined();
+    const metaStr = JSON.stringify(tokenLogCall?.[1]);
+    expect(metaStr).not.toContain("john@example.com");
+    expect(metaStr).not.toContain("Contact me");
   });
 });

@@ -2,7 +2,7 @@
 import "server-only";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { UnauthorizedError } from "@/lib/errors";
+import { AppError, UnauthorizedError } from "@/lib/errors";
 import { ExpeditionService } from "@/server/services/expedition.service";
 import { ProfileService } from "@/server/services/profile.service";
 import { PhaseEngine } from "@/lib/engines/phase-engine";
@@ -17,6 +17,8 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { AiService } from "@/server/services/ai.service";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
+import { maskPII } from "@/lib/prompts/pii-masker";
 
 // ─── createExpeditionAction ──────────────────────────────────────────────────
 
@@ -92,6 +94,29 @@ export async function completePhase2Action(
       session.user.id,
       parsed.data
     );
+
+    // Persist preference fields to UserProfile (like Phase 1 does for profile fields)
+    const profileFields: Record<string, string | undefined> = {};
+    if (parsed.data.dietaryRestrictions) {
+      profileFields.dietaryRestrictions = parsed.data.dietaryRestrictions;
+    }
+    if (parsed.data.accessibility) {
+      profileFields.accessibility = parsed.data.accessibility;
+    }
+    if (Object.keys(profileFields).length > 0) {
+      try {
+        await ProfileService.saveAndAwardProfileFields(
+          session.user.id,
+          profileFields
+        );
+        await ProfileService.recalculateCompletionScore(session.user.id);
+      } catch (profileError) {
+        logger.error("expedition.phase2.profileFields.error", profileError, {
+          userId: session.user.id,
+        });
+      }
+    }
+
     revalidatePath("/dashboard");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
@@ -235,6 +260,19 @@ export async function generateDestinationGuideAction(
       return { success: false, error: "errors.notFound" };
     }
 
+    // Sanitize destination: injection guard + PII masking
+    let sanitizedDestination: string;
+    try {
+      const sanitized = sanitizeForPrompt(trip.destination, "destination", 200);
+      const { masked } = maskPII(sanitized, "destination");
+      sanitizedDestination = masked;
+    } catch (error) {
+      if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+        return { success: false, error: "errors.invalidInput" };
+      }
+      throw error;
+    }
+
     // Check generation count
     const existing = await db.destinationGuide.findUnique({
       where: { tripId },
@@ -247,11 +285,16 @@ export async function generateDestinationGuideAction(
     // Generate guide via AI
     const content = await AiService.generateDestinationGuide({
       userId: session.user.id,
-      destination: trip.destination,
+      destination: sanitizedDestination,
       language: locale.startsWith("pt") ? "pt-BR" : "en",
     });
 
-    // Upsert guide
+    // All sections are auto-viewed on generation
+    const allSections: GuideSectionKey[] = [
+      "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+    ];
+
+    // Upsert guide with all sections marked as viewed
     const guide = await db.destinationGuide.upsert({
       where: { tripId },
       create: {
@@ -260,18 +303,18 @@ export async function generateDestinationGuideAction(
         destination: trip.destination,
         locale,
         generationCount: 1,
-        viewedSections: [],
+        viewedSections: allSections,
       },
       update: {
         content: JSON.parse(JSON.stringify(content)),
         locale,
         generationCount: (existing?.generationCount ?? 0) + 1,
-        viewedSections: [],
+        viewedSections: allSections,
         generatedAt: new Date(),
       },
     });
 
-    // Award 30 points for generating guide (only first time)
+    // Award points on first generation: 30 (guide) + 30 (6 sections × 5)
     if (!existing) {
       await PointsEngine.earnPoints(
         session.user.id,
@@ -280,6 +323,16 @@ export async function generateDestinationGuideAction(
         "Generated destination guide for phase 5",
         tripId
       );
+      // Auto-award section viewing points (5 per section × 6 sections = 30)
+      for (const section of allSections) {
+        await PointsEngine.earnPoints(
+          session.user.id,
+          5,
+          "phase_connectivity",
+          `Auto-viewed guide section: ${section}`,
+          tripId
+        );
+      }
     }
 
     revalidatePath(`/expedition/${tripId}`);

@@ -37,7 +37,7 @@ docs/
 
 ## 🤖 Agent Team
 
-This project uses a team of 12 specialized subagents.
+This project uses a team of 13 specialized subagents.
 Each agent has a defined role, specific tools, and clear boundaries.
 
 ### Team Overview
@@ -64,7 +64,8 @@ tech-lead                ← orchestrates execution (planning, review, quality g
     ├──▶ qa-engineer          ← owns quality, test strategy, and release sign-off
     ├──▶ dev-fullstack-1      ← implements features (full-stack)
     ├──▶ dev-fullstack-2      ← implements features in parallel (full-stack)
-    └──▶ finops-engineer      ← guards costs, optimizes AI spend, FinOps reporting
+    ├──▶ finops-engineer      ← guards costs, optimizes AI spend, FinOps reporting
+    └──▶ prompt-engineer      ← prompt design, token optimization, AI guardrails
 ```
 
 ### Agent Configuration Summary
@@ -83,6 +84,7 @@ tech-lead                ← orchestrates execution (planning, review, quality g
 | `dev-fullstack-1` | opus-4-6 | Read, Write, Edit, Bash, WebSearch, WebFetch | project | Full-stack implementation |
 | `dev-fullstack-2` | opus-4-6 | Read, Write, Edit, Bash, WebSearch, WebFetch | project | Full-stack implementation (parallel) |
 | `finops-engineer` | opus-4-6 | Read, Write, Bash, WebSearch, WebFetch | project | Cost monitoring, AI spend optimization, FinOps reporting |
+| `prompt-engineer` | sonnet-4-6 | Read, Write, WebSearch, WebFetch | project | Prompt design, token optimization, AI guardrails, cost monitoring |
 
 ### When to invoke each agent
 
@@ -114,6 +116,9 @@ tech-lead                ← orchestrates execution (planning, review, quality g
 | Monitor infra/AI costs, emit spending alerts | `finops-engineer` |
 | Audit cost impact of a new feature or ADR | `finops-engineer` |
 | Generate FinOps sprint report or cost projections | `finops-engineer` |
+| Design or optimize AI prompts, review token costs | `prompt-engineer` |
+| Implement AI guardrails (input/output/systemic) | `prompt-engineer` |
+| Evaluate model selection for a new AI feature | `prompt-engineer` |
 
 ### Recommended workflow for a new feature
 
@@ -202,12 +207,12 @@ Before marking a sprint as done, confirm:
 ## Agente FinOps — finops-engineer
 
 ### Adicionado ao Agent Team
-O projeto agora conta com **12 agentes especializados**:
+O projeto agora conta com **13 agentes especializados**:
 
 ```
 product-owner, ux-designer, architect, data-engineer, tech-lead,
 security-specialist, release-manager, devops-engineer, qa-engineer,
-dev-fullstack-1, dev-fullstack-2, **finops-engineer** (NOVO)
+dev-fullstack-1, dev-fullstack-2, finops-engineer, prompt-engineer
 ```
 
 ---
@@ -293,9 +298,34 @@ O tech-lead DEVE incluir o finops-engineer nas seguintes etapas de cada sprint:
 - Operações de alto volume
 - Novos serviços de terceiros
 
-**→ Consultar ou notificar o finops-engineer.**
+**→ Consultar ou notificar o finops-engineer E o prompt-engineer.**
 
-Esta regra deve ser seguida por todos os agentes. O tech-lead é responsável por garantir que o finops-engineer seja incluído no fluxo de decisão.
+Esta regra deve ser seguida por todos os agentes. O tech-lead é responsável por garantir que o finops-engineer e o prompt-engineer sejam incluídos no fluxo de decisão.
+
+---
+
+## Protocolo de Interação — prompt-engineer
+
+### Regras de Invocação
+
+1. **tech-lead** DEVE invocar o `prompt-engineer` antes de qualquer nova feature que use IA (geração de roteiro, checklist, guia, chat, etc.)
+2. **finops-engineer** compartilha relatórios de custo de tokens com o `prompt-engineer` para otimização contínua
+3. **security-specialist** co-possui as definições de guardrails com o `prompt-engineer` — qualquer alteração em guardrails requer aprovação de ambos
+
+### Localização dos Arquivos
+
+```
+.claude/
+  agents/
+    prompt-engineer.md              # Definição completa do agente
+  agent-memory/
+    prompt-engineer/
+      MEMORY.md                     # Memória persistente do agente
+
+src/
+  lib/
+    prompts/                        # Templates de prompts versionados
+```
 
 ---
 

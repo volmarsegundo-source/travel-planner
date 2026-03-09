@@ -56,6 +56,11 @@ export function Phase6Wizard({
     setError(null);
     setIsGenerating(true);
 
+    const timeout = setTimeout(() => {
+      setIsGenerating(false);
+      setError(t("errorTimeout"));
+    }, 120_000);
+
     try {
       const result = await generateTravelPlanAction(tripId, {
         destination,
@@ -81,7 +86,10 @@ export function Phase6Wizard({
           (result.error && errorMap[result.error]) || t("errorGenerate")
         );
       }
+    } catch {
+      setError(t("errorTimeout"));
     } finally {
+      clearTimeout(timeout);
       setIsGenerating(false);
     }
   }
