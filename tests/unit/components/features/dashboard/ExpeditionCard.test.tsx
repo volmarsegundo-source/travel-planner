@@ -121,6 +121,35 @@ describe("ExpeditionCard", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("shows itinerary badge when hasItineraryPlan is true", () => {
+    render(
+      <ExpeditionCard
+        tripId="trip-001"
+        destination="Paris, France"
+        currentPhase={6}
+        completedPhases={5}
+        totalPhases={8}
+        coverEmoji="🗼"
+        checklistRequired={5}
+        checklistRequiredDone={5}
+        checklistRecommendedPending={0}
+        hasItineraryPlan={true}
+      />
+    );
+
+    expect(
+      screen.getByText("dashboard.itineraryGenerated")
+    ).toBeInTheDocument();
+  });
+
+  it("hides itinerary badge when hasItineraryPlan is false", () => {
+    renderCard();
+
+    expect(
+      screen.queryByText("dashboard.itineraryGenerated")
+    ).not.toBeInTheDocument();
+  });
+
   it("links to expedition hub", () => {
     renderCard();
 

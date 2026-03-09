@@ -11,6 +11,7 @@ import { canUseAI } from "@/lib/guards/age-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/trip.types";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
+import { PointsEngine } from "@/lib/engines/points-engine";
 import type {
   GeneratePlanParams,
   ItineraryPlan,
@@ -141,8 +142,22 @@ export async function generateTravelPlanAction(
       // ItineraryPlan may not exist yet (non-expedition trips) — ignore
     }
 
+    // Award +50 points for generating an itinerary
+    try {
+      await PointsEngine.earnPoints(
+        session.user.id,
+        50,
+        "purchase",
+        "Itinerary generation",
+        tripId
+      );
+    } catch {
+      // Non-blocking — don't fail generation if points fail
+    }
+
     revalidatePath(`/trips/${tripId}`);
     revalidatePath(`/trips/${tripId}/itinerary`);
+    revalidatePath(`/expedition/${tripId}/phase-6`);
     return { success: true, data: plan };
   } catch (error) {
     logger.error("ai.generateTravelPlanAction.error", error, {

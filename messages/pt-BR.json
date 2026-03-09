@@ -311,7 +311,8 @@
       "items": "{done}/{total} itens",
       "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
       "ariaLabel": "Progresso do checklist: {done} de {total} itens obrigatórios completos"
-    }
+    },
+    "itineraryGenerated": "Roteiro gerado"
   },
   "profile": {
     "title": "Perfil do Explorador",

@@ -472,6 +472,63 @@ describe("DestinationGuideWizard", () => {
     expect(mockCompletePhase5).toHaveBeenCalledWith("trip-1");
   });
 
+  it("navigates to phase-6 after completion animation", async () => {
+    vi.useFakeTimers();
+
+    mockCompletePhase5.mockResolvedValue({
+      success: true,
+      data: {
+        phaseNumber: 5,
+        pointsEarned: 40,
+        badgeAwarded: null,
+        newRank: "cartographer",
+        nextPhaseUnlocked: 6,
+      },
+    });
+
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    // Complete the phase
+    await act(async () => {
+      fireEvent.click(
+        screen.getByText("expedition.phase5.completeCta")
+      );
+    });
+
+    // PointsAnimation auto-dismisses after 2500ms + 300ms fade
+    await act(async () => {
+      vi.advanceTimersByTime(2900);
+    });
+
+    // PhaseTransition shows → advancing state shows after 1200ms with Continue button
+    await act(async () => {
+      vi.advanceTimersByTime(1300);
+    });
+
+    // Click Continue button
+    const continueButton = screen.getByRole("button", {
+      name: "expedition.transition.continue",
+    });
+    await act(async () => {
+      fireEvent.click(continueButton);
+    });
+
+    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-6");
+
+    vi.useRealTimers();
+  });
+
   it("shows error on completion failure", async () => {
     mockCompletePhase5.mockResolvedValue({
       success: false,

@@ -146,7 +146,7 @@ export function DestinationGuideWizard({
 
   function handleTransitionContinue() {
     setShowTransition(false);
-    router.push("/dashboard");
+    router.push(`/expedition/${tripId}/phase-6`);
   }
 
   if (showAnimation) {

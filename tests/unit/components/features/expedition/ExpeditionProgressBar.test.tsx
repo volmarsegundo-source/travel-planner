@@ -197,14 +197,14 @@ describe("ExpeditionProgressBar", () => {
     expect(buttons[0].className).toContain("hover:-translate-y-0.5");
   });
 
-  it("only makes phases with defined routes clickable (phases 1-5)", () => {
+  it("only makes phases with defined routes clickable (phases 1-6)", () => {
     render(
       <ExpeditionProgressBar currentPhase={7} totalPhases={8} tripId="trip-1" />
     );
 
     const buttons = screen.getAllByRole("button");
-    // Phases 1-5 have routes, phase 6 does not
-    expect(buttons).toHaveLength(5);
+    // Phases 1-6 have routes, phase 7 does not
+    expect(buttons).toHaveLength(6);
   });
 
   it("renders nav element for accessibility", () => {
