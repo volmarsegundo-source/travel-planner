@@ -1,9 +1,6 @@
 "use server";
 import "server-only";
 
-// Allow AI generation actions up to 120s (Anthropic SDK timeout is 90s)
-export const maxDuration = 120;
-
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { AiService } from "@/server/services/ai.service";

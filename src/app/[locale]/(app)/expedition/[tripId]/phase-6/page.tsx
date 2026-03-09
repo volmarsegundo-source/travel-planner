@@ -1,3 +1,6 @@
+// Allow AI generation requests up to 120s (Anthropic SDK timeout is 90s)
+export const maxDuration = 120;
+
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
