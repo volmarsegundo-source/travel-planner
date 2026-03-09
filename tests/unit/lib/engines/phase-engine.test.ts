@@ -1064,12 +1064,13 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
     expect(result.phaseNumber).toBe(4);
   });
 
-  it("throws PHASE_PREREQUISITES_NOT_MET for phase 5 without connectivity choice", async () => {
+  it("throws PHASE_PREREQUISITES_NOT_MET for phase 5 without destination guide", async () => {
     const trip = createMockTrip({ currentPhase: 5 });
-    const phase = createMockPhase(5, "active", { metadata: null });
+    const phase = createMockPhase(5, "active");
 
     prismaMock.trip.findFirst.mockResolvedValue(trip as never);
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.destinationGuide.findUnique.mockResolvedValue(null as never);
 
     await expect(
       PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 5)
@@ -1082,15 +1083,25 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
     }
   });
 
-  it("succeeds for phase 5 with connectivity choice set", async () => {
+  it("succeeds for phase 5 with destination guide present", async () => {
     const trip = createMockTrip({ currentPhase: 5 });
-    const phase = createMockPhase(5, "active", {
-      metadata: { connectivityChoice: "esim", region: "europe" },
-    });
+    const phase = createMockPhase(5, "active");
     setupTransactionMock();
 
     prismaMock.trip.findFirst.mockResolvedValue(trip as never);
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
+    prismaMock.destinationGuide.findUnique.mockResolvedValue({
+      id: "guide-1",
+      tripId: TEST_TRIP_ID,
+      content: {},
+      destination: "Paris",
+      locale: "en",
+      generationCount: 1,
+      viewedSections: [],
+      generatedAt: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as never);
 
     const result = await PhaseEngine.completePhase(
       TEST_TRIP_ID,

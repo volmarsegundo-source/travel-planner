@@ -553,33 +553,18 @@
     },
     "phase5": {
       "title": "The Day Map",
-      "subtitle": "Choose your connectivity plan for the trip.",
-      "selectPlan": "Select a connectivity option",
-      "selectPlanHint": "Stay connected abroad with the best plan for your region.",
-      "recommended": "Recommended",
-      "free": "Free",
-      "perWeek": "/week",
-      "cta": "Complete Phase & Earn Points",
-      "ctaDisabled": "Select a connectivity plan",
-      "regions": {
-        "south_america": "South America",
-        "north_america": "North America",
-        "europe": "Europe",
-        "asia": "Asia",
-        "africa": "Africa",
-        "oceania": "Oceania"
-      },
-      "options": {
-        "chip_local": "Local SIM Card",
-        "esim": "eSIM",
-        "roaming": "International Roaming",
-        "wifi_only": "Wi-Fi Only"
-      },
-      "descriptions": {
-        "chip_local": "Buy a local SIM at your destination for the best rates.",
-        "esim": "Activate an eSIM before you travel — no physical card needed.",
-        "roaming": "Use your current carrier's international roaming plan.",
-        "wifi_only": "Rely on hotel, café, and public Wi-Fi networks."
+      "subtitle": "Your pocket guide for the destination.",
+      "generateHint": "Generate an AI-powered guide with essential info about your destination: timezone, currency, language, electricity, connectivity, and cultural tips.",
+      "generateCta": "Generate Destination Guide",
+      "regenerateCta": "Update guide ({remaining} remaining)",
+      "completeCta": "Complete Phase & Earn Points",
+      "sections": {
+        "timezone": "Timezone",
+        "currency": "Currency",
+        "language": "Language",
+        "electricity": "Electricity",
+        "connectivity": "Connectivity",
+        "cultural_tips": "Cultural Tips"
       }
     },
     "hub": {

@@ -13,6 +13,8 @@ import type {
   ItineraryPlan,
   GenerateChecklistParams,
   ChecklistResult,
+  GenerateGuideParams,
+  DestinationGuideContent,
 } from "@/types/ai.types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -24,6 +26,7 @@ const TOKENS_OVERHEAD = 500;
 const MIN_PLAN_TOKENS = 4096;
 const MAX_PLAN_TOKENS = 16000;
 const MAX_TOKENS_CHECKLIST = 2048;
+const MAX_TOKENS_GUIDE = 2048;
 
 function calculatePlanTokenBudget(days: number): number {
   const estimated = days * TOKENS_PER_DAY + TOKENS_OVERHEAD;
@@ -76,6 +79,22 @@ const ChecklistCategorySchema = z.object({
 
 const ChecklistResultSchema = z.object({
   categories: z.array(ChecklistCategorySchema),
+});
+
+const GuideSectionSchema = z.object({
+  title: z.string(),
+  icon: z.string(),
+  summary: z.string(),
+  tips: z.array(z.string()).max(5),
+});
+
+const DestinationGuideContentSchema = z.object({
+  timezone: GuideSectionSchema,
+  currency: GuideSectionSchema,
+  language: GuideSectionSchema,
+  electricity: GuideSectionSchema,
+  connectivity: GuideSectionSchema,
+  cultural_tips: GuideSectionSchema,
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -394,6 +413,81 @@ Respond ONLY with valid JSON:
     }
 
     logger.info("ai.checklist.generated", { userId });
+    return result;
+  }
+
+  /**
+   * Generates a destination pocket guide using AI.
+   * Returns structured info: timezone, currency, language, electricity,
+   * connectivity, and cultural tips for the destination.
+   */
+  static async generateDestinationGuide(
+    params: GenerateGuideParams
+  ): Promise<DestinationGuideContent> {
+    const { userId, destination, language } = params;
+
+    const cacheInput = `${destination}:${language}`;
+    const cacheHash = md5(cacheInput);
+    const cacheKey = CacheKeys.aiGuide(cacheHash);
+
+    // Cache hit
+    let cached: string | null = null;
+    try {
+      cached = await redis.get(cacheKey);
+    } catch (err) {
+      logger.warn("ai.guide.cache.error", { userId, error: String(err) });
+    }
+    if (cached) {
+      logger.info("ai.guide.cache.hit", { userId });
+      return JSON.parse(cached) as DestinationGuideContent;
+    }
+
+    const lang = language === "pt-BR" ? "Brazilian Portuguese" : "English";
+
+    const prompt = `You are a travel expert. Create a practical pocket guide for a traveler visiting ${destination}.
+
+Respond in ${lang}. Respond ONLY with valid JSON (no markdown, no code fences).
+
+The JSON must have exactly 6 sections: timezone, currency, language, electricity, connectivity, cultural_tips.
+
+Each section has: title (short label), icon (single emoji), summary (1-2 sentences), tips (array of 1-3 practical tips, each under 20 words).
+
+{
+  "timezone": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
+  "currency": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
+  "language": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
+  "electricity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
+  "connectivity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
+  "cultural_tips": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] }
+}`;
+
+    const provider = getProvider();
+    const response = await provider.generateResponse(prompt, MAX_TOKENS_GUIDE, "checklist");
+
+    let rawJson: unknown;
+    try {
+      rawJson = extractJsonFromResponse(response.text);
+    } catch (error) {
+      logger.error("ai.guide.parse.error", error, { userId });
+      throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
+    }
+
+    const parsed = DestinationGuideContentSchema.safeParse(rawJson);
+    if (!parsed.success) {
+      logger.error("ai.guide.schema.error", parsed.error, { userId });
+      throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
+    }
+
+    const result = parsed.data as DestinationGuideContent;
+
+    // Cache result
+    try {
+      await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
+    } catch {
+      logger.warn("ai.guide.cache.set.error", { userId });
+    }
+
+    logger.info("ai.guide.generated", { userId, destination });
     return result;
   }
 }

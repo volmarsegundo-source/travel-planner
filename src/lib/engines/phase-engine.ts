@@ -478,14 +478,13 @@ export class PhaseEngine {
     }
 
     if (phaseNumber === 5) {
-      const phase = await db.expeditionPhase.findUnique({
-        where: { tripId_phaseNumber: { tripId, phaseNumber: 5 } },
+      const guide = await db.destinationGuide.findUnique({
+        where: { tripId },
       });
-      const metadata = phase?.metadata as Record<string, unknown> | null;
-      if (!metadata?.connectivityChoice) {
+      if (!guide) {
         throw new AppError(
           "PHASE_PREREQUISITES_NOT_MET",
-          "A connectivity plan must be selected before completing Phase 5",
+          "A destination guide must be generated before completing Phase 5",
           400
         );
       }
