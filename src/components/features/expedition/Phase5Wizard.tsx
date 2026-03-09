@@ -59,7 +59,10 @@ export function Phase5Wizard({
     setErrorMessage(null);
 
     try {
-      const result = await completePhase5Action(tripId);
+      const result = await completePhase5Action(tripId, {
+        connectivityChoice: selectedOption,
+        region,
+      });
 
       if (!result.success) {
         setErrorMessage(result.error);
@@ -86,7 +89,7 @@ export function Phase5Wizard({
 
   function handleTransitionContinue() {
     setShowTransition(false);
-    router.push(`/expedition/${tripId}/phase-6`);
+    router.push("/dashboard");
   }
 
   if (showAnimation) {
