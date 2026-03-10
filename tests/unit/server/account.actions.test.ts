@@ -96,6 +96,26 @@ function makeUser(
   };
 }
 
+function makeMockTx(tripIds: string[] = ["trip-1", "trip-2"]) {
+  return {
+    account: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
+    session: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    userProfile: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    userBadge: { deleteMany: vi.fn().mockResolvedValue({ count: 3 }) },
+    pointTransaction: { deleteMany: vi.fn().mockResolvedValue({ count: 5 }) },
+    userProgress: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
+    trip: {
+      findMany: vi.fn().mockResolvedValue(tripIds.map((id) => ({ id }))),
+      updateMany: vi.fn().mockResolvedValue({ count: tripIds.length }),
+    },
+    expeditionPhase: { deleteMany: vi.fn().mockResolvedValue({ count: 4 }) },
+    phaseChecklistItem: { deleteMany: vi.fn().mockResolvedValue({ count: 6 }) },
+    itineraryPlan: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
+    destinationGuide: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
+    user: { update: vi.fn().mockResolvedValue(undefined) },
+  };
+}
+
 // ─── Tests ──────────────────────────────────────────────────────────────────
 
 describe("Account Actions", () => {
@@ -269,12 +289,7 @@ describe("Account Actions", () => {
       );
 
       // Mock the transaction — Prisma $transaction receives a callback
-      const mockTx = {
-        account: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
-        session: { deleteMany: vi.fn().mockResolvedValue({ count: 1 }) },
-        user: { update: vi.fn().mockResolvedValue(undefined) },
-        trip: { updateMany: vi.fn().mockResolvedValue({ count: 3 }) },
-      };
+      const mockTx = makeMockTx();
       prismaMock.$transaction.mockImplementation(async (fn) => {
         if (typeof fn === "function") {
           return fn(mockTx as never);
@@ -398,12 +413,7 @@ describe("Account Actions", () => {
         makeUser({ id: "user-sensitive-id", email: "test@example.com" }) as never
       );
 
-      const mockTx = {
-        account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-        session: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-        user: { update: vi.fn().mockResolvedValue(undefined) },
-        trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
-      };
+      const mockTx = makeMockTx();
       prismaMock.$transaction.mockImplementation(async (fn) => {
         if (typeof fn === "function") {
           return fn(mockTx as never);
@@ -432,12 +442,7 @@ describe("Account Actions", () => {
         makeUser({ id: "user-1", email: "test@example.com" }) as never
       );
 
-      const mockTx = {
-        account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-        session: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-        user: { update: vi.fn().mockResolvedValue(undefined) },
-        trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
-      };
+      const mockTx = makeMockTx();
       prismaMock.$transaction.mockImplementation(async (fn) => {
         if (typeof fn === "function") {
           return fn(mockTx as never);
@@ -482,6 +487,7 @@ describe("Account Actions", () => {
 
       const callOrder: string[] = [];
       const mockTx = {
+        ...makeMockTx(),
         account: {
           deleteMany: vi.fn().mockImplementation(() => {
             callOrder.push("account.deleteMany");
@@ -500,7 +506,6 @@ describe("Account Actions", () => {
             return Promise.resolve(undefined);
           }),
         },
-        trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
       };
       prismaMock.$transaction.mockImplementation(async (fn) => {
         if (typeof fn === "function") {
@@ -538,6 +543,99 @@ describe("Account Actions", () => {
       vi.restoreAllMocks();
     });
 
+    it("cleans up gamification, profile, and trip-dependent data (SEC-S17-003)", async () => {
+      mockAuth.mockResolvedValue(makeSession());
+      prismaMock.user.findFirst.mockResolvedValue(
+        makeUser({ id: "user-1", email: "test@example.com" }) as never
+      );
+
+      const mockTx = makeMockTx(["trip-a", "trip-b", "trip-c"]);
+      prismaMock.$transaction.mockImplementation(async (fn) => {
+        if (typeof fn === "function") {
+          return fn(mockTx as never);
+        }
+        return undefined as never;
+      });
+
+      vi.spyOn(console, "log").mockImplementation(() => {});
+
+      const result = await deleteUserAccountAction({
+        confirmEmail: "test@example.com",
+      });
+
+      expect(result.success).toBe(true);
+
+      // User-level data cleanup
+      expect(mockTx.userProfile.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+      expect(mockTx.userBadge.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+      expect(mockTx.pointTransaction.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+      expect(mockTx.userProgress.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+
+      // Trip-dependent data cleanup
+      const expectedTripIds = ["trip-a", "trip-b", "trip-c"];
+      expect(mockTx.trip.findMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+        select: { id: true },
+      });
+      expect(mockTx.expeditionPhase.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
+      expect(mockTx.phaseChecklistItem.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
+      expect(mockTx.itineraryPlan.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
+      expect(mockTx.destinationGuide.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
+
+      vi.restoreAllMocks();
+    });
+
+    it("skips trip-dependent cleanup when user has no trips", async () => {
+      mockAuth.mockResolvedValue(makeSession());
+      prismaMock.user.findFirst.mockResolvedValue(
+        makeUser({ id: "user-1", email: "test@example.com" }) as never
+      );
+
+      const mockTx = makeMockTx([]);
+      prismaMock.$transaction.mockImplementation(async (fn) => {
+        if (typeof fn === "function") {
+          return fn(mockTx as never);
+        }
+        return undefined as never;
+      });
+
+      vi.spyOn(console, "log").mockImplementation(() => {});
+
+      const result = await deleteUserAccountAction({
+        confirmEmail: "test@example.com",
+      });
+
+      expect(result.success).toBe(true);
+
+      // User-level cleanup still happens
+      expect(mockTx.userProfile.deleteMany).toHaveBeenCalled();
+      expect(mockTx.userBadge.deleteMany).toHaveBeenCalled();
+
+      // Trip-dependent cleanup is skipped
+      expect(mockTx.expeditionPhase.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.phaseChecklistItem.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.itineraryPlan.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.destinationGuide.deleteMany).not.toHaveBeenCalled();
+
+      vi.restoreAllMocks();
+    });
+
     it("does not log PII in audit events", async () => {
       mockAuth.mockResolvedValue(makeSession({ email: "private@sensitive.com" }));
       prismaMock.user.findFirst.mockResolvedValue(
@@ -548,12 +646,7 @@ describe("Account Actions", () => {
         }) as never
       );
 
-      const mockTx = {
-        account: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-        session: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-        user: { update: vi.fn().mockResolvedValue(undefined) },
-        trip: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
-      };
+      const mockTx = makeMockTx();
       prismaMock.$transaction.mockImplementation(async (fn) => {
         if (typeof fn === "function") {
           return fn(mockTx as never);

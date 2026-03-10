@@ -3,6 +3,9 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChecklistProgressMini } from "./ChecklistProgressMini";
+import { DashboardPhaseProgressBar } from "./DashboardPhaseProgressBar";
+import { PhaseToolsBar } from "./PhaseToolsBar";
+import { getPhaseTools } from "@/lib/engines/phase-config";
 
 interface ExpeditionCardProps {
   tripId: string;
@@ -31,8 +34,6 @@ export function ExpeditionCard({
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
 
-  const progressPercent = totalPhases > 0 ? (completedPhases / totalPhases) * 100 : 0;
-
   const showChecklistShortcut = currentPhase >= 5;
   const showItineraryShortcut = hasItineraryPlan;
 
@@ -43,7 +44,7 @@ export function ExpeditionCard({
         className="absolute inset-0 z-0 rounded-xl"
         aria-label={`${destination} — ${t("viewExpedition")}`}
       />
-      <div className="relative z-10 flex items-start gap-4">
+      <div className="relative z-10 pointer-events-none flex items-start gap-4">
         <span className="text-3xl" aria-hidden="true">
           {coverEmoji}
         </span>
@@ -55,25 +56,21 @@ export function ExpeditionCard({
             {t("currentPhase", { number: currentPhase })} &middot;{" "}
             {t("phaseProgress", { completed: completedPhases, total: totalPhases })}
           </p>
-          {/* Progress bar */}
-          <div className="mt-3 h-2 w-full rounded-full bg-muted">
-            <div
-              className="h-2 rounded-full bg-atlas-gold transition-all"
-              style={{ width: `${progressPercent}%` }}
-              role="progressbar"
-              aria-valuenow={completedPhases}
-              aria-valuemin={0}
-              aria-valuemax={totalPhases}
-            />
-          </div>
+          {/* Phase progress bar with indicators */}
+          <DashboardPhaseProgressBar
+            currentPhase={currentPhase}
+            completedPhases={completedPhases}
+          />
           {/* Checklist badge — visible from phase 3 onward */}
           {currentPhase >= 3 && checklistRequired > 0 && (
-            <ChecklistProgressMini
-              tripId={tripId}
-              requiredTotal={checklistRequired}
-              requiredDone={checklistRequiredDone}
-              recommendedPending={checklistRecommendedPending}
-            />
+            <div className="pointer-events-auto">
+              <ChecklistProgressMini
+                tripId={tripId}
+                requiredTotal={checklistRequired}
+                requiredDone={checklistRequiredDone}
+                recommendedPending={checklistRecommendedPending}
+              />
+            </div>
           )}
           {/* Itinerary badge — visible when plan has been generated */}
           {hasItineraryPlan && !showItineraryShortcut && (
@@ -87,7 +84,7 @@ export function ExpeditionCard({
               {showChecklistShortcut && (
                 <Link
                   href={`/expedition/${tripId}/phase-5`}
-                  className="relative z-20 inline-flex items-center gap-1 rounded-md border border-atlas-teal/30 bg-atlas-teal/5 px-2.5 py-1 text-xs font-medium text-atlas-teal transition-colors hover:bg-atlas-teal/15"
+                  className="relative z-20 pointer-events-auto inline-flex items-center gap-1 rounded-md border border-atlas-teal/30 bg-atlas-teal/5 px-2.5 py-1 text-xs font-medium text-atlas-teal transition-colors hover:bg-atlas-teal/15"
                 >
                   <span aria-hidden="true">📋</span>
                   {t("viewChecklist")}
@@ -96,7 +93,7 @@ export function ExpeditionCard({
               {showItineraryShortcut && (
                 <Link
                   href={`/expedition/${tripId}/phase-6`}
-                  className="relative z-20 inline-flex items-center gap-1 rounded-md border border-atlas-gold/30 bg-atlas-gold/5 px-2.5 py-1 text-xs font-medium text-atlas-gold transition-colors hover:bg-atlas-gold/15"
+                  className="relative z-20 pointer-events-auto inline-flex items-center gap-1 rounded-md border border-atlas-gold/30 bg-atlas-gold/5 px-2.5 py-1 text-xs font-medium text-atlas-gold transition-colors hover:bg-atlas-gold/15"
                 >
                   <span aria-hidden="true">🗺️</span>
                   {t("viewItinerary")}
@@ -104,6 +101,8 @@ export function ExpeditionCard({
               )}
             </div>
           )}
+          {/* Phase tools bar */}
+          <PhaseToolsBar tools={getPhaseTools(currentPhase)} tripId={tripId} />
         </div>
         <span className="text-sm font-medium text-primary">
           {t("viewExpedition")}
