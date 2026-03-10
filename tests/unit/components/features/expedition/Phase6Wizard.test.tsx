@@ -2,19 +2,18 @@
  * Unit tests for Phase6Wizard component.
  *
  * Tests cover:
- * - Empty state: renders generate CTA
- * - Generating state: shows loading skeleton
- * - Generated state: renders ItineraryEditor
- * - Error handling
- * - Regenerate button
+ * - Auto-generation on first visit
+ * - Generating state: shows streaming text and cancel button
+ * - Generated state: renders ItineraryEditor + AI disclaimer
+ * - Error handling for various HTTP status codes
+ * - Regenerate with confirm dialog
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
 
 // ─── Hoisted mocks ──────────────────────────────────────────────────────────
 
-const { mockGeneratePlan, mockPush, mockRefresh } = vi.hoisted(() => ({
-  mockGeneratePlan: vi.fn(),
+const { mockPush, mockRefresh } = vi.hoisted(() => ({
   mockPush: vi.fn(),
   mockRefresh: vi.fn(),
 }));
@@ -43,10 +42,6 @@ vi.mock("@/i18n/navigation", () => ({
       {children}
     </a>
   ),
-}));
-
-vi.mock("@/server/actions/ai.actions", () => ({
-  generateTravelPlanAction: mockGeneratePlan,
 }));
 
 // Mock ItineraryEditor to avoid DnD complexity
@@ -105,55 +100,123 @@ const DAYS_WITH_ACTIVITIES = [
   },
 ];
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+function createSSEStream(chunks: string[]): ReadableStream<Uint8Array> {
+  const encoder = new TextEncoder();
+  let index = 0;
+  return new ReadableStream({
+    pull(controller) {
+      if (index < chunks.length) {
+        controller.enqueue(encoder.encode(chunks[index]));
+        index++;
+      } else {
+        controller.close();
+      }
+    },
+  });
+}
+
+function mockFetchOk(chunks: string[]) {
+  return vi.fn().mockResolvedValue({
+    ok: true,
+    body: createSSEStream(chunks),
+  });
+}
+
+function mockFetchError(status: number) {
+  return vi.fn().mockResolvedValue({
+    ok: false,
+    status,
+  });
+}
+
+function mockFetchHang() {
+  return vi.fn().mockReturnValue(new Promise(() => {}));
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("Phase6Wizard", () => {
+  let originalFetch: typeof globalThis.fetch;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    originalFetch = globalThis.fetch;
+    // Default: make fetch hang to prevent auto-generation from completing
+    globalThis.fetch = mockFetchHang();
   });
 
-  describe("Empty state (no itinerary)", () => {
-    it("renders title and subtitle", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      expect(screen.getByText("title")).toBeInTheDocument();
-      expect(screen.getByText("subtitle")).toBeInTheDocument();
-    });
-
-    it("renders generate CTA button", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      const button = screen.getByRole("button", { name: "generateCta" });
-      expect(button).toBeInTheDocument();
-      expect(button).toBeEnabled();
-    });
-
-    it("renders generate hint text", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      expect(screen.getByText("generateHint")).toBeInTheDocument();
-    });
-
-    it("does not render ItineraryEditor", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      expect(screen.queryByTestId("itinerary-editor")).not.toBeInTheDocument();
-    });
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
   });
 
-  describe("Generating state", () => {
-    it("shows loading skeleton when generating", async () => {
-      // Make the action hang to keep isPending true
-      mockGeneratePlan.mockReturnValue(new Promise(() => {}));
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+  describe("Auto-generation on first visit", () => {
+    it("triggers generation automatically when initialDays is empty", async () => {
+      const fetchMock = mockFetchHang();
+      globalThis.fetch = fetchMock;
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      // Should have called fetch (auto-triggered)
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/ai/plan/stream",
+        expect.objectContaining({ method: "POST" })
+      );
+    });
+
+    it("does not auto-trigger when initialDays has content", () => {
+      const fetchMock = mockFetchHang();
+      globalThis.fetch = fetchMock;
+
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("shows generating state immediately on mount with empty initialDays", async () => {
+      globalThis.fetch = mockFetchHang();
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       expect(screen.getByRole("status")).toBeInTheDocument();
       expect(screen.getByText("generating")).toBeInTheDocument();
+    });
+  });
+
+  describe("Generating state", () => {
+    it("shows cancel button during generation", async () => {
+      globalThis.fetch = mockFetchHang();
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      expect(
+        screen.getByRole("button", { name: "cancelGeneration" })
+      ).toBeInTheDocument();
+    });
+
+    it("shows streaming text progressively", async () => {
+      globalThis.fetch = mockFetchOk([
+        "data: Hello \n\n",
+        "data: World\n\n",
+        "data: [DONE]\n\n",
+      ]);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      await waitFor(() => {
+        expect(mockRefresh).toHaveBeenCalled();
+      });
     });
   });
 
@@ -188,6 +251,16 @@ describe("Phase6Wizard", () => {
       ).toBeInTheDocument();
     });
 
+    it("renders AI disclaimer", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      const disclaimer = screen.getByTestId("ai-disclaimer");
+      expect(disclaimer).toBeInTheDocument();
+      expect(disclaimer).toHaveTextContent("aiDisclaimer");
+    });
+
     it("does not render empty state CTA", () => {
       render(
         <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
@@ -199,34 +272,115 @@ describe("Phase6Wizard", () => {
     });
   });
 
-  describe("Error handling", () => {
-    it("shows error message on generation failure", async () => {
-      mockGeneratePlan.mockResolvedValue({
-        success: false,
-        error: "errors.timeout",
-      });
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+  describe("Regenerate confirm dialog", () => {
+    it("shows confirm dialog when clicking regenerate with existing itinerary", async () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateCta" })
+        );
+      });
+
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+      expect(screen.getByText("regenerateConfirmTitle")).toBeInTheDocument();
+      expect(screen.getByText("regenerateConfirmMessage")).toBeInTheDocument();
+    });
+
+    it("triggers generation on confirm", async () => {
+      const fetchMock = mockFetchHang();
+      globalThis.fetch = fetchMock;
+
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      // Click regenerate
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateCta" })
+        );
+      });
+
+      // Confirm
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateConfirmYes" })
+        );
+      });
+
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    it("dismisses dialog on cancel", async () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      // Click regenerate
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateCta" })
+        );
+      });
+
+      // Cancel
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateConfirmNo" })
+        );
+      });
+
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Error handling", () => {
+    it("shows error for 401 unauthorized", async () => {
+      globalThis.fetch = mockFetchError(401);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("errorTimeout");
+        expect(screen.getByRole("alert")).toHaveTextContent("errorAuth");
       });
     });
 
-    it("shows generic error for unknown error key", async () => {
-      mockGeneratePlan.mockResolvedValue({
-        success: false,
-        error: "some.unknown.error",
-      });
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+    it("shows error for 429 rate limit", async () => {
+      globalThis.fetch = mockFetchError(429);
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole("alert")).toHaveTextContent("errorRateLimit");
+      });
+    });
+
+    it("shows error for 403 age restricted", async () => {
+      globalThis.fetch = mockFetchError(403);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      await waitFor(() => {
+        expect(screen.getByRole("alert")).toHaveTextContent(
+          "errorAgeRestricted"
+        );
+      });
+    });
+
+    it("shows generic error for 500", async () => {
+      globalThis.fetch = mockFetchError(500);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -234,35 +388,42 @@ describe("Phase6Wizard", () => {
       });
     });
 
-    it("shows rate limit error", async () => {
-      mockGeneratePlan.mockResolvedValue({
-        success: false,
-        error: "errors.rateLimitExceeded",
-      });
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+    it("shows timeout error on fetch exception", async () => {
+      globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
-        expect(screen.getByRole("alert")).toHaveTextContent("errorRateLimit");
+        expect(screen.getByRole("alert")).toHaveTextContent("errorTimeout");
       });
     });
   });
 
-  describe("Generate action", () => {
-    it("calls generateTravelPlanAction with correct params", async () => {
-      mockGeneratePlan.mockReturnValue(new Promise(() => {}));
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+  describe("Fetch payload", () => {
+    it("sends correct body to streaming endpoint", async () => {
+      const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
+      globalThis.fetch = fetchMock;
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
-      expect(mockGeneratePlan).toHaveBeenCalledWith("trip-1", {
+      await waitFor(() => {
+        expect(fetchMock).toHaveBeenCalledWith(
+          "/api/ai/plan/stream",
+          expect.objectContaining({
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: expect.any(String),
+          })
+        );
+      });
+
+      const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+      expect(body).toEqual({
+        tripId: "trip-1",
         destination: "Paris, France",
         startDate: "2026-06-01",
         endDate: "2026-06-05",
@@ -274,69 +435,51 @@ describe("Phase6Wizard", () => {
       });
     });
 
-    it("uses Phase 2 budget and style when provided", async () => {
-      mockGeneratePlan.mockReturnValue(new Promise(() => {}));
-
-      render(
-        <Phase6Wizard
-          {...BASE_PROPS}
-          travelStyle="ADVENTURE"
-          budgetTotal={5000}
-          budgetCurrency="EUR"
-          travelers={2}
-        />
-      );
-
-      await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
-      });
-
-      expect(mockGeneratePlan).toHaveBeenCalledWith(
-        "trip-1",
-        expect.objectContaining({
-          travelStyle: "ADVENTURE",
-          budgetTotal: 5000,
-          budgetCurrency: "EUR",
-          travelers: 2,
-        })
-      );
-    });
-
     it("uses pt-BR language when locale is pt-BR", async () => {
-      mockGeneratePlan.mockReturnValue(new Promise(() => {}));
-
-      render(<Phase6Wizard {...BASE_PROPS} locale="pt-BR" />);
+      const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
+      globalThis.fetch = fetchMock;
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} locale="pt-BR" />);
       });
 
-      expect(mockGeneratePlan).toHaveBeenCalledWith(
-        "trip-1",
-        expect.objectContaining({ language: "pt-BR" })
-      );
+      await waitFor(() => {
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.language).toBe("pt-BR");
+      });
     });
 
     it("uses fallback dates when startDate/endDate are null", async () => {
-      mockGeneratePlan.mockReturnValue(new Promise(() => {}));
-
-      render(
-        <Phase6Wizard {...BASE_PROPS} startDate={null} endDate={null} />
-      );
+      const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
+      globalThis.fetch = fetchMock;
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(
+          <Phase6Wizard {...BASE_PROPS} startDate={null} endDate={null} />
+        );
       });
 
-      // Should use today's date as fallback
-      const today = new Date().toISOString().split("T")[0];
-      expect(mockGeneratePlan).toHaveBeenCalledWith(
-        "trip-1",
-        expect.objectContaining({
-          startDate: today,
-          endDate: today,
-        })
-      );
+      await waitFor(() => {
+        const today = new Date().toISOString().split("T")[0];
+        const body = JSON.parse(fetchMock.mock.calls[0][1].body);
+        expect(body.startDate).toBe(today);
+        expect(body.endDate).toBe(today);
+      });
+    });
+
+    it("refreshes router on successful stream completion", async () => {
+      globalThis.fetch = mockFetchOk([
+        "data: chunk1\n\n",
+        "data: [DONE]\n\n",
+      ]);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      await waitFor(() => {
+        expect(mockRefresh).toHaveBeenCalled();
+      });
     });
   });
 });

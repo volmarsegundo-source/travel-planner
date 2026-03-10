@@ -314,7 +314,18 @@
     },
     "itineraryGenerated": "Roteiro gerado",
     "viewChecklist": "Checklist",
-    "viewItinerary": "Roteiro"
+    "viewItinerary": "Roteiro",
+    "tools": {
+      "destinationGuide": "Guia",
+      "accommodation": "Hospedagem",
+      "checklist": "Checklist",
+      "itinerary": "Roteiro",
+      "liveTracker": "Rastreador",
+      "costManager": "Custos",
+      "retrospective": "Retrospectiva",
+      "community": "Comunidade",
+      "comingSoon": "Em construção"
+    }
   },
   "profile": {
     "title": "Perfil do Explorador",
@@ -591,7 +602,13 @@
       "errorTimeout": "A requisição expirou. Tente novamente.",
       "errorAuth": "Erro de autenticação com a IA. Tente mais tarde.",
       "errorRateLimit": "Muitas requisições. Aguarde um momento.",
-      "errorAgeRestricted": "Você precisa ter 18+ para usar recursos de IA."
+      "errorAgeRestricted": "Você precisa ter 18+ para usar recursos de IA.",
+      "cancelGeneration": "Cancelar",
+      "aiDisclaimer": "Este roteiro foi gerado por inteligência artificial e pode conter imprecisões. Verifique horários, preços e disponibilidade antes de viajar.",
+      "regenerateConfirmTitle": "Regerar roteiro?",
+      "regenerateConfirmMessage": "Isso substituirá seu roteiro atual por um novo. Esta ação não pode ser desfeita.",
+      "regenerateConfirmYes": "Sim, regerar",
+      "regenerateConfirmNo": "Manter atual"
     },
     "hub": {
       "title": "Expedição",
@@ -628,7 +645,8 @@
       "theDayMap": "O Mapa dos Dias",
       "theTreasure": "O Tesouro",
       "theExpedition": "A Expedição",
-      "theLegacy": "O Legado"
+      "theLegacy": "O Legado",
+      "progressLabel": "Progresso das fases: {completed} de {total} concluídas"
     },
     "points": "pts"
   },

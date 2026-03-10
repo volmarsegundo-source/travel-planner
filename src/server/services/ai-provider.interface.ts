@@ -51,4 +51,25 @@ export interface AiProvider {
     model: ModelType,
     options?: AiProviderOptions,
   ): Promise<AiProviderResponse>;
+
+  /**
+   * Sends a prompt and returns a ReadableStream of text chunks.
+   * Each chunk is a string fragment of the response.
+   * Callers must consume the stream to completion.
+   *
+   * @param prompt - User message with dynamic/variable content
+   * @param maxTokens - Maximum tokens for the response
+   * @param model - Model selection hint
+   * @param options - Optional parameters including systemPrompt
+   * @returns A ReadableStream of string chunks and a promise resolving to token usage
+   */
+  generateStreamingResponse(
+    prompt: string,
+    maxTokens: number,
+    model: ModelType,
+    options?: AiProviderOptions,
+  ): Promise<{
+    stream: ReadableStream<string>;
+    usage: Promise<AiProviderResponse>;
+  }>;
 }

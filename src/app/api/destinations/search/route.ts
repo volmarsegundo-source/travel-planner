@@ -7,6 +7,14 @@ import { logger } from "@/lib/logger";
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
 const CACHE_TTL = 86400; // 24 hours in seconds
 const USER_AGENT = "TravelPlannerAtlas/1.0 (https://github.com/travel-planner)";
+const NOMINATIM_TIMEOUT_MS = 5000;
+const DEFAULT_LOCALE = "pt-BR";
+
+// Map app locales to HTTP Accept-Language values
+const LOCALE_TO_ACCEPT_LANGUAGE: Record<string, string> = {
+  "pt-BR": "pt-BR,pt;q=0.9,en;q=0.5",
+  "en": "en,en-US;q=0.9",
+};
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -19,8 +27,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ results: [] });
   }
 
-  // Rate limit: 1 request per second per user
-  const rl = await checkRateLimit(`nominatim:${session.user.id}`, 1, 1);
+  const locale = request.nextUrl.searchParams.get("locale")?.trim() || DEFAULT_LOCALE;
+
+  // Rate limit: 3 requests per 2 seconds per user (relaxed for autocomplete UX)
+  const rl = await checkRateLimit(`nominatim:${session.user.id}`, 3, 2);
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Rate limit exceeded" },
@@ -28,8 +38,8 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Check Redis cache
-  const cacheKey = `dest:search:${q.toLowerCase()}`;
+  // Include locale in cache key for language-specific results
+  const cacheKey = `dest:search:${locale}:${q.toLowerCase()}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) {
@@ -47,8 +57,14 @@ export async function GET(request: NextRequest) {
     url.searchParams.set("limit", "5");
     url.searchParams.set("addressdetails", "1");
 
+    const acceptLanguage = LOCALE_TO_ACCEPT_LANGUAGE[locale] ?? LOCALE_TO_ACCEPT_LANGUAGE[DEFAULT_LOCALE];
+
     const response = await fetch(url.toString(), {
-      headers: { "User-Agent": USER_AGENT },
+      headers: {
+        "User-Agent": USER_AGENT,
+        "Accept-Language": acceptLanguage,
+      },
+      signal: AbortSignal.timeout(NOMINATIM_TIMEOUT_MS),
     });
 
     if (!response.ok) {

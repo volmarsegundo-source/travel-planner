@@ -11,6 +11,7 @@ import {
 import type { TripCreateInput, TripUpdateInput } from "@/lib/validations/trip.schema";
 import type { ActionResult, PaginatedResult, Trip } from "@/types/trip.types";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { DEFAULT_PAGE_SIZE } from "@/lib/constants";
 
@@ -37,7 +38,7 @@ export async function createTripAction(
     return { success: true, data: trip };
   } catch (error) {
     logger.error("trip.createTripAction.error", error, {
-      userId: session.user.id,
+      userIdHash: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -72,7 +73,7 @@ export async function updateTripAction(
     return { success: true, data: trip };
   } catch (error) {
     logger.error("trip.updateTripAction.error", error, {
-      userId: session.user.id,
+      userIdHash: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -105,7 +106,7 @@ export async function deleteTripAction(
     return { success: true };
   } catch (error) {
     logger.error("trip.deleteTripAction.error", error, {
-      userId: session.user.id,
+      userIdHash: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -129,7 +130,7 @@ export async function listUserTripsAction(
     return { success: true, data: result };
   } catch (error) {
     logger.error("trip.listUserTripsAction.error", error, {
-      userId: session.user.id,
+      userIdHash: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }
@@ -148,7 +149,7 @@ export async function getTripByIdAction(
     return { success: true, data: trip };
   } catch (error) {
     logger.error("trip.getTripByIdAction.error", error, {
-      userId: session.user.id,
+      userIdHash: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

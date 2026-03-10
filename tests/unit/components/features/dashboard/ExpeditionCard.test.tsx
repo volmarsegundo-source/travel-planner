@@ -82,10 +82,10 @@ describe("ExpeditionCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders progress bar", () => {
+  it("renders phase progress bar", () => {
     renderCard();
 
-    const progressBar = screen.getByRole("progressbar");
+    const progressBar = screen.getByTestId("dashboard-phase-progress-bar");
     expect(progressBar).toBeInTheDocument();
   });
 
@@ -180,5 +180,42 @@ describe("ExpeditionCard", () => {
       l.getAttribute("href")?.includes("/expedition/trip-001")
     );
     expect(mainLink).toBeDefined();
+  });
+
+  it("content wrapper has pointer-events-none to allow card link clicks", () => {
+    renderCard();
+
+    // The main link should be present at z-0
+    const mainLink = screen.getByRole("link", {
+      name: /dashboard\.viewExpedition/,
+    });
+    expect(mainLink).toHaveClass("absolute", "inset-0", "z-0");
+
+    // The content wrapper at z-10 should have pointer-events-none
+    const contentWrapper = mainLink.nextElementSibling;
+    expect(contentWrapper).toHaveClass("pointer-events-none");
+  });
+
+  it("interactive children have pointer-events-auto", () => {
+    render(
+      <ExpeditionCard
+        tripId="trip-001"
+        destination="Paris, France"
+        currentPhase={6}
+        completedPhases={5}
+        totalPhases={8}
+        coverEmoji="🗼"
+        checklistRequired={5}
+        checklistRequiredDone={5}
+        checklistRecommendedPending={0}
+        hasItineraryPlan={true}
+      />
+    );
+
+    const checklistLink = screen.getByText("dashboard.viewChecklist").closest("a");
+    expect(checklistLink).toHaveClass("pointer-events-auto");
+
+    const itineraryLink = screen.getByText("dashboard.viewItinerary").closest("a");
+    expect(itineraryLink).toHaveClass("pointer-events-auto");
   });
 });
