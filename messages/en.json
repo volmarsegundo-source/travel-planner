@@ -592,6 +592,54 @@
         "mercosul": "Mercosul",
         "international": "International",
         "schengen": "Schengen"
+      },
+      "mobility": {
+        "title": "Local Mobility",
+        "subtitle": "How will you get around at your destination?",
+        "hint": "Select all that apply",
+        "save": "Save Mobility",
+        "saving": "Saving...",
+        "saved": "Mobility preferences saved!",
+        "options": {
+          "public_transit": "Public Transit",
+          "taxi_rideshare": "Taxi / Rideshare",
+          "walking": "Walking",
+          "bicycle": "Bicycle",
+          "private_transfer": "Private Transfer",
+          "car_rental": "Car Rental",
+          "other": "Other"
+        }
+      },
+      "accommodation": {
+        "title": "Accommodation",
+        "subtitle": "Where will you stay during your trip?",
+        "addEntry": "Add Accommodation",
+        "removeEntry": "Remove",
+        "removeConfirm": "Remove this accommodation?",
+        "maxReached": "Maximum {max} accommodations reached",
+        "entry": "Stay {number}",
+        "accommodationType": "Type",
+        "name": "Name",
+        "namePlaceholder": "Hotel name, property name...",
+        "address": "Address",
+        "addressPlaceholder": "Full address",
+        "bookingCode": "Booking Code",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "estimatedCost": "Estimated Cost",
+        "currency": "Currency",
+        "notes": "Notes",
+        "save": "Save Accommodation",
+        "saving": "Saving...",
+        "saved": "Accommodation saved!",
+        "types": {
+          "hotel": "Hotel",
+          "hostel": "Hostel",
+          "airbnb": "Airbnb",
+          "friends_house": "Friend's House",
+          "camping": "Camping",
+          "other": "Other"
+        }
       }
     },
     "phase5": {

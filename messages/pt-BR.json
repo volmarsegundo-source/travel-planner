@@ -592,6 +592,54 @@
         "mercosul": "Mercosul",
         "international": "Internacional",
         "schengen": "Schengen"
+      },
+      "mobility": {
+        "title": "Mobilidade Local",
+        "subtitle": "Como voce vai se locomover no destino?",
+        "hint": "Selecione todos que se aplicam",
+        "save": "Salvar Mobilidade",
+        "saving": "Salvando...",
+        "saved": "Preferencias de mobilidade salvas!",
+        "options": {
+          "public_transit": "Transporte Publico",
+          "taxi_rideshare": "Taxi / Aplicativo",
+          "walking": "A Pe",
+          "bicycle": "Bicicleta",
+          "private_transfer": "Transfer Privado",
+          "car_rental": "Aluguel de Carro",
+          "other": "Outro"
+        }
+      },
+      "accommodation": {
+        "title": "Hospedagem",
+        "subtitle": "Onde voce vai se hospedar durante a viagem?",
+        "addEntry": "Adicionar Hospedagem",
+        "removeEntry": "Remover",
+        "removeConfirm": "Remover esta hospedagem?",
+        "maxReached": "Maximo de {max} hospedagens atingido",
+        "entry": "Estadia {number}",
+        "accommodationType": "Tipo",
+        "name": "Nome",
+        "namePlaceholder": "Nome do hotel, propriedade...",
+        "address": "Endereco",
+        "addressPlaceholder": "Endereco completo",
+        "bookingCode": "Codigo de Reserva",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "estimatedCost": "Custo Estimado",
+        "currency": "Moeda",
+        "notes": "Observacoes",
+        "save": "Salvar Hospedagem",
+        "saving": "Salvando...",
+        "saved": "Hospedagem salva!",
+        "types": {
+          "hotel": "Hotel",
+          "hostel": "Hostel",
+          "airbnb": "Airbnb",
+          "friends_house": "Casa de Amigos",
+          "camping": "Camping",
+          "other": "Outro"
+        }
       }
     },
     "phase5": {
