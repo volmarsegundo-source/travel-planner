@@ -2,11 +2,11 @@
  * Unit tests for Phase6Wizard component.
  *
  * Tests cover:
- * - Empty state: renders generate CTA
+ * - Auto-generation on first visit
  * - Generating state: shows streaming text and cancel button
- * - Generated state: renders ItineraryEditor
+ * - Generated state: renders ItineraryEditor + AI disclaimer
  * - Error handling for various HTTP status codes
- * - Cancel generation via abort
+ * - Regenerate with confirm dialog
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
@@ -131,6 +131,10 @@ function mockFetchError(status: number) {
   });
 }
 
+function mockFetchHang() {
+  return vi.fn().mockReturnValue(new Promise(() => {}));
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("Phase6Wizard", () => {
@@ -139,63 +143,59 @@ describe("Phase6Wizard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     originalFetch = globalThis.fetch;
+    // Default: make fetch hang to prevent auto-generation from completing
+    globalThis.fetch = mockFetchHang();
   });
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
   });
 
-  describe("Empty state (no itinerary)", () => {
-    it("renders title and subtitle", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      expect(screen.getByText("title")).toBeInTheDocument();
-      expect(screen.getByText("subtitle")).toBeInTheDocument();
-    });
-
-    it("renders generate CTA button", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      const button = screen.getByRole("button", { name: "generateCta" });
-      expect(button).toBeInTheDocument();
-      expect(button).toBeEnabled();
-    });
-
-    it("renders generate hint text", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      expect(screen.getByText("generateHint")).toBeInTheDocument();
-    });
-
-    it("does not render ItineraryEditor", () => {
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
-      expect(screen.queryByTestId("itinerary-editor")).not.toBeInTheDocument();
-    });
-  });
-
-  describe("Generating state", () => {
-    it("shows loading spinner when generating", async () => {
-      // Make fetch hang
-      globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+  describe("Auto-generation on first visit", () => {
+    it("triggers generation automatically when initialDays is empty", async () => {
+      const fetchMock = mockFetchHang();
+      globalThis.fetch = fetchMock;
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      // Should have called fetch (auto-triggered)
+      expect(fetchMock).toHaveBeenCalledWith(
+        "/api/ai/plan/stream",
+        expect.objectContaining({ method: "POST" })
+      );
+    });
+
+    it("does not auto-trigger when initialDays has content", () => {
+      const fetchMock = mockFetchHang();
+      globalThis.fetch = fetchMock;
+
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      expect(fetchMock).not.toHaveBeenCalled();
+    });
+
+    it("shows generating state immediately on mount with empty initialDays", async () => {
+      globalThis.fetch = mockFetchHang();
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       expect(screen.getByRole("status")).toBeInTheDocument();
       expect(screen.getByText("generating")).toBeInTheDocument();
     });
+  });
 
+  describe("Generating state", () => {
     it("shows cancel button during generation", async () => {
-      globalThis.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
-
-      render(<Phase6Wizard {...BASE_PROPS} />);
+      globalThis.fetch = mockFetchHang();
 
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       expect(
@@ -210,10 +210,8 @@ describe("Phase6Wizard", () => {
         "data: [DONE]\n\n",
       ]);
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -253,6 +251,16 @@ describe("Phase6Wizard", () => {
       ).toBeInTheDocument();
     });
 
+    it("renders AI disclaimer", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      const disclaimer = screen.getByTestId("ai-disclaimer");
+      expect(disclaimer).toBeInTheDocument();
+      expect(disclaimer).toHaveTextContent("aiDisclaimer");
+    });
+
     it("does not render empty state CTA", () => {
       render(
         <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
@@ -264,14 +272,77 @@ describe("Phase6Wizard", () => {
     });
   });
 
+  describe("Regenerate confirm dialog", () => {
+    it("shows confirm dialog when clicking regenerate with existing itinerary", async () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateCta" })
+        );
+      });
+
+      expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+      expect(screen.getByText("regenerateConfirmTitle")).toBeInTheDocument();
+      expect(screen.getByText("regenerateConfirmMessage")).toBeInTheDocument();
+    });
+
+    it("triggers generation on confirm", async () => {
+      const fetchMock = mockFetchHang();
+      globalThis.fetch = fetchMock;
+
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      // Click regenerate
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateCta" })
+        );
+      });
+
+      // Confirm
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateConfirmYes" })
+        );
+      });
+
+      expect(fetchMock).toHaveBeenCalled();
+    });
+
+    it("dismisses dialog on cancel", async () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      // Click regenerate
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateCta" })
+        );
+      });
+
+      // Cancel
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "regenerateConfirmNo" })
+        );
+      });
+
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+  });
+
   describe("Error handling", () => {
     it("shows error for 401 unauthorized", async () => {
       globalThis.fetch = mockFetchError(401);
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -282,10 +353,8 @@ describe("Phase6Wizard", () => {
     it("shows error for 429 rate limit", async () => {
       globalThis.fetch = mockFetchError(429);
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -296,10 +365,8 @@ describe("Phase6Wizard", () => {
     it("shows error for 403 age restricted", async () => {
       globalThis.fetch = mockFetchError(403);
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -312,10 +379,8 @@ describe("Phase6Wizard", () => {
     it("shows generic error for 500", async () => {
       globalThis.fetch = mockFetchError(500);
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -326,10 +391,8 @@ describe("Phase6Wizard", () => {
     it("shows timeout error on fetch exception", async () => {
       globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -343,10 +406,8 @@ describe("Phase6Wizard", () => {
       const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
       globalThis.fetch = fetchMock;
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {
@@ -378,10 +439,8 @@ describe("Phase6Wizard", () => {
       const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
       globalThis.fetch = fetchMock;
 
-      render(<Phase6Wizard {...BASE_PROPS} locale="pt-BR" />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} locale="pt-BR" />);
       });
 
       await waitFor(() => {
@@ -394,12 +453,10 @@ describe("Phase6Wizard", () => {
       const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
       globalThis.fetch = fetchMock;
 
-      render(
-        <Phase6Wizard {...BASE_PROPS} startDate={null} endDate={null} />
-      );
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(
+          <Phase6Wizard {...BASE_PROPS} startDate={null} endDate={null} />
+        );
       });
 
       await waitFor(() => {
@@ -416,10 +473,8 @@ describe("Phase6Wizard", () => {
         "data: [DONE]\n\n",
       ]);
 
-      render(<Phase6Wizard {...BASE_PROPS} />);
-
       await act(async () => {
-        fireEvent.click(screen.getByRole("button", { name: "generateCta" }));
+        render(<Phase6Wizard {...BASE_PROPS} />);
       });
 
       await waitFor(() => {

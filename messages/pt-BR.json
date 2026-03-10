@@ -603,7 +603,12 @@
       "errorAuth": "Erro de autenticação com a IA. Tente mais tarde.",
       "errorRateLimit": "Muitas requisições. Aguarde um momento.",
       "errorAgeRestricted": "Você precisa ter 18+ para usar recursos de IA.",
-      "cancelGeneration": "Cancelar"
+      "cancelGeneration": "Cancelar",
+      "aiDisclaimer": "Este roteiro foi gerado por inteligência artificial e pode conter imprecisões. Verifique horários, preços e disponibilidade antes de viajar.",
+      "regenerateConfirmTitle": "Regerar roteiro?",
+      "regenerateConfirmMessage": "Isso substituirá seu roteiro atual por um novo. Esta ação não pode ser desfeita.",
+      "regenerateConfirmYes": "Sim, regerar",
+      "regenerateConfirmNo": "Manter atual"
     },
     "hub": {
       "title": "Expedição",

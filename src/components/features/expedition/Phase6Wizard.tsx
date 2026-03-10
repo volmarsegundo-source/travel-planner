@@ -1,8 +1,8 @@
 "use client";
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2, Map, Sparkles, X } from "lucide-react";
+import { Info, Loader2, Map, RefreshCw, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
@@ -58,7 +58,9 @@ export function Phase6Wizard({
   const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
   const [streamingText, setStreamingText] = useState("");
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const hasTriggeredRef = useRef(false);
 
   const hasItinerary = days.length > 0;
   const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
@@ -71,6 +73,7 @@ export function Phase6Wizard({
     setError(null);
     setStreamingText("");
     setIsGenerating(true);
+    setShowRegenerateConfirm(false);
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
@@ -120,7 +123,6 @@ export function Phase6Wizard({
           if (line.startsWith("data: ")) {
             const data = line.slice(6);
             if (data === "[DONE]") {
-              // Generation complete, refresh page to load persisted data
               router.refresh();
               setIsGenerating(false);
               return;
@@ -131,11 +133,9 @@ export function Phase6Wizard({
         }
       }
 
-      // If we exit the loop without [DONE], refresh anyway
       router.refresh();
     } catch (err) {
       if (err instanceof DOMException && err.name === "AbortError") {
-        // User cancelled — not an error
         setStreamingText("");
       } else {
         setError(t("errorTimeout"));
@@ -150,8 +150,33 @@ export function Phase6Wizard({
     language, travelNotes, t, router,
   ]);
 
+  // Auto-trigger generation on first visit when no itinerary exists
+  useEffect(() => {
+    if (initialDays.length === 0 && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      handleGenerate();
+    }
+  }, [initialDays.length, handleGenerate]);
+
   function handleCancel() {
     abortControllerRef.current?.abort();
+  }
+
+  function handleRegenerateClick() {
+    if (hasItinerary) {
+      setShowRegenerateConfirm(true);
+    } else {
+      handleGenerate();
+    }
+  }
+
+  function handleRegenerateConfirm() {
+    setShowRegenerateConfirm(false);
+    handleGenerate();
+  }
+
+  function handleRegenerateCancel() {
+    setShowRegenerateConfirm(false);
   }
 
   // ─── State: Generating (streaming) ────────────────────────────────────────
@@ -199,6 +224,8 @@ export function Phase6Wizard({
   }
 
   // ─── State: Empty (no itinerary yet) ──────────────────────────────────────
+  // Note: auto-generation triggers immediately, so this state is brief.
+  // It shows if the user cancelled or if an error occurred.
 
   if (!hasItinerary) {
     return (
@@ -247,16 +274,58 @@ export function Phase6Wizard({
 
       <ItineraryEditor initialDays={days} tripId={tripId} locale={locale} />
 
+      {/* AI Disclaimer */}
+      <div
+        className="mt-6 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800/40 dark:bg-blue-950/30 dark:text-blue-200"
+        role="note"
+        data-testid="ai-disclaimer"
+      >
+        <Info className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
+        <p>{t("aiDisclaimer")}</p>
+      </div>
+
       {error && (
         <p role="alert" className="mt-4 text-sm text-destructive">
           {error}
         </p>
       )}
 
+      {/* Regenerate confirm dialog */}
+      {showRegenerateConfirm && (
+        <div
+          className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/40 dark:bg-amber-950/30"
+          role="alertdialog"
+          aria-label={t("regenerateConfirmTitle")}
+        >
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-200">
+            {t("regenerateConfirmTitle")}
+          </p>
+          <p className="mt-1 text-sm text-amber-700 dark:text-amber-300">
+            {t("regenerateConfirmMessage")}
+          </p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              variant="destructive"
+              onClick={handleRegenerateConfirm}
+            >
+              {t("regenerateConfirmYes")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRegenerateCancel}
+            >
+              {t("regenerateConfirmNo")}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="mt-8 flex justify-center">
         <Button
           variant="outline"
-          onClick={handleGenerate}
+          onClick={handleRegenerateClick}
           disabled={isGenerating}
           className="min-h-[44px] gap-2"
         >
@@ -264,7 +333,7 @@ export function Phase6Wizard({
             className={`h-4 w-4 ${isGenerating ? "animate-spin" : "hidden"}`}
             aria-hidden="true"
           />
-          <Sparkles
+          <RefreshCw
             className={`h-4 w-4 ${isGenerating ? "hidden" : ""}`}
             aria-hidden="true"
           />
