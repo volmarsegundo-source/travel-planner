@@ -61,9 +61,12 @@ Sprint 21 delivered all 9 committed items on time: Phase 4 "A Logística" full U
 - [PASS] Server-side Zod refinement: `adults + children.count + seniors + infants <= 20`
 - [PASS] Applied in PassengersSchema which is validated in server actions
 
-**Observations:**
-- SEC-S21-OBS-001 (INFO): Transport actions use `unknown[]` type parameter which is correctly handled by Zod parsing — not a vulnerability but consider typed input
-- SEC-S21-OBS-002 (INFO): Consider adding rate limiting on transport/accommodation save actions in future sprint
+**Observations (from detailed review SEC-S21-001-security-review.md):**
+- FIND-S21-001 (LOW): Spread operator on DB objects in `transport.service.ts:75` / `accommodation.service.ts:73` could leak future columns — recommend explicit field whitelist
+- FIND-S21-002 (LOW): `tripId` parameter not Zod-validated for CUID format in `transport.actions.ts` — recommend `z.string().cuid()`
+- FIND-S21-003 (INFO): `MAX_PASSENGERS_PER_TYPE` (20) equals `MAX_TOTAL_PASSENGERS` (20), making per-type cap redundant
+- FIND-S21-004 (LOW): Origin field in `expedition.schema.ts:11` lacks `.trim()`, allowing whitespace-only strings server-side
+- SEC-S21-OBS-001 (INFO): Consider adding rate limiting on transport/accommodation save actions in future sprint
 
 ---
 
@@ -165,6 +168,9 @@ Sprint 21 delivered all 9 committed items on time: Phase 4 "A Logística" full U
 | AI itinerary uses transport data | Needs prompt-engineer + finops consultation | Sprint 22 |
 | RecordListStep base extraction | Non-blocking tech debt | Sprint 22+ |
 | Rate limiting on transport actions | Low priority, auth-gated | Sprint 22+ |
+| Explicit field whitelist on service reads | FIND-S21-001, prevent future column leaks | Sprint 22 |
+| CUID validation on tripId params | FIND-S21-002, defense in depth | Sprint 22 |
+| Origin field .trim() | FIND-S21-004, whitespace-only input | Sprint 22 |
 
 ---
 
