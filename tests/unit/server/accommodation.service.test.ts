@@ -210,7 +210,7 @@ describe("AccommodationService", () => {
     it("converts Decimal estimatedCost to number", async () => {
       prismaMock.trip.findFirst.mockResolvedValue({ id: "trip-1" } as never);
       prismaMock.accommodation.findMany.mockResolvedValue([
-        makeDbAccommodation({ estimatedCost: { toNumber: () => 150.75 } }),
+        makeDbAccommodation({ estimatedCost: Object.assign(Object.create(null), { valueOf: () => 150.75, toString: () => "150.75", toNumber: () => 150.75 }) }),
       ] as never);
 
       const result = await AccommodationService.getAccommodations("user-1", "trip-1");

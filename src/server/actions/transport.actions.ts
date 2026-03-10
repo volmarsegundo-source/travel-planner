@@ -15,6 +15,8 @@ import { z } from "zod";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 
+const TripIdSchema = z.string().cuid();
+
 // ─── Transport Segments ─────────────────────────────────────────────────────
 
 export async function saveTransportSegmentsAction(
@@ -23,6 +25,11 @@ export async function saveTransportSegmentsAction(
 ): Promise<ActionResult<{ count: number }>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
+
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "Invalid trip ID" };
+  }
 
   const parsed = z.array(TransportSegmentSchema).safeParse(segments);
   if (!parsed.success) {
@@ -35,7 +42,7 @@ export async function saveTransportSegmentsAction(
   try {
     const result = await TransportService.saveSegments(
       session.user.id,
-      tripId,
+      tripIdParsed.data,
       parsed.data
     );
     return { success: true, data: { count: result.length } };
@@ -53,10 +60,15 @@ export async function getTransportSegmentsAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "Invalid trip ID" };
+  }
+
   try {
     const segments = await TransportService.getSegments(
       session.user.id,
-      tripId
+      tripIdParsed.data
     );
     return { success: true, data: { segments } };
   } catch (error) {
@@ -76,6 +88,11 @@ export async function saveAccommodationsAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "Invalid trip ID" };
+  }
+
   const parsed = z.array(AccommodationSchema).safeParse(accommodations);
   if (!parsed.success) {
     return {
@@ -87,7 +104,7 @@ export async function saveAccommodationsAction(
   try {
     const result = await AccommodationService.saveAccommodations(
       session.user.id,
-      tripId,
+      tripIdParsed.data,
       parsed.data
     );
     return { success: true, data: { count: result.length } };
@@ -105,10 +122,15 @@ export async function getAccommodationsAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "Invalid trip ID" };
+  }
+
   try {
     const accommodations = await AccommodationService.getAccommodations(
       session.user.id,
-      tripId
+      tripIdParsed.data
     );
     return { success: true, data: { accommodations } };
   } catch (error) {
@@ -128,6 +150,11 @@ export async function saveLocalMobilityAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "Invalid trip ID" };
+  }
+
   const parsed = LocalMobilitySchema.safeParse(mobility);
   if (!parsed.success) {
     return {
@@ -139,14 +166,15 @@ export async function saveLocalMobilityAction(
   try {
     // BOLA check + save mobility to phase metadata
     const trip = await db.trip.findFirst({
-      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      where: { id: tripIdParsed.data, userId: session.user.id, deletedAt: null },
+      select: { id: true },
     });
     if (!trip) {
       return { success: false, error: "Trip not found or unauthorized" };
     }
 
     const phase = await db.expeditionPhase.findUnique({
-      where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      where: { tripId_phaseNumber: { tripId: tripIdParsed.data, phaseNumber: 4 } },
     });
     if (!phase) {
       return { success: false, error: "Phase not found" };
@@ -178,16 +206,22 @@ export async function getLocalMobilityAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "Invalid trip ID" };
+  }
+
   try {
     const trip = await db.trip.findFirst({
-      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      where: { id: tripIdParsed.data, userId: session.user.id, deletedAt: null },
+      select: { id: true },
     });
     if (!trip) {
       return { success: false, error: "Trip not found or unauthorized" };
     }
 
     const phase = await db.expeditionPhase.findUnique({
-      where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+      where: { tripId_phaseNumber: { tripId: tripIdParsed.data, phaseNumber: 4 } },
     });
 
     const meta = (phase?.metadata as Record<string, unknown>) ?? {};

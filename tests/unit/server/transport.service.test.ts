@@ -230,7 +230,7 @@ describe("TransportService", () => {
     it("converts Decimal estimatedCost to number", async () => {
       prismaMock.trip.findFirst.mockResolvedValue({ id: "trip-1" } as never);
       prismaMock.transportSegment.findMany.mockResolvedValue([
-        makeDbSegment({ estimatedCost: { toNumber: () => 250.5 } }),
+        makeDbSegment({ estimatedCost: Object.assign(Object.create(null), { valueOf: () => 250.5, toString: () => "250.5", toNumber: () => 250.5 }) }),
       ] as never);
 
       const result = await TransportService.getSegments("user-1", "trip-1");

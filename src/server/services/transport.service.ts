@@ -19,6 +19,7 @@ export class TransportService {
     // 1. BOLA check
     const trip = await db.trip.findFirst({
       where: { id: tripId, userId, deletedAt: null },
+      select: { id: true },
     });
     if (!trip) throw new Error("Trip not found or unauthorized");
 
@@ -64,6 +65,7 @@ export class TransportService {
   static async getSegments(userId: string, tripId: string) {
     const trip = await db.trip.findFirst({
       where: { id: tripId, userId, deletedAt: null },
+      select: { id: true },
     });
     if (!trip) throw new Error("Trip not found or unauthorized");
 
@@ -76,11 +78,7 @@ export class TransportService {
       ...seg,
       bookingCode: seg.bookingCodeEnc ? decrypt(seg.bookingCodeEnc) : null,
       bookingCodeEnc: undefined, // never expose encrypted value
-      estimatedCost: seg.estimatedCost
-        ? typeof (seg.estimatedCost as unknown as { toNumber?: () => number }).toNumber === "function"
-          ? (seg.estimatedCost as unknown as { toNumber: () => number }).toNumber()
-          : Number(seg.estimatedCost)
-        : null,
+      estimatedCost: seg.estimatedCost ? Number(seg.estimatedCost) : null,
     }));
   }
 }

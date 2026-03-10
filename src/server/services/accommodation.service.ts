@@ -19,6 +19,7 @@ export class AccommodationService {
     // 1. BOLA check
     const trip = await db.trip.findFirst({
       where: { id: tripId, userId, deletedAt: null },
+      select: { id: true },
     });
     if (!trip) throw new Error("Trip not found or unauthorized");
 
@@ -62,6 +63,7 @@ export class AccommodationService {
   static async getAccommodations(userId: string, tripId: string) {
     const trip = await db.trip.findFirst({
       where: { id: tripId, userId, deletedAt: null },
+      select: { id: true },
     });
     if (!trip) throw new Error("Trip not found or unauthorized");
 
@@ -74,11 +76,7 @@ export class AccommodationService {
       ...acc,
       bookingCode: acc.bookingCodeEnc ? decrypt(acc.bookingCodeEnc) : null,
       bookingCodeEnc: undefined, // never expose encrypted value
-      estimatedCost: acc.estimatedCost
-        ? typeof (acc.estimatedCost as unknown as { toNumber?: () => number }).toNumber === "function"
-          ? (acc.estimatedCost as unknown as { toNumber: () => number }).toNumber()
-          : Number(acc.estimatedCost)
-        : null,
+      estimatedCost: acc.estimatedCost ? Number(acc.estimatedCost) : null,
     }));
   }
 }

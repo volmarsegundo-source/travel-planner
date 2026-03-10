@@ -8,7 +8,7 @@ export const Phase1Schema = z.object({
     .string()
     .min(1, "Destination is required")
     .max(150, "Destination must be at most 150 characters"),
-  origin: z.string().max(150).optional(),
+  origin: z.string().trim().max(150).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   flexibleDates: z.boolean().default(false),
