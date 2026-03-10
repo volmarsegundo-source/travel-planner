@@ -560,6 +560,7 @@
       "advancePending": "Avançar (checklist pendente)",
       "advancePartial": "Avançar ({count} itens pendentes)",
       "advanceComplete": "Fase Completa — Avançar →",
+      "goToCurrentPhase": "Ir para a Fase {phase} →",
       "tripTypes": {
         "domestic": "Nacional",
         "mercosul": "Mercosul",
@@ -599,6 +600,7 @@
       "advancePending": "Avançar (aluguel de carro pendente)",
       "advancePartial": "Avançar ({count} itens pendentes)",
       "advanceComplete": "Fase Completa — Avançar →",
+      "goToCurrentPhase": "Ir para a Fase {phase} →",
       "tripTypes": {
         "domestic": "Nacional",
         "mercosul": "Mercosul",
@@ -806,7 +808,8 @@
     "aiParseError": "Não foi possível ler a resposta da IA. Tente novamente.",
     "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
     "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
-    "validation": "Dados de entrada inválidos."
+    "validation": "Dados de entrada inválidos.",
+    "phaseAlreadyCompleted": "Esta fase já foi concluída. Vá para a fase atual para continuar."
   },
   "legal": {
     "terms": {

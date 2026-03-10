@@ -33,6 +33,7 @@ interface Phase4WizardProps {
   tripType: string;
   destination: string;
   startDate: string | null;
+  currentPhase?: number;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -42,6 +43,7 @@ export function Phase4Wizard({
   tripType,
   destination,
   startDate,
+  currentPhase,
 }: Phase4WizardProps) {
   const t = useTranslations("expedition.phase4");
   const tCommon = useTranslations("common");
@@ -76,6 +78,7 @@ export function Phase4Wizard({
     rank?: Rank | null;
   }>({ points: 0 });
 
+  const isRevisiting = currentPhase !== undefined && currentPhase > 4;
   const needsCinh = tripType === "international" || tripType === "schengen";
   const isMercosul = tripType === "mercosul";
 
@@ -491,26 +494,36 @@ export function Phase4Wizard({
           </div>
         </div>
 
-        {/* Advance button — always visible */}
+        {/* Advance button — or "Go to current phase" when revisiting */}
         <div className="mt-8">
-          <Button
-            onClick={handleAdvance}
-            disabled={isCompleting}
-            size="lg"
-            className={`w-full ${
-              canComplete
-                ? ""
-                : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
-            }`}
-          >
-            {isCompleting
-              ? tCommon("loading")
-              : canComplete
-                ? t("advanceComplete")
-                : needsCarRental === null
-                  ? t("advancePending")
-                  : t("advancePartial", { count: 1 })}
-          </Button>
+          {isRevisiting ? (
+            <Button
+              onClick={() => router.push(`/expedition/${tripId}/phase-${currentPhase}`)}
+              size="lg"
+              className="w-full"
+            >
+              {t("goToCurrentPhase", { phase: currentPhase })}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleAdvance}
+              disabled={isCompleting}
+              size="lg"
+              className={`w-full ${
+                canComplete
+                  ? ""
+                  : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+              }`}
+            >
+              {isCompleting
+                ? tCommon("loading")
+                : canComplete
+                  ? t("advanceComplete")
+                  : needsCarRental === null
+                    ? t("advancePending")
+                    : t("advancePartial", { count: 1 })}
+            </Button>
+          )}
         </div>
       </div>
     </div>

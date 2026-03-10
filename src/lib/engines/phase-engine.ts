@@ -168,7 +168,7 @@ export class PhaseEngine {
       if (phaseNumber > trip.currentPhase) {
         throw new AppError(
           "PHASE_ORDER_VIOLATION",
-          `Expected phase ${trip.currentPhase} or earlier, got ${phaseNumber}`,
+          "errors.phaseAlreadyCompleted",
           400
         );
       }
@@ -176,7 +176,7 @@ export class PhaseEngine {
       if (phaseNumber !== trip.currentPhase) {
         throw new AppError(
           "PHASE_ORDER_VIOLATION",
-          `Expected phase ${trip.currentPhase}, got ${phaseNumber}`,
+          "errors.phaseAlreadyCompleted",
           400
         );
       }
@@ -327,7 +327,7 @@ export class PhaseEngine {
     if (phaseNumber !== trip.currentPhase) {
       throw new AppError(
         "PHASE_ORDER_VIOLATION",
-        `Can only advance from current phase ${trip.currentPhase}, got ${phaseNumber}`,
+        "errors.phaseAlreadyCompleted",
         400
       );
     }

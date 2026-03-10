@@ -2,21 +2,33 @@
 
 ## Project: Travel Planner
 
-### Backlog State (as of 2026-03-10)
-- Product version: 0.13.0 (post Sprint 19 merge)
-- Sprints 1-19 complete; Sprint 19 = bug fixes + guide redesign (1365 tests)
+### Backlog State (as of 2026-03-11)
+- Product version: 0.15.1 (post Sprint 22-S Stabilization)
+- Sprints 1-21 complete + Sprint 22-S (stabilization, 14 bug fixes)
+- 1575 tests passing, 0 failures, clean build
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
 - Next available US ID: US-124; Next available Task ID: TBD
 - Full backlog: US-001 through US-016 + US-100 through US-123
-- US-123: Personal Preferences Expansion (defined Sprint 20)
-- ITEM-13 (Transport) + ITEM-14 (Destination Guide) spec: `docs/product/TRANSPORT-PHASE-SPEC.md`
-- Sprint 20 backlog: `docs/sprints/SPRINT-20-BACKLOG.md`
+- Sprint 22 backlog seeds: `docs/sprints/SPRINT-22-BACKLOG-SEEDS.md` (11 items, 20-28h)
+- Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md`
+- Staging: travel-planner-eight-navy.vercel.app (manual testing pending)
+
+### Sprint 21 Results (latest feature sprint)
+- ALL Sprint 21 seeds delivered (transport UI, accommodation, mobility, origin, encryption, passenger cap, progress bar UX)
+- 1575 tests (106 suites), v0.15.0
+- Sprint review: APPROVED (all 6 reviewers)
+- Stabilization Sprint 22-S: 14 bug fixes, v0.15.1
+
+### Sprint 20 Results
+- 12/12 tasks completed (100%)
+- Preferences 10 categories, passengers airline-style, Phase 1 reorder, profile persistence
+- SEC-S19-001 RESOLVED (last known security debt at time)
+- v0.14.0, 1489 tests
 
 ### Sprint 19 Results
 - 10 of 12 tasks delivered
-- DONE: streaming fix, phase 6+ nav, progress count, cascade delete, guide redesign (10 cats), confirmation screen, auto-advance, currency default, dedup, bio display
-- NOT DONE (carry to S20): DEFER-001 (remove dup buttons), DEFER-002 (Phase 1 reorder)
-- P2 deferred: clickable progress bar, phase labels
+- Guide redesign (10 cats), streaming fix, cascade delete, auto-advance
+- Carried to S20: DEFER-001, DEFER-002 (both resolved)
 
 ### Sprint 20 Plan (theme: "Personal Preferences + UX Debt Cleanup")
 - P0: T-S20-001 verify guide redesign on staging (0.5h)
@@ -99,19 +111,24 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 19)
-- Sprint 20: Preferences expansion (US-123) + Phase 1 reorder + UX debt cleanup
-- Sprint 21: Transport phase -- US-118 (origin) + US-115 (transport) + US-117 (mobility) + Fase 4 rename
-- Sprint 22: US-116 (accommodation) + US-119 (AI cost estimate)
-- Future: US-122 (destination chat AI -- Premium), progress bar clickable/labels
+### MVP Roadmap (updated post Sprint 22-S)
+- Sprint 22: AI transport integration + security hardening + code quality (SEED-S22-001 through 011)
+- Sprint 23: GeminiProvider (Free tier) + paginas legais + US-119 (AI cost estimate)
+- Sprint 24: Analytics (PostHog) + testes manuais + prompt caching -- BETA READY
+- Sprint 25: Beta launch (50-100 users) + US-122 (Premium chat AI)
+- Sprint 26-28: Iteration on feedback + payment gateway + v1.0 GA
+- Full roadmap: `docs/product/ROADMAP-2026-Q2.md`
 
-### Pending Debts (post Sprint 19)
-- SEC-S19-001: Raw userId in gamification logs (9 occurrences, ~1h) -- scheduled Sprint 20
-- DEFER-001: Remove duplicate buttons in ExpeditionCard -- scheduled Sprint 20
-- DEFER-002: Phase 1 step reorder -- scheduled Sprint 20
-- DEFER-004: Hardcoded gray colors in ExpeditionHubPage -- scheduled Sprint 20
-- T-S19-011: Clickable progress bar -- deferred
-- T-S19-012: Progress bar phase labels -- deferred
+### Pending Debts (post Sprint 22-S)
+- DT-S9-001 (HIGH): spendPoints TOCTOU race condition -- scheduled Sprint 22
+- DT-S15-005 (MEDIUM): recordGeneration catch block vazio -- scheduled Sprint 23
+- DT-010 (MEDIUM): TrustSignals.tsx uses next/link incorrectly -- scheduled Sprint 23
+- Redis singleton globalThis (MEDIUM): connection leak risk -- scheduled Sprint 23
+- DEBT-S6-003 (MEDIUM): Analytics events not implemented -- scheduled Sprint 23
+- BUG-S7-004 (LOW): Footer links 404 -- scheduled Sprint 22
+- BUG-S7-006 (LOW): aria-label hardcoded English -- scheduled Sprint 22
+- 8 LOW items: DEBT-S7-002/003, DEBT-S8-005, DEBT-S18-002, DT-S15-001, SEC-S16/S17 findings
+- Total: 17 debt items across 21 sprints (~0.8/sprint, healthy rate)
 
 ### Gemini Flash Pricing (March 2026)
 - Gemini 2.5 Flash: $0.30/M input, $2.50/M output
@@ -130,3 +147,8 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Sprint 19: guide redesign took more scope than estimated, causing 2 P1 items to slip. Use generous buffer (>25%) for sprints with UI redesign work.
 - Task ID discipline: commit IDs must match planning doc IDs (Sprint 19 lesson)
 - Transport is 36-40h minimum -- never try to squeeze it alongside other features
+- Sprint 20: Prisma JSON fields need `as unknown as Prisma.InputJsonValue` cast -- build breaks that tests don't catch
+- Sprint 20: Preferences scope grew from 8 to 10 categories during implementation -- flag scope increases early
+- Sprint 22-S: Stabilization sprint post-feature sprint is valuable -- 14 bugs fixed. Consider scheduling after every major feature sprint.
+- MVP readiness: features ~78% complete but 0% operational readiness (analytics, monitoring, legal pages). Must address before beta.
+- Beta blockers are NOT feature gaps -- they are compliance (LGPD pages), cost (GeminiProvider), and quality (manual testing)

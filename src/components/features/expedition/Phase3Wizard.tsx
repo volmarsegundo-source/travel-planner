@@ -27,6 +27,7 @@ interface Phase3WizardProps {
   items: ChecklistItemData[];
   tripType: string;
   destination: string;
+  currentPhase?: number;
 }
 
 export function Phase3Wizard({
@@ -34,6 +35,7 @@ export function Phase3Wizard({
   items: initialItems,
   tripType,
   destination,
+  currentPhase,
 }: Phase3WizardProps) {
   const t = useTranslations("expedition.phase3");
   const tCommon = useTranslations("common");
@@ -54,6 +56,8 @@ export function Phase3Wizard({
     key: string;
     points: number;
   } | null>(null);
+
+  const isRevisiting = currentPhase !== undefined && currentPhase > 3;
 
   const requiredItems = items.filter((i) => i.required);
   const recommendedItems = items.filter((i) => !i.required);
@@ -265,28 +269,38 @@ export function Phase3Wizard({
           </div>
         )}
 
-        {/* Advance button — always enabled */}
+        {/* Advance button — or "Go to current phase" when revisiting */}
         <div className="mt-8">
-          <Button
-            onClick={handleAdvance}
-            disabled={isCompleting}
-            size="lg"
-            className={`w-full ${
-              allRequiredDone
-                ? ""
-                : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
-            }`}
-          >
-            {isCompleting
-              ? tCommon("loading")
-              : allRequiredDone
-                ? t("advanceComplete")
-                : requiredCompleted === 0
-                  ? t("advancePending")
-                  : t("advancePartial", {
-                      count: requiredItems.length - requiredCompleted,
-                    })}
-          </Button>
+          {isRevisiting ? (
+            <Button
+              onClick={() => router.push(`/expedition/${tripId}/phase-${currentPhase}`)}
+              size="lg"
+              className="w-full"
+            >
+              {t("goToCurrentPhase", { phase: currentPhase })}
+            </Button>
+          ) : (
+            <Button
+              onClick={handleAdvance}
+              disabled={isCompleting}
+              size="lg"
+              className={`w-full ${
+                allRequiredDone
+                  ? ""
+                  : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
+              }`}
+            >
+              {isCompleting
+                ? tCommon("loading")
+                : allRequiredDone
+                  ? t("advanceComplete")
+                  : requiredCompleted === 0
+                    ? t("advancePending")
+                    : t("advancePartial", {
+                        count: requiredItems.length - requiredCompleted,
+                      })}
+            </Button>
+          )}
         </div>
       </div>
     </div>

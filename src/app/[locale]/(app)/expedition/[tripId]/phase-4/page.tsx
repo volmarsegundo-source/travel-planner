@@ -51,6 +51,7 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
         tripType={trip.tripType}
         destination={trip.destination}
         startDate={trip.startDate?.toISOString() ?? null}
+        currentPhase={trip.currentPhase}
       />
     </>
   );

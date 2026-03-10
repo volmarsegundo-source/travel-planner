@@ -73,6 +73,7 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
         items={serializedItems}
         tripType={trip.tripType}
         destination={trip.destination}
+        currentPhase={trip.currentPhase}
       />
     </>
   );

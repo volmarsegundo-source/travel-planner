@@ -560,6 +560,7 @@
       "advancePending": "Advance (checklist pending)",
       "advancePartial": "Advance ({count} items pending)",
       "advanceComplete": "Phase Complete — Advance →",
+      "goToCurrentPhase": "Go to Phase {phase} →",
       "tripTypes": {
         "domestic": "Domestic",
         "mercosul": "Mercosul",
@@ -599,6 +600,7 @@
       "advancePending": "Advance (car rental pending)",
       "advancePartial": "Advance ({count} items pending)",
       "advanceComplete": "Phase Complete — Advance →",
+      "goToCurrentPhase": "Go to Phase {phase} →",
       "tripTypes": {
         "domestic": "Domestic",
         "mercosul": "Mercosul",
@@ -817,7 +819,8 @@
     "aiParseError": "Could not read the AI response. Please try again.",
     "aiSchemaError": "The AI returned an unexpected format. Please try again.",
     "rateLimitExceeded": "Too many requests. Please try again later.",
-    "validation": "Invalid input data."
+    "validation": "Invalid input data.",
+    "phaseAlreadyCompleted": "This phase is already completed. Go to your current phase to continue."
   },
   "legal": {
     "terms": {
