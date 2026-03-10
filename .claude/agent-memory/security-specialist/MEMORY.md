@@ -1,6 +1,14 @@
 # Security Specialist Memory -- Travel Planner (Atlas)
 
 ## Reviews Completed
+- **Sprint 20** (2026-03-10): T-S20-003, T-S20-004/005, T-S20-006, T-S20-009, T-S20-011 -- APPROVED
+  - Report: `docs/security/SPRINT-20-SECURITY-REVIEW.md`
+  - SEC-S19-001 (LOW) RESOLVED: all 9 raw userId in gamification engines now use hashUserId()
+  - Profile persistence: BOLA via session.user.id, no sensitive fields in client props
+  - Preferences: Zod enums prevent arbitrary value injection, idempotent point awards
+  - Passengers: Zod schema validates structure, refinement ensures ages.length === count
+  - Transport/Accommodation: onDelete Cascade + explicit deletion in account transaction
+  - Booking codes: schema ready for AES-256-GCM (bookingCodeEnc field), encryption in Sprint 21
 - **Sprint 19** (2026-03-10): T-S19-001a/b/c, T-S19-002, T-S19-003, T-S19-008 -- APPROVED
   - Report: `docs/security/SPRINT-19-SECURITY-REVIEW.md`
   - SEC-S18-001 (MEDIUM) RESOLVED: cascade deletion now covers Activity, ItineraryDay, ChecklistItem
@@ -27,10 +35,12 @@
 - Redis singleton not persisted in globalThis in production (connection leak risk)
 
 ### LOW
-- SEC-S19-001: Raw userId in logger calls in phase-engine.ts (4 locations), points-engine.ts (4 locations), itinerary-plan.service.ts (1 location) -- 9 total
 - SEC-S17-001: Computed property name in profile.actions.ts upsert (mitigated by validation)
 - SEC-S17-002: Controlled spread in profile.service.ts upsert create
 - SEC-S16-003 to SEC-S16-007: Regex refinements, phone pattern gaps, passport false positives
+
+## Resolved in Sprint 20
+- SEC-S19-001 (LOW): Raw userId in gamification engine logs -- RESOLVED (T-S20-003, all 9 locations hashed)
 
 ## Resolved in Sprint 19
 - SEC-S18-001 (MEDIUM): ItineraryDay, Activity, ChecklistItem not cleaned on account deletion -- RESOLVED (T-S19-003)
@@ -53,10 +63,10 @@
 
 ## Security Architecture (Sprint 19+)
 - **Mass assignment defense:** All Prisma .create/.update use explicit field lists (not spread)
-- **Account deletion flow:** $transaction: deleteMany(Account, Session, UserProfile, UserBadge, PointTransaction, UserProgress) -> trip-dependent deletes (Activity, ItineraryDay, ChecklistItem, ExpeditionPhase, PhaseChecklistItem, ItineraryPlan, DestinationGuide) -> soft-delete(User) -> cascade soft-delete(Trip)
-  - ALL child models now explicitly deleted -- no orphaned data (SEC-S18-001 RESOLVED)
+- **Account deletion flow:** $transaction: deleteMany(Account, Session, UserProfile, UserBadge, PointTransaction, UserProgress) -> trip-dependent deletes (Activity, ItineraryDay, ChecklistItem, ExpeditionPhase, PhaseChecklistItem, ItineraryPlan, DestinationGuide, TransportSegment, Accommodation) -> soft-delete(User) -> cascade soft-delete(Trip)
+  - ALL child models now explicitly deleted -- no orphaned data (verified Sprint 20)
 - **userId hashing:** SHA-256 truncated to 12 hex chars via src/lib/hash.ts
-  - Applied in actions, services, API routes -- GAP remains in gamification engines (SEC-S19-001)
+  - Applied in ALL actions, services, API routes, AND gamification engines (SEC-S19-001 RESOLVED Sprint 20)
 - **AI params validation:** Zod schemas in src/lib/validations/ai.schema.ts
   - Applied BEFORE rate limit check (saves quota on invalid requests)
   - Zod strips unknown fields by default (prevents mass assignment via params)
@@ -91,12 +101,16 @@
 - Streaming API route: `src/app/api/ai/plan/stream/route.ts`
 - Itinerary persistence: `src/server/services/itinerary-persistence.service.ts`
 - Itinerary plan service: `src/server/services/itinerary-plan.service.ts`
+- Preferences schema: `src/lib/validations/preferences.schema.ts`
+- Preferences service: `src/server/services/preferences.service.ts`
+- Transport schema: `src/lib/validations/transport.schema.ts`
+- Trip schema (passengers): `src/lib/validations/trip.schema.ts`
 - Security reviews: `docs/security/`
 
 ## LGPD Compliance Notes
 - PII masker uses `[TYPE-REDACTED]` -- non-reversible, LGPD-safe
 - Account deletion: OAuth tokens, sessions, UserProfile (encrypted PII), gamification data, itinerary data ALL cleaned
-- No orphaned data after account deletion (verified Sprint 19)
+- No orphaned data after account deletion (verified Sprint 20 -- includes TransportSegment, Accommodation)
 - CPF, email, phone BR, credit card, passport patterns covered in PII masker
 
 ## Patterns to Enforce

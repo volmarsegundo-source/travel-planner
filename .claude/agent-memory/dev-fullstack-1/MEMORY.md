@@ -74,6 +74,21 @@ Never log PII — use userId only, never email in logs
 - DestinationAutocomplete uses `useLocale()` from next-intl
 - When mocking next-intl, must include both `useTranslations` and `useLocale`
 
+#### Phase1Wizard step order (Sprint 20)
+- Step 1: About You (birthDate, phone, country, city, bio)
+- Step 2: Destination (autocomplete + trip type badge)
+- Step 3: Dates (startDate, endDate, flexibleDates)
+- Step 4: Confirmation (summary + submit)
+- Profile persistence: if userProfile has birthDate+country+city, show summary card with Edit button
+- i18n keys: step1=about you, step2=destination, step3=dates (swapped from original)
+
+#### Passengers model (Sprint 20)
+- `passengers Json?` on Trip model, structure: { adults, children: { count, ages[] }, seniors, infants }
+- PassengersSchema in `src/lib/validations/trip.schema.ts` with getTotalPassengers helper
+- Phase2Wizard: "passengers" step replaces "groupSize" for family/group types
+- Phase2Schema in expedition.schema.ts has optional passengers field
+- ExpeditionService.completePhase2 persists passengers to Trip
+
 ### Completed Tasks
 - T-012: i18n setup with next-intl (locale routing, messages, middleware)
 - T-001: Auth.js backend (auth config, service, actions, route handler, tests)
@@ -89,3 +104,9 @@ Never log PII — use userId only, never email in logs
 - T-S19-001c: Fix stale useState with key prop on Phase6Wizard
 - T-S19-007: Cascade deletion test for SEC-S18-001 (code already in place)
 - T-S19-008: Guide expansion 6→10 sections, type/details fields, 4096 tokens
+- T-S20-001: Guide redesign backward compatibility (null guards for old 6-section guides, 3 tests)
+- T-S20-003: Hash userId in gamification engines (12 occurrences across 3 files)
+- T-S20-004: Phase1 step reorder — About You first (11 tests)
+- T-S20-005: Profile persistence — summary card + Edit toggle (18 tests)
+- T-S20-009: Passenger data model — PassengersSchema + migration (21 tests)
+- T-S20-010: Passenger UI — airline-style steppers in Phase2Wizard (13 tests)

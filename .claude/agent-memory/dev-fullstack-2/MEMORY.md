@@ -28,6 +28,22 @@
 - `aria-label` on a button overrides text content for accessible name — avoid setting both
 - ProgressIndicator mock returns key string without interpolation since `"onboarding.progress"` doesn't contain `{current}` literal — test for `"onboarding.progress"` not interpolated value
 
+## Sprint 20 — Completed Tasks (dev-fullstack-2)
+- T-S20-002: Remove duplicate checklist/itinerary shortcuts from ExpeditionCard (PhaseToolsBar already provides them)
+- T-S20-006: Preferences schema — Prisma migration (preferences Json? on UserProfile), Zod PreferencesSchema with 10 categories, PreferencesService
+- T-S20-007: Preferences UI — PreferenceChip, PreferenceCategory, PreferenceProgressBar, PreferencesSection with debounced auto-save (500ms)
+- T-S20-008: Preferences gamification — savePreferencesAction awards 5pts per newly filled category, identity_explorer badge at 5+ categories
+- T-S20-011: Transport data model — TransportSegment + Accommodation Prisma models, Zod schemas, Phase 4 rename "A Logistica", cascade deletion
+- T-S20-012: Fix test regressions — phase-engine test (Phase 4 rename), account.actions test (transport/accommodation mock in makeMockTx)
+
+## Sprint 20 Patterns
+- Preferences: 10 categories, 6 single-select (nullable enum) + 4 multi-select (string array), stored as Json in UserProfile
+- Chip-based UI: PreferenceChip with role="radio"|"checkbox", min 44px touch target, aria-checked
+- Debounced auto-save: useRef for debounce timer, useTransition for isPending state, 500ms delay
+- "no_restrictions" mutual exclusivity: selecting it clears other food preferences, selecting others clears it
+- Prisma permission denied on Windows: create migration SQL manually, skip prisma generate (tests mock PrismaClient)
+- When adding cascade deletion models, update makeMockTx() in account.actions.test.ts
+
 ## Sprint 19 — Completed Tasks (dev-fullstack-2)
 - T-S19-002: Fix navigation for completed trips — added `getHighestCompletedPhase()` to PhaseEngine, simplified ExpeditionHubPage redirect logic
 - T-S19-003: Cascade deletion (SEC-S18-001) — added Activity, ItineraryDay, ChecklistItem cleanup in deleteUserAccountAction transaction
