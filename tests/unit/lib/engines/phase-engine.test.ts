@@ -967,7 +967,7 @@ describe("PhaseEngine.useAiInPhase", () => {
       TEST_USER_ID,
       100,
       "ai_usage",
-      "AI usage in phase 4: O Abrigo (ai_accommodation)",
+      "AI usage in phase 4: A Logística (ai_accommodation)",
       TEST_TRIP_ID
     );
   });
