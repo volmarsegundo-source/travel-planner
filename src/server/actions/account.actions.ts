@@ -146,7 +146,45 @@ export async function deleteUserAccountAction(
         where: { userId: user.id },
       });
 
-      // 3. Soft delete and anonymize the user record
+      // 3. Clean up gamification + profile data (SEC-S17-003 / LGPD)
+      // UserProfile contains encrypted PII (passportNumber, nationalId)
+      await tx.userProfile.deleteMany({
+        where: { userId: user.id },
+      });
+      await tx.userBadge.deleteMany({
+        where: { userId: user.id },
+      });
+      await tx.pointTransaction.deleteMany({
+        where: { userId: user.id },
+      });
+      await tx.userProgress.deleteMany({
+        where: { userId: user.id },
+      });
+
+      // 4. Clean up trip-dependent data (ExpeditionPhase, PhaseChecklistItem, ItineraryPlan, DestinationGuide)
+      // These reference tripId, not userId directly
+      const userTripIds = await tx.trip.findMany({
+        where: { userId: user.id },
+        select: { id: true },
+      });
+      const tripIds = userTripIds.map((t) => t.id);
+
+      if (tripIds.length > 0) {
+        await tx.expeditionPhase.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
+        await tx.phaseChecklistItem.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
+        await tx.itineraryPlan.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
+        await tx.destinationGuide.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
+      }
+
+      // 5. Soft delete and anonymize the user record
       await tx.user.update({
         where: { id: user.id },
         data: {
@@ -158,7 +196,7 @@ export async function deleteUserAccountAction(
         },
       });
 
-      // 4. Cascade soft delete: mark all user's trips as deleted
+      // 6. Cascade soft delete: mark all user's trips as deleted
       await tx.trip.updateMany({
         where: { userId: user.id, deletedAt: null },
         data: { deletedAt: now },
