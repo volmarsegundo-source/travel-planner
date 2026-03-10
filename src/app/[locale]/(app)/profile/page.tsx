@@ -93,7 +93,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
         totalPoints={progress.totalPoints}
         availablePoints={progress.availablePoints}
         streakDays={progress.streakDays}
-        earnedBadges={progress.badges.map((b) => b.badgeKey as BadgeKey)}
+        earnedBadges={progress.badges.map((b: (typeof progress.badges)[number]) => b.badgeKey as BadgeKey)}
         transactions={history.transactions}
         profile={profileData}
       />

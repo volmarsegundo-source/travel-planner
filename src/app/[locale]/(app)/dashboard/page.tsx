@@ -33,8 +33,8 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
     "Traveler";
 
   const expeditions = tripsWithPhases
-    .filter((t) => t.expeditionMode)
-    .map((t) => ({
+    .filter((t: (typeof tripsWithPhases)[number]) => t.expeditionMode)
+    .map((t: (typeof tripsWithPhases)[number]) => ({
       id: t.id,
       destination: t.destination,
       currentPhase: t.currentPhase,

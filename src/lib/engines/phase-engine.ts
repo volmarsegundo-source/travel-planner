@@ -16,7 +16,7 @@ import { canUseAI } from "@/lib/guards/age-guard";
 
 // ─── Phase Engine ───────────────────────────────────────────────────────────
 
-type Tx = Parameters<Parameters<typeof db.$transaction>[0]>[0];
+type Tx = Prisma.TransactionClient;
 
 export class PhaseEngine {
   /**
@@ -69,7 +69,7 @@ export class PhaseEngine {
       orderBy: { phaseNumber: "asc" },
     });
 
-    return phases.map((phase) => ({
+    return phases.map((phase: (typeof phases)[number]) => ({
       ...phase,
       status: phase.status as PhaseStatus,
       definition: getPhaseDefinition(phase.phaseNumber as PhaseNumber),
@@ -194,7 +194,8 @@ export class PhaseEngine {
           status: "completed",
           completedAt: new Date(),
           pointsEarned: definition.pointsReward,
-          metadata: (metadata as Prisma.InputJsonValue) ?? undefined,
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          metadata: (metadata as any) ?? undefined,
         },
       });
 

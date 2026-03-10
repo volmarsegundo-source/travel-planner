@@ -49,7 +49,7 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
   // Fetch checklist items
   const items = await ChecklistEngine.getPhaseChecklist(tripId, 3);
 
-  const serializedItems = items.map((item) => ({
+  const serializedItems = items.map((item: (typeof items)[number]) => ({
     id: item.id,
     itemKey: item.itemKey,
     required: item.required,

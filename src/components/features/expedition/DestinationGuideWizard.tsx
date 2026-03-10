@@ -46,7 +46,7 @@ export function DestinationGuideWizard({
   const router = useRouter();
 
   const [guide, setGuide] = useState(initialGuide?.content ?? null);
-  const [generationCount, setGenerationCount] = useState(
+  const [_generationCount, setGenerationCount] = useState(
     initialGuide?.generationCount ?? 0
   );
   const [viewedSections, setViewedSections] = useState<string[]>(
