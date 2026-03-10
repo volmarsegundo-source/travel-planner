@@ -30,12 +30,9 @@ export function ExpeditionCard({
   checklistRequired,
   checklistRequiredDone,
   checklistRecommendedPending,
-  hasItineraryPlan = false,
+  // hasItineraryPlan removed — PhaseToolsBar handles itinerary shortcut (DEBT-S18-001)
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
-
-  const showChecklistShortcut = currentPhase >= 5;
-  const showItineraryShortcut = hasItineraryPlan;
 
   return (
     <div className="relative rounded-xl border border-border bg-card p-5 shadow-sm transition-shadow hover:shadow-md hover:shadow-atlas-gold/5">
@@ -72,36 +69,7 @@ export function ExpeditionCard({
               />
             </div>
           )}
-          {/* Itinerary badge — visible when plan has been generated */}
-          {hasItineraryPlan && !showItineraryShortcut && (
-            <p className="mt-2 text-xs text-atlas-teal">
-              {t("itineraryGenerated")}
-            </p>
-          )}
-          {/* Quick-access shortcuts */}
-          {(showChecklistShortcut || showItineraryShortcut) && (
-            <div className="mt-3 flex gap-2">
-              {showChecklistShortcut && (
-                <Link
-                  href={`/expedition/${tripId}/phase-5`}
-                  className="relative z-20 pointer-events-auto inline-flex items-center gap-1 rounded-md border border-atlas-teal/30 bg-atlas-teal/5 px-2.5 py-1 text-xs font-medium text-atlas-teal transition-colors hover:bg-atlas-teal/15"
-                >
-                  <span aria-hidden="true">📋</span>
-                  {t("viewChecklist")}
-                </Link>
-              )}
-              {showItineraryShortcut && (
-                <Link
-                  href={`/expedition/${tripId}/phase-6`}
-                  className="relative z-20 pointer-events-auto inline-flex items-center gap-1 rounded-md border border-atlas-gold/30 bg-atlas-gold/5 px-2.5 py-1 text-xs font-medium text-atlas-gold transition-colors hover:bg-atlas-gold/15"
-                >
-                  <span aria-hidden="true">🗺️</span>
-                  {t("viewItinerary")}
-                </Link>
-              )}
-            </div>
-          )}
-          {/* Phase tools bar */}
+          {/* Phase tools bar — provides checklist, itinerary, and other phase shortcuts */}
           <PhaseToolsBar tools={getPhaseTools(currentPhase)} tripId={tripId} />
         </div>
         <span className="text-sm font-medium text-primary">

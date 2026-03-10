@@ -1,8 +1,8 @@
 /**
  * Unit tests for ExpeditionCard component.
  *
- * Tests cover: rendering, progress bar, checklist badge visibility
- * based on currentPhase threshold.
+ * Tests cover: rendering, progress bar, checklist badge visibility,
+ * and absence of duplicate shortcut buttons (DEBT-S18-001).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -48,6 +48,7 @@ interface RenderOptions {
   checklistRequired?: number;
   checklistRequiredDone?: number;
   checklistRecommendedPending?: number;
+  hasItineraryPlan?: boolean;
 }
 
 function renderCard(opts: RenderOptions = {}) {
@@ -62,6 +63,7 @@ function renderCard(opts: RenderOptions = {}) {
       checklistRequired={opts.checklistRequired ?? 5}
       checklistRequiredDone={opts.checklistRequiredDone ?? 2}
       checklistRecommendedPending={opts.checklistRecommendedPending ?? 1}
+      hasItineraryPlan={opts.hasItineraryPlan}
     />
   );
 }
@@ -121,54 +123,21 @@ describe("ExpeditionCard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows itinerary shortcut when hasItineraryPlan is true", () => {
-    render(
-      <ExpeditionCard
-        tripId="trip-001"
-        destination="Paris, France"
-        currentPhase={6}
-        completedPhases={5}
-        totalPhases={8}
-        coverEmoji="🗼"
-        checklistRequired={5}
-        checklistRequiredDone={5}
-        checklistRecommendedPending={0}
-        hasItineraryPlan={true}
-      />
-    );
+  it("does not render duplicate checklist shortcut button (DEBT-S18-001)", () => {
+    renderCard({ currentPhase: 5 });
 
-    const itineraryLink = screen.getByText("dashboard.viewItinerary");
-    expect(itineraryLink).toBeInTheDocument();
-    expect(itineraryLink.closest("a")).toHaveAttribute(
-      "href",
-      expect.stringContaining("/expedition/trip-001/phase-6")
-    );
-  });
-
-  it("hides itinerary shortcut when hasItineraryPlan is false", () => {
-    renderCard();
-
+    // The old viewChecklist shortcut link should no longer exist
     expect(
-      screen.queryByText("dashboard.viewItinerary")
+      screen.queryByText("dashboard.viewChecklist")
     ).not.toBeInTheDocument();
   });
 
-  it("shows checklist shortcut when currentPhase >= 5", () => {
-    renderCard({ currentPhase: 5 });
+  it("does not render duplicate itinerary shortcut button (DEBT-S18-001)", () => {
+    renderCard({ currentPhase: 6, hasItineraryPlan: true });
 
-    const checklistLink = screen.getByText("dashboard.viewChecklist");
-    expect(checklistLink).toBeInTheDocument();
-    expect(checklistLink.closest("a")).toHaveAttribute(
-      "href",
-      expect.stringContaining("/expedition/trip-001/phase-5")
-    );
-  });
-
-  it("hides checklist shortcut when currentPhase < 5", () => {
-    renderCard({ currentPhase: 4 });
-
+    // The old viewItinerary shortcut link should no longer exist
     expect(
-      screen.queryByText("dashboard.viewChecklist")
+      screen.queryByText("dashboard.viewItinerary")
     ).not.toBeInTheDocument();
   });
 
@@ -194,28 +163,5 @@ describe("ExpeditionCard", () => {
     // The content wrapper at z-10 should have pointer-events-none
     const contentWrapper = mainLink.nextElementSibling;
     expect(contentWrapper).toHaveClass("pointer-events-none");
-  });
-
-  it("interactive children have pointer-events-auto", () => {
-    render(
-      <ExpeditionCard
-        tripId="trip-001"
-        destination="Paris, France"
-        currentPhase={6}
-        completedPhases={5}
-        totalPhases={8}
-        coverEmoji="🗼"
-        checklistRequired={5}
-        checklistRequiredDone={5}
-        checklistRecommendedPending={0}
-        hasItineraryPlan={true}
-      />
-    );
-
-    const checklistLink = screen.getByText("dashboard.viewChecklist").closest("a");
-    expect(checklistLink).toHaveClass("pointer-events-auto");
-
-    const itineraryLink = screen.getByText("dashboard.viewItinerary").closest("a");
-    expect(itineraryLink).toHaveClass("pointer-events-auto");
   });
 });
