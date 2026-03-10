@@ -10,6 +10,19 @@
 - UX-001 (US-001): Trip Creation & Management — APPROVED
   - UX spec: docs/ux-patterns.md
   - Prototype: docs/prototypes/feature-001.html (self-contained, no external deps)
+- UX-002 (ITEM-13): Transport Selection (Phase 4) — DRAFT
+  - 3 sub-steps: intercity transport, local transport, accommodation
+  - Non-blocking phase: all fields optional, "Ainda nao decidi" option
+  - Card-based selectors (radiogroup/checkbox), conditional detail panels
+  - Multiple accommodations support (max 5, collapsible entries)
+  - Spec: docs/product/DESTINATION-GUIDE-REDESIGN.md (Part 1)
+- UX-003 (ITEM-14): Destination Guide Redesign (Phase 5) — DRAFT
+  - 3 options evaluated: Card Grid, Magazine Layout, Dashboard Cards
+  - Recommended: Option C (Dashboard Cards) with B elements
+  - 4 stat cards (timezone, currency, language, electricity) + 2 content cards
+  - Dark theme: bg #1E293B, border #334155, text #CBD5E1
+  - Spec: docs/product/DESTINATION-GUIDE-REDESIGN.md (Part 2)
+  - Prototype: docs/prototypes/destination-guide-redesign.html
 
 ## Design System (tokens defined in ux-patterns.md)
 - Primary: #E8621A (orange — warm, travel energy)
@@ -52,3 +65,16 @@
 - ConfirmDialog vs DeleteConfirmDialog (different severity)
 - Toast with auto-dismiss (4s) + progress bar
 - EmptyState with inline SVG illustration
+
+## New Patterns (UX-002/003)
+- SelectableCard: base component for radiogroup/checkbox card selectors (reusable)
+- WizardProgressBar: 3-step with icons (reusable across phases)
+- DestinationStatCard: compact card with colored top border (4 categories)
+- DestinationContentCard: larger card with left accent border (text content)
+- AiBadge: pill badge with sparkle icon for AI-generated content
+- CollapsibleEntry: for multi-item lists (accommodations)
+
+## Dark Theme Tokens (destination guide)
+- Card bg: #1E293B (slate-800), border: #334155 (slate-700)
+- Text on dark: #F1F5F9 (primary), #CBD5E1 (secondary), #94A3B8 (muted)
+- Contrast verified: slate-300 on slate-800 = 7.5:1 (passes AAA)

@@ -45,7 +45,14 @@
       "Bash(npx tsc:*)",
       "Bash(npx vitest:*)",
       "Bash(git add:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(gh pr:*)",
+      "WebFetch(domain:www.booking.com)",
+      "WebFetch(domain:fuselabcreative.com)",
+      "WebFetch(domain:pixso.net)",
+      "WebFetch(domain:www.nngroup.com)",
+      "WebFetch(domain:www.smashingmagazine.com)",
+      "Bash(npm run:*)"
     ]
   }
 }

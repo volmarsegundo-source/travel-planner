@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Destino — Roma, Italia (Prototipo)</title>
+  <style>
+    /* ============================================
+       DESIGN TOKENS — Atlas Travel Planner
+       Dark theme variant for destination guide
+       ============================================ */
+    :root {
+      /* Brand colors */
+      --color-primary: #E8621A;
+      --color-primary-hover: #C9511A;
+      --color-secondary: #1A3C5E;
+      --color-accent: #2DB8A0;
+
+      /* Semantic */
+      --color-info: #3B82F6;
+      --color-warning: #F59E0B;
+      --color-error: #D93B2B;
+      --color-success: #2DB8A0;
+
+      /* Dark theme surfaces */
+      --bg-page: #0F172A;       /* slate-900 */
+      --bg-card: #1E293B;       /* slate-800 */
+      --bg-card-hover: #253348;
+      --bg-badge: #334155;      /* slate-700 */
+      --border-card: #334155;   /* slate-700 */
+      --border-subtle: #475569; /* slate-600 */
+
+      /* Text on dark */
+      --text-primary: #F1F5F9;   /* slate-100 */
+      --text-secondary: #CBD5E1; /* slate-300 */
+      --text-muted: #94A3B8;     /* slate-400 */
+      --text-label: #64748B;     /* slate-500 */
+
+      /* Spacing (4px scale) */
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 20px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --space-10: 40px;
+      --space-12: 48px;
+
+      /* Radius */
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --radius-full: 9999px;
+
+      /* Shadows (dark-adapted) */
+      --shadow-sm: 0 2px 8px rgba(0,0,0,0.3);
+      --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
+
+      /* Transitions */
+      --transition-fast: 150ms ease;
+      --transition-base: 250ms ease;
+
+      /* Top border colors for stat cards */
+      --stat-timezone: var(--color-info);
+      --stat-currency: var(--color-warning);
+      --stat-language: var(--color-accent);
+      --stat-electricity: var(--color-primary);
+    }
+
+    /* ============================================
+       RESET & BASE
+       ============================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      background: var(--bg-page);
+      color: var(--text-secondary);
+      font-size: 14px;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100vh;
+    }
+
+    /* ============================================
+       LAYOUT CONTAINER
+       ============================================ */
+    .guide-container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: var(--space-6) var(--space-4);
+    }
+
+    /* ============================================
+       SECTION HEADER
+       Purpose: Title + AI badge — identifies the section
+       and provides transparency about AI-generated content
+       ============================================ */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      margin-bottom: var(--space-8);
+      flex-wrap: wrap;
+    }
+
+    .section-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .section-title-icon {
+      font-size: 28px;
+    }
+
+    /* AI Badge — transparency signal: user knows content is AI-generated */
+    .ai-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      background: var(--bg-badge);
+      color: var(--text-muted);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-full);
+      padding: var(--space-1) var(--space-3);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .ai-badge-icon {
+      font-size: 14px;
+    }
+
+    /* ============================================
+       SECTION LABELS
+       Purpose: "Referencia Rapida" and "Guia Detalhado"
+       provide editorial structure (borrowed from Option B)
+       ============================================ */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: var(--space-4);
+      padding-bottom: var(--space-2);
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    /* ============================================
+       STAT CARDS ROW — Quick Facts
+       4 compact cards for factual data (timezone,
+       currency, language, electricity).
+       Business travelers scan these in <5 seconds.
+       ============================================ */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-10);
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      min-height: 160px;
+      transition: border-color var(--transition-base), box-shadow var(--transition-base);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Colored top border — decorative, category also identified by icon+title */
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      transition: height var(--transition-fast);
+    }
+
+    .stat-card:hover {
+      border-color: var(--border-subtle);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .stat-card:hover::before {
+      height: 4px;
+    }
+
+    /* Per-category top border colors */
+    .stat-card--timezone::before { background: var(--stat-timezone); }
+    .stat-card--currency::before { background: var(--stat-currency); }
+    .stat-card--language::before { background: var(--stat-language); }
+    .stat-card--electricity::before { background: var(--stat-electricity); }
+
+    .stat-card__icon {
+      font-size: 28px;
+      margin-bottom: var(--space-2);
+      display: block;
+    }
+
+    .stat-card__title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-2);
+    }
+
+    .stat-card__value {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+      line-height: 1.3;
+    }
+
+    .stat-card__detail {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* ============================================
+       CONTENT CARDS — Detailed Guide
+       Larger cards for textual content (connectivity,
+       cultural tips). Leisure travelers read these fully.
+       ============================================ */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-8);
+    }
+
+    .content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      position: relative;
+      transition: border-color var(--transition-base);
+    }
+
+    /* Left accent border — decorative, category also identified by icon+title */
+    .content-card--connectivity {
+      border-left: 3px solid var(--color-accent);
+    }
+
+    .content-card--culture {
+      border-left: 3px solid var(--color-primary);
+    }
+
+    .content-card:hover {
+      border-color: var(--border-subtle);
+    }
+    .content-card--connectivity:hover {
+      border-left-color: var(--color-accent);
+    }
+    .content-card--culture:hover {
+      border-left-color: var(--color-primary);
+    }
+
+    .content-card__header {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+      padding-bottom: var(--space-3);
+      border-bottom: 1px solid var(--border-card);
+    }
+
+    .content-card__icon {
+      font-size: 22px;
+    }
+
+    .content-card__title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .content-card__body {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.7;
+    }
+
+    .content-card__body p {
+      margin-bottom: var(--space-3);
+    }
+
+    .content-card__body p:last-child {
+      margin-bottom: 0;
+    }
+
+    .content-card__body strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    .content-card__body ul {
+      list-style: none;
+      padding: 0;
+      margin: var(--space-3) 0;
+    }
+
+    .content-card__body li {
+      position: relative;
+      padding-left: var(--space-5);
+      margin-bottom: var(--space-2);
+    }
+
+    /* Custom bullet — accent circle */
+    .content-card__body li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 8px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--color-accent);
+    }
+
+    .content-card--culture .content-card__body li::before {
+      background: var(--color-primary);
+    }
+
+    /* ============================================
+       REGENERATE BUTTON
+       Ghost button to regenerate AI content.
+       Positioned below all cards, right-aligned.
+       ============================================ */
+    .actions-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: var(--space-4);
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      padding: var(--space-2) var(--space-4);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      min-height: 44px; /* Touch target */
+      min-width: 44px;
+    }
+
+    .btn-ghost:hover {
+      color: var(--text-primary);
+      border-color: var(--border-subtle);
+      background: var(--bg-card);
+    }
+
+    .btn-ghost:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    .btn-ghost:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost__icon {
+      font-size: 16px;
+      transition: transform var(--transition-base);
+    }
+
+    .btn-ghost:hover .btn-ghost__icon {
+      transform: rotate(180deg);
+    }
+
+    /* ============================================
+       LOADING STATE — Skeleton cards
+       Shown while AI content is being generated.
+       Toggle via showScreen('loading') in prototype.
+       ============================================ */
+    .skeleton {
+      background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-badge) 50%, var(--bg-card) 75%);
+      background-size: 200% 100%;
+      animation: skeleton-pulse 1.5s ease-in-out infinite;
+      border-radius: var(--radius-md);
+    }
+
+    @keyframes skeleton-pulse {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .skeleton-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-4);
+      min-height: 160px;
+    }
+
+    .skeleton-line {
+      height: 14px;
+      margin-bottom: var(--space-2);
+    }
+
+    .skeleton-line--short { width: 40%; }
+    .skeleton-line--medium { width: 65%; }
+    .skeleton-line--long { width: 90%; }
+    .skeleton-line--icon { width: 28px; height: 28px; border-radius: var(--radius-sm); margin-bottom: var(--space-3); }
+    .skeleton-line--title { width: 50%; height: 18px; margin-bottom: var(--space-3); }
+
+    .skeleton-content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-lg);
+      padding: var(--space-5);
+      min-height: 200px;
+    }
+
+    /* ============================================
+       EMPTY STATE
+       Shown when no guide has been generated yet.
+       ============================================ */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-12) var(--space-6);
+    }
+
+    .empty-state__icon {
+      font-size: 64px;
+      margin-bottom: var(--space-4);
+      display: block;
+    }
+
+    .empty-state__title {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .empty-state__description {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 400px;
+      margin: 0 auto var(--space-6);
+      line-height: 1.6;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-6);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background var(--transition-fast);
+      min-height: 44px;
+    }
+
+    .btn-primary:hover {
+      background: var(--color-primary-hover);
+    }
+
+    .btn-primary:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* ============================================
+       ERROR STATE
+       Shown when AI generation fails.
+       ============================================ */
+    .error-state {
+      text-align: center;
+      padding: var(--space-10) var(--space-6);
+      background: var(--bg-card);
+      border: 1px solid var(--color-error);
+      border-radius: var(--radius-lg);
+    }
+
+    .error-state__icon {
+      font-size: 48px;
+      margin-bottom: var(--space-4);
+      display: block;
+    }
+
+    .error-state__title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: var(--space-2);
+    }
+
+    .error-state__description {
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 420px;
+      margin: 0 auto var(--space-6);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       STATE SWITCHER — prototype navigation
+       Allows toggling between all states of the component
+       ============================================ */
+    .state-switcher {
+      display: flex;
+      gap: var(--space-2);
+      margin-bottom: var(--space-6);
+      padding: var(--space-3);
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-md);
+      flex-wrap: wrap;
+    }
+
+    .state-switcher__label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: var(--space-2) var(--space-3);
+      display: flex;
+      align-items: center;
+    }
+
+    .state-btn {
+      background: transparent;
+      color: var(--text-muted);
+      border: 1px solid var(--border-card);
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-3);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      min-height: 36px;
+    }
+
+    .state-btn:hover {
+      background: var(--bg-badge);
+      color: var(--text-primary);
+    }
+
+    .state-btn.active {
+      background: var(--color-primary);
+      color: #FFFFFF;
+      border-color: var(--color-primary);
+    }
+
+    .state-btn:focus-visible {
+      outline: 2px solid var(--color-primary);
+      outline-offset: 2px;
+    }
+
+    /* Screen visibility */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ============================================
+       RESPONSIVE — Mobile First
+       ============================================ */
+
+    /* Mobile: < 768px */
+    @media (max-width: 767px) {
+      .guide-container {
+        padding: var(--space-4) var(--space-3);
+      }
+
+      .section-title {
+        font-size: 20px;
+      }
+
+      .stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+        margin-bottom: var(--space-8);
+      }
+
+      .stat-card {
+        min-height: 140px;
+        padding: var(--space-3);
+      }
+
+      .stat-card__value {
+        font-size: 16px;
+      }
+
+      .stat-card__detail {
+        font-size: 12px;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+        gap: var(--space-3);
+      }
+
+      .content-card {
+        padding: var(--space-4);
+      }
+
+      .actions-row {
+        justify-content: center;
+      }
+    }
+
+    /* Tablet: 768-1024px */
+    @media (min-width: 768px) and (max-width: 1024px) {
+      .stat-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: var(--space-3);
+      }
+    }
+
+    /* ============================================
+       REDUCED MOTION — accessibility
+       ============================================ */
+    @media (prefers-reduced-motion: reduce) {
+      .stat-card,
+      .stat-card::before,
+      .content-card,
+      .btn-ghost,
+      .btn-ghost__icon {
+        transition: none;
+      }
+
+      .btn-ghost:hover .btn-ghost__icon {
+        transform: none;
+      }
+
+      .skeleton {
+        animation: none;
+        background: var(--bg-badge);
+      }
+    }
+
+    /* Prototype annotation */
+    .prototype-note {
+      background: #1a1a2e;
+      border: 1px dashed var(--color-info);
+      border-radius: var(--radius-md);
+      padding: var(--space-3) var(--space-4);
+      margin-bottom: var(--space-6);
+      font-size: 12px;
+      color: var(--color-info);
+      line-height: 1.5;
+    }
+
+    .prototype-note strong {
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="guide-container">
+
+    <!-- Prototype annotation — not part of production UI -->
+    <div class="prototype-note" role="note">
+      <strong>Prototipo UX-003:</strong> Guia de Destino — Opcao C (Dashboard Cards) com elementos da Opcao B.
+      Use os botoes abaixo para alternar entre os estados do componente.
+      Conteudo de exemplo: Roma, Italia.
+    </div>
+
+    <!-- STATE SWITCHER — prototype-only navigation -->
+    <div class="state-switcher" role="tablist" aria-label="Estados do componente">
+      <span class="state-switcher__label">Estado:</span>
+      <button class="state-btn active" role="tab" aria-selected="true" onclick="showScreen('populated')" id="tab-populated">
+        Populado
+      </button>
+      <button class="state-btn" role="tab" aria-selected="false" onclick="showScreen('loading')" id="tab-loading">
+        Carregando
+      </button>
+      <button class="state-btn" role="tab" aria-selected="false" onclick="showScreen('empty')" id="tab-empty">
+        Vazio
+      </button>
+      <button class="state-btn" role="tab" aria-selected="false" onclick="showScreen('error')" id="tab-error">
+        Erro
+      </button>
+    </div>
+
+    <!-- ============================================
+         SCREEN: POPULATED (happy path)
+         All 6 categories visible — no clicks needed
+         ============================================ -->
+    <div class="screen active" id="screen-populated" role="tabpanel" aria-labelledby="tab-populated">
+
+      <section aria-labelledby="destination-guide-title">
+
+        <!-- Section Header -->
+        <header class="section-header">
+          <h2 class="section-title" id="destination-guide-title">
+            <span class="section-title-icon" aria-hidden="true">&#x1F9ED;</span>
+            Guia de Destino
+          </h2>
+          <!-- AI Badge — transparency: user knows this is AI-generated -->
+          <span class="ai-badge" aria-label="Conteudo gerado por inteligencia artificial">
+            <span class="ai-badge-icon" aria-hidden="true">&#x2728;</span>
+            Gerado por IA
+          </span>
+        </header>
+
+        <!-- QUICK FACTS — Stat Cards Row -->
+        <!-- UX Decision: factual data at the top for fast scanning.
+             Business travelers get what they need in <5 seconds.
+             Each card is an article for screen reader semantics. -->
+        <div class="section-label">Referencia Rapida</div>
+
+        <div class="stat-grid">
+
+          <!-- Stat Card: Fuso Horario -->
+          <article class="stat-card stat-card--timezone" aria-label="Fuso horario: CET, UTC+1, 4 horas a frente de Brasilia">
+            <span class="stat-card__icon" aria-hidden="true">&#x1F570;</span>
+            <div class="stat-card__title">Fuso Horario</div>
+            <div class="stat-card__value">CET (UTC+1)</div>
+            <div class="stat-card__detail">
+              4 horas a frente de Brasilia.
+              No verao (marco-outubro), UTC+2 (5 horas a frente).
+            </div>
+          </article>
+
+          <!-- Stat Card: Moeda -->
+          <article class="stat-card stat-card--currency" aria-label="Moeda: Euro, 1 euro equivale a aproximadamente 6 reais e 20 centavos">
+            <span class="stat-card__icon" aria-hidden="true">&#x1F4B0;</span>
+            <div class="stat-card__title">Moeda</div>
+            <div class="stat-card__value">Euro (EUR)</div>
+            <div class="stat-card__detail">
+              1 EUR &#8776; R$ 6,20.
+              Cartoes aceitos na maioria dos estabelecimentos. Leve um pouco de dinheiro para mercados e pequenos comercios.
+            </div>
+          </article>
+
+          <!-- Stat Card: Idioma -->
+          <article class="stat-card stat-card--language" aria-label="Idioma: Italiano. Ingles limitado em areas turisticas">
+            <span class="stat-card__icon" aria-hidden="true">&#x1F5E3;</span>
+            <div class="stat-card__title">Idioma</div>
+            <div class="stat-card__value">Italiano</div>
+            <div class="stat-card__detail">
+              Ingles limitado fora de areas turisticas.
+              Frases uteis: Grazie, Per favore, Scusi, Quanto costa?, Dov'e...?
+            </div>
+          </article>
+
+          <!-- Stat Card: Eletricidade -->
+          <article class="stat-card stat-card--electricity" aria-label="Eletricidade: Tomadas tipo C e L, 230 volts, 50 hertz. Adaptador necessario para plugues brasileiros">
+            <span class="stat-card__icon" aria-hidden="true">&#x1F50C;</span>
+            <div class="stat-card__title">Eletricidade</div>
+            <div class="stat-card__value">Tipo C / L</div>
+            <div class="stat-card__detail">
+              230V / 50Hz. Adaptador necessario para plugues brasileiros (tipo N). Tipo C (europeu redondo) funciona na maioria das tomadas.
+            </div>
+          </article>
+
+        </div>
+
+        <!-- DETAILED GUIDE — Content Cards -->
+        <!-- UX Decision: longer, textual content below the quick facts.
+             Leisure travelers read these in full.
+             Left accent border is decorative — category identified by icon+title too. -->
+        <div class="section-label">Guia Detalhado</div>
+
+        <div class="content-grid">
+
+          <!-- Content Card: Conectividade -->
+          <article class="content-card content-card--connectivity" aria-labelledby="connectivity-title">
+            <div class="content-card__header">
+              <span class="content-card__icon" aria-hidden="true">&#x1F4F6;</span>
+              <h3 class="content-card__title" id="connectivity-title">Conectividade</h3>
+            </div>
+            <div class="content-card__body">
+              <p>
+                <strong>Chip pre-pago:</strong> As principais operadoras sao TIM, Vodafone e WindTre. Voce encontra chips em lojas de operadoras, bancas de jornal e aeroportos. Planos com 10-20GB custam entre EUR 15-25.
+              </p>
+              <p>
+                <strong>eSIM:</strong> Disponivel para celulares compativeis. Operadoras como Airalo e Holafly oferecem planos para Italia ou Europa.
+              </p>
+              <p>
+                <strong>WiFi:</strong> Disponivel gratuitamente em cafes, hoteis e muitos espacos publicos. A rede "Roma WiFi" oferece acesso gratuito em pontos turisticos selecionados.
+              </p>
+            </div>
+          </article>
+
+          <!-- Content Card: Dicas Culturais -->
+          <article class="content-card content-card--culture" aria-labelledby="culture-title">
+            <div class="content-card__header">
+              <span class="content-card__icon" aria-hidden="true">&#x1F3AD;</span>
+              <h3 class="content-card__title" id="culture-title">Dicas Culturais</h3>
+            </div>
+            <div class="content-card__body">
+              <ul>
+                <li><strong>Gorjetas:</strong> Nao sao obrigatorias, mas arredondar a conta e apreciado. Em restaurantes, 1-2 EUR e suficiente.</li>
+                <li><strong>Horarios de refeicao:</strong> Almoco entre 12h e 14h, jantar a partir das 20h. Restaurantes tipicos abrem tarde.</li>
+                <li><strong>Igrejas e monumentos:</strong> Vista-se adequadamente: ombros e joelhos cobertos. Silencio e esperado.</li>
+                <li><strong>"Coperto":</strong> Taxa de mesa cobrada automaticamente na conta (geralmente EUR 1-3 por pessoa). Nao e gorjeta.</li>
+                <li><strong>Onde comer:</strong> Evite restaurantes com fotos no cardapio perto de pontos turisticos. Ande algumas quadras para encontrar comida autentica e mais barata.</li>
+                <li><strong>Transporte:</strong> Valide seu bilhete ao entrar no onibus ou metro. Multa por bilhete nao validado: EUR 50+.</li>
+              </ul>
+            </div>
+          </article>
+
+        </div>
+
+        <!-- Regenerate button -->
+        <!-- UX Decision: ghost style — secondary action.
+             Limited to 1 use per session to prevent API abuse.
+             Clear label + icon — no ambiguity about what it does. -->
+        <div class="actions-row">
+          <button class="btn-ghost"
+                  aria-label="Atualizar informacoes do guia de destino"
+                  title="Gera novas informacoes com IA. Pode levar alguns segundos."
+                  onclick="simulateRegenerate(this)">
+            <span class="btn-ghost__icon" aria-hidden="true">&#x1F504;</span>
+            Atualizar informacoes
+          </button>
+        </div>
+
+      </section>
+    </div>
+
+    <!-- ============================================
+         SCREEN: LOADING (skeleton state)
+         Shown while AI is generating content.
+         Skeleton cards mimic the final layout shape.
+         ============================================ -->
+    <div class="screen" id="screen-loading" role="tabpanel" aria-labelledby="tab-loading">
+      <section aria-labelledby="loading-title" aria-busy="true">
+        <header class="section-header">
+          <h2 class="section-title" id="loading-title">
+            <span class="section-title-icon" aria-hidden="true">&#x1F9ED;</span>
+            Guia de Destino
+          </h2>
+          <span class="ai-badge" aria-label="Gerando conteudo com inteligencia artificial">
+            <span class="ai-badge-icon" aria-hidden="true">&#x2728;</span>
+            Gerando...
+          </span>
+        </header>
+
+        <div class="section-label">Referencia Rapida</div>
+
+        <div class="stat-grid">
+          <div class="skeleton-stat-card" aria-hidden="true">
+            <div class="skeleton skeleton-line--icon"></div>
+            <div class="skeleton skeleton-line skeleton-line--short"></div>
+            <div class="skeleton skeleton-line skeleton-line--title"></div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+          </div>
+          <div class="skeleton-stat-card" aria-hidden="true">
+            <div class="skeleton skeleton-line--icon"></div>
+            <div class="skeleton skeleton-line skeleton-line--short"></div>
+            <div class="skeleton skeleton-line skeleton-line--title"></div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+          </div>
+          <div class="skeleton-stat-card" aria-hidden="true">
+            <div class="skeleton skeleton-line--icon"></div>
+            <div class="skeleton skeleton-line skeleton-line--short"></div>
+            <div class="skeleton skeleton-line skeleton-line--title"></div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+          </div>
+          <div class="skeleton-stat-card" aria-hidden="true">
+            <div class="skeleton skeleton-line--icon"></div>
+            <div class="skeleton skeleton-line skeleton-line--short"></div>
+            <div class="skeleton skeleton-line skeleton-line--title"></div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+          </div>
+        </div>
+
+        <div class="section-label">Guia Detalhado</div>
+
+        <div class="content-grid">
+          <div class="skeleton-content-card" aria-hidden="true">
+            <div style="display:flex;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border-card)">
+              <div class="skeleton" style="width:22px;height:22px;border-radius:4px"></div>
+              <div class="skeleton skeleton-line--medium" style="height:16px;margin:0"></div>
+            </div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+            <div class="skeleton skeleton-line skeleton-line--long" style="margin-top:12px"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+          </div>
+          <div class="skeleton-content-card" aria-hidden="true">
+            <div style="display:flex;gap:8px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--border-card)">
+              <div class="skeleton" style="width:22px;height:22px;border-radius:4px"></div>
+              <div class="skeleton skeleton-line--medium" style="height:16px;margin:0"></div>
+            </div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+            <div class="skeleton skeleton-line skeleton-line--long" style="margin-top:12px"></div>
+            <div class="skeleton skeleton-line skeleton-line--long"></div>
+            <div class="skeleton skeleton-line skeleton-line--short"></div>
+            <div class="skeleton skeleton-line skeleton-line--long" style="margin-top:12px"></div>
+            <div class="skeleton skeleton-line skeleton-line--medium"></div>
+          </div>
+        </div>
+
+        <!-- Visually hidden live region for screen readers -->
+        <div aria-live="polite" role="status" class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+          Gerando guia de destino para Roma, Italia. Aguarde alguns instantes.
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================================
+         SCREEN: EMPTY (no guide generated yet)
+         Shown before AI generation is triggered.
+         Inviting, not technical. Clear CTA.
+         ============================================ -->
+    <div class="screen" id="screen-empty" role="tabpanel" aria-labelledby="tab-empty">
+      <section aria-labelledby="empty-title">
+        <header class="section-header">
+          <h2 class="section-title" id="empty-title">
+            <span class="section-title-icon" aria-hidden="true">&#x1F9ED;</span>
+            Guia de Destino
+          </h2>
+        </header>
+
+        <div class="empty-state">
+          <span class="empty-state__icon" aria-hidden="true">&#x1F30D;</span>
+          <h3 class="empty-state__title">Descubra tudo sobre seu destino</h3>
+          <p class="empty-state__description">
+            Gere um guia personalizado com informacoes sobre fuso horario, moeda, idioma, tomadas, internet e dicas culturais para sua viagem.
+          </p>
+          <button class="btn-primary" aria-label="Gerar guia de destino para Roma, Italia">
+            <span aria-hidden="true">&#x2728;</span>
+            Gerar meu guia
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================================
+         SCREEN: ERROR (AI generation failed)
+         Never blame the user. Offer clear recovery path.
+         ============================================ -->
+    <div class="screen" id="screen-error" role="tabpanel" aria-labelledby="tab-error">
+      <section aria-labelledby="error-title">
+        <header class="section-header">
+          <h2 class="section-title" id="error-title">
+            <span class="section-title-icon" aria-hidden="true">&#x1F9ED;</span>
+            Guia de Destino
+          </h2>
+        </header>
+
+        <div class="error-state" role="alert">
+          <span class="error-state__icon" aria-hidden="true">&#x26A0;&#xFE0F;</span>
+          <h3 class="error-state__title">Nao foi possivel gerar o guia</h3>
+          <p class="error-state__description">
+            Tivemos um problema ao buscar as informacoes sobre Roma. Isso pode acontecer por instabilidade temporaria. Tente novamente em alguns instantes.
+          </p>
+          <button class="btn-primary" aria-label="Tentar gerar o guia de destino novamente">
+            <span aria-hidden="true">&#x1F504;</span>
+            Tentar novamente
+          </button>
+        </div>
+      </section>
+    </div>
+
+  </div>
+
+  <script>
+    // ============================================
+    // PROTOTYPE INTERACTION — state switching
+    // In production, this logic lives in React state
+    // ============================================
+
+    /**
+     * showScreen: toggles between populated, loading, empty, error states.
+     * In production, these are conditional renders based on component state
+     * (data loaded, isLoading, error, no data).
+     */
+    function showScreen(screenId) {
+      // Hide all screens
+      document.querySelectorAll('.screen').forEach(function(el) {
+        el.classList.remove('active');
+      });
+
+      // Deactivate all tabs
+      document.querySelectorAll('.state-btn').forEach(function(el) {
+        el.classList.remove('active');
+        el.setAttribute('aria-selected', 'false');
+      });
+
+      // Show target screen
+      var screen = document.getElementById('screen-' + screenId);
+      if (screen) {
+        screen.classList.add('active');
+      }
+
+      // Activate target tab
+      var tab = document.getElementById('tab-' + screenId);
+      if (tab) {
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+      }
+    }
+
+    /**
+     * simulateRegenerate: simulates the regeneration flow.
+     * Shows loading state briefly, then returns to populated.
+     * In production, this triggers an API call to regenerate AI content.
+     */
+    function simulateRegenerate(button) {
+      // Disable button after use (1 per session limit)
+      button.disabled = true;
+      button.innerHTML = '<span class="btn-ghost__icon" aria-hidden="true">&#x23F3;</span> Atualizando...';
+
+      // Show loading state
+      showScreen('loading');
+
+      // Simulate AI generation delay
+      setTimeout(function() {
+        showScreen('populated');
+        // Keep button disabled (1 use per session)
+        button.innerHTML = '<span class="btn-ghost__icon" aria-hidden="true">&#x2705;</span> Atualizado';
+        button.title = 'Voce ja atualizou o guia nesta sessao';
+      }, 2500);
+    }
+  </script>
+</body>
+</html>
