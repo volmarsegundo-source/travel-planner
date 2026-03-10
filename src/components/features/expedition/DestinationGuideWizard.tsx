@@ -33,6 +33,10 @@ const SECTION_ORDER: GuideSectionKey[] = [
   "electricity",
   "connectivity",
   "cultural_tips",
+  "safety",
+  "health",
+  "transport_overview",
+  "local_customs",
 ];
 
 export function DestinationGuideWizard({

@@ -56,41 +56,82 @@ const MOCK_GUIDE: DestinationGuideContent = {
     icon: "🕐",
     summary: "Central European Time",
     tips: ["Set your watch ahead"],
+    type: "stat",
   },
   currency: {
     title: "Euro (EUR)",
     icon: "💶",
     summary: "Euro is the main currency",
     tips: ["Use ATMs for best rates", "Cards widely accepted"],
+    type: "stat",
   },
   language: {
     title: "French",
     icon: "🗣️",
     summary: "French is the official language",
     tips: ["Learn bonjour and merci"],
+    type: "stat",
   },
   electricity: {
     title: "Type C/E, 230V",
     icon: "🔌",
     summary: "European plugs, 230V",
     tips: ["Bring an adapter"],
+    type: "stat",
   },
   connectivity: {
     title: "eSIM recommended",
     icon: "📶",
     summary: "Good 4G coverage throughout",
     tips: ["Buy eSIM before travel"],
+    type: "content",
+    details: "Wi-Fi is widely available in cafes and hotels.",
   },
   cultural_tips: {
     title: "French etiquette",
     icon: "🎭",
     summary: "Greeting is important in France",
     tips: ["Say bonjour when entering shops", "Tip is included in prices"],
+    type: "content",
+    details: "French culture values politeness and formality.",
+  },
+  safety: {
+    title: "Safety",
+    icon: "🛡️",
+    summary: "Generally safe for tourists",
+    tips: ["Watch for pickpockets in tourist areas"],
+    type: "content",
+    details: "Paris is safe but stay alert in crowded places.",
+  },
+  health: {
+    title: "Health",
+    icon: "❤️",
+    summary: "Good healthcare available",
+    tips: ["Carry your EHIC card"],
+    type: "content",
+    details: "France has excellent public healthcare.",
+  },
+  transport_overview: {
+    title: "Transport",
+    icon: "🚇",
+    summary: "Excellent metro system",
+    tips: ["Buy a Navigo pass for the week"],
+    type: "content",
+    details: "The Paris metro is one of the best in the world.",
+  },
+  local_customs: {
+    title: "Customs",
+    icon: "🇫🇷",
+    summary: "Kiss on both cheeks",
+    tips: ["Say bonjour when entering shops"],
+    type: "content",
+    details: "French people greet with la bise in social settings.",
   },
 };
 
 const ALL_SECTIONS_VIEWED = [
   "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+  "safety", "health", "transport_overview", "local_customs",
 ];
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -599,7 +640,7 @@ describe("DestinationGuideWizard", () => {
       .getAllByRole("button")
       .filter((btn) => btn.getAttribute("aria-expanded") !== null);
 
-    expect(sectionButtons.length).toBe(6);
+    expect(sectionButtons.length).toBe(10);
     sectionButtons.forEach((btn) => {
       expect(btn).toHaveAttribute("aria-expanded", "false");
     });
