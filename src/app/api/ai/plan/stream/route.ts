@@ -43,8 +43,7 @@ function getDaysBetween(startDate: string, endDate: string): number {
 
 const StreamRequestSchema = z.object({
   tripId: z.string().min(1).max(50),
-  params: GeneratePlanParamsSchema,
-});
+}).merge(GeneratePlanParamsSchema);
 
 // ─── POST handler ───────────────────────────────────────────────────────────
 
@@ -70,7 +69,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Validation failed" }, { status: 400 });
   }
 
-  const { tripId, params } = parsed.data;
+  const { tripId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes } = parsed.data;
 
   // Validate tripId format
   const tripIdResult = TripIdSchema.safeParse(tripId);
@@ -79,7 +78,7 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limit
-  const rl = await checkRateLimit(`ai:plan:stream:${session.user.id}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SECONDS);
+  const rl = await checkRateLimit(`ai:plan:${session.user.id}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SECONDS);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
@@ -105,7 +104,7 @@ export async function POST(request: NextRequest) {
   // Sanitize destination
   let sanitizedDestination: string;
   try {
-    const sanitized = sanitizeForPrompt(params.destination, "destination", 200);
+    const sanitized = sanitizeForPrompt(destination, "destination", 200);
     const { masked } = maskPII(sanitized, "destination");
     sanitizedDestination = masked;
   } catch (error) {
@@ -117,9 +116,9 @@ export async function POST(request: NextRequest) {
 
   // Sanitize travelNotes
   let sanitizedTravelNotes: string | undefined;
-  if (params.travelNotes) {
+  if (travelNotes) {
     try {
-      const sanitized = sanitizeForPrompt(params.travelNotes, "travelNotes", 500);
+      const sanitized = sanitizeForPrompt(travelNotes, "travelNotes", 500);
       const { masked } = maskPII(sanitized, "travelNotes");
       sanitizedTravelNotes = masked;
     } catch (error) {
@@ -131,19 +130,19 @@ export async function POST(request: NextRequest) {
   }
 
   // Build prompt
-  const days = getDaysBetween(params.startDate, params.endDate);
+  const days = getDaysBetween(startDate, endDate);
   const tokenBudget = calculatePlanTokenBudget(days);
 
   const userMessage = travelPlanPrompt.buildUserPrompt({
     destination: sanitizedDestination,
-    startDate: params.startDate,
-    endDate: params.endDate,
+    startDate,
+    endDate,
     days,
-    travelStyle: params.travelStyle,
-    budgetTotal: params.budgetTotal,
-    budgetCurrency: params.budgetCurrency,
-    travelers: params.travelers,
-    language: params.language,
+    travelStyle,
+    budgetTotal,
+    budgetCurrency,
+    travelers,
+    language,
     tokenBudget,
     travelNotes: sanitizedTravelNotes,
   });
@@ -204,6 +203,7 @@ export async function POST(request: NextRequest) {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
         "Connection": "keep-alive",
+        "X-Content-Type-Options": "nosniff",
       },
     });
   } catch (error) {

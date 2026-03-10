@@ -221,6 +221,9 @@ describe("ClaudeProvider.generateStreamingResponse", () => {
           }),
         ],
       }),
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+      }),
     );
   });
 
@@ -248,6 +251,31 @@ describe("ClaudeProvider.generateStreamingResponse", () => {
     const usageResult = await usage;
     expect(usageResult.cacheReadInputTokens).toBe(40);
     expect(usageResult.cacheCreationInputTokens).toBe(5);
+  });
+
+  it("passes AbortSignal.timeout to messages.stream (SEC-S18-002)", async () => {
+    const events = [
+      { type: "content_block_delta", delta: { type: "text_delta", text: "ok" } },
+    ];
+    const finalMsg = {
+      stop_reason: "end_turn",
+      usage: { input_tokens: 5, output_tokens: 1 },
+    };
+    mocks.streamFn.mockReturnValue(createMockStream(events, finalMsg));
+
+    const provider = new ClaudeProvider();
+    const { stream } = await provider.generateStreamingResponse(
+      "test", 100, "plan",
+    );
+    await collectStream(stream);
+
+    // Verify stream was called with two arguments: params and options with signal
+    expect(mocks.streamFn).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.objectContaining({
+        signal: expect.any(AbortSignal),
+      }),
+    );
   });
 
   it("throws AI_CONFIG_ERROR when API key is missing", async () => {

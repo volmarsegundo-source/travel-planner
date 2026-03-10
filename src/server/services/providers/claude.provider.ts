@@ -139,6 +139,7 @@ export class ClaudeProvider implements AiProvider {
     try {
       const sdkStream = getAnthropic().messages.stream(
         createParams as unknown as Anthropic.MessageCreateParamsStreaming,
+        { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) },
       );
 
       // Accumulate chunks as they arrive; resolved when stream ends.

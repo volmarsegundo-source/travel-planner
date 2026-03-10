@@ -86,16 +86,14 @@ const mockCanUseAI = canUseAI as ReturnType<typeof vi.fn>;
 
 const validBody = {
   tripId: "trip-123",
-  params: {
-    destination: "Paris, France",
-    startDate: "2026-06-01",
-    endDate: "2026-06-05",
-    travelStyle: "CULTURE",
-    budgetTotal: 3000,
-    budgetCurrency: "EUR",
-    travelers: 2,
-    language: "en" as const,
-  },
+  destination: "Paris, France",
+  startDate: "2026-06-01",
+  endDate: "2026-06-05",
+  travelStyle: "CULTURE",
+  budgetTotal: 3000,
+  budgetCurrency: "EUR",
+  travelers: 2,
+  language: "en" as const,
 };
 
 function createRequest(body: unknown = validBody): NextRequest {
@@ -170,7 +168,7 @@ describe("POST /api/ai/plan/stream", () => {
   });
 
   it("returns 400 when params fail validation", async () => {
-    const res = await POST(createRequest({ tripId: "trip-1", params: { destination: "" } }));
+    const res = await POST(createRequest({ tripId: "trip-1", destination: "" }));
     expect(res.status).toBe(400);
   });
 
@@ -211,6 +209,37 @@ describe("POST /api/ai/plan/stream", () => {
     expect(sseText).toContain("data: [DONE]\n\n");
   });
 
+  it("includes X-Content-Type-Options: nosniff header (SEC-S18-003)", async () => {
+    mocks.generateStreamingResponse.mockResolvedValue(
+      createMockStream(["ok"]),
+    );
+
+    const res = await POST(createRequest());
+    expect(res.status).toBe(200);
+    expect(res.headers.get("X-Content-Type-Options")).toBe("nosniff");
+  });
+
+  it("accepts flat request body matching Phase6Wizard format", async () => {
+    mocks.generateStreamingResponse.mockResolvedValue(
+      createMockStream(["ok"]),
+    );
+
+    const flatBody = {
+      tripId: "trip-123",
+      destination: "Tokyo, Japan",
+      startDate: "2026-07-01",
+      endDate: "2026-07-05",
+      travelStyle: "ADVENTURE",
+      budgetTotal: 5000,
+      budgetCurrency: "USD",
+      travelers: 1,
+      language: "en",
+    };
+
+    const res = await POST(createRequest(flatBody));
+    expect(res.status).toBe(200);
+  });
+
   it("calls rate limit with correct key", async () => {
     mocks.generateStreamingResponse.mockResolvedValue(
       createMockStream(["ok"]),
@@ -219,7 +248,7 @@ describe("POST /api/ai/plan/stream", () => {
     await POST(createRequest());
 
     expect(mocks.checkRateLimit).toHaveBeenCalledWith(
-      "ai:plan:stream:user-1",
+      "ai:plan:user-1",
       10,
       3600,
     );
