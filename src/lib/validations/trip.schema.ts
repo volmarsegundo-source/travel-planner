@@ -61,5 +61,63 @@ export const TripUpdateSchema = z.object({
   visibility: z.enum(["PRIVATE", "PUBLIC", "SHARED"]).optional(),
 });
 
+// ─── Passengers Schema (T-S20-009) ──────────────────────────────────────────
+
+const MAX_CHILDREN_AGE = 17;
+const MAX_PASSENGERS_PER_TYPE = 20;
+const MIN_ADULTS = 1;
+
+export const PassengersSchema = z
+  .object({
+    adults: z
+      .number()
+      .int()
+      .min(MIN_ADULTS, `At least ${MIN_ADULTS} adult is required`)
+      .max(MAX_PASSENGERS_PER_TYPE, `Maximum ${MAX_PASSENGERS_PER_TYPE} adults`),
+    children: z.object({
+      count: z
+        .number()
+        .int()
+        .min(0)
+        .max(MAX_PASSENGERS_PER_TYPE, `Maximum ${MAX_PASSENGERS_PER_TYPE} children`),
+      ages: z.array(
+        z
+          .number()
+          .int()
+          .min(0, "Age must be 0 or more")
+          .max(MAX_CHILDREN_AGE, `Age must be at most ${MAX_CHILDREN_AGE}`)
+      ),
+    }),
+    seniors: z
+      .number()
+      .int()
+      .min(0)
+      .max(MAX_PASSENGERS_PER_TYPE, `Maximum ${MAX_PASSENGERS_PER_TYPE} seniors`),
+    infants: z
+      .number()
+      .int()
+      .min(0)
+      .max(MAX_PASSENGERS_PER_TYPE, `Maximum ${MAX_PASSENGERS_PER_TYPE} infants`),
+  })
+  .refine(
+    (data) => data.children.ages.length === data.children.count,
+    {
+      message: "Number of children ages must match children count",
+      path: ["children", "ages"],
+    }
+  );
+
+export type Passengers = z.infer<typeof PassengersSchema>;
+
+/** Derive total passenger count from a Passengers object. */
+export function getTotalPassengers(passengers: Passengers): number {
+  return (
+    passengers.adults +
+    passengers.children.count +
+    passengers.seniors +
+    passengers.infants
+  );
+}
+
 export type TripCreateInput = z.infer<typeof TripCreateSchema>;
 export type TripUpdateInput = z.infer<typeof TripUpdateSchema>;

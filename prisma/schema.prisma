@@ -127,6 +127,9 @@ model Trip {
   currentPhase   Int            @default(1)
   tripType       String         @default("international") @db.VarChar(20)
 
+  // Sprint 20: Passengers
+  passengers     Json?
+
   // Sprint 20: Transport & Logistics
   origin         String?        @db.VarChar(150)
   localMobility  String[]       @default([])
