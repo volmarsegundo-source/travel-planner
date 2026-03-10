@@ -286,6 +286,85 @@ describe("TripService", () => {
     });
   });
 
+  // ─── getUserTripsWithExpeditionData ─────────────────────────────────────────
+
+  describe("getUserTripsWithExpeditionData", () => {
+    function makeExpeditionTrip(currentPhase: number, phases: { phaseNumber: number; status: string }[]) {
+      return {
+        ...makeTrip({ expeditionMode: true, currentPhase }),
+        phases: phases.map((p) => ({
+          phaseNumber: p.phaseNumber,
+          status: p.status,
+          completedAt: p.status === "completed" ? new Date() : null,
+        })),
+        phaseChecklist: [],
+        itineraryPlan: null,
+      };
+    }
+
+    it("counts completedPhases as max of explicit completions and currentPhase-1", async () => {
+      // Trip in phase 6 but only 3 phases have explicit "completed" status
+      const trip = makeExpeditionTrip(6, [
+        { phaseNumber: 1, status: "completed" },
+        { phaseNumber: 2, status: "completed" },
+        { phaseNumber: 3, status: "completed" },
+        { phaseNumber: 4, status: "active" },
+        { phaseNumber: 5, status: "active" },
+        { phaseNumber: 6, status: "active" },
+        { phaseNumber: 7, status: "locked" },
+        { phaseNumber: 8, status: "locked" },
+      ]);
+
+      prismaMock.trip.findMany.mockResolvedValue([trip] as never);
+
+      const result = await TripService.getUserTripsWithExpeditionData("user-1");
+
+      // currentPhase - 1 = 5, explicit completions = 3, so max = 5
+      expect(result[0].completedPhases).toBe(5);
+    });
+
+    it("uses explicit count when it exceeds currentPhase-1", async () => {
+      // All 6 phases explicitly completed, currentPhase = 6
+      const trip = makeExpeditionTrip(6, [
+        { phaseNumber: 1, status: "completed" },
+        { phaseNumber: 2, status: "completed" },
+        { phaseNumber: 3, status: "completed" },
+        { phaseNumber: 4, status: "completed" },
+        { phaseNumber: 5, status: "completed" },
+        { phaseNumber: 6, status: "completed" },
+        { phaseNumber: 7, status: "locked" },
+        { phaseNumber: 8, status: "locked" },
+      ]);
+
+      prismaMock.trip.findMany.mockResolvedValue([trip] as never);
+
+      const result = await TripService.getUserTripsWithExpeditionData("user-1");
+
+      // explicit = 6, currentPhase - 1 = 5, max = 6
+      expect(result[0].completedPhases).toBe(6);
+    });
+
+    it("returns 1 completed phase for trip in phase 2 (no regression)", async () => {
+      const trip = makeExpeditionTrip(2, [
+        { phaseNumber: 1, status: "completed" },
+        { phaseNumber: 2, status: "active" },
+        { phaseNumber: 3, status: "locked" },
+        { phaseNumber: 4, status: "locked" },
+        { phaseNumber: 5, status: "locked" },
+        { phaseNumber: 6, status: "locked" },
+        { phaseNumber: 7, status: "locked" },
+        { phaseNumber: 8, status: "locked" },
+      ]);
+
+      prismaMock.trip.findMany.mockResolvedValue([trip] as never);
+
+      const result = await TripService.getUserTripsWithExpeditionData("user-1");
+
+      // explicit = 1, currentPhase - 1 = 1, max = 1
+      expect(result[0].completedPhases).toBe(1);
+    });
+  });
+
   // ─── reorderActivities ───────────────────────────────────────────────────────
 
   describe("reorderActivities", () => {

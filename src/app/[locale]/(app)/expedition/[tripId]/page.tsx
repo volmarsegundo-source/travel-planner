@@ -23,40 +23,22 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
   let phaseNumber = 1;
   try {
     const currentPhase = await PhaseEngine.getCurrentPhase(tripId, session.user.id);
-    phaseNumber = currentPhase?.phaseNumber ?? 1;
+    if (currentPhase) {
+      phaseNumber = currentPhase.phaseNumber;
+    } else {
+      // No active phase — find the highest completed phase
+      const highest = await PhaseEngine.getHighestCompletedPhase(tripId, session.user.id);
+      phaseNumber = highest?.phaseNumber ?? 1;
+    }
   } catch {
     // Gracefully degrade — default to phase 1 redirect
   }
 
   // Route to the correct phase wizard
-  if (phaseNumber === 1) {
-    // Phase 1 was completed during creation, but just in case
-    redirect({ href: `/expedition/${tripId}/phase-2`, locale });
-    return null;
-  }
-
-  if (phaseNumber === 2) {
-    redirect({ href: `/expedition/${tripId}/phase-2`, locale });
-    return null;
-  }
-
-  if (phaseNumber === 3) {
-    redirect({ href: `/expedition/${tripId}/phase-3`, locale });
-    return null;
-  }
-
-  if (phaseNumber === 4) {
-    redirect({ href: `/expedition/${tripId}/phase-4`, locale });
-    return null;
-  }
-
-  if (phaseNumber === 5) {
-    redirect({ href: `/expedition/${tripId}/phase-5`, locale });
-    return null;
-  }
-
-  if (phaseNumber === 6) {
-    redirect({ href: `/expedition/${tripId}/phase-6`, locale });
+  if (phaseNumber >= 1 && phaseNumber <= 6) {
+    // Phase 1 is completed during creation, redirect to phase-2 as fallback
+    const targetPhase = phaseNumber === 1 ? 2 : phaseNumber;
+    redirect({ href: `/expedition/${tripId}/phase-${targetPhase}`, locale });
     return null;
   }
 

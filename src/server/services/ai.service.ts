@@ -93,6 +93,8 @@ const GuideSectionSchema = z.object({
   icon: z.string(),
   summary: z.string(),
   tips: z.array(z.string()).max(5),
+  type: z.enum(["stat", "content"]),
+  details: z.string().optional(),
 });
 
 const DestinationGuideContentSchema = z.object({
@@ -102,6 +104,10 @@ const DestinationGuideContentSchema = z.object({
   electricity: GuideSectionSchema,
   connectivity: GuideSectionSchema,
   cultural_tips: GuideSectionSchema,
+  safety: GuideSectionSchema,
+  health: GuideSectionSchema,
+  transport_overview: GuideSectionSchema,
+  local_customs: GuideSectionSchema,
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -451,8 +457,9 @@ export class AiService {
 
   /**
    * Generates a destination pocket guide using AI.
-   * Returns structured info: timezone, currency, language, electricity,
-   * connectivity, and cultural tips for the destination.
+   * Returns structured info across 10 sections: timezone, currency, language,
+   * electricity, connectivity, cultural_tips, safety, health, transport_overview,
+   * and local_customs. Each section has a type ("stat" or "content") and optional details.
    */
   static async generateDestinationGuide(
     params: GenerateGuideParams

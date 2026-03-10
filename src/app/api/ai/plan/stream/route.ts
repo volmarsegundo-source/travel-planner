@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
+import { redis } from "@/server/cache/redis";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { canUseAI } from "@/lib/guards/age-guard";
 import { hashUserId } from "@/lib/hash";
@@ -13,6 +14,14 @@ import { ClaudeProvider } from "@/server/services/providers/claude.provider";
 import { AppError } from "@/lib/errors";
 import { GeneratePlanParamsSchema, TripIdSchema } from "@/lib/validations/ai.schema";
 import { calculateEstimatedCost } from "@/lib/cost-calculator";
+import {
+  persistItinerary,
+  parseItineraryJson,
+  acquireGenerationLock,
+  releaseGenerationLock,
+} from "@/server/services/itinerary-persistence.service";
+import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
+import { PointsEngine } from "@/lib/engines/points-engine";
 
 // Allow up to 120s for streaming responses (Vercel Pro)
 export const maxDuration = 120;
@@ -55,6 +64,7 @@ export async function POST(request: NextRequest) {
   }
 
   const hid = hashUserId(session.user.id);
+  const userId = session.user.id;
 
   // Parse and validate body
   let body: unknown;
@@ -78,14 +88,14 @@ export async function POST(request: NextRequest) {
   }
 
   // Rate limit
-  const rl = await checkRateLimit(`ai:plan:${session.user.id}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SECONDS);
+  const rl = await checkRateLimit(`ai:plan:${userId}`, RATE_LIMIT_MAX, RATE_LIMIT_WINDOW_SECONDS);
   if (!rl.allowed) {
     return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
   }
 
   // BOLA check: trip belongs to user
   const trip = await db.trip.findFirst({
-    where: { id: tripIdResult.data, userId: session.user.id, deletedAt: null },
+    where: { id: tripIdResult.data, userId, deletedAt: null },
     select: { id: true },
   });
   if (!trip) {
@@ -94,11 +104,23 @@ export async function POST(request: NextRequest) {
 
   // Age guard
   const userProfile = await db.userProfile.findUnique({
-    where: { userId: session.user.id },
+    where: { userId },
     select: { birthDate: true },
   });
   if (!canUseAI(userProfile?.birthDate)) {
     return NextResponse.json({ error: "Age restriction" }, { status: 403 });
+  }
+
+  // Per-trip generation lock to prevent simultaneous generations
+  let lockAcquired = false;
+  try {
+    lockAcquired = await acquireGenerationLock(tripIdResult.data, redis);
+  } catch {
+    // Redis failure: proceed without lock (graceful degradation)
+    lockAcquired = true;
+  }
+  if (!lockAcquired) {
+    return NextResponse.json({ error: "Generation already in progress" }, { status: 409 });
   }
 
   // Sanitize destination
@@ -108,6 +130,7 @@ export async function POST(request: NextRequest) {
     const { masked } = maskPII(sanitized, "destination");
     sanitizedDestination = masked;
   } catch (error) {
+    await releaseGenerationLock(tripIdResult.data, redis).catch(() => {});
     if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
       return NextResponse.json({ error: "Invalid input" }, { status: 400 });
     }
@@ -122,6 +145,7 @@ export async function POST(request: NextRequest) {
       const { masked } = maskPII(sanitized, "travelNotes");
       sanitizedTravelNotes = masked;
     } catch (error) {
+      await releaseGenerationLock(tripIdResult.data, redis).catch(() => {});
       if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
         return NextResponse.json({ error: "Invalid input" }, { status: 400 });
       }
@@ -157,22 +181,73 @@ export async function POST(request: NextRequest) {
       { systemPrompt: PLAN_SYSTEM_PROMPT },
     );
 
-    // Create SSE-formatted response stream
+    const validatedTripId = tripIdResult.data;
+
+    // Create SSE-formatted response stream with accumulation + persistence
     const encoder = new TextEncoder();
     const sseStream = new ReadableStream({
       async start(controller) {
         const reader = aiStream.getReader();
+        let accumulated = "";
         try {
           while (true) {
             const { done, value } = await reader.read();
             if (done) break;
+            accumulated += value;
             controller.enqueue(encoder.encode(`data: ${value}\n\n`));
           }
+
+          // Parse accumulated JSON and persist to DB before sending [DONE]
+          const plan = parseItineraryJson(accumulated);
+          if (plan) {
+            try {
+              await persistItinerary(validatedTripId, plan);
+
+              // Record generation on ItineraryPlan if it exists
+              try {
+                await ItineraryPlanService.recordGeneration(validatedTripId);
+              } catch {
+                // ItineraryPlan may not exist — ignore
+              }
+
+              // Award points for generating itinerary (non-blocking)
+              try {
+                await PointsEngine.earnPoints(
+                  userId,
+                  50,
+                  "ai_usage",
+                  "Itinerary generation (streaming)",
+                  validatedTripId
+                );
+              } catch {
+                // Non-blocking
+              }
+
+              logger.info("ai.stream.persisted", { userIdHash: hid, tripId: validatedTripId });
+            } catch (persistError) {
+              logger.error("ai.stream.persist.error",
+                persistError instanceof Error ? persistError : new Error(String(persistError)),
+                { userIdHash: hid, tripId: validatedTripId }
+              );
+              controller.enqueue(encoder.encode(`data: {"error":"persist_failed"}\n\n`));
+            }
+          } else {
+            logger.error("ai.stream.parse.error", new Error("Failed to parse itinerary JSON"), {
+              userIdHash: hid,
+              tripId: validatedTripId,
+              accumulatedLength: accumulated.length,
+            });
+            controller.enqueue(encoder.encode(`data: {"error":"parse_failed"}\n\n`));
+          }
+
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (error) {
           logger.error("ai.stream.sse.error", error instanceof Error ? error : new Error(String(error)), { userIdHash: hid });
           controller.error(error);
+        } finally {
+          // Release the generation lock
+          await releaseGenerationLock(validatedTripId, redis).catch(() => {});
         }
       },
     });
@@ -207,6 +282,9 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    // Release lock on error
+    await releaseGenerationLock(tripIdResult.data, redis).catch(() => {});
+
     logger.error("ai.stream.error", error instanceof Error ? error : new Error(String(error)), { userIdHash: hid });
 
     if (error instanceof AppError) {

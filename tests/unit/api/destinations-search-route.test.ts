@@ -193,4 +193,64 @@ describe("GET /api/destinations/search", () => {
     const data = await res.json();
     expect(data.results).toEqual([]);
   });
+
+  it("deduplicates results by city+state+country, keeping higher importance", async () => {
+    const nominatimResponse = [
+      {
+        display_name: "Paris, Ile-de-France, France",
+        lat: "48.8566",
+        lon: "2.3522",
+        importance: 0.9,
+        address: { country: "France", state: "Ile-de-France", city: "Paris" },
+      },
+      {
+        display_name: "Paris, Ile-de-France, France (duplicate)",
+        lat: "48.8567",
+        lon: "2.3523",
+        importance: 0.7,
+        address: { country: "France", state: "Ile-de-France", city: "Paris" },
+      },
+      {
+        display_name: "Paris, Texas, United States",
+        lat: "33.6609",
+        lon: "-95.5555",
+        importance: 0.5,
+        address: { country: "United States", state: "Texas", city: "Paris" },
+      },
+    ];
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(nominatimResponse),
+    });
+
+    const res = await GET(createRequest("Paris"));
+    const data = await res.json();
+
+    // Should have 2 results: Paris France (higher importance) + Paris Texas
+    expect(data.results).toHaveLength(2);
+    expect(data.results[0].displayName).toBe("Paris, Ile-de-France, France");
+    expect(data.results[1].displayName).toBe("Paris, Texas, United States");
+  });
+
+  it("does not include importance field in response", async () => {
+    const nominatimResponse = [
+      {
+        display_name: "Tokyo, Japan",
+        lat: "35.6762",
+        lon: "139.6503",
+        importance: 0.95,
+        address: { country: "Japan", state: null, city: "Tokyo" },
+      },
+    ];
+    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(nominatimResponse),
+    });
+
+    const res = await GET(createRequest("Tokyo"));
+    const data = await res.json();
+
+    expect(data.results[0]).not.toHaveProperty("importance");
+    expect(data.results[0].displayName).toBe("Tokyo, Japan");
+  });
 });

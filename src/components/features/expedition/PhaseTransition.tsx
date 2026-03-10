@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 
+const AUTO_ADVANCE_DELAY_MS = 2000;
+
 interface PhaseTransitionProps {
   fromPhase: number;
   toPhase: number;
@@ -14,8 +16,10 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
   const t = useTranslations("expedition.transition");
   const tPhases = useTranslations("gamification.phases");
   const [showAdvancing, setShowAdvancing] = useState(false);
+  const [autoAdvanceCancelled, setAutoAdvanceCancelled] = useState(false);
   const onContinueRef = useRef(onContinue);
   onContinueRef.current = onContinue;
+  const autoAdvanceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const phaseNameKeys: Record<number, string> = {
     1: "theCalling",
@@ -28,12 +32,39 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
     8: "theLegacy",
   };
 
+  // Show "advancing" state after initial celebration
   useEffect(() => {
     const advanceTimer = setTimeout(() => {
       setShowAdvancing(true);
     }, 1200);
     return () => clearTimeout(advanceTimer);
   }, []);
+
+  // Auto-advance after showing "advancing" state
+  useEffect(() => {
+    if (!showAdvancing || autoAdvanceCancelled) return;
+
+    autoAdvanceTimerRef.current = setTimeout(() => {
+      onContinueRef.current();
+    }, AUTO_ADVANCE_DELAY_MS);
+
+    return () => {
+      if (autoAdvanceTimerRef.current) {
+        clearTimeout(autoAdvanceTimerRef.current);
+        autoAdvanceTimerRef.current = null;
+      }
+    };
+  }, [showAdvancing, autoAdvanceCancelled]);
+
+  function handleManualContinue() {
+    // Cancel auto-advance timer to prevent double invocation
+    if (autoAdvanceTimerRef.current) {
+      clearTimeout(autoAdvanceTimerRef.current);
+      autoAdvanceTimerRef.current = null;
+    }
+    setAutoAdvanceCancelled(true);
+    onContinueRef.current();
+  }
 
   return (
     <div
@@ -43,7 +74,7 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
     >
       <div className="flex flex-col items-center gap-6 rounded-2xl bg-card p-8 shadow-2xl text-center">
         <div className="text-5xl" aria-hidden="true">
-          {showAdvancing ? "🚀" : "✅"}
+          {showAdvancing ? "\u{1F680}" : "\u2705"}
         </div>
 
         {!showAdvancing ? (
@@ -63,9 +94,14 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
             <p className="text-muted-foreground">
               {tPhases(phaseNameKeys[toPhase] ?? "theExplorer")}
             </p>
-            <Button onClick={() => onContinueRef.current()} size="lg">
+            <Button onClick={handleManualContinue} size="lg">
               {t("continue")}
             </Button>
+            {!autoAdvanceCancelled && (
+              <p className="text-xs text-muted-foreground/70" aria-live="polite">
+                {t("autoAdvance")}
+              </p>
+            )}
           </div>
         )}
       </div>

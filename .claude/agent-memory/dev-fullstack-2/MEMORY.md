@@ -28,13 +28,32 @@
 - `aria-label` on a button overrides text content for accessible name — avoid setting both
 - ProgressIndicator mock returns key string without interpolation since `"onboarding.progress"` doesn't contain `{current}` literal — test for `"onboarding.progress"` not interpolated value
 
+## Sprint 19 — Completed Tasks (dev-fullstack-2)
+- T-S19-002: Fix navigation for completed trips — added `getHighestCompletedPhase()` to PhaseEngine, simplified ExpeditionHubPage redirect logic
+- T-S19-003: Cascade deletion (SEC-S18-001) — added Activity, ItineraryDay, ChecklistItem cleanup in deleteUserAccountAction transaction
+- T-S19-004: Fix completedPhases count — `Math.max(explicit, currentPhase - 1)` in trip.service.ts
+- T-S19-005: Show bio in Phase1Wizard confirmation — added bio display with 100-char truncation, i18n keys
+- T-S19-006: Deduplicate destinations — dedup by city+state+country in API route, keeping higher importance
+- T-S19-011: Consistent currency format — `getDefaultCurrency(locale)` + `formatCurrency()` utility, updated Phase2Wizard, PlanGeneratorWizard, OnboardingWizard
+- T-S19-009: SKIPPED — T-S19-008 (guide backend by dev-1) not committed yet
+
+## Sprint 19 — Pre-existing Test Failures (NOT regressions)
+- `ai.service.test.ts`: "passes system prompt to provider for guide generation" — expects "6 sections" but prompt now says "10 sections" (guide redesign by another agent)
+- `DestinationGuideWizard.test.tsx`: "section buttons have aria-expanded attribute" — expects 6 sections but now 10 (same cause)
+
+## Sprint 19 Patterns
+- Currency utility: `src/lib/utils/currency.ts` — `getDefaultCurrency(locale)` and `formatCurrency(value, currency, locale)`
+- PhaseTransition auto-advance: useEffect with 2s timer after `showAdvancing` state, cancelled on manual click or unmount
+- Destination dedup: Map by `city|state|country` lowercase key, keep entry with higher `importance` from Nominatim
+- completedPhases fix: `Math.max(explicit_count, currentPhase - 1)` accounts for skipped non-blocking phases
+
 ## Sprint 18 — Completed Tasks (dev-fullstack-2)
-- T-S18-001: Fixed z-index/pointer-events on ExpeditionCard (pointer-events-none on content wrapper, pointer-events-auto on interactive children)
-- T-S18-002: Account deletion data cleanup — added UserProfile, UserBadge, PointTransaction, UserProgress, ExpeditionPhase, PhaseChecklistItem, ItineraryPlan, DestinationGuide cleanup in transaction
-- T-S18-010: Dashboard cards with phase tools — PHASE_TOOLS config, PhaseToolsBar component, "Em construcao" for phases 4/7/8
-- T-S18-008: Streaming UI in Phase6Wizard — replaced server action with fetch to /api/ai/plan/stream (SSE), cancel button, HTTP error mapping
-- T-S18-009: Auto-generation + AI disclaimer + regenerate with confirm dialog
-- T-S18-011: DashboardPhaseProgressBar — 8 segments with completed/current/future/coming-soon states
+- T-S18-001: Fixed z-index/pointer-events on ExpeditionCard
+- T-S18-002: Account deletion data cleanup
+- T-S18-010: Dashboard cards with phase tools
+- T-S18-008: Streaming UI in Phase6Wizard
+- T-S18-009: Auto-generation + AI disclaimer + regenerate
+- T-S18-011: DashboardPhaseProgressBar
 
 ## Sprint 18 Patterns
 - Streaming fetch: use ReadableStream reader + TextDecoder, parse SSE lines starting with "data: "

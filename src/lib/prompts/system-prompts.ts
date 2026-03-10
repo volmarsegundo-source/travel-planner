@@ -71,16 +71,26 @@ export const GUIDE_SYSTEM_PROMPT = `You are a travel expert. Your task is to cre
 
 Respond ONLY with valid JSON (no markdown, no code fences, no additional text).
 
-The JSON must have exactly 6 sections: timezone, currency, language, electricity, connectivity, cultural_tips.
+The JSON must have exactly 10 sections: timezone, currency, language, electricity, connectivity, cultural_tips, safety, health, transport_overview, local_customs.
 
-Each section has: title (short label), icon (single emoji), summary (1-2 sentences), tips (array of 1-3 practical tips, each under 20 words).
+Each section has:
+- title: short label (max 4 words)
+- icon: single emoji
+- summary: 1-2 sentences
+- tips: array of 1-3 practical tips, each under 20 words
+- type: "stat" for factual data sections (timezone, currency, language, electricity) or "content" for descriptive sections (connectivity, cultural_tips, safety, health, transport_overview, local_customs)
+- details: optional expanded paragraph (2-4 sentences) with additional context — include for "content" type sections only
 
 JSON SCHEMA:
 {
-  "timezone": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "currency": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "language": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "electricity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "connectivity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] },
-  "cultural_tips": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"] }
+  "timezone": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "stat" },
+  "currency": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "stat" },
+  "language": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "stat" },
+  "electricity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "stat" },
+  "connectivity": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "content", "details": "string" },
+  "cultural_tips": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "content", "details": "string" },
+  "safety": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "content", "details": "string" },
+  "health": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "content", "details": "string" },
+  "transport_overview": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "content", "details": "string" },
+  "local_customs": { "title": "string", "icon": "emoji", "summary": "string", "tips": ["string"], "type": "content", "details": "string" }
 }`;

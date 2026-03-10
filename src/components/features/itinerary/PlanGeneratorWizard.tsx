@@ -9,6 +9,7 @@ import { generateTravelPlanAction } from "@/server/actions/ai.actions";
 import { updateTripAction } from "@/server/actions/trip.actions";
 import type { Trip } from "@/types/trip.types";
 import type { TravelStyle } from "@/types/ai.types";
+import { getDefaultCurrency } from "@/lib/utils/currency";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -65,7 +66,7 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
   const [step, setStep] = useState(1);
   const [travelStyle, setTravelStyle] = useState<TravelStyle>("CULTURE");
   const [budget, setBudget] = useState(DEFAULT_BUDGET);
-  const [currency, setCurrency] = useState<Currency>("USD");
+  const [currency, setCurrency] = useState<Currency>(() => getDefaultCurrency(locale) as Currency);
   const [travelers, setTravelers] = useState(DEFAULT_TRAVELERS);
   const [travelNotes, setTravelNotes] = useState("");
   const [error, setError] = useState<string | null>(null);

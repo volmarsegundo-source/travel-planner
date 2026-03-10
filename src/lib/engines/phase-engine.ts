@@ -102,6 +102,33 @@ export class PhaseEngine {
   }
 
   /**
+   * Get the highest completed phase for a trip. BOLA guard.
+   * Returns null if no phases are completed.
+   */
+  static async getHighestCompletedPhase(tripId: string, userId: string) {
+    const trip = await db.trip.findFirst({
+      where: { id: tripId, userId, deletedAt: null },
+    });
+
+    if (!trip) {
+      throw new ForbiddenError();
+    }
+
+    const phase = await db.expeditionPhase.findFirst({
+      where: { tripId, status: "completed" },
+      orderBy: { phaseNumber: "desc" },
+    });
+
+    if (!phase) return null;
+
+    return {
+      ...phase,
+      status: phase.status as PhaseStatus,
+      definition: getPhaseDefinition(phase.phaseNumber as PhaseNumber),
+    };
+  }
+
+  /**
    * Complete a phase. Core method that orchestrates:
    * 1. Validates BOLA + phase order + status
    * 2. In a transaction: marks completed, awards points/badge/rank, unlocks next

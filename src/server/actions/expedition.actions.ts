@@ -297,6 +297,7 @@ export async function generateDestinationGuideAction(
     // All sections are auto-viewed on generation
     const allSections: GuideSectionKey[] = [
       "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+      "safety", "health", "transport_overview", "local_customs",
     ];
 
     // Upsert guide with all sections marked as viewed
@@ -408,6 +409,7 @@ export async function getDestinationGuideAction(
 
 const GUIDE_SECTION_KEYS: GuideSectionKey[] = [
   "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
+  "safety", "health", "transport_overview", "local_customs",
 ];
 
 export async function viewGuideSectionAction(

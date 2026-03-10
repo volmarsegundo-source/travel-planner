@@ -428,6 +428,7 @@
         "no": "Não",
         "profileSummary": "Suas informações de perfil",
         "location": "Localização",
+        "bio": "Sobre você",
         "cta": "Iniciar Expedição"
       },
       "tripType": {
@@ -576,7 +577,7 @@
     "phase5": {
       "title": "O Mapa dos Dias",
       "subtitle": "Seu guia de bolso para o destino.",
-      "generateHint": "Gere um guia com IA com informações essenciais sobre o destino: fuso horário, moeda, idioma, eletricidade, conectividade e dicas culturais.",
+      "generateHint": "Gere um guia com IA com informações essenciais sobre o destino: fuso horário, moeda, idioma, eletricidade, conectividade, dicas culturais, segurança, saúde, transporte e costumes locais.",
       "generateCta": "Gerar Guia do Destino",
       "regenerateCta": "Atualizar guia ({remaining} restantes)",
       "completeCta": "Completar Fase e Ganhar Pontos",
@@ -588,7 +589,11 @@
         "language": "Idioma",
         "electricity": "Eletricidade",
         "connectivity": "Conectividade",
-        "cultural_tips": "Dicas Culturais"
+        "cultural_tips": "Dicas Culturais",
+        "safety": "Segurança",
+        "health": "Saúde",
+        "transport_overview": "Transporte",
+        "local_customs": "Costumes Locais"
       }
     },
     "phase6": {
@@ -608,7 +613,13 @@
       "regenerateConfirmTitle": "Regerar roteiro?",
       "regenerateConfirmMessage": "Isso substituirá seu roteiro atual por um novo. Esta ação não pode ser desfeita.",
       "regenerateConfirmYes": "Sim, regerar",
-      "regenerateConfirmNo": "Manter atual"
+      "regenerateConfirmNo": "Manter atual",
+      "progressAnalyzing": "Analisando destino e preferencias...",
+      "progressPlanning": "Planejando atividades dia a dia...",
+      "progressOptimizing": "Otimizando seu roteiro...",
+      "progressAlmostDone": "Quase pronto...",
+      "progressDaysPlanned": "{count} dias planejados ate agora",
+      "errorPersistFailed": "O roteiro foi gerado mas nao pode ser salvo. Tente novamente."
     },
     "hub": {
       "title": "Expedição",
@@ -623,7 +634,8 @@
     "transition": {
       "phaseCompleted": "Fase {phase} concluída!",
       "advancingTo": "Avançando para a Fase {phase}...",
-      "continue": "Continuar"
+      "continue": "Continuar",
+      "autoAdvance": "Continuando automaticamente..."
     },
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}"

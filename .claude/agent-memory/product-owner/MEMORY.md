@@ -2,17 +2,34 @@
 
 ## Project: Travel Planner
 
-### Backlog State (as of 2026-03-05)
-- `docs/tasks.md` at version 3.0.0 (needs update for Sprint 8-9 tasks)
-- Sprints 1-8 complete: auth, DB, landing, dev toolkit, nav, onboarding, profile, wizard+AI provider
-- Sprint 8 delivered: Trip Hub, wizard improvements (editable fields, 9 styles, travelNotes, budget 100k), AI Provider Abstraction Layer
-- Sprint 9 planned: `docs/sprint-9-planning.md` — User Tier (Free/Premium) + Gemini Flash integration
-- Product version: 0.8.0 (469 tests, 0 failures)
-- US-110 (Trip Hub) Done, US-111 (Health check) Done (Sprint 8)
-- US-112 (User Tier) P0, US-113 (Gemini Provider) P0, US-114 (Tier badge UI) P1 — Sprint 9
-- Tasks T-082 to T-096 defined for Sprint 9
-- Next available US ID: US-115; Next available Task ID: T-097
-- Full backlog: US-001 through US-016 + US-100 through US-114
+### Backlog State (as of 2026-03-10)
+- Product version: 0.12.0 (post Sprint 18 merge)
+- Sprints 1-18 complete; Sprint 18 = feature sprint (1288 tests)
+- `docs/tasks.md` at version 3.0.0 (stale — needs major update)
+- Next available US ID: US-123; Next available Task ID: TBD
+- Full backlog: US-001 through US-016 + US-100 through US-122
+- ITEM-13 (Transport) + ITEM-14 (Destination Guide) spec: `docs/product/TRANSPORT-PHASE-SPEC.md`
+- US-115 to US-122 defined in TRANSPORT-PHASE-SPEC.md (not yet in tasks.md)
+- Sprint 19 backlog: `docs/sprints/SPRINT-19-BACKLOG.md`
+
+### ITEM-13/14 User Stories (defined 2026-03-10)
+- US-115: Transport registration (Must, L, 3.70)
+- US-116: Accommodation registration (Must, M, 3.10)
+- US-117: Local mobility selection (Should, S, 3.10)
+- US-118: Trip origin field (Must, S, 3.65)
+- US-119: AI cost estimate for transport (Could, S, 3.30)
+- US-120: Destination guide cards redesign (Must, M, 3.20)
+- US-121: Expanded guide categories (Should, S, 3.10)
+- US-122: Destination chat AI — Premium (Could, L, 3.65)
+
+### Phase 4 Redesign Decision
+- Rename Phase 4: "O Abrigo" -> "A Logistica" (APPROVED by stakeholder — PO-1)
+- 3 internal sections: Transport, Accommodation, Local Mobility
+- Keep 8 phases total (no new phase added)
+- Badge rename: host -> logistics_master
+- Trip.origin field required (new column)
+- Transport: round-trip AND one-way (PO-2), multi-city connections (PO-3)
+- Multiple accommodations per trip, max 5 (UX-1)
 
 ### Scoring Formula
 Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strategic Align (15%) + Competitive Diff (10%)
@@ -52,20 +69,24 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 8)
-- Sprint 9: User Tier + Gemini Flash (US-112, US-113, US-114) + security debts
-- Sprint 10: Upgrade Flow + Budget/Expenses (US-009, US-011, US-012, US-013)
-- Sprint 11: LGPD full compliance (US-016) + security audit + production deploy
-- Budget features moved from original Sprint 9 to Sprint 10 (freemium takes priority)
+### MVP Roadmap (updated post Sprint 18)
+- Sprint 19: P0 bug fixes (streaming, phase nav, progress bar) + guide redesign (US-120/121) + UX polish
+- Sprint 20: US-118 (origin field) + US-115 (transport) + US-117 (local mobility)
+- Sprint 21: US-116 (accommodation) + US-119 (AI cost estimate) + ITEM-7/10/12
+- Future: US-122 (destination chat AI — Premium)
 
-### Pending Debts Entering Sprint 9
-- FIND-S8-M-001: Zod validation for travelStyle/budgetTotal/budgetCurrency server-side
-- FIND-S8-M-002: travelNotes prompt injection (no system/user separation)
-- FIND-S8-M-003: Anthropic singleton with apiKey empty string
-- FIND-S8-L-002: GOOGLE_AI_API_KEY no prefix validation
-- DEBT-S8-001: ADR-008 not documented
-- OPT-S8-005: Token usage not logged
-- OPT-S8-001: travelNotes not normalized before hash
+### Sprint 19 Key Items (14 items triaged from manual testing)
+- P0: ITEM-1 (streaming broken, 6h), ITEM-2 (Continue btn phase6+, 3h), ITEM-3 (progress count, 2h), SEC-S18-001 (cascade delete, 3h)
+- P1: ITEM-14/US-120+121 (guide redesign, 10h), ITEM-8 (confirmation screen, 3h), ITEM-9 (auto transitions, 3h), ITEM-6 (remove dup btns, 1h), ITEM-11 (currency default, 1h)
+- P2: ITEM-4 (clickable progress, 3h), ITEM-5 (phase labels, 2h)
+- Deferred: ITEM-13 (transport, Sprint 20), ITEM-7 (phase 1 reorder), ITEM-10 (traveler details), ITEM-12 (preferences expansion)
+
+### Pending Debts (post Sprint 18)
+- Most Sprint 6-8 debts resolved in Sprint 17 (hardening)
+- SEC-S18-001: Cascade deletion for ItineraryDay/Activity/ChecklistItem (scheduled Sprint 19)
+- ITEM-7: Phase 1 reorder (info pessoal before trip info) — deferred, effort L
+- ITEM-10: Traveler detail (adults, children, ages) — deferred, requires data model change
+- ITEM-12: Preferences expansion — deferred, requires PO category definition
 
 ### Gemini Flash Pricing (March 2026)
 - Gemini 2.5 Flash: $0.30/M input, $2.50/M output

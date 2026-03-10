@@ -92,7 +92,7 @@ export class ItineraryPlanService {
 
     const guideContent = guide?.content as unknown as DestinationGuideContent | null;
 
-    // Build context summary from guide sections
+    // Build context summary from guide sections (supports both 6-section and 10-section formats)
     let guideContext: string | undefined;
     if (guideContent) {
       const parts: string[] = [];
@@ -107,6 +107,13 @@ export class ItineraryPlanService {
       }
       if (guideContent.language?.summary) {
         parts.push(`Language: ${guideContent.language.summary}`);
+      }
+      // New sections from 10-section format (T-S19-008)
+      if (guideContent.safety?.summary) {
+        parts.push(`Safety: ${guideContent.safety.summary}`);
+      }
+      if (guideContent.transport_overview?.summary) {
+        parts.push(`Transport: ${guideContent.transport_overview.summary}`);
       }
       if (parts.length > 0) {
         guideContext = parts.join(". ");
