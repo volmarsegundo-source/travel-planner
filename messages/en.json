@@ -490,6 +490,21 @@
         "decrease": "Decrease travelers",
         "increase": "Increase travelers"
       },
+      "passengers": {
+        "title": "Who is traveling?",
+        "adults": "Adults",
+        "adultsHint": "18+ years",
+        "children": "Children",
+        "childrenHint": "2-17 years",
+        "seniors": "Seniors",
+        "seniorsHint": "65+ years",
+        "infants": "Infants",
+        "infantsHint": "Under 2 years",
+        "childAge": "Age of child {number}",
+        "total": "Total passengers: {count}",
+        "decrease": "Decrease {type}",
+        "increase": "Increase {type}"
+      },
       "preferences": {
         "title": "Personal Preferences",
         "subtitle": "Help us make your trip more comfortable.",
@@ -504,6 +519,7 @@
         "summary": "Your preferences",
         "travelerType": "Traveler type",
         "groupSize": "Group size",
+        "passengers": "Passengers",
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
