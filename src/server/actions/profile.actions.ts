@@ -9,13 +9,12 @@ import { encrypt, decrypt } from "@/lib/crypto";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { hashUserId } from "@/lib/hash";
+import { type Prisma } from "@prisma/client";
 import {
   PreferencesSchema,
   parsePreferences,
   isCategoryFilled,
   PREFERENCE_CATEGORIES,
-  type PreferenceCategoryKey,
-  type UserPreferences,
 } from "@/lib/validations/preferences.schema";
 import type { ActionResult } from "@/types/trip.types";
 
@@ -252,8 +251,8 @@ export async function savePreferencesAction(
     // Save new preferences
     await db.userProfile.upsert({
       where: { userId },
-      create: { userId, preferences: parsed.data as Record<string, unknown> },
-      update: { preferences: parsed.data as Record<string, unknown> },
+      create: { userId, preferences: parsed.data as unknown as Prisma.InputJsonValue },
+      update: { preferences: parsed.data as unknown as Prisma.InputJsonValue },
     });
 
     // Award points for newly filled categories (idempotent via transaction check)

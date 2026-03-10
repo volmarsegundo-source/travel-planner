@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { PreferenceCategory } from "./PreferenceCategory";
 import { PreferenceProgressBar } from "./PreferenceProgressBar";
 import {
-  PREFERENCE_CATEGORIES,
   countFilledCategories,
   parsePreferences,
   type UserPreferences,

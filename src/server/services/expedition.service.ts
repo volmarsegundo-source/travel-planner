@@ -1,4 +1,5 @@
 import "server-only";
+import { type Prisma } from "@prisma/client";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -140,7 +141,7 @@ export class ExpeditionService {
     if (data.passengers) {
       await db.trip.update({
         where: { id: tripId },
-        data: { passengers: data.passengers as Record<string, unknown> },
+        data: { passengers: data.passengers as unknown as Prisma.InputJsonValue },
       });
     }
 

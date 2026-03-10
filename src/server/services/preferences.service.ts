@@ -1,4 +1,5 @@
 import "server-only";
+import { type Prisma } from "@prisma/client";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
@@ -33,8 +34,8 @@ export class PreferencesService {
 
     await client.userProfile.upsert({
       where: { userId },
-      create: { userId, preferences: parsed.data as Record<string, unknown> },
-      update: { preferences: parsed.data as Record<string, unknown> },
+      create: { userId, preferences: parsed.data as unknown as Prisma.InputJsonValue },
+      update: { preferences: parsed.data as unknown as Prisma.InputJsonValue },
     });
 
     logger.info("preferences.saved", { userIdHash: hashUserId(userId) });

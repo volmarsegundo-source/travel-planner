@@ -14,7 +14,7 @@ import { VisualCardSelector } from "./VisualCardSelector";
 import { completePhase2Action } from "@/server/actions/expedition.actions";
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
-import { getTotalPassengers, type Passengers } from "@/lib/validations/trip.schema";
+
 
 interface Phase2WizardProps {
   tripId: string;
