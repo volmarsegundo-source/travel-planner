@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChecklistProgressMini } from "./ChecklistProgressMini";
+import { DashboardPhaseProgressBar } from "./DashboardPhaseProgressBar";
 import { PhaseToolsBar } from "./PhaseToolsBar";
 import { getPhaseTools } from "@/lib/engines/phase-config";
 
@@ -33,8 +34,6 @@ export function ExpeditionCard({
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
 
-  const progressPercent = totalPhases > 0 ? (completedPhases / totalPhases) * 100 : 0;
-
   const showChecklistShortcut = currentPhase >= 5;
   const showItineraryShortcut = hasItineraryPlan;
 
@@ -57,17 +56,11 @@ export function ExpeditionCard({
             {t("currentPhase", { number: currentPhase })} &middot;{" "}
             {t("phaseProgress", { completed: completedPhases, total: totalPhases })}
           </p>
-          {/* Progress bar */}
-          <div className="mt-3 h-2 w-full rounded-full bg-muted">
-            <div
-              className="h-2 rounded-full bg-atlas-gold transition-all"
-              style={{ width: `${progressPercent}%` }}
-              role="progressbar"
-              aria-valuenow={completedPhases}
-              aria-valuemin={0}
-              aria-valuemax={totalPhases}
-            />
-          </div>
+          {/* Phase progress bar with indicators */}
+          <DashboardPhaseProgressBar
+            currentPhase={currentPhase}
+            completedPhases={completedPhases}
+          />
           {/* Checklist badge — visible from phase 3 onward */}
           {currentPhase >= 3 && checklistRequired > 0 && (
             <div className="pointer-events-auto">

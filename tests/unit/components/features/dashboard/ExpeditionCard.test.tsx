@@ -82,10 +82,10 @@ describe("ExpeditionCard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders progress bar", () => {
+  it("renders phase progress bar", () => {
     renderCard();
 
-    const progressBar = screen.getByRole("progressbar");
+    const progressBar = screen.getByTestId("dashboard-phase-progress-bar");
     expect(progressBar).toBeInTheDocument();
   });
 

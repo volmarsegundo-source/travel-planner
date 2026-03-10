@@ -647,7 +647,18 @@
       "theExpedition": "The Expedition",
       "theLegacy": "The Legacy"
     },
-    "points": "pts"
+    "points": "pts",
+    "phases": {
+      "theCalling": "The Calling",
+      "theExplorer": "The Explorer",
+      "theRoute": "The Route",
+      "theShelter": "The Shelter",
+      "theDayMap": "The Day Map",
+      "theTreasure": "The Treasure",
+      "theExpedition": "The Expedition",
+      "theLegacy": "The Legacy",
+      "progressLabel": "Phase progress: {completed} of {total} completed"
+    }
   },
   "errors": {
     "boundary": {

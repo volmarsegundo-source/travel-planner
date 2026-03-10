@@ -645,7 +645,8 @@
       "theDayMap": "O Mapa dos Dias",
       "theTreasure": "O Tesouro",
       "theExpedition": "A Expedição",
-      "theLegacy": "O Legado"
+      "theLegacy": "O Legado",
+      "progressLabel": "Progresso das fases: {completed} de {total} concluídas"
     },
     "points": "pts"
   },
