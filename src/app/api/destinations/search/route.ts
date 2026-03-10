@@ -74,10 +74,11 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
 
-    const results = data.map((item: {
+    const rawResults = data.map((item: {
       display_name: string;
       lat: string;
       lon: string;
+      importance?: number;
       address?: { country?: string; state?: string; city?: string };
     }) => ({
       displayName: item.display_name,
@@ -86,7 +87,24 @@ export async function GET(request: NextRequest) {
       country: item.address?.country ?? null,
       state: item.address?.state ?? null,
       city: item.address?.city ?? null,
+      importance: item.importance ?? 0,
     }));
+
+    // Deduplicate by city+state+country — keep the entry with higher importance
+    const seen = new Map<string, typeof rawResults[number]>();
+    for (const result of rawResults) {
+      const key = [
+        result.city?.toLowerCase() ?? "",
+        result.state?.toLowerCase() ?? "",
+        result.country?.toLowerCase() ?? "",
+      ].join("|");
+      const existing = seen.get(key);
+      if (!existing || result.importance > existing.importance) {
+        seen.set(key, result);
+      }
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const results = [...seen.values()].map(({ importance, ...rest }) => rest);
 
     // Cache in Redis
     try {
