@@ -597,6 +597,47 @@
         "international": "International",
         "schengen": "Schengen"
       },
+      "tabs": {
+        "transport": "Transport",
+        "accommodation": "Accommodation",
+        "mobility": "Mobility"
+      },
+      "transport": {
+        "title": "Transport",
+        "subtitle": "How are you getting to your destination?",
+        "addSegment": "Add Transport",
+        "removeSegment": "Remove",
+        "removeConfirm": "Remove this transport segment?",
+        "maxReached": "Maximum {max} transport segments reached",
+        "segment": "Segment {number}",
+        "transportType": "Type",
+        "departurePlace": "From",
+        "departurePlaceholder": "Departure city / airport...",
+        "arrivalPlace": "To",
+        "arrivalPlaceholder": "Arrival city / airport...",
+        "departureAt": "Departure",
+        "arrivalAt": "Arrival",
+        "provider": "Airline / Company",
+        "providerPlaceholder": "e.g., LATAM, Azul...",
+        "bookingCode": "Booking Code",
+        "bookingCodePlaceholder": "e.g., ABC123",
+        "bookingCodeHint": "Your booking code is encrypted and stored securely",
+        "estimatedCost": "Estimated Cost",
+        "currency": "Currency",
+        "notes": "Notes",
+        "isReturn": "Return segment",
+        "save": "Save Transport",
+        "saving": "Saving...",
+        "saved": "Transport saved!",
+        "types": {
+          "flight": "Flight",
+          "bus": "Bus",
+          "train": "Train",
+          "car": "Car",
+          "ferry": "Ferry",
+          "other": "Other"
+        }
+      },
       "mobility": {
         "title": "Local Mobility",
         "subtitle": "How will you get around at your destination?",

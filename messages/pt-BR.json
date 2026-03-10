@@ -597,6 +597,47 @@
         "international": "Internacional",
         "schengen": "Schengen"
       },
+      "tabs": {
+        "transport": "Transporte",
+        "accommodation": "Hospedagem",
+        "mobility": "Mobilidade"
+      },
+      "transport": {
+        "title": "Transporte",
+        "subtitle": "Como você vai chegar ao destino?",
+        "addSegment": "Adicionar Transporte",
+        "removeSegment": "Remover",
+        "removeConfirm": "Remover este segmento de transporte?",
+        "maxReached": "Máximo de {max} segmentos de transporte atingido",
+        "segment": "Segmento {number}",
+        "transportType": "Tipo",
+        "departurePlace": "De",
+        "departurePlaceholder": "Cidade / aeroporto de partida...",
+        "arrivalPlace": "Para",
+        "arrivalPlaceholder": "Cidade / aeroporto de chegada...",
+        "departureAt": "Partida",
+        "arrivalAt": "Chegada",
+        "provider": "Companhia Aérea / Empresa",
+        "providerPlaceholder": "ex: LATAM, Azul...",
+        "bookingCode": "Código de Reserva",
+        "bookingCodePlaceholder": "ex: ABC123",
+        "bookingCodeHint": "Seu código de reserva é criptografado e armazenado com segurança",
+        "estimatedCost": "Custo Estimado",
+        "currency": "Moeda",
+        "notes": "Observações",
+        "isReturn": "Segmento de retorno",
+        "save": "Salvar Transporte",
+        "saving": "Salvando...",
+        "saved": "Transporte salvo!",
+        "types": {
+          "flight": "Voo",
+          "bus": "Ônibus",
+          "train": "Trem",
+          "car": "Carro",
+          "ferry": "Balsa",
+          "other": "Outro"
+        }
+      },
       "mobility": {
         "title": "Mobilidade Local",
         "subtitle": "Como voce vai se locomover no destino?",

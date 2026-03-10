@@ -3,7 +3,7 @@
  *
  * Tests cover: car rental question, CINH alert for international/schengen,
  * CNH brasileira info for mercosul, domestic info, complete button state,
- * checkbox interaction, error handling, and phase transition.
+ * checkbox interaction, error handling, phase transition, and tabbed layout.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -19,6 +19,7 @@ vi.mock("next-intl", () => ({
       const suffix = Object.values(values).join(",");
       return `${fullKey}[${suffix}]`;
     },
+  useLocale: () => "en",
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -31,6 +32,15 @@ const mockAdvanceAction = vi.fn();
 
 vi.mock("@/server/actions/expedition.actions", () => ({
   advanceFromPhaseAction: (...args: unknown[]) => mockAdvanceAction(...args),
+}));
+
+vi.mock("@/server/actions/transport.actions", () => ({
+  saveTransportSegmentsAction: vi.fn().mockResolvedValue({ success: true, data: { count: 0 } }),
+  getTransportSegmentsAction: vi.fn().mockResolvedValue({ success: true, data: { segments: [] } }),
+  saveAccommodationsAction: vi.fn().mockResolvedValue({ success: true, data: { count: 0 } }),
+  getAccommodationsAction: vi.fn().mockResolvedValue({ success: true, data: { accommodations: [] } }),
+  saveLocalMobilityAction: vi.fn().mockResolvedValue({ success: true, data: { saved: true } }),
+  getLocalMobilityAction: vi.fn().mockResolvedValue({ success: true, data: { mobility: [] } }),
 }));
 
 // ─── Import SUT ───────────────────────────────────────────────────────────────
@@ -111,6 +121,50 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
+  it("renders tabbed sections (transport, accommodation, mobility)", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("tab", { name: "expedition.phase4.tabs.transport" })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("tab", { name: "expedition.phase4.tabs.accommodation" })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("tab", { name: "expedition.phase4.tabs.mobility" })
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("shows transport tab content by default", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.transport.title")
+      ).toBeInTheDocument();
+    });
+  });
+
+  it("switches to accommodation tab when clicked", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("tab", { name: "expedition.phase4.tabs.accommodation" })
+      ).toBeInTheDocument();
+    });
+
+    fireEvent.click(
+      screen.getByRole("tab", { name: "expedition.phase4.tabs.accommodation" })
+    );
+
+    expect(
+      screen.getByText("expedition.phase4.accommodation.title")
+    ).toBeInTheDocument();
+  });
+
   it("shows advance button even before answering car rental question", () => {
     renderWizard();
 
@@ -151,7 +205,6 @@ describe("Phase4Wizard", () => {
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    // cinhDeadline text should appear with interpolated date
     expect(
       screen.getByText(/expedition\.phase4\.cinhDeadline/)
     ).toBeInTheDocument();
@@ -186,8 +239,11 @@ describe("Phase4Wizard", () => {
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    const checkbox = screen.getByRole("checkbox");
-    fireEvent.click(checkbox);
+    // The CINH checkbox is inside the CINH alert section — find it by label text
+    const cinhLabel = screen.getByText("expedition.phase4.cinhConfirm");
+    const checkbox = cinhLabel.closest("label")?.querySelector("input[type='checkbox']");
+    expect(checkbox).toBeTruthy();
+    fireEvent.click(checkbox!);
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -273,8 +329,9 @@ describe("Phase4Wizard", () => {
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    const checkbox = screen.getByRole("checkbox");
-    fireEvent.click(checkbox);
+    const cinhLabel = screen.getByText("expedition.phase4.cinhConfirm");
+    const checkbox = cinhLabel.closest("label")?.querySelector("input[type='checkbox']");
+    fireEvent.click(checkbox!);
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -353,8 +410,9 @@ describe("Phase4Wizard", () => {
     fireEvent.click(yesButton);
 
     // Confirm checkbox
-    const checkbox = screen.getByRole("checkbox");
-    fireEvent.click(checkbox);
+    const cinhLabel = screen.getByText("expedition.phase4.cinhConfirm");
+    const checkbox = cinhLabel.closest("label")?.querySelector("input[type='checkbox']");
+    fireEvent.click(checkbox!);
 
     // Switch to no
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
