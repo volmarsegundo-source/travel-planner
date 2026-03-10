@@ -789,5 +789,151 @@
         "email": "support@atlas-travel.app"
       }
     }
+  },
+  "preferences": {
+    "sectionTitle": "Preferencias de Viagem",
+    "sectionSubtitle": "Complete suas preferencias para receber sugestoes mais personalizadas.",
+    "progressHintStart": "Suas preferencias ajudam a gerar roteiros sob medida para voce.",
+    "progressHintContinue": "Faltam {remaining} categorias para um perfil completo.",
+    "progressComplete": "Perfil completo! Seus roteiros serao altamente personalizados.",
+    "notFilled": "Nao preenchido",
+    "saveError": "Nao foi possivel salvar. Tente novamente.",
+    "saving": "Salvando...",
+    "pointsPerCategory": "+5 pts",
+    "categories": {
+      "travelPace": {
+        "title": "Ritmo de Viagem",
+        "question": "Qual e o seu ritmo ideal de viagem?",
+        "relaxedDesc": "Poucas atividades por dia, com calma",
+        "moderateDesc": "Equilibrio entre passeios e descanso",
+        "intenseDesc": "Aproveitar cada minuto, muitas atividades"
+      },
+      "foodPreferences": {
+        "title": "Preferencias Alimentares",
+        "question": "Quais sao suas preferencias alimentares?"
+      },
+      "interests": {
+        "title": "Interesses e Hobbies",
+        "question": "O que voce mais gosta de fazer em viagens?"
+      },
+      "budgetStyle": {
+        "title": "Estilo de Orcamento",
+        "question": "Qual e o seu estilo de orcamento?",
+        "budgetDesc": "Hostels, transporte publico, street food",
+        "moderateDesc": "Hoteis 3-4 estrelas, restaurantes locais",
+        "comfortableDesc": "Hoteis premium, experiencias exclusivas",
+        "luxuryDesc": "Resorts, voos executivos, fine dining"
+      },
+      "socialPreference": {
+        "title": "Preferencia Social",
+        "question": "Como voce prefere viajar?"
+      },
+      "accommodationStyle": {
+        "title": "Estilo de Hospedagem",
+        "question": "Onde voce prefere se hospedar?"
+      },
+      "fitnessLevel": {
+        "title": "Nivel de Condicionamento",
+        "question": "Qual e o seu nivel de condicionamento fisico?",
+        "lowDesc": "Atividades leves, sem muito esforco",
+        "moderateDesc": "Caminhadas e atividades moderadas",
+        "highDesc": "Trilhas longas, atividades intensas"
+      },
+      "photographyInterest": {
+        "title": "Interesse em Fotografia",
+        "question": "Qual e o seu interesse em fotografia?",
+        "casualDesc": "Fotos rapidas com o celular",
+        "enthusiastDesc": "Gosto de explorar angulos e horarios",
+        "professionalDesc": "Preciso de tempo extra em cada ponto"
+      },
+      "wakePreference": {
+        "title": "Preferencia de Horario",
+        "question": "Voce e mais matutino ou noturno?",
+        "earlyBirdDesc": "Gosto de comecar cedo, aproveitar a manha",
+        "flexibleDesc": "Sem preferencia forte",
+        "nightOwlDesc": "Prefiro comecar mais tarde, curtir a noite"
+      },
+      "connectivityNeeds": {
+        "title": "Necessidade de Conectividade",
+        "question": "Qual e a sua necessidade de internet durante a viagem?",
+        "essentialDesc": "Preciso de WiFi o tempo todo (trabalho, comunicacao)",
+        "occasionalDesc": "Para mapas, mensagens e fotos",
+        "digitalDetoxDesc": "Quero desconectar e curtir offline"
+      }
+    },
+    "options": {
+      "travelPace": {
+        "relaxed": "Relaxado",
+        "moderate": "Moderado",
+        "intense": "Intenso"
+      },
+      "foodPreferences": {
+        "vegetarian": "Vegetariano",
+        "vegan": "Vegano",
+        "halal": "Halal",
+        "kosher": "Kosher",
+        "gluten_free": "Sem gluten",
+        "lactose_free": "Sem lactose",
+        "local_cuisine": "Culinaria local",
+        "street_food": "Street food",
+        "fine_dining": "Fine dining",
+        "no_restrictions": "Sem restricoes"
+      },
+      "interests": {
+        "history_museums": "Historia e museus",
+        "art_galleries": "Arte e galerias",
+        "nature_hiking": "Natureza e trilhas",
+        "nightlife": "Vida noturna",
+        "shopping": "Compras",
+        "photography": "Fotografia",
+        "sports_adventure": "Esportes e aventura",
+        "wellness_spa": "Wellness e spa",
+        "gastronomy": "Gastronomia",
+        "beaches": "Praias",
+        "architecture": "Arquitetura",
+        "wildlife": "Vida selvagem"
+      },
+      "budgetStyle": {
+        "budget": "Economico",
+        "moderate": "Moderado",
+        "comfortable": "Confortavel",
+        "luxury": "Luxo"
+      },
+      "socialPreference": {
+        "solo": "Solo e tranquilo",
+        "meet_travelers": "Encontrar outros viajantes",
+        "group_activities": "Atividades em grupo",
+        "family": "Em familia",
+        "romantic_couple": "Romantico a dois"
+      },
+      "accommodationStyle": {
+        "hostel": "Hostel",
+        "hotel": "Hotel",
+        "airbnb": "Airbnb / Apartamento",
+        "glamping": "Glamping",
+        "resort": "Resort",
+        "bed_and_breakfast": "Pousada / B&B"
+      },
+      "fitnessLevel": {
+        "low": "Baixo",
+        "moderate": "Moderado",
+        "high": "Alto"
+      },
+      "photographyInterest": {
+        "casual": "Casual",
+        "enthusiast": "Entusiasta",
+        "professional": "Profissional"
+      },
+      "wakePreference": {
+        "early_bird": "Madrugador",
+        "flexible": "Flexivel",
+        "night_owl": "Noturno"
+      },
+      "connectivityNeeds": {
+        "essential": "Essencial",
+        "occasional": "Ocasional",
+        "digital_detox": "Detox digital"
+      }
+    }
   }
 }
