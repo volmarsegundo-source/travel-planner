@@ -1,8 +1,8 @@
 /**
- * Unit tests for POST /api/ai/plan/stream (T-S18-007).
+ * Unit tests for POST /api/ai/plan/stream (T-S18-007, T-S19-001b).
  *
  * Tests auth, validation, rate limiting, BOLA check, age guard,
- * and successful streaming response.
+ * successful streaming response, and itinerary persistence after stream.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
@@ -15,6 +15,12 @@ const mocks = vi.hoisted(() => ({
   tripFindFirst: vi.fn(),
   userProfileFindUnique: vi.fn(),
   generateStreamingResponse: vi.fn(),
+  persistItinerary: vi.fn(),
+  parseItineraryJson: vi.fn(),
+  acquireGenerationLock: vi.fn(),
+  releaseGenerationLock: vi.fn(),
+  recordGeneration: vi.fn(),
+  earnPoints: vi.fn(),
 }));
 
 // ─── Module mocks ───────────────────────────────────────────────────────────
@@ -34,6 +40,10 @@ vi.mock("@/server/db", () => ({
     trip: { findFirst: mocks.tripFindFirst },
     userProfile: { findUnique: mocks.userProfileFindUnique },
   },
+}));
+
+vi.mock("@/server/cache/redis", () => ({
+  redis: { set: vi.fn(), del: vi.fn() },
 }));
 
 vi.mock("@/lib/logger", () => ({
@@ -75,6 +85,25 @@ vi.mock("@/lib/guards/age-guard", () => ({
   canUseAI: vi.fn().mockReturnValue(true),
 }));
 
+vi.mock("@/server/services/itinerary-persistence.service", () => ({
+  persistItinerary: mocks.persistItinerary,
+  parseItineraryJson: mocks.parseItineraryJson,
+  acquireGenerationLock: mocks.acquireGenerationLock,
+  releaseGenerationLock: mocks.releaseGenerationLock,
+}));
+
+vi.mock("@/server/services/itinerary-plan.service", () => ({
+  ItineraryPlanService: {
+    recordGeneration: mocks.recordGeneration,
+  },
+}));
+
+vi.mock("@/lib/engines/points-engine", () => ({
+  PointsEngine: {
+    earnPoints: mocks.earnPoints,
+  },
+}));
+
 // ─── Import SUT ──────────────────────────────────────────────────────────────
 
 import { POST } from "@/app/api/ai/plan/stream/route";
@@ -83,6 +112,31 @@ import { canUseAI } from "@/lib/guards/age-guard";
 const mockCanUseAI = canUseAI as ReturnType<typeof vi.fn>;
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const VALID_PLAN_JSON = JSON.stringify({
+  destination: "Paris, France",
+  totalDays: 5,
+  estimatedBudgetUsed: 2500,
+  currency: "EUR",
+  days: [
+    {
+      dayNumber: 1,
+      date: "2026-06-01",
+      theme: "Arrival",
+      activities: [
+        {
+          title: "Eiffel Tower",
+          description: "Visit the Eiffel Tower",
+          startTime: "10:00",
+          endTime: "12:00",
+          estimatedCost: 30,
+          activityType: "SIGHTSEEING",
+        },
+      ],
+    },
+  ],
+  tips: ["Pack light"],
+});
 
 const validBody = {
   tripId: "trip-123",
@@ -147,6 +201,12 @@ describe("POST /api/ai/plan/stream", () => {
     mocks.tripFindFirst.mockResolvedValue({ id: "trip-123" });
     mocks.userProfileFindUnique.mockResolvedValue({ birthDate: new Date("1990-01-01") });
     mockCanUseAI.mockReturnValue(true);
+    mocks.acquireGenerationLock.mockResolvedValue(true);
+    mocks.releaseGenerationLock.mockResolvedValue(undefined);
+    mocks.persistItinerary.mockResolvedValue(undefined);
+    mocks.parseItineraryJson.mockReturnValue(null);
+    mocks.recordGeneration.mockResolvedValue(undefined);
+    mocks.earnPoints.mockResolvedValue(undefined);
   });
 
   it("returns 401 when not authenticated", async () => {
@@ -269,5 +329,107 @@ describe("POST /api/ai/plan/stream", () => {
         }),
       }),
     );
+  });
+
+  // ─── Persistence tests (T-S19-001b) ─────────────────────────────────────
+
+  describe("Itinerary persistence after stream", () => {
+    it("parses accumulated JSON and calls persistItinerary on valid plan", async () => {
+      const planData = JSON.parse(VALID_PLAN_JSON);
+      mocks.parseItineraryJson.mockReturnValue(planData);
+      mocks.generateStreamingResponse.mockResolvedValue(
+        createMockStream([VALID_PLAN_JSON]),
+      );
+
+      const res = await POST(createRequest());
+      expect(res.status).toBe(200);
+
+      const sseText = await readSSEResponse(res);
+      expect(sseText).toContain("data: [DONE]\n\n");
+
+      expect(mocks.parseItineraryJson).toHaveBeenCalledWith(VALID_PLAN_JSON);
+      expect(mocks.persistItinerary).toHaveBeenCalledWith("trip-123", planData);
+    });
+
+    it("sends parse_failed error when JSON is invalid", async () => {
+      mocks.parseItineraryJson.mockReturnValue(null);
+      mocks.generateStreamingResponse.mockResolvedValue(
+        createMockStream(["invalid json"]),
+      );
+
+      const res = await POST(createRequest());
+      const sseText = await readSSEResponse(res);
+
+      expect(sseText).toContain('data: {"error":"parse_failed"}\n\n');
+      expect(sseText).toContain("data: [DONE]\n\n");
+      expect(mocks.persistItinerary).not.toHaveBeenCalled();
+    });
+
+    it("sends persist_failed error when DB persistence fails", async () => {
+      const planData = JSON.parse(VALID_PLAN_JSON);
+      mocks.parseItineraryJson.mockReturnValue(planData);
+      mocks.persistItinerary.mockRejectedValue(new Error("DB error"));
+      mocks.generateStreamingResponse.mockResolvedValue(
+        createMockStream([VALID_PLAN_JSON]),
+      );
+
+      const res = await POST(createRequest());
+      const sseText = await readSSEResponse(res);
+
+      expect(sseText).toContain('data: {"error":"persist_failed"}\n\n');
+      expect(sseText).toContain("data: [DONE]\n\n");
+    });
+
+    it("records generation and awards points after successful persistence", async () => {
+      const planData = JSON.parse(VALID_PLAN_JSON);
+      mocks.parseItineraryJson.mockReturnValue(planData);
+      mocks.generateStreamingResponse.mockResolvedValue(
+        createMockStream([VALID_PLAN_JSON]),
+      );
+
+      const res = await POST(createRequest());
+      await readSSEResponse(res);
+
+      expect(mocks.recordGeneration).toHaveBeenCalledWith("trip-123");
+      expect(mocks.earnPoints).toHaveBeenCalledWith(
+        "user-1",
+        50,
+        "ai_usage",
+        "Itinerary generation (streaming)",
+        "trip-123",
+      );
+    });
+  });
+
+  // ─── Generation lock tests ─────────────────────────────────────────────
+
+  describe("Generation lock", () => {
+    it("returns 409 when generation is already in progress", async () => {
+      mocks.acquireGenerationLock.mockResolvedValue(false);
+
+      const res = await POST(createRequest());
+      expect(res.status).toBe(409);
+    });
+
+    it("acquires lock before streaming and releases after", async () => {
+      mocks.generateStreamingResponse.mockResolvedValue(
+        createMockStream(["ok"]),
+      );
+
+      const res = await POST(createRequest());
+      await readSSEResponse(res);
+
+      expect(mocks.acquireGenerationLock).toHaveBeenCalledWith("trip-123", expect.anything());
+      expect(mocks.releaseGenerationLock).toHaveBeenCalledWith("trip-123", expect.anything());
+    });
+
+    it("releases lock even if streaming fails", async () => {
+      mocks.generateStreamingResponse.mockRejectedValue(new Error("stream error"));
+
+      const res = await POST(createRequest());
+      expect(res.status).toBe(500);
+
+      expect(mocks.releaseGenerationLock).toHaveBeenCalled();
+    });
   });
 });
