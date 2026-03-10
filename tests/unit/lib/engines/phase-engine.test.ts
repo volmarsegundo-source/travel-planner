@@ -297,6 +297,54 @@ describe("PhaseEngine.getCurrentPhase", () => {
   });
 });
 
+// ─── getHighestCompletedPhase ─────────────────────────────────────────────────
+
+describe("PhaseEngine.getHighestCompletedPhase", () => {
+  it("returns the highest completed phase with definition", async () => {
+    const completedPhase = createMockPhase(6, "completed");
+    prismaMock.trip.findFirst.mockResolvedValue(createMockTrip() as never);
+    prismaMock.expeditionPhase.findFirst.mockResolvedValue(
+      completedPhase as never
+    );
+
+    const result = await PhaseEngine.getHighestCompletedPhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID
+    );
+
+    expect(result).not.toBeNull();
+    expect(result!.phaseNumber).toBe(6);
+    expect(result!.status).toBe("completed");
+    expect(result!.definition).toBeDefined();
+
+    // Verify query uses correct ordering
+    expect(prismaMock.expeditionPhase.findFirst).toHaveBeenCalledWith({
+      where: { tripId: TEST_TRIP_ID, status: "completed" },
+      orderBy: { phaseNumber: "desc" },
+    });
+  });
+
+  it("returns null when no completed phases exist", async () => {
+    prismaMock.trip.findFirst.mockResolvedValue(createMockTrip() as never);
+    prismaMock.expeditionPhase.findFirst.mockResolvedValue(null as never);
+
+    const result = await PhaseEngine.getHighestCompletedPhase(
+      TEST_TRIP_ID,
+      TEST_USER_ID
+    );
+
+    expect(result).toBeNull();
+  });
+
+  it("throws ForbiddenError when trip not found", async () => {
+    prismaMock.trip.findFirst.mockResolvedValue(null as never);
+
+    await expect(
+      PhaseEngine.getHighestCompletedPhase(TEST_TRIP_ID, TEST_USER_ID)
+    ).rejects.toThrow(ForbiddenError);
+  });
+});
+
 // ─── completePhase ────────────────────────────────────────────────────────────
 
 describe("PhaseEngine.completePhase", () => {
