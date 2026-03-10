@@ -45,6 +45,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { ForbiddenError, AppError } from "@/lib/errors";
+import { hashUserId } from "@/lib/hash";
 
 const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
 
@@ -201,7 +202,7 @@ describe("PhaseEngine.initializeExpedition", () => {
 
     expect(logger.info).toHaveBeenCalledWith(
       "gamification.expeditionInitialized",
-      { tripId: TEST_TRIP_ID, userId: TEST_USER_ID }
+      { tripId: TEST_TRIP_ID, userIdHash: hashUserId(TEST_USER_ID) }
     );
   });
 });
@@ -623,7 +624,7 @@ describe("PhaseEngine.completePhase", () => {
       "gamification.phaseCompleted",
       expect.objectContaining({
         tripId: TEST_TRIP_ID,
-        userId: TEST_USER_ID,
+        userIdHash: hashUserId(TEST_USER_ID),
         phaseNumber: 1,
         pointsEarned: 100,
       })
@@ -870,7 +871,7 @@ describe("PhaseEngine.resetExpedition", () => {
 
     expect(logger.info).toHaveBeenCalledWith(
       "gamification.expeditionReset",
-      { tripId: TEST_TRIP_ID, userId: TEST_USER_ID }
+      { tripId: TEST_TRIP_ID, userIdHash: hashUserId(TEST_USER_ID) }
     );
   });
 });
@@ -1311,7 +1312,7 @@ describe("PhaseEngine.advanceFromPhase", () => {
       "gamification.phaseAdvanced",
       expect.objectContaining({
         tripId: TEST_TRIP_ID,
-        userId: TEST_USER_ID,
+        userIdHash: hashUserId(TEST_USER_ID),
         phaseNumber: 3,
         nextPhase: 4,
       })
