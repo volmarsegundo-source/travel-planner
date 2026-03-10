@@ -8,6 +8,7 @@ import { describe, it, expect } from "vitest";
 import {
   PassengersSchema,
   getTotalPassengers,
+  MAX_TOTAL_PASSENGERS,
   type Passengers,
 } from "@/lib/validations/trip.schema";
 
@@ -191,6 +192,85 @@ describe("PassengersSchema", () => {
     it("rejects missing required fields", () => {
       const result = PassengersSchema.safeParse({ adults: 1 });
       expect(result.success).toBe(false);
+    });
+  });
+
+  // ─── Total passenger cap (T-S21-006) ────────────────────────────────────────
+
+  describe("total passenger cap", () => {
+    it("exports MAX_TOTAL_PASSENGERS as 20", () => {
+      expect(MAX_TOTAL_PASSENGERS).toBe(20);
+    });
+
+    it("accepts total of 1 passenger", () => {
+      const result = PassengersSchema.safeParse({
+        adults: 1,
+        children: { count: 0, ages: [] },
+        seniors: 0,
+        infants: 0,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("accepts total of 10 passengers", () => {
+      const result = PassengersSchema.safeParse({
+        adults: 4,
+        children: { count: 3, ages: [5, 8, 12] },
+        seniors: 2,
+        infants: 1,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("accepts exactly 20 total passengers (boundary)", () => {
+      const result = PassengersSchema.safeParse({
+        adults: 10,
+        children: { count: 5, ages: [2, 4, 6, 8, 10] },
+        seniors: 3,
+        infants: 2,
+      });
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects 21 total passengers (boundary)", () => {
+      const result = PassengersSchema.safeParse({
+        adults: 10,
+        children: { count: 5, ages: [2, 4, 6, 8, 10] },
+        seniors: 3,
+        infants: 3,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const messages = result.error.issues.map((i) => i.message);
+        expect(messages).toContain("Total passengers cannot exceed 20");
+      }
+    });
+
+    it("rejects large total exceeding cap", () => {
+      const result = PassengersSchema.safeParse({
+        adults: 15,
+        children: { count: 5, ages: [1, 2, 3, 4, 5] },
+        seniors: 5,
+        infants: 5,
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it("reports error on adults path", () => {
+      const result = PassengersSchema.safeParse({
+        adults: 10,
+        children: { count: 6, ages: [1, 2, 3, 4, 5, 6] },
+        seniors: 3,
+        infants: 2,
+      });
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        const capIssue = result.error.issues.find(
+          (i) => i.message === "Total passengers cannot exceed 20"
+        );
+        expect(capIssue).toBeDefined();
+        expect(capIssue!.path).toContain("adults");
+      }
     });
   });
 });
