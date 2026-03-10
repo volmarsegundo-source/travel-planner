@@ -4,6 +4,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { PROFILE_FIELD_POINTS } from "@/types/gamification.types";
 import { encrypt } from "@/lib/crypto";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 
 type Tx = Parameters<Parameters<typeof db.$transaction>[0]>[0];
 
@@ -65,7 +66,7 @@ export class ProfileService {
       }
     }
 
-    logger.info("profile.fieldsUpdated", { userId, fieldsUpdated, pointsAwarded });
+    logger.info("profile.fieldsUpdated", { userIdHash: hashUserId(userId), fieldsUpdated, pointsAwarded });
 
     return { pointsAwarded, fieldsUpdated };
   }
