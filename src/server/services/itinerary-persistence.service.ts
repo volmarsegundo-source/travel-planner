@@ -133,7 +133,8 @@ export function parseItineraryJson(raw: string): ItineraryPlan | null {
  */
 export async function acquireGenerationLock(
   tripId: string,
-  redis: { set: (...args: unknown[]) => Promise<unknown> }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  redis: { set: (...args: any[]) => Promise<any> }
 ): Promise<boolean> {
   const lockKey = `lock:plan:${tripId}`;
   const result = await redis.set(lockKey, "1", "EX", GENERATION_LOCK_TTL_SECONDS, "NX");
@@ -145,7 +146,8 @@ export async function acquireGenerationLock(
  */
 export async function releaseGenerationLock(
   tripId: string,
-  redis: { del: (...args: unknown[]) => Promise<unknown> }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  redis: { del: (...args: any[]) => Promise<any> }
 ): Promise<void> {
   const lockKey = `lock:plan:${tripId}`;
   await redis.del(lockKey);
