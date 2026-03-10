@@ -80,6 +80,11 @@ export function Phase1Wizard({
   // Form data
   const [destination, setDestination] = useState("");
   const [destinationCountry, setDestinationCountry] = useState<string | null>(null);
+  const [origin, setOrigin] = useState(
+    userProfile?.city && userProfile?.country
+      ? `${userProfile.city}, ${userProfile.country}`
+      : ""
+  );
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [flexibleDates, setFlexibleDates] = useState(false);
@@ -160,6 +165,7 @@ export function Phase1Wizard({
     try {
       const result = await createExpeditionAction({
         destination: destination.trim(),
+        origin: origin.trim() || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         flexibleDates,
@@ -387,6 +393,16 @@ export function Phase1Wizard({
                 onSelect={handleDestinationSelect}
                 placeholder={t("step2.placeholder")}
               />
+              <div className="mt-4">
+                <Label htmlFor="origin">{t("step2.origin")}</Label>
+                <DestinationAutocomplete
+                  value={origin}
+                  onChange={setOrigin}
+                  onSelect={() => {}}
+                  placeholder={t("step2.originPlaceholder")}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">{t("step2.originHint")}</p>
+              </div>
               {tripType && (
                 <div className="flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm text-accent-foreground">
                   <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
@@ -467,6 +483,12 @@ export function Phase1Wizard({
                     <dt className="text-muted-foreground">{t("step4.destination")}</dt>
                     <dd className="font-medium">{destination}</dd>
                   </div>
+                  {origin && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t("step4.origin")}</dt>
+                      <dd className="font-medium">{origin}</dd>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step4.dates")}</dt>
                     <dd className="font-medium">

@@ -57,6 +57,7 @@ export function ExpeditionCard({
           <DashboardPhaseProgressBar
             currentPhase={currentPhase}
             completedPhases={completedPhases}
+            tripId={tripId}
           />
           {/* Checklist badge — visible from phase 3 onward */}
           {currentPhase >= 3 && checklistRequired > 0 && (

@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { Check, Construction } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -9,6 +10,7 @@ import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 interface DashboardPhaseProgressBarProps {
   currentPhase: number;
   completedPhases: number;
+  tripId?: string;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -16,6 +18,7 @@ interface DashboardPhaseProgressBarProps {
 export function DashboardPhaseProgressBar({
   currentPhase,
   completedPhases,
+  tripId,
 }: DashboardPhaseProgressBarProps) {
   const t = useTranslations("gamification");
 
@@ -34,6 +37,7 @@ export function DashboardPhaseProgressBar({
         const isCompleted = phaseNum <= completedPhases;
         const isCurrent = phaseNum === currentPhase;
         const isComingSoon = phaseNum >= 7;
+        const isClickable = tripId && (isCompleted || isCurrent);
 
         // Determine segment style
         let segmentClasses =
@@ -62,6 +66,10 @@ export function DashboardPhaseProgressBar({
           segmentClasses += " bg-muted";
         }
 
+        if (isClickable) {
+          segmentClasses += " cursor-pointer hover:opacity-80";
+        }
+
         const phaseName = t(phase.nameKey);
         const stateLabel = isCompleted
           ? "completed"
@@ -71,14 +79,41 @@ export function DashboardPhaseProgressBar({
               ? "coming soon"
               : "upcoming";
 
+        // Phase label tooltip (T-S21-008)
+        const phaseLabel = (
+          <span
+            className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground/90 px-1.5 py-0.5 text-[10px] text-background opacity-0 transition-opacity group-hover/segment:opacity-100"
+            aria-hidden="true"
+            data-testid={`phase-label-${phaseNum}`}
+          >
+            {phaseName}
+          </span>
+        );
+
+        if (isClickable) {
+          return (
+            <Link
+              key={phaseNum}
+              href={`/expedition/${tripId}/phase-${phaseNum}`}
+              className={`group/segment ${segmentClasses}`}
+              aria-label={`${phaseName} — ${stateLabel}`}
+              title={phaseName}
+            >
+              {indicator}
+              {phaseLabel}
+            </Link>
+          );
+        }
+
         return (
           <div
             key={phaseNum}
-            className={segmentClasses}
+            className={`group/segment ${segmentClasses}`}
             aria-label={`${phaseName} — ${stateLabel}`}
             title={phaseName}
           >
             {indicator}
+            {phaseLabel}
           </div>
         );
       })}

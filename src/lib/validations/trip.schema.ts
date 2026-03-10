@@ -67,6 +67,9 @@ const MAX_CHILDREN_AGE = 17;
 const MAX_PASSENGERS_PER_TYPE = 20;
 const MIN_ADULTS = 1;
 
+/** Maximum total passengers across all types (T-S21-006). */
+export const MAX_TOTAL_PASSENGERS = 20;
+
 export const PassengersSchema = z
   .object({
     adults: z
@@ -104,6 +107,15 @@ export const PassengersSchema = z
     {
       message: "Number of children ages must match children count",
       path: ["children", "ages"],
+    }
+  )
+  .refine(
+    (data) =>
+      data.adults + data.children.count + data.seniors + data.infants <=
+      MAX_TOTAL_PASSENGERS,
+    {
+      message: "Total passengers cannot exceed 20",
+      path: ["adults"],
     }
   );
 

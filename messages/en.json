@@ -414,7 +414,10 @@
       },
       "step2": {
         "title": "Choose your destination",
-        "placeholder": "e.g. Paris, Tokyo, New York"
+        "placeholder": "e.g. Paris, Tokyo, New York",
+        "origin": "Where are you traveling from?",
+        "originPlaceholder": "Your departure city...",
+        "originHint": "Pre-filled from your profile"
       },
       "step3": {
         "title": "When are you traveling?",
@@ -426,6 +429,7 @@
         "title": "Ready to start?",
         "summary": "Your expedition summary",
         "destination": "Destination",
+        "origin": "Origin",
         "dates": "Dates",
         "flexibleDates": "Flexible dates",
         "yes": "Yes",
@@ -592,6 +596,95 @@
         "mercosul": "Mercosul",
         "international": "International",
         "schengen": "Schengen"
+      },
+      "tabs": {
+        "transport": "Transport",
+        "accommodation": "Accommodation",
+        "mobility": "Mobility"
+      },
+      "transport": {
+        "title": "Transport",
+        "subtitle": "How are you getting to your destination?",
+        "addSegment": "Add Transport",
+        "removeSegment": "Remove",
+        "removeConfirm": "Remove this transport segment?",
+        "maxReached": "Maximum {max} transport segments reached",
+        "segment": "Segment {number}",
+        "transportType": "Type",
+        "departurePlace": "From",
+        "departurePlaceholder": "Departure city / airport...",
+        "arrivalPlace": "To",
+        "arrivalPlaceholder": "Arrival city / airport...",
+        "departureAt": "Departure",
+        "arrivalAt": "Arrival",
+        "provider": "Airline / Company",
+        "providerPlaceholder": "e.g., LATAM, Azul...",
+        "bookingCode": "Booking Code",
+        "bookingCodePlaceholder": "e.g., ABC123",
+        "bookingCodeHint": "Your booking code is encrypted and stored securely",
+        "estimatedCost": "Estimated Cost",
+        "currency": "Currency",
+        "notes": "Notes",
+        "isReturn": "Return segment",
+        "save": "Save Transport",
+        "saving": "Saving...",
+        "saved": "Transport saved!",
+        "types": {
+          "flight": "Flight",
+          "bus": "Bus",
+          "train": "Train",
+          "car": "Car",
+          "ferry": "Ferry",
+          "other": "Other"
+        }
+      },
+      "mobility": {
+        "title": "Local Mobility",
+        "subtitle": "How will you get around at your destination?",
+        "hint": "Select all that apply",
+        "save": "Save Mobility",
+        "saving": "Saving...",
+        "saved": "Mobility preferences saved!",
+        "options": {
+          "public_transit": "Public Transit",
+          "taxi_rideshare": "Taxi / Rideshare",
+          "walking": "Walking",
+          "bicycle": "Bicycle",
+          "private_transfer": "Private Transfer",
+          "car_rental": "Car Rental",
+          "other": "Other"
+        }
+      },
+      "accommodation": {
+        "title": "Accommodation",
+        "subtitle": "Where will you stay during your trip?",
+        "addEntry": "Add Accommodation",
+        "removeEntry": "Remove",
+        "removeConfirm": "Remove this accommodation?",
+        "maxReached": "Maximum {max} accommodations reached",
+        "entry": "Stay {number}",
+        "accommodationType": "Type",
+        "name": "Name",
+        "namePlaceholder": "Hotel name, property name...",
+        "address": "Address",
+        "addressPlaceholder": "Full address",
+        "bookingCode": "Booking Code",
+        "checkIn": "Check-in",
+        "checkOut": "Check-out",
+        "estimatedCost": "Estimated Cost",
+        "currency": "Currency",
+        "notes": "Notes",
+        "save": "Save Accommodation",
+        "saving": "Saving...",
+        "saved": "Accommodation saved!",
+        "types": {
+          "hotel": "Hotel",
+          "hostel": "Hostel",
+          "airbnb": "Airbnb",
+          "friends_house": "Friend's House",
+          "camping": "Camping",
+          "other": "Other"
+        }
       }
     },
     "phase5": {

@@ -45,6 +45,7 @@ export class ExpeditionService {
         data: {
           title: data.destination,
           destination: data.destination,
+          origin: data.origin ?? null,
           startDate: data.startDate ? new Date(data.startDate) : null,
           endDate: data.endDate ? new Date(data.endDate) : null,
           expeditionMode: true,
