@@ -223,6 +223,7 @@ export function DestinationGuideWizard({
             <div className="mt-6 grid grid-cols-2 gap-2" data-testid="stat-cards">
               {STAT_SECTIONS.map((key) => {
                 const section = guide[key];
+                if (!section) return null;
                 return (
                   <button
                     key={key}
@@ -252,12 +253,12 @@ export function DestinationGuideWizard({
             </div>
 
             {/* Stat card expanded detail */}
-            {expandedSection && STAT_SECTIONS.includes(expandedSection as GuideSectionKey) && (
+            {expandedSection && STAT_SECTIONS.includes(expandedSection as GuideSectionKey) && guide[expandedSection as GuideSectionKey] && (
               <div className="mt-2 rounded-lg border border-atlas-gold/30 bg-card p-4">
-                <p className="text-sm text-foreground">{guide[expandedSection as GuideSectionKey].summary}</p>
-                {guide[expandedSection as GuideSectionKey].tips.length > 0 && (
+                <p className="text-sm text-foreground">{guide[expandedSection as GuideSectionKey]!.summary}</p>
+                {guide[expandedSection as GuideSectionKey]!.tips.length > 0 && (
                   <ul className="mt-2 flex flex-col gap-1">
-                    {guide[expandedSection as GuideSectionKey].tips.map((tip, i) => (
+                    {guide[expandedSection as GuideSectionKey]!.tips.map((tip, i) => (
                       <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
                         <span className="mt-0.5 text-atlas-gold" aria-hidden="true">•</span>
                         {tip}
@@ -272,6 +273,7 @@ export function DestinationGuideWizard({
             <div className="mt-4 flex flex-col gap-2" data-testid="content-cards">
               {CONTENT_SECTIONS.map((key) => {
                 const section = guide[key];
+                if (!section) return null;
                 const isExpanded = expandedSection === key;
                 const isViewed = viewedSections.includes(key);
 
