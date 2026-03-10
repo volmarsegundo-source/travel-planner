@@ -192,6 +192,13 @@ export async function deleteUserAccountAction(
         await tx.destinationGuide.deleteMany({
           where: { tripId: { in: tripIds } },
         });
+        // Sprint 20: Transport & Accommodation cascade
+        await tx.transportSegment.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
+        await tx.accommodation.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
       }
 
       // 5. Soft delete and anonymize the user record

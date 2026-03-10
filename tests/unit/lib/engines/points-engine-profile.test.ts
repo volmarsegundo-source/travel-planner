@@ -39,6 +39,7 @@ import {
   PROFILE_FIELD_POINTS,
   type PointTransactionType,
 } from "@/types/gamification.types";
+import { hashUserId } from "@/lib/hash";
 
 const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
 
@@ -186,7 +187,7 @@ describe("PointsEngine.awardProfileCompletion", () => {
     expect(logger.info).toHaveBeenCalledWith(
       "gamification.profileFieldAwarded",
       {
-        userId: USER_ID,
+        userIdHash: hashUserId(USER_ID),
         fieldKey: "bio",
         points: 25,
       }

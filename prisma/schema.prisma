@@ -127,6 +127,13 @@ model Trip {
   currentPhase   Int            @default(1)
   tripType       String         @default("international") @db.VarChar(20)
 
+  // Sprint 20: Passengers
+  passengers     Json?
+
+  // Sprint 20: Transport & Logistics
+  origin         String?        @db.VarChar(150)
+  localMobility  String[]       @default([])
+
   // Relacoes
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   itineraryDays     ItineraryDay[]
@@ -135,6 +142,8 @@ model Trip {
   phaseChecklist    PhaseChecklistItem[]
   destinationGuide  DestinationGuide?
   itineraryPlan     ItineraryPlan?
+  transportSegments TransportSegment[]
+  accommodations    Accommodation[]
 
   // Indexes
   @@index([userId, deletedAt])
@@ -308,6 +317,7 @@ model UserProfile {
   bio                 String?   @db.VarChar(500)
   dietaryRestrictions String?   @db.VarChar(300)
   accessibility       String?   @db.VarChar(300)
+  preferences         Json?     @default("{}")
   completionScore     Int       @default(0)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
@@ -348,4 +358,76 @@ model ItineraryPlan {
   trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
 
   @@map("itinerary_plans")
+}
+
+// ─── Transport Segment (Phase 4 — Logistics) ─────────────────────────────
+
+model TransportSegment {
+  id              String    @id @default(cuid())
+  tripId          String
+  segmentOrder    Int       @default(0)
+
+  // Type: "flight" | "bus" | "train" | "car" | "ferry" | "other"
+  transportType   String    @db.VarChar(20)
+
+  // Route
+  departurePlace  String?   @db.VarChar(150)
+  arrivalPlace    String?   @db.VarChar(150)
+
+  // Times
+  departureAt     DateTime?
+  arrivalAt       DateTime?
+
+  // Details
+  provider        String?   @db.VarChar(100)
+  bookingCodeEnc  String?   @db.Text
+  estimatedCost   Decimal?  @db.Decimal(10, 2)
+  currency        String?   @db.VarChar(3)
+  notes           String?   @db.VarChar(500)
+
+  // Trip direction
+  isReturn        Boolean   @default(false)
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, segmentOrder])
+  @@index([tripId, isReturn])
+  @@map("transport_segments")
+}
+
+// ─── Accommodation (Phase 4 — Logistics) ─────────────────────────────────
+
+model Accommodation {
+  id                String    @id @default(cuid())
+  tripId            String
+
+  // Type: "hotel" | "hostel" | "airbnb" | "friends_house" | "camping" | "other"
+  accommodationType String    @db.VarChar(20)
+
+  // Details
+  name              String?   @db.VarChar(150)
+  address           String?   @db.VarChar(300)
+  bookingCodeEnc    String?   @db.Text
+
+  // Dates
+  checkIn           DateTime?
+  checkOut          DateTime?
+
+  // Cost
+  estimatedCost     Decimal?  @db.Decimal(10, 2)
+  currency          String?   @db.VarChar(3)
+
+  notes             String?   @db.VarChar(500)
+  orderIndex        Int       @default(0)
+
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId, orderIndex])
+  @@map("accommodations")
 }

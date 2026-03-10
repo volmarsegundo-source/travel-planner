@@ -10,6 +10,7 @@ import type {
 } from "@/types/gamification.types";
 import { WELCOME_BONUS, EARNING_AMOUNTS } from "@/types/gamification.types";
 import { AppError } from "@/lib/errors";
+import { hashUserId } from "@/lib/hash";
 
 // ─── Points Engine ──────────────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export class PointsEngine {
       },
     });
 
-    logger.info("gamification.progressInitialized", { userId });
+    logger.info("gamification.progressInitialized", { userIdHash: hashUserId(userId) });
   }
 
   /**
@@ -122,7 +123,7 @@ export class PointsEngine {
     });
 
     logger.info("gamification.pointsEarned", {
-      userId,
+      userIdHash: hashUserId(userId),
       amount,
       type,
       tripId: tripId ?? undefined,
@@ -162,7 +163,7 @@ export class PointsEngine {
       });
 
       logger.info("gamification.pointsSpent", {
-        userId,
+        userIdHash: hashUserId(userId),
         amount,
         type,
         remaining: updated.availablePoints,
@@ -225,7 +226,7 @@ export class PointsEngine {
       },
     });
 
-    logger.info("gamification.dailyLogin", { userId, streak: newStreak });
+    logger.info("gamification.dailyLogin", { userIdHash: hashUserId(userId), streak: newStreak });
   }
 
   /**
@@ -259,7 +260,7 @@ export class PointsEngine {
       tx
     );
     logger.info("gamification.profileFieldAwarded", {
-      userId,
+      userIdHash: hashUserId(userId),
       fieldKey,
       points,
     });
@@ -280,7 +281,7 @@ export class PointsEngine {
       data: { currentRank: newRank },
     });
 
-    logger.info("gamification.rankUpdated", { userId, newRank });
+    logger.info("gamification.rankUpdated", { userIdHash: hashUserId(userId), newRank });
   }
 
   /**
@@ -304,7 +305,7 @@ export class PointsEngine {
       data: { userId, badgeKey },
     });
 
-    logger.info("gamification.badgeAwarded", { userId, badgeKey });
+    logger.info("gamification.badgeAwarded", { userIdHash: hashUserId(userId), badgeKey });
     return true;
   }
 

@@ -13,6 +13,7 @@ import type { AiSpendType } from "@/types/gamification.types";
 import type { Prisma } from "@prisma/client";
 import { AppError, ForbiddenError } from "@/lib/errors";
 import { canUseAI } from "@/lib/guards/age-guard";
+import { hashUserId } from "@/lib/hash";
 
 // ─── Phase Engine ───────────────────────────────────────────────────────────
 
@@ -49,7 +50,7 @@ export class PhaseEngine {
 
     await db.expeditionPhase.createMany({ data: phases });
 
-    logger.info("gamification.expeditionInitialized", { tripId, userId });
+    logger.info("gamification.expeditionInitialized", { tripId, userIdHash: hashUserId(userId) });
   }
 
   /**
@@ -285,7 +286,7 @@ export class PhaseEngine {
 
     logger.info("gamification.phaseCompleted", {
       tripId,
-      userId,
+      userIdHash: hashUserId(userId),
       phaseNumber,
       pointsEarned: result.pointsEarned,
       badgeAwarded: result.badgeAwarded ?? undefined,
@@ -371,7 +372,7 @@ export class PhaseEngine {
 
     logger.info("gamification.phaseAdvanced", {
       tripId,
-      userId,
+      userIdHash: hashUserId(userId),
       phaseNumber,
       nextPhase,
     });
@@ -460,7 +461,7 @@ export class PhaseEngine {
       });
     });
 
-    logger.info("gamification.expeditionReset", { tripId, userId });
+    logger.info("gamification.expeditionReset", { tripId, userIdHash: hashUserId(userId) });
   }
 
   /**

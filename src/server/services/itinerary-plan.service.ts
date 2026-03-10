@@ -2,6 +2,7 @@ import "server-only";
 import { db } from "@/server/db";
 import { ForbiddenError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
 // ─── ItineraryPlanService ────────────────────────────────────────────────────
@@ -39,7 +40,7 @@ export class ItineraryPlanService {
       },
     });
 
-    logger.info("itineraryPlan.created", { tripId, userId });
+    logger.info("itineraryPlan.created", { tripId, userIdHash: hashUserId(userId) });
     return created;
   }
 

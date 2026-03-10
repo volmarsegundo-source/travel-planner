@@ -28,6 +28,7 @@ import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { db } from "@/server/db";
 import { ForbiddenError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 
 const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
 
@@ -95,7 +96,7 @@ describe("ItineraryPlanService.getOrCreateItineraryPlan", () => {
     });
     expect(logger.info).toHaveBeenCalledWith("itineraryPlan.created", {
       tripId: "trip-1",
-      userId: "user-1",
+      userIdHash: hashUserId("user-1"),
     });
   });
 });

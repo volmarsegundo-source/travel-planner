@@ -9,6 +9,13 @@ import { encrypt, decrypt } from "@/lib/crypto";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { hashUserId } from "@/lib/hash";
+import { type Prisma } from "@prisma/client";
+import {
+  PreferencesSchema,
+  parsePreferences,
+  isCategoryFilled,
+  PREFERENCE_CATEGORIES,
+} from "@/lib/validations/preferences.schema";
 import type { ActionResult } from "@/types/trip.types";
 
 // Fields stored encrypted in the database
@@ -207,6 +214,103 @@ export async function updateProfileFieldAction(
     logger.error("profile.updateField.error", error, {
       userId: hashUserId(session.user.id),
       fieldKey,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── Preference Points Constants ──────────────────────────────────────────
+
+const POINTS_PER_PREFERENCE_CATEGORY = 5;
+const IDENTITY_EXPLORER_THRESHOLD = 5;
+const IDENTITY_EXPLORER_BONUS = 25;
+
+// ─── savePreferencesAction ────────────────────────────────────────────────
+
+export async function savePreferencesAction(
+  preferences: unknown
+): Promise<ActionResult<{ pointsAwarded: number; totalFilled: number }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  const parsed = PreferencesSchema.safeParse(preferences);
+  if (!parsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
+  try {
+    const userId = session.user.id;
+
+    // Load existing preferences to detect newly filled categories
+    const existingProfile = await db.userProfile.findUnique({
+      where: { userId },
+      select: { preferences: true },
+    });
+    const existingPrefs = parsePreferences(existingProfile?.preferences);
+
+    // Save new preferences
+    await db.userProfile.upsert({
+      where: { userId },
+      create: { userId, preferences: parsed.data as unknown as Prisma.InputJsonValue },
+      update: { preferences: parsed.data as unknown as Prisma.InputJsonValue },
+    });
+
+    // Award points for newly filled categories (idempotent via transaction check)
+    let pointsAwarded = 0;
+    const newPrefs = parsed.data;
+
+    for (const category of PREFERENCE_CATEGORIES) {
+      const wasFilledBefore = isCategoryFilled(existingPrefs, category);
+      const isFilledNow = isCategoryFilled(newPrefs, category);
+
+      if (isFilledNow && !wasFilledBefore) {
+        // Check if already awarded for this category (idempotent)
+        const description = `Preference category: ${category}`;
+        const existing = await db.pointTransaction.findFirst({
+          where: { userId, type: "preference_fill", description },
+        });
+
+        if (!existing) {
+          await PointsEngine.earnPoints(
+            userId,
+            POINTS_PER_PREFERENCE_CATEGORY,
+            "preference_fill",
+            description
+          );
+          pointsAwarded += POINTS_PER_PREFERENCE_CATEGORY;
+        }
+      }
+    }
+
+    // Count total filled categories
+    const totalFilled = PREFERENCE_CATEGORIES.filter(
+      (cat) => isCategoryFilled(newPrefs, cat)
+    ).length;
+
+    // Award identity_explorer badge when >= 5 categories filled
+    if (totalFilled >= IDENTITY_EXPLORER_THRESHOLD) {
+      const badgeAwarded = await PointsEngine.awardBadge(userId, "identity_explorer");
+      if (badgeAwarded) {
+        await PointsEngine.earnPoints(
+          userId,
+          IDENTITY_EXPLORER_BONUS,
+          "preference_fill",
+          "Badge: identity_explorer"
+        );
+        pointsAwarded += IDENTITY_EXPLORER_BONUS;
+      }
+    }
+
+    logger.info("preferences.saved", {
+      userId: hashUserId(userId),
+      totalFilled,
+      pointsAwarded,
+    });
+
+    return { success: true, data: { pointsAwarded, totalFilled } };
+  } catch (error) {
+    logger.error("preferences.save.error", error, {
+      userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

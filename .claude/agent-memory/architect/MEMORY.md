@@ -1,201 +1,83 @@
 # Architect Memory — Travel Planner
 
 ## Project State
-- Sprint 15 review done 2026-03-09; Sprint 15 APPROVED WITH NOTES (architect)
-- Sprint 9 review done 2026-03-06; Sprint 9 APPROVED WITH OBSERVATIONS (architect)
-- Sprint 6 review done 2026-03-04; Sprint 6 APPROVED WITH OBSERVATIONS
-- Sprint 5 complete; Sprint 2 (hardening) complete as of 2026-02-26
-- ADR-001-002 (2026-02-23); ADR-003-005 (2026-02-26); ADR-006-007 (2026-03-01)
-- ADR-005 revised 2026-03-04: corrected from "database sessions" to "JWT sessions"
-- ADR-008 PENDING: engines convention (src/lib/engines/ vs src/server/services/)
-- SPEC-001 written: docs/SPEC-001.md (2026-02-23)
-- SPEC-005 written: docs/specs/SPEC-005-authenticated-navigation.md (2026-03-01)
+- Sprint 20 architecture designed 2026-03-10: ITEM-A/C/D/E — docs/architecture/SPRINT-20-ARCHITECTURE.md
+- Sprint 15 review done 2026-03-09; APPROVED WITH NOTES
+- Sprint 9 review done 2026-03-06; APPROVED WITH OBSERVATIONS
+- Sprint 6 review done 2026-03-04; APPROVED WITH OBSERVATIONS
+- ADR-001-007 (accepted); ADR-008 PENDING (engines convention)
+- ADR-009-012 PROPOSED (Sprint 20): passengers, transport models, preferences JSON, Phase 4 rename
+- Detailed sprint findings: see sprint-findings.md
 
-## Confirmed Tech Stack (ADR-001, Accepted 2026-02-23)
-- Framework: Next.js 15 App Router (full-stack monolito modular)
-- Language: TypeScript 5.x (strict, no `any`)
-- Styling: Tailwind CSS 4 + shadcn/ui
-- ORM: Prisma 7 (pure TS, schema-first, safe migrations)
-- Database: PostgreSQL 16
-- Cache/Sessions: Redis via ioredis (Upstash-compatible); singleton in src/server/cache/redis.ts
-- Auth: Auth.js v5 / NextAuth v5 — JWT session strategy (PrismaAdapter for User/Account) — ADR-005 revised
-- AI: Anthropic SDK, claude-sonnet-4-6 (itinerary), claude-haiku-4-5-20251001 (checklist)
-- i18n: next-intl with [locale] routing, locales: pt-BR (default), en — see ADR-004
-- Maps: Mapbox GL JS 3.x
-- State: TanStack Query v5
-- Forms: React Hook Form + Zod
-- Testing: Vitest + Playwright
-- CI/CD: GitHub Actions
-- Hosting target: Vercel (frontend) + Railway/Render (DB)
-- Errors: Sentry + OpenTelemetry
+## Confirmed Tech Stack (ADR-001)
+- Next.js 15 App Router, TypeScript 5.x strict, Tailwind CSS 4 + shadcn/ui
+- Prisma 7 + PostgreSQL 16, Redis via ioredis, Auth.js v5 (JWT strategy)
+- AI: Anthropic SDK (sonnet for itinerary, haiku for checklist)
+- i18n: next-intl, locales: pt-BR (default), en
+- Maps: Mapbox GL JS 3.x, State: TanStack Query v5, Forms: React Hook Form + Zod
+- Testing: Vitest + Playwright, CI/CD: GitHub Actions, Hosting: Vercel + Railway/Render
 
 ## Key Architectural Decisions
-- Auth.js chosen over Clerk: user data stays on our infra (GDPR)
-- Prisma chosen over Drizzle: safer migrations for team, Prisma 7 removed cold start gap
-- Mapbox chosen over Google Maps: cost + customization
-- Monolith over microservices: 2-dev team, MVP stage
-- CUID2 for all primary keys (not UUID)
-- Soft deletes on all user-owned entities (deletedAt); deactivatedAt separate for account suspension
-- Session strategy: JWT (`session: { strategy: "jwt" }`) — ADR-005 corrected Sprint 6
-- IDs in API: never expose auto-increment integers — always CUID2
-- Trip cover: gradient name string + emoji string (no image URL in v1)
-- Trip status: PLANNING (default), ACTIVE, COMPLETED, ARCHIVED — as const enum pattern
-- MAX_ACTIVE_TRIPS = 20 (MVP business rule) — enforced in TripService
-- ChecklistItem and ItineraryDay use onDelete: Cascade (derived/computed data)
-- AI cache: MD5-keyed Redis 24h TTL; budget bucketing to nearest 500; month-level for checklist
-- ADR-006: Route group (app) for authenticated layout — navbar via shared layout.tsx
-- ADR-007: LanguageSwitcher moved to components/layout/ for reuse across public + auth zones
-- CSP: nonce per request via middleware (Sprint 6); unsafe-inline only in style-src (Tailwind limitation)
-- Rate limiter: atomic Lua script (INCR + conditional EXPIRE) via redis.eval (Sprint 6)
+- CUID2 for all PKs; soft deletes (deletedAt) on user-owned entities
+- String columns for extensible value sets (not Prisma enums) — rank/badge/status/transportType
+- onDelete: Cascade for derived data (ChecklistItem, ItineraryDay, TransportSegment, Accommodation)
+- JSON fields validated by Zod: DestinationGuide.content, ExpeditionPhase.metadata, UserProfile.preferences
+- MAX_ACTIVE_TRIPS = 20; MAX_TRANSPORT_SEGMENTS = 10; MAX_ACCOMMODATIONS = 5
+- Profile loaded server-side in page.tsx, passed as serialized props to client wizards
+- Mass assignment: never spread user input into Prisma — map fields explicitly
 
-## Atlas Gamification (Sprint 9)
-- Engines in src/lib/engines/ (phase-config isomorphic, points-engine + phase-engine server-only)
-- 4 new Prisma models: UserProgress, ExpeditionPhase, PointTransaction, UserBadge
-- Trip model extended: expeditionMode (bool, default true), currentPhase (int, default 1)
-- Points denormalized in UserProgress (totalPoints + availablePoints) — O(1) reads
-- PointTransaction as append-only audit trail (positive=earn, negative=spend)
-- Badge idempotency via @@unique([userId, badgeKey])
-- Phase ordering enforced: trip.currentPhase must match phaseNumber
-- 8 phases per trip, created via ExpeditionPhase.createMany
-- PhaseEngine.completePhase orchestrates in $transaction: mark completed + earn points + badge + rank + unlock next
-- WELCOME_BONUS = 500 points; daily_login = 10 points; phase rewards sum to 2100
-- String columns for rank/badge/status (not Prisma enums) — more flexible for additions
+## Sprint 20 Architecture (ADR-009 through ADR-012)
+- ITEM-C: Phase 1 reorder — Personal Info first, skip if profile complete, save at confirmation
+- ITEM-D: Passenger counts as flat fields on Trip (adultsCount, childrenCount, infantsCount, childrenAges Int[])
+- ITEM-E: TransportSegment + Accommodation as separate Prisma models (not JSON in metadata)
+- ITEM-E: Trip.origin (String?, VarChar 150), Trip.localMobility (String[])
+- ITEM-A: UserProfile.preferences as JSON with Zod PreferencesSchema (8 categories)
+- Phase 4 rename: "O Abrigo" -> "A Logistica"; badge "host" -> "logistics_master"
+- 3 migrations: trip_origin_and_passengers, transport_and_accommodation, user_preferences
+- bookingCodeEnc fields encrypted via AES-256-GCM (same as passportNumberEnc)
 
-## Critical Conventions (must be in every spec)
-- `src/server/` is server-only (import "server-only" required)
-- Prisma client singleton only in `src/server/db/client.ts`
-- Redis client singleton in `src/server/cache/redis.ts` (ioredis)
-- CacheKeys helper in `src/server/cache/keys.ts`
-- Env vars validated via `@t3-oss/env-nextjs` in `src/lib/env.ts` at startup
-- Error classes: AppError, NotFoundError, UnauthorizedError, ForbiddenError (src/lib/errors.ts)
-- mapErrorToKey() helper in `src/lib/action-utils.ts` — maps AppError to i18n key
-- Authorization checked BEFORE data access in every handler
-- All list endpoints paginated (default 20, max 100)
-- API error shape: { error: { code, message, status, timestamp, requestId } }
-- Soft delete: never hard DELETE user data, use deletedAt
-- BOLA mitigation: always include userId in Prisma where clause (never fetch by id alone)
-- Mass assignment: never spread user input into Prisma create/update — map fields explicitly
-  - createTrip: fixed in Sprint 2 (explicit field mapping)
-  - updateTrip: STILL USES SPREAD — must fix (DT-004)
-- redirect() from next/navigation must NOT be inside try/catch blocks (throws internally)
-- Prisma 7: use db.$extends (not deprecated db.$use) for global middleware/soft-delete
-- Rate limiting: checkRateLimit() in src/lib/rate-limit.ts — atomic Lua script (fixed Sprint 6)
-- i18n navigation: use src/i18n/navigation.ts exports (Link, redirect, usePathname, useRouter) — NOT next/link
-- typedRoutes disabled in next.config.ts (incompatible with next-intl [locale] routing)
+## Critical Conventions
+- `src/server/` requires "server-only" import; Prisma singleton in src/server/db/client.ts
+- Redis singleton in src/server/cache/redis.ts; CacheKeys in src/server/cache/keys.ts
+- Env vars validated via @t3-oss/env-nextjs in src/lib/env.ts
+- Error classes: AppError, NotFoundError, UnauthorizedError, ForbiddenError
+- Auth checked BEFORE data access; BOLA mitigation: userId in every Prisma WHERE
+- i18n: use src/i18n/navigation.ts exports (Link, redirect, useRouter) — NOT next/link
+- redirect() must NOT be inside try/catch (throws internally)
+- Rate limiting: checkRateLimit() with atomic Lua script
 
-## Known Issues / Open Defects
-### Resolved in Sprint 6
-- ~~CRITICO: CSP unsafe-eval + unsafe-inline in script-src~~ RESOLVED (T-038)
-- ~~ALTO: generateChecklistAction no rate limit~~ RESOLVED (T-041, 5 req/hr/user)
-- ~~ALTO: Rate limiter race condition~~ RESOLVED (T-039, Lua script)
-- ~~MEDIO: ADR-005 text vs code mismatch~~ RESOLVED (T-040)
-
-### Still Open (pre-Sprint 9)
+## Known Debt (Still Open)
 - ALTO: updateTrip uses implicit spread — mass assignment risk (DT-004)
-- ALTO: ChecklistItem.priority field missing from Prisma schema — silently discarded
-- ALTO: TrustSignals.tsx uses next/link instead of @/i18n/navigation — broken in prod (DT-010)
-- MEDIO: OnboardingWizard.tsx uses useRouter from next/navigation instead of @/i18n/navigation (DT-011)
-- MEDIO: getAnthropic() bypasses env.ts validation (reads process.env directly)
-- MEDIO: Redis singleton not persisted in globalThis in production (connection leak risk)
-- MEDIO: auth.ts uses process.env directly for Google credentials (should use env.ts)
-- MEDIO: TrustSignals link to /account/delete points to nonexistent route (DT-014, Sprint 7)
-- BAIXO: OnboardingWizard Step 3 back button tautological ternary (DT-013)
+- ALTO: DT-S9-001 — spendPoints no $transaction (TOCTOU race)
+- MEDIO: Several import/env issues — see sprint-findings.md for full list
+- BAIXO: Various semantic type mismatches (purchase vs welcome_bonus, etc.)
 
-### Sprint 9 Debt
-- ALTO: DT-S9-001 — spendPoints no $transaction (TOCTOU race condition, saldo negativo possivel)
-- MEDIO: DT-S9-002 — Trip type + TRIP_SELECT missing expeditionMode/currentPhase
-- MEDIO: DT-S9-003 — ADR-008 pending (engines vs services convention)
-- MEDIO: DT-S9-004 — Inconsistency Prisma enums (Trip) vs string columns (gamification)
-- BAIXO: DT-S9-005 — Welcome bonus uses type "purchase" instead of "welcome_bonus"
-- BAIXO: DT-S9-006 — getTransactionHistory missing pageSize max 100 cap
-- BAIXO: DT-S9-007 — recordDailyLogin potential double-award under concurrency
-- BAIXO: DT-S9-008 — AI_COSTS and SpendPointsSchema.type enum drift risk
+## Rate Limits
+- generateTravelPlanAction: 10 req/hr/user
+- generateChecklistAction: 5 req/hr/user
+- registerAction: 5 req/15min; loginAction: 10 req/15min
 
-## Rate Limits (current)
-- generateTravelPlanAction: 10 req/hr/user (ai:plan:{userId})
-- generateChecklistAction: 5 req/hr/user (ai:checklist:{userId})
-- registerAction: 5 req/15min
-- loginAction: 10 req/15min
-
-## Specs Written
-- SPEC-001 (2026-02-23): Trip Creation & Management — docs/SPEC-001.md
-- SPEC-005 (2026-03-01): Authenticated Navigation & Fixes — docs/specs/SPEC-005-authenticated-navigation.md
-
-## File Locations (Sprint 15 additions)
-- ItineraryPlanService: src/server/services/itinerary-plan.service.ts
-- Phase6Wizard: src/components/features/expedition/Phase6Wizard.tsx
-- Phase 6 page: src/app/[locale]/(app)/expedition/[tripId]/phase-6/page.tsx
-- Migration: prisma/migrations/20260309010315_itinerary_plan_phase6/
-
-## File Locations (Sprint 9 additions)
-- Gamification types: src/types/gamification.types.ts
-- Phase config (isomorphic): src/lib/engines/phase-config.ts
-- Points engine (server-only): src/lib/engines/points-engine.ts
-- Phase engine (server-only): src/lib/engines/phase-engine.ts
-- Gamification schemas: src/lib/validations/gamification.schema.ts
-- Migration: prisma/migrations/20260306143505_atlas_gamification_models/
-
-## File Locations
-- Architecture: docs/architecture.md
-- API contracts: docs/api.md
-- Tasks/backlog: docs/tasks.md
-- UX patterns: docs/ux-patterns.md
-- Security: docs/security.md
-- Data architecture: docs/data-architecture.md
-- Sprint reviews: docs/sprint-reviews/
-- SPEC-001: docs/SPEC-001.md
+## Specs & Architecture Docs
+- SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
-- Agent definitions: .claude/agents/
-- i18n routing: src/i18n/routing.ts
-- i18n navigation wrapper: src/i18n/navigation.ts
-- Rate limiter: src/lib/rate-limit.ts (atomic Lua script)
-- Action error mapper: src/lib/action-utils.ts
-- AI actions: src/server/actions/ai.actions.ts
-- AI service: src/server/services/ai.service.ts
-- LoginForm: src/components/features/auth/LoginForm.tsx
-- TrustSignals: src/components/features/auth/TrustSignals.tsx
-- OnboardingWizard: src/components/features/onboarding/OnboardingWizard.tsx
-- ProgressIndicator: src/components/features/onboarding/ProgressIndicator.tsx
-- Header (public): src/components/layout/Header.tsx
-- LanguageSwitcher: src/components/layout/LanguageSwitcher.tsx
-- Auth layout: src/app/[locale]/auth/layout.tsx (Header + Footer)
-- AppShellLayout: src/app/[locale]/(app)/layout.tsx
+- Sprint 20 Architecture: docs/architecture/SPRINT-20-ARCHITECTURE.md
+
+## Key File Locations
+- Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md
+- Phase config: src/lib/engines/phase-config.ts (isomorphic)
+- Points/Phase engines: src/lib/engines/ (server-only)
+- Gamification types: src/types/gamification.types.ts
+- Profile service: src/server/services/profile.service.ts
+- Profile actions: src/server/actions/profile.actions.ts
+- Expedition actions: src/server/actions/expedition.actions.ts
+- Phase1Wizard: src/components/features/expedition/Phase1Wizard.tsx
+- Trip classifier: src/lib/travel/trip-classifier.ts
+- Crypto: src/lib/crypto.ts (AES-256-GCM)
 - Middleware: src/middleware.ts (auth + i18n + CSP nonce)
 
-## Sprint 15 — Phase 6 (AI Itinerary in Expedition)
-- New model: ItineraryPlan (1:1 with Trip, onDelete: Cascade, tripId @unique)
-- New service: ItineraryPlanService (getOrCreateItineraryPlan, recordGeneration, getExpeditionContext)
-- Phase6Wizard: client component (188 lines), 3 states (empty/generating/generated)
-- /trips route deactivated (redirects to /dashboard); navbar link removed
-- Expedition context enrichment: Phase 2 metadata + Phase 5 guide injected into AI prompt
-- generateTravelPlanAction extended (not duplicated) for expedition flow
-- TRIP_SELECT now includes expeditionMode + currentPhase (DT-S9-002 resolved)
-- getUserTripsWithExpeditionData includes itineraryPlan relation for dashboard badge
-- Migration: 20260309010315_itinerary_plan_phase6
-
-### Sprint 15 Debt
-- LOW: DT-S15-001 — getOrCreateItineraryPlan race condition (no upsert/P2002 catch)
-- LOW: DT-S15-002 — window.location.reload() workaround in Phase6Wizard
-- BAIXO: DT-S15-003 — Itinerary generation points use type "purchase" (same as DT-S9-005)
-- BAIXO: DT-S15-004 — Redundant trip ownership check (page + service)
-- MEDIO: DT-S15-005 — recordGeneration empty catch block swallows all errors silently
-
-## Sprint 9 Findings
-- Engines pattern (static class methods) pragmatic for MVP — essentially namespaces
-- phase-config.ts correctly isomorphic (no server-only) for client import of definitions
-- points-engine and phase-engine are effectively server services but in src/lib/engines/
-- spendPoints has TOCTOU race condition — needs $transaction wrapping before production
-- Trip type/TRIP_SELECT not updated with gamification fields — integration gap
-- String columns vs Prisma enums inconsistency should be documented in ADR-008
-- Welcome bonus type "purchase" is semantically wrong — should be "welcome_bonus"
-- 119 new tests, all unit (mock-heavy); integration tests with real DB would add confidence
-- expeditionMode defaults true on ALL trips including pre-existing — acceptable for MVP only
-
-## Sprint 6 Findings
-- CSP nonce via crypto.randomUUID() in Edge middleware — production removes unsafe-eval from script-src
-- style-src still has unsafe-inline (Tailwind limitation, accepted trade-off)
-- Middleware accumulates 4 responsibilities (auth, i18n, route protection, CSP) — monitor complexity
-- OnboardingWizard is monolithic (397 lines) — extract steps if it grows
-- Fixed window rate limiter has 2x burst at window boundary — acceptable for MVP
-- TrustSignals uses wrong Link import (next/link vs @/i18n/navigation) — MUST fix Sprint 7
-- buildCsp() not exported from middleware — tests replicate logic instead of testing directly
+## Gamification Architecture
+- 8 phases per trip; phases in src/lib/engines/phase-config.ts
+- 4 models: UserProgress, ExpeditionPhase, PointTransaction, UserBadge
+- Points denormalized in UserProgress; PointTransaction as audit trail
+- Phase 4 completion: at least 1 section has data (transport OR accommodation OR mobility)
+- WELCOME_BONUS = 500; phase rewards sum to 2100; PROFILE_FIELD_POINTS = 25 each

@@ -38,8 +38,8 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
   },
   {
     phaseNumber: 4,
-    name: "O Abrigo",
-    nameKey: "phases.theShelter",
+    name: "A Logística",
+    nameKey: "phases.theLogistics",
     isFree: true,
     pointsReward: 50,
     aiCost: 100,

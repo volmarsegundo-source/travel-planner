@@ -1,20 +1,31 @@
 # Tech Lead Memory -- Travel Planner
 
 ## Project State (as of 2026-03-10)
-- Sprints 1-19 complete (Sprint 19 on feat/sprint-19, pending merge)
-- Current: 1365 tests, v0.13.0, 94 suites
-- Sprint 19: 10 of 12 tasks delivered, 2 P1 deferred (duplicate buttons, Phase 1 reorder)
-  - DONE: Streaming fix (3 parts), hub redirect, cascade deletion, progress count, bio fix, auto-advance, currency util, guide redesign, dedup autocomplete
-  - DEFERRED to S20: T-S19-007 (remove duplicate buttons), T-S19-008 (Phase 1 reorder), T-S19-011/012 (P2)
+- Sprints 1-20 complete, Sprint 20 on feat/sprint-20 (pending merge)
+- Current: 1489 tests, v0.14.0, 100 suites
+- Sprint 21: BACKLOG SEEDS created (docs/sprints/SPRINT-21-BACKLOG-SEEDS.md)
+  - 11 seeds, 24-34h estimated
+  - Focus: Transport Phase UI (Phase 4 "A Logistica")
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
+- docs/sprints/SPRINT-20-TASKS.md -- Sprint 20 task breakdown (12 tasks, 28.5h)
+- docs/sprints/SPRINT-21-BACKLOG-SEEDS.md -- Sprint 21 backlog seeds (11 items)
 - docs/sprints/SPRINT-19-TASKS.md -- Sprint 19 task breakdown (12 tasks, 32.5h)
-- docs/sprints/SPRINT-18-TASKS.md -- Sprint 18 task breakdown (12 tasks)
-- docs/security/SPRINT-19-SECURITY-REVIEW.md -- security review (APPROVED, no MEDIUM+)
-- docs/sprint-reviews/SPRINT-019-review.md -- tech-lead sprint review
+- docs/security/SPRINT-20-SECURITY-REVIEW.md -- security review (APPROVED, no MEDIUM+)
+- docs/sprint-reviews/SPRINT-020-review.md -- tech-lead sprint review
 - docs/architecture.md -- conventions, folder structure, ADRs
+- docs/product/TRANSPORT-PHASE-SPEC.md -- full transport phase product spec
 - docs/prompts/OPTIMIZATION-BACKLOG.md -- prompt-engineer audit findings
+
+## Sprint 20 Outcomes
+- ALL 12 tasks completed (100%)
+- +124 tests (1365 -> 1489), +6 suites (94 -> 100)
+- SEC-S19-001 RESOLVED (last known security debt)
+- Three migrations applied: preferences, passengers, transport
+- Phase 4 renamed: "O Abrigo" -> "A Logistica"
+- New badge: identity_explorer (preferences gamification, 5+ categories)
+- Review fixes: 5 unused imports, 3 Prisma JSON type casts, 1 missing badge map entry, 2 i18n keys
 
 ## Critical Security Findings (cumulative)
 - FIND-M-001: redirect() must be OUTSIDE try/catch in all Server Actions
@@ -22,62 +33,78 @@
 - SR-005: Every Prisma query in TripService must have explicit select clause
 - SR-006: coverEmoji needs Unicode regex or enum
 - SR-007: confirmationTitle needs .max(100) in TripDeleteSchema
-- SEC-S18-001 (MEDIUM): **RESOLVED in Sprint 19** -- cascade deletion added for ItineraryDay/Activity/ChecklistItem
-- SEC-S19-001 (LOW): Raw userId in phase-engine.ts (4), points-engine.ts (4), itinerary-plan.service.ts (1) -- pre-existing
+- SEC-S18-001 (MEDIUM): RESOLVED in Sprint 19
+- SEC-S19-001 (LOW): RESOLVED in Sprint 20 (T-S20-003)
+- SEC-S20-OBS-001 (INFO): No total passenger cap -- schedule for Sprint 21
+- SEC-S20-OBS-002 (INFO): Booking code encryption deferred to Sprint 21
+
+## Prisma JSON Type Pattern (Sprint 20 lesson)
+- CRITICAL: `Record<string, unknown>` is NOT assignable to Prisma's InputJsonValue in strict build
+- CORRECT pattern: `as unknown as Prisma.InputJsonValue` for JSON field writes
+- Import: `import { type Prisma } from "@prisma/client"`
+- This applies to: preferences (UserProfile), passengers (Trip), any future Json fields
 
 ## Streaming Architecture (post-Sprint 19 -- FIXED)
-- Stream route now accumulates output, parses with Zod, persists via itinerary-persistence.service.ts
+- Stream route accumulates output, parses with Zod, persists via itinerary-persistence.service.ts
 - Redis lock (NX+EX, TTL 300s) prevents duplicate generations per tripId
-- Phase6Wizard shows progress UI (spinner + phase messages + progress bar), NOT raw JSON
-- Key prop on Phase6Wizard forces remount after router.refresh(): key={`phase6-${days.length}`}
-- New service: src/server/services/itinerary-persistence.service.ts
-  - persistItinerary(), parseItineraryJson(), acquireGenerationLock(), releaseGenerationLock()
-- Progress utility: src/lib/utils/stream-progress.ts
-  - getProgressPhase(), countDaysInStream(), calculateProgressPercent()
+- Phase6Wizard shows progress UI, NOT raw JSON
+- Key prop forces remount: key={`phase6-${days.length}`}
 
-## AI Provider Architecture (current, post-Sprint 18)
+## AI Provider Architecture (current)
 - Interface: AiProvider in src/server/services/ai-provider.interface.ts
-  - model type: "plan" | "checklist" | "guide"
-  - systemPrompt parameter supported
-  - generateStreamingResponse() returns { stream: ReadableStream, usage: Promise }
-- Claude: src/server/services/providers/claude.provider.ts
-  - plan -> claude-sonnet-4-6, checklist/guide -> claude-haiku-4-5-20251001
+- Claude: plan -> claude-sonnet-4-6, checklist/guide -> claude-haiku-4-5-20251001
 - Streaming API: POST /api/ai/plan/stream (SSE format)
-  - Defense-in-depth: auth -> Zod -> rate limit -> BOLA -> age guard -> injection -> PII mask -> Redis lock
 - Factory: getProvider() in ai.service.ts
 
 ## Guide Architecture (post-Sprint 19)
-- GUIDE_SYSTEM_PROMPT: 10 sections (was 6) -- timezone, currency, language, electricity, connectivity, cultural_tips, safety, health, transport_overview, local_customs
-- Section types: "stat" (factual) vs "content" (descriptive with optional details)
-- Types: GuideSectionType, GuideSectionKey, GuideSectionData, DestinationGuideContent in ai.types.ts
+- 10 sections: timezone, currency, language, electricity, connectivity, cultural_tips, safety, health, transport_overview, local_customs
+- Section types: "stat" (factual) vs "content" (descriptive)
 - DestinationGuideWizard: card-based layout (2-col stat grid, expandable content list)
+- T-S20-001 FIXED: old guides (6 sections) now gracefully degrade
 
-## Dashboard Architecture (Sprint 18+19)
-- ExpeditionCard: overlay link pattern with pointer-events-none/auto
+## Dashboard Architecture (Sprint 18+19+20)
+- ExpeditionCard: overlay link with pointer-events-none/auto -- CLEANED in S20
 - PhaseToolsBar: renders tools from getPhaseTools(currentPhase)
-- STILL HAS duplicate buttons (lines 82-103) -- DEBT-S18-001 unresolved
+- DUPLICATE BUTTONS: RESOLVED in T-S20-002
 - DashboardPhaseProgressBar: 8 segments (gold=complete, pulse=current, gray=future)
-- completedPhases: Math.max(explicit "completed" count, currentPhase - 1)
-- PhaseEngine.getHighestCompletedPhase() added for hub redirect fallback
 
-## Prompt Engineering Files
-- src/lib/prompts/injection-guard.ts -- checkPromptInjection(), sanitizeForPrompt()
-- src/lib/prompts/pii-masker.ts -- maskPII()
-- src/lib/prompts/system-prompts.ts -- PLAN_SYSTEM_PROMPT, CHECKLIST_SYSTEM_PROMPT, GUIDE_SYSTEM_PROMPT
+## Phase 1 Wizard (Sprint 20)
+- Step order: (1) About You, (2) Destination, (3) Dates, (4) Confirmation
+- Profile persistence: shows summary card when birthDate+country+city filled
+- Props: passportExpiry, userCountry, userProfile (from server component)
+
+## Phase 2 Wizard (Sprint 20)
+- Dynamic step array based on travelerType
+- Passengers step: conditional for family/group; airline-style +/- steppers
+- Preferences step: free-text dietary + accessibility (legacy)
+- 636 lines -- extract PassengersStep in Sprint 21
+
+## Preferences System (Sprint 20)
+- 10 categories: travelPace, foodPreferences, interests, budgetStyle, socialPreference, accommodationStyle, fitnessLevel, photographyInterest, wakePreference, connectivityNeeds
+- Schema: src/lib/validations/preferences.schema.ts
+- Service: src/server/services/preferences.service.ts
+- Gamification: 10 pts per filled category, identity_explorer badge at 5+
+- parsePreferences() graceful fallback for null/invalid data
+
+## Transport Data Model (Sprint 20 -- schema only)
+- TransportSegment: type, departure/arrival places+times, provider, bookingCodeEnc, cost, isReturn
+- Accommodation: type, name, address, bookingCodeEnc, checkIn/checkOut, cost
+- Trip.origin: VarChar(150), Trip.localMobility: String[]
+- Both models: onDelete Cascade, added to account deletion transaction
+- Zod schemas: src/lib/validations/transport.schema.ts
 
 ## Recurring Import Convention Violations
 - PATTERN: Devs sometimes use `next/navigation` or `next/link` instead of `@/i18n/navigation`
-- CHECK at every code review: grep for these in components
-- Only middleware.ts and i18n config files should import from next/* navigation directly
+- CHECK at every code review
 - Known exceptions: LoginForm (useSearchParams), layout/catch-all (notFound)
 
 ## Team Conventions
 - Communication: Portuguese; Code: English
-- Commits: Conventional Commits (feat:, fix:, docs:, etc.)
+- Commits: Conventional Commits with task IDs (e.g., feat(T-S20-004): description)
 - No direct commits to main -- always via PR
-- Tests included in same task as implementation (not separate tasks)
+- Tests included in same task as implementation
 - Coverage target: >= 80% on service and schema files
-- ENFORCE: Commit task IDs MUST match planning doc IDs (Sprint 19 lesson learned)
+- ENFORCE: Commit task IDs MUST match planning doc IDs
 
 ## Outstanding Debt (cumulative)
 - DEBT-S6-003: Analytics events onboarding.completed/skipped not implemented
@@ -86,22 +113,27 @@
 - DEBT-S7-002: AppError/TripError near-duplicate -- refactor to shared ErrorBoundaryCard
 - DEBT-S7-003: generate-test-plan.js is CommonJS -- convert to TypeScript
 - DEBT-S8-005: eslint-disable @typescript-eslint/no-explicit-any in PlanGeneratorWizard
-- DEBT-S18-001: PhaseToolsBar duplicates checklist/itinerary shortcuts in ExpeditionCard
 - DEBT-S18-002: account.actions.ts has two hashUserId functions (local + imported hashForLog)
-- SEC-S19-001 (LOW): Raw userId in gamification engines (9 occurrences, ~1h fix)
 - ExpeditionHubPage coming soon uses hardcoded gray colors instead of theme tokens
 
-## Sprint 20 Carry-Over (from Sprint 19)
-- T-S19-007: Remove duplicate Checklist/Roteiro buttons in ExpeditionCard (P1)
-- T-S19-008: Phase 1 step reorder -- personal info before trip info (P1)
-- T-S19-011: Clickable progress bar segments (P2)
-- T-S19-012: Progress bar phase labels (P2)
-- ITEM-10: Traveler count adult/child/senior breakdown (P2, needs schema change)
-- ITEM-12: Expanded personal preferences with toggles (P2, needs ADR)
+## Sprint 21 Backlog (from Sprint 20 deferrals + review)
+- Transport UI -- Phase 4 Section A (6-8h)
+- Accommodation UI -- Phase 4 Section B (4-6h)
+- Local mobility UI -- Phase 4 Section C (2-3h)
+- Origin field UI + pre-population (2h)
+- Booking code AES-256-GCM encryption service layer (1.5h)
+- Total passenger cap Zod refinement (0.5h)
+- Phase2Wizard component extraction (1.5h)
+- AI integration: itinerary uses transport data (4-6h)
+- P3: Clickable progress bar segments (2h), progress bar phase labels (1h)
 
-## Sprint 19 Lessons Learned
-- Task ID discipline: Commits MUST use planning doc task IDs. Sprint 19 had mismatched IDs causing traceability issues
-- Key prop for React remount after router.refresh() -- reusable pattern for stale useState
-- Redis NX+EX lock with graceful degradation is good pattern for AI generation dedup
-- extracting persistItinerary to shared service was correct architectural call
-- Guide redesign took more scope than estimated -- displaced T-S19-007 and T-S19-008
+## Lessons Learned (cumulative)
+- Task ID discipline: Commits MUST use planning doc task IDs
+- Key prop for React remount after router.refresh() -- reusable pattern
+- Redis NX+EX lock with graceful degradation -- good for AI generation dedup
+- Guide redesign took more scope than estimated in S19 -- displaced 2 P1 tasks
+- Three migrations in one sprint: coordinate order to avoid conflicts
+- BUILD != TESTS: Next.js build applies stricter ESLint+TS than Vitest. Integration test tasks MUST include `npm run build`
+- Badge map completeness: adding to union types requires updating all exhaustive Records
+- Prisma JSON writes: use `as unknown as Prisma.InputJsonValue`, not `as Record<string, unknown>`
+- Scope creep: preferences had 10 categories vs 8 planned -- devs should flag increases

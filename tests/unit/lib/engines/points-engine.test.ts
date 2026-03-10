@@ -43,6 +43,7 @@ import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { AppError } from "@/lib/errors";
 import { WELCOME_BONUS, EARNING_AMOUNTS } from "@/types/gamification.types";
+import { hashUserId } from "@/lib/hash";
 
 const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
 
@@ -184,7 +185,7 @@ describe("PointsEngine.initializeProgress", () => {
 
     await PointsEngine.initializeProgress(USER_ID);
 
-    expect(logger.info).toHaveBeenCalledWith("gamification.progressInitialized", { userId: USER_ID });
+    expect(logger.info).toHaveBeenCalledWith("gamification.progressInitialized", { userIdHash: hashUserId(USER_ID) });
   });
 });
 
@@ -375,7 +376,7 @@ describe("PointsEngine.earnPoints", () => {
     await PointsEngine.earnPoints(USER_ID, 200, "phase_complete", "Phase done", "trip-1");
 
     expect(logger.info).toHaveBeenCalledWith("gamification.pointsEarned", {
-      userId: USER_ID,
+      userIdHash: hashUserId(USER_ID),
       amount: 200,
       type: "phase_complete",
       tripId: "trip-1",
@@ -485,7 +486,7 @@ describe("PointsEngine.spendPoints", () => {
     await PointsEngine.spendPoints(USER_ID, 100, "ai_usage", "AI itinerary");
 
     expect(logger.info).toHaveBeenCalledWith("gamification.pointsSpent", {
-      userId: USER_ID,
+      userIdHash: hashUserId(USER_ID),
       amount: 100,
       type: "ai_usage",
       remaining: 400,
@@ -666,7 +667,7 @@ describe("PointsEngine.updateRank", () => {
     await PointsEngine.updateRank(USER_ID, "pathfinder");
 
     expect(logger.info).toHaveBeenCalledWith("gamification.rankUpdated", {
-      userId: USER_ID,
+      userIdHash: hashUserId(USER_ID),
       newRank: "pathfinder",
     });
   });
@@ -719,7 +720,7 @@ describe("PointsEngine.awardBadge", () => {
     await PointsEngine.awardBadge(USER_ID, "treasurer");
 
     expect(logger.info).toHaveBeenCalledWith("gamification.badgeAwarded", {
-      userId: USER_ID,
+      userIdHash: hashUserId(USER_ID),
       badgeKey: "treasurer",
     });
   });

@@ -1,4 +1,5 @@
 import "server-only";
+import { type Prisma } from "@prisma/client";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -136,6 +137,14 @@ export class ExpeditionService {
     userId: string,
     data: Phase2Input
   ): Promise<PhaseCompletionResult> {
+    // Save passengers breakdown to Trip if provided
+    if (data.passengers) {
+      await db.trip.update({
+        where: { id: tripId },
+        data: { passengers: data.passengers as unknown as Prisma.InputJsonValue },
+      });
+    }
+
     return PhaseEngine.completePhase(tripId, userId, 2, {
       travelerType: data.travelerType,
       accommodationStyle: data.accommodationStyle,

@@ -15,12 +15,17 @@ import { completePhase2Action } from "@/server/actions/expedition.actions";
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
+
 interface Phase2WizardProps {
   tripId: string;
 }
 
 // Step definitions (order matters)
-type StepKey = "travelerType" | "groupSize" | "accommodation" | "pace" | "budget" | "preferences" | "confirmation";
+type StepKey = "travelerType" | "passengers" | "accommodation" | "pace" | "budget" | "preferences" | "confirmation";
+
+const MIN_PASSENGER_STEPPER = 0;
+const MAX_PASSENGER_STEPPER = 20;
+const MAX_CHILD_AGE = 17;
 
 export function Phase2Wizard({ tripId }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
@@ -41,7 +46,11 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
 
   // Form data
   const [travelerType, setTravelerType] = useState<string | null>(null);
-  const [groupSize, setGroupSize] = useState(3);
+  const [adults, setAdults] = useState(1);
+  const [childrenCount, setChildrenCount] = useState(0);
+  const [childrenAges, setChildrenAges] = useState<number[]>([]);
+  const [seniors, setSeniors] = useState(0);
+  const [infants, setInfants] = useState(0);
   const [accommodationStyle, setAccommodationStyle] = useState<string | null>(null);
   const [travelPace, setTravelPace] = useState(5);
   const [budget, setBudget] = useState(1000);
@@ -51,11 +60,14 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
 
   const stepContentRef = useRef<HTMLDivElement>(null);
 
+  // Total passengers derived value
+  const totalPassengers = adults + childrenCount + seniors + infants;
+
   // Dynamic step array based on traveler type
   const steps = useMemo((): StepKey[] => {
     const base: StepKey[] = ["travelerType"];
     if (travelerType === "family" || travelerType === "group") {
-      base.push("groupSize");
+      base.push("passengers");
     }
     base.push("accommodation", "pace", "budget", "preferences", "confirmation");
     return base;
@@ -81,7 +93,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
       setErrorMessage(t("errors.travelerTypeRequired"));
       return;
     }
-    if (currentStep === "groupSize" && groupSize < 2) {
+    if (currentStep === "passengers" && totalPassengers < 2) {
       setErrorMessage(t("errors.groupSizeMin"));
       return;
     }
@@ -108,7 +120,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    const needsTravelers = travelerType === "family" || travelerType === "group";
+    const needsPassengers = travelerType === "family" || travelerType === "group";
 
     try {
       const result = await completePhase2Action(tripId, {
@@ -117,7 +129,15 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
         travelPace,
         budget,
         currency: currency as "USD" | "EUR" | "BRL",
-        travelers: needsTravelers ? groupSize : undefined,
+        travelers: needsPassengers ? totalPassengers : undefined,
+        passengers: needsPassengers
+          ? {
+              adults,
+              children: { count: childrenCount, ages: childrenAges },
+              seniors,
+              infants,
+            }
+          : undefined,
         dietaryRestrictions: dietaryRestrictions.trim() || undefined,
         accessibility: accessibility.trim() || undefined,
       });
@@ -222,9 +242,13 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                 value={travelerType}
                 onChange={(val) => {
                   setTravelerType(val);
-                  // Reset group size when switching away from group/family
+                  // Reset passengers when switching away from group/family
                   if (val !== "family" && val !== "group") {
-                    setGroupSize(3);
+                    setAdults(1);
+                    setChildrenCount(0);
+                    setChildrenAges([]);
+                    setSeniors(0);
+                    setInfants(0);
                   }
                 }}
                 label={t("step1.title")}
@@ -235,32 +259,161 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
             </div>
           )}
 
-          {/* Group Size (conditional) */}
-          {currentStep === "groupSize" && (
+          {/* Passengers (conditional — family/group only) */}
+          {currentStep === "passengers" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-semibold">{t("groupSize.title")}</h2>
-              <Label htmlFor="phase2-group-size">{t("groupSize.label")}</Label>
-              <div className="flex items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => setGroupSize(Math.max(2, groupSize - 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
-                  aria-label={t("groupSize.decrease")}
-                >
-                  -
-                </button>
-                <span className="min-w-[3rem] text-center text-2xl font-bold">
-                  {groupSize}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setGroupSize(Math.min(20, groupSize + 1))}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
-                  aria-label={t("groupSize.increase")}
-                >
-                  +
-                </button>
+              <h2 className="text-lg font-semibold">{t("passengers.title")}</h2>
+
+              {/* Adults */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium">{t("passengers.adults")}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{t("passengers.adultsHint")}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setAdults(Math.max(1, adults - 1))}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.decrease", { type: t("passengers.adults") })}
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-xl font-bold">{adults}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAdults(Math.min(MAX_PASSENGER_STEPPER, adults + 1))}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.increase", { type: t("passengers.adults") })}
+                  >
+                    +
+                  </button>
+                </div>
               </div>
+
+              {/* Children */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium">{t("passengers.children")}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{t("passengers.childrenHint")}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newCount = Math.max(MIN_PASSENGER_STEPPER, childrenCount - 1);
+                      setChildrenCount(newCount);
+                      setChildrenAges((prev) => prev.slice(0, newCount));
+                    }}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.decrease", { type: t("passengers.children") })}
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-xl font-bold">{childrenCount}</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newCount = Math.min(MAX_PASSENGER_STEPPER, childrenCount + 1);
+                      setChildrenCount(newCount);
+                      setChildrenAges((prev) => [...prev, 5]); // default age 5
+                    }}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.increase", { type: t("passengers.children") })}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Children ages */}
+              {childrenCount > 0 && (
+                <div className="flex flex-wrap gap-2 pl-2">
+                  {childrenAges.map((age, idx) => (
+                    <div key={idx} className="flex flex-col gap-1">
+                      <Label htmlFor={`child-age-${idx}`} className="text-xs">
+                        {t("passengers.childAge", { number: idx + 1 })}
+                      </Label>
+                      <select
+                        id={`child-age-${idx}`}
+                        value={age}
+                        onChange={(e) => {
+                          const newAges = [...childrenAges];
+                          newAges[idx] = parseInt(e.target.value);
+                          setChildrenAges(newAges);
+                        }}
+                        className="flex h-9 w-16 rounded-md border border-input bg-background px-2 py-1 text-sm"
+                      >
+                        {Array.from({ length: MAX_CHILD_AGE + 1 }, (_, i) => (
+                          <option key={i} value={i}>
+                            {i}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Seniors */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium">{t("passengers.seniors")}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{t("passengers.seniorsHint")}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setSeniors(Math.max(MIN_PASSENGER_STEPPER, seniors - 1))}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.decrease", { type: t("passengers.seniors") })}
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-xl font-bold">{seniors}</span>
+                  <button
+                    type="button"
+                    onClick={() => setSeniors(Math.min(MAX_PASSENGER_STEPPER, seniors + 1))}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.increase", { type: t("passengers.seniors") })}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Infants */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium">{t("passengers.infants")}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">{t("passengers.infantsHint")}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setInfants(Math.max(MIN_PASSENGER_STEPPER, infants - 1))}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.decrease", { type: t("passengers.infants") })}
+                  >
+                    -
+                  </button>
+                  <span className="min-w-[2rem] text-center text-xl font-bold">{infants}</span>
+                  <button
+                    type="button"
+                    onClick={() => setInfants(Math.min(MAX_PASSENGER_STEPPER, infants + 1))}
+                    className="flex h-11 w-11 items-center justify-center rounded-full border-2 border-border text-lg font-bold hover:border-atlas-gold/40"
+                    aria-label={t("passengers.increase", { type: t("passengers.infants") })}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* Total */}
+              <p className="text-center text-sm font-medium text-muted-foreground">
+                {t("passengers.total", { count: totalPassengers })}
+              </p>
+
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleBack} className="flex-1">
                   &larr;
@@ -427,8 +580,10 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                   </div>
                   {(travelerType === "family" || travelerType === "group") && (
                     <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.groupSize")}</dt>
-                      <dd className="font-medium">{groupSize}</dd>
+                      <dt className="text-muted-foreground">{t("step5.passengers")}</dt>
+                      <dd className="font-medium">
+                        {t("passengers.total", { count: totalPassengers })}
+                      </dd>
                     </div>
                   )}
                   <div className="flex justify-between">

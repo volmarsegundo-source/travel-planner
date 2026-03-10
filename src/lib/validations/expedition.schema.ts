@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PassengersSchema } from "./trip.schema";
 
 // ─── Phase 1: Trip Planning Basics ──────────────────────────────────────────
 
@@ -69,6 +70,7 @@ export const Phase2Schema = z.object({
     .min(2, "At least 2 travelers for group/family")
     .max(20, "Maximum 20 travelers")
     .optional(),
+  passengers: PassengersSchema.optional(),
   dietaryRestrictions: z.string().max(300).optional(),
   accessibility: z.string().max(300).optional(),
 }).refine(

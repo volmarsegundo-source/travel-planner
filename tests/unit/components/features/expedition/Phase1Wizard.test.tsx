@@ -1,8 +1,10 @@
 /**
  * Unit tests for Phase1Wizard component.
  *
- * Tests cover: bio display in confirmation step (T-S19-005),
- * step navigation, and form submission.
+ * Tests cover: step reorder (T-S20-004), profile persistence (T-S20-005),
+ * bio display in confirmation step, step navigation, and form submission.
+ *
+ * New step order: Step 1=About You, Step 2=Destination, Step 3=Dates, Step 4=Confirmation.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -40,22 +42,60 @@ vi.mock("@/lib/travel/trip-classifier", () => ({
 
 import { Phase1Wizard } from "@/components/features/expedition/Phase1Wizard";
 
+// ─── Fixtures ─────────────────────────────────────────────────────────────────
+
+const COMPLETE_PROFILE = {
+  birthDate: "1990-05-15",
+  phone: "+5511999998888",
+  country: "Brazil",
+  city: "Sao Paulo",
+  bio: "Adventure traveler",
+};
+
+const INCOMPLETE_PROFILE = {
+  birthDate: "1990-05-15",
+  phone: "+5511999998888",
+  // missing country and city
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Navigate from Step 1 (About You) through Step 2 (Destination) and Step 3 (Dates)
+ * to Step 4 (Confirmation) with a bio filled.
+ */
 function navigateToStep4WithBio(bio: string) {
   render(<Phase1Wizard />);
 
-  // Step 1: enter destination
+  // Step 1: enter bio (About You)
+  const bioTextarea = screen.getByLabelText("expedition.phase1.step1.bio");
+  fireEvent.change(bioTextarea, { target: { value: bio } });
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 2: enter destination
   const destinationInput = screen.getByRole("combobox");
   fireEvent.change(destinationInput, { target: { value: "Paris, France" } });
   fireEvent.click(screen.getByText("common.next"));
 
-  // Step 2: skip dates, click next
+  // Step 3: skip dates, click next
+  fireEvent.click(screen.getByText("common.next"));
+}
+
+/**
+ * Navigate from Step 1 (summary card) to Step 4 when profile is complete.
+ */
+function navigateToStep4WithCompleteProfile() {
+  render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+  // Step 1: shows summary card, click next
   fireEvent.click(screen.getByText("common.next"));
 
-  // Step 3: enter bio
-  const bioTextarea = screen.getByLabelText("expedition.phase1.step3.bio");
-  fireEvent.change(bioTextarea, { target: { value: bio } });
+  // Step 2: enter destination
+  const destinationInput = screen.getByRole("combobox");
+  fireEvent.change(destinationInput, { target: { value: "Tokyo, Japan" } });
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 3: skip dates, click next
   fireEvent.click(screen.getByText("common.next"));
 }
 
@@ -66,7 +106,186 @@ describe("Phase1Wizard", () => {
     vi.clearAllMocks();
   });
 
-  describe("Step 4 confirmation — bio display (T-S19-005)", () => {
+  describe("Step order (T-S20-004)", () => {
+    it("renders About You as step 1 on initial load", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1 should show the About You title
+      expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
+      // Profile fields should be visible (no profile = form mode)
+      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step1.phone")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step1.bio")).toBeInTheDocument();
+    });
+
+    it("navigates from About You (step 1) to Destination (step 2)", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: click next
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: should show destination input
+      expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
+
+    it("navigates from Destination (step 2) to Dates (step 3)", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: next
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination and next
+      const destinationInput = screen.getByRole("combobox");
+      fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 3: should show date fields
+      expect(screen.getByText("expedition.phase1.step3.title")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step3.startDate")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step3.endDate")).toBeInTheDocument();
+    });
+
+    it("validates destination is required on step 2", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: next (no validation needed)
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: try to proceed without destination
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should show error
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.destinationRequired"
+      );
+    });
+
+    it("step 1 has no back button (first step)", () => {
+      render(<Phase1Wizard />);
+
+      // The back arrow should not exist on step 1
+      expect(screen.queryByText("\u2190")).not.toBeInTheDocument();
+    });
+
+    it("step 2 back button returns to step 1", () => {
+      render(<Phase1Wizard />);
+
+      // Go to step 2
+      fireEvent.click(screen.getByText("common.next"));
+      expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
+
+      // Click back
+      fireEvent.click(screen.getByText("\u2190"));
+
+      // Should be back on step 1
+      expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
+    });
+  });
+
+  describe("Profile persistence — T-S20-005", () => {
+    it("shows summary card when profile is complete (birthDate + country + city)", () => {
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+      // Should show the saved profile title
+      expect(
+        screen.getByText("expedition.phase1.step1.savedProfileTitle")
+      ).toBeInTheDocument();
+      // Should show the Edit button
+      expect(screen.getByTestId("edit-profile-btn")).toBeInTheDocument();
+      // Should show profile data in summary
+      expect(screen.getByText("1990-05-15")).toBeInTheDocument();
+      expect(screen.getByText("+5511999998888")).toBeInTheDocument();
+      // Country + city combined
+      expect(screen.getByText("Sao Paulo, Brazil")).toBeInTheDocument();
+      // Form fields should NOT be visible (summary mode)
+      expect(screen.queryByLabelText("expedition.phase1.step1.birthDate")).not.toBeInTheDocument();
+    });
+
+    it("shows editable form when profile is incomplete", () => {
+      render(<Phase1Wizard userProfile={INCOMPLETE_PROFILE} />);
+
+      // Should show form fields, not summary card
+      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(
+        screen.queryByText("expedition.phase1.step1.savedProfileTitle")
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows editable form when no profile is provided", () => {
+      render(<Phase1Wizard />);
+
+      // Should show form fields
+      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(
+        screen.queryByText("expedition.phase1.step1.savedProfileTitle")
+      ).not.toBeInTheDocument();
+    });
+
+    it("reveals pre-populated form when Edit button is clicked", () => {
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+      // Click Edit
+      fireEvent.click(screen.getByTestId("edit-profile-btn"));
+
+      // Form fields should now be visible with pre-populated values
+      const birthDateInput = screen.getByLabelText(
+        "expedition.phase1.step1.birthDate"
+      ) as HTMLInputElement;
+      expect(birthDateInput.value).toBe("1990-05-15");
+
+      const phoneInput = screen.getByLabelText(
+        "expedition.phase1.step1.phone"
+      ) as HTMLInputElement;
+      expect(phoneInput.value).toBe("+5511999998888");
+
+      const countryInput = screen.getByLabelText(
+        "expedition.phase1.step1.country"
+      ) as HTMLInputElement;
+      expect(countryInput.value).toBe("Brazil");
+
+      const cityInput = screen.getByLabelText(
+        "expedition.phase1.step1.city"
+      ) as HTMLInputElement;
+      expect(cityInput.value).toBe("Sao Paulo");
+    });
+
+    it("pre-populates form fields from incomplete profile", () => {
+      render(<Phase1Wizard userProfile={INCOMPLETE_PROFILE} />);
+
+      // Form is shown (not summary), but fields are pre-populated
+      const birthDateInput = screen.getByLabelText(
+        "expedition.phase1.step1.birthDate"
+      ) as HTMLInputElement;
+      expect(birthDateInput.value).toBe("1990-05-15");
+
+      const phoneInput = screen.getByLabelText(
+        "expedition.phase1.step1.phone"
+      ) as HTMLInputElement;
+      expect(phoneInput.value).toBe("+5511999998888");
+    });
+
+    it("carries profile data to confirmation step (step 4)", () => {
+      navigateToStep4WithCompleteProfile();
+
+      // Confirmation should show profile data
+      expect(screen.getByText("expedition.phase1.step4.profileSummary")).toBeInTheDocument();
+      expect(screen.getByText("1990-05-15")).toBeInTheDocument();
+      expect(screen.getByText("+5511999998888")).toBeInTheDocument();
+    });
+
+    it("summary card allows direct navigation to step 2", () => {
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+      // Click next from summary card
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should be on step 2 (destination)
+      expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
+    });
+  });
+
+  describe("Step 4 confirmation — bio display", () => {
     it("shows bio in confirmation when bio is filled", () => {
       navigateToStep4WithBio("I love exploring new cities.");
 
@@ -79,15 +298,15 @@ describe("Phase1Wizard", () => {
     it("does not show bio section when bio is empty", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: destination
+      // Step 1: skip all fields, click next
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination
       const destinationInput = screen.getByRole("combobox");
       fireEvent.change(destinationInput, { target: { value: "Paris" } });
       fireEvent.click(screen.getByText("common.next"));
 
-      // Step 2: next
-      fireEvent.click(screen.getByText("common.next"));
-
-      // Step 3: skip bio, click next
+      // Step 3: skip dates, click next
       fireEvent.click(screen.getByText("common.next"));
 
       // Bio label should NOT be visible (no profile section since nothing filled)
@@ -106,19 +325,19 @@ describe("Phase1Wizard", () => {
     it("shows bio alongside other profile fields when both are filled", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: destination
+      // Step 1: fill phone and bio
+      const phoneInput = screen.getByLabelText("expedition.phase1.step1.phone");
+      fireEvent.change(phoneInput, { target: { value: "+5511999999999" } });
+      const bioTextarea = screen.getByLabelText("expedition.phase1.step1.bio");
+      fireEvent.change(bioTextarea, { target: { value: "Travel enthusiast" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination
       const destinationInput = screen.getByRole("combobox");
       fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
       fireEvent.click(screen.getByText("common.next"));
 
-      // Step 2: next
-      fireEvent.click(screen.getByText("common.next"));
-
-      // Step 3: fill phone and bio
-      const phoneInput = screen.getByLabelText("expedition.phase1.step3.phone");
-      fireEvent.change(phoneInput, { target: { value: "+5511999999999" } });
-      const bioTextarea = screen.getByLabelText("expedition.phase1.step3.bio");
-      fireEvent.change(bioTextarea, { target: { value: "Travel enthusiast" } });
+      // Step 3: next
       fireEvent.click(screen.getByText("common.next"));
 
       // Both should be visible

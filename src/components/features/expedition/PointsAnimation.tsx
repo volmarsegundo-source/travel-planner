@@ -31,6 +31,7 @@ export function PointsAnimation({ points, badge, rank, onDismiss }: PointsAnimat
     first_step: "firstStep",
     navigator: "navigator",
     host: "host",
+    identity_explorer: "identityExplorer",
     cartographer: "cartographer",
     treasurer: "treasurer",
     pathfinder: "pathfinder",

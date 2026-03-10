@@ -379,6 +379,7 @@
       "firstStep": "First Step",
       "navigator": "Navigator",
       "host": "Host",
+      "identityExplorer": "Identity Explorer",
       "cartographer": "Cartographer",
       "treasurer": "Treasurer",
       "pathfinder": "Pathfinder",
@@ -397,16 +398,6 @@
       "destinationPlaceholder": "Search for a city...",
       "passportExpiryWarning": "Your passport may expire before or during your trip. Please check its validity before continuing.",
       "step1": {
-        "title": "Choose your destination",
-        "placeholder": "e.g. Paris, Tokyo, New York"
-      },
-      "step2": {
-        "title": "When are you traveling?",
-        "startDate": "Departure date",
-        "endDate": "Return date",
-        "flexibleDates": "My dates are flexible"
-      },
-      "step3": {
         "title": "About you",
         "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordenadas!",
         "birthDate": "Date of birth",
@@ -416,7 +407,20 @@
         "city": "City",
         "bio": "Short bio",
         "bioPlaceholder": "Tell us about yourself as a traveler...",
-        "optional": "All fields are optional. You can complete your profile later."
+        "optional": "All fields are optional. You can complete your profile later.",
+        "savedProfileTitle": "Your saved profile",
+        "editProfile": "Edit",
+        "useProfile": "Use saved profile"
+      },
+      "step2": {
+        "title": "Choose your destination",
+        "placeholder": "e.g. Paris, Tokyo, New York"
+      },
+      "step3": {
+        "title": "When are you traveling?",
+        "startDate": "Departure date",
+        "endDate": "Return date",
+        "flexibleDates": "My dates are flexible"
       },
       "step4": {
         "title": "Ready to start?",
@@ -487,6 +491,21 @@
         "decrease": "Decrease travelers",
         "increase": "Increase travelers"
       },
+      "passengers": {
+        "title": "Who is traveling?",
+        "adults": "Adults",
+        "adultsHint": "18+ years",
+        "children": "Children",
+        "childrenHint": "2-17 years",
+        "seniors": "Seniors",
+        "seniorsHint": "65+ years",
+        "infants": "Infants",
+        "infantsHint": "Under 2 years",
+        "childAge": "Age of child {number}",
+        "total": "Total passengers: {count}",
+        "decrease": "Decrease {type}",
+        "increase": "Increase {type}"
+      },
       "preferences": {
         "title": "Personal Preferences",
         "subtitle": "Help us make your trip more comfortable.",
@@ -501,6 +520,7 @@
         "summary": "Your preferences",
         "travelerType": "Traveler type",
         "groupSize": "Group size",
+        "passengers": "Passengers",
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
@@ -654,6 +674,7 @@
       "theExplorer": "The Explorer",
       "theRoute": "The Route",
       "theShelter": "The Shelter",
+      "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",
       "theExpedition": "The Expedition",
@@ -665,6 +686,7 @@
       "theExplorer": "The Explorer",
       "theRoute": "The Route",
       "theShelter": "The Shelter",
+      "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",
       "theExpedition": "The Expedition",
@@ -797,6 +819,152 @@
         "title": "Contact Us",
         "description": "If you could not find the answer you need, reach out to our team.",
         "email": "support@atlas-travel.app"
+      }
+    }
+  },
+  "preferences": {
+    "sectionTitle": "Travel Preferences",
+    "sectionSubtitle": "Complete your preferences for more personalized recommendations.",
+    "progressHintStart": "Your preferences help create custom itineraries.",
+    "progressHintContinue": "{remaining} categories remaining for a complete profile.",
+    "progressComplete": "Profile complete! Your itineraries will be highly personalized.",
+    "notFilled": "Not filled",
+    "saveError": "Could not save. Please try again.",
+    "saving": "Saving...",
+    "pointsPerCategory": "+5 pts",
+    "categories": {
+      "travelPace": {
+        "title": "Travel Pace",
+        "question": "What is your ideal travel pace?",
+        "relaxedDesc": "Few activities per day, at leisure",
+        "moderateDesc": "Balance between tours and rest",
+        "intenseDesc": "Make the most of every minute"
+      },
+      "foodPreferences": {
+        "title": "Food Preferences",
+        "question": "What are your food preferences?"
+      },
+      "interests": {
+        "title": "Interests & Hobbies",
+        "question": "What do you enjoy most when traveling?"
+      },
+      "budgetStyle": {
+        "title": "Budget Style",
+        "question": "What is your budget style?",
+        "budgetDesc": "Hostels, public transport, street food",
+        "moderateDesc": "3-4 star hotels, local restaurants",
+        "comfortableDesc": "Premium hotels, exclusive experiences",
+        "luxuryDesc": "Resorts, business class, fine dining"
+      },
+      "socialPreference": {
+        "title": "Social Preference",
+        "question": "How do you prefer to travel?"
+      },
+      "accommodationStyle": {
+        "title": "Accommodation Style",
+        "question": "Where do you prefer to stay?"
+      },
+      "fitnessLevel": {
+        "title": "Fitness Level",
+        "question": "What is your fitness level?",
+        "lowDesc": "Light activities, no strenuous effort",
+        "moderateDesc": "Walks and moderate activities",
+        "highDesc": "Long hikes, intense activities"
+      },
+      "photographyInterest": {
+        "title": "Photography Interest",
+        "question": "What is your photography interest?",
+        "casualDesc": "Quick phone photos",
+        "enthusiastDesc": "Exploring angles and golden hours",
+        "professionalDesc": "Extra time at each spot"
+      },
+      "wakePreference": {
+        "title": "Wake Preference",
+        "question": "Are you more of a morning or night person?",
+        "earlyBirdDesc": "Early starts, enjoy the morning",
+        "flexibleDesc": "No strong preference",
+        "nightOwlDesc": "Start late, enjoy the night"
+      },
+      "connectivityNeeds": {
+        "title": "Connectivity Needs",
+        "question": "What is your internet need while traveling?",
+        "essentialDesc": "Need WiFi all the time (work, communication)",
+        "occasionalDesc": "For maps, messages, and photos",
+        "digitalDetoxDesc": "Want to disconnect and enjoy offline"
+      }
+    },
+    "options": {
+      "travelPace": {
+        "relaxed": "Relaxed",
+        "moderate": "Moderate",
+        "intense": "Intense"
+      },
+      "foodPreferences": {
+        "vegetarian": "Vegetarian",
+        "vegan": "Vegan",
+        "halal": "Halal",
+        "kosher": "Kosher",
+        "gluten_free": "Gluten-free",
+        "lactose_free": "Lactose-free",
+        "local_cuisine": "Local cuisine",
+        "street_food": "Street food",
+        "fine_dining": "Fine dining",
+        "no_restrictions": "No restrictions"
+      },
+      "interests": {
+        "history_museums": "History & museums",
+        "art_galleries": "Art & galleries",
+        "nature_hiking": "Nature & hiking",
+        "nightlife": "Nightlife",
+        "shopping": "Shopping",
+        "photography": "Photography",
+        "sports_adventure": "Sports & adventure",
+        "wellness_spa": "Wellness & spa",
+        "gastronomy": "Gastronomy",
+        "beaches": "Beaches",
+        "architecture": "Architecture",
+        "wildlife": "Wildlife"
+      },
+      "budgetStyle": {
+        "budget": "Budget",
+        "moderate": "Moderate",
+        "comfortable": "Comfortable",
+        "luxury": "Luxury"
+      },
+      "socialPreference": {
+        "solo": "Solo & quiet",
+        "meet_travelers": "Meet other travelers",
+        "group_activities": "Group activities",
+        "family": "With family",
+        "romantic_couple": "Romantic getaway"
+      },
+      "accommodationStyle": {
+        "hostel": "Hostel",
+        "hotel": "Hotel",
+        "airbnb": "Airbnb / Apartment",
+        "glamping": "Glamping",
+        "resort": "Resort",
+        "bed_and_breakfast": "B&B / Guesthouse"
+      },
+      "fitnessLevel": {
+        "low": "Low",
+        "moderate": "Moderate",
+        "high": "High"
+      },
+      "photographyInterest": {
+        "casual": "Casual",
+        "enthusiast": "Enthusiast",
+        "professional": "Professional"
+      },
+      "wakePreference": {
+        "early_bird": "Early bird",
+        "flexible": "Flexible",
+        "night_owl": "Night owl"
+      },
+      "connectivityNeeds": {
+        "essential": "Essential",
+        "occasional": "Occasional",
+        "digital_detox": "Digital detox"
       }
     }
   }

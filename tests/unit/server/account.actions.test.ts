@@ -115,6 +115,8 @@ function makeMockTx(tripIds: string[] = ["trip-1", "trip-2"]) {
     phaseChecklistItem: { deleteMany: vi.fn().mockResolvedValue({ count: 6 }) },
     itineraryPlan: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
     destinationGuide: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
+    transportSegment: { deleteMany: vi.fn().mockResolvedValue({ count: 3 }) },
+    accommodation: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
     user: { update: vi.fn().mockResolvedValue(undefined) },
   };
 }
@@ -610,6 +612,13 @@ describe("Account Actions", () => {
       expect(mockTx.destinationGuide.deleteMany).toHaveBeenCalledWith({
         where: { tripId: { in: expectedTripIds } },
       });
+      // Sprint 20: Transport & Accommodation cascade
+      expect(mockTx.transportSegment.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
+      expect(mockTx.accommodation.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
 
       vi.restoreAllMocks();
     });
@@ -699,6 +708,8 @@ describe("Account Actions", () => {
       expect(mockTx.phaseChecklistItem.deleteMany).not.toHaveBeenCalled();
       expect(mockTx.itineraryPlan.deleteMany).not.toHaveBeenCalled();
       expect(mockTx.destinationGuide.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.transportSegment.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.accommodation.deleteMany).not.toHaveBeenCalled();
 
       vi.restoreAllMocks();
     });

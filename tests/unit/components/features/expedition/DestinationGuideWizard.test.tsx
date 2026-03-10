@@ -696,4 +696,83 @@ describe("DestinationGuideWizard", () => {
       expect(btn).toHaveAttribute("aria-expanded", "false");
     });
   });
+
+  // ─── Backward Compatibility — old 6-section guide (T-S20-001) ──────
+
+  describe("backward compatibility with old 6-section guide format", () => {
+    const OLD_FORMAT_GUIDE = {
+      timezone: MOCK_GUIDE.timezone,
+      currency: MOCK_GUIDE.currency,
+      language: MOCK_GUIDE.language,
+      electricity: MOCK_GUIDE.electricity,
+      connectivity: MOCK_GUIDE.connectivity,
+      cultural_tips: MOCK_GUIDE.cultural_tips,
+    } as unknown as DestinationGuideContent;
+
+    it("renders without crashing when guide has only 6 sections (old format)", () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-old"
+          destination="Tokyo, Japan"
+          locale="en"
+          initialGuide={{
+            content: OLD_FORMAT_GUIDE,
+            generationCount: 1,
+            viewedSections: [],
+          }}
+        />
+      );
+
+      // Stat cards still rendered (all 4 present in old format)
+      expect(screen.getByText("UTC+1")).toBeInTheDocument();
+      expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
+
+      // Content cards: only connectivity and cultural_tips present
+      expect(screen.getByText("eSIM recommended")).toBeInTheDocument();
+      expect(screen.getByText("French etiquette")).toBeInTheDocument();
+
+      // Missing sections (safety, health, transport_overview, local_customs) are NOT rendered
+      expect(screen.queryByText("Safety")).not.toBeInTheDocument();
+      expect(screen.queryByText("Health")).not.toBeInTheDocument();
+      expect(screen.queryByText("Transport")).not.toBeInTheDocument();
+      expect(screen.queryByText("Customs")).not.toBeInTheDocument();
+    });
+
+    it("shows only 2 content cards for old 6-section guide", () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-old"
+          destination="Tokyo, Japan"
+          locale="en"
+          initialGuide={{
+            content: OLD_FORMAT_GUIDE,
+            generationCount: 1,
+            viewedSections: [],
+          }}
+        />
+      );
+
+      const contentCards = screen.getByTestId("content-cards");
+      const contentButtons = contentCards.querySelectorAll('[data-section-type="content"]');
+      expect(contentButtons.length).toBe(2);
+    });
+
+    it("still allows phase completion with old format guide", () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-old"
+          destination="Tokyo, Japan"
+          locale="en"
+          initialGuide={{
+            content: OLD_FORMAT_GUIDE,
+            generationCount: 1,
+            viewedSections: [],
+          }}
+        />
+      );
+
+      const completeBtn = screen.getByText("expedition.phase5.completeCta");
+      expect(completeBtn.closest("button")).not.toBeDisabled();
+    });
+  });
 });
