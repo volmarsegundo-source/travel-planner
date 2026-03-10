@@ -108,6 +108,9 @@ function makeMockTx(tripIds: string[] = ["trip-1", "trip-2"]) {
       findMany: vi.fn().mockResolvedValue(tripIds.map((id) => ({ id }))),
       updateMany: vi.fn().mockResolvedValue({ count: tripIds.length }),
     },
+    activity: { deleteMany: vi.fn().mockResolvedValue({ count: 8 }) },
+    itineraryDay: { deleteMany: vi.fn().mockResolvedValue({ count: 4 }) },
+    checklistItem: { deleteMany: vi.fn().mockResolvedValue({ count: 6 }) },
     expeditionPhase: { deleteMany: vi.fn().mockResolvedValue({ count: 4 }) },
     phaseChecklistItem: { deleteMany: vi.fn().mockResolvedValue({ count: 6 }) },
     itineraryPlan: { deleteMany: vi.fn().mockResolvedValue({ count: 2 }) },
@@ -585,6 +588,16 @@ describe("Account Actions", () => {
         where: { userId: "user-1" },
         select: { id: true },
       });
+      // SEC-S18-001: Activity, ItineraryDay, ChecklistItem cascade deletion
+      expect(mockTx.activity.deleteMany).toHaveBeenCalledWith({
+        where: { day: { tripId: { in: expectedTripIds } } },
+      });
+      expect(mockTx.itineraryDay.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
+      expect(mockTx.checklistItem.deleteMany).toHaveBeenCalledWith({
+        where: { tripId: { in: expectedTripIds } },
+      });
       expect(mockTx.expeditionPhase.deleteMany).toHaveBeenCalledWith({
         where: { tripId: { in: expectedTripIds } },
       });
@@ -597,6 +610,57 @@ describe("Account Actions", () => {
       expect(mockTx.destinationGuide.deleteMany).toHaveBeenCalledWith({
         where: { tripId: { in: expectedTripIds } },
       });
+
+      vi.restoreAllMocks();
+    });
+
+    it("deletes activities before itinerary days (FK constraint order, SEC-S18-001)", async () => {
+      mockAuth.mockResolvedValue(makeSession());
+      prismaMock.user.findFirst.mockResolvedValue(
+        makeUser({ id: "user-1", email: "test@example.com" }) as never
+      );
+
+      const callOrder: string[] = [];
+      const mockTx = {
+        ...makeMockTx(["trip-x"]),
+        activity: {
+          deleteMany: vi.fn().mockImplementation(() => {
+            callOrder.push("activity.deleteMany");
+            return Promise.resolve({ count: 3 });
+          }),
+        },
+        itineraryDay: {
+          deleteMany: vi.fn().mockImplementation(() => {
+            callOrder.push("itineraryDay.deleteMany");
+            return Promise.resolve({ count: 2 });
+          }),
+        },
+        checklistItem: {
+          deleteMany: vi.fn().mockImplementation(() => {
+            callOrder.push("checklistItem.deleteMany");
+            return Promise.resolve({ count: 1 });
+          }),
+        },
+      };
+      prismaMock.$transaction.mockImplementation(async (fn) => {
+        if (typeof fn === "function") {
+          return fn(mockTx as never);
+        }
+        return undefined as never;
+      });
+
+      vi.spyOn(console, "log").mockImplementation(() => {});
+
+      const result = await deleteUserAccountAction({
+        confirmEmail: "test@example.com",
+      });
+
+      expect(result.success).toBe(true);
+
+      // Activities must be deleted BEFORE ItineraryDays (FK: Activity -> ItineraryDay)
+      expect(callOrder.indexOf("activity.deleteMany")).toBeLessThan(
+        callOrder.indexOf("itineraryDay.deleteMany")
+      );
 
       vi.restoreAllMocks();
     });
@@ -627,7 +691,10 @@ describe("Account Actions", () => {
       expect(mockTx.userProfile.deleteMany).toHaveBeenCalled();
       expect(mockTx.userBadge.deleteMany).toHaveBeenCalled();
 
-      // Trip-dependent cleanup is skipped
+      // Trip-dependent cleanup is skipped (including SEC-S18-001 models)
+      expect(mockTx.activity.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.itineraryDay.deleteMany).not.toHaveBeenCalled();
+      expect(mockTx.checklistItem.deleteMany).not.toHaveBeenCalled();
       expect(mockTx.expeditionPhase.deleteMany).not.toHaveBeenCalled();
       expect(mockTx.phaseChecklistItem.deleteMany).not.toHaveBeenCalled();
       expect(mockTx.itineraryPlan.deleteMany).not.toHaveBeenCalled();

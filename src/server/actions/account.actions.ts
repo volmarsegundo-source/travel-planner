@@ -161,7 +161,7 @@ export async function deleteUserAccountAction(
         where: { userId: user.id },
       });
 
-      // 4. Clean up trip-dependent data (ExpeditionPhase, PhaseChecklistItem, ItineraryPlan, DestinationGuide)
+      // 4. Clean up trip-dependent data (SEC-S18-001: includes Activity, ItineraryDay, ChecklistItem)
       // These reference tripId, not userId directly
       const userTripIds = await tx.trip.findMany({
         where: { userId: user.id },
@@ -170,6 +170,16 @@ export async function deleteUserAccountAction(
       const tripIds = userTripIds.map((t) => t.id);
 
       if (tripIds.length > 0) {
+        // Activities must be deleted before ItineraryDays (FK constraint)
+        await tx.activity.deleteMany({
+          where: { day: { tripId: { in: tripIds } } },
+        });
+        await tx.itineraryDay.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
+        await tx.checklistItem.deleteMany({
+          where: { tripId: { in: tripIds } },
+        });
         await tx.expeditionPhase.deleteMany({
           where: { tripId: { in: tripIds } },
         });
