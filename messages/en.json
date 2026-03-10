@@ -314,7 +314,18 @@
     },
     "itineraryGenerated": "Itinerary generated",
     "viewChecklist": "Checklist",
-    "viewItinerary": "Itinerary"
+    "viewItinerary": "Itinerary",
+    "tools": {
+      "destinationGuide": "Guide",
+      "accommodation": "Accommodation",
+      "checklist": "Checklist",
+      "itinerary": "Itinerary",
+      "liveTracker": "Live Tracker",
+      "costManager": "Costs",
+      "retrospective": "Retrospective",
+      "community": "Community",
+      "comingSoon": "Coming soon"
+    }
   },
   "profile": {
     "title": "Explorer Profile",

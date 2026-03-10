@@ -314,7 +314,18 @@
     },
     "itineraryGenerated": "Roteiro gerado",
     "viewChecklist": "Checklist",
-    "viewItinerary": "Roteiro"
+    "viewItinerary": "Roteiro",
+    "tools": {
+      "destinationGuide": "Guia",
+      "accommodation": "Hospedagem",
+      "checklist": "Checklist",
+      "itinerary": "Roteiro",
+      "liveTracker": "Rastreador",
+      "costManager": "Custos",
+      "retrospective": "Retrospectiva",
+      "community": "Comunidade",
+      "comingSoon": "Em construção"
+    }
   },
   "profile": {
     "title": "Perfil do Explorador",
