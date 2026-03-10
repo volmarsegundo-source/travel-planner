@@ -105,6 +105,114 @@ export class ClaudeProvider implements AiProvider {
     }
   }
 
+  async generateStreamingResponse(
+    prompt: string,
+    maxTokens: number,
+    model: ModelType,
+    options?: AiProviderOptions,
+  ): Promise<{
+    stream: ReadableStream<string>;
+    usage: Promise<AiProviderResponse>;
+  }> {
+    const modelId = this.resolveModel(model);
+
+    const system = options?.systemPrompt
+      ? [
+          {
+            type: "text" as const,
+            text: options.systemPrompt,
+            cache_control: { type: "ephemeral" as const },
+          },
+        ]
+      : undefined;
+
+    const createParams: Record<string, unknown> = {
+      model: modelId,
+      max_tokens: maxTokens,
+      messages: [{ role: "user", content: prompt }],
+    };
+
+    if (system) {
+      createParams.system = system;
+    }
+
+    try {
+      const sdkStream = getAnthropic().messages.stream(
+        createParams as unknown as Anthropic.MessageCreateParamsStreaming,
+      );
+
+      // Accumulate chunks as they arrive; resolved when stream ends.
+      const chunks: string[] = [];
+      let streamDone: () => void;
+      const streamComplete = new Promise<void>((resolve) => {
+        streamDone = resolve;
+      });
+
+      const readableStream = new ReadableStream<string>({
+        async start(controller) {
+          try {
+            for await (const event of sdkStream) {
+              if (
+                event.type === "content_block_delta" &&
+                event.delta.type === "text_delta"
+              ) {
+                chunks.push(event.delta.text);
+                controller.enqueue(event.delta.text);
+              }
+            }
+            controller.close();
+          } catch (error) {
+            controller.error(error);
+          } finally {
+            streamDone!();
+          }
+        },
+      });
+
+      const usagePromise = (async (): Promise<AiProviderResponse> => {
+        try {
+          // Wait for the stream iteration to finish before reading finalMessage
+          await streamComplete;
+          const finalMessage = await sdkStream.finalMessage();
+          const usage = finalMessage.usage as unknown as Record<string, number | undefined>;
+          return {
+            text: chunks.join(""),
+            wasTruncated: finalMessage.stop_reason === "max_tokens",
+            inputTokens: usage.input_tokens,
+            outputTokens: usage.output_tokens,
+            cacheReadInputTokens: usage.cache_read_input_tokens,
+            cacheCreationInputTokens: usage.cache_creation_input_tokens,
+          };
+        } catch (error) {
+          return this.mapStreamError(error);
+        }
+      })();
+
+      return { stream: readableStream, usage: usagePromise };
+    } catch (error) {
+      if (error instanceof AppError) throw error;
+      throw this.mapStreamErrorSync(error);
+    }
+  }
+
+  /** Maps SDK errors to AppError (sync version for initial stream creation). */
+  private mapStreamErrorSync(error: unknown): AppError {
+    logger.error("ai.provider.claude.stream.error", error);
+
+    if (error instanceof Anthropic.AuthenticationError) {
+      return new AppError("AI_AUTH_ERROR", "errors.aiAuthError", 401);
+    }
+    if (error instanceof Anthropic.RateLimitError) {
+      return new AppError("AI_RATE_LIMIT", "errors.rateLimitExceeded", 429);
+    }
+    return new AppError("AI_TIMEOUT", "errors.timeout", 504);
+  }
+
+  /** Maps SDK errors to a rejected AiProviderResponse (for usage promise). */
+  private mapStreamError(error: unknown): never {
+    throw this.mapStreamErrorSync(error);
+  }
+
   /**
    * Maps a ModelType hint to the concrete Anthropic model ID.
    * - "plan" -> Sonnet (complex reasoning for itineraries)
