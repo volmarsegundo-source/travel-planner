@@ -204,13 +204,68 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    // All 6 section titles should be visible
+    // Stat section titles visible in compact cards
     expect(screen.getByText("UTC+1")).toBeInTheDocument();
     expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
     expect(screen.getByText("French")).toBeInTheDocument();
     expect(screen.getByText("Type C/E, 230V")).toBeInTheDocument();
+    // Content section titles visible
     expect(screen.getByText("eSIM recommended")).toBeInTheDocument();
     expect(screen.getByText("French etiquette")).toBeInTheDocument();
+    expect(screen.getByText("Safety")).toBeInTheDocument();
+    expect(screen.getByText("Health")).toBeInTheDocument();
+    expect(screen.getByText("Transport")).toBeInTheDocument();
+    expect(screen.getByText("Customs")).toBeInTheDocument();
+  });
+
+  it("renders stat cards in a grid and content cards in a list", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    const statCards = screen.getByTestId("stat-cards");
+    const contentCards = screen.getByTestId("content-cards");
+    expect(statCards).toBeInTheDocument();
+    expect(contentCards).toBeInTheDocument();
+
+    // Stat cards: 4 buttons with data-section-type="stat"
+    const statButtons = statCards.querySelectorAll('[data-section-type="stat"]');
+    expect(statButtons.length).toBe(4);
+
+    // Content cards: 6 buttons with data-section-type="content"
+    const contentButtons = contentCards.querySelectorAll('[data-section-type="content"]');
+    expect(contentButtons.length).toBe(6);
+  });
+
+  it("shows details field for content sections when expanded", async () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    // Expand a content section that has details
+    await act(async () => {
+      fireEvent.click(screen.getByText("eSIM recommended"));
+    });
+
+    expect(screen.getByText("Wi-Fi is widely available in cafes and hotels.")).toBeInTheDocument();
   });
 
   // ─── Guide Generation ───────────────────────────────────────────────
@@ -292,7 +347,7 @@ describe("DestinationGuideWizard", () => {
 
   // ─── Collapsible Sections ───────────────────────────────────────────
 
-  it("expands a section on click", async () => {
+  it("expands a stat section on click showing tips", async () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -306,22 +361,18 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    // Summary should not be visible initially
-    expect(
-      screen.queryByText("Central European Time")
-    ).not.toBeInTheDocument();
-
-    // Click timezone section
+    // Click timezone stat card
     await act(async () => {
       fireEvent.click(screen.getByText("UTC+1"));
     });
 
+    // Stat expanded detail shows tips
     expect(
-      screen.getByText("Central European Time")
+      screen.getByText("Set your watch ahead")
     ).toBeInTheDocument();
   });
 
-  it("collapses section on second click", async () => {
+  it("collapses content section on second click", async () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -335,20 +386,20 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    // Expand
+    // Expand connectivity content section
     await act(async () => {
-      fireEvent.click(screen.getByText("UTC+1"));
+      fireEvent.click(screen.getByText("eSIM recommended"));
     });
     expect(
-      screen.getByText("Central European Time")
+      screen.getByText("Wi-Fi is widely available in cafes and hotels.")
     ).toBeInTheDocument();
 
     // Collapse
     await act(async () => {
-      fireEvent.click(screen.getByText("UTC+1"));
+      fireEvent.click(screen.getByText("eSIM recommended"));
     });
     expect(
-      screen.queryByText("Central European Time")
+      screen.queryByText("Wi-Fi is widely available in cafes and hotels.")
     ).not.toBeInTheDocument();
   });
 
