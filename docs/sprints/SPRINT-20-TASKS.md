@@ -58,10 +58,10 @@ T-S20-012 (integration tests) ..... depends on all above
 - **Description:** Sprint 19 delivered DestinationGuideWizard with card-based layout (stat grid + content list). Stakeholder reports cards may not render on staging. Investigate whether the issue is (a) AI response missing new section keys (safety, health, transport_overview, local_customs), (b) Zod validation rejecting partial guide data from before the redesign, or (c) a rendering/hydration issue. Fix as needed.
 - **Files likely affected:** `src/components/features/expedition/DestinationGuideWizard.tsx`, `src/types/ai.types.ts`, `src/lib/prompts/system-prompts.ts`
 - **Acceptance criteria:**
-  - [ ] DestinationGuideWizard renders all 10 section cards (4 stat + 6 content) when guide data is present
-  - [ ] Guides generated before Sprint 19 (6-section format) gracefully degrade -- no crash, missing sections shown as empty or not shown
-  - [ ] New guide generation produces all 10 sections
-  - [ ] At least 1 test covers backward-compatible rendering of old guide format
+  - [x] DestinationGuideWizard renders all 10 section cards (4 stat + 6 content) when guide data is present
+  - [x] Guides generated before Sprint 19 (6-section format) gracefully degrade -- no crash, missing sections shown as empty or not shown
+  - [x] New guide generation produces all 10 sections
+  - [x] At least 1 test covers backward-compatible rendering of old guide format
 
 ---
 
@@ -93,9 +93,9 @@ T-S20-012 (integration tests) ..... depends on all above
 - **Description:** Replace 9 occurrences of raw `userId` in logger calls across `phase-engine.ts` (4), `points-engine.ts` (4), and `itinerary-plan.service.ts` (1) with `hashForLog(userId)` from `src/lib/utils/hash.ts`. Import already exists in some files; add where missing.
 - **Files affected:** `src/lib/engines/phase-engine.ts`, `src/lib/engines/points-engine.ts`, `src/server/services/itinerary-plan.service.ts`
 - **Acceptance criteria:**
-  - [ ] Zero raw userId strings in any logger.info/warn/error call across the 3 files
-  - [ ] All logger calls use hashForLog(userId) or equivalent hashed identifier
-  - [ ] Existing tests still pass (no behavioral change)
+  - [x] Zero raw userId strings in any logger.info/warn/error call across the 3 files
+  - [x] All logger calls use hashForLog(userId) or equivalent hashed identifier
+  - [x] Existing tests still pass (no behavioral change)
 
 ---
 
@@ -121,14 +121,14 @@ T-S20-012 (integration tests) ..... depends on all above
   - Step 4: Confirmation summary + submit
 - **Files affected:** `src/components/features/expedition/Phase1Wizard.tsx`, i18n keys in `messages/en.json` and `messages/pt.json` (step labels/descriptions)
 - **Acceptance criteria:**
-  - [ ] Phase1Wizard renders personal info as Step 1
-  - [ ] Destination is Step 2, Dates is Step 3, Confirmation is Step 4
-  - [ ] TOTAL_STEPS remains 4 (no new steps added)
-  - [ ] Step navigation (Next/Back) works correctly in new order
-  - [ ] Confirmation step shows all data from all 3 input steps
-  - [ ] createExpeditionAction still receives all required fields
-  - [ ] Existing Phase1Wizard tests updated for new step order
-  - [ ] i18n step labels updated (pt + en)
+  - [x] Phase1Wizard renders personal info as Step 1
+  - [x] Destination is Step 2, Dates is Step 3, Confirmation is Step 4
+  - [x] TOTAL_STEPS remains 4 (no new steps added)
+  - [x] Step navigation (Next/Back) works correctly in new order
+  - [x] Confirmation step shows all data from all 3 input steps
+  - [x] createExpeditionAction still receives all required fields
+  - [x] Existing Phase1Wizard tests updated for new step order
+  - [x] i18n step labels updated (pt + en)
 
 ---
 
@@ -142,13 +142,13 @@ T-S20-012 (integration tests) ..... depends on all above
 - **Description:** When the user already has a UserProfile with name, birthDate, country, and city filled, pre-populate Step 1 (personal info) with those values. Show a "Use saved profile" summary card with an "Edit" button instead of empty fields. If the user clicks Edit, show the form fields pre-populated. If the user has no profile data, show the form as today. This avoids re-asking the same info for every new expedition.
 - **Files affected:** `src/components/features/expedition/Phase1Wizard.tsx`, `src/app/[locale]/(app)/expedition/new/page.tsx` (pass profile data as props)
 - **Acceptance criteria:**
-  - [ ] Phase1Wizard receives optional `userProfile` prop with pre-filled fields
-  - [ ] If profile has name + birthDate + country + city, Step 1 shows summary card with "Edit" button
-  - [ ] If profile is incomplete, Step 1 shows editable form (current behavior)
-  - [ ] "Edit" button reveals form fields pre-populated with profile values
-  - [ ] Changes in Step 1 are submitted as profileFields to createExpeditionAction (existing behavior)
-  - [ ] Server component (expedition/new/page.tsx) fetches UserProfile and passes it as prop
-  - [ ] Tests cover both paths: profile-present and profile-absent
+  - [x] Phase1Wizard receives optional `userProfile` prop with pre-filled fields
+  - [x] If profile has name + birthDate + country + city, Step 1 shows summary card with "Edit" button
+  - [x] If profile is incomplete, Step 1 shows editable form (current behavior)
+  - [x] "Edit" button reveals form fields pre-populated with profile values
+  - [x] Changes in Step 1 are submitted as profileFields to createExpeditionAction (existing behavior)
+  - [x] Server component (expedition/new/page.tsx) fetches UserProfile and passes it as prop
+  - [x] Tests cover both paths: profile-present and profile-absent
 
 ---
 
@@ -225,12 +225,12 @@ T-S20-012 (integration tests) ..... depends on all above
 - **Description:** Add structured passenger breakdown to Trip model. Replace or augment the existing `groupSize` (currently a simple integer in Phase 2) with a structured `passengers` JSON field on Trip. Structure: `{ adults: number, children: { count: number, ages: number[] }, seniors: number, infants: number }`. Add Zod schema for validation. Children ages are needed for airline booking context and activity suitability.
 - **Files affected:** `prisma/schema.prisma` (add `passengers Json?` to Trip), `src/lib/validations/trip.schema.ts` (new PassengersSchema), migration file
 - **Acceptance criteria:**
-  - [ ] Trip model has `passengers Json?` field
-  - [ ] Migration created and tested locally
-  - [ ] Zod `PassengersSchema` validates structure (adults >= 1, children.ages array length matches children.count, seniors >= 0, infants >= 0)
-  - [ ] Total passengers derived function: adults + children.count + seniors + infants
-  - [ ] Backward compatible: existing trips with null passengers work (falls back to groupSize)
-  - [ ] Schema tests cover valid and invalid passenger combinations
+  - [x] Trip model has `passengers Json?` field
+  - [x] Migration created and tested locally
+  - [x] Zod `PassengersSchema` validates structure (adults >= 1, children.ages array length matches children.count, seniors >= 0, infants >= 0)
+  - [x] Total passengers derived function: adults + children.count + seniors + infants
+  - [x] Backward compatible: existing trips with null passengers work (falls back to groupSize)
+  - [x] Schema tests cover valid and invalid passenger combinations
 
 ---
 
@@ -245,15 +245,15 @@ T-S20-012 (integration tests) ..... depends on all above
 - **Revised placement: Phase 2 step, NOT Phase 1.** Add as a new step in Phase2Wizard after "travelerType" and before "accommodation". Replace the simple `groupSize` slider with the structured passenger breakdown. This keeps Phase 1 at 4 steps (as reordered in T-S20-004).
 - **Files affected:** `src/components/features/expedition/Phase2Wizard.tsx`, `src/server/actions/expedition.actions.ts` (save passengers on phase 2 complete), i18n messages
 - **Acceptance criteria:**
-  - [ ] Phase2Wizard has a "Passengers" step with +/- steppers for adults, children, seniors, infants
-  - [ ] Children ages collected via dropdown (0-17) for each child
-  - [ ] Minimum 1 adult enforced (validation)
-  - [ ] Total passenger count displayed
-  - [ ] Data saved to Trip.passengers JSON on phase 2 completion
-  - [ ] Old groupSize logic still works for trips without passengers field
-  - [ ] Responsive: steppers usable on mobile (375px touch targets >= 44px)
-  - [ ] i18n labels for all passenger types (pt + en)
-  - [ ] Tests: render, add/remove passengers, validation, submit
+  - [x] Phase2Wizard has a "Passengers" step with +/- steppers for adults, children, seniors, infants
+  - [x] Children ages collected via dropdown (0-17) for each child
+  - [x] Minimum 1 adult enforced (validation)
+  - [x] Total passenger count displayed
+  - [x] Data saved to Trip.passengers JSON on phase 2 completion
+  - [x] Old groupSize logic still works for trips without passengers field
+  - [x] Responsive: steppers usable on mobile (375px touch targets >= 44px)
+  - [x] i18n labels for all passenger types (pt + en)
+  - [x] Tests: render, add/remove passengers, validation, submit
 
 ---
 
