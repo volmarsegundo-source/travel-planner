@@ -414,7 +414,10 @@
       },
       "step2": {
         "title": "Escolha seu destino",
-        "placeholder": "ex: Paris, Tóquio, Nova York"
+        "placeholder": "ex: Paris, Tóquio, Nova York",
+        "origin": "De onde você está partindo?",
+        "originPlaceholder": "Sua cidade de partida...",
+        "originHint": "Preenchido a partir do seu perfil"
       },
       "step3": {
         "title": "Quando você vai viajar?",
@@ -426,6 +429,7 @@
         "title": "Pronto para começar?",
         "summary": "Resumo da expedição",
         "destination": "Destino",
+        "origin": "Origem",
         "dates": "Datas",
         "flexibleDates": "Datas flexíveis",
         "yes": "Sim",

@@ -73,7 +73,7 @@ function navigateToStep4WithBio(bio: string) {
   fireEvent.click(screen.getByText("common.next"));
 
   // Step 2: enter destination
-  const destinationInput = screen.getByRole("combobox");
+  const destinationInput = screen.getByPlaceholderText("expedition.phase1.step2.placeholder");
   fireEvent.change(destinationInput, { target: { value: "Paris, France" } });
   fireEvent.click(screen.getByText("common.next"));
 
@@ -91,7 +91,7 @@ function navigateToStep4WithCompleteProfile() {
   fireEvent.click(screen.getByText("common.next"));
 
   // Step 2: enter destination
-  const destinationInput = screen.getByRole("combobox");
+  const destinationInput = screen.getByPlaceholderText("expedition.phase1.step2.placeholder");
   fireEvent.change(destinationInput, { target: { value: "Tokyo, Japan" } });
   fireEvent.click(screen.getByText("common.next"));
 
@@ -126,7 +126,7 @@ describe("Phase1Wizard", () => {
 
       // Step 2: should show destination input
       expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
-      expect(screen.getByRole("combobox")).toBeInTheDocument();
+      expect(screen.getByPlaceholderText("expedition.phase1.step2.placeholder")).toBeInTheDocument();
     });
 
     it("navigates from Destination (step 2) to Dates (step 3)", () => {
@@ -136,7 +136,7 @@ describe("Phase1Wizard", () => {
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: enter destination and next
-      const destinationInput = screen.getByRole("combobox");
+      const destinationInput = screen.getByPlaceholderText("expedition.phase1.step2.placeholder");
       fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
       fireEvent.click(screen.getByText("common.next"));
 
@@ -302,7 +302,7 @@ describe("Phase1Wizard", () => {
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: enter destination
-      const destinationInput = screen.getByRole("combobox");
+      const destinationInput = screen.getByPlaceholderText("expedition.phase1.step2.placeholder");
       fireEvent.change(destinationInput, { target: { value: "Paris" } });
       fireEvent.click(screen.getByText("common.next"));
 
@@ -333,7 +333,7 @@ describe("Phase1Wizard", () => {
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: enter destination
-      const destinationInput = screen.getByRole("combobox");
+      const destinationInput = screen.getByPlaceholderText("expedition.phase1.step2.placeholder");
       fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
       fireEvent.click(screen.getByText("common.next"));
 
