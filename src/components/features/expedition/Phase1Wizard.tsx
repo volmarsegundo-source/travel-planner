@@ -390,7 +390,7 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                     </dd>
                   </div>
                 </dl>
-                {(birthDate || phone || country || city) && (
+                {(birthDate || phone || country || city || bio) && (
                   <>
                     <h3 className="mb-3 mt-4 text-sm font-medium text-muted-foreground">
                       {t("step4.profileSummary")}
@@ -413,6 +413,14 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
                           <dt className="text-muted-foreground">{t("step4.location")}</dt>
                           <dd className="font-medium">
                             {[city, country].filter(Boolean).join(", ")}
+                          </dd>
+                        </div>
+                      )}
+                      {bio && (
+                        <div className="flex justify-between gap-4">
+                          <dt className="shrink-0 text-muted-foreground">{t("step4.bio")}</dt>
+                          <dd className="font-medium text-right">
+                            {bio.length > 100 ? `${bio.slice(0, 100)}...` : bio}
                           </dd>
                         </div>
                       )}
