@@ -602,7 +602,8 @@
       "errorTimeout": "The request timed out. Please try again.",
       "errorAuth": "AI authentication error. Please try again later.",
       "errorRateLimit": "Too many requests. Please wait a moment.",
-      "errorAgeRestricted": "You must be 18+ to use AI features."
+      "errorAgeRestricted": "You must be 18+ to use AI features.",
+      "cancelGeneration": "Cancel"
     },
     "hub": {
       "title": "Expedition",

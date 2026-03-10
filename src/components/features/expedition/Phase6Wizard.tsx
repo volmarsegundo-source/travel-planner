@@ -1,12 +1,10 @@
 "use client";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Loader2, Map, Sparkles } from "lucide-react";
+import { Loader2, Map, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
-import { generateTravelPlanAction } from "@/server/actions/ai.actions";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle } from "@/types/ai.types";
 
@@ -23,6 +21,20 @@ interface Phase6WizardProps {
   budgetTotal?: number;
   budgetCurrency?: string;
   travelers?: number;
+  travelNotes?: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function mapStatusToErrorKey(status: number): string {
+  const statusMap: Record<number, string> = {
+    401: "errorAuth",
+    400: "errorGenerate",
+    403: "errorAgeRestricted",
+    404: "errorGenerate",
+    429: "errorRateLimit",
+  };
+  return statusMap[status] ?? "errorGenerate";
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -38,12 +50,15 @@ export function Phase6Wizard({
   budgetTotal = 3000,
   budgetCurrency = "USD",
   travelers = 1,
+  travelNotes,
 }: Phase6WizardProps) {
   const t = useTranslations("expedition.phase6");
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
+  const [streamingText, setStreamingText] = useState("");
+  const abortControllerRef = useRef<AbortController | null>(null);
 
   const hasItinerary = days.length > 0;
   const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
@@ -52,49 +67,94 @@ export function Phase6Wizard({
     startDate || new Date().toISOString().split("T")[0]!;
   const effectiveEndDate = endDate || effectiveStartDate;
 
-  async function handleGenerate() {
+  const handleGenerate = useCallback(async () => {
     setError(null);
+    setStreamingText("");
     setIsGenerating(true);
 
-    const timeout = setTimeout(() => {
-      setIsGenerating(false);
-      setError(t("errorTimeout"));
-    }, 120_000);
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
 
     try {
-      const result = await generateTravelPlanAction(tripId, {
-        destination,
-        startDate: effectiveStartDate,
-        endDate: effectiveEndDate,
-        travelStyle,
-        budgetTotal,
-        budgetCurrency,
-        travelers,
-        language,
+      const response = await fetch("/api/ai/plan/stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tripId,
+          destination,
+          startDate: effectiveStartDate,
+          endDate: effectiveEndDate,
+          travelStyle,
+          budgetTotal,
+          budgetCurrency,
+          travelers,
+          language,
+          travelNotes,
+        }),
+        signal: abortController.signal,
       });
 
-      if (result.success) {
-        router.refresh();
-      } else {
-        const errorMap: Record<string, string> = {
-          "errors.timeout": t("errorTimeout"),
-          "errors.aiAuthError": t("errorAuth"),
-          "errors.rateLimitExceeded": t("errorRateLimit"),
-          "errors.aiAgeRestricted": t("errorAgeRestricted"),
-        };
-        setError(
-          (result.error && errorMap[result.error]) || t("errorGenerate")
-        );
+      if (!response.ok) {
+        const errorKey = mapStatusToErrorKey(response.status);
+        setError(t(errorKey));
+        setIsGenerating(false);
+        return;
       }
-    } catch {
-      setError(t("errorTimeout"));
+
+      const reader = response.body?.getReader();
+      if (!reader) {
+        setError(t("errorGenerate"));
+        setIsGenerating(false);
+        return;
+      }
+
+      const decoder = new TextDecoder();
+      let accumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        const chunk = decoder.decode(value, { stream: true });
+        for (const line of chunk.split("\n")) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") {
+              // Generation complete, refresh page to load persisted data
+              router.refresh();
+              setIsGenerating(false);
+              return;
+            }
+            accumulated += data;
+            setStreamingText(accumulated);
+          }
+        }
+      }
+
+      // If we exit the loop without [DONE], refresh anyway
+      router.refresh();
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        // User cancelled — not an error
+        setStreamingText("");
+      } else {
+        setError(t("errorTimeout"));
+      }
     } finally {
-      clearTimeout(timeout);
       setIsGenerating(false);
+      abortControllerRef.current = null;
     }
+  }, [
+    tripId, destination, effectiveStartDate, effectiveEndDate,
+    travelStyle, budgetTotal, budgetCurrency, travelers,
+    language, travelNotes, t, router,
+  ]);
+
+  function handleCancel() {
+    abortControllerRef.current?.abort();
   }
 
-  // ─── State: Generating ────────────────────────────────────────────────────
+  // ─── State: Generating (streaming) ────────────────────────────────────────
 
   if (isGenerating) {
     return (
@@ -110,11 +170,29 @@ export function Phase6Wizard({
             aria-hidden="true"
           />
           <p className="text-lg font-medium">{t("generating")}</p>
-          <div className="w-full space-y-3">
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-full" />
-            <Skeleton className="h-20 w-3/4" />
-          </div>
+
+          {streamingText ? (
+            <div className="w-full rounded-lg border border-border bg-muted/30 p-4 text-left">
+              <pre className="whitespace-pre-wrap text-sm text-foreground">
+                {streamingText}
+              </pre>
+            </div>
+          ) : (
+            <div className="w-full space-y-3">
+              <div className="h-20 w-full animate-pulse rounded-md bg-muted" />
+              <div className="h-20 w-full animate-pulse rounded-md bg-muted" />
+              <div className="h-20 w-3/4 animate-pulse rounded-md bg-muted" />
+            </div>
+          )}
+
+          <Button
+            variant="outline"
+            onClick={handleCancel}
+            className="min-h-[44px] gap-2"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+            {t("cancelGeneration")}
+          </Button>
         </div>
       </div>
     );
@@ -168,6 +246,12 @@ export function Phase6Wizard({
       </div>
 
       <ItineraryEditor initialDays={days} tripId={tripId} locale={locale} />
+
+      {error && (
+        <p role="alert" className="mt-4 text-sm text-destructive">
+          {error}
+        </p>
+      )}
 
       <div className="mt-8 flex justify-center">
         <Button
