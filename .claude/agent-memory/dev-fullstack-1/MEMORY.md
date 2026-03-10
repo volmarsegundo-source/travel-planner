@@ -44,7 +44,7 @@ Never log PII — use userId only, never email in logs
 - Duplicate email: throw `new ConflictError("auth.errors.emailAlreadyExists")`
 - Error message values are always i18n keys, never raw strings
 
-#### Streaming pattern (Sprint 18)
+#### Streaming pattern (Sprint 18-19)
 - `AiProvider.generateStreamingResponse()` returns `{ stream: ReadableStream<string>, usage: Promise<AiProviderResponse> }`
 - Stream text accumulation must use a separate array + `streamComplete` promise to decouple from stream consumption timing
 - SSE format: `data: {chunk}\n\n` per chunk, `data: [DONE]\n\n` at end
@@ -54,6 +54,19 @@ Never log PII — use userId only, never email in logs
 - Rate limit key: `ai:plan:{userId}` — shared with server action to prevent double quota
 - SSE response includes `X-Content-Type-Options: nosniff` header
 - `messages.stream()` receives `{ signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) }` as second arg
+- **Sprint 19**: Stream route now persists itinerary to DB before sending [DONE], with Redis NX lock
+- Shared persistence logic in `src/server/services/itinerary-persistence.service.ts`
+- Redis lock key: `lock:plan:{tripId}`, TTL 300s, returns 409 if already held
+- Error SSE events: `{"error":"parse_failed"}`, `{"error":"persist_failed"}`
+- Progress UI: `src/lib/utils/stream-progress.ts` — phase detection, day counting from partial JSON
+- Phase6Wizard uses `key={phase6-${trip.itineraryDays.length}}` to force remount after router.refresh()
+
+#### Destination guide (Sprint 19)
+- Expanded from 6 to 10 sections: added safety, health, transport_overview, local_customs
+- Each section has `type: "stat" | "content"` and optional `details: string`
+- Token budget increased to 4096
+- Guide context in itinerary-plan.service now includes safety + transport summaries
+- `GuideSectionKey` type and `GUIDE_SECTION_KEYS` updated in types + expedition.actions
 
 #### Destination search i18n
 - Nominatim accepts `Accept-Language` header for localized results
@@ -71,3 +84,8 @@ Never log PII — use userId only, never email in logs
 - T-S18-007: Streaming API route for itinerary generation (11 tests)
 - T-S18-012: Destination search i18n + performance (24 tests total)
 - SEC-S18-002/003/004: Streaming security fixes (schema, timeout, headers, rate limit key)
+- T-S19-001a: Progress UI for Phase6Wizard (stream-progress utils + rewritten component)
+- T-S19-001b: Persist itinerary after stream + Redis generation lock
+- T-S19-001c: Fix stale useState with key prop on Phase6Wizard
+- T-S19-007: Cascade deletion test for SEC-S18-001 (code already in place)
+- T-S19-008: Guide expansion 6→10 sections, type/details fields, 4096 tokens

@@ -428,6 +428,7 @@
         "no": "No",
         "profileSummary": "Your profile info",
         "location": "Location",
+        "bio": "About you",
         "cta": "Start Expedition"
       },
       "tripType": {
@@ -576,7 +577,7 @@
     "phase5": {
       "title": "The Day Map",
       "subtitle": "Your pocket guide for the destination.",
-      "generateHint": "Generate an AI-powered guide with essential info about your destination: timezone, currency, language, electricity, connectivity, and cultural tips.",
+      "generateHint": "Generate an AI-powered guide with essential info about your destination: timezone, currency, language, electricity, connectivity, cultural tips, safety, health, transport, and local customs.",
       "generateCta": "Generate Destination Guide",
       "regenerateCta": "Update guide ({remaining} remaining)",
       "completeCta": "Complete Phase & Earn Points",
@@ -588,7 +589,11 @@
         "language": "Language",
         "electricity": "Electricity",
         "connectivity": "Connectivity",
-        "cultural_tips": "Cultural Tips"
+        "cultural_tips": "Cultural Tips",
+        "safety": "Safety",
+        "health": "Health",
+        "transport_overview": "Transport",
+        "local_customs": "Local Customs"
       }
     },
     "phase6": {
@@ -608,7 +613,13 @@
       "regenerateConfirmTitle": "Regenerate itinerary?",
       "regenerateConfirmMessage": "This will replace your current itinerary with a new one. This action cannot be undone.",
       "regenerateConfirmYes": "Yes, regenerate",
-      "regenerateConfirmNo": "Keep current"
+      "regenerateConfirmNo": "Keep current",
+      "progressAnalyzing": "Analyzing destination and preferences...",
+      "progressPlanning": "Planning activities day by day...",
+      "progressOptimizing": "Optimizing your itinerary...",
+      "progressAlmostDone": "Almost done...",
+      "progressDaysPlanned": "{count} days planned so far",
+      "errorPersistFailed": "Itinerary was generated but could not be saved. Please try again."
     },
     "hub": {
       "title": "Expedition",
@@ -623,7 +634,8 @@
     "transition": {
       "phaseCompleted": "Phase {phase} completed!",
       "advancingTo": "Advancing to Phase {phase}...",
-      "continue": "Continue"
+      "continue": "Continue",
+      "autoAdvance": "Continuing automatically..."
     },
     "progress": "Step {current} of {total}",
     "phaseProgress": "Phase {current} of {total}"
