@@ -74,7 +74,11 @@ export class AccommodationService {
       ...acc,
       bookingCode: acc.bookingCodeEnc ? decrypt(acc.bookingCodeEnc) : null,
       bookingCodeEnc: undefined, // never expose encrypted value
-      estimatedCost: acc.estimatedCost ? Number(acc.estimatedCost) : null,
+      estimatedCost: acc.estimatedCost
+        ? typeof (acc.estimatedCost as unknown as { toNumber?: () => number }).toNumber === "function"
+          ? (acc.estimatedCost as unknown as { toNumber: () => number }).toNumber()
+          : Number(acc.estimatedCost)
+        : null,
     }));
   }
 }

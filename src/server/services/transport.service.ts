@@ -76,7 +76,11 @@ export class TransportService {
       ...seg,
       bookingCode: seg.bookingCodeEnc ? decrypt(seg.bookingCodeEnc) : null,
       bookingCodeEnc: undefined, // never expose encrypted value
-      estimatedCost: seg.estimatedCost ? Number(seg.estimatedCost) : null,
+      estimatedCost: seg.estimatedCost
+        ? typeof (seg.estimatedCost as unknown as { toNumber?: () => number }).toNumber === "function"
+          ? (seg.estimatedCost as unknown as { toNumber: () => number }).toNumber()
+          : Number(seg.estimatedCost)
+        : null,
     }));
   }
 }

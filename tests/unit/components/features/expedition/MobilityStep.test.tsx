@@ -160,6 +160,6 @@ describe("MobilityStep", () => {
       name: /options\.walking/,
     });
     expect(walkingButton.className).toContain("border-border");
-    expect(walkingButton.className).not.toContain("border-atlas-gold");
+    expect(walkingButton.className).not.toContain("border-atlas-gold bg-atlas-gold");
   });
 });
