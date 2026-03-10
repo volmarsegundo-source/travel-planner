@@ -397,16 +397,6 @@
       "destinationPlaceholder": "Search for a city...",
       "passportExpiryWarning": "Your passport may expire before or during your trip. Please check its validity before continuing.",
       "step1": {
-        "title": "Choose your destination",
-        "placeholder": "e.g. Paris, Tokyo, New York"
-      },
-      "step2": {
-        "title": "When are you traveling?",
-        "startDate": "Departure date",
-        "endDate": "Return date",
-        "flexibleDates": "My dates are flexible"
-      },
-      "step3": {
         "title": "About you",
         "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordenadas!",
         "birthDate": "Date of birth",
@@ -417,6 +407,16 @@
         "bio": "Short bio",
         "bioPlaceholder": "Tell us about yourself as a traveler...",
         "optional": "All fields are optional. You can complete your profile later."
+      },
+      "step2": {
+        "title": "Choose your destination",
+        "placeholder": "e.g. Paris, Tokyo, New York"
+      },
+      "step3": {
+        "title": "When are you traveling?",
+        "startDate": "Departure date",
+        "endDate": "Return date",
+        "flexibleDates": "My dates are flexible"
       },
       "step4": {
         "title": "Ready to start?",
@@ -654,6 +654,7 @@
       "theExplorer": "The Explorer",
       "theRoute": "The Route",
       "theShelter": "The Shelter",
+      "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",
       "theExpedition": "The Expedition",
@@ -665,6 +666,7 @@
       "theExplorer": "The Explorer",
       "theRoute": "The Route",
       "theShelter": "The Shelter",
+      "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",
       "theExpedition": "The Expedition",

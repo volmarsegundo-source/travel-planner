@@ -397,16 +397,6 @@
       "destinationPlaceholder": "Busque uma cidade...",
       "passportExpiryWarning": "Seu passaporte pode expirar antes ou durante a viagem. Verifique a validade antes de continuar.",
       "step1": {
-        "title": "Escolha seu destino",
-        "placeholder": "ex: Paris, Tóquio, Nova York"
-      },
-      "step2": {
-        "title": "Quando você vai viajar?",
-        "startDate": "Data de ida",
-        "endDate": "Data de volta",
-        "flexibleDates": "Minhas datas são flexíveis"
-      },
-      "step3": {
         "title": "Sobre você",
         "subtitle": "Nos ajude a personalizar sua viagem. Preencha o que puder — cada campo ganha Coordenadas!",
         "birthDate": "Data de nascimento",
@@ -417,6 +407,16 @@
         "bio": "Mini bio",
         "bioPlaceholder": "Conte um pouco sobre você como viajante...",
         "optional": "Todos os campos são opcionais. Você pode completar seu perfil depois."
+      },
+      "step2": {
+        "title": "Escolha seu destino",
+        "placeholder": "ex: Paris, Tóquio, Nova York"
+      },
+      "step3": {
+        "title": "Quando você vai viajar?",
+        "startDate": "Data de ida",
+        "endDate": "Data de volta",
+        "flexibleDates": "Minhas datas são flexíveis"
       },
       "step4": {
         "title": "Pronto para começar?",
@@ -654,6 +654,7 @@
       "theExplorer": "O Explorador",
       "theRoute": "A Rota",
       "theShelter": "O Abrigo",
+      "theLogistics": "A Logistica",
       "theDayMap": "O Mapa dos Dias",
       "theTreasure": "O Tesouro",
       "theExpedition": "A Expedição",
