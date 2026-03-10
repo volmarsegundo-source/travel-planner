@@ -2,7 +2,7 @@
 
 import { useRef, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { VisualCardSelector } from "./VisualCardSelector";
 import { completePhase2Action } from "@/server/actions/expedition.actions";
+import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
 interface Phase2WizardProps {
@@ -24,6 +25,7 @@ type StepKey = "travelerType" | "groupSize" | "accommodation" | "pace" | "budget
 export function Phase2Wizard({ tripId }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
   const tCommon = useTranslations("common");
+  const locale = useLocale();
   const router = useRouter();
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
@@ -43,7 +45,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
   const [accommodationStyle, setAccommodationStyle] = useState<string | null>(null);
   const [travelPace, setTravelPace] = useState(5);
   const [budget, setBudget] = useState(1000);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(() => getDefaultCurrency(locale));
   const [dietaryRestrictions, setDietaryRestrictions] = useState("");
   const [accessibility, setAccessibility] = useState("");
 
@@ -440,7 +442,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.budget")}</dt>
                     <dd className="font-medium">
-                      {budget.toLocaleString()} {currency}
+                      {formatCurrency(budget, currency, locale)}
                     </dd>
                   </div>
                   {dietaryRestrictions && (

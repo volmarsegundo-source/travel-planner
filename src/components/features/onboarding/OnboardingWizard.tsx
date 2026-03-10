@@ -11,6 +11,7 @@ import { LoadingPlanAnimation } from "@/components/features/itinerary/LoadingPla
 import { createTripAction } from "@/server/actions/trip.actions";
 import { generateTravelPlanAction } from "@/server/actions/ai.actions";
 import type { TravelStyle } from "@/types/ai.types";
+import { getDefaultCurrency } from "@/lib/utils/currency";
 
 const TOTAL_STEPS = 3;
 
@@ -53,7 +54,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
   // Step 3 data
   const [travelStyle, setTravelStyle] = useState<TravelStyle>("CULTURE");
   const [budget, setBudget] = useState(1000);
-  const [currency, setCurrency] = useState("USD");
+  const [currency, setCurrency] = useState(() => getDefaultCurrency(locale));
 
   // Ref for focus management
   const stepContentRef = useRef<HTMLDivElement>(null);
