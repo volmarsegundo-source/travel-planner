@@ -5,6 +5,7 @@ import { db } from "@/server/db";
 import { redis } from "@/server/cache/redis";
 import { ConflictError, AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
+import { hashUserId } from "@/lib/hash";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -58,7 +59,7 @@ export class AuthService {
       select: { id: true },
     });
 
-    logger.info("auth.register", { userId: user.id });
+    logger.info("auth.register", { userIdHash: hashUserId(user.id) });
 
     // Fire-and-forget: verification email — real delivery handled in T-003.
     // Do NOT await — if Redis is temporarily unavailable the registration
@@ -83,7 +84,7 @@ export class AuthService {
 
     await redis.set(key, userId, "EX", EMAIL_VERIFY_TTL_SECONDS);
 
-    logger.info("auth.emailVerify.tokenIssued", { userId });
+    logger.info("auth.emailVerify.tokenIssued", { userIdHash: hashUserId(userId) });
 
     // TODO (T-003): send actual email with verification link containing token.
     return { token };
@@ -111,7 +112,7 @@ export class AuthService {
 
     await redis.del(key);
 
-    logger.info("auth.emailVerify.success", { userId });
+    logger.info("auth.emailVerify.success", { userIdHash: hashUserId(userId) });
 
     return { userId };
   }
@@ -139,7 +140,7 @@ export class AuthService {
 
     await redis.set(key, user.id, "EX", PASSWORD_RESET_TTL_SECONDS);
 
-    logger.info("auth.passwordReset.tokenIssued", { userId: user.id });
+    logger.info("auth.passwordReset.tokenIssued", { userIdHash: hashUserId(user.id) });
 
     // TODO (T-003): send actual email with reset link containing token.
   }
@@ -170,7 +171,7 @@ export class AuthService {
 
     await redis.del(key);
 
-    logger.info("auth.passwordReset.success", { userId });
+    logger.info("auth.passwordReset.success", { userIdHash: hashUserId(userId) });
 
     return { userId };
   }
