@@ -27,3 +27,18 @@
 - shadcn `Form` uses shadcn `FormLabel` which generates IDs via `useId()` — test IDs like `_r_h_-form-item` are ephemeral
 - `aria-label` on a button overrides text content for accessible name — avoid setting both
 - ProgressIndicator mock returns key string without interpolation since `"onboarding.progress"` doesn't contain `{current}` literal — test for `"onboarding.progress"` not interpolated value
+
+## Sprint 18 — Completed Tasks (dev-fullstack-2)
+- T-S18-001: Fixed z-index/pointer-events on ExpeditionCard (pointer-events-none on content wrapper, pointer-events-auto on interactive children)
+- T-S18-002: Account deletion data cleanup — added UserProfile, UserBadge, PointTransaction, UserProgress, ExpeditionPhase, PhaseChecklistItem, ItineraryPlan, DestinationGuide cleanup in transaction
+- T-S18-010: Dashboard cards with phase tools — PHASE_TOOLS config, PhaseToolsBar component, "Em construcao" for phases 4/7/8
+- T-S18-008: Streaming UI in Phase6Wizard — replaced server action with fetch to /api/ai/plan/stream (SSE), cancel button, HTTP error mapping
+- T-S18-009: Auto-generation + AI disclaimer + regenerate with confirm dialog
+- T-S18-011: DashboardPhaseProgressBar — 8 segments with completed/current/future/coming-soon states
+
+## Sprint 18 Patterns
+- Streaming fetch: use ReadableStream reader + TextDecoder, parse SSE lines starting with "data: "
+- Auto-trigger: useEffect + useRef guard (hasTriggeredRef) to prevent double-trigger in StrictMode
+- Overlay card pattern: z-0 Link + z-10 pointer-events-none wrapper + z-20 pointer-events-auto children
+- Phase tools: separate PHASE_TOOLS config in phase-config.ts, PhaseTool interface with status field
+- Test pre-existing failure: project-bootstrap.test.ts ".env.local" test fails in worktrees (no .env.local)
