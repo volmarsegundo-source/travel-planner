@@ -96,11 +96,15 @@ export interface ChecklistResult {
 
 // ─── Destination Guide (Phase 5) ────────────────────────────────────────────
 
+export type GuideSectionType = "stat" | "content";
+
 export interface GuideSectionData {
   title: string;
   icon: string;
   summary: string;
   tips: string[];
+  type: GuideSectionType;
+  details?: string;
 }
 
 export type GuideSectionKey =
@@ -109,7 +113,11 @@ export type GuideSectionKey =
   | "language"
   | "electricity"
   | "connectivity"
-  | "cultural_tips";
+  | "cultural_tips"
+  | "safety"
+  | "health"
+  | "transport_overview"
+  | "local_customs";
 
 export type DestinationGuideContent = Record<GuideSectionKey, GuideSectionData>;
 

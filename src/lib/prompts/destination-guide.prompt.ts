@@ -16,7 +16,7 @@ import type { PromptTemplate, GuideParams } from "./types";
 export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
   version: "1.0.0",
   model: "guide",
-  maxTokens: 2048,
+  maxTokens: 4096,
   cacheControl: true,
   system: GUIDE_SYSTEM_PROMPT,
 

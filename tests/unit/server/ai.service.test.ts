@@ -473,12 +473,16 @@ describe("AiService.generateChecklist", () => {
 // ─── Destination Guide Tests ────────────────────────────────────────────────
 
 const VALID_GUIDE_RESPONSE = {
-  timezone: { title: "Timezone", icon: "clock", summary: "CET (UTC+1)", tips: ["Adjust your clock on arrival"] },
-  currency: { title: "Currency", icon: "euro", summary: "Euro (EUR)", tips: ["Cards widely accepted"] },
-  language: { title: "Language", icon: "speech", summary: "French", tips: ["Learn basic greetings"] },
-  electricity: { title: "Electricity", icon: "plug", summary: "Type C/E, 230V", tips: ["Bring an adapter"] },
-  connectivity: { title: "Connectivity", icon: "wifi", summary: "Good 4G coverage", tips: ["Get a local SIM"] },
-  cultural_tips: { title: "Culture", icon: "star", summary: "Rich history", tips: ["Greet with bonjour"] },
+  timezone: { title: "Timezone", icon: "clock", summary: "CET (UTC+1)", tips: ["Adjust your clock on arrival"], type: "stat" },
+  currency: { title: "Currency", icon: "euro", summary: "Euro (EUR)", tips: ["Cards widely accepted"], type: "stat" },
+  language: { title: "Language", icon: "speech", summary: "French", tips: ["Learn basic greetings"], type: "stat" },
+  electricity: { title: "Electricity", icon: "plug", summary: "Type C/E, 230V", tips: ["Bring an adapter"], type: "stat" },
+  connectivity: { title: "Connectivity", icon: "wifi", summary: "Good 4G coverage", tips: ["Get a local SIM"], type: "content", details: "Wi-Fi is widely available in cafes and hotels." },
+  cultural_tips: { title: "Culture", icon: "star", summary: "Rich history", tips: ["Greet with bonjour"], type: "content", details: "French culture values politeness and formality." },
+  safety: { title: "Safety", icon: "shield", summary: "Generally safe for tourists", tips: ["Watch for pickpockets"], type: "content", details: "Paris is generally safe but stay alert in crowded areas." },
+  health: { title: "Health", icon: "heart", summary: "Good healthcare available", tips: ["Carry EHIC card"], type: "content", details: "France has excellent public healthcare system." },
+  transport_overview: { title: "Transport", icon: "train", summary: "Excellent metro system", tips: ["Buy a Navigo pass"], type: "content", details: "The Paris metro is one of the best in the world." },
+  local_customs: { title: "Customs", icon: "flag", summary: "Kiss on both cheeks", tips: ["Say bonjour when entering shops"], type: "content", details: "French people greet with la bise in social settings." },
 };
 
 const BASE_GUIDE_PARAMS = {
@@ -605,7 +609,7 @@ describe("System prompt passing", () => {
     expect(options).toBeDefined();
     expect(options.systemPrompt).toBeDefined();
     expect(options.systemPrompt).toContain("pocket guide");
-    expect(options.systemPrompt).toContain("6 sections");
+    expect(options.systemPrompt).toContain("10 sections");
   });
 
   it("user message for plan contains trip details, not system instructions", async () => {

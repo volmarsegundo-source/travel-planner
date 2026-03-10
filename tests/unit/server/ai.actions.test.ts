@@ -74,6 +74,10 @@ vi.mock("@/server/services/itinerary-plan.service", () => ({
   },
 }));
 
+vi.mock("@/server/services/itinerary-persistence.service", () => ({
+  persistItinerary: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("@/lib/prompts/injection-guard", () => ({
   sanitizeForPrompt: mockSanitizeForPrompt,
 }));

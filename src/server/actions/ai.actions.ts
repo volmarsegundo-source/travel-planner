@@ -15,6 +15,7 @@ import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import type { ActionResult } from "@/types/trip.types";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
+import { persistItinerary } from "@/server/services/itinerary-persistence.service";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import {
   GeneratePlanParamsSchema,
@@ -27,43 +28,6 @@ import type {
   GenerateChecklistParams,
   ChecklistResult,
 } from "@/types/ai.types";
-
-// ─── persistItinerary ─────────────────────────────────────────────────────────
-
-async function persistItinerary(
-  tripId: string,
-  plan: ItineraryPlan
-): Promise<void> {
-  await db.$transaction(async (tx) => {
-    // Delete existing days and activities first (re-generation replaces everything)
-    await tx.itineraryDay.deleteMany({ where: { tripId } });
-
-    for (const day of plan.days) {
-      const createdDay = await tx.itineraryDay.create({
-        data: {
-          tripId,
-          dayNumber: day.dayNumber,
-          date: day.date ? new Date(day.date) : null,
-          notes: day.theme,
-        },
-      });
-
-      if (day.activities.length > 0) {
-        await tx.activity.createMany({
-          data: day.activities.map((activity, index) => ({
-            dayId: createdDay.id,
-            title: activity.title,
-            notes: activity.description,
-            startTime: activity.startTime,
-            endTime: activity.endTime,
-            orderIndex: index,
-            activityType: activity.activityType,
-          })),
-        });
-      }
-    }
-  });
-}
 
 // ─── persistChecklist ─────────────────────────────────────────────────────────
 

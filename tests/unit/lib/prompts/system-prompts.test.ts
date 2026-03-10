@@ -72,14 +72,27 @@ describe("GUIDE_SYSTEM_PROMPT", () => {
     expect(GUIDE_SYSTEM_PROMPT).toContain("travel expert");
   });
 
-  it("specifies exactly 6 sections", () => {
-    expect(GUIDE_SYSTEM_PROMPT).toContain("6 sections");
+  it("specifies exactly 10 sections (T-S19-008)", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain("10 sections");
     expect(GUIDE_SYSTEM_PROMPT).toContain("timezone");
     expect(GUIDE_SYSTEM_PROMPT).toContain("currency");
     expect(GUIDE_SYSTEM_PROMPT).toContain("language");
     expect(GUIDE_SYSTEM_PROMPT).toContain("electricity");
     expect(GUIDE_SYSTEM_PROMPT).toContain("connectivity");
     expect(GUIDE_SYSTEM_PROMPT).toContain("cultural_tips");
+    expect(GUIDE_SYSTEM_PROMPT).toContain("safety");
+    expect(GUIDE_SYSTEM_PROMPT).toContain("health");
+    expect(GUIDE_SYSTEM_PROMPT).toContain("transport_overview");
+    expect(GUIDE_SYSTEM_PROMPT).toContain("local_customs");
+  });
+
+  it("includes type field with stat and content values", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"type": "stat"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"type": "content"');
+  });
+
+  it("includes details field for content sections", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"details"');
   });
 
   it("does not contain dynamic trip-specific data", () => {
