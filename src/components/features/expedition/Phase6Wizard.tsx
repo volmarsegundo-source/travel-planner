@@ -5,6 +5,13 @@ import { useTranslations } from "next-intl";
 import { Info, Loader2, Map, RefreshCw, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
+import {
+  getProgressPhase,
+  getProgressMessageKey,
+  countDaysInStream,
+  calculateTotalDays,
+  calculateProgressPercent,
+} from "@/lib/utils/stream-progress";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle } from "@/types/ai.types";
 
@@ -24,6 +31,10 @@ interface Phase6WizardProps {
   travelNotes?: string;
 }
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const PROGRESS_UPDATE_INTERVAL_MS = 1000;
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function mapStatusToErrorKey(status: number): string {
@@ -32,6 +43,7 @@ function mapStatusToErrorKey(status: number): string {
     400: "errorGenerate",
     403: "errorAgeRestricted",
     404: "errorGenerate",
+    409: "errorGenerate",
     429: "errorRateLimit",
   };
   return statusMap[status] ?? "errorGenerate";
@@ -57,10 +69,16 @@ export function Phase6Wizard({
   const [isGenerating, setIsGenerating] = useState(false);
   const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
-  const [streamingText, setStreamingText] = useState("");
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+  const [progressMessage, setProgressMessage] = useState("");
+  const [daysGenerated, setDaysGenerated] = useState(0);
+  const [progressPercent, setProgressPercent] = useState(0);
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasTriggeredRef = useRef(false);
+  const streamStartRef = useRef<number>(0);
+  const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Accumulated text kept for persistence tracking but NOT displayed to user
+  const accumulatedRef = useRef("");
 
   const hasItinerary = days.length > 0;
   const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
@@ -68,15 +86,51 @@ export function Phase6Wizard({
   const effectiveStartDate =
     startDate || new Date().toISOString().split("T")[0]!;
   const effectiveEndDate = endDate || effectiveStartDate;
+  const totalDays = calculateTotalDays(effectiveStartDate, effectiveEndDate);
+
+  // Cleanup progress timer on unmount
+  useEffect(() => {
+    return () => {
+      if (progressTimerRef.current) {
+        clearInterval(progressTimerRef.current);
+      }
+    };
+  }, []);
+
+  const startProgressTimer = useCallback(() => {
+    streamStartRef.current = Date.now();
+    // Set initial message
+    const phase = getProgressPhase(0);
+    const key = getProgressMessageKey(phase);
+    setProgressMessage(t(key));
+
+    progressTimerRef.current = setInterval(() => {
+      const elapsed = Date.now() - streamStartRef.current;
+      const currentPhase = getProgressPhase(elapsed);
+      const messageKey = getProgressMessageKey(currentPhase);
+      setProgressMessage(t(messageKey));
+    }, PROGRESS_UPDATE_INTERVAL_MS);
+  }, [t]);
+
+  const stopProgressTimer = useCallback(() => {
+    if (progressTimerRef.current) {
+      clearInterval(progressTimerRef.current);
+      progressTimerRef.current = null;
+    }
+  }, []);
 
   const handleGenerate = useCallback(async () => {
     setError(null);
-    setStreamingText("");
     setIsGenerating(true);
     setShowRegenerateConfirm(false);
+    setDaysGenerated(0);
+    setProgressPercent(0);
+    accumulatedRef.current = "";
 
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
+
+    startProgressTimer();
 
     try {
       const response = await fetch("/api/ai/plan/stream", {
@@ -101,6 +155,7 @@ export function Phase6Wizard({
         const errorKey = mapStatusToErrorKey(response.status);
         setError(t(errorKey));
         setIsGenerating(false);
+        stopProgressTimer();
         return;
       }
 
@@ -108,11 +163,11 @@ export function Phase6Wizard({
       if (!reader) {
         setError(t("errorGenerate"));
         setIsGenerating(false);
+        stopProgressTimer();
         return;
       }
 
       const decoder = new TextDecoder();
-      let accumulated = "";
 
       while (true) {
         const { done, value } = await reader.read();
@@ -123,20 +178,43 @@ export function Phase6Wizard({
           if (line.startsWith("data: ")) {
             const data = line.slice(6);
             if (data === "[DONE]") {
+              stopProgressTimer();
               router.refresh();
               setIsGenerating(false);
               return;
             }
-            accumulated += data;
-            setStreamingText(accumulated);
+
+            // Check for error events from server
+            if (data.startsWith('{"error":')) {
+              try {
+                const errorObj = JSON.parse(data) as { error: string };
+                if (errorObj.error === "persist_failed") {
+                  setError(t("errorPersistFailed"));
+                }
+              } catch {
+                // Not a valid error JSON, ignore
+              }
+              continue;
+            }
+
+            accumulatedRef.current += data;
+
+            // Update day count from partial JSON
+            const dayCount = countDaysInStream(accumulatedRef.current);
+            if (dayCount > 0) {
+              setDaysGenerated(dayCount);
+              setProgressPercent(calculateProgressPercent(dayCount, totalDays));
+            }
           }
         }
       }
 
+      stopProgressTimer();
       router.refresh();
     } catch (err) {
+      stopProgressTimer();
       if (err instanceof DOMException && err.name === "AbortError") {
-        setStreamingText("");
+        // User cancelled — no error to show
       } else {
         setError(t("errorTimeout"));
       }
@@ -147,7 +225,8 @@ export function Phase6Wizard({
   }, [
     tripId, destination, effectiveStartDate, effectiveEndDate,
     travelStyle, budgetTotal, budgetCurrency, travelers,
-    language, travelNotes, t, router,
+    language, travelNotes, t, router, totalDays,
+    startProgressTimer, stopProgressTimer,
   ]);
 
   // Auto-trigger generation on first visit when no itinerary exists
@@ -196,19 +275,40 @@ export function Phase6Wizard({
           />
           <p className="text-lg font-medium">{t("generating")}</p>
 
-          {streamingText ? (
-            <div className="w-full rounded-lg border border-border bg-muted/30 p-4 text-left">
-              <pre className="whitespace-pre-wrap text-sm text-foreground">
-                {streamingText}
-              </pre>
+          {/* Progress message */}
+          <p
+            className="text-sm text-muted-foreground"
+            data-testid="progress-message"
+          >
+            {progressMessage}
+          </p>
+
+          {/* Progress bar */}
+          <div className="w-full space-y-2">
+            <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+              <div
+                className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
+                style={{ width: `${Math.max(progressPercent, 5)}%` }}
+                role="progressbar"
+                aria-valuenow={progressPercent}
+                aria-valuemin={0}
+                aria-valuemax={100}
+                data-testid="progress-bar"
+              />
             </div>
-          ) : (
-            <div className="w-full space-y-3">
-              <div className="h-20 w-full animate-pulse rounded-md bg-muted" />
-              <div className="h-20 w-full animate-pulse rounded-md bg-muted" />
-              <div className="h-20 w-3/4 animate-pulse rounded-md bg-muted" />
-            </div>
-          )}
+            {daysGenerated > 0 && (
+              <p className="text-xs text-muted-foreground" data-testid="days-count">
+                {t("progressDaysPlanned", { count: daysGenerated })}
+              </p>
+            )}
+          </div>
+
+          {/* Skeleton loaders */}
+          <div className="w-full space-y-3">
+            <div className="h-16 w-full animate-pulse rounded-md bg-muted" />
+            <div className="h-16 w-full animate-pulse rounded-md bg-muted" />
+            <div className="h-16 w-3/4 animate-pulse rounded-md bg-muted" />
+          </div>
 
           <Button
             variant="outline"

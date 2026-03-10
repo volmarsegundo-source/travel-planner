@@ -1,12 +1,14 @@
 /**
- * Unit tests for Phase6Wizard component.
+ * Unit tests for Phase6Wizard component (T-S18-008, T-S19-001a).
  *
  * Tests cover:
  * - Auto-generation on first visit
- * - Generating state: shows streaming text and cancel button
+ * - Generating state: shows progress UI (NOT raw JSON) and cancel button
  * - Generated state: renders ItineraryEditor + AI disclaimer
  * - Error handling for various HTTP status codes
  * - Regenerate with confirm dialog
+ * - Progress message transitions
+ * - Day count display from streaming
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, act, waitFor } from "@testing-library/react";
@@ -21,7 +23,10 @@ const { mockPush, mockRefresh } = vi.hoisted(() => ({
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
 vi.mock("next-intl", () => ({
-  useTranslations: () => (key: string) => key,
+  useTranslations: () => (key: string, params?: Record<string, unknown>) => {
+    if (params && "count" in params) return `${key}:${params.count}`;
+    return key;
+  },
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -142,6 +147,7 @@ describe("Phase6Wizard", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
     originalFetch = globalThis.fetch;
     // Default: make fetch hang to prevent auto-generation from completing
     globalThis.fetch = mockFetchHang();
@@ -149,6 +155,7 @@ describe("Phase6Wizard", () => {
 
   afterEach(() => {
     globalThis.fetch = originalFetch;
+    vi.useRealTimers();
   });
 
   describe("Auto-generation on first visit", () => {
@@ -203,10 +210,45 @@ describe("Phase6Wizard", () => {
       ).toBeInTheDocument();
     });
 
-    it("shows streaming text progressively", async () => {
+    it("does NOT show raw JSON to user (T-S19-001a)", async () => {
+      globalThis.fetch = mockFetchHang();
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      // No <pre> tag should exist in the generating state
+      const preElements = document.querySelectorAll("pre");
+      expect(preElements).toHaveLength(0);
+    });
+
+    it("shows progress message during generation", async () => {
+      globalThis.fetch = mockFetchHang();
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      const progressMsg = screen.getByTestId("progress-message");
+      expect(progressMsg).toBeInTheDocument();
+      // Initial phase message
+      expect(progressMsg).toHaveTextContent("progressAnalyzing");
+    });
+
+    it("shows progress bar during generation", async () => {
+      globalThis.fetch = mockFetchHang();
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      expect(screen.getByTestId("progress-bar")).toBeInTheDocument();
+    });
+
+    it("refreshes router on successful stream completion", async () => {
+      vi.useRealTimers();
       globalThis.fetch = mockFetchOk([
-        "data: Hello \n\n",
-        "data: World\n\n",
+        "data: chunk1\n\n",
         "data: [DONE]\n\n",
       ]);
 
@@ -339,6 +381,7 @@ describe("Phase6Wizard", () => {
 
   describe("Error handling", () => {
     it("shows error for 401 unauthorized", async () => {
+      vi.useRealTimers();
       globalThis.fetch = mockFetchError(401);
 
       await act(async () => {
@@ -351,6 +394,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("shows error for 429 rate limit", async () => {
+      vi.useRealTimers();
       globalThis.fetch = mockFetchError(429);
 
       await act(async () => {
@@ -363,6 +407,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("shows error for 403 age restricted", async () => {
+      vi.useRealTimers();
       globalThis.fetch = mockFetchError(403);
 
       await act(async () => {
@@ -377,6 +422,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("shows generic error for 500", async () => {
+      vi.useRealTimers();
       globalThis.fetch = mockFetchError(500);
 
       await act(async () => {
@@ -389,6 +435,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("shows timeout error on fetch exception", async () => {
+      vi.useRealTimers();
       globalThis.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
 
       await act(async () => {
@@ -403,6 +450,7 @@ describe("Phase6Wizard", () => {
 
   describe("Fetch payload", () => {
     it("sends correct body to streaming endpoint", async () => {
+      vi.useRealTimers();
       const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
       globalThis.fetch = fetchMock;
 
@@ -436,6 +484,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("uses pt-BR language when locale is pt-BR", async () => {
+      vi.useRealTimers();
       const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
       globalThis.fetch = fetchMock;
 
@@ -450,6 +499,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("uses fallback dates when startDate/endDate are null", async () => {
+      vi.useRealTimers();
       const fetchMock = mockFetchOk(["data: [DONE]\n\n"]);
       globalThis.fetch = fetchMock;
 
@@ -468,6 +518,7 @@ describe("Phase6Wizard", () => {
     });
 
     it("refreshes router on successful stream completion", async () => {
+      vi.useRealTimers();
       globalThis.fetch = mockFetchOk([
         "data: chunk1\n\n",
         "data: [DONE]\n\n",
