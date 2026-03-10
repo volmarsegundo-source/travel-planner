@@ -1,8 +1,10 @@
 /**
  * Unit tests for Phase1Wizard component.
  *
- * Tests cover: bio display in confirmation step (T-S19-005),
+ * Tests cover: step reorder (T-S20-004), bio display in confirmation step,
  * step navigation, and form submission.
+ *
+ * New step order: Step 1=About You, Step 2=Destination, Step 3=Dates, Step 4=Confirmation.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -42,20 +44,24 @@ import { Phase1Wizard } from "@/components/features/expedition/Phase1Wizard";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/**
+ * Navigate from Step 1 (About You) through Step 2 (Destination) and Step 3 (Dates)
+ * to Step 4 (Confirmation) with a bio filled.
+ */
 function navigateToStep4WithBio(bio: string) {
   render(<Phase1Wizard />);
 
-  // Step 1: enter destination
+  // Step 1: enter bio (About You)
+  const bioTextarea = screen.getByLabelText("expedition.phase1.step1.bio");
+  fireEvent.change(bioTextarea, { target: { value: bio } });
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 2: enter destination
   const destinationInput = screen.getByRole("combobox");
   fireEvent.change(destinationInput, { target: { value: "Paris, France" } });
   fireEvent.click(screen.getByText("common.next"));
 
-  // Step 2: skip dates, click next
-  fireEvent.click(screen.getByText("common.next"));
-
-  // Step 3: enter bio
-  const bioTextarea = screen.getByLabelText("expedition.phase1.step3.bio");
-  fireEvent.change(bioTextarea, { target: { value: bio } });
+  // Step 3: skip dates, click next
   fireEvent.click(screen.getByText("common.next"));
 }
 
@@ -66,7 +72,84 @@ describe("Phase1Wizard", () => {
     vi.clearAllMocks();
   });
 
-  describe("Step 4 confirmation — bio display (T-S19-005)", () => {
+  describe("Step order (T-S20-004)", () => {
+    it("renders About You as step 1 on initial load", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1 should show the About You title
+      expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
+      // Profile fields should be visible
+      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step1.phone")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step1.bio")).toBeInTheDocument();
+    });
+
+    it("navigates from About You (step 1) to Destination (step 2)", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: click next
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: should show destination input
+      expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
+      expect(screen.getByRole("combobox")).toBeInTheDocument();
+    });
+
+    it("navigates from Destination (step 2) to Dates (step 3)", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: next
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination and next
+      const destinationInput = screen.getByRole("combobox");
+      fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 3: should show date fields
+      expect(screen.getByText("expedition.phase1.step3.title")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step3.startDate")).toBeInTheDocument();
+      expect(screen.getByLabelText("expedition.phase1.step3.endDate")).toBeInTheDocument();
+    });
+
+    it("validates destination is required on step 2", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: next (no validation needed)
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: try to proceed without destination
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should show error
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.destinationRequired"
+      );
+    });
+
+    it("step 1 has no back button (first step)", () => {
+      render(<Phase1Wizard />);
+
+      // The back arrow should not exist on step 1
+      expect(screen.queryByText("\u2190")).not.toBeInTheDocument();
+    });
+
+    it("step 2 back button returns to step 1", () => {
+      render(<Phase1Wizard />);
+
+      // Go to step 2
+      fireEvent.click(screen.getByText("common.next"));
+      expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
+
+      // Click back
+      fireEvent.click(screen.getByText("\u2190"));
+
+      // Should be back on step 1
+      expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
+    });
+  });
+
+  describe("Step 4 confirmation — bio display", () => {
     it("shows bio in confirmation when bio is filled", () => {
       navigateToStep4WithBio("I love exploring new cities.");
 
@@ -79,15 +162,15 @@ describe("Phase1Wizard", () => {
     it("does not show bio section when bio is empty", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: destination
+      // Step 1: skip all fields, click next
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination
       const destinationInput = screen.getByRole("combobox");
       fireEvent.change(destinationInput, { target: { value: "Paris" } });
       fireEvent.click(screen.getByText("common.next"));
 
-      // Step 2: next
-      fireEvent.click(screen.getByText("common.next"));
-
-      // Step 3: skip bio, click next
+      // Step 3: skip dates, click next
       fireEvent.click(screen.getByText("common.next"));
 
       // Bio label should NOT be visible (no profile section since nothing filled)
@@ -106,19 +189,19 @@ describe("Phase1Wizard", () => {
     it("shows bio alongside other profile fields when both are filled", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: destination
+      // Step 1: fill phone and bio
+      const phoneInput = screen.getByLabelText("expedition.phase1.step1.phone");
+      fireEvent.change(phoneInput, { target: { value: "+5511999999999" } });
+      const bioTextarea = screen.getByLabelText("expedition.phase1.step1.bio");
+      fireEvent.change(bioTextarea, { target: { value: "Travel enthusiast" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination
       const destinationInput = screen.getByRole("combobox");
       fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
       fireEvent.click(screen.getByText("common.next"));
 
-      // Step 2: next
-      fireEvent.click(screen.getByText("common.next"));
-
-      // Step 3: fill phone and bio
-      const phoneInput = screen.getByLabelText("expedition.phase1.step3.phone");
-      fireEvent.change(phoneInput, { target: { value: "+5511999999999" } });
-      const bioTextarea = screen.getByLabelText("expedition.phase1.step3.bio");
-      fireEvent.change(bioTextarea, { target: { value: "Travel enthusiast" } });
+      // Step 3: next
       fireEvent.click(screen.getByText("common.next"));
 
       // Both should be visible
