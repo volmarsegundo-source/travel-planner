@@ -50,6 +50,10 @@ Never log PII — use userId only, never email in logs
 - SSE format: `data: {chunk}\n\n` per chunk, `data: [DONE]\n\n` at end
 - API routes (not server actions) needed for streaming — server actions don't support streaming responses
 - Route file: `src/app/api/ai/plan/stream/route.ts`
+- StreamRequestSchema is FLAT (tripId + GeneratePlanParamsSchema merged), matching Phase6Wizard's fetch body
+- Rate limit key: `ai:plan:{userId}` — shared with server action to prevent double quota
+- SSE response includes `X-Content-Type-Options: nosniff` header
+- `messages.stream()` receives `{ signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) }` as second arg
 
 #### Destination search i18n
 - Nominatim accepts `Accept-Language` header for localized results
@@ -64,5 +68,6 @@ Never log PII — use userId only, never email in logs
 - T-S18-004: Hash userId in auth.service.ts (5 occurrences)
 - T-S18-005: Hash userId in profile.service.ts (1 occurrence)
 - T-S18-006: Streaming in ClaudeProvider (6 tests)
-- T-S18-007: Streaming API route for itinerary generation (9 tests)
+- T-S18-007: Streaming API route for itinerary generation (11 tests)
 - T-S18-012: Destination search i18n + performance (24 tests total)
+- SEC-S18-002/003/004: Streaming security fixes (schema, timeout, headers, rate limit key)
