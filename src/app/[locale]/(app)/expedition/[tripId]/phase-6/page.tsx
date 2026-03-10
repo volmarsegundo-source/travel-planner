@@ -77,7 +77,9 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
           ]}
         />
       </div>
+      {/* key forces remount when initialDays changes after router.refresh() (T-S19-001c) */}
       <Phase6Wizard
+        key={`phase6-${trip.itineraryDays.length}`}
         tripId={tripId}
         destination={trip.destination}
         locale={locale}
