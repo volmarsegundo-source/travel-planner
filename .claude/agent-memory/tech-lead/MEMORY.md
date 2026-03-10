@@ -1,36 +1,31 @@
 # Tech Lead Memory -- Travel Planner
 
 ## Project State (as of 2026-03-10)
-- Sprints 1-19 complete, Sprint 19 merged to master (eed7a14)
-- Current: 1365 tests, v0.13.0, 94 suites
-- Sprint 20: PLANNING COMPLETE, branch feat/sprint-20 created
-  - 12 tasks (T-S20-001 to T-S20-012), 28.5h estimated + 11.5h buffer
-  - Task doc: docs/sprints/SPRINT-20-TASKS.md
+- Sprints 1-20 complete, Sprint 20 on feat/sprint-20 (pending merge)
+- Current: 1489 tests, v0.14.0, 100 suites
+- Sprint 21: BACKLOG SEEDS created (docs/sprints/SPRINT-21-BACKLOG-SEEDS.md)
+  - 11 seeds, 24-34h estimated
+  - Focus: Transport Phase UI (Phase 4 "A Logistica")
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
 - docs/sprints/SPRINT-20-TASKS.md -- Sprint 20 task breakdown (12 tasks, 28.5h)
+- docs/sprints/SPRINT-21-BACKLOG-SEEDS.md -- Sprint 21 backlog seeds (11 items)
 - docs/sprints/SPRINT-19-TASKS.md -- Sprint 19 task breakdown (12 tasks, 32.5h)
-- docs/security/SPRINT-19-SECURITY-REVIEW.md -- security review (APPROVED, no MEDIUM+)
-- docs/sprint-reviews/SPRINT-019-review.md -- tech-lead sprint review
+- docs/security/SPRINT-20-SECURITY-REVIEW.md -- security review (APPROVED, no MEDIUM+)
+- docs/sprint-reviews/SPRINT-020-review.md -- tech-lead sprint review
 - docs/architecture.md -- conventions, folder structure, ADRs
 - docs/product/TRANSPORT-PHASE-SPEC.md -- full transport phase product spec
 - docs/prompts/OPTIMIZATION-BACKLOG.md -- prompt-engineer audit findings
 
-## Sprint 20 Plan Summary
-- T-S20-001 (dev-1, 1.5h): Verify/fix guide redesign rendering on staging (P0)
-- T-S20-002 (dev-2, 1h): Remove duplicate buttons from ExpeditionCard (DEBT-S18-001)
-- T-S20-003 (dev-1, 1h): Hash raw userId in engine logs (SEC-S19-001)
-- T-S20-004 (dev-1, 4h): Phase 1 step reorder -- personal info before trip info
-- T-S20-005 (dev-1, 2.5h): Profile persistence -- skip if already filled (depends T-S20-004)
-- T-S20-006 (dev-2, 2h): Preferences schema + types (8 categories, Json on UserProfile)
-- T-S20-007 (dev-2, 5h): Preferences UI -- toggles/checkboxes in Phase 2 (depends T-S20-006)
-- T-S20-008 (dev-2, 1.5h): Preferences gamification points (depends T-S20-007)
-- T-S20-009 (dev-1, 1.5h): Passenger details schema (adults/children/seniors/infants on Trip)
-- T-S20-010 (dev-1, 3.5h): Passenger details UI in Phase 2 (depends T-S20-009)
-- T-S20-011 (dev-2, 3h): Transport data model -- schema only, UI deferred to S21
-- T-S20-012 (dev-2, 2h): Integration testing + sprint validation
-- Three migrations: preferences, passengers, transport (apply in that order)
+## Sprint 20 Outcomes
+- ALL 12 tasks completed (100%)
+- +124 tests (1365 -> 1489), +6 suites (94 -> 100)
+- SEC-S19-001 RESOLVED (last known security debt)
+- Three migrations applied: preferences, passengers, transport
+- Phase 4 renamed: "O Abrigo" -> "A Logistica"
+- New badge: identity_explorer (preferences gamification, 5+ categories)
+- Review fixes: 5 unused imports, 3 Prisma JSON type casts, 1 missing badge map entry, 2 i18n keys
 
 ## Critical Security Findings (cumulative)
 - FIND-M-001: redirect() must be OUTSIDE try/catch in all Server Actions
@@ -39,7 +34,15 @@
 - SR-006: coverEmoji needs Unicode regex or enum
 - SR-007: confirmationTitle needs .max(100) in TripDeleteSchema
 - SEC-S18-001 (MEDIUM): RESOLVED in Sprint 19
-- SEC-S19-001 (LOW): Scheduled fix in Sprint 20 (T-S20-003)
+- SEC-S19-001 (LOW): RESOLVED in Sprint 20 (T-S20-003)
+- SEC-S20-OBS-001 (INFO): No total passenger cap -- schedule for Sprint 21
+- SEC-S20-OBS-002 (INFO): Booking code encryption deferred to Sprint 21
+
+## Prisma JSON Type Pattern (Sprint 20 lesson)
+- CRITICAL: `Record<string, unknown>` is NOT assignable to Prisma's InputJsonValue in strict build
+- CORRECT pattern: `as unknown as Prisma.InputJsonValue` for JSON field writes
+- Import: `import { type Prisma } from "@prisma/client"`
+- This applies to: preferences (UserProfile), passengers (Trip), any future Json fields
 
 ## Streaming Architecture (post-Sprint 19 -- FIXED)
 - Stream route accumulates output, parses with Zod, persists via itinerary-persistence.service.ts
@@ -57,13 +60,38 @@
 - 10 sections: timezone, currency, language, electricity, connectivity, cultural_tips, safety, health, transport_overview, local_customs
 - Section types: "stat" (factual) vs "content" (descriptive)
 - DestinationGuideWizard: card-based layout (2-col stat grid, expandable content list)
-- POTENTIAL ISSUE: old guides (6 sections) may not render cards -- T-S20-001 investigates
+- T-S20-001 FIXED: old guides (6 sections) now gracefully degrade
 
-## Dashboard Architecture (Sprint 18+19)
-- ExpeditionCard: overlay link pattern with pointer-events-none/auto
+## Dashboard Architecture (Sprint 18+19+20)
+- ExpeditionCard: overlay link with pointer-events-none/auto -- CLEANED in S20
 - PhaseToolsBar: renders tools from getPhaseTools(currentPhase)
-- DUPLICATE BUTTONS (lines 82-103): Scheduled fix in T-S20-002
+- DUPLICATE BUTTONS: RESOLVED in T-S20-002
 - DashboardPhaseProgressBar: 8 segments (gold=complete, pulse=current, gray=future)
+
+## Phase 1 Wizard (Sprint 20)
+- Step order: (1) About You, (2) Destination, (3) Dates, (4) Confirmation
+- Profile persistence: shows summary card when birthDate+country+city filled
+- Props: passportExpiry, userCountry, userProfile (from server component)
+
+## Phase 2 Wizard (Sprint 20)
+- Dynamic step array based on travelerType
+- Passengers step: conditional for family/group; airline-style +/- steppers
+- Preferences step: free-text dietary + accessibility (legacy)
+- 636 lines -- extract PassengersStep in Sprint 21
+
+## Preferences System (Sprint 20)
+- 10 categories: travelPace, foodPreferences, interests, budgetStyle, socialPreference, accommodationStyle, fitnessLevel, photographyInterest, wakePreference, connectivityNeeds
+- Schema: src/lib/validations/preferences.schema.ts
+- Service: src/server/services/preferences.service.ts
+- Gamification: 10 pts per filled category, identity_explorer badge at 5+
+- parsePreferences() graceful fallback for null/invalid data
+
+## Transport Data Model (Sprint 20 -- schema only)
+- TransportSegment: type, departure/arrival places+times, provider, bookingCodeEnc, cost, isReturn
+- Accommodation: type, name, address, bookingCodeEnc, checkIn/checkOut, cost
+- Trip.origin: VarChar(150), Trip.localMobility: String[]
+- Both models: onDelete Cascade, added to account deletion transaction
+- Zod schemas: src/lib/validations/transport.schema.ts
 
 ## Recurring Import Convention Violations
 - PATTERN: Devs sometimes use `next/navigation` or `next/link` instead of `@/i18n/navigation`
@@ -88,15 +116,16 @@
 - DEBT-S18-002: account.actions.ts has two hashUserId functions (local + imported hashForLog)
 - ExpeditionHubPage coming soon uses hardcoded gray colors instead of theme tokens
 
-## Sprint 21 Backlog (from Sprint 20 deferrals)
+## Sprint 21 Backlog (from Sprint 20 deferrals + review)
 - Transport UI -- Phase 4 Section A (6-8h)
 - Accommodation UI -- Phase 4 Section B (4-6h)
 - Local mobility UI -- Phase 4 Section C (2-3h)
-- Phase 4 rename "O Abrigo" -> "A Logistica" (1h)
-- Origin field UI + pre-population from UserProfile (2h)
-- Cascade deletion for TripTransport/TripAccommodation (1h)
+- Origin field UI + pre-population (2h)
+- Booking code AES-256-GCM encryption service layer (1.5h)
+- Total passenger cap Zod refinement (0.5h)
+- Phase2Wizard component extraction (1.5h)
 - AI integration: itinerary uses transport data (4-6h)
-- P2 deferred: Clickable progress bar segments, progress bar phase labels
+- P3: Clickable progress bar segments (2h), progress bar phase labels (1h)
 
 ## Lessons Learned (cumulative)
 - Task ID discipline: Commits MUST use planning doc task IDs
@@ -104,3 +133,7 @@
 - Redis NX+EX lock with graceful degradation -- good for AI generation dedup
 - Guide redesign took more scope than estimated in S19 -- displaced 2 P1 tasks
 - Three migrations in one sprint: coordinate order to avoid conflicts
+- BUILD != TESTS: Next.js build applies stricter ESLint+TS than Vitest. Integration test tasks MUST include `npm run build`
+- Badge map completeness: adding to union types requires updating all exhaustive Records
+- Prisma JSON writes: use `as unknown as Prisma.InputJsonValue`, not `as Record<string, unknown>`
+- Scope creep: preferences had 10 categories vs 8 planned -- devs should flag increases

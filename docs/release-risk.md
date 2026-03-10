@@ -1,7 +1,7 @@
 # Travel Planner — Release Risk Register
 
 **Maintainer**: release-manager
-**Last Updated**: 2026-03-04
+**Last Updated**: 2026-03-10
 **Format**: Assessment ID | Severity | Status | Description | Owner | Resolution
 
 ---
@@ -14,6 +14,8 @@
 | CIA-002 | Sprint 2 | 2026-02-26 | Sprint 2 Hardening -- Schema, headers, health check, CI/CD | BLOQUEADO -- breaking change sem migration | Aberto |
 | CIA-003 | Sprint 6 | 2026-03-04 | Debitos Tecnicos + Onboarding Wizard + Auth UX | Non-Breaking (MINOR) | Fechado |
 | CIA-004 | Sprint 7 | 2026-03-05 | Perfil de usuario + exclusao de conta + loading/error states + test automation | Non-Breaking (MINOR) | Fechado |
+| CIA-005 | Sprint 19 | 2026-03-10 | Itinerary persistence + guide redesign + cascade fix | Non-Breaking (MINOR) | Fechado |
+| CIA-006 | Sprint 20 | 2026-03-10 | Preferences, passengers, transport data model, userId hash, Phase 1 reorder | Non-Breaking (MINOR) | Fechado |
 
 ---
 
@@ -37,7 +39,7 @@
 | RISK-005 | ALTO | CI/CD | `deploy.yml` tem apenas `echo` como step de deploy — nenhum deploy real esta sendo executado | Aberto | devops-engineer | Antes do proximo sprint |
 | RISK-006 | ALTO | Secrets | `RAILWAY_TOKEN`, `STAGING_DATABASE_URL`, `PRODUCTION_DATABASE_URL` referenciados no deploy.yml — nao confirmado se estao configurados nos environments do GitHub Actions | Aberto | devops-engineer | Antes do deploy |
 | RISK-007 | MEDIO | Dependencias | `next-auth` fixado em `5.0.0-beta.25` sem caret — patches de seguranca nao sao aplicados automaticamente | Aberto | dev-fullstack-1 | Monitorar — acompanhar release estavel |
-| RISK-008 | MEDIO | Documentacao | Diagrama de schema em `docs/architecture.md` desatualizado — ainda mostra `avatarUrl`, nao mostra `ChecklistItem` nem `deactivatedAt` | Aberto | architect | Antes do proximo sprint |
+| RISK-008 | MEDIO | Documentacao | Diagrama de schema em `docs/architecture.md` desatualizado — ainda mostra `avatarUrl`, nao mostra `ChecklistItem` nem `deactivatedAt`. Agravado Sprint 20: TransportSegment, Accommodation, passengers, origin, localMobility, preferences ausentes | Aberto | architect | Antes do proximo sprint |
 | RISK-009 | BAIXO | Type safety | `typedRoutes` desabilitado -- links internos sem verificacao de tipo em tempo de compilacao | Aberto | dev-fullstack-2 | Pos-MVP |
 
 ---
@@ -49,7 +51,7 @@
 | RISK-010 | MEDIO | Seguranca | Rotas `/api/*` nao recebem mais headers de seguranca (CSP, X-Frame-Options, etc.) porque o middleware faz `return` antes de seta-los. No Sprint 2 esses headers eram aplicados via `next.config.ts headers()` a todas as rotas | Aberto | dev-fullstack-1 | Sprint 7 |
 | RISK-011 | BAIXO | Seguranca | CSP nonce gerado no middleware mas nao propagado para o HTML (layout nao le header `x-nonce`). Quando scripts inline forem necessarios, sera preciso ler o nonce do header e injeta-lo | Aberto | dev-fullstack-1 | Quando necessario |
 | RISK-012 | BAIXO | UX/i18n | OnboardingWizard.tsx importa `useRouter` de `next/navigation` em vez de `@/i18n/navigation` -- pode causar navegacao sem locale prefix em edge cases | Fechado | dev-fullstack-1 | Resolvido Sprint 7 |
-| RISK-013 | BAIXO | PII/Logging | `logger.info("account.profileUpdated", { userId: session.user.id })` loga userId em texto claro. Deveria usar hash como faz o `deleteUserAccountAction`. BUG-S7-001 | Aberto | dev-fullstack-1 | Sprint 8 |
+| RISK-013 | BAIXO | PII/Logging | `logger.info("account.profileUpdated", { userId: session.user.id })` loga userId em texto claro. Deveria usar hash como faz o `deleteUserAccountAction`. BUG-S7-001 | Fechado | dev-fullstack-1 | Resolvido Sprint 20 (SEC-S19-001) |
 | RISK-014 | BAIXO | UX/i18n | Label "Portugues (Brasil)" em `ProfileForm.tsx` esta sem acento. BUG-S7-002 | Aberto | dev-fullstack-1 | Sprint 8 |
 | RISK-015 | MEDIO | UX/Navegacao | Footer autenticado linka para `/terms`, `/privacy`, `/support` que resultam em 404. BUG-S7-004 | Aberto | dev-fullstack-1 | Sprint 8 |
 | RISK-016 | BAIXO | i18n | `aria-label="Loading"` hardcoded em ingles nos 4 loading skeletons. BUG-S7-006 | Aberto | dev-fullstack-1 | Sprint 8 |
@@ -95,6 +97,7 @@
 | RISK-001 | Sprint 2 | 2026-02-27 | Prisma migration ausente | Migration gerada em `prisma/migrations/20260226120000_*` e commitada |
 | RISK-002 | Sprint 2 | 2026-02-27 | `ci.yml` branches `main` vs `master` | Corrigido para `branches: [master]` em ci.yml |
 | RISK-012 | Sprint 6 | 2026-03-05 | OnboardingWizard useRouter import errado | Corrigido para `@/i18n/navigation` no Sprint 7 |
+| RISK-013 | Sprint 7 | 2026-03-10 | userId em cleartext nos logs de gamificacao | Resolvido Sprint 20: hashUserId() aplicado em PointsEngine (7) e PhaseEngine (4) |
 | OQ-003 | Sprint 1 | 2026-02-26 | `TripService.listTrips` default status filter | Resolvido na implementacao do Sprint 1 |
 | OQ-004 | Sprint 1 | 2026-02-26 | `useActionState` React 19 signature | Confirmado com dev antes da implementacao |
 | OQ-005 | Sprint 1 | 2026-02-26 | Prisma 7 soft-delete usa `$extends` | Confirmado e implementado corretamente |
@@ -112,6 +115,8 @@
 | 0.5.0 | 2026-03-02 | MINOR | Navegacao autenticada, logout, breadcrumbs, error fix -- sem breaking changes |
 | 0.6.0 | 2026-03-04 | MINOR | Debitos tecnicos (CSP nonce, rate limiter atomico) + Onboarding Wizard + Trust Signals + Auth layout -- sem breaking changes |
 | 0.7.0 | 2026-03-05 | MINOR | Perfil de usuario, exclusao de conta (LGPD), loading/error states, test automation -- sem breaking changes |
+| 0.8.0-0.13.0 | 2026-03-06 a 2026-03-10 | MINOR | Sprints 8-19: AI provider, Atlas gamification, progressive profile, autocomplete, itinerary persistence, guide redesign |
+| 0.14.0 | 2026-03-10 | MINOR | Preferences (10 categorias), passengers, transport/accommodation data model, userId hash, Phase 1 reorder -- sem breaking changes |
 
 ---
 
