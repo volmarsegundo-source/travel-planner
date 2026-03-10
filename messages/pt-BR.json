@@ -533,11 +533,12 @@
         "travelerType": "Tipo de viajante",
         "groupSize": "Tamanho do grupo",
         "passengers": "Passageiros",
+        "passengersDetail": "{adults} adultos, {children} crianças, {seniors} idosos, {infants} bebês",
+        "childrenAges": "Idades das crianças: {ages}",
+        "preferences": "Preferências",
         "accommodation": "Hospedagem",
         "pace": "Ritmo",
         "budget": "Orçamento",
-        "dietaryRestrictions": "Restrições alimentares",
-        "accessibility": "Necessidades de acessibilidade",
         "cta": "Concluir e Ganhar Pontos"
       },
       "errors": {
@@ -809,7 +810,7 @@
     "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
     "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
     "validation": "Dados de entrada inválidos.",
-    "phaseAlreadyCompleted": "Esta fase já foi concluída. Vá para a fase atual para continuar."
+    "phaseAlreadyCompleted": "Esta fase já foi concluída. Você pode revisitar os dados."
   },
   "legal": {
     "terms": {

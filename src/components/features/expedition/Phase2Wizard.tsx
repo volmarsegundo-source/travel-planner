@@ -16,6 +16,7 @@ import { PreferencesSection } from "@/components/features/profile/PreferencesSec
 import { completePhase2Action } from "@/server/actions/expedition.actions";
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
+import type { UserPreferences } from "@/lib/validations/preferences.schema";
 
 interface TripContext {
   destination?: string;
@@ -35,6 +36,7 @@ type StepKey = "travelerType" | "passengers" | "accommodation" | "pace" | "budge
 export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
   const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const locale = useLocale();
   const router = useRouter();
 
@@ -60,6 +62,10 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
   const [travelPace, setTravelPace] = useState(5);
   const [budget, setBudget] = useState(1000);
   const [currency, setCurrency] = useState(() => getDefaultCurrency(locale));
+  const [selectedPreferences, setSelectedPreferences] = useState<UserPreferences>({} as UserPreferences);
+
+  // Categories already collected in earlier wizard steps
+  const excludedPreferenceCategories = ["travelPace", "budgetStyle", "socialPreference"] as const;
 
   const stepContentRef = useRef<HTMLDivElement>(null);
 
@@ -230,7 +236,9 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
               role="alert"
               className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
             >
-              {errorMessage}
+              {errorMessage.startsWith("errors.")
+                ? tErrors(errorMessage.replace("errors.", ""))
+                : errorMessage}
             </div>
           )}
 
@@ -379,7 +387,11 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
           {/* Preferences */}
           {currentStep === "preferences" && (
             <div className="flex flex-col gap-4">
-              <PreferencesSection initialPreferences={{}} />
+              <PreferencesSection
+                initialPreferences={{}}
+                excludeCategories={[...excludedPreferenceCategories]}
+                onPreferencesChange={setSelectedPreferences}
+              />
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleBack} className="flex-1">
                   &larr;
@@ -427,12 +439,33 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                     <dd className="font-medium capitalize">{travelerType}</dd>
                   </div>
                   {(travelerType === "family" || travelerType === "group") && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.passengers")}</dt>
-                      <dd className="font-medium">
-                        {t("passengers.total", { count: totalPassengers })}
-                      </dd>
-                    </div>
+                    <>
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">{t("step5.passengers")}</dt>
+                        <dd className="font-medium">
+                          {t("passengers.total", { count: totalPassengers })}
+                        </dd>
+                      </div>
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground" />
+                        <dd className="text-xs text-muted-foreground">
+                          {t("step5.passengersDetail", {
+                            adults,
+                            children: childrenCount,
+                            seniors,
+                            infants,
+                          })}
+                        </dd>
+                      </div>
+                      {childrenCount > 0 && childrenAges.length > 0 && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground" />
+                          <dd className="text-xs text-muted-foreground">
+                            {t("step5.childrenAges", { ages: childrenAges.join(", ") })}
+                          </dd>
+                        </div>
+                      )}
+                    </>
                   )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.accommodation")}</dt>
@@ -448,6 +481,20 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                       {formatCurrency(budget, currency, locale)}
                     </dd>
                   </div>
+                  {(() => {
+                    const filledPrefs = Object.entries(selectedPreferences).filter(
+                      ([, v]) => v !== null && v !== undefined && (!Array.isArray(v) || v.length > 0)
+                    );
+                    if (filledPrefs.length === 0) return null;
+                    return (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">{t("step5.preferences")}</dt>
+                        <dd className="font-medium">
+                          {filledPrefs.length} {filledPrefs.length === 1 ? "category" : "categories"}
+                        </dd>
+                      </div>
+                    );
+                  })()}
                 </dl>
               </div>
               <div className="flex gap-3">

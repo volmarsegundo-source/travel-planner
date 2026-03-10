@@ -6,13 +6,15 @@ interface PreferenceProgressBarProps {
   filledCount: number;
   /** Translate function */
   progressText: string;
+  totalCategories?: number;
 }
 
 export function PreferenceProgressBar({
   filledCount,
   progressText,
+  totalCategories,
 }: PreferenceProgressBarProps) {
-  const total = TOTAL_PREFERENCE_CATEGORIES;
+  const total = totalCategories ?? TOTAL_PREFERENCE_CATEGORIES;
   const isComplete = filledCount >= total;
 
   return (

@@ -161,9 +161,11 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
 
 interface PreferencesSectionProps {
   initialPreferences: unknown;
+  excludeCategories?: PreferenceCategoryKey[];
+  onPreferencesChange?: (preferences: UserPreferences) => void;
 }
 
-export function PreferencesSection({ initialPreferences }: PreferencesSectionProps) {
+export function PreferencesSection({ initialPreferences, excludeCategories, onPreferencesChange }: PreferencesSectionProps) {
   const t = useTranslations("preferences");
   const [preferences, setPreferences] = useState<UserPreferences>(
     () => parsePreferences(initialPreferences)
@@ -172,7 +174,14 @@ export function PreferencesSection({ initialPreferences }: PreferencesSectionPro
   const [saveError, setSaveError] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const filledCount = countFilledCategories(preferences);
+  const visibleCategories = excludeCategories
+    ? CATEGORY_CONFIGS.filter((c) => !excludeCategories.includes(c.key))
+    : CATEGORY_CONFIGS;
+  const totalCategories = visibleCategories.length;
+  const filledCount = visibleCategories.filter(
+    (c) => preferences[c.key] !== null && preferences[c.key] !== undefined &&
+      (Array.isArray(preferences[c.key]) ? (preferences[c.key] as string[]).length > 0 : true)
+  ).length;
 
   const debouncedSave = useCallback(
     (newPrefs: UserPreferences) => {
@@ -197,14 +206,15 @@ export function PreferencesSection({ initialPreferences }: PreferencesSectionPro
     const updated = { ...preferences, [categoryKey]: values };
     setPreferences(updated);
     debouncedSave(updated);
+    onPreferencesChange?.(updated);
   }
 
   // Progress text
   let progressText: string;
   if (filledCount === 0) {
     progressText = t("progressHintStart");
-  } else if (filledCount < 10) {
-    progressText = t("progressHintContinue", { remaining: 10 - filledCount });
+  } else if (filledCount < totalCategories) {
+    progressText = t("progressHintContinue", { remaining: totalCategories - filledCount });
   } else {
     progressText = t("progressComplete");
   }
@@ -223,6 +233,7 @@ export function PreferencesSection({ initialPreferences }: PreferencesSectionPro
           <PreferenceProgressBar
             filledCount={filledCount}
             progressText={progressText}
+            totalCategories={totalCategories}
           />
         </div>
         {saveError && (
@@ -238,7 +249,7 @@ export function PreferencesSection({ initialPreferences }: PreferencesSectionPro
       </div>
 
       {/* Category cards */}
-      {CATEGORY_CONFIGS.map((config) => (
+      {visibleCategories.map((config) => (
         <PreferenceCategory
           key={config.key}
           categoryKey={config.key}

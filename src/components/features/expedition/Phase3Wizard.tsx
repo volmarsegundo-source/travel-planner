@@ -39,6 +39,7 @@ export function Phase3Wizard({
 }: Phase3WizardProps) {
   const t = useTranslations("expedition.phase3");
   const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const router = useRouter();
 
   const [items, setItems] = useState(initialItems);
@@ -217,7 +218,9 @@ export function Phase3Wizard({
             role="alert"
             className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
           >
-            {errorMessage}
+            {errorMessage.startsWith("errors.")
+              ? tErrors(errorMessage.replace("errors.", ""))
+              : errorMessage}
           </div>
         )}
 

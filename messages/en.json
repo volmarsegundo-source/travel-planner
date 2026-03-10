@@ -533,11 +533,12 @@
         "travelerType": "Traveler type",
         "groupSize": "Group size",
         "passengers": "Passengers",
+        "passengersDetail": "{adults} adults, {children} children, {seniors} seniors, {infants} infants",
+        "childrenAges": "Children ages: {ages}",
+        "preferences": "Preferences",
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
-        "dietaryRestrictions": "Dietary restrictions",
-        "accessibility": "Accessibility needs",
         "cta": "Complete & Earn Points"
       },
       "errors": {
@@ -820,7 +821,7 @@
     "aiSchemaError": "The AI returned an unexpected format. Please try again.",
     "rateLimitExceeded": "Too many requests. Please try again later.",
     "validation": "Invalid input data.",
-    "phaseAlreadyCompleted": "This phase is already completed. Go to your current phase to continue."
+    "phaseAlreadyCompleted": "This phase is already completed. You can review your data."
   },
   "legal": {
     "terms": {

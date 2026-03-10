@@ -47,6 +47,7 @@ export function Phase4Wizard({
 }: Phase4WizardProps) {
   const t = useTranslations("expedition.phase4");
   const tCommon = useTranslations("common");
+  const tErrors = useTranslations("errors");
   const router = useRouter();
 
   // Prerequisites state (car rental / CNH)
@@ -266,7 +267,9 @@ export function Phase4Wizard({
             role="alert"
             className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
           >
-            {errorMessage}
+            {errorMessage.startsWith("errors.")
+              ? tErrors(errorMessage.replace("errors.", ""))
+              : errorMessage}
           </div>
         )}
 
