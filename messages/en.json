@@ -298,6 +298,7 @@
   "dashboard": {
     "title": "My Atlas",
     "greeting": "Welcome back, {name}!",
+    "greetingFirst": "Welcome to Atlas, {name}!",
     "emptyState": {
       "title": "Start your first expedition",
       "subtitle": "Plan a trip and earn points along the way.",
@@ -324,6 +325,7 @@
       "costManager": "Costs",
       "retrospective": "Retrospective",
       "community": "Community",
+      "transport": "Transport",
       "comingSoon": "Coming soon"
     }
   },
@@ -400,6 +402,8 @@
       "step1": {
         "title": "About you",
         "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordenadas!",
+        "name": "Full name",
+        "namePlaceholder": "Your full name",
         "birthDate": "Date of birth",
         "phone": "Phone number",
         "phonePlaceholder": "+55 11 99999-9999",
@@ -508,7 +512,8 @@
         "childAge": "Age of child {number}",
         "total": "Total passengers: {count}",
         "decrease": "Decrease {type}",
-        "increase": "Increase {type}"
+        "increase": "Increase {type}",
+        "nearLimit": "Approaching the maximum of 20 passengers"
       },
       "preferences": {
         "title": "Personal Preferences",
@@ -522,6 +527,9 @@
       "step5": {
         "title": "Ready to explore?",
         "summary": "Your preferences",
+        "destination": "Destination",
+        "origin": "Origin",
+        "dates": "Dates",
         "travelerType": "Traveler type",
         "groupSize": "Group size",
         "passengers": "Passengers",
@@ -784,7 +792,8 @@
       "theTreasure": "The Treasure",
       "theExpedition": "The Expedition",
       "theLegacy": "The Legacy",
-      "progressLabel": "Phase progress: {completed} of {total} completed"
+      "progressLabel": "Phase progress: {completed} of {total} completed",
+      "comingSoon": "Coming Soon"
     }
   },
   "errors": {

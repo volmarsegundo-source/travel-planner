@@ -31,7 +31,7 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
     },
   });
 
-  if (!trip || trip.currentPhase !== 4) {
+  if (!trip || trip.currentPhase < 4) {
     redirect({ href: "/dashboard", locale });
     return null;
   }

@@ -159,9 +159,9 @@ describe("PassengersSchema", () => {
       expect(result.success).toBe(false);
     });
 
-    it("rejects adults over max (20)", () => {
+    it("rejects adults over max (9)", () => {
       const result = PassengersSchema.safeParse({
-        adults: 21,
+        adults: 10,
         children: { count: 0, ages: [] },
         seniors: 0,
         infants: 0,
@@ -169,10 +169,10 @@ describe("PassengersSchema", () => {
       expect(result.success).toBe(false);
     });
 
-    it("rejects children count over max (20)", () => {
+    it("rejects children count over max (9)", () => {
       const result = PassengersSchema.safeParse({
         adults: 1,
-        children: { count: 21, ages: Array(21).fill(5) },
+        children: { count: 10, ages: Array(10).fill(5) },
         seniors: 0,
         infants: 0,
       });
@@ -224,9 +224,9 @@ describe("PassengersSchema", () => {
 
     it("accepts exactly 20 total passengers (boundary)", () => {
       const result = PassengersSchema.safeParse({
-        adults: 10,
+        adults: 8,
         children: { count: 5, ages: [2, 4, 6, 8, 10] },
-        seniors: 3,
+        seniors: 5,
         infants: 2,
       });
       expect(result.success).toBe(true);
@@ -234,9 +234,9 @@ describe("PassengersSchema", () => {
 
     it("rejects 21 total passengers (boundary)", () => {
       const result = PassengersSchema.safeParse({
-        adults: 10,
+        adults: 8,
         children: { count: 5, ages: [2, 4, 6, 8, 10] },
-        seniors: 3,
+        seniors: 5,
         infants: 3,
       });
       expect(result.success).toBe(false);
@@ -248,7 +248,7 @@ describe("PassengersSchema", () => {
 
     it("rejects large total exceeding cap", () => {
       const result = PassengersSchema.safeParse({
-        adults: 15,
+        adults: 9,
         children: { count: 5, ages: [1, 2, 3, 4, 5] },
         seniors: 5,
         infants: 5,
@@ -258,10 +258,10 @@ describe("PassengersSchema", () => {
 
     it("reports error on adults path", () => {
       const result = PassengersSchema.safeParse({
-        adults: 10,
+        adults: 9,
         children: { count: 6, ages: [1, 2, 3, 4, 5, 6] },
         seniors: 3,
-        infants: 2,
+        infants: 3,
       });
       expect(result.success).toBe(false);
       if (!result.success) {

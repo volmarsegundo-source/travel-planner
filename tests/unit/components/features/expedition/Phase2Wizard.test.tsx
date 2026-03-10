@@ -28,8 +28,14 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+vi.mock("server-only", () => ({}));
+
 vi.mock("@/server/actions/expedition.actions", () => ({
   completePhase2Action: vi.fn(),
+}));
+
+vi.mock("@/server/actions/profile.actions", () => ({
+  savePreferencesAction: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 vi.mock("@/lib/utils/currency", () => ({

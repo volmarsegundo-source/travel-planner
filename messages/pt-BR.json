@@ -298,6 +298,7 @@
   "dashboard": {
     "title": "Meu Atlas",
     "greeting": "Bem-vindo de volta, {name}!",
+    "greetingFirst": "Bem-vindo ao Atlas, {name}!",
     "emptyState": {
       "title": "Comece sua primeira expedição",
       "subtitle": "Planeje uma viagem e ganhe pontos ao longo do caminho.",
@@ -324,6 +325,7 @@
       "costManager": "Custos",
       "retrospective": "Retrospectiva",
       "community": "Comunidade",
+      "transport": "Transporte",
       "comingSoon": "Em construção"
     }
   },
@@ -400,6 +402,8 @@
       "step1": {
         "title": "Sobre você",
         "subtitle": "Nos ajude a personalizar sua viagem. Preencha o que puder — cada campo ganha Coordenadas!",
+        "name": "Nome completo",
+        "namePlaceholder": "Seu nome completo",
         "birthDate": "Data de nascimento",
         "phone": "Telefone",
         "phonePlaceholder": "+55 11 99999-9999",
@@ -508,7 +512,8 @@
         "childAge": "Idade da crianca {number}",
         "total": "Total de passageiros: {count}",
         "decrease": "Diminuir {type}",
-        "increase": "Aumentar {type}"
+        "increase": "Aumentar {type}",
+        "nearLimit": "Aproximando-se do máximo de 20 passageiros"
       },
       "preferences": {
         "title": "Preferências Pessoais",
@@ -522,6 +527,9 @@
       "step5": {
         "title": "Pronto para explorar?",
         "summary": "Suas preferências",
+        "destination": "Destino",
+        "origin": "Origem",
+        "dates": "Datas",
         "travelerType": "Tipo de viajante",
         "groupSize": "Tamanho do grupo",
         "passengers": "Passageiros",
@@ -772,7 +780,8 @@
       "theTreasure": "O Tesouro",
       "theExpedition": "A Expedição",
       "theLegacy": "O Legado",
-      "progressLabel": "Progresso das fases: {completed} de {total} concluídas"
+      "progressLabel": "Progresso das fases: {completed} de {total} concluídas",
+      "comingSoon": "Em Breve"
     },
     "points": "pts"
   },

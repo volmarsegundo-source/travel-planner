@@ -5,6 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 
 interface DestinationResult {
   displayName: string;
+  shortName?: string;
   lat: number;
   lon: number;
   country: string | null;
@@ -80,7 +81,7 @@ export function DestinationAutocomplete({
 
   const handleSelect = useCallback(
     (result: DestinationResult) => {
-      onChange(result.displayName);
+      onChange(result.shortName ?? result.displayName);
       onSelect?.(result);
       setIsOpen(false);
       setResults([]);
@@ -188,7 +189,7 @@ export function DestinationAutocomplete({
                   : "text-foreground/80 hover:bg-muted"
               }`}
             >
-              {result.displayName}
+              {result.shortName ?? result.displayName}
             </li>
           ))}
         </ul>

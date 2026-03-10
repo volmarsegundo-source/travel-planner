@@ -2,6 +2,7 @@
 
 import { useRef, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,18 +50,25 @@ interface Phase1WizardProps {
   passportExpiry?: string;
   userCountry?: string;
   userProfile?: UserProfileData;
+  userName?: string;
 }
 
 export function Phase1Wizard({
   passportExpiry,
   userCountry,
   userProfile,
+  userName,
 }: Phase1WizardProps) {
   const t = useTranslations("expedition.phase1");
   const tCommon = useTranslations("common");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(() => {
+    const stepParam = searchParams?.get("step") ?? null;
+    const parsed = stepParam ? parseInt(stepParam, 10) : 1;
+    return parsed >= 1 && parsed <= TOTAL_STEPS ? parsed : 1;
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAnimation, setShowAnimation] = useState(false);
@@ -95,6 +103,7 @@ export function Phase1Wizard({
   const [country, setCountry] = useState(userProfile?.country ?? "");
   const [city, setCity] = useState(userProfile?.city ?? "");
   const [bio, setBio] = useState(userProfile?.bio ?? "");
+  const [name, setName] = useState(userName ?? "");
 
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>("");
@@ -121,6 +130,10 @@ export function Phase1Wizard({
   function goToStep(step: number) {
     setCurrentStep(step);
     setErrorMessage(null);
+    // Persist step in URL for language switch preservation
+    const url = new URL(window.location.href);
+    url.searchParams.set("step", String(step));
+    window.history.replaceState({}, "", url.toString());
     requestAnimationFrame(() => {
       const firstInput = stepContentRef.current?.querySelector<HTMLElement>(
         "input, button[type='submit']"
@@ -161,6 +174,7 @@ export function Phase1Wizard({
     if (country) profileFields.country = country;
     if (city) profileFields.city = city;
     if (bio) profileFields.bio = bio;
+    if (name) profileFields.name = name;
 
     try {
       const result = await createExpeditionAction({
@@ -273,6 +287,12 @@ export function Phase1Wizard({
                       </Button>
                     </div>
                     <dl className="space-y-2 text-sm">
+                      {name && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step1.name")}</dt>
+                          <dd className="font-medium">{name}</dd>
+                        </div>
+                      )}
                       {birthDate && (
                         <div className="flex justify-between">
                           <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>
@@ -313,6 +333,18 @@ export function Phase1Wizard({
                   <p className="text-sm text-muted-foreground">{t("step1.subtitle")}</p>
 
                   <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="profile-name">{t("step1.name")}</Label>
+                      <Input
+                        id="profile-name"
+                        type="text"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        maxLength={100}
+                        placeholder={t("step1.namePlaceholder")}
+                      />
+                    </div>
+
                     <div className="flex flex-col gap-1.5">
                       <Label htmlFor="profile-birthdate">{t("step1.birthDate")}</Label>
                       <Input
@@ -506,12 +538,18 @@ export function Phase1Wizard({
                     </dd>
                   </div>
                 </dl>
-                {(birthDate || phone || country || city || bio) && (
+                {(name || birthDate || phone || country || city || bio) && (
                   <>
                     <h3 className="mb-3 mt-4 text-sm font-medium text-muted-foreground">
                       {t("step4.profileSummary")}
                     </h3>
                     <dl className="space-y-2 text-sm">
+                      {name && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step1.name")}</dt>
+                          <dd className="font-medium">{name}</dd>
+                        </div>
+                      )}
                       {birthDate && (
                         <div className="flex justify-between">
                           <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>

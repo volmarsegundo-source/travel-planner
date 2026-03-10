@@ -146,8 +146,8 @@ describe("PHASE_TOOLS", () => {
     expect(PHASE_TOOLS[6]![0]!.status).toBe("available");
   });
 
-  it("marks phases 4, 7, 8 tools as coming_soon", () => {
-    expect(PHASE_TOOLS[4]![0]!.status).toBe("coming_soon");
+  it("marks phase 4 as available and phases 7, 8 tools as coming_soon", () => {
+    expect(PHASE_TOOLS[4]![0]!.status).toBe("available");
     for (const tool of PHASE_TOOLS[7]!) {
       expect(tool.status).toBe("coming_soon");
     }

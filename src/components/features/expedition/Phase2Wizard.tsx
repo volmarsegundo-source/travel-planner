@@ -12,19 +12,27 @@ import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { VisualCardSelector } from "./VisualCardSelector";
 import { PassengersStep } from "./PassengersStep";
+import { PreferencesSection } from "@/components/features/profile/PreferencesSection";
 import { completePhase2Action } from "@/server/actions/expedition.actions";
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 
+interface TripContext {
+  destination?: string;
+  origin?: string;
+  startDate?: string;
+  endDate?: string;
+}
 
 interface Phase2WizardProps {
   tripId: string;
+  tripContext?: TripContext;
 }
 
 // Step definitions (order matters)
 type StepKey = "travelerType" | "passengers" | "accommodation" | "pace" | "budget" | "preferences" | "confirmation";
 
-export function Phase2Wizard({ tripId }: Phase2WizardProps) {
+export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
   const tCommon = useTranslations("common");
   const locale = useLocale();
@@ -52,8 +60,6 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
   const [travelPace, setTravelPace] = useState(5);
   const [budget, setBudget] = useState(1000);
   const [currency, setCurrency] = useState(() => getDefaultCurrency(locale));
-  const [dietaryRestrictions, setDietaryRestrictions] = useState("");
-  const [accessibility, setAccessibility] = useState("");
 
   const stepContentRef = useRef<HTMLDivElement>(null);
 
@@ -135,8 +141,6 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
               infants,
             }
           : undefined,
-        dietaryRestrictions: dietaryRestrictions.trim() || undefined,
-        accessibility: accessibility.trim() || undefined,
       });
 
       if (!result.success) {
@@ -375,35 +379,7 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
           {/* Preferences */}
           {currentStep === "preferences" && (
             <div className="flex flex-col gap-4">
-              <h2 className="text-lg font-semibold">{t("preferences.title")}</h2>
-              <p className="text-sm text-muted-foreground">{t("preferences.subtitle")}</p>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="phase2-dietary">{t("preferences.dietary")}</Label>
-                <Input
-                  id="phase2-dietary"
-                  type="text"
-                  value={dietaryRestrictions}
-                  onChange={(e) => setDietaryRestrictions(e.target.value)}
-                  maxLength={300}
-                  placeholder={t("preferences.dietaryPlaceholder")}
-                />
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="phase2-accessibility">{t("preferences.accessibility")}</Label>
-                <Input
-                  id="phase2-accessibility"
-                  type="text"
-                  value={accessibility}
-                  onChange={(e) => setAccessibility(e.target.value)}
-                  maxLength={300}
-                  placeholder={t("preferences.accessibilityPlaceholder")}
-                />
-              </div>
-
-              <p className="text-xs text-muted-foreground/70">{t("preferences.optional")}</p>
-
+              <PreferencesSection initialPreferences={{}} />
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handleBack} className="flex-1">
                   &larr;
@@ -424,6 +400,28 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                   {t("step5.summary")}
                 </h3>
                 <dl className="space-y-2 text-sm">
+                  {tripContext?.destination && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t("step5.destination")}</dt>
+                      <dd className="font-medium">{tripContext.destination}</dd>
+                    </div>
+                  )}
+                  {tripContext?.origin && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t("step5.origin")}</dt>
+                      <dd className="font-medium">{tripContext.origin}</dd>
+                    </div>
+                  )}
+                  {(tripContext?.startDate || tripContext?.endDate) && (
+                    <div className="flex justify-between">
+                      <dt className="text-muted-foreground">{t("step5.dates")}</dt>
+                      <dd className="font-medium">
+                        {tripContext.startDate && tripContext.endDate
+                          ? `${tripContext.startDate} → ${tripContext.endDate}`
+                          : tripContext.startDate || tripContext.endDate}
+                      </dd>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.travelerType")}</dt>
                     <dd className="font-medium capitalize">{travelerType}</dd>
@@ -450,18 +448,6 @@ export function Phase2Wizard({ tripId }: Phase2WizardProps) {
                       {formatCurrency(budget, currency, locale)}
                     </dd>
                   </div>
-                  {dietaryRestrictions && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.dietaryRestrictions")}</dt>
-                      <dd className="font-medium">{dietaryRestrictions}</dd>
-                    </div>
-                  )}
-                  {accessibility && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.accessibility")}</dt>
-                      <dd className="font-medium">{accessibility}</dd>
-                    </div>
-                  )}
                 </dl>
               </div>
               <div className="flex gap-3">

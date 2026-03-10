@@ -33,7 +33,7 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
     },
   });
 
-  if (!trip || trip.currentPhase !== 3) {
+  if (!trip || trip.currentPhase < 3) {
     redirect({ href: "/dashboard", locale });
     return null;
   }

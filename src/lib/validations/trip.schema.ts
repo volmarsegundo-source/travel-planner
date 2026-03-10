@@ -64,7 +64,7 @@ export const TripUpdateSchema = z.object({
 // ─── Passengers Schema (T-S20-009) ──────────────────────────────────────────
 
 const MAX_CHILDREN_AGE = 17;
-const MAX_PASSENGERS_PER_TYPE = 20;
+const MAX_PASSENGERS_PER_TYPE = 9;
 const MIN_ADULTS = 1;
 
 /** Maximum total passengers across all types (T-S21-006). */

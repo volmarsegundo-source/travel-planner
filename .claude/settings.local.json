@@ -52,7 +52,11 @@
       "WebFetch(domain:pixso.net)",
       "WebFetch(domain:www.nngroup.com)",
       "WebFetch(domain:www.smashingmagazine.com)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(find /c/travel-planner/src -path \"*/server/db*\" -o -path \"*/db.ts\" 2>/dev/null | head -10)",
+      "Bash(find /c/travel-planner/tests -name \"*.service.test.*\" 2>/dev/null | head -10)",
+      "Bash(find /c/travel-planner -name \"*.prisma\" -type f 2>/dev/null | head -5)",
+      "Bash(cat messages/en.json | python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\({k: '...' for k in d.keys\\(\\)}, indent=2\\)\\)\" 2>/dev/null || node -e \"const d=require\\('./messages/en.json'\\); console.log\\(Object.keys\\(d\\).join\\(', '\\)\\)\")"
     ]
   }
 }

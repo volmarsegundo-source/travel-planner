@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const MIN_PASSENGER_STEPPER = 0;
-const MAX_PASSENGER_STEPPER = 20;
+const MAX_PASSENGER_STEPPER = 9;
 const MAX_CHILD_AGE = 17;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -214,9 +214,16 @@ export function PassengersStep({
       </div>
 
       {/* Total */}
-      <p className="text-center text-sm font-medium text-muted-foreground">
-        {t("passengers.total", { count: totalPassengers })}
-      </p>
+      <div className="text-center">
+        <p className="text-sm font-medium text-muted-foreground">
+          {t("passengers.total", { count: totalPassengers })}
+        </p>
+        {totalPassengers > 15 && (
+          <p className="mt-1 text-xs text-atlas-gold">
+            {t("passengers.nearLimit")}
+          </p>
+        )}
+      </div>
 
       <div className="flex gap-3">
         <Button variant="outline" onClick={onBack} className="flex-1">

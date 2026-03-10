@@ -13,6 +13,7 @@ export const Phase1Schema = z.object({
   endDate: z.string().optional(),
   flexibleDates: z.boolean().default(false),
   profileFields: z.object({
+    name: z.string().max(100).optional(),
     birthDate: z.string().optional(),
     phone: z.string().max(20).optional(),
     country: z.string().max(100).optional(),

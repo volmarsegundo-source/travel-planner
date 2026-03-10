@@ -168,7 +168,19 @@ export function RegisterForm() {
         return;
       }
 
-      router.push("/auth/login?registered=true");
+      // Auto-login after successful registration
+      const signInResult = await signIn("credentials", {
+        email: values.email,
+        password: values.password,
+        redirect: false,
+      });
+
+      if (signInResult?.ok) {
+        router.push("/dashboard");
+      } else {
+        // Fallback to login page if auto-login fails
+        router.push("/auth/login?registered=true");
+      }
     } catch {
       setServerErrorKey("errors.generic");
     } finally {

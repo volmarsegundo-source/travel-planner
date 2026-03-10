@@ -104,7 +104,10 @@ export async function GET(request: NextRequest) {
       }
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const results = [...seen.values()].map(({ importance, ...rest }) => rest);
+    const results = [...seen.values()].map(({ importance, ...rest }) => ({
+      ...rest,
+      shortName: [rest.city, rest.state, rest.country].filter(Boolean).join(", ") || rest.displayName,
+    }));
 
     // Cache in Redis
     try {

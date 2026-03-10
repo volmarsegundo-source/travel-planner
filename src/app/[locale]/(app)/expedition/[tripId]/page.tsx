@@ -28,7 +28,19 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
     } else {
       // No active phase — find the highest completed phase
       const highest = await PhaseEngine.getHighestCompletedPhase(tripId, session.user.id);
-      phaseNumber = highest?.phaseNumber ?? 1;
+      if (highest) {
+        phaseNumber = highest.phaseNumber;
+      } else {
+        // Fallback: read currentPhase directly from trip record
+        const { db } = await import("@/server/db");
+        const trip = await db.trip.findFirst({
+          where: { id: tripId, userId: session.user.id, deletedAt: null },
+          select: { currentPhase: true },
+        });
+        if (trip) {
+          phaseNumber = trip.currentPhase;
+        }
+      }
     }
   } catch {
     // Gracefully degrade — default to phase 1 redirect

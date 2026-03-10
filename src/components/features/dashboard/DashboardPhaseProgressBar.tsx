@@ -57,10 +57,15 @@ export function DashboardPhaseProgressBar({
         } else if (isComingSoon) {
           segmentClasses += " bg-muted opacity-50";
           indicator = (
-            <Construction
-              className="absolute -top-3.5 left-1/2 h-3 w-3 -translate-x-1/2 text-muted-foreground/50"
-              aria-hidden="true"
-            />
+            <>
+              <Construction
+                className="absolute -top-3.5 left-1/2 h-3 w-3 -translate-x-1/2 text-muted-foreground/50"
+                aria-hidden="true"
+              />
+              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] text-muted-foreground/60 hidden sm:block">
+                {t("phases.comingSoon")}
+              </span>
+            </>
           );
         } else {
           segmentClasses += " bg-muted";
@@ -82,7 +87,7 @@ export function DashboardPhaseProgressBar({
         // Phase label tooltip (T-S21-008)
         const phaseLabel = (
           <span
-            className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground/90 px-1.5 py-0.5 text-[10px] text-background opacity-0 transition-opacity group-hover/segment:opacity-100"
+            className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground/90 px-1.5 py-0.5 text-[10px] text-background hidden sm:block transition-opacity sm:opacity-100"
             aria-hidden="true"
             data-testid={`phase-label-${phaseNum}`}
           >

@@ -60,6 +60,20 @@ export async function createExpeditionAction(
       }
     }
 
+    // Save name to User model if provided in profile fields
+    if (parsed.data.profileFields?.name) {
+      try {
+        await db.user.update({
+          where: { id: session.user.id },
+          data: { name: parsed.data.profileFields.name },
+        });
+      } catch (nameError) {
+        logger.error("expedition.name.error", nameError, {
+          userId: hashUserId(session.user.id),
+        });
+      }
+    }
+
     revalidatePath("/dashboard");
     revalidatePath("/trips");
     return { success: true, data: result };

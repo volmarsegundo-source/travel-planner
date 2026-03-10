@@ -125,11 +125,11 @@ export const PHASE_TOOLS: Record<number, PhaseTool[]> = {
   ],
   4: [
     {
-      key: "accommodation",
-      iconName: "Building2",
-      href: () => "#",
-      status: "coming_soon",
-      labelKey: "dashboard.tools.accommodation",
+      key: "transport",
+      iconName: "Plane",
+      href: (tripId) => `/expedition/${tripId}/phase-4`,
+      status: "available",
+      labelKey: "dashboard.tools.transport",
     },
   ],
   5: [

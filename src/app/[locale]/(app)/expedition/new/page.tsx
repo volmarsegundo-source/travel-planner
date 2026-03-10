@@ -58,6 +58,7 @@ export default async function ExpeditionNewPage({ params }: ExpeditionNewPagePro
       <Phase1Wizard
         passportExpiry={userProfile?.passportExpiry?.toISOString() ?? undefined}
         userCountry={userProfile?.country ?? undefined}
+        userName={session.user.name ?? undefined}
         userProfile={
           userProfile
             ? {

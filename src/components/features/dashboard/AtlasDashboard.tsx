@@ -45,6 +45,7 @@ export function AtlasDashboard({
           userName={userName}
           rank={rank}
           totalPoints={totalPoints}
+          isFirstVisit={expeditions.length === 0}
         />
 
         <div className="mt-8">
