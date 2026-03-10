@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 
 interface DestinationResult {
   displayName: string;
@@ -32,6 +32,7 @@ export function DestinationAutocomplete({
   name = "destination",
 }: DestinationAutocompleteProps) {
   const t = useTranslations("expedition.phase1");
+  const locale = useLocale();
   const [results, setResults] = useState<DestinationResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -50,7 +51,7 @@ export function DestinationAutocomplete({
     setIsLoading(true);
     try {
       const response = await fetch(
-        `/api/destinations/search?q=${encodeURIComponent(query)}`
+        `/api/destinations/search?q=${encodeURIComponent(query)}&locale=${encodeURIComponent(locale)}`
       );
       if (response.ok) {
         const data = await response.json();
@@ -64,7 +65,7 @@ export function DestinationAutocomplete({
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [locale]);
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -72,7 +73,7 @@ export function DestinationAutocomplete({
       onChange(newValue);
 
       if (debounceRef.current) clearTimeout(debounceRef.current);
-      debounceRef.current = setTimeout(() => fetchResults(newValue), 300);
+      debounceRef.current = setTimeout(() => fetchResults(newValue), 400);
     },
     [onChange, fetchResults]
   );

@@ -5,6 +5,7 @@ import { render, screen, fireEvent, act } from "@testing-library/react";
 
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string) => key,
+  useLocale: () => "pt-BR",
 }));
 
 // ─── Import SUT ──────────────────────────────────────────────────────────────
@@ -43,7 +44,7 @@ describe("DestinationAutocomplete", () => {
     expect(onChange).toHaveBeenCalledWith("Par");
   });
 
-  it("debounces fetch by 300ms", async () => {
+  it("debounces fetch by 400ms", async () => {
     const mockFetch = fetch as ReturnType<typeof vi.fn>;
     mockFetch.mockResolvedValue({
       ok: true,
@@ -55,7 +56,7 @@ describe("DestinationAutocomplete", () => {
 
     expect(mockFetch).not.toHaveBeenCalled();
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     expect(mockFetch).toHaveBeenCalledTimes(1);
   });
@@ -65,7 +66,7 @@ describe("DestinationAutocomplete", () => {
     render(<DestinationAutocomplete value="" onChange={vi.fn()} />);
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "P" } });
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     expect(mockFetch).not.toHaveBeenCalled();
   });
@@ -83,7 +84,7 @@ describe("DestinationAutocomplete", () => {
     render(<DestinationAutocomplete value="Par" onChange={vi.fn()} />);
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "Paris" } });
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     expect(screen.getByRole("listbox")).toBeInTheDocument();
     expect(screen.getByText("Paris, France")).toBeInTheDocument();
@@ -109,7 +110,7 @@ describe("DestinationAutocomplete", () => {
     );
     fireEvent.change(screen.getByRole("combobox"), { target: { value: "Paris" } });
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     fireEvent.click(screen.getByText("Paris, France"));
 
@@ -133,7 +134,7 @@ describe("DestinationAutocomplete", () => {
     const input = screen.getByRole("combobox");
     fireEvent.change(input, { target: { value: "Paris" } });
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     expect(screen.getByRole("listbox")).toBeInTheDocument();
 
@@ -166,7 +167,7 @@ describe("DestinationAutocomplete", () => {
     const input = screen.getByRole("combobox");
     fireEvent.change(input, { target: { value: "Paris" } });
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     expect(screen.getByRole("listbox")).toBeInTheDocument();
 
@@ -190,7 +191,7 @@ describe("DestinationAutocomplete", () => {
     const input = screen.getByRole("combobox");
     fireEvent.change(input, { target: { value: "Paris" } });
 
-    await advanceAndFlush(300);
+    await advanceAndFlush(400);
 
     expect(screen.getByRole("listbox")).toBeInTheDocument();
 
