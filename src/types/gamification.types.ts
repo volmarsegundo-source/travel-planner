@@ -15,7 +15,8 @@ export type BadgeKey =
   | "cartographer"
   | "treasurer"
   | "pathfinder"
-  | "ambassador";
+  | "ambassador"
+  | "identity_explorer";
 
 export type PhaseStatus = "locked" | "active" | "completed";
 export type PhaseNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -30,7 +31,8 @@ export type PointTransactionType =
   | "profile_completion"
   | "phase_checklist"
   | "phase_accommodation"
-  | "phase_connectivity";
+  | "phase_connectivity"
+  | "preference_fill";
 
 export type Phase3ItemKey =
   | "passport_valid_6m"
