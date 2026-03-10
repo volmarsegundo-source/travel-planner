@@ -74,6 +74,25 @@
 - AiBadge: pill badge with sparkle icon for AI-generated content
 - CollapsibleEntry: for multi-item lists (accommodations)
 
+## New Patterns (UX-004/005 — Sprint 20)
+- PreferenceCategory: collapsible card with question + chip grid + auto-save + points
+- PreferenceChip: selectable chip (radio/checkbox) with emoji, name, description
+- PreferenceProgressBar: 10-segment bar tracking preference completion
+- PassengerSelector: summary field + collapsible panel with steppers
+- PassengerStepper: +/- control with label, value, limits, hints
+- ChildAgeInput: select (2-11) per child, animated entry/exit
+- BottomSheet: mobile slide-up modal container (reusable)
+
+## Sprint 20 UX Decisions
+- 10 preference categories: travelPace, foodPreferences, interests, budgetStyle, socialPreference, accommodationStyle, fitnessLevel, photographyInterest, wakeUpPreference, connectivityNeeds
+- Preferences stored as JSON field in UserProfile (not 10 separate columns)
+- Gamification: +5pts/category, badge at 10/10 (+25 bonus), max 75pts total
+- Passenger selector: stepper pattern (LATAM/GOL style), max 9 total, infants <= adults
+- Passenger data: JSON field on Trip model
+- Bottom sheet on mobile for passenger selector, inline panel on desktop
+- Preferences use chips (not text inputs) for structured data
+- Spec location: docs/ux/SPRINT-20-UX-SPECS.md
+
 ## Dark Theme Tokens (destination guide)
 - Card bg: #1E293B (slate-800), border: #334155 (slate-700)
 - Text on dark: #F1F5F9 (primary), #CBD5E1 (secondary), #94A3B8 (muted)

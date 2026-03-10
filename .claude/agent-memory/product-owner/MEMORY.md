@@ -1,29 +1,54 @@
-# Product Owner — Agent Memory
+# Product Owner -- Agent Memory
 
 ## Project: Travel Planner
 
 ### Backlog State (as of 2026-03-10)
-- Product version: 0.12.0 (post Sprint 18 merge)
-- Sprints 1-18 complete; Sprint 18 = feature sprint (1288 tests)
-- `docs/tasks.md` at version 3.0.0 (stale — needs major update)
-- Next available US ID: US-123; Next available Task ID: TBD
-- Full backlog: US-001 through US-016 + US-100 through US-122
+- Product version: 0.13.0 (post Sprint 19 merge)
+- Sprints 1-19 complete; Sprint 19 = bug fixes + guide redesign (1365 tests)
+- `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
+- Next available US ID: US-124; Next available Task ID: TBD
+- Full backlog: US-001 through US-016 + US-100 through US-123
+- US-123: Personal Preferences Expansion (defined Sprint 20)
 - ITEM-13 (Transport) + ITEM-14 (Destination Guide) spec: `docs/product/TRANSPORT-PHASE-SPEC.md`
-- US-115 to US-122 defined in TRANSPORT-PHASE-SPEC.md (not yet in tasks.md)
-- Sprint 19 backlog: `docs/sprints/SPRINT-19-BACKLOG.md`
+- Sprint 20 backlog: `docs/sprints/SPRINT-20-BACKLOG.md`
 
-### ITEM-13/14 User Stories (defined 2026-03-10)
-- US-115: Transport registration (Must, L, 3.70)
-- US-116: Accommodation registration (Must, M, 3.10)
-- US-117: Local mobility selection (Should, S, 3.10)
-- US-118: Trip origin field (Must, S, 3.65)
-- US-119: AI cost estimate for transport (Could, S, 3.30)
-- US-120: Destination guide cards redesign (Must, M, 3.20)
-- US-121: Expanded guide categories (Should, S, 3.10)
-- US-122: Destination chat AI — Premium (Could, L, 3.65)
+### Sprint 19 Results
+- 10 of 12 tasks delivered
+- DONE: streaming fix, phase 6+ nav, progress count, cascade delete, guide redesign (10 cats), confirmation screen, auto-advance, currency default, dedup, bio display
+- NOT DONE (carry to S20): DEFER-001 (remove dup buttons), DEFER-002 (Phase 1 reorder)
+- P2 deferred: clickable progress bar, phase labels
+
+### Sprint 20 Plan (theme: "Personal Preferences + UX Debt Cleanup")
+- P0: T-S20-001 verify guide redesign on staging (0.5h)
+- P1: T-S20-002 preferences expansion 8 categories (10h), T-S20-003 Phase 1 reorder (8h), T-S20-004 remove dup buttons (1h)
+- P2: T-S20-005 SEC-S19-001 hash userId (1h), T-S20-006 passenger details airline-style (6h), T-S20-007 theme tokens (1h)
+- Total committed: ~27.5h + 12.5h buffer (31%)
+- Sacrifice order: T-S20-007 -> T-S20-006 -> T-S20-005
+
+### US-123 Preference Categories (8 categories, defined Sprint 20)
+1. Cuisine (multi-select): local, italian, japanese, mexican, vegetarian, vegan, street_food, fine_dining, cafes
+2. Activities (multi-select): museums, hiking, beaches, nightlife, shopping, sports, photography, gastronomy, history
+3. Travel pace (single-select): relaxed, moderate, intense
+4. Day period (multi-select): morning, afternoon, evening
+5. Dietary restrictions (multi-select): gluten_free, lactose_free, vegetarian, vegan, halal, kosher, seafood_allergy, none
+6. Accessibility (multi-select): wheelchair, reduced_mobility, visual, hearing, none
+7. Meal budget (single-select): budget, moderate, premium
+8. Cultural interests (multi-select): contemporary_art, ancient_history, religion, live_music, theater, festivals, crafts
+- Storage: UserProfile.preferences JSON field
+- Gamification: +10 pts per category, badge "identity_explorer" at >= 5 categories
+
+### ITEM-13/14 User Stories
+- US-115: Transport registration (Must, L, 3.70) -- Sprint 21
+- US-116: Accommodation registration (Must, M, 3.10) -- Sprint 22
+- US-117: Local mobility selection (Should, S, 3.10) -- Sprint 21
+- US-118: Trip origin field (Must, S, 3.65) -- Sprint 21
+- US-119: AI cost estimate for transport (Could, S, 3.30) -- Sprint 22
+- US-120: Destination guide cards redesign (Must, M, 3.20) -- DONE Sprint 19
+- US-121: Expanded guide categories (Should, S, 3.10) -- DONE Sprint 19
+- US-122: Destination chat AI -- Premium (Could, L, 3.65) -- Future
 
 ### Phase 4 Redesign Decision
-- Rename Phase 4: "O Abrigo" -> "A Logistica" (APPROVED by stakeholder — PO-1)
+- Rename Phase 4: "O Abrigo" -> "A Logistica" (APPROVED by stakeholder -- PO-1)
 - 3 internal sections: Transport, Accommodation, Local Mobility
 - Keep 8 phases total (no new phase added)
 - Badge rename: host -> logistics_master
@@ -31,29 +56,34 @@
 - Transport: round-trip AND one-way (PO-2), multi-city connections (PO-3)
 - Multiple accommodations per trip, max 5 (UX-1)
 
+### Transport Assessment (Sprint 20 decision)
+- Transport full scope (US-115+116+117+118+rename) = 36-40h = entire sprint
+- Decision: DO NOT include in Sprint 20. Dedicate Sprint 21 to transport.
+- Sprint 21: US-118 + US-115 + US-117 + rename (~26-30h)
+- Sprint 22: US-116 + US-119 (~14-16h)
+
 ### Scoring Formula
 Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strategic Align (15%) + Competitive Diff (10%)
 - Each criterion scored 1-5, weighted by percentage
 - Used consistently since Sprint 5
 
 ### Key Domain Decisions
-- Trip entity is the central domain object — all other features depend on it
+- Trip entity is the central domain object -- all other features depend on it
 - Max 20 active trips per user (MVP business rule defined in US-001 AC-007)
 - Soft delete policy: `deletedAt` for Trip/User; `status=ARCHIVED` for archiving (distinct from delete)
-- Destination field in v1 is free text (no Mapbox autocomplete yet — deferred to US-004)
 - Onboarding detection: check if user has 0 trips (no hasCompletedOnboarding flag in v1)
 - Account deletion: soft delete + PII anonymization + audit log (hash of user ID only)
-- Profile edit v1: name + language only (email read-only, password change deferred, avatar upload deferred)
 - **Freemium model**: Free tier = Gemini Flash, Premium tier = Claude Sonnet (decided Sprint 8)
 - **AI Provider Abstraction**: AiProvider interface + ClaudeProvider + factory getProvider() (Sprint 8)
 - **User Tier**: enum FREE/PREMIUM on User model, default FREE, exposed in JWT session (Sprint 9)
+- **Preferences**: JSON field on UserProfile, 8 structured categories (Sprint 20)
+- **Passenger details**: airline-style steppers (adults/children/infants/seniors) -- Sprint 20-21
 
 ### Architecture Constraints Relevant to PO
 - Stack: Next.js 15, PostgreSQL, Redis (Upstash), Prisma 7, Auth.js v5, Mapbox GL JS
 - Team: 2 full-stack developers
 - Auth architecture: Auth.js v5 with JWT sessions (ADR-005 corrected in Sprint 6)
 - AI: AiProvider interface, ClaudeProvider (Sonnet for plans, Haiku for checklists), GeminiProvider planned
-- SDK: @google/genai (v1.44.0, GA since May 2025) recommended over legacy @google/generative-ai
 - No microservices, no separate mobile app in MVP scope
 - Booking integration deferred (PCI-DSS scope, GDS/NDC complexity)
 
@@ -64,29 +94,24 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - No emojis in outputs (project convention)
 
 ### Traveler Personas Confirmed for this Project
-- @leisure-solo: primary for US-001, US-104, US-107, US-112, US-113
-- @leisure-family: primary for US-001, US-104, US-107, US-112, US-113
+- @leisure-solo: primary for US-001, US-104, US-107, US-112, US-113, US-123
+- @leisure-family: primary for US-001, US-104, US-107, US-112, US-113, US-123
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 18)
-- Sprint 19: P0 bug fixes (streaming, phase nav, progress bar) + guide redesign (US-120/121) + UX polish
-- Sprint 20: US-118 (origin field) + US-115 (transport) + US-117 (local mobility)
-- Sprint 21: US-116 (accommodation) + US-119 (AI cost estimate) + ITEM-7/10/12
-- Future: US-122 (destination chat AI — Premium)
+### MVP Roadmap (updated post Sprint 19)
+- Sprint 20: Preferences expansion (US-123) + Phase 1 reorder + UX debt cleanup
+- Sprint 21: Transport phase -- US-118 (origin) + US-115 (transport) + US-117 (mobility) + Fase 4 rename
+- Sprint 22: US-116 (accommodation) + US-119 (AI cost estimate)
+- Future: US-122 (destination chat AI -- Premium), progress bar clickable/labels
 
-### Sprint 19 Key Items (14 items triaged from manual testing)
-- P0: ITEM-1 (streaming broken, 6h), ITEM-2 (Continue btn phase6+, 3h), ITEM-3 (progress count, 2h), SEC-S18-001 (cascade delete, 3h)
-- P1: ITEM-14/US-120+121 (guide redesign, 10h), ITEM-8 (confirmation screen, 3h), ITEM-9 (auto transitions, 3h), ITEM-6 (remove dup btns, 1h), ITEM-11 (currency default, 1h)
-- P2: ITEM-4 (clickable progress, 3h), ITEM-5 (phase labels, 2h)
-- Deferred: ITEM-13 (transport, Sprint 20), ITEM-7 (phase 1 reorder), ITEM-10 (traveler details), ITEM-12 (preferences expansion)
-
-### Pending Debts (post Sprint 18)
-- Most Sprint 6-8 debts resolved in Sprint 17 (hardening)
-- SEC-S18-001: Cascade deletion for ItineraryDay/Activity/ChecklistItem (scheduled Sprint 19)
-- ITEM-7: Phase 1 reorder (info pessoal before trip info) — deferred, effort L
-- ITEM-10: Traveler detail (adults, children, ages) — deferred, requires data model change
-- ITEM-12: Preferences expansion — deferred, requires PO category definition
+### Pending Debts (post Sprint 19)
+- SEC-S19-001: Raw userId in gamification logs (9 occurrences, ~1h) -- scheduled Sprint 20
+- DEFER-001: Remove duplicate buttons in ExpeditionCard -- scheduled Sprint 20
+- DEFER-002: Phase 1 step reorder -- scheduled Sprint 20
+- DEFER-004: Hardcoded gray colors in ExpeditionHubPage -- scheduled Sprint 20
+- T-S19-011: Clickable progress bar -- deferred
+- T-S19-012: Progress bar phase labels -- deferred
 
 ### Gemini Flash Pricing (March 2026)
 - Gemini 2.5 Flash: $0.30/M input, $2.50/M output
@@ -100,3 +125,8 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Analytics platform: PostHog self-hosted is candidate (GDPR)
 - Payment gateway: not chosen yet (needed for Premium upgrade in Sprint 10+)
 - Google AI free tier privacy disclosure: must be added to terms of use
+
+### Lessons Learned
+- Sprint 19: guide redesign took more scope than estimated, causing 2 P1 items to slip. Use generous buffer (>25%) for sprints with UI redesign work.
+- Task ID discipline: commit IDs must match planning doc IDs (Sprint 19 lesson)
+- Transport is 36-40h minimum -- never try to squeeze it alongside other features
