@@ -20,12 +20,26 @@ export default async function ExpeditionNewPage({ params }: ExpeditionNewPagePro
 
   const tNav = await getTranslations("navigation");
 
-  // Fetch user profile for passport expiry warning and trip classification
-  let userProfile: { passportExpiry: Date | null; country: string | null } | null = null;
+  // Fetch user profile for passport expiry warning, trip classification, and profile persistence
+  let userProfile: {
+    passportExpiry: Date | null;
+    country: string | null;
+    birthDate: Date | null;
+    phone: string | null;
+    city: string | null;
+    bio: string | null;
+  } | null = null;
   try {
     userProfile = await db.userProfile.findUnique({
       where: { userId: session.user.id },
-      select: { passportExpiry: true, country: true },
+      select: {
+        passportExpiry: true,
+        country: true,
+        birthDate: true,
+        phone: true,
+        city: true,
+        bio: true,
+      },
     });
   } catch {
     // Gracefully degrade if user_profiles table is unavailable
@@ -44,6 +58,17 @@ export default async function ExpeditionNewPage({ params }: ExpeditionNewPagePro
       <Phase1Wizard
         passportExpiry={userProfile?.passportExpiry?.toISOString() ?? undefined}
         userCountry={userProfile?.country ?? undefined}
+        userProfile={
+          userProfile
+            ? {
+                birthDate: userProfile.birthDate?.toISOString().split("T")[0] ?? undefined,
+                phone: userProfile.phone ?? undefined,
+                country: userProfile.country ?? undefined,
+                city: userProfile.city ?? undefined,
+                bio: userProfile.bio ?? undefined,
+              }
+            : undefined
+        }
       />
     </>
   );

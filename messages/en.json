@@ -406,7 +406,10 @@
         "city": "City",
         "bio": "Short bio",
         "bioPlaceholder": "Tell us about yourself as a traveler...",
-        "optional": "All fields are optional. You can complete your profile later."
+        "optional": "All fields are optional. You can complete your profile later.",
+        "savedProfileTitle": "Your saved profile",
+        "editProfile": "Edit",
+        "useProfile": "Use saved profile"
       },
       "step2": {
         "title": "Choose your destination",

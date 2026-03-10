@@ -1,8 +1,8 @@
 /**
  * Unit tests for Phase1Wizard component.
  *
- * Tests cover: step reorder (T-S20-004), bio display in confirmation step,
- * step navigation, and form submission.
+ * Tests cover: step reorder (T-S20-004), profile persistence (T-S20-005),
+ * bio display in confirmation step, step navigation, and form submission.
  *
  * New step order: Step 1=About You, Step 2=Destination, Step 3=Dates, Step 4=Confirmation.
  */
@@ -42,6 +42,22 @@ vi.mock("@/lib/travel/trip-classifier", () => ({
 
 import { Phase1Wizard } from "@/components/features/expedition/Phase1Wizard";
 
+// ─── Fixtures ─────────────────────────────────────────────────────────────────
+
+const COMPLETE_PROFILE = {
+  birthDate: "1990-05-15",
+  phone: "+5511999998888",
+  country: "Brazil",
+  city: "Sao Paulo",
+  bio: "Adventure traveler",
+};
+
+const INCOMPLETE_PROFILE = {
+  birthDate: "1990-05-15",
+  phone: "+5511999998888",
+  // missing country and city
+};
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 /**
@@ -65,6 +81,24 @@ function navigateToStep4WithBio(bio: string) {
   fireEvent.click(screen.getByText("common.next"));
 }
 
+/**
+ * Navigate from Step 1 (summary card) to Step 4 when profile is complete.
+ */
+function navigateToStep4WithCompleteProfile() {
+  render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+  // Step 1: shows summary card, click next
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 2: enter destination
+  const destinationInput = screen.getByRole("combobox");
+  fireEvent.change(destinationInput, { target: { value: "Tokyo, Japan" } });
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 3: skip dates, click next
+  fireEvent.click(screen.getByText("common.next"));
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("Phase1Wizard", () => {
@@ -78,7 +112,7 @@ describe("Phase1Wizard", () => {
 
       // Step 1 should show the About You title
       expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
-      // Profile fields should be visible
+      // Profile fields should be visible (no profile = form mode)
       expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
       expect(screen.getByLabelText("expedition.phase1.step1.phone")).toBeInTheDocument();
       expect(screen.getByLabelText("expedition.phase1.step1.bio")).toBeInTheDocument();
@@ -146,6 +180,108 @@ describe("Phase1Wizard", () => {
 
       // Should be back on step 1
       expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
+    });
+  });
+
+  describe("Profile persistence — T-S20-005", () => {
+    it("shows summary card when profile is complete (birthDate + country + city)", () => {
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+      // Should show the saved profile title
+      expect(
+        screen.getByText("expedition.phase1.step1.savedProfileTitle")
+      ).toBeInTheDocument();
+      // Should show the Edit button
+      expect(screen.getByTestId("edit-profile-btn")).toBeInTheDocument();
+      // Should show profile data in summary
+      expect(screen.getByText("1990-05-15")).toBeInTheDocument();
+      expect(screen.getByText("+5511999998888")).toBeInTheDocument();
+      // Country + city combined
+      expect(screen.getByText("Sao Paulo, Brazil")).toBeInTheDocument();
+      // Form fields should NOT be visible (summary mode)
+      expect(screen.queryByLabelText("expedition.phase1.step1.birthDate")).not.toBeInTheDocument();
+    });
+
+    it("shows editable form when profile is incomplete", () => {
+      render(<Phase1Wizard userProfile={INCOMPLETE_PROFILE} />);
+
+      // Should show form fields, not summary card
+      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(
+        screen.queryByText("expedition.phase1.step1.savedProfileTitle")
+      ).not.toBeInTheDocument();
+    });
+
+    it("shows editable form when no profile is provided", () => {
+      render(<Phase1Wizard />);
+
+      // Should show form fields
+      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(
+        screen.queryByText("expedition.phase1.step1.savedProfileTitle")
+      ).not.toBeInTheDocument();
+    });
+
+    it("reveals pre-populated form when Edit button is clicked", () => {
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+      // Click Edit
+      fireEvent.click(screen.getByTestId("edit-profile-btn"));
+
+      // Form fields should now be visible with pre-populated values
+      const birthDateInput = screen.getByLabelText(
+        "expedition.phase1.step1.birthDate"
+      ) as HTMLInputElement;
+      expect(birthDateInput.value).toBe("1990-05-15");
+
+      const phoneInput = screen.getByLabelText(
+        "expedition.phase1.step1.phone"
+      ) as HTMLInputElement;
+      expect(phoneInput.value).toBe("+5511999998888");
+
+      const countryInput = screen.getByLabelText(
+        "expedition.phase1.step1.country"
+      ) as HTMLInputElement;
+      expect(countryInput.value).toBe("Brazil");
+
+      const cityInput = screen.getByLabelText(
+        "expedition.phase1.step1.city"
+      ) as HTMLInputElement;
+      expect(cityInput.value).toBe("Sao Paulo");
+    });
+
+    it("pre-populates form fields from incomplete profile", () => {
+      render(<Phase1Wizard userProfile={INCOMPLETE_PROFILE} />);
+
+      // Form is shown (not summary), but fields are pre-populated
+      const birthDateInput = screen.getByLabelText(
+        "expedition.phase1.step1.birthDate"
+      ) as HTMLInputElement;
+      expect(birthDateInput.value).toBe("1990-05-15");
+
+      const phoneInput = screen.getByLabelText(
+        "expedition.phase1.step1.phone"
+      ) as HTMLInputElement;
+      expect(phoneInput.value).toBe("+5511999998888");
+    });
+
+    it("carries profile data to confirmation step (step 4)", () => {
+      navigateToStep4WithCompleteProfile();
+
+      // Confirmation should show profile data
+      expect(screen.getByText("expedition.phase1.step4.profileSummary")).toBeInTheDocument();
+      expect(screen.getByText("1990-05-15")).toBeInTheDocument();
+      expect(screen.getByText("+5511999998888")).toBeInTheDocument();
+    });
+
+    it("summary card allows direct navigation to step 2", () => {
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+
+      // Click next from summary card
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should be on step 2 (destination)
+      expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
     });
   });
 

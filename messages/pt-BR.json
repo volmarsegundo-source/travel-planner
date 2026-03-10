@@ -406,7 +406,10 @@
         "city": "Cidade",
         "bio": "Mini bio",
         "bioPlaceholder": "Conte um pouco sobre você como viajante...",
-        "optional": "Todos os campos são opcionais. Você pode completar seu perfil depois."
+        "optional": "Todos os campos são opcionais. Você pode completar seu perfil depois.",
+        "savedProfileTitle": "Seu perfil salvo",
+        "editProfile": "Editar",
+        "useProfile": "Usar perfil salvo"
       },
       "step2": {
         "title": "Escolha seu destino",

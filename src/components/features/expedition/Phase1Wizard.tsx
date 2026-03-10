@@ -22,12 +22,40 @@ const TRIP_TYPE_BADGES: Record<TripType, { emoji: string; key: string }> = {
   schengen: { emoji: "\u{1F1EA}\u{1F1FA}", key: "schengen" },
 };
 
+/** Pre-filled profile data from server. */
+interface UserProfileData {
+  birthDate?: string;
+  phone?: string;
+  country?: string;
+  city?: string;
+  bio?: string;
+}
+
+/** Minimum fields that count as a "complete" profile for skip logic. */
+const PROFILE_COMPLETE_FIELDS: (keyof UserProfileData)[] = [
+  "birthDate",
+  "country",
+  "city",
+];
+
+function isProfileComplete(profile?: UserProfileData): boolean {
+  if (!profile) return false;
+  return PROFILE_COMPLETE_FIELDS.every(
+    (key) => profile[key] !== undefined && profile[key] !== ""
+  );
+}
+
 interface Phase1WizardProps {
   passportExpiry?: string;
   userCountry?: string;
+  userProfile?: UserProfileData;
 }
 
-export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps) {
+export function Phase1Wizard({
+  passportExpiry,
+  userCountry,
+  userProfile,
+}: Phase1WizardProps) {
   const t = useTranslations("expedition.phase1");
   const tCommon = useTranslations("common");
   const router = useRouter();
@@ -42,6 +70,13 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
     badge?: string | null;
   }>({ points: 0 });
 
+  // Profile persistence: show summary card when profile is complete
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const profileComplete = useMemo(
+    () => isProfileComplete(userProfile),
+    [userProfile]
+  );
+
   // Form data
   const [destination, setDestination] = useState("");
   const [destinationCountry, setDestinationCountry] = useState<string | null>(null);
@@ -49,12 +84,12 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
   const [endDate, setEndDate] = useState("");
   const [flexibleDates, setFlexibleDates] = useState(false);
 
-  // Profile fields (Step 3: About You)
-  const [birthDate, setBirthDate] = useState("");
-  const [phone, setPhone] = useState("");
-  const [country, setCountry] = useState("");
-  const [city, setCity] = useState("");
-  const [bio, setBio] = useState("");
+  // Profile fields (Step 1: About You) — pre-populated from saved profile
+  const [birthDate, setBirthDate] = useState(userProfile?.birthDate ?? "");
+  const [phone, setPhone] = useState(userProfile?.phone ?? "");
+  const [country, setCountry] = useState(userProfile?.country ?? "");
+  const [city, setCity] = useState(userProfile?.city ?? "");
+  const [bio, setBio] = useState(userProfile?.bio ?? "");
 
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>("");
@@ -213,74 +248,132 @@ export function Phase1Wizard({ passportExpiry, userCountry }: Phase1WizardProps)
           {currentStep === 1 && (
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-semibold">{t("step1.title")}</h2>
-              <p className="text-sm text-muted-foreground">{t("step1.subtitle")}</p>
 
-              <div className="flex flex-col gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="profile-birthdate">{t("step1.birthDate")}</Label>
-                  <Input
-                    id="profile-birthdate"
-                    type="date"
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                  />
-                </div>
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="profile-phone">{t("step1.phone")}</Label>
-                  <Input
-                    id="profile-phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    maxLength={20}
-                    placeholder={t("step1.phonePlaceholder")}
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="profile-country">{t("step1.country")}</Label>
-                    <Input
-                      id="profile-country"
-                      type="text"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      maxLength={100}
-                    />
+              {/* Show summary card when profile is complete and user is not editing */}
+              {profileComplete && !isEditingProfile ? (
+                <>
+                  <div className="rounded-xl border border-border bg-muted p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        {t("step1.savedProfileTitle")}
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsEditingProfile(true)}
+                        data-testid="edit-profile-btn"
+                      >
+                        {t("step1.editProfile")}
+                      </Button>
+                    </div>
+                    <dl className="space-y-2 text-sm">
+                      {birthDate && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>
+                          <dd className="font-medium">{birthDate}</dd>
+                        </div>
+                      )}
+                      {phone && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step1.phone")}</dt>
+                          <dd className="font-medium">{phone}</dd>
+                        </div>
+                      )}
+                      {(country || city) && (
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step1.country")}</dt>
+                          <dd className="font-medium">
+                            {[city, country].filter(Boolean).join(", ")}
+                          </dd>
+                        </div>
+                      )}
+                      {bio && (
+                        <div className="flex justify-between gap-4">
+                          <dt className="shrink-0 text-muted-foreground">{t("step1.bio")}</dt>
+                          <dd className="font-medium text-right">
+                            {bio.length > 80 ? `${bio.slice(0, 80)}...` : bio}
+                          </dd>
+                        </div>
+                      )}
+                    </dl>
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="profile-city">{t("step1.city")}</Label>
-                    <Input
-                      id="profile-city"
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      maxLength={100}
-                    />
+
+                  <Button onClick={handleStep1Next} size="lg" className="w-full">
+                    {tCommon("next")}
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-sm text-muted-foreground">{t("step1.subtitle")}</p>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="profile-birthdate">{t("step1.birthDate")}</Label>
+                      <Input
+                        id="profile-birthdate"
+                        type="date"
+                        value={birthDate}
+                        onChange={(e) => setBirthDate(e.target.value)}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="profile-phone">{t("step1.phone")}</Label>
+                      <Input
+                        id="profile-phone"
+                        type="tel"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        maxLength={20}
+                        placeholder={t("step1.phonePlaceholder")}
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="profile-country">{t("step1.country")}</Label>
+                        <Input
+                          id="profile-country"
+                          type="text"
+                          value={country}
+                          onChange={(e) => setCountry(e.target.value)}
+                          maxLength={100}
+                        />
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="profile-city">{t("step1.city")}</Label>
+                        <Input
+                          id="profile-city"
+                          type="text"
+                          value={city}
+                          onChange={(e) => setCity(e.target.value)}
+                          maxLength={100}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="profile-bio">{t("step1.bio")}</Label>
+                      <textarea
+                        id="profile-bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        maxLength={500}
+                        rows={3}
+                        className="w-full rounded-lg border border-border bg-background text-foreground px-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50"
+                        placeholder={t("step1.bioPlaceholder")}
+                      />
+                      <span className="text-xs text-muted-foreground/70">{bio.length}/500</span>
+                    </div>
                   </div>
-                </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="profile-bio">{t("step1.bio")}</Label>
-                  <textarea
-                    id="profile-bio"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    maxLength={500}
-                    rows={3}
-                    className="w-full rounded-lg border border-border bg-background text-foreground px-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50"
-                    placeholder={t("step1.bioPlaceholder")}
-                  />
-                  <span className="text-xs text-muted-foreground/70">{bio.length}/500</span>
-                </div>
-              </div>
+                  <p className="text-xs text-muted-foreground/70">{t("step1.optional")}</p>
 
-              <p className="text-xs text-muted-foreground/70">{t("step1.optional")}</p>
-
-              <Button onClick={handleStep1Next} size="lg" className="w-full">
-                {tCommon("next")}
-              </Button>
+                  <Button onClick={handleStep1Next} size="lg" className="w-full">
+                    {tCommon("next")}
+                  </Button>
+                </>
+              )}
             </div>
           )}
 
