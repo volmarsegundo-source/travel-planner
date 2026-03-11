@@ -274,7 +274,7 @@ describe("PhaseEngine.getCurrentPhase", () => {
     expect(result!.phaseNumber).toBe(3);
     expect(result!.status).toBe("active");
     expect(result!.definition).toBeDefined();
-    expect(result!.definition!.name).toBe("A Rota");
+    expect(result!.definition!.name).toBe("O Preparo");
   });
 
   it("returns null when no active phase exists", async () => {
@@ -898,7 +898,7 @@ describe("PhaseEngine.useAiInPhase", () => {
       TEST_USER_ID,
       100, // Phase 3 aiCost
       "ai_usage",
-      "AI usage in phase 3: A Rota (ai_route)",
+      "AI usage in phase 3: O Preparo (ai_route)",
       TEST_TRIP_ID
     );
     expect(result).toEqual({

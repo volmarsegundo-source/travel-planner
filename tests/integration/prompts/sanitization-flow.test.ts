@@ -64,7 +64,7 @@ const {
 vi.mock("server-only", () => ({}));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
-vi.mock("@/lib/auth", () => ({ auth: mockAuth }));
+vi.mock("@/lib/auth", () => ({ auth: mockAuth, updateSession: vi.fn().mockResolvedValue(undefined) }));
 
 vi.mock("@/lib/rate-limit", () => ({
   checkRateLimit: mockCheckRateLimit,

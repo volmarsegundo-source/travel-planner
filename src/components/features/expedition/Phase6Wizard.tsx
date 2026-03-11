@@ -65,6 +65,9 @@ export function Phase6Wizard({
   travelNotes,
 }: Phase6WizardProps) {
   const t = useTranslations("expedition.phase6");
+  const tExpedition = useTranslations("expedition");
+  const tPhases = useTranslations("gamification.phases");
+  const tCommon = useTranslations("common");
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [days] = useState(initialDays);
@@ -336,6 +339,9 @@ export function Phase6Wizard({
           </div>
 
           <div className="space-y-2">
+            <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+              {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
+            </p>
             <h1 className="text-2xl font-bold">{t("title")}</h1>
             <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
@@ -358,6 +364,15 @@ export function Phase6Wizard({
             <Sparkles className="h-5 w-5" aria-hidden="true" />
             {t("generateCta")}
           </Button>
+
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/expedition/${tripId}/phase-5`)}
+            className="min-h-[44px]"
+            data-testid="back-to-phase-5"
+          >
+            {tCommon("back")}
+          </Button>
         </div>
       </div>
     );
@@ -368,6 +383,9 @@ export function Phase6Wizard({
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
       <div className="mb-6 space-y-1">
+        <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+          {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
+        </p>
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{destination}</p>
       </div>
@@ -422,7 +440,15 @@ export function Phase6Wizard({
         </div>
       )}
 
-      <div className="mt-8 flex justify-center">
+      <div className="mt-8 flex justify-center gap-3">
+        <Button
+          variant="outline"
+          onClick={() => router.push(`/expedition/${tripId}/phase-5`)}
+          className="min-h-[44px]"
+          data-testid="back-to-phase-5"
+        >
+          {tCommon("back")}
+        </Button>
         <Button
           variant="outline"
           onClick={handleRegenerateClick}

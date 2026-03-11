@@ -37,6 +37,8 @@ export function Phase5Wizard({
   plans,
 }: Phase5WizardProps) {
   const t = useTranslations("expedition.phase5");
+  const tExpedition = useTranslations("expedition");
+  const tPhases = useTranslations("gamification.phases");
   const tCommon = useTranslations("common");
   const router = useRouter();
 
@@ -117,6 +119,9 @@ export function Phase5Wizard({
 
         {/* Header */}
         <div className="mt-4 text-center">
+          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+            {tExpedition("phaseLabel", { number: 5, name: tPhases("theDayMap") })}
+          </p>
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
           <p className="mt-2 text-sm text-atlas-teal-light">
@@ -217,13 +222,22 @@ export function Phase5Wizard({
           </div>
         </div>
 
-        {/* Complete button */}
-        <div className="mt-8">
+        {/* Navigation */}
+        <div className="mt-8 flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/expedition/${tripId}/phase-4`)}
+            className="flex-1"
+            aria-label={tCommon("back")}
+            data-testid="back-to-phase-4"
+          >
+            {"\u2190"}
+          </Button>
           <Button
             onClick={handleComplete}
             disabled={!selectedOption || isCompleting}
             size="lg"
-            className="w-full"
+            className="flex-[3]"
           >
             {isCompleting
               ? tCommon("loading")

@@ -70,7 +70,7 @@ export const CHECKLIST_RULES: Record<TripType, ChecklistRule[]> = {
   ],
 };
 
-// ─── Phase 3 Checklist Rules (A Rota) ─────────────────────────────────────
+// ─── Phase 3 Checklist Rules (O Preparo) ──────────────────────────────────
 
 export interface Phase3ChecklistRule {
   key: Phase3ItemKey;

@@ -24,7 +24,7 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
   const phaseNameKeys: Record<number, string> = {
     1: "theCalling",
     2: "theExplorer",
-    3: "theRoute",
+    3: "thePreparation",
     4: "theLogistics",
     5: "theDayMap",
     6: "theTreasure",

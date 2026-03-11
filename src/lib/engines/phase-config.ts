@@ -27,8 +27,8 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
   },
   {
     phaseNumber: 3,
-    name: "A Rota",
-    nameKey: "phases.theRoute",
+    name: "O Preparo",
+    nameKey: "phases.thePreparation",
     isFree: true,
     pointsReward: 75,
     aiCost: 100,
