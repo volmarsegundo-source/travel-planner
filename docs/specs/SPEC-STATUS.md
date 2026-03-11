@@ -20,8 +20,8 @@
 
 | Spec ID | Title | Owner | Status | Version | Sprint | Reviewers |
 |---------|-------|-------|--------|---------|--------|-----------|
-| SPEC-PROD-001 | Expedition Navigation & Phase Sequencing | product-owner | Approved | 1.1.0 | 25 | tech-lead, architect, security-specialist |
-| SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | product-owner | Approved | 1.1.0 | 25 | tech-lead, architect, ux-designer |
+| SPEC-PROD-001 | Expedition Navigation & Phase Sequencing | product-owner | Implemented | 1.1.0 | 25 | tech-lead, architect, security-specialist |
+| SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | product-owner | Implemented | 1.1.0 | 25 | tech-lead, architect, ux-designer |
 
 ---
 
@@ -29,8 +29,7 @@
 
 | Spec ID | Title | Submitted | Reviewers | Status | Blockers |
 |---------|-------|-----------|-----------|--------|----------|
-| SPEC-PROD-001 | Navigation & Phase Sequencing | 2026-03-11 | tech-lead, architect, security-specialist | Awaiting submission | Pending product-owner draft |
-| SPEC-PROD-002 | Dashboard & Confirmation UX | 2026-03-11 | tech-lead, architect, ux-designer | Awaiting submission | Pending product-owner draft |
+| — | — | — | — | — | — |
 
 ---
 
@@ -44,6 +43,8 @@
 | SPEC-ARCH-008 | AI Provider Abstraction | 1.0.0 | Sprint 8 | Legacy (pre-SDD) |
 | SPEC-ARCH-009 | Atlas Gamification Engine | 1.0.0 | Sprint 9 | Legacy (pre-SDD) |
 | SPEC-PROD-TRANSPORT | Transport Phase (Phase 4) | 1.0.0 | Sprint 20-21 | Legacy (pre-SDD) |
+| SPEC-PROD-001 | Expedition Navigation & Phase Sequencing | 1.1.0 | Sprint 25 | Partial (7/18 ACs — remaining deferred to Sprint 26) |
+| SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | 1.1.0 | Sprint 25 | Partial (5/12 ACs — remaining deferred to Sprint 26) |
 
 ---
 
@@ -61,3 +62,4 @@
 |------|--------|----|
 | 2026-03-11 | Created spec status tracker as part of SDD rollout | tech-lead |
 | 2026-03-11 | Added SPEC-PROD-001 and SPEC-PROD-002 to approval queue for Sprint 25 | tech-lead |
+| 2026-03-11 | SPEC-PROD-001 and SPEC-PROD-002 implemented (partial) in Sprint 25 v0.18.0 | tech-lead |
