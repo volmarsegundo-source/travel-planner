@@ -110,6 +110,15 @@
 - Text on dark: #F1F5F9 (primary), #CBD5E1 (secondary), #94A3B8 (muted)
 - Contrast verified: slate-300 on slate-800 = 7.5:1 (passes AAA)
 
+## Sprint 26 UX Specs (2026-03-11)
+- SPEC-UX-001: Autocomplete Redesign — opaque dropdown bg, structured 2-line results (City bold / State, Country muted), no-results hint, 44px mobile touch targets
+- SPEC-UX-002: Guide Full Visibility — remove all collapsible sections, 10 sections always visible, hero summary banner, remove "Update guide" button, skeleton loading for 10 cards
+- SPEC-UX-003: Unified Phase Transitions — one consistent pattern: fade+slide 200ms ease-out for inline, 300ms for interstitial. Auto-advance 3s (up from 2s). Motion tokens: fast(150ms), normal(200ms), slow(300ms), celebration(1200ms). All respect prefers-reduced-motion.
+- SPEC-UX-004: Preferences Pagination — split 10 categories into 2 pages of 5. Page 1 = trip-shaping prefs, Page 2 = lifestyle. Chips: never truncate, wrap text, 44px min touch. Next/Previous buttons.
+- SPEC-UX-005: Dashboard Visual Polish — progress bar segments become read-only (remove clickable links to fix 44px touch issue). Completed=gold+checkmark, Current=primary+pulse, Incomplete=outlined, ComingSoon=dashed+opacity. Phase labels as hover tooltips below bar. Add dates to card per SPEC-PROD-002.
+- All specs saved to: docs/specs/sprint-26/SPEC-UX-{001-005}.md
+- Key decisions: progress bar segments non-interactive on dashboard cards; guide sections never collapse; autocomplete dropdown instant (no animation); preferences page 1 has AI-critical categories
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

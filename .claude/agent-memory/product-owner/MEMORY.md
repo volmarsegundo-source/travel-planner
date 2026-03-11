@@ -18,25 +18,33 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-11)
-- Product version: 0.17.0 (post Sprint 23 E2E review + Sprint 24)
-- Sprints 1-24 complete (1593 tests, 107 suites)
+### Backlog State (as of 2026-03-11, post Sprint 25)
+- Product version: 0.18.0 (Sprint 25 complete, first SDD sprint)
+- Sprints 1-25 complete (1612 tests, 107 suites)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-003
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-006
 - Full backlog: US-001 through US-016 + US-100 through US-123
-- Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update -- Sprint 25 reprioritized)
+- Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)
 - Staging: travel-planner-eight-navy.vercel.app
+- Sprint 26 backlog: `docs/specs/sprint-26/SPRINT-26-BACKLOG.md`
 
-### Sprint 25 Planning (first SDD sprint)
-- Theme: "Navigation Overhaul + Bug Fixes" (reprioritized from "Beta Launch")
-- Manual test triage: 95 cases, ~55 PASS, ~35 NOK, ~5 not testable
-- Triage doc: `docs/specs/product/SPRINT-25-TRIAGE.md`
-- SPEC-PROD-001: Expedition Navigation & Phase Sequencing (BUG-P0-001/002, OBS-001/002/003)
-- SPEC-PROD-002: Dashboard Trip Cards & Phase Confirmation (BUG-P0-003/004)
-- Budget: 15.5h P0 + 13h P1 + 11.5h buffer = 40h
-- Phase 3 renamed: "A Rota" -> "O Preparo" (decision in triage doc)
-- Beta launch pushed to Sprint 27 (was Sprint 25) due to critical UX bugs
-- Sacrifice order: BUG-P1-007 > BUG-P1-004 > BUG-P1-001
+### Sprint 26 Planning
+- Theme: "Guide Visibility, UX Polish & Expedition Closure"
+- Budget: 34h committed + 6h buffer (15%)
+- SPEC-PROD-003: Destination Guide Full Visibility (8h)
+- SPEC-PROD-004: Itinerary Time Auto-Adjustment (10h, DEFERRED to Sprint 27)
+- SPEC-PROD-005: Expedition Completion & Summary (8h)
+- Also: Autocomplete UX fix (4h), Sprint 25 remaining ACs (4h), Phase transitions (4h), Preferences wizard (6h)
+- Sacrifice order: T-S26-006 (Preferences) > T-S26-005 (Transitions) > T-S26-004 (Completion)
+- Sprint 26 specs stored in: `docs/specs/sprint-26/`
+
+### Sprint 25 Results (first SDD sprint)
+- Theme: "Navigation Overhaul + Bug Fixes"
+- SPEC-PROD-001: 7/18 ACs implemented, 11 deferred (many already working)
+- SPEC-PROD-002: 5/12 ACs implemented, 7 deferred
+- Key deliverables: Phase 3 rename, bi-directional nav, progress bar click fix, legacy buttons removed, confirmation screens completed
+- v0.18.0, 1612 tests, build clean
+- Deferred to S26: AC-017 (Complete Expedition), AC-009 (Summary), AC-002 (trip card redesign)
 
 ### Phase Names (canonical, post Sprint 25 triage)
 - Phase 1: "O Chamado" (Trip creation)
@@ -144,11 +152,10 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 25 triage)
-- Sprints 22-24: DONE (AI transport, GeminiProvider, analytics, E2E review)
-- Sprint 25: Navigation overhaul + bug fixes (SPEC-PROD-001, SPEC-PROD-002)
-- Sprint 26: Remaining P1/P2 bugs + Phase 6 improvements
-- Sprint 27: Beta launch readiness (manual test re-run, monitoring)
+### MVP Roadmap (updated post Sprint 25)
+- Sprints 22-25: DONE
+- Sprint 26: Guide visibility + expedition completion + UX polish (SPEC-PROD-003/005)
+- Sprint 27: Beta launch readiness (DnD times, dashboard, manual test re-run, monitoring, LGPD)
 - Sprint 28: Beta launch (50-100 users) + feedback loop
 - Sprint 29-30: US-122 Premium chat + payment gateway + v1.0 GA
 - Full roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)

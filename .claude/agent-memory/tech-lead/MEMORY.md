@@ -2,12 +2,16 @@
 
 ## Project State (as of 2026-03-11)
 - Sprints 1-24 complete (legacy, pre-SDD)
-- Current: 1593 tests, v0.17.0, master branch
-- Sprint 25: FIRST SDD SPRINT -- planning complete
-  - Tech analysis: docs/specs/SPRINT-25-TECH-ANALYSIS.md
-  - 13 bugs analyzed (4 P0, 9 P1), 19 tasks planned, ~36h estimated
-  - BLOCKED on: SPEC-PROD-001 + SPEC-PROD-002 approval
-  - Budget: 40h (4h buffer)
+- Sprint 25 COMPLETE: first SDD sprint, v0.18.0, 1612 tests
+  - SPEC-PROD-001 and SPEC-PROD-002 implemented (partial ACs)
+  - Deferred ACs: SPEC-PROD-001 AC-017, SPEC-PROD-002 AC-002/003/004/005/009/011
+- Sprint 26: PLANNED -- docs/specs/sprint-26/SPRINT-26-PLAN.md
+  - 6 items included (ITEM-1 through ITEM-4 P1 + ITEM-6/7 P2), 38h planned, 2h buffer
+  - 14 tasks, 7 new specs required (5 UX, 2 PROD)
+  - ITEM-5 (DnD, 12h) DEFERRED to Sprint 27
+  - BLOCKED on: 7 specs approval (SPEC-UX-001..005, SPEC-PROD-003, SPEC-PROD-005)
+  - Test target: 1650+ (from 1612 baseline)
+  - Budget: 40h
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
@@ -129,9 +133,19 @@
 - Two progress bars: DashboardPhaseProgressBar (dashboard) vs ExpeditionProgressBar (wizard pages)
 - `name` field NOT in PROFILE_FIELD_POINTS -- saved via separate db.user.update in createExpeditionAction
 
-## Sprint 25 Specs Pending
-- SPEC-PROD-001: Navigation & Phase Sequencing (covers BUG-P0-001, P0-002, P1-001, P1-003, P1-004, P1-008)
-- SPEC-PROD-002: Dashboard & Confirmation UX (covers BUG-P0-003, P0-004, P1-002, P1-007)
+## Sprint 25 Outcome
+- SPEC-PROD-001 and SPEC-PROD-002 implemented (partial) in v0.18.0
+- 7/18 ACs implemented for SPEC-PROD-001, 5/12 for SPEC-PROD-002
+- Remaining ACs addressed in Sprint 26 (ITEM-6 dashboard polish, ITEM-7 completion summary)
+
+## Sprint 26 Specs Pending
+- SPEC-UX-001: Autocomplete UX pattern
+- SPEC-PROD-003: Guide redesign (what/why)
+- SPEC-UX-002: Guide redesign (visual/interaction)
+- SPEC-UX-003: Phase transition animations/feedback
+- SPEC-UX-004: Preferences pagination/grouping
+- SPEC-UX-005: Dashboard trip card visual spec
+- SPEC-PROD-005: Expedition completion summary (what/why)
 
 ## Spec-Driven Development (SDD) -- Effective Sprint 25
 

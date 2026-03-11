@@ -57,10 +57,19 @@
 - generateChecklistAction: 5 req/hr/user
 - registerAction: 5 req/15min; loginAction: 10 req/15min
 
+## Sprint 26 Architecture (ADR-013 PROPOSED)
+- SPEC-ARCH-001: DnD Time Auto-Adjustment (docs/specs/sprint-26/SPEC-ARCH-001.md)
+- ADR-013: Client-side time recalculation with server persistence (PROPOSED)
+- AC review: docs/specs/sprint-26/ARCH-REVIEW-REMAINING-ACS.md
+- Key finding: SPEC-PROD-001 AC-004 mentions "seniors" but no seniorsCount in schema — needs PO decision
+- Key finding: AC-015 (downstream data cascade) only partially works — guide covered by SPEC-PROD-003
+- Expedition summary page (AC-009 PROD-002) not yet built — ~6h effort
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
 - Sprint 20 Architecture: docs/architecture/SPRINT-20-ARCHITECTURE.md
+- SPEC-ARCH-001: docs/specs/sprint-26/SPEC-ARCH-001.md (DnD Time Adjustment)
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md
@@ -74,6 +83,10 @@
 - Trip classifier: src/lib/travel/trip-classifier.ts
 - Crypto: src/lib/crypto.ts (AES-256-GCM)
 - Middleware: src/middleware.ts (auth + i18n + CSP nonce)
+- Itinerary editor: src/components/features/itinerary/ItineraryEditor.tsx
+- Itinerary actions: src/server/actions/itinerary.actions.ts
+- Trip service (reorder): src/server/services/trip.service.ts (reorderActivities at line 249)
+- Phase6Wizard: src/components/features/expedition/Phase6Wizard.tsx
 
 ## SDD Process (Sprint 25+)
 - Official process: Spec-Driven Development
