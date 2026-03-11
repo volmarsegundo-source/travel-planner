@@ -97,3 +97,25 @@
 - Card bg: #1E293B (slate-800), border: #334155 (slate-700)
 - Text on dark: #F1F5F9 (primary), #CBD5E1 (secondary), #94A3B8 (muted)
 - Contrast verified: slate-300 on slate-800 = 7.5:1 (passes AAA)
+
+## End-to-End UX Audit (2026-03-10)
+- Full audit: docs/ux/END-TO-END-UX-REVIEW.md
+- Grade: C+ (Functional but Inconsistent)
+- Top 5: Phase 4 tabs->wizard, 3 animation systems, progress bar mobile, autocomplete, no save feedback
+- Critical: Phase 4 needs 3-step wizard redesign (transport->accommodation->mobility+confirm)
+- Critical: prefers-reduced-motion NOT respected anywhere (WCAG violation)
+- Major: Phase 1-2 lack ExpeditionProgressBar, Phase 6 has none at all
+- Major: PointsAnimation auto-dismiss 2.5s too fast, no focus trap
+- Major: PhaseTransition auto-advance 2s, should require explicit tap
+- Major: Back buttons use arrow char with no aria-label
+- Major: No save confirmation on Phase 4 transport/accommodation save
+- Major: ExpeditionProgressBar click targets 24x8px (below 44x44 minimum)
+- Extract shared: Spinner, PhaseHeader, WizardNavButtons, SaveIndicator
+- Motion tokens needed: fast(150ms), normal(300ms), slow(500ms), celebration(3s)
+- Phase 4 max-w-2xl breaks consistency (others use max-w-md)
+- Major: Phase 4 tab panels aria-labelledby reference non-existent IDs (broken ARIA)
+- Major: Phase 2 confirmation "categories" hardcoded English (not i18n)
+- Major: RegisterForm "(opcional)" hardcoded Portuguese (not i18n)
+- i18n: ThemeToggle, DashboardPhaseProgressBar state labels also hardcoded English
+- All phase pages have Breadcrumbs (Home > Expedition), but depth is shallow
+- Phase 3 checklist has good ARIA: role="checkbox", aria-checked, aria-label per item
