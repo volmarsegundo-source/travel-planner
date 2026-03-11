@@ -96,10 +96,13 @@ export function DashboardPhaseProgressBar({
         );
 
         if (isClickable) {
+          const phaseHref = phaseNum === 1
+            ? `/expedition/${tripId}`
+            : `/expedition/${tripId}/phase-${phaseNum}`;
           return (
             <Link
               key={phaseNum}
-              href={`/expedition/${tripId}/phase-${phaseNum}`}
+              href={phaseHref}
               className={`group/segment ${segmentClasses}`}
               aria-label={`${phaseName} — ${stateLabel}`}
               title={phaseName}

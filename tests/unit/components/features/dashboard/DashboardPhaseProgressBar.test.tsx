@@ -166,7 +166,7 @@ describe("DashboardPhaseProgressBar", () => {
       expect(phase1Link.tagName).toBe("A");
       expect(phase1Link).toHaveAttribute(
         "href",
-        "/expedition/trip-abc/phase-1"
+        "/expedition/trip-abc"
       );
     });
 
