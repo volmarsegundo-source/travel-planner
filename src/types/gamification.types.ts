@@ -12,6 +12,7 @@ export type BadgeKey =
   | "first_step"
   | "navigator"
   | "host"
+  | "logistics_master"
   | "cartographer"
   | "treasurer"
   | "pathfinder"

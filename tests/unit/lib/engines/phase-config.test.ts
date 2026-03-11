@@ -62,7 +62,7 @@ describe("PHASE_DEFINITIONS", () => {
     expect(badgeMap).toEqual([
       { phase: 1, badge: "first_step" },
       { phase: 3, badge: "navigator" },
-      { phase: 4, badge: "host" },
+      { phase: 4, badge: "logistics_master" },
       { phase: 6, badge: "treasurer" },
       { phase: 8, badge: "ambassador" },
     ]);
