@@ -580,8 +580,8 @@
       }
     },
     "phase4": {
-      "title": "O Abrigo",
-      "subtitle": "Planeje seu transporte terrestre e documentação de direção.",
+      "title": "A Logística",
+      "subtitle": "Planeje como chegar e se locomover no destino",
       "carRentalQuestion": "Você vai precisar alugar um carro?",
       "carRentalHint": "Isso determina se você precisa de documentação especial para dirigir.",
       "carRentalYes": "Sim, vou",

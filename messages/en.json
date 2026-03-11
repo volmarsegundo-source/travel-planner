@@ -580,8 +580,8 @@
       }
     },
     "phase4": {
-      "title": "The Shelter",
-      "subtitle": "Plan your ground transportation and driving requirements.",
+      "title": "The Logistics",
+      "subtitle": "Plan how to get there and move around at your destination",
       "carRentalQuestion": "Will you need a rental car?",
       "carRentalHint": "This determines if you need any special driving documentation.",
       "carRentalYes": "Yes, I will",
