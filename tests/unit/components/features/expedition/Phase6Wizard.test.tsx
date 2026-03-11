@@ -22,6 +22,12 @@ const { mockPush, mockRefresh } = vi.hoisted(() => ({
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
+vi.mock("server-only", () => ({}));
+
+vi.mock("@/server/actions/expedition.actions", () => ({
+  completeExpeditionAction: vi.fn().mockResolvedValue({ pointsEarned: 500, badgeAwarded: "treasurer" }),
+}));
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, params?: Record<string, unknown>) => {
     if (params && "count" in params) return `${key}:${params.count}`;

@@ -12,6 +12,7 @@ import {
   calculateTotalDays,
   calculateProgressPercent,
 } from "@/lib/utils/stream-progress";
+import { completeExpeditionAction } from "@/server/actions/expedition.actions";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle } from "@/types/ai.types";
 
@@ -73,6 +74,8 @@ export function Phase6Wizard({
   const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const [daysGenerated, setDaysGenerated] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
@@ -242,6 +245,35 @@ export function Phase6Wizard({
 
   function handleCancel() {
     abortControllerRef.current?.abort();
+  }
+
+  function handleCompleteExpeditionClick() {
+    setShowCompleteConfirm(true);
+  }
+
+  async function handleCompleteExpeditionConfirm() {
+    setShowCompleteConfirm(false);
+    setIsCompleting(true);
+    setError(null);
+
+    try {
+      const result = await completeExpeditionAction(tripId);
+      if (!result.success) {
+        setError(result.error ?? t("errorGenerate"));
+        setIsCompleting(false);
+        return;
+      }
+
+      // Navigate to summary page
+      router.push(`/expedition/${tripId}/summary`);
+    } catch {
+      setError(t("errorGenerate"));
+      setIsCompleting(false);
+    }
+  }
+
+  function handleCompleteExpeditionCancel() {
+    setShowCompleteConfirm(false);
   }
 
   function handleRegenerateClick() {
@@ -440,6 +472,38 @@ export function Phase6Wizard({
         </div>
       )}
 
+      {/* Complete Expedition confirm dialog */}
+      {showCompleteConfirm && (
+        <div
+          className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800/40 dark:bg-green-950/30"
+          role="alertdialog"
+          aria-label={tExpedition("completeConfirm")}
+          data-testid="complete-expedition-confirm"
+        >
+          <p className="text-sm text-green-800 dark:text-green-200">
+            {tExpedition("completeConfirm")}
+          </p>
+          <div className="mt-3 flex gap-2">
+            <Button
+              size="sm"
+              onClick={handleCompleteExpeditionConfirm}
+              disabled={isCompleting}
+            >
+              {isCompleting
+                ? tCommon("loading")
+                : tExpedition("completeConfirmYes")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleCompleteExpeditionCancel}
+            >
+              {tExpedition("completeConfirmNo")}
+            </Button>
+          </div>
+        </div>
+      )}
+
       <div className="mt-8 flex justify-center gap-3">
         <Button
           variant="outline"
@@ -464,6 +528,14 @@ export function Phase6Wizard({
             aria-hidden="true"
           />
           {t("regenerateCta")}
+        </Button>
+        <Button
+          onClick={handleCompleteExpeditionClick}
+          disabled={isCompleting}
+          className="min-h-[44px] gap-2"
+          data-testid="complete-expedition-button"
+        >
+          {isCompleting ? tCommon("loading") : tExpedition("completeExpedition")}
         </Button>
       </div>
     </div>
