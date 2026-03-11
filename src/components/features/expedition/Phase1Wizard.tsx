@@ -55,7 +55,7 @@ interface Phase1WizardProps {
 
 export function Phase1Wizard({
   passportExpiry,
-  userCountry,
+  // userCountry prop kept for backward compat but no longer used for classification
   userProfile,
   userName,
 }: Phase1WizardProps) {
@@ -87,7 +87,8 @@ export function Phase1Wizard({
 
   // Form data
   const [destination, setDestination] = useState("");
-  const [destinationCountry, setDestinationCountry] = useState<string | null>(null);
+  const [destinationCountryCode, setDestinationCountryCode] = useState<string | null>(null);
+  const [originCountryCode, setOriginCountryCode] = useState<string | null>(null);
   const [origin, setOrigin] = useState(
     userProfile?.city && userProfile?.country
       ? `${userProfile.city}, ${userProfile.country}`
@@ -108,13 +109,13 @@ export function Phase1Wizard({
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>("");
 
-  // Trip type classification
+  // Trip type classification — uses ISO country codes for locale-independent matching
   const tripType = useMemo(() => {
-    if (userCountry && destinationCountry) {
-      return classifyTrip(userCountry, destinationCountry);
+    if (originCountryCode && destinationCountryCode) {
+      return classifyTrip(originCountryCode, destinationCountryCode);
     }
     return null;
-  }, [userCountry, destinationCountry]);
+  }, [originCountryCode, destinationCountryCode]);
 
   // Passport expiry warning
   const showPassportWarning = useMemo(() => {
@@ -180,6 +181,8 @@ export function Phase1Wizard({
       const result = await createExpeditionAction({
         destination: destination.trim(),
         origin: origin.trim() || undefined,
+        destinationCountryCode: destinationCountryCode ?? undefined,
+        originCountryCode: originCountryCode ?? undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         flexibleDates,
@@ -214,8 +217,12 @@ export function Phase1Wizard({
     router.push(`/expedition/${tripIdRef.current}/phase-2`);
   }
 
-  function handleDestinationSelect(result: { displayName: string; country: string | null }) {
-    setDestinationCountry(result.country);
+  function handleDestinationSelect(result: { displayName: string; country: string | null; countryCode: string | null }) {
+    setDestinationCountryCode(result.countryCode);
+  }
+
+  function handleOriginSelect(result: { displayName: string; country: string | null; countryCode: string | null }) {
+    setOriginCountryCode(result.countryCode);
   }
 
   if (showAnimation) {
@@ -430,7 +437,7 @@ export function Phase1Wizard({
                 <DestinationAutocomplete
                   value={origin}
                   onChange={setOrigin}
-                  onSelect={() => {}}
+                  onSelect={handleOriginSelect}
                   placeholder={t("step2.originPlaceholder")}
                 />
                 <p className="mt-1 text-xs text-muted-foreground">{t("step2.originHint")}</p>
