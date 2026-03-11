@@ -28,8 +28,14 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
       origin: true,
       startDate: true,
       endDate: true,
+      currentPhase: true,
     },
   });
+
+  if (!trip || trip.currentPhase < 2) {
+    redirect({ href: "/dashboard", locale });
+    return null;
+  }
 
   return (
     <>
