@@ -25,7 +25,7 @@ export function PhaseTransition({ fromPhase, toPhase, onContinue }: PhaseTransit
     1: "theCalling",
     2: "theExplorer",
     3: "theRoute",
-    4: "theShelter",
+    4: "theLogistics",
     5: "theDayMap",
     6: "theTreasure",
     7: "theExpedition",
