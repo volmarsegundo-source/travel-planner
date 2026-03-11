@@ -402,7 +402,7 @@
       "passportExpiryWarning": "Your passport may expire before or during your trip. Please check its validity before continuing.",
       "step1": {
         "title": "About you",
-        "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordenadas!",
+        "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordinates!",
         "name": "Full name",
         "namePlaceholder": "Your full name",
         "birthDate": "Date of birth",
