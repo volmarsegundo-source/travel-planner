@@ -452,7 +452,7 @@ export function Phase1Wizard({
                 </div>
               )}
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(1)} className="flex-1">
+                <Button variant="outline" onClick={() => goToStep(1)} className="flex-1" aria-label={tCommon("back")}>
                   {"\u2190"}
                 </Button>
                 <Button onClick={handleStep2Next} className="flex-[3]">
@@ -502,7 +502,7 @@ export function Phase1Wizard({
                 {t("step3.flexibleDates")}
               </label>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(2)} className="flex-1">
+                <Button variant="outline" onClick={() => goToStep(2)} className="flex-1" aria-label={tCommon("back")}>
                   {"\u2190"}
                 </Button>
                 <Button onClick={handleStep3Next} className="flex-[3]">
@@ -593,7 +593,7 @@ export function Phase1Wizard({
                 )}
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={() => goToStep(3)} className="flex-1">
+                <Button variant="outline" onClick={() => goToStep(3)} className="flex-1" aria-label={tCommon("back")}>
                   {"\u2190"}
                 </Button>
                 <Button

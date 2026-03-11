@@ -298,7 +298,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 label={t("step2.title")}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -325,7 +325,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
               />
               <p className="text-center text-lg font-semibold">{travelPace}/10</p>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -374,7 +374,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 step={100}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -393,7 +393,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 onPreferencesChange={setSelectedPreferences}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -498,7 +498,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 </dl>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button
