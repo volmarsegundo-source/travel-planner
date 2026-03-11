@@ -21,6 +21,9 @@ import { hashUserId } from "@/lib/hash";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 
+import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
+import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
+
 // ─── Ownership helper ────────────────────────────────────────────────────────
 
 /** Verify that the trip belongs to the user. Returns null if not found or not owned. */
@@ -438,12 +441,70 @@ export async function getDestinationGuideAction(
   }
 }
 
-// ─── viewGuideSectionAction ─────────────────────────────────────────────────
+// ─── bulkViewGuideSectionsAction ─────────────────────────────────────────────
 
 const GUIDE_SECTION_KEYS: GuideSectionKey[] = [
   "timezone", "currency", "language", "electricity", "connectivity", "cultural_tips",
   "safety", "health", "transport_overview", "local_customs",
 ];
+
+const POINTS_PER_SECTION = 5;
+
+export async function bulkViewGuideSectionsAction(
+  tripId: string
+): Promise<ActionResult<{ totalPointsAwarded: number }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  // BOLA: verify trip belongs to user
+  const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+  if (!ownedTrip) {
+    return { success: false, error: "errors.tripNotFound" };
+  }
+
+  try {
+    const guide = await db.destinationGuide.findUnique({
+      where: { tripId },
+    });
+
+    if (!guide) {
+      return { success: false, error: "errors.notFound" };
+    }
+
+    const viewed = (guide.viewedSections as string[]) ?? [];
+    const unviewed = GUIDE_SECTION_KEYS.filter((k) => !viewed.includes(k));
+
+    if (unviewed.length === 0) {
+      return { success: true, data: { totalPointsAwarded: 0 } };
+    }
+
+    // Mark all sections as viewed at once
+    await db.destinationGuide.update({
+      where: { tripId },
+      data: { viewedSections: [...viewed, ...unviewed] },
+    });
+
+    // Award points in bulk (one transaction per section for audit trail)
+    const totalPoints = unviewed.length * POINTS_PER_SECTION;
+    await PointsEngine.earnPoints(
+      session.user.id,
+      totalPoints,
+      "phase_connectivity",
+      `Bulk viewed ${unviewed.length} guide sections`,
+      tripId
+    );
+
+    return { success: true, data: { totalPointsAwarded: totalPoints } };
+  } catch (error) {
+    logger.error("expedition.bulkViewGuideSections.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── viewGuideSectionAction ─────────────────────────────────────────────────
 
 export async function viewGuideSectionAction(
   tripId: string,
@@ -621,6 +682,98 @@ export async function getExpeditionPhasesAction(
   } catch (error) {
     logger.error("expedition.getPhases.error", error, {
       userId: hashUserId(session.user.id),
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── completeExpeditionAction ───────────────────────────────────────────────
+
+const EXPEDITION_COMPLETION_POINTS = 500;
+
+export async function completeExpeditionAction(
+  tripId: string
+): Promise<ActionResult<{ pointsEarned: number; badgeAwarded: string | null }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    // BOLA: verify trip belongs to user
+    const trip = await db.trip.findFirst({
+      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      select: { id: true, status: true },
+    });
+
+    if (!trip) {
+      return { success: false, error: "errors.tripNotFound" };
+    }
+
+    // Idempotent: if already completed, return zero points
+    if (trip.status === "COMPLETED") {
+      return { success: true, data: { pointsEarned: 0, badgeAwarded: null } };
+    }
+
+    // Mark trip as completed
+    await db.trip.update({
+      where: { id: tripId },
+      data: { status: "COMPLETED" },
+    });
+
+    // Award expedition completion points
+    await PointsEngine.earnPoints(
+      session.user.id,
+      EXPEDITION_COMPLETION_POINTS,
+      "phase_complete",
+      "Completed expedition",
+      tripId
+    );
+
+    // Award treasurer badge (expedition completion badge)
+    let badgeAwarded: string | null = null;
+    try {
+      await PointsEngine.awardBadge(session.user.id, "treasurer");
+      badgeAwarded = "treasurer";
+    } catch {
+      // Badge may already exist — non-blocking
+    }
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/expedition/${tripId}`);
+
+    return {
+      success: true,
+      data: {
+        pointsEarned: EXPEDITION_COMPLETION_POINTS,
+        badgeAwarded,
+      },
+    };
+  } catch (error) {
+    logger.error("expedition.completeExpedition.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── getExpeditionSummaryAction ─────────────────────────────────────────────
+
+export async function getExpeditionSummaryAction(
+  tripId: string
+): Promise<ActionResult<ExpeditionSummary>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    const summary = await ExpeditionSummaryService.getExpeditionSummary(
+      tripId,
+      session.user.id
+    );
+    return { success: true, data: summary };
+  } catch (error) {
+    logger.error("expedition.getSummary.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
   }

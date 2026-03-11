@@ -1,8 +1,11 @@
 /**
- * Unit tests for DestinationGuideWizard component.
+ * Unit tests for DestinationGuideWizard component (Sprint 26 redesign).
  *
- * Tests cover: initial render, guide generation, collapsible sections,
- * section view points, regeneration limit, phase completion flow.
+ * Tests cover: always-visible sections, hero banner, no collapse behavior,
+ * regenerate button (no update button), skeleton loading, bulk points,
+ * section unavailable text, backward compatibility.
+ *
+ * [SPEC-PROD-003, SPEC-UX-002]
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
@@ -34,13 +37,14 @@ vi.mock("@/i18n/navigation", () => ({
 
 const mockGenerateGuide = vi.fn();
 const mockCompletePhase5 = vi.fn();
-const mockViewSection = vi.fn();
+const mockBulkViewSections = vi.fn();
 
 vi.mock("@/server/actions/expedition.actions", () => ({
   generateDestinationGuideAction: (...args: unknown[]) =>
     mockGenerateGuide(...args),
   completePhase5Action: (...args: unknown[]) => mockCompletePhase5(...args),
-  viewGuideSectionAction: (...args: unknown[]) => mockViewSection(...args),
+  bulkViewGuideSectionsAction: (...args: unknown[]) =>
+    mockBulkViewSections(...args),
 }));
 
 // ─── Import SUT ───────────────────────────────────────────────────────────────
@@ -53,35 +57,35 @@ import type { DestinationGuideContent } from "@/types/ai.types";
 const MOCK_GUIDE: DestinationGuideContent = {
   timezone: {
     title: "UTC+1",
-    icon: "🕐",
+    icon: "\u{1F550}",
     summary: "Central European Time",
     tips: ["Set your watch ahead"],
     type: "stat",
   },
   currency: {
     title: "Euro (EUR)",
-    icon: "💶",
+    icon: "\u{1F4B6}",
     summary: "Euro is the main currency",
     tips: ["Use ATMs for best rates", "Cards widely accepted"],
     type: "stat",
   },
   language: {
     title: "French",
-    icon: "🗣️",
+    icon: "\u{1F5E3}\uFE0F",
     summary: "French is the official language",
     tips: ["Learn bonjour and merci"],
     type: "stat",
   },
   electricity: {
     title: "Type C/E, 230V",
-    icon: "🔌",
+    icon: "\u{1F50C}",
     summary: "European plugs, 230V",
     tips: ["Bring an adapter"],
     type: "stat",
   },
   connectivity: {
     title: "eSIM recommended",
-    icon: "📶",
+    icon: "\u{1F4F6}",
     summary: "Good 4G coverage throughout",
     tips: ["Buy eSIM before travel"],
     type: "content",
@@ -89,7 +93,7 @@ const MOCK_GUIDE: DestinationGuideContent = {
   },
   cultural_tips: {
     title: "French etiquette",
-    icon: "🎭",
+    icon: "\u{1F3AD}",
     summary: "Greeting is important in France",
     tips: ["Say bonjour when entering shops", "Tip is included in prices"],
     type: "content",
@@ -97,7 +101,7 @@ const MOCK_GUIDE: DestinationGuideContent = {
   },
   safety: {
     title: "Safety",
-    icon: "🛡️",
+    icon: "\u{1F6E1}\uFE0F",
     summary: "Generally safe for tourists",
     tips: ["Watch for pickpockets in tourist areas"],
     type: "content",
@@ -105,7 +109,7 @@ const MOCK_GUIDE: DestinationGuideContent = {
   },
   health: {
     title: "Health",
-    icon: "❤️",
+    icon: "\u2764\uFE0F",
     summary: "Good healthcare available",
     tips: ["Carry your EHIC card"],
     type: "content",
@@ -113,7 +117,7 @@ const MOCK_GUIDE: DestinationGuideContent = {
   },
   transport_overview: {
     title: "Transport",
-    icon: "🚇",
+    icon: "\u{1F687}",
     summary: "Excellent metro system",
     tips: ["Buy a Navigo pass for the week"],
     type: "content",
@@ -121,7 +125,7 @@ const MOCK_GUIDE: DestinationGuideContent = {
   },
   local_customs: {
     title: "Customs",
-    icon: "🇫🇷",
+    icon: "\u{1F1EB}\u{1F1F7}",
     summary: "Kiss on both cheeks",
     tips: ["Say bonjour when entering shops"],
     type: "content",
@@ -138,9 +142,24 @@ const ALL_SECTIONS_VIEWED = [
 
 beforeEach(() => {
   vi.clearAllMocks();
-  mockViewSection.mockResolvedValue({
+  mockBulkViewSections.mockResolvedValue({
     success: true,
-    data: { pointsAwarded: 5 },
+    data: { totalPointsAwarded: 50 },
+  });
+
+  // Mock matchMedia for PhaseTransition prefers-reduced-motion check
+  Object.defineProperty(window, "matchMedia", {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
   });
 });
 
@@ -200,13 +219,14 @@ describe("DestinationGuideWizard", () => {
       );
     });
 
-    // Auto-trigger should call generateDestinationGuideAction
     expect(mockGenerateGuide).toHaveBeenCalledWith("trip-1", "en");
-    // Guide sections should be visible after auto-generation
-    expect(screen.getByText("UTC+1")).toBeInTheDocument();
+    // UTC+1 appears in hero banner AND stat card
+    expect(screen.getAllByText("UTC+1").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("shows guide sections when initialGuide is provided", () => {
+  // ─── All 10 Sections Render Without Collapse ────────────────────────
+
+  it("renders all 10 sections always visible without collapse", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -220,21 +240,30 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    // Stat section titles visible in compact cards
-    expect(screen.getByText("UTC+1")).toBeInTheDocument();
-    expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
-    expect(screen.getByText("French")).toBeInTheDocument();
-    expect(screen.getByText("Type C/E, 230V")).toBeInTheDocument();
-    // Content section titles visible
+    // All stat cards visible with summaries and tips (also in hero banner)
+    expect(screen.getAllByText("UTC+1").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Euro (EUR)").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("French").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getAllByText("Type C/E, 230V").length).toBeGreaterThanOrEqual(2);
+
+    // All content sections visible with details
     expect(screen.getByText("eSIM recommended")).toBeInTheDocument();
+    expect(screen.getByText("Wi-Fi is widely available in cafes and hotels.")).toBeInTheDocument();
     expect(screen.getByText("French etiquette")).toBeInTheDocument();
     expect(screen.getByText("Safety")).toBeInTheDocument();
     expect(screen.getByText("Health")).toBeInTheDocument();
     expect(screen.getByText("Transport")).toBeInTheDocument();
     expect(screen.getByText("Customs")).toBeInTheDocument();
+
+    // No chevrons (collapse indicators) should exist
+    const svgs = document.querySelectorAll("svg");
+    const chevrons = Array.from(svgs).filter((svg) =>
+      svg.querySelector('path[d*="19 9l-7 7-7-7"]')
+    );
+    expect(chevrons.length).toBe(0);
   });
 
-  it("renders stat cards in a grid and content cards in a list", () => {
+  it("shows stat cards in grid and content cards in list", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -253,16 +282,18 @@ describe("DestinationGuideWizard", () => {
     expect(statCards).toBeInTheDocument();
     expect(contentCards).toBeInTheDocument();
 
-    // Stat cards: 4 buttons with data-section-type="stat"
-    const statButtons = statCards.querySelectorAll('[data-section-type="stat"]');
-    expect(statButtons.length).toBe(4);
+    // Stat cards: 4 divs (no longer buttons)
+    const statItems = statCards.querySelectorAll('[data-section-type="stat"]');
+    expect(statItems.length).toBe(4);
 
-    // Content cards: 6 buttons with data-section-type="content"
-    const contentButtons = contentCards.querySelectorAll('[data-section-type="content"]');
-    expect(contentButtons.length).toBe(6);
+    // Content cards: 6 divs
+    const contentItems = contentCards.querySelectorAll('[data-section-type="content"]');
+    expect(contentItems.length).toBe(6);
   });
 
-  it("shows details field for content sections when expanded", async () => {
+  // ─── Hero Banner ────────────────────────────────────────────────────
+
+  it("renders hero banner with stat data", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -276,42 +307,66 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    // Expand a content section that has details
-    await act(async () => {
-      fireEvent.click(screen.getByText("eSIM recommended"));
-    });
-
-    expect(screen.getByText("Wi-Fi is widely available in cafes and hotels.")).toBeInTheDocument();
+    const hero = screen.getByTestId("hero-banner");
+    expect(hero).toBeInTheDocument();
+    expect(hero).toHaveTextContent("expedition.phase5.heroTitle");
+    // Hero shows stat titles
+    expect(hero).toHaveTextContent("UTC+1");
+    expect(hero).toHaveTextContent("Euro (EUR)");
+    expect(hero).toHaveTextContent("French");
+    expect(hero).toHaveTextContent("Type C/E, 230V");
   });
 
-  // ─── Guide Generation ───────────────────────────────────────────────
+  // ─── Buttons ────────────────────────────────────────────────────────
 
-  it("shows regenerate button after auto-generation completes", async () => {
-    mockGenerateGuide.mockResolvedValue({
-      success: true,
-      data: { content: MOCK_GUIDE, generationCount: 1 },
-    });
+  it("'Update guide' button is NOT present", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
 
-    await act(async () => {
-      render(
-        <DestinationGuideWizard
-          tripId="trip-1"
-          destination="Paris, France"
-          locale="en"
-        />
-      );
-    });
+    // There should be no "Update guide" / "Atualizar guia" button
+    // The regenerate button has a different label pattern
+    const buttons = screen.getAllByRole("button");
+    const updateButtons = buttons.filter((btn) =>
+      btn.textContent?.includes("Update guide") ||
+      btn.textContent?.includes("Atualizar guia")
+    );
+    expect(updateButtons.length).toBe(0);
+  });
 
-    // After auto-generation, regenerate button should be visible
-    const regenerateBtn = screen.getByText(/expedition\.phase5\.regenerateCta/);
+  it("'Regenerate' button IS present as secondary action", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    const regenerateBtn = screen.getByTestId("regenerate-button");
     expect(regenerateBtn).toBeInTheDocument();
+    expect(regenerateBtn).toHaveTextContent(/regenerateCta/);
   });
 
-  it("shows sections after successful auto-generation", async () => {
-    mockGenerateGuide.mockResolvedValue({
-      success: true,
-      data: { content: MOCK_GUIDE, generationCount: 1 },
-    });
+  // ─── Skeleton Loading ──────────────────────────────────────────────
+
+  it("shows skeleton loading with 10 card placeholders", async () => {
+    // Make generateGuide hang (never resolve) to keep isGenerating true
+    mockGenerateGuide.mockReturnValue(new Promise(() => {}));
 
     await act(async () => {
       render(
@@ -323,160 +378,70 @@ describe("DestinationGuideWizard", () => {
       );
     });
 
+    // Should show skeleton placeholders
+    expect(screen.getByTestId("skeleton-hero")).toBeInTheDocument();
+    expect(screen.getByTestId("skeleton-stats")).toBeInTheDocument();
+    expect(screen.getByTestId("skeleton-content")).toBeInTheDocument();
+
+    // Count skeleton cards: 1 hero + 4 stat + 6 content = 11 animated elements
+    const skeletonStats = screen.getByTestId("skeleton-stats");
+    expect(skeletonStats.children.length).toBe(4);
+
+    const skeletonContent = screen.getByTestId("skeleton-content");
+    expect(skeletonContent.children.length).toBe(6);
+  });
+
+  // ─── Missing Section ──────────────────────────────────────────────
+
+  it("shows 'unavailable' text for missing sections", () => {
+    const PARTIAL_GUIDE = {
+      timezone: MOCK_GUIDE.timezone,
+      currency: MOCK_GUIDE.currency,
+      language: MOCK_GUIDE.language,
+      electricity: MOCK_GUIDE.electricity,
+      connectivity: MOCK_GUIDE.connectivity,
+      cultural_tips: MOCK_GUIDE.cultural_tips,
+      // safety, health, transport_overview, local_customs are missing
+    } as unknown as DestinationGuideContent;
+
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: PARTIAL_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    // 4 missing content sections should show "unavailable" text
+    const unavailableTexts = screen.getAllByText("expedition.phase5.sectionUnavailable");
+    expect(unavailableTexts.length).toBe(4);
+  });
+
+  // ─── Bulk Points Award ────────────────────────────────────────────
+
+  it("calls bulkViewGuideSectionsAction once when guide loads", async () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
     await waitFor(() => {
-      expect(screen.getByText("UTC+1")).toBeInTheDocument();
+      expect(mockBulkViewSections).toHaveBeenCalledWith("trip-1");
+      expect(mockBulkViewSections).toHaveBeenCalledTimes(1);
     });
-  });
-
-  it("shows error message on auto-generation failure", async () => {
-    mockGenerateGuide.mockResolvedValue({
-      success: false,
-      error: "errors.guideGenerationLimit",
-    });
-
-    await act(async () => {
-      render(
-        <DestinationGuideWizard
-          tripId="trip-1"
-          destination="Paris, France"
-          locale="en"
-        />
-      );
-    });
-
-    await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        "guideGenerationLimit"
-      );
-    });
-  });
-
-  // ─── Collapsible Sections ───────────────────────────────────────────
-
-  it("expands a stat section on click showing tips", async () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 1,
-          viewedSections: [],
-        }}
-      />
-    );
-
-    // Click timezone stat card
-    await act(async () => {
-      fireEvent.click(screen.getByText("UTC+1"));
-    });
-
-    // Stat expanded detail shows tips
-    expect(
-      screen.getByText("Set your watch ahead")
-    ).toBeInTheDocument();
-  });
-
-  it("collapses content section on second click", async () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 1,
-          viewedSections: [],
-        }}
-      />
-    );
-
-    // Expand connectivity content section
-    await act(async () => {
-      fireEvent.click(screen.getByText("eSIM recommended"));
-    });
-    expect(
-      screen.getByText("Wi-Fi is widely available in cafes and hotels.")
-    ).toBeInTheDocument();
-
-    // Collapse
-    await act(async () => {
-      fireEvent.click(screen.getByText("eSIM recommended"));
-    });
-    expect(
-      screen.queryByText("Wi-Fi is widely available in cafes and hotels.")
-    ).not.toBeInTheDocument();
-  });
-
-  it("shows tips in expanded section", async () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 1,
-          viewedSections: [],
-        }}
-      />
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByText("Euro (EUR)"));
-    });
-
-    expect(
-      screen.getByText("Use ATMs for best rates")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("Cards widely accepted")
-    ).toBeInTheDocument();
-  });
-
-  // ─── Section View Points ────────────────────────────────────────────
-
-  it("calls viewGuideSectionAction when expanding a new section", async () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 1,
-          viewedSections: [],
-        }}
-      />
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByText("UTC+1"));
-    });
-
-    expect(mockViewSection).toHaveBeenCalledWith("trip-1", "timezone");
-  });
-
-  it("does not call viewGuideSectionAction for already viewed sections", async () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 1,
-          viewedSections: ["timezone"],
-        }}
-      />
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByText("UTC+1"));
-    });
-
-    expect(mockViewSection).not.toHaveBeenCalled();
   });
 
   // ─── AI Disclaimer ────────────────────────────────────────────────
@@ -500,24 +465,6 @@ describe("DestinationGuideWizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("enables complete button immediately when guide exists (no section view required)", () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-        initialGuide={{
-          content: MOCK_GUIDE,
-          generationCount: 1,
-          viewedSections: [],
-        }}
-      />
-    );
-
-    const completeBtn = screen.getByText("expedition.phase5.completeCta");
-    expect(completeBtn.closest("button")).not.toBeDisabled();
-  });
-
   // ─── Phase Completion ───────────────────────────────────────────────
 
   it("shows complete button when guide exists", () => {
@@ -537,6 +484,24 @@ describe("DestinationGuideWizard", () => {
     expect(
       screen.getByText("expedition.phase5.completeCta")
     ).toBeInTheDocument();
+  });
+
+  it("enables complete button immediately when guide exists", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    const completeBtn = screen.getByText("expedition.phase5.completeCta");
+    expect(completeBtn.closest("button")).not.toBeDisabled();
   });
 
   it("calls completePhase5Action on complete click", async () => {
@@ -612,7 +577,7 @@ describe("DestinationGuideWizard", () => {
       vi.advanceTimersByTime(2900);
     });
 
-    // PhaseTransition shows → advancing state shows after 1200ms with Continue button
+    // PhaseTransition shows -> advancing state shows after 1200ms with Continue button
     await act(async () => {
       vi.advanceTimersByTime(1300);
     });
@@ -679,7 +644,9 @@ describe("DestinationGuideWizard", () => {
     expect(screen.getByRole("navigation")).toBeInTheDocument();
   });
 
-  it("section buttons have aria-expanded attribute", () => {
+  // ─── Content Sections Show Details Always ─────────────────────────
+
+  it("shows details for all content sections without clicking", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -693,14 +660,54 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    const sectionButtons = screen
-      .getAllByRole("button")
-      .filter((btn) => btn.getAttribute("aria-expanded") !== null);
+    // Details should be visible without any clicks
+    expect(screen.getByText("Wi-Fi is widely available in cafes and hotels.")).toBeInTheDocument();
+    expect(screen.getByText("French culture values politeness and formality.")).toBeInTheDocument();
+    expect(screen.getByText("Paris is safe but stay alert in crowded places.")).toBeInTheDocument();
+    expect(screen.getByText("France has excellent public healthcare.")).toBeInTheDocument();
+    expect(screen.getByText("The Paris metro is one of the best in the world.")).toBeInTheDocument();
+    expect(screen.getByText("French people greet with la bise in social settings.")).toBeInTheDocument();
+  });
 
-    expect(sectionButtons.length).toBe(10);
-    sectionButtons.forEach((btn) => {
-      expect(btn).toHaveAttribute("aria-expanded", "false");
-    });
+  // ─── Auto-update Check ────────────────────────────────────────────
+
+  it("shows regenerate confirmation when trip data hash differs from stored hash", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: ALL_SECTIONS_VIEWED,
+        }}
+        tripDataHash="hash-new"
+        storedDataHash="hash-old"
+      />
+    );
+
+    expect(screen.getByTestId("regenerate-confirm-dialog")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.regenerateConfirm")).toBeInTheDocument();
+  });
+
+  it("does not show regenerate confirmation when hashes match", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: ALL_SECTIONS_VIEWED,
+        }}
+        tripDataHash="hash-same"
+        storedDataHash="hash-same"
+      />
+    );
+
+    expect(screen.queryByTestId("regenerate-confirm-dialog")).not.toBeInTheDocument();
   });
 
   // ─── Backward Compatibility — old 6-section guide (T-S20-001) ──────
@@ -729,38 +736,15 @@ describe("DestinationGuideWizard", () => {
         />
       );
 
-      // Stat cards still rendered (all 4 present in old format)
-      expect(screen.getByText("UTC+1")).toBeInTheDocument();
-      expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
-
-      // Content cards: only connectivity and cultural_tips present
+      // Stat titles appear in both hero banner and stat cards
+      expect(screen.getAllByText("UTC+1").length).toBeGreaterThanOrEqual(2);
+      expect(screen.getAllByText("Euro (EUR)").length).toBeGreaterThanOrEqual(2);
       expect(screen.getByText("eSIM recommended")).toBeInTheDocument();
       expect(screen.getByText("French etiquette")).toBeInTheDocument();
 
-      // Missing sections (safety, health, transport_overview, local_customs) are NOT rendered
-      expect(screen.queryByText("Safety")).not.toBeInTheDocument();
-      expect(screen.queryByText("Health")).not.toBeInTheDocument();
-      expect(screen.queryByText("Transport")).not.toBeInTheDocument();
-      expect(screen.queryByText("Customs")).not.toBeInTheDocument();
-    });
-
-    it("shows only 2 content cards for old 6-section guide", () => {
-      render(
-        <DestinationGuideWizard
-          tripId="trip-old"
-          destination="Tokyo, Japan"
-          locale="en"
-          initialGuide={{
-            content: OLD_FORMAT_GUIDE,
-            generationCount: 1,
-            viewedSections: [],
-          }}
-        />
-      );
-
-      const contentCards = screen.getByTestId("content-cards");
-      const contentButtons = contentCards.querySelectorAll('[data-section-type="content"]');
-      expect(contentButtons.length).toBe(2);
+      // Missing sections show "unavailable" text
+      const unavailableTexts = screen.getAllByText("expedition.phase5.sectionUnavailable");
+      expect(unavailableTexts.length).toBe(4);
     });
 
     it("still allows phase completion with old format guide", () => {
@@ -779,6 +763,61 @@ describe("DestinationGuideWizard", () => {
 
       const completeBtn = screen.getByText("expedition.phase5.completeCta");
       expect(completeBtn.closest("button")).not.toBeDisabled();
+    });
+  });
+
+  // ─── Guide Generation ───────────────────────────────────────────────
+
+  it("shows regenerate button after auto-generation completes", async () => {
+    mockGenerateGuide.mockResolvedValue({
+      success: true,
+      data: { content: MOCK_GUIDE, generationCount: 1 },
+    });
+
+    await act(async () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
+      );
+    });
+
+    const regenerateBtn = screen.getByTestId("regenerate-button");
+    expect(regenerateBtn).toBeInTheDocument();
+  });
+
+  it("shows error message on generation failure", async () => {
+    // Provide initialGuide so auto-generation does not trigger
+    // Then manually click regenerate to test error display
+    mockGenerateGuide.mockResolvedValue({
+      success: false,
+      error: "errors.guideGenerationLimit",
+    });
+
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: ALL_SECTIONS_VIEWED,
+        }}
+      />
+    );
+
+    // Click regenerate
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("regenerate-button"));
+    });
+
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "guideGenerationLimit"
+      );
     });
   });
 });

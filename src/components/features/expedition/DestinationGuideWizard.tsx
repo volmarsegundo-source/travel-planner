@@ -10,7 +10,7 @@ import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import {
   generateDestinationGuideAction,
   completePhase5Action,
-  viewGuideSectionAction,
+  bulkViewGuideSectionsAction,
 } from "@/server/actions/expedition.actions";
 import type { BadgeKey, Rank } from "@/types/gamification.types";
 import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
@@ -24,6 +24,8 @@ interface DestinationGuideWizardProps {
     generationCount: number;
     viewedSections: string[];
   } | null;
+  tripDataHash?: string | null;
+  storedDataHash?: string | null;
 }
 
 const STAT_SECTIONS: GuideSectionKey[] = [
@@ -42,13 +44,23 @@ const CONTENT_SECTIONS: GuideSectionKey[] = [
   "local_customs",
 ];
 
-const SECTION_ORDER: GuideSectionKey[] = [...STAT_SECTIONS, ...CONTENT_SECTIONS];
+/** Left accent border color for each content section per SPEC-UX-002 */
+const CONTENT_SECTION_COLORS: Record<string, string> = {
+  connectivity: "border-l-blue-500",
+  cultural_tips: "border-l-amber-500",
+  safety: "border-l-red-500",
+  health: "border-l-green-500",
+  transport_overview: "border-l-indigo-500",
+  local_customs: "border-l-purple-500",
+};
 
 export function DestinationGuideWizard({
   tripId,
   destination,
   locale,
   initialGuide,
+  tripDataHash,
+  storedDataHash,
 }: DestinationGuideWizardProps) {
   const t = useTranslations("expedition.phase5");
   const tCommon = useTranslations("common");
@@ -59,16 +71,13 @@ export function DestinationGuideWizard({
   const [_generationCount, setGenerationCount] = useState(
     initialGuide?.generationCount ?? 0
   );
-  const [viewedSections, setViewedSections] = useState<string[]>(
-    initialGuide?.viewedSections ?? []
-  );
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showAnimation, setShowAnimation] = useState(false);
   const [showTransition, setShowTransition] = useState(false);
-  const [sectionPoints, setSectionPoints] = useState<string | null>(null);
+  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
+  const [bulkPointsAwarded, setBulkPointsAwarded] = useState(false);
   const [animationData, setAnimationData] = useState<{
     points: number;
     badge?: BadgeKey | null;
@@ -85,9 +94,35 @@ export function DestinationGuideWizard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Auto-update check: if trip data changed, show confirmation dialog
+  const hasCheckedHashRef = useRef(false);
+  useEffect(() => {
+    if (
+      !hasCheckedHashRef.current &&
+      initialGuide &&
+      tripDataHash &&
+      storedDataHash &&
+      tripDataHash !== storedDataHash
+    ) {
+      hasCheckedHashRef.current = true;
+      setShowRegenerateConfirm(true);
+    }
+  }, [initialGuide, tripDataHash, storedDataHash]);
+
+  // Award bulk points when guide loads (once)
+  useEffect(() => {
+    if (guide && !bulkPointsAwarded) {
+      setBulkPointsAwarded(true);
+      bulkViewGuideSectionsAction(tripId).catch(() => {
+        // Non-blocking — don't show error for points
+      });
+    }
+  }, [guide, bulkPointsAwarded, tripId]);
+
   async function handleGenerate() {
     setIsGenerating(true);
     setErrorMessage(null);
+    setShowRegenerateConfirm(false);
 
     try {
       const result = await generateDestinationGuideAction(tripId, locale);
@@ -100,36 +135,10 @@ export function DestinationGuideWizard({
 
       setGuide(result.data!.content);
       setGenerationCount(result.data!.generationCount);
-      // All sections are auto-viewed after generation (scoring is automatic)
-      setViewedSections([...SECTION_ORDER]);
-      setExpandedSection(null);
     } catch {
       setErrorMessage("errors.generic");
     } finally {
       setIsGenerating(false);
-    }
-  }
-
-  async function handleToggleSection(key: GuideSectionKey) {
-    if (expandedSection === key) {
-      setExpandedSection(null);
-      return;
-    }
-
-    setExpandedSection(key);
-
-    // Award points for first view
-    if (!viewedSections.includes(key)) {
-      try {
-        const result = await viewGuideSectionAction(tripId, key);
-        if (result.success && result.data!.pointsAwarded > 0) {
-          setViewedSections((prev) => [...prev, key]);
-          setSectionPoints(key);
-          setTimeout(() => setSectionPoints(null), 2000);
-        }
-      } catch {
-        // Non-blocking — don't show error for points
-      }
     }
   }
 
@@ -189,6 +198,51 @@ export function DestinationGuideWizard({
     );
   }
 
+  // Skeleton loading state
+  if (isGenerating) {
+    return (
+      <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
+        <div className="w-full max-w-md">
+          <ExpeditionProgressBar currentPhase={5} totalPhases={8} tripId={tripId} />
+          <div className="mt-4 text-center">
+            <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
+            <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
+          </div>
+
+          {/* Skeleton: hero banner */}
+          <div
+            className="mt-6 h-24 w-full animate-pulse rounded-lg bg-muted"
+            data-testid="skeleton-hero"
+          />
+
+          {/* Skeleton: 4 stat cards */}
+          <div className="mt-4 grid grid-cols-2 gap-2" data-testid="skeleton-stats">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-20 animate-pulse rounded-lg bg-muted"
+              />
+            ))}
+          </div>
+
+          {/* Skeleton: 6 content sections */}
+          <div className="mt-4 flex flex-col gap-2" data-testid="skeleton-content">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-28 animate-pulse rounded-lg bg-muted"
+              />
+            ))}
+          </div>
+
+          <p className="mt-4 text-center text-sm text-muted-foreground">
+            {tCommon("loading")}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
@@ -212,7 +266,37 @@ export function DestinationGuideWizard({
           </div>
         )}
 
-        {/* Generate / Regenerate button */}
+        {/* Regenerate confirmation dialog (auto-update check) */}
+        {showRegenerateConfirm && (
+          <div
+            className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/40 dark:bg-amber-950/30"
+            role="alertdialog"
+            aria-label={t("regenerateConfirm")}
+            data-testid="regenerate-confirm-dialog"
+          >
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              {t("regenerateConfirm")}
+            </p>
+            <div className="mt-3 flex gap-2">
+              <Button
+                size="sm"
+                variant="destructive"
+                onClick={handleGenerate}
+              >
+                {t("regenerateConfirmYes")}
+              </Button>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowRegenerateConfirm(false)}
+              >
+                {t("regenerateConfirmNo")}
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Generate button (when no guide) */}
         {!guide && (
           <div className="mt-8 text-center">
             <p className="mb-4 text-sm text-muted-foreground">
@@ -229,22 +313,57 @@ export function DestinationGuideWizard({
           </div>
         )}
 
-        {/* Guide sections — card-based layout */}
+        {/* Guide sections — always visible, no collapse */}
         {guide && (
           <>
+            {/* Hero summary banner */}
+            <div
+              className="mt-6 rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4"
+              data-testid="hero-banner"
+            >
+              <h2 className="text-sm font-semibold text-foreground mb-2">
+                {t("heroTitle")}
+              </h2>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+                {STAT_SECTIONS.map((key) => {
+                  const section = guide[key];
+                  if (!section) return null;
+                  return (
+                    <div key={key} className="flex items-center gap-1.5">
+                      <span aria-hidden="true">{section.icon}</span>
+                      <span className="font-medium text-foreground">
+                        {section.title}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Stat cards — compact grid, always visible */}
-            <div className="mt-6 grid grid-cols-2 gap-2" data-testid="stat-cards">
+            <div className="mt-4 grid grid-cols-2 gap-2" data-testid="stat-cards">
               {STAT_SECTIONS.map((key) => {
                 const section = guide[key];
-                if (!section) return null;
+                if (!section) {
+                  return (
+                    <div
+                      key={key}
+                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center"
+                      data-section-type="stat"
+                      data-section-key={key}
+                    >
+                      <span className="text-xs text-muted-foreground">
+                        {t("sectionUnavailable")}
+                      </span>
+                    </div>
+                  );
+                }
                 return (
-                  <button
+                  <div
                     key={key}
-                    type="button"
-                    onClick={() => handleToggleSection(key)}
-                    className="relative flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center transition-all hover:border-atlas-gold/30"
-                    aria-expanded={expandedSection === key}
+                    className="flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center"
                     data-section-type="stat"
+                    data-section-key={key}
                   >
                     <span className="text-2xl" aria-hidden="true">
                       {section.icon}
@@ -255,123 +374,86 @@ export function DestinationGuideWizard({
                     <span className="text-[11px] text-muted-foreground line-clamp-2">
                       {section.summary}
                     </span>
-                    {sectionPoints === key && (
-                      <span className="absolute -top-2 right-2 animate-bounce rounded-full bg-atlas-gold px-2 py-0.5 text-xs font-bold text-atlas-ink">
-                        +5
-                      </span>
+                    {section.tips.length > 0 && (
+                      <ul className="mt-1 w-full">
+                        {section.tips.map((tip, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-1 text-[10px] text-muted-foreground"
+                          >
+                            <span className="text-atlas-gold" aria-hidden="true">
+                              -
+                            </span>
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
                     )}
-                  </button>
+                  </div>
                 );
               })}
             </div>
 
-            {/* Stat card expanded detail */}
-            {expandedSection && STAT_SECTIONS.includes(expandedSection as GuideSectionKey) && guide[expandedSection as GuideSectionKey] && (
-              <div className="mt-2 rounded-lg border border-atlas-gold/30 bg-card p-4">
-                <p className="text-sm text-foreground">{guide[expandedSection as GuideSectionKey]!.summary}</p>
-                {guide[expandedSection as GuideSectionKey]!.tips.length > 0 && (
-                  <ul className="mt-2 flex flex-col gap-1">
-                    {guide[expandedSection as GuideSectionKey]!.tips.map((tip, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                        <span className="mt-0.5 text-atlas-gold" aria-hidden="true">•</span>
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            )}
-
-            {/* Content cards — expandable list */}
+            {/* Content sections — always visible, no collapse, with accent borders */}
             <div className="mt-4 flex flex-col gap-2" data-testid="content-cards">
               {CONTENT_SECTIONS.map((key) => {
                 const section = guide[key];
-                if (!section) return null;
-                const isExpanded = expandedSection === key;
-                const isViewed = viewedSections.includes(key);
+                const accentColor =
+                  CONTENT_SECTION_COLORS[key] ?? "border-l-gray-500";
+
+                if (!section) {
+                  return (
+                    <div
+                      key={key}
+                      className={`rounded-lg border border-l-4 ${accentColor} bg-card p-4`}
+                      data-section-type="content"
+                      data-section-key={key}
+                    >
+                      <p className="text-xs text-muted-foreground">
+                        {t("sectionUnavailable")}
+                      </p>
+                    </div>
+                  );
+                }
 
                 return (
-                  <div key={key} className="relative">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleSection(key)}
-                      className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-all ${
-                        isExpanded
-                          ? "border-atlas-gold bg-atlas-gold/5"
-                          : isViewed
-                            ? "border-atlas-teal/30 bg-atlas-teal/5"
-                            : "border-border bg-card hover:border-atlas-gold/30"
-                      }`}
-                      aria-expanded={isExpanded}
-                      data-section-type="content"
-                    >
+                  <div
+                    key={key}
+                    className={`rounded-lg border border-l-4 ${accentColor} bg-card p-4`}
+                    data-section-type="content"
+                    data-section-key={key}
+                  >
+                    <div className="flex items-center gap-2 mb-2">
                       <span className="text-xl" aria-hidden="true">
                         {section.icon}
                       </span>
-                      <div className="flex-1">
-                        <span className="text-sm font-medium text-foreground">
-                          {section.title}
-                        </span>
-                        <p className="text-xs text-muted-foreground line-clamp-1">
-                          {section.summary}
-                        </p>
-                      </div>
-                      {isViewed && !isExpanded && (
-                        <span className="text-xs text-atlas-teal" aria-hidden="true">
-                          ✓
-                        </span>
-                      )}
-                      <svg
-                        className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${
-                          isExpanded ? "rotate-180" : ""
-                        }`}
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={2}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M19 9l-7 7-7-7"
-                        />
-                      </svg>
-                    </button>
-
-                    {/* Expanded content with details */}
-                    {isExpanded && (
-                      <div className="mt-1 rounded-b-lg border border-t-0 border-atlas-gold/30 bg-card p-4">
-                        <p className="text-sm text-foreground">
-                          {section.summary}
-                        </p>
-                        {section.details && (
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {section.details}
-                          </p>
-                        )}
-                        {section.tips.length > 0 && (
-                          <ul className="mt-3 flex flex-col gap-1.5">
-                            {section.tips.map((tip, i) => (
-                              <li
-                                key={i}
-                                className="flex items-start gap-2 text-xs text-muted-foreground"
-                              >
-                                <span className="mt-0.5 text-atlas-gold" aria-hidden="true">
-                                  •
-                                </span>
-                                {tip}
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </div>
+                      <h3 className="text-sm font-medium text-foreground">
+                        {section.title}
+                      </h3>
+                    </div>
+                    <p className="text-sm text-foreground">{section.summary}</p>
+                    {section.details && (
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {section.details}
+                      </p>
                     )}
-
-                    {/* Points popup */}
-                    {sectionPoints === key && (
-                      <span className="absolute -top-2 right-2 animate-bounce rounded-full bg-atlas-gold px-2 py-0.5 text-xs font-bold text-atlas-ink">
-                        +5
-                      </span>
+                    {section.tips.length > 0 && (
+                      <ul className="mt-2 flex flex-col gap-1">
+                        {section.tips.map((tip, i) => (
+                          <li
+                            key={i}
+                            className="flex items-start gap-2 text-xs text-muted-foreground"
+                          >
+                            <span
+                              className="mt-0.5 text-atlas-gold"
+                              aria-hidden="true"
+                            >
+                              -
+                            </span>
+                            {tip}
+                          </li>
+                        ))}
+                      </ul>
                     )}
                   </div>
                 );
@@ -383,7 +465,7 @@ export function DestinationGuideWizard({
               {t("aiDisclaimer")}
             </p>
 
-            {/* Regenerate button */}
+            {/* Regenerate button (secondary action) */}
             <div className="mt-4">
               <Button
                 onClick={handleGenerate}
@@ -391,8 +473,11 @@ export function DestinationGuideWizard({
                 variant="outline"
                 size="sm"
                 className="w-full"
+                data-testid="regenerate-button"
               >
-                {isGenerating ? tCommon("loading") : t("regenerateCta", { remaining: "" })}
+                {isGenerating
+                  ? tCommon("loading")
+                  : t("regenerateCta", { remaining: "" })}
               </Button>
             </div>
 
