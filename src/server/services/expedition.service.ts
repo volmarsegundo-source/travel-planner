@@ -5,6 +5,7 @@ import { logger } from "@/lib/logger";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { PhaseEngine } from "@/lib/engines/phase-engine";
 import { AppError } from "@/lib/errors";
+import { classifyTrip } from "@/lib/travel/trip-classifier";
 import { MAX_TRIPS_PER_USER } from "@/lib/constants";
 import { TOTAL_PHASES } from "@/lib/engines/phase-config";
 import type { Phase1Input, Phase2Input } from "@/lib/validations/expedition.schema";
@@ -39,6 +40,14 @@ export class ExpeditionService {
       );
     }
 
+    // Classify trip type server-side from country codes
+    let tripType: string | null = null;
+    if (data.destinationCountryCode && data.originCountryCode) {
+      tripType = classifyTrip(data.originCountryCode, data.destinationCountryCode);
+    } else if (data.destinationCountryCode) {
+      tripType = "international";
+    }
+
     const result = await db.$transaction(async (tx: Tx) => {
       // 1. Create trip
       const trip = await tx.trip.create({
@@ -48,6 +57,7 @@ export class ExpeditionService {
           origin: data.origin ?? null,
           startDate: data.startDate ? new Date(data.startDate) : null,
           endDate: data.endDate ? new Date(data.endDate) : null,
+          ...(tripType ? { tripType } : {}),
           expeditionMode: true,
           currentPhase: 1,
           userId,
