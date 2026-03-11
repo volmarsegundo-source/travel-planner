@@ -104,7 +104,7 @@ describe("GET /api/destinations/search", () => {
         display_name: "Paris, Île-de-France, France",
         lat: "48.8566",
         lon: "2.3522",
-        address: { country: "France", state: "Île-de-France", city: "Paris" },
+        address: { country: "France", country_code: "fr", state: "Île-de-France", city: "Paris" },
       },
     ];
     (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -119,6 +119,7 @@ describe("GET /api/destinations/search", () => {
     expect(data.results[0].displayName).toBe("Paris, Île-de-France, France");
     expect(data.results[0].lat).toBe(48.8566);
     expect(data.results[0].country).toBe("France");
+    expect(data.results[0].countryCode).toBe("FR");
     expect(mockRedisSetex).toHaveBeenCalled();
   });
 
