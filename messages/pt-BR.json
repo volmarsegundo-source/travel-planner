@@ -540,6 +540,7 @@
         "accommodation": "Hospedagem",
         "pace": "Ritmo",
         "budget": "Orçamento",
+        "preferencesCount": "{count} {count, plural, =1 {categoria} other {categorias}}",
         "cta": "Concluir e Ganhar Pontos"
       },
       "errors": {

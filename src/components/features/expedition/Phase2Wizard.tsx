@@ -436,7 +436,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.travelerType")}</dt>
-                    <dd className="font-medium capitalize">{travelerType}</dd>
+                    <dd className="font-medium">{travelerType ? t(`step1.${travelerType}`) : ""}</dd>
                   </div>
                   {(travelerType === "family" || travelerType === "group") && (
                     <>
@@ -469,7 +469,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.accommodation")}</dt>
-                    <dd className="font-medium capitalize">{accommodationStyle}</dd>
+                    <dd className="font-medium">{accommodationStyle ? t(`step2.${accommodationStyle}`) : ""}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.pace")}</dt>
@@ -490,7 +490,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                       <div className="flex justify-between">
                         <dt className="text-muted-foreground">{t("step5.preferences")}</dt>
                         <dd className="font-medium">
-                          {filledPrefs.length} {filledPrefs.length === 1 ? "category" : "categories"}
+                          {t("step5.preferencesCount", { count: filledPrefs.length })}
                         </dd>
                       </div>
                     );

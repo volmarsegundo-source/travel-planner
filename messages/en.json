@@ -540,6 +540,7 @@
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
+        "preferencesCount": "{count} {count, plural, =1 {category} other {categories}}",
         "cta": "Complete & Earn Points"
       },
       "errors": {
