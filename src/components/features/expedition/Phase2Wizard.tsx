@@ -35,6 +35,8 @@ type StepKey = "travelerType" | "passengers" | "accommodation" | "pace" | "budge
 
 export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
+  const tExpedition = useTranslations("expedition");
+  const tPhases = useTranslations("gamification.phases");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const locale = useLocale();
@@ -220,6 +222,9 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
         <PhaseProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
         <div className="mt-2 text-center">
+          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+            {tExpedition("phaseLabel", { number: 2, name: tPhases("theExplorer") })}
+          </p>
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
@@ -262,9 +267,20 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 }}
                 label={t("step1.title")}
               />
-              <Button onClick={handleNext} size="lg" className="w-full">
-                {tCommon("next")}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => router.push("/trips")}
+                  className="flex-1"
+                  aria-label={tCommon("back")}
+                  data-testid="back-to-dashboard"
+                >
+                  {"\u2190"}
+                </Button>
+                <Button onClick={handleNext} size="lg" className="flex-[3]">
+                  {tCommon("next")}
+                </Button>
+              </div>
             </div>
           )}
 
@@ -412,31 +428,31 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   {t("step5.summary")}
                 </h3>
                 <dl className="space-y-2 text-sm">
-                  {tripContext?.destination && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.destination")}</dt>
-                      <dd className="font-medium">{tripContext.destination}</dd>
-                    </div>
-                  )}
-                  {tripContext?.origin && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.origin")}</dt>
-                      <dd className="font-medium">{tripContext.origin}</dd>
-                    </div>
-                  )}
-                  {(tripContext?.startDate || tripContext?.endDate) && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step5.dates")}</dt>
-                      <dd className="font-medium">
-                        {tripContext.startDate && tripContext.endDate
-                          ? `${tripContext.startDate} → ${tripContext.endDate}`
-                          : tripContext.startDate || tripContext.endDate}
-                      </dd>
-                    </div>
-                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step5.destination")}</dt>
+                    <dd className={tripContext?.destination ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {tripContext?.destination || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step5.origin")}</dt>
+                    <dd className={tripContext?.origin ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {tripContext?.origin || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step5.dates")}</dt>
+                    <dd className={(tripContext?.startDate || tripContext?.endDate) ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {tripContext?.startDate && tripContext?.endDate
+                        ? `${tripContext.startDate} \u2192 ${tripContext.endDate}`
+                        : tripContext?.startDate || tripContext?.endDate || tCommon("notProvided")}
+                    </dd>
+                  </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.travelerType")}</dt>
-                    <dd className="font-medium">{travelerType ? t(`step1.${travelerType}`) : ""}</dd>
+                    <dd className={travelerType ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {travelerType ? t(`step1.${travelerType}`) : tCommon("notProvided")}
+                    </dd>
                   </div>
                   {(travelerType === "family" || travelerType === "group") && (
                     <>
@@ -469,7 +485,9 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.accommodation")}</dt>
-                    <dd className="font-medium">{accommodationStyle ? t(`step2.${accommodationStyle}`) : ""}</dd>
+                    <dd className={accommodationStyle ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {accommodationStyle ? t(`step2.${accommodationStyle}`) : tCommon("notProvided")}
+                    </dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.pace")}</dt>

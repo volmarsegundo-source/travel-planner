@@ -19,6 +19,7 @@
     "skipToContent": "Skip to content",
     "traveler": "Traveler",
     "optional": "(optional)",
+    "notProvided": "Not provided",
     "theme": {
       "switchToLight": "Switch to light mode",
       "switchToDark": "Switch to dark mode"
@@ -558,7 +559,7 @@
       }
     },
     "phase3": {
-      "title": "The Route",
+      "title": "The Preparation",
       "subtitle": "Complete your travel preparation checklist.",
       "requiredSection": "Required",
       "recommendedSection": "Recommended",
@@ -784,7 +785,8 @@
       "autoAdvance": "Continuing automatically..."
     },
     "progress": "Step {current} of {total}",
-    "phaseProgress": "Phase {current} of {total}"
+    "phaseProgress": "Phase {current} of {total}",
+    "phaseLabel": "Phase {number}: {name}"
   },
   "gamification": {
     "ranks": {
@@ -798,7 +800,7 @@
     "phases": {
       "theCalling": "The Calling",
       "theExplorer": "The Explorer",
-      "theRoute": "The Route",
+      "thePreparation": "The Preparation",
       "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",

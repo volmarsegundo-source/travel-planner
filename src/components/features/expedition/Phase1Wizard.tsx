@@ -60,6 +60,8 @@ export function Phase1Wizard({
   userName,
 }: Phase1WizardProps) {
   const t = useTranslations("expedition.phase1");
+  const tExpedition = useTranslations("expedition");
+  const tPhases = useTranslations("gamification.phases");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -252,6 +254,9 @@ export function Phase1Wizard({
         <PhaseProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
         <div className="mt-2 text-center">
+          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+            {tExpedition("phaseLabel", { number: 1, name: tPhases("theCalling") })}
+          </p>
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
         </div>
@@ -525,12 +530,12 @@ export function Phase1Wizard({
                     <dt className="text-muted-foreground">{t("step4.destination")}</dt>
                     <dd className="font-medium">{destination}</dd>
                   </div>
-                  {origin && (
-                    <div className="flex justify-between">
-                      <dt className="text-muted-foreground">{t("step4.origin")}</dt>
-                      <dd className="font-medium">{origin}</dd>
-                    </div>
-                  )}
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step4.origin")}</dt>
+                    <dd className={origin ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {origin || tCommon("notProvided")}
+                    </dd>
+                  </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step4.dates")}</dt>
                     <dd className="font-medium">
@@ -548,49 +553,41 @@ export function Phase1Wizard({
                     </dd>
                   </div>
                 </dl>
-                {(name || birthDate || phone || country || city || bio) && (
-                  <>
-                    <h3 className="mb-3 mt-4 text-sm font-medium text-muted-foreground">
-                      {t("step4.profileSummary")}
-                    </h3>
-                    <dl className="space-y-2 text-sm">
-                      {name && (
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">{t("step1.name")}</dt>
-                          <dd className="font-medium">{name}</dd>
-                        </div>
-                      )}
-                      {birthDate && (
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>
-                          <dd className="font-medium">{birthDate}</dd>
-                        </div>
-                      )}
-                      {phone && (
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">{t("step1.phone")}</dt>
-                          <dd className="font-medium">{phone}</dd>
-                        </div>
-                      )}
-                      {(country || city) && (
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">{t("step4.location")}</dt>
-                          <dd className="font-medium">
-                            {[city, country].filter(Boolean).join(", ")}
-                          </dd>
-                        </div>
-                      )}
-                      {bio && (
-                        <div className="flex justify-between gap-4">
-                          <dt className="shrink-0 text-muted-foreground">{t("step4.bio")}</dt>
-                          <dd className="font-medium text-right">
-                            {bio.length > 100 ? `${bio.slice(0, 100)}...` : bio}
-                          </dd>
-                        </div>
-                      )}
-                    </dl>
-                  </>
-                )}
+                <h3 className="mb-3 mt-4 text-sm font-medium text-muted-foreground">
+                  {t("step4.profileSummary")}
+                </h3>
+                <dl className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step1.name")}</dt>
+                    <dd className={name ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {name || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>
+                    <dd className={birthDate ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {birthDate || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step1.phone")}</dt>
+                    <dd className={phone ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {phone || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">{t("step4.location")}</dt>
+                    <dd className={(country || city) ? "font-medium" : "text-muted-foreground/60 italic"}>
+                      {(country || city) ? [city, country].filter(Boolean).join(", ") : tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="shrink-0 text-muted-foreground">{t("step4.bio")}</dt>
+                    <dd className={bio ? "font-medium text-right" : "text-muted-foreground/60 italic"}>
+                      {bio ? (bio.length > 100 ? `${bio.slice(0, 100)}...` : bio) : tCommon("notProvided")}
+                    </dd>
+                  </div>
+                </dl>
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={() => goToStep(3)} className="flex-1" aria-label={tCommon("back")}>

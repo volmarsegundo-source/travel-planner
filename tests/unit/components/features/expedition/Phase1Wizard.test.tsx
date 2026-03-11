@@ -295,7 +295,7 @@ describe("Phase1Wizard", () => {
       expect(screen.getByText("I love exploring new cities.")).toBeInTheDocument();
     });
 
-    it("does not show bio section when bio is empty", () => {
+    it("shows 'Not provided' for empty fields in confirmation (SPEC-PROD-002 AC-012)", () => {
       render(<Phase1Wizard />);
 
       // Step 1: skip all fields, click next
@@ -309,8 +309,14 @@ describe("Phase1Wizard", () => {
       // Step 3: skip dates, click next
       fireEvent.click(screen.getByText("common.next"));
 
-      // Bio label should NOT be visible (no profile section since nothing filled)
-      expect(screen.queryByText("expedition.phase1.step4.bio")).not.toBeInTheDocument();
+      // Profile section should always be visible
+      expect(screen.getByText("expedition.phase1.step4.profileSummary")).toBeInTheDocument();
+      // Bio label should be visible with "Not provided"
+      expect(screen.getByText("expedition.phase1.step4.bio")).toBeInTheDocument();
+      // All empty fields should show "Not provided"
+      const notProvidedElements = screen.getAllByText("common.notProvided");
+      // name, birthDate, phone, location, bio, origin = 6 not provided indicators
+      expect(notProvidedElements.length).toBeGreaterThanOrEqual(5);
     });
 
     it("truncates bio to 100 characters with ellipsis when longer", () => {
