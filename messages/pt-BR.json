@@ -16,7 +16,13 @@
     "tryAgain": "Tentar novamente",
     "saving": "Salvando...",
     "goBackToTrips": "Voltar às viagens",
-    "skipToContent": "Pular para o conteúdo"
+    "skipToContent": "Pular para o conteúdo",
+    "traveler": "Viajante",
+    "optional": "(opcional)",
+    "theme": {
+      "switchToLight": "Mudar para modo claro",
+      "switchToDark": "Mudar para modo escuro"
+    }
   },
   "navigation": {
     "myTrips": "Minhas viagens",
@@ -615,6 +621,20 @@
         "accommodation": "Hospedagem",
         "mobility": "Mobilidade"
       },
+      "steps": {
+        "transport": {
+          "title": "Transporte",
+          "saved": "Transporte salvo com sucesso!"
+        },
+        "accommodation": {
+          "title": "Hospedagem",
+          "saved": "Hospedagem salva com sucesso!"
+        },
+        "mobility": {
+          "title": "Mobilidade Local",
+          "saved": "Preferências de mobilidade salvas!"
+        }
+      },
       "transport": {
         "title": "Transporte",
         "subtitle": "Como você vai chegar ao destino?",
@@ -785,7 +805,11 @@
       "theExpedition": "A Expedição",
       "theLegacy": "O Legado",
       "progressLabel": "Progresso das fases: {completed} de {total} concluídas",
-      "comingSoon": "Em Breve"
+      "comingSoon": "Em Breve",
+      "stateCompleted": "concluída",
+      "stateCurrent": "atual",
+      "stateComingSoon": "em breve",
+      "stateUpcoming": "próxima"
     },
     "points": "pts"
   },

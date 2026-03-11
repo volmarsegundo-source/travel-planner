@@ -21,6 +21,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   }
 
   const tNav = await getTranslations("navigation");
+  const tCommon = await getTranslations("common");
 
   const [progress, tripsWithPhases] = await Promise.all([
     PointsEngine.getProgressSummary(session.user.id),
@@ -30,7 +31,7 @@ export default async function DashboardPage({ params }: DashboardPageProps) {
   const userName =
     session.user.name ??
     session.user.email?.split("@")[0] ??
-    "Traveler";
+    tCommon("traveler");
 
   const expeditions = tripsWithPhases
     .filter((t: (typeof tripsWithPhases)[number]) => t.expeditionMode)

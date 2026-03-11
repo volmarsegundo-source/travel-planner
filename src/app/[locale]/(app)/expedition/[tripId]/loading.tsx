@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ExpeditionLoading() {
   return (
-    <div role="status" aria-label="Loading" className="mx-auto max-w-md px-4 py-8 sm:px-6">
+    <div role="status" aria-busy="true" className="mx-auto max-w-md px-4 py-8 sm:px-6">
       {/* Breadcrumb skeleton */}
       <Skeleton className="h-4 w-40 mb-6" />
 

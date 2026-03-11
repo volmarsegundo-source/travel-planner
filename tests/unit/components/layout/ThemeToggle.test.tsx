@@ -22,6 +22,10 @@ vi.mock("next-themes", () => ({
   }),
 }));
 
+vi.mock("next-intl", () => ({
+  useTranslations: () => (key: string) => key,
+}));
+
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -37,26 +41,26 @@ describe("ThemeToggle", () => {
   it("renders a toggle button after mounting", () => {
     render(<ThemeToggle />);
 
-    const button = screen.getByRole("button", { name: /switch to light mode/i });
+    const button = screen.getByRole("button", { name: /theme\.switchToLight/i });
     expect(button).toBeInTheDocument();
     expect(button).toBeEnabled();
   });
 
-  it("shows 'Switch to light mode' aria-label when in dark mode", () => {
+  it("shows translated switchToLight aria-label when in dark mode", () => {
     mockTheme.current = "dark";
     render(<ThemeToggle />);
 
     expect(
-      screen.getByRole("button", { name: "Switch to light mode" })
+      screen.getByRole("button", { name: "theme.switchToLight" })
     ).toBeInTheDocument();
   });
 
-  it("shows 'Switch to dark mode' aria-label when in light mode", () => {
+  it("shows translated switchToDark aria-label when in light mode", () => {
     mockTheme.current = "light";
     render(<ThemeToggle />);
 
     expect(
-      screen.getByRole("button", { name: "Switch to dark mode" })
+      screen.getByRole("button", { name: "theme.switchToDark" })
     ).toBeInTheDocument();
   });
 
@@ -64,7 +68,7 @@ describe("ThemeToggle", () => {
     mockTheme.current = "dark";
     render(<ThemeToggle />);
 
-    fireEvent.click(screen.getByRole("button", { name: /switch to light mode/i }));
+    fireEvent.click(screen.getByRole("button", { name: /theme\.switchToLight/i }));
     expect(mockSetTheme).toHaveBeenCalledWith("light");
   });
 
@@ -72,7 +76,7 @@ describe("ThemeToggle", () => {
     mockTheme.current = "light";
     render(<ThemeToggle />);
 
-    fireEvent.click(screen.getByRole("button", { name: /switch to dark mode/i }));
+    fireEvent.click(screen.getByRole("button", { name: /theme\.switchToDark/i }));
     expect(mockSetTheme).toHaveBeenCalledWith("dark");
   });
 });

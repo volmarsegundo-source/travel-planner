@@ -1,9 +1,10 @@
 /**
  * Unit tests for Phase4Wizard component.
  *
- * Tests cover: car rental question, CINH alert for international/schengen,
+ * Tests cover: step navigation, PhaseProgressBar, skeleton loader,
+ * car rental question, CINH alert for international/schengen,
  * CNH brasileira info for mercosul, domestic info, complete button state,
- * checkbox interaction, error handling, phase transition, and tabbed layout.
+ * checkbox interaction, error handling, phase transition, save success feedback.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -34,13 +35,20 @@ vi.mock("@/server/actions/expedition.actions", () => ({
   advanceFromPhaseAction: (...args: unknown[]) => mockAdvanceAction(...args),
 }));
 
+const mockSaveTransport = vi.fn().mockResolvedValue({ success: true, data: { count: 0 } });
+const mockGetTransport = vi.fn().mockResolvedValue({ success: true, data: { segments: [] } });
+const mockSaveAccommodation = vi.fn().mockResolvedValue({ success: true, data: { count: 0 } });
+const mockGetAccommodation = vi.fn().mockResolvedValue({ success: true, data: { accommodations: [] } });
+const mockSaveMobility = vi.fn().mockResolvedValue({ success: true, data: { saved: true } });
+const mockGetMobility = vi.fn().mockResolvedValue({ success: true, data: { mobility: [] } });
+
 vi.mock("@/server/actions/transport.actions", () => ({
-  saveTransportSegmentsAction: vi.fn().mockResolvedValue({ success: true, data: { count: 0 } }),
-  getTransportSegmentsAction: vi.fn().mockResolvedValue({ success: true, data: { segments: [] } }),
-  saveAccommodationsAction: vi.fn().mockResolvedValue({ success: true, data: { count: 0 } }),
-  getAccommodationsAction: vi.fn().mockResolvedValue({ success: true, data: { accommodations: [] } }),
-  saveLocalMobilityAction: vi.fn().mockResolvedValue({ success: true, data: { saved: true } }),
-  getLocalMobilityAction: vi.fn().mockResolvedValue({ success: true, data: { mobility: [] } }),
+  saveTransportSegmentsAction: (...args: unknown[]) => mockSaveTransport(...args),
+  getTransportSegmentsAction: (...args: unknown[]) => mockGetTransport(...args),
+  saveAccommodationsAction: (...args: unknown[]) => mockSaveAccommodation(...args),
+  getAccommodationsAction: (...args: unknown[]) => mockGetAccommodation(...args),
+  saveLocalMobilityAction: (...args: unknown[]) => mockSaveMobility(...args),
+  getLocalMobilityAction: (...args: unknown[]) => mockGetMobility(...args),
 }));
 
 // ─── Import SUT ───────────────────────────────────────────────────────────────
@@ -107,12 +115,47 @@ describe("Phase4Wizard", () => {
     expect(screen.getByText(/Paris, France/)).toBeInTheDocument();
   });
 
-  it("renders car rental question with yes/no buttons", () => {
+  it("renders PhaseProgressBar with current step", () => {
     renderWizard();
 
+    // PhaseProgressBar renders "expedition.progress[current,total]"
     expect(
-      screen.getByText("expedition.phase4.carRentalQuestion")
+      screen.getByText("expedition.progress[1,3]")
     ).toBeInTheDocument();
+  });
+
+  it("shows skeleton loader when loading data", () => {
+    // Before data loads, skeletons should be present
+    renderWizard();
+
+    const skeletons = document.querySelectorAll("[data-slot='skeleton']");
+    expect(skeletons.length).toBe(3);
+  });
+
+  it("renders step 1 with prerequisites and transport by default", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
+    // Transport step content should be rendered on step 1
+    expect(
+      screen.getByText("expedition.phase4.transport.title")
+    ).toBeInTheDocument();
+  });
+
+  it("renders car rental question with yes/no buttons", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
     expect(
       screen.getByText("expedition.phase4.carRentalYes")
     ).toBeInTheDocument();
@@ -121,61 +164,128 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders tabbed sections (transport, accommodation, mobility)", async () => {
+  it("navigates to step 2 when clicking next", async () => {
     renderWizard();
 
     await waitFor(() => {
       expect(
-        screen.getByRole("tab", { name: "expedition.phase4.tabs.transport" })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("tab", { name: "expedition.phase4.tabs.accommodation" })
-      ).toBeInTheDocument();
-      expect(
-        screen.getByRole("tab", { name: "expedition.phase4.tabs.mobility" })
+        screen.getByText("expedition.phase4.carRentalQuestion")
       ).toBeInTheDocument();
     });
+
+    const nextButton = screen.getByRole("button", { name: "common.next" });
+    fireEvent.click(nextButton);
+
+    // Step 2 should show accommodation
+    expect(
+      screen.getByText("expedition.phase4.accommodation.title")
+    ).toBeInTheDocument();
+
+    // Progress bar should update
+    expect(
+      screen.getByText("expedition.progress[2,3]")
+    ).toBeInTheDocument();
   });
 
-  it("shows transport tab content by default", async () => {
+  it("navigates back from step 2 to step 1", async () => {
     renderWizard();
 
     await waitFor(() => {
       expect(
-        screen.getByText("expedition.phase4.transport.title")
+        screen.getByText("expedition.phase4.carRentalQuestion")
       ).toBeInTheDocument();
     });
+
+    // Go to step 2
+    const nextButton = screen.getByRole("button", { name: "common.next" });
+    fireEvent.click(nextButton);
+
+    // Go back to step 1
+    const backButton = screen.getByRole("button", { name: "common.back" });
+    fireEvent.click(backButton);
+
+    // Step 1 should be visible again
+    expect(
+      screen.getByText("expedition.phase4.carRentalQuestion")
+    ).toBeInTheDocument();
   });
 
-  it("switches to accommodation tab when clicked", async () => {
+  it("renders accommodation on step 2", async () => {
     renderWizard();
 
     await waitFor(() => {
       expect(
-        screen.getByRole("tab", { name: "expedition.phase4.tabs.accommodation" })
+        screen.getByText("expedition.phase4.carRentalQuestion")
       ).toBeInTheDocument();
     });
 
-    fireEvent.click(
-      screen.getByRole("tab", { name: "expedition.phase4.tabs.accommodation" })
-    );
+    // Navigate to step 2
+    const nextButton = screen.getByRole("button", { name: "common.next" });
+    fireEvent.click(nextButton);
 
     expect(
       screen.getByText("expedition.phase4.accommodation.title")
     ).toBeInTheDocument();
   });
 
-  it("shows advance button even before answering car rental question", () => {
+  it("renders mobility on step 3", async () => {
     renderWizard();
 
-    const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advancePending/,
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
     });
-    expect(advanceButton).not.toBeDisabled();
+
+    // Navigate to step 2
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+
+    expect(
+      screen.getByText("expedition.phase4.mobility.title")
+    ).toBeInTheDocument();
   });
 
-  it("shows CINH alert when car rental = yes for international trip", () => {
+  it("shows advance button only on step 3", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
+    // Step 1: no advance button
+    expect(
+      screen.queryByRole("button", { name: /expedition\.phase4\.advance/ })
+    ).not.toBeInTheDocument();
+
+    // Navigate to step 2
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+
+    // Step 2: no advance button
+    expect(
+      screen.queryByRole("button", { name: /expedition\.phase4\.advance/ })
+    ).not.toBeInTheDocument();
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+
+    // Step 3: advance button is present
+    expect(
+      screen.getByRole("button", { name: /expedition\.phase4\.advancePending/ })
+    ).toBeInTheDocument();
+  });
+
+  it("shows CINH alert when car rental = yes for international trip", async () => {
     renderWizard({ tripType: "international" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -188,8 +298,14 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows CINH alert when car rental = yes for schengen trip", () => {
+  it("shows CINH alert when car rental = yes for schengen trip", async () => {
     renderWizard({ tripType: "schengen" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -199,8 +315,14 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows CINH deadline based on start date", () => {
+  it("shows CINH deadline based on start date", async () => {
     renderWizard({ tripType: "international", startDate: "2026-06-15T00:00:00Z" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -210,8 +332,14 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows lead time info for CINH", () => {
+  it("shows lead time info for CINH", async () => {
     renderWizard({ tripType: "international" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -221,11 +349,21 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows amber advance button when CINH not confirmed for international", () => {
+  it("shows amber advance button when CINH not confirmed for international", async () => {
     renderWizard({ tripType: "international" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
+
+    // Navigate to step 3 to see advance button
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advancePartial/,
@@ -233,17 +371,27 @@ describe("Phase4Wizard", () => {
     expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows gold advanceComplete button when CINH checkbox is confirmed", () => {
+  it("shows gold advanceComplete button when CINH checkbox is confirmed", async () => {
     renderWizard({ tripType: "international" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
-    // The CINH checkbox is inside the CINH alert section — find it by label text
+    // The CINH checkbox is inside the CINH alert section
     const cinhLabel = screen.getByText("expedition.phase4.cinhConfirm");
     const checkbox = cinhLabel.closest("label")?.querySelector("input[type='checkbox']");
     expect(checkbox).toBeTruthy();
     fireEvent.click(checkbox!);
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -251,8 +399,14 @@ describe("Phase4Wizard", () => {
     expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows CNH brasileira info for mercosul trip with car rental", () => {
+  it("shows CNH brasileira info for mercosul trip with car rental", async () => {
     renderWizard({ tripType: "mercosul" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -265,8 +419,14 @@ describe("Phase4Wizard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows regular CNH info for domestic trip with car rental", () => {
+  it("shows regular CNH info for domestic trip with car rental", async () => {
     renderWizard({ tripType: "domestic" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -276,11 +436,21 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows advanceComplete for mercosul without CINH checkbox", () => {
+  it("shows advanceComplete for mercosul without CINH checkbox", async () => {
     renderWizard({ tripType: "mercosul" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -288,8 +458,14 @@ describe("Phase4Wizard", () => {
     expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows no car rental message and advanceComplete when selecting no", () => {
+  it("shows no car rental message and advanceComplete when selecting no", async () => {
     renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
@@ -297,6 +473,10 @@ describe("Phase4Wizard", () => {
     expect(
       screen.getByText("expedition.phase4.noCarRental")
     ).toBeInTheDocument();
+
+    // Navigate to step 3 to check advance button
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -307,8 +487,18 @@ describe("Phase4Wizard", () => {
   it("calls advanceFromPhaseAction with metadata when no car rental", async () => {
     renderWizard();
 
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -326,12 +516,22 @@ describe("Phase4Wizard", () => {
   it("calls advanceFromPhaseAction with cnhResolved=true for international with confirmed checkbox", async () => {
     renderWizard({ tripType: "international" });
 
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
 
     const cinhLabel = screen.getByText("expedition.phase4.cinhConfirm");
     const checkbox = cinhLabel.closest("label")?.querySelector("input[type='checkbox']");
     fireEvent.click(checkbox!);
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -349,8 +549,18 @@ describe("Phase4Wizard", () => {
   it("calls advanceFromPhaseAction with cnhResolved=true for mercosul car rental", async () => {
     renderWizard({ tripType: "mercosul" });
 
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -367,6 +577,16 @@ describe("Phase4Wizard", () => {
 
   it("advance button works without car rental selection (non-blocking)", async () => {
     renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
+    // Navigate to step 3 without selecting car rental
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advancePending/,
@@ -389,8 +609,18 @@ describe("Phase4Wizard", () => {
 
     renderWizard();
 
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
+
+    // Navigate to step 3
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 
     const advanceButton = screen.getByRole("button", {
       name: /expedition\.phase4\.advanceComplete/,
@@ -402,8 +632,14 @@ describe("Phase4Wizard", () => {
     });
   });
 
-  it("resets CINH confirmation when switching from yes to no", () => {
+  it("resets CINH confirmation when switching from yes to no", async () => {
     renderWizard({ tripType: "international" });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     // Select yes
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
@@ -424,8 +660,14 @@ describe("Phase4Wizard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("does not show CINH deadline when startDate is null", () => {
+  it("does not show CINH deadline when startDate is null", async () => {
     renderWizard({ tripType: "international", startDate: null });
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -433,5 +675,27 @@ describe("Phase4Wizard", () => {
     expect(
       screen.queryByText(/expedition\.phase4\.cinhDeadline/)
     ).not.toBeInTheDocument();
+  });
+
+  it("shows save success feedback after successful transport save", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.carRentalQuestion")
+      ).toBeInTheDocument();
+    });
+
+    // Find and click the transport save button
+    const saveButton = screen.getByRole("button", {
+      name: /expedition\.phase4\.transport\.save/,
+    });
+    fireEvent.click(saveButton);
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.steps.transport.saved")
+      ).toBeInTheDocument();
+    });
   });
 });

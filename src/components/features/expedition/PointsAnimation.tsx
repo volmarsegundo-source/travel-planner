@@ -41,7 +41,7 @@ export function PointsAnimation({ points, badge, rank, onDismiss }: PointsAnimat
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 transition-opacity duration-300 motion-reduce:transition-none ${
         visible ? "opacity-100" : "opacity-0"
       }`}
       role="status"

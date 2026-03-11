@@ -53,7 +53,7 @@ export function DashboardPhaseProgressBar({
             />
           );
         } else if (isCurrent) {
-          segmentClasses += " bg-primary animate-pulse";
+          segmentClasses += " bg-primary motion-safe:animate-pulse";
         } else if (isComingSoon) {
           segmentClasses += " bg-muted opacity-50";
           indicator = (
@@ -77,12 +77,12 @@ export function DashboardPhaseProgressBar({
 
         const phaseName = t(phase.nameKey);
         const stateLabel = isCompleted
-          ? "completed"
+          ? t("phases.stateCompleted")
           : isCurrent
-            ? "current"
+            ? t("phases.stateCurrent")
             : isComingSoon
-              ? "coming soon"
-              : "upcoming";
+              ? t("phases.stateComingSoon")
+              : t("phases.stateUpcoming");
 
         // Phase label tooltip (T-S21-008)
         const phaseLabel = (
@@ -96,9 +96,13 @@ export function DashboardPhaseProgressBar({
         );
 
         if (isClickable) {
-          const phaseHref = phaseNum === 1
-            ? `/expedition/${tripId}`
-            : `/expedition/${tripId}/phase-${phaseNum}`;
+          // Phase 1 has no dedicated route (completed during trip creation),
+          // so link to phase-2. For other completed phases, link to the next phase.
+          // Current phase links to its own URL.
+          const targetPhase = isCompleted ? phaseNum + 1 : phaseNum;
+          // Clamp to avoid linking beyond phase-6 (phases 7+ are coming soon)
+          const clampedTarget = Math.min(targetPhase, 6);
+          const phaseHref = `/expedition/${tripId}/phase-${clampedTarget}`;
           return (
             <Link
               key={phaseNum}

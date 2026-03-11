@@ -15,9 +15,9 @@ describe("AccountLoading", () => {
     expect(screen.getByRole("status")).toBeInTheDocument();
   });
 
-  it("has aria-label Loading", () => {
+  it("has aria-busy attribute for loading state", () => {
     render(<AccountLoading />);
-    expect(screen.getByRole("status")).toHaveAttribute("aria-label", "Loading");
+    expect(screen.getByRole("status")).toHaveAttribute("aria-busy", "true");
   });
 
   it("renders avatar and field skeletons", () => {

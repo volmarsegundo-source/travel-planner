@@ -12,7 +12,7 @@ function TripCardSkeleton() {
 
 export default function TripsLoading() {
   return (
-    <div role="status" aria-label="Loading" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+    <div role="status" aria-busy="true" className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
       {/* Breadcrumb skeleton */}
       <Skeleton className="h-4 w-48 mb-6" />
       {/* Header skeleton */}
