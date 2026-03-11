@@ -778,19 +778,6 @@
       "theCalling": "The Calling",
       "theExplorer": "The Explorer",
       "theRoute": "The Route",
-      "theShelter": "The Shelter",
-      "theLogistics": "The Logistics",
-      "theDayMap": "The Day Map",
-      "theTreasure": "The Treasure",
-      "theExpedition": "The Expedition",
-      "theLegacy": "The Legacy"
-    },
-    "points": "pts",
-    "phases": {
-      "theCalling": "The Calling",
-      "theExplorer": "The Explorer",
-      "theRoute": "The Route",
-      "theShelter": "The Shelter",
       "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",
@@ -798,7 +785,8 @@
       "theLegacy": "The Legacy",
       "progressLabel": "Phase progress: {completed} of {total} completed",
       "comingSoon": "Coming Soon"
-    }
+    },
+    "points": "pts"
   },
   "errors": {
     "boundary": {
