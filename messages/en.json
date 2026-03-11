@@ -381,6 +381,7 @@
       "firstStep": "First Step",
       "navigator": "Navigator",
       "host": "Host",
+      "logisticsMaster": "Logistics Master",
       "identityExplorer": "Identity Explorer",
       "cartographer": "Cartographer",
       "treasurer": "Treasurer",
@@ -401,7 +402,7 @@
       "passportExpiryWarning": "Your passport may expire before or during your trip. Please check its validity before continuing.",
       "step1": {
         "title": "About you",
-        "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordenadas!",
+        "subtitle": "Help us personalize your trip. Fill what you can — each field earns Coordinates!",
         "name": "Full name",
         "namePlaceholder": "Your full name",
         "birthDate": "Date of birth",
@@ -539,6 +540,7 @@
         "accommodation": "Accommodation",
         "pace": "Pace",
         "budget": "Budget",
+        "preferencesCount": "{count} {count, plural, =1 {category} other {categories}}",
         "cta": "Complete & Earn Points"
       },
       "errors": {
@@ -580,8 +582,8 @@
       }
     },
     "phase4": {
-      "title": "The Shelter",
-      "subtitle": "Plan your ground transportation and driving requirements.",
+      "title": "The Logistics",
+      "subtitle": "Plan how to get there and move around at your destination",
       "carRentalQuestion": "Will you need a rental car?",
       "carRentalHint": "This determines if you need any special driving documentation.",
       "carRentalYes": "Yes, I will",
@@ -777,19 +779,6 @@
       "theCalling": "The Calling",
       "theExplorer": "The Explorer",
       "theRoute": "The Route",
-      "theShelter": "The Shelter",
-      "theLogistics": "The Logistics",
-      "theDayMap": "The Day Map",
-      "theTreasure": "The Treasure",
-      "theExpedition": "The Expedition",
-      "theLegacy": "The Legacy"
-    },
-    "points": "pts",
-    "phases": {
-      "theCalling": "The Calling",
-      "theExplorer": "The Explorer",
-      "theRoute": "The Route",
-      "theShelter": "The Shelter",
       "theLogistics": "The Logistics",
       "theDayMap": "The Day Map",
       "theTreasure": "The Treasure",
@@ -797,7 +786,8 @@
       "theLegacy": "The Legacy",
       "progressLabel": "Phase progress: {completed} of {total} completed",
       "comingSoon": "Coming Soon"
-    }
+    },
+    "points": "pts"
   },
   "errors": {
     "boundary": {

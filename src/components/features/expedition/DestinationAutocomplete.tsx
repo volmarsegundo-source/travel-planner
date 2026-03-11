@@ -9,6 +9,7 @@ interface DestinationResult {
   lat: number;
   lon: number;
   country: string | null;
+  countryCode: string | null;
   state: string | null;
   city: string | null;
 }

@@ -1,63 +1,35 @@
 export type TripType = "domestic" | "mercosul" | "international" | "schengen";
 
-export const MERCOSUL_COUNTRIES = [
-  "Argentina",
-  "Brazil",
-  "Paraguay",
-  "Uruguay",
-  "Venezuela",
+export const MERCOSUL_CODES = [
+  "AR", "BR", "PY", "UY", "VE",
 ] as const;
 
-export const SCHENGEN_COUNTRIES = [
-  "Austria",
-  "Belgium",
-  "Croatia",
-  "Czech Republic",
-  "Denmark",
-  "Estonia",
-  "Finland",
-  "France",
-  "Germany",
-  "Greece",
-  "Hungary",
-  "Iceland",
-  "Italy",
-  "Latvia",
-  "Liechtenstein",
-  "Lithuania",
-  "Luxembourg",
-  "Malta",
-  "Netherlands",
-  "Norway",
-  "Poland",
-  "Portugal",
-  "Slovakia",
-  "Slovenia",
-  "Spain",
-  "Sweden",
-  "Switzerland",
+export const SCHENGEN_CODES = [
+  "AT", "BE", "HR", "CZ", "DK", "EE", "FI", "FR", "DE", "GR",
+  "HU", "IS", "IT", "LV", "LI", "LT", "LU", "MT", "NL", "NO",
+  "PL", "PT", "SK", "SI", "ES", "SE", "CH",
 ] as const;
 
 /**
- * Classify a trip based on origin and destination countries.
- * Comparison is case-insensitive.
+ * Classify a trip based on origin and destination ISO 3166-1 alpha-2 country codes.
+ * Comparison is case-insensitive (codes are uppercased internally).
  */
 export function classifyTrip(
-  originCountry: string,
-  destinationCountry: string
+  originCode: string,
+  destCode: string
 ): TripType {
-  const origin = originCountry.trim().toLowerCase();
-  const destination = destinationCountry.trim().toLowerCase();
+  const origin = originCode.trim().toUpperCase();
+  const destination = destCode.trim().toUpperCase();
 
   if (origin === destination) return "domestic";
 
-  const mercosulLower = MERCOSUL_COUNTRIES.map((c) => c.toLowerCase());
-  if (origin === "brazil" && mercosulLower.includes(destination)) {
+  const mercosulSet = new Set<string>(MERCOSUL_CODES);
+  if (origin === "BR" && mercosulSet.has(destination)) {
     return "mercosul";
   }
 
-  const schengenLower = SCHENGEN_COUNTRIES.map((c) => c.toLowerCase());
-  if (schengenLower.includes(destination)) return "schengen";
+  const schengenSet = new Set<string>(SCHENGEN_CODES);
+  if (schengenSet.has(destination)) return "schengen";
 
   return "international";
 }

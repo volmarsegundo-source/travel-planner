@@ -21,6 +21,16 @@ import { hashUserId } from "@/lib/hash";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 
+// ─── Ownership helper ────────────────────────────────────────────────────────
+
+/** Verify that the trip belongs to the user. Returns null if not found or not owned. */
+async function assertTripOwnership(tripId: string, userId: string) {
+  return db.trip.findFirst({
+    where: { id: tripId, userId, deletedAt: null },
+    select: { id: true },
+  });
+}
+
 // ─── createExpeditionAction ──────────────────────────────────────────────────
 
 export async function createExpeditionAction(
@@ -203,6 +213,12 @@ export async function completePhase4Action(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
+    // BOLA: verify trip belongs to user
+    const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+    if (!ownedTrip) {
+      return { success: false, error: "errors.tripNotFound" };
+    }
+
     // Mass assignment safe: explicit fields only
     const needsCarRental = Boolean(data.needsCarRental);
     const cnhResolved = Boolean(data.cnhResolved);
@@ -492,6 +508,12 @@ export async function advanceFromPhaseAction(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
+    // BOLA: verify trip belongs to user
+    const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+    if (!ownedTrip) {
+      return { success: false, error: "errors.tripNotFound" };
+    }
+
     // Mass assignment safe: explicit fields only for phase 4 metadata
     if (phaseNumber === 4 && metadata) {
       const phase = await db.expeditionPhase.findUnique({

@@ -163,6 +163,88 @@ describe("ExpeditionService", () => {
     });
   });
 
+  describe("createExpedition — tripType classification", () => {
+    function setupTxMock() {
+      let capturedTripData: Record<string, unknown> | undefined;
+      prismaMock.trip.count.mockResolvedValue(0);
+      prismaMock.$transaction.mockImplementation(async (fn: any) => {
+        const txMock = mockDeep<PrismaClient>();
+        txMock.trip.create.mockImplementation((async (args: any) => {
+          capturedTripData = args.data;
+          return { id: "trip-classified", ...args.data };
+        }) as any);
+        txMock.expeditionPhase.createMany.mockResolvedValue({ count: 8 });
+        txMock.expeditionPhase.update.mockResolvedValue({} as any);
+        txMock.trip.update.mockResolvedValue({} as any);
+        return fn(txMock);
+      });
+      return () => capturedTripData;
+    }
+
+    it("sets tripType to domestic when origin and dest codes match", async () => {
+      const getData = setupTxMock();
+      await ExpeditionService.createExpedition("user-1", {
+        destination: "Sao Paulo",
+        flexibleDates: false,
+        originCountryCode: "BR",
+        destinationCountryCode: "BR",
+      });
+      expect(getData()?.tripType).toBe("domestic");
+    });
+
+    it("sets tripType to mercosul for BR → AR", async () => {
+      const getData = setupTxMock();
+      await ExpeditionService.createExpedition("user-1", {
+        destination: "Buenos Aires",
+        flexibleDates: false,
+        originCountryCode: "BR",
+        destinationCountryCode: "AR",
+      });
+      expect(getData()?.tripType).toBe("mercosul");
+    });
+
+    it("sets tripType to schengen for BR → DE", async () => {
+      const getData = setupTxMock();
+      await ExpeditionService.createExpedition("user-1", {
+        destination: "Berlin",
+        flexibleDates: false,
+        originCountryCode: "BR",
+        destinationCountryCode: "DE",
+      });
+      expect(getData()?.tripType).toBe("schengen");
+    });
+
+    it("sets tripType to international for BR → JP", async () => {
+      const getData = setupTxMock();
+      await ExpeditionService.createExpedition("user-1", {
+        destination: "Tokyo",
+        flexibleDates: false,
+        originCountryCode: "BR",
+        destinationCountryCode: "JP",
+      });
+      expect(getData()?.tripType).toBe("international");
+    });
+
+    it("defaults to international when only destinationCountryCode is provided", async () => {
+      const getData = setupTxMock();
+      await ExpeditionService.createExpedition("user-1", {
+        destination: "Tokyo",
+        flexibleDates: false,
+        destinationCountryCode: "JP",
+      });
+      expect(getData()?.tripType).toBe("international");
+    });
+
+    it("does not set tripType when no country codes are provided", async () => {
+      const getData = setupTxMock();
+      await ExpeditionService.createExpedition("user-1", {
+        destination: "Tokyo",
+        flexibleDates: false,
+      });
+      expect(getData()?.tripType).toBeUndefined();
+    });
+  });
+
   describe("completePhase2", () => {
     const validPhase2Input = {
       travelerType: "solo" as const,

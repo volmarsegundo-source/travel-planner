@@ -381,6 +381,7 @@
       "firstStep": "Primeiro Passo",
       "navigator": "Navegador",
       "host": "Anfitrião",
+      "logisticsMaster": "Mestre da Logística",
       "identityExplorer": "Explorador de Identidade",
       "cartographer": "Cartógrafo",
       "treasurer": "Tesoureiro",
@@ -539,6 +540,7 @@
         "accommodation": "Hospedagem",
         "pace": "Ritmo",
         "budget": "Orçamento",
+        "preferencesCount": "{count} {count, plural, =1 {categoria} other {categorias}}",
         "cta": "Concluir e Ganhar Pontos"
       },
       "errors": {
@@ -580,8 +582,8 @@
       }
     },
     "phase4": {
-      "title": "O Abrigo",
-      "subtitle": "Planeje seu transporte terrestre e documentação de direção.",
+      "title": "A Logística",
+      "subtitle": "Planeje como chegar e se locomover no destino",
       "carRentalQuestion": "Você vai precisar alugar um carro?",
       "carRentalHint": "Isso determina se você precisa de documentação especial para dirigir.",
       "carRentalYes": "Sim, vou",
@@ -777,8 +779,7 @@
       "theCalling": "O Chamado",
       "theExplorer": "O Explorador",
       "theRoute": "A Rota",
-      "theShelter": "O Abrigo",
-      "theLogistics": "A Logistica",
+      "theLogistics": "A Logística",
       "theDayMap": "O Mapa dos Dias",
       "theTreasure": "O Tesouro",
       "theExpedition": "A Expedição",

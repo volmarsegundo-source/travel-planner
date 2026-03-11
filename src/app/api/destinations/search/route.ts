@@ -79,12 +79,13 @@ export async function GET(request: NextRequest) {
       lat: string;
       lon: string;
       importance?: number;
-      address?: { country?: string; state?: string; city?: string };
+      address?: { country?: string; country_code?: string; state?: string; city?: string };
     }) => ({
       displayName: item.display_name,
       lat: parseFloat(item.lat),
       lon: parseFloat(item.lon),
       country: item.address?.country ?? null,
+      countryCode: item.address?.country_code?.toUpperCase() ?? null,
       state: item.address?.state ?? null,
       city: item.address?.city ?? null,
       importance: item.importance ?? 0,

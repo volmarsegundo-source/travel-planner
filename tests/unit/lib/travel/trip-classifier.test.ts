@@ -1,66 +1,71 @@
 import { describe, it, expect } from "vitest";
 import {
   classifyTrip,
-  SCHENGEN_COUNTRIES,
-  MERCOSUL_COUNTRIES,
+  SCHENGEN_CODES,
+  MERCOSUL_CODES,
   type TripType,
 } from "@/lib/travel/trip-classifier";
 
 describe("trip-classifier", () => {
   it("returns domestic when origin equals destination", () => {
-    expect(classifyTrip("Brazil", "Brazil")).toBe("domestic");
+    expect(classifyTrip("BR", "BR")).toBe("domestic");
   });
 
-  it("returns mercosul for Brazil → Argentina", () => {
-    expect(classifyTrip("Brazil", "Argentina")).toBe("mercosul");
+  it("returns mercosul for BR → AR", () => {
+    expect(classifyTrip("BR", "AR")).toBe("mercosul");
   });
 
-  it("returns mercosul for Brazil → Uruguay", () => {
-    expect(classifyTrip("Brazil", "Uruguay")).toBe("mercosul");
+  it("returns mercosul for BR → UY", () => {
+    expect(classifyTrip("BR", "UY")).toBe("mercosul");
   });
 
-  it("returns mercosul for Brazil → Paraguay", () => {
-    expect(classifyTrip("Brazil", "Paraguay")).toBe("mercosul");
+  it("returns mercosul for BR → PY", () => {
+    expect(classifyTrip("BR", "PY")).toBe("mercosul");
   });
 
-  it("returns schengen for Brazil → France", () => {
-    expect(classifyTrip("Brazil", "France")).toBe("schengen");
+  it("returns schengen for BR → FR", () => {
+    expect(classifyTrip("BR", "FR")).toBe("schengen");
   });
 
-  it("returns schengen for Brazil → Germany", () => {
-    expect(classifyTrip("Brazil", "Germany")).toBe("schengen");
+  it("returns schengen for BR → DE", () => {
+    expect(classifyTrip("BR", "DE")).toBe("schengen");
   });
 
-  it("returns international for Brazil → USA", () => {
-    expect(classifyTrip("Brazil", "USA")).toBe("international");
+  it("returns international for BR → US", () => {
+    expect(classifyTrip("BR", "US")).toBe("international");
   });
 
-  it("returns international for Brazil → Japan", () => {
-    expect(classifyTrip("Brazil", "Japan")).toBe("international");
+  it("returns international for BR → JP", () => {
+    expect(classifyTrip("BR", "JP")).toBe("international");
   });
 
   it("returns schengen for non-Brazil origin → schengen destination", () => {
-    expect(classifyTrip("USA", "France")).toBe("schengen");
+    expect(classifyTrip("US", "FR")).toBe("schengen");
   });
 
   it("is case-insensitive", () => {
-    expect(classifyTrip("brazil", "ARGENTINA")).toBe("mercosul");
-    expect(classifyTrip("BRAZIL", "france")).toBe("schengen");
+    expect(classifyTrip("br", "ar")).toBe("mercosul");
+    expect(classifyTrip("BR", "fr")).toBe("schengen");
   });
 
-  it("returns international as fallback for unknown country", () => {
-    expect(classifyTrip("Brazil", "Narnia")).toBe("international");
+  it("returns international as fallback for unknown country code", () => {
+    expect(classifyTrip("BR", "XX")).toBe("international");
   });
 
   it("returns domestic for same non-Brazil country", () => {
-    expect(classifyTrip("USA", "USA")).toBe("domestic");
+    expect(classifyTrip("US", "US")).toBe("domestic");
   });
 
-  it("SCHENGEN_COUNTRIES has 27 entries", () => {
-    expect(SCHENGEN_COUNTRIES).toHaveLength(27);
+  it("SCHENGEN_CODES has 27 entries", () => {
+    expect(SCHENGEN_CODES).toHaveLength(27);
   });
 
-  it("MERCOSUL_COUNTRIES has 5 entries", () => {
-    expect(MERCOSUL_COUNTRIES).toHaveLength(5);
+  it("MERCOSUL_CODES has 5 entries", () => {
+    expect(MERCOSUL_CODES).toHaveLength(5);
+  });
+
+  it("exports TripType as a usable type", () => {
+    const t: TripType = "domestic";
+    expect(t).toBe("domestic");
   });
 });

@@ -43,7 +43,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
     isFree: true,
     pointsReward: 50,
     aiCost: 100,
-    badgeKey: "host",
+    badgeKey: "logistics_master",
     rankPromotion: null,
     nonBlocking: true,
   },

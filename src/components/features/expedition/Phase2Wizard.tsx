@@ -298,7 +298,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 label={t("step2.title")}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -325,7 +325,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
               />
               <p className="text-center text-lg font-semibold">{travelPace}/10</p>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -374,7 +374,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 step={100}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -393,7 +393,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 onPreferencesChange={setSelectedPreferences}
               />
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button onClick={handleNext} className="flex-[3]">
@@ -436,7 +436,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.travelerType")}</dt>
-                    <dd className="font-medium capitalize">{travelerType}</dd>
+                    <dd className="font-medium">{travelerType ? t(`step1.${travelerType}`) : ""}</dd>
                   </div>
                   {(travelerType === "family" || travelerType === "group") && (
                     <>
@@ -469,7 +469,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   )}
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.accommodation")}</dt>
-                    <dd className="font-medium capitalize">{accommodationStyle}</dd>
+                    <dd className="font-medium">{accommodationStyle ? t(`step2.${accommodationStyle}`) : ""}</dd>
                   </div>
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">{t("step5.pace")}</dt>
@@ -490,7 +490,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                       <div className="flex justify-between">
                         <dt className="text-muted-foreground">{t("step5.preferences")}</dt>
                         <dd className="font-medium">
-                          {filledPrefs.length} {filledPrefs.length === 1 ? "category" : "categories"}
+                          {t("step5.preferencesCount", { count: filledPrefs.length })}
                         </dd>
                       </div>
                     );
@@ -498,7 +498,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 </dl>
               </div>
               <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1">
+                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
                   &larr;
                 </Button>
                 <Button
