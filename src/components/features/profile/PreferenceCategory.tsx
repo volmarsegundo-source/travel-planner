@@ -102,7 +102,7 @@ export function PreferenceCategory({
           <div
             role={selectionType === "single" ? "radiogroup" : "group"}
             aria-label={question}
-            className="grid grid-cols-2 gap-2 sm:grid-cols-3"
+            className="grid grid-cols-1 min-[375px]:grid-cols-2 md:grid-cols-3 gap-2"
           >
             {options.map((option) => (
               <PreferenceChip

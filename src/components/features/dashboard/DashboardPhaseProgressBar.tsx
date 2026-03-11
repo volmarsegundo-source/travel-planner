@@ -1,8 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Check, Construction } from "lucide-react";
-import { Link } from "@/i18n/navigation";
+import { Check } from "lucide-react";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -10,7 +9,6 @@ import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 interface DashboardPhaseProgressBarProps {
   currentPhase: number;
   completedPhases: number;
-  tripId?: string;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -18,13 +16,12 @@ interface DashboardPhaseProgressBarProps {
 export function DashboardPhaseProgressBar({
   currentPhase,
   completedPhases,
-  tripId,
 }: DashboardPhaseProgressBarProps) {
   const t = useTranslations("gamification");
 
   return (
     <div
-      className="mt-3 flex gap-0.5 sm:gap-1"
+      className="group/bar relative mt-3 flex gap-0.5"
       role="group"
       aria-label={t("phases.progressLabel", {
         completed: completedPhases,
@@ -37,42 +34,26 @@ export function DashboardPhaseProgressBar({
         const isCompleted = phaseNum <= completedPhases;
         const isCurrent = phaseNum === currentPhase;
         const isComingSoon = phaseNum >= 7;
-        const isClickable = tripId && (isCompleted || isCurrent);
 
-        // Determine segment style
-        let segmentClasses =
-          "relative h-2.5 flex-1 rounded-sm transition-all";
+        // Determine segment style — all non-interactive (read-only)
+        let segmentClasses = "relative h-2 flex-1 rounded-sm transition-all";
         let indicator: React.ReactNode = null;
 
         if (isCompleted) {
           segmentClasses += " bg-atlas-gold";
           indicator = (
             <Check
-              className="absolute -top-3.5 left-1/2 h-3 w-3 -translate-x-1/2 text-atlas-gold"
+              className="absolute -top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 text-atlas-gold"
               aria-hidden="true"
             />
           );
         } else if (isCurrent) {
           segmentClasses += " bg-primary motion-safe:animate-pulse";
         } else if (isComingSoon) {
-          segmentClasses += " bg-muted opacity-50";
-          indicator = (
-            <>
-              <Construction
-                className="absolute -top-3.5 left-1/2 h-3 w-3 -translate-x-1/2 text-muted-foreground/50"
-                aria-hidden="true"
-              />
-              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[8px] text-muted-foreground/60 hidden sm:block">
-                {t("phases.comingSoon")}
-              </span>
-            </>
-          );
+          segmentClasses += " border border-dashed border-muted-foreground/30 bg-transparent opacity-50";
         } else {
-          segmentClasses += " bg-muted";
-        }
-
-        if (isClickable) {
-          segmentClasses += " cursor-pointer hover:opacity-80";
+          // Incomplete (upcoming)
+          segmentClasses += " border border-muted-foreground/20 bg-transparent";
         }
 
         const phaseName = t(phase.nameKey);
@@ -84,45 +65,15 @@ export function DashboardPhaseProgressBar({
               ? t("phases.stateComingSoon")
               : t("phases.stateUpcoming");
 
-        // Phase label tooltip (T-S21-008)
-        const phaseLabel = (
-          <span
-            className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground/90 px-1.5 py-0.5 text-[10px] text-background hidden sm:block transition-opacity sm:opacity-100"
-            aria-hidden="true"
-            data-testid={`phase-label-${phaseNum}`}
-          >
-            {phaseName}
-          </span>
-        );
-
-        if (isClickable) {
-          // Phase 1 has no dedicated route (completed during trip creation),
-          // so always link to phase-2. All other phases link to their own URL.
-          const targetPhase = phaseNum === 1 ? 2 : phaseNum;
-          const phaseHref = `/expedition/${tripId}/phase-${targetPhase}`;
-          return (
-            <Link
-              key={phaseNum}
-              href={phaseHref}
-              className={`group/segment ${segmentClasses}`}
-              aria-label={`${phaseName} — ${stateLabel}`}
-              title={phaseName}
-            >
-              {indicator}
-              {phaseLabel}
-            </Link>
-          );
-        }
-
         return (
           <div
             key={phaseNum}
             className={`group/segment ${segmentClasses}`}
             aria-label={`${phaseName} — ${stateLabel}`}
             title={phaseName}
+            data-testid={`phase-segment-${phaseNum}`}
           >
             {indicator}
-            {phaseLabel}
           </div>
         );
       })}

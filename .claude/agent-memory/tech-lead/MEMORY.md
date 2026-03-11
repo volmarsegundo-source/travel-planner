@@ -9,7 +9,9 @@
   - 6 items included (ITEM-1 through ITEM-4 P1 + ITEM-6/7 P2), 38h planned, 2h buffer
   - 14 tasks, 7 new specs required (5 UX, 2 PROD)
   - ITEM-5 (DnD, 12h) DEFERRED to Sprint 27
-  - BLOCKED on: 7 specs approval (SPEC-UX-001..005, SPEC-PROD-003, SPEC-PROD-005)
+  - SPECS APPROVED: 7 of 7 Sprint 26 specs approved v1.1.0 (SPEC-UX-001..005, SPEC-PROD-003, SPEC-PROD-005)
+  - Sprint 27 specs remain Draft: SPEC-PROD-004, SPEC-ARCH-001
+  - Stakeholder decisions: Q1 bulk +50 pts on guide load, Q2 seniors in summary, Q3 regen confirmation dialog, Q4 API formattedName field, Q5 dark mode bg-primary contrast fix
   - Test target: 1650+ (from 1612 baseline)
   - Budget: 40h
 

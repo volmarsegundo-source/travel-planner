@@ -22,14 +22,14 @@
 |---------|-------|-------|--------|---------|--------|-----------|
 | SPEC-PROD-001 | Expedition Navigation & Phase Sequencing | product-owner | Implemented | 1.1.0 | 25 | tech-lead, architect, security-specialist |
 | SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | product-owner | Implemented | 1.1.0 | 25 | tech-lead, architect, ux-designer |
-| SPEC-PROD-003 | Destination Guide Full Visibility | product-owner | Draft | 1.0.0 | 26 | tech-lead, ux-designer, architect |
+| SPEC-PROD-003 | Destination Guide Full Visibility | product-owner | Approved | 1.1.0 | 26 | tech-lead, ux-designer, architect |
 | SPEC-PROD-004 | Itinerary Time Auto-Adjustment on Reorder | product-owner | Draft | 1.0.0 | 27 | tech-lead, architect |
-| SPEC-PROD-005 | Expedition Completion & Summary | product-owner | Draft | 1.0.0 | 26 | tech-lead, ux-designer, architect |
-| SPEC-UX-001 | Autocomplete Redesign | ux-designer | Draft | 1.0.0 | 26 | product-owner, tech-lead, architect |
-| SPEC-UX-002 | Guide Full Visibility | ux-designer | Draft | 1.0.0 | 26 | product-owner, tech-lead, architect |
-| SPEC-UX-003 | Unified Phase Transitions | ux-designer | Draft | 1.0.0 | 26 | product-owner, tech-lead, architect |
-| SPEC-UX-004 | Preferences Pagination | ux-designer | Draft | 1.0.0 | 26 | product-owner, tech-lead, architect |
-| SPEC-UX-005 | Dashboard Visual Polish | ux-designer | Draft | 1.0.0 | 26 | product-owner, tech-lead, architect |
+| SPEC-PROD-005 | Expedition Completion & Summary | product-owner | Approved | 1.1.0 | 26 | tech-lead, ux-designer, architect |
+| SPEC-UX-001 | Autocomplete Redesign | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
+| SPEC-UX-002 | Guide Full Visibility | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
+| SPEC-UX-003 | Unified Phase Transitions | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
+| SPEC-UX-004 | Preferences Pagination | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
+| SPEC-UX-005 | Dashboard Visual Polish | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
 | SPEC-ARCH-001 | DnD Time Auto-Adjustment | architect | Draft | 1.0.0 | 27 | tech-lead, security-specialist |
 
 ---
@@ -38,13 +38,13 @@
 
 | Spec ID | Title | Submitted | Reviewers | Status | Blockers |
 |---------|-------|-----------|-----------|--------|----------|
-| SPEC-PROD-003 | Destination Guide Full Visibility | 2026-03-11 | tech-lead, ux-designer, architect | Draft — pending review | — |
-| SPEC-PROD-005 | Expedition Completion & Summary | 2026-03-11 | tech-lead, ux-designer, architect | Draft — pending review | — |
-| SPEC-UX-001 | Autocomplete Redesign | 2026-03-11 | product-owner, tech-lead, architect | Draft — pending review | — |
-| SPEC-UX-002 | Guide Full Visibility | 2026-03-11 | product-owner, tech-lead, architect | Draft — pending review | — |
-| SPEC-UX-003 | Unified Phase Transitions | 2026-03-11 | product-owner, tech-lead, architect | Draft — pending review | — |
-| SPEC-UX-004 | Preferences Pagination | 2026-03-11 | product-owner, tech-lead, architect | Draft — pending review | — |
-| SPEC-UX-005 | Dashboard Visual Polish | 2026-03-11 | product-owner, tech-lead, architect | Draft — pending review | — |
+| SPEC-PROD-003 | Destination Guide Full Visibility | 2026-03-11 | tech-lead, ux-designer, architect | Approved v1.1.0 | — |
+| SPEC-PROD-005 | Expedition Completion & Summary | 2026-03-11 | tech-lead, ux-designer, architect | Approved v1.1.0 | — |
+| SPEC-UX-001 | Autocomplete Redesign | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
+| SPEC-UX-002 | Guide Full Visibility | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
+| SPEC-UX-003 | Unified Phase Transitions | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
+| SPEC-UX-004 | Preferences Pagination | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
+| SPEC-UX-005 | Dashboard Visual Polish | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
 
 ---
 
@@ -79,3 +79,4 @@
 | 2026-03-11 | Added SPEC-PROD-001 and SPEC-PROD-002 to approval queue for Sprint 25 | tech-lead |
 | 2026-03-11 | SPEC-PROD-001 and SPEC-PROD-002 implemented (partial) in Sprint 25 v0.18.0 | tech-lead |
 | 2026-03-11 | Sprint 26 planning: created SPEC-PROD-003/004/005, SPEC-UX-001-005, SPEC-ARCH-001 (all Draft) | tech-lead |
+| 2026-03-11 | Approved 7 Sprint 26 specs (SPEC-PROD-003/005, SPEC-UX-001-005) to v1.1.0 with stakeholder decisions Q1-Q5. SPEC-PROD-004 and SPEC-ARCH-001 remain Draft (Sprint 27). | tech-lead |

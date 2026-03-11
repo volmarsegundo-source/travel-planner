@@ -6,6 +6,7 @@ import { useTranslations, useLocale } from "next-intl";
 interface DestinationResult {
   displayName: string;
   shortName?: string;
+  formattedName?: string;
   lat: number;
   lon: number;
   country: string | null;
@@ -34,11 +35,13 @@ export function DestinationAutocomplete({
   name = "destination",
 }: DestinationAutocompleteProps) {
   const t = useTranslations("expedition.phase1");
+  const td = useTranslations("destination");
   const locale = useLocale();
   const [results, setResults] = useState<DestinationResult[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const listboxId = `${id}-listbox`;
@@ -47,23 +50,28 @@ export function DestinationAutocomplete({
     if (query.length < 2) {
       setResults([]);
       setIsOpen(false);
+      setHasSearched(false);
       return;
     }
 
     setIsLoading(true);
+    setHasSearched(false);
     try {
       const response = await fetch(
         `/api/destinations/search?q=${encodeURIComponent(query)}&locale=${encodeURIComponent(locale)}`
       );
       if (response.ok) {
         const data = await response.json();
-        setResults(data.results ?? []);
-        setIsOpen((data.results ?? []).length > 0);
+        const fetchedResults = data.results ?? [];
+        setResults(fetchedResults);
+        setIsOpen(fetchedResults.length > 0);
         setActiveIndex(-1);
+        setHasSearched(true);
       }
     } catch {
       setResults([]);
       setIsOpen(false);
+      setHasSearched(true);
     } finally {
       setIsLoading(false);
     }
@@ -80,13 +88,28 @@ export function DestinationAutocomplete({
     [onChange, fetchResults]
   );
 
+  /** Format selected value for input display: "City, Country" (compact) */
+  function formatSelectedValue(result: DestinationResult): string {
+    const city = result.city;
+    const country = result.country;
+    if (city && country) return `${city}, ${country}`;
+    if (city) return city;
+    return result.shortName ?? result.displayName;
+  }
+
+  /** Format full aria-label for an option: "City, State, Country" */
+  function formatOptionAriaLabel(result: DestinationResult): string {
+    return [result.city, result.state, result.country].filter(Boolean).join(", ") || result.displayName;
+  }
+
   const handleSelect = useCallback(
     (result: DestinationResult) => {
-      onChange(result.shortName ?? result.displayName);
+      onChange(formatSelectedValue(result));
       onSelect?.(result);
       setIsOpen(false);
       setResults([]);
       setActiveIndex(-1);
+      setHasSearched(false);
     },
     [onChange, onSelect]
   );
@@ -144,6 +167,18 @@ export function DestinationAutocomplete({
     };
   }, []);
 
+  /** Derive line 1 (city name) and line 2 (state, country) for each result */
+  function getResultLines(result: DestinationResult): { line1: string; line2: string } {
+    if (result.city) {
+      const parts = [result.state, result.country].filter(Boolean);
+      return { line1: result.city, line2: parts.join(", ") };
+    }
+    // Fallback: displayName on line 1, country on line 2
+    return { line1: result.displayName, line2: result.country ?? "" };
+  }
+
+  const showNoResults = hasSearched && !isLoading && results.length === 0 && value.length >= 2;
+
   return (
     <div ref={containerRef} className="relative">
       <input
@@ -166,8 +201,12 @@ export function DestinationAutocomplete({
         className="w-full rounded-lg border border-border bg-background text-foreground px-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50 disabled:opacity-50"
       />
       {isLoading && (
-        <div className="absolute right-3 top-1/2 -translate-y-1/2">
-          <div className="h-4 w-4 animate-spin rounded-full border-2 border-border border-t-ring" />
+        <div className="absolute right-3 top-1/2 -translate-y-1/2" role="status">
+          <div
+            className="h-4 w-4 animate-spin motion-reduce:animate-none rounded-full border-2 border-border border-t-ring"
+            aria-hidden="true"
+          />
+          <span className="sr-only" aria-live="polite">{td("searching")}</span>
         </div>
       )}
       {isOpen && results.length > 0 && (
@@ -175,25 +214,47 @@ export function DestinationAutocomplete({
           id={listboxId}
           role="listbox"
           className="absolute z-50 mt-1 max-h-60 w-full overflow-auto rounded-lg border border-border bg-card shadow-lg"
+          data-testid="destination-listbox"
         >
-          {results.map((result, index) => (
-            <li
-              key={`${result.lat}-${result.lon}`}
-              id={`${id}-option-${index}`}
-              role="option"
-              aria-selected={index === activeIndex}
-              onClick={() => handleSelect(result)}
-              onMouseEnter={() => setActiveIndex(index)}
-              className={`cursor-pointer px-4 py-2 text-sm ${
-                index === activeIndex
-                  ? "bg-accent text-accent-foreground"
-                  : "text-foreground/80 hover:bg-muted"
-              }`}
-            >
-              {result.shortName ?? result.displayName}
-            </li>
-          ))}
+          {results.map((result, index) => {
+            const { line1, line2 } = getResultLines(result);
+            return (
+              <li
+                key={`${result.lat}-${result.lon}`}
+                id={`${id}-option-${index}`}
+                role="option"
+                aria-selected={index === activeIndex}
+                aria-label={formatOptionAriaLabel(result)}
+                onClick={() => handleSelect(result)}
+                onMouseEnter={() => setActiveIndex(index)}
+                className={`cursor-pointer px-4 py-3 ${
+                  index === activeIndex
+                    ? "bg-accent text-accent-foreground"
+                    : "hover:bg-muted"
+                }`}
+                style={{ minHeight: "44px" }}
+              >
+                <span className="block font-medium text-foreground text-sm" data-testid="result-line1">
+                  {line1}
+                </span>
+                {line2 && (
+                  <span className="block text-xs text-muted-foreground" data-testid="result-line2">
+                    {line2}
+                  </span>
+                )}
+              </li>
+            );
+          })}
         </ul>
+      )}
+      {showNoResults && (
+        <p
+          className="mt-1 text-sm text-muted-foreground"
+          aria-live="polite"
+          data-testid="no-results-hint"
+        >
+          {td("noResults")}
+        </p>
       )}
     </div>
   );

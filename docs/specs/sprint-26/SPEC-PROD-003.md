@@ -1,7 +1,7 @@
 # SPEC-PROD-003: Destination Guide Full Visibility
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: product-owner
 **Reviewers**: [tech-lead, ux-designer, architect]
 **Created**: 2026-03-11
@@ -54,7 +54,7 @@ so that I can quickly scan and absorb all the destination insights the AI has pr
 ### Auto-Update Behavior
 
 - [ ] AC-008: The "Atualizar guia" (Update Guide) button MUST be removed from the guide screen. There must be no manual trigger for guide regeneration visible to the user.
-- [ ] AC-009: The guide MUST auto-regenerate when the user returns to Phase 5 AND any of the following trip data has changed since the last generation: (a) destination, (b) travel dates, (c) number of passengers, (d) user preferences (cuisine, activities, accessibility, etc.), (e) traveler type. The system determines "changed" by comparing current trip data against the data snapshot stored at the time of the last generation.
+- [ ] AC-009: The guide MUST auto-regenerate when the user returns to Phase 5 AND any of the following trip data has changed since the last generation: (a) destination, (b) travel dates, (c) number of passengers, (d) user preferences (cuisine, activities, accessibility, etc.), (e) traveler type. The system determines "changed" by comparing current trip data against the data snapshot stored at the time of the last generation. **Stakeholder decision (Q3):** Before regenerating, the system MUST show a confirmation dialog: "Your destination data has changed. Would you like to regenerate the guide with updated information?" (EN) / "Os dados do seu destino foram alterados. Deseja regenerar o guia com as informacoes atualizadas?" (PT-BR) with "Regenerate" / "Regenerar" and "Keep current" / "Manter atual" options. If the user chooses "Keep current", the existing guide is displayed and no AI call is made.
 - [ ] AC-010: If the user returns to Phase 5 and NO trip data has changed since the last generation, the previously generated guide MUST be displayed immediately from cache/storage. No AI call is made.
 - [ ] AC-011: While the guide is being generated (or regenerated), a loading state MUST be displayed that indicates content is being prepared. The loading state MUST NOT block the user from navigating away (back to previous phases).
 
@@ -138,3 +138,4 @@ so that I can quickly scan and absorb all the destination insights the AI has pr
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | product-owner | Initial draft for Sprint 26, based on ITEM-2 backlog |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved with stakeholder decisions: Q1 (guide gamification -- bulk points on load, see SPEC-UX-002), Q3 (regeneration confirmation dialog added to AC-009) |

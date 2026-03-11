@@ -315,6 +315,10 @@
     "phaseProgress": "{completed} de {total} fases",
     "currentPhase": "Fase {number}",
     "viewExpedition": "Continuar",
+    "phasesCompleted": "Fase {current} de {total} \u00b7 {completed} concluidas",
+    "completed": "Concluida",
+    "progressLabel": "Progresso: {completed} de {total} fases concluidas",
+    "travelDates": "{start} \u2013 {end}",
     "checklist": {
       "items": "{done}/{total} itens",
       "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
@@ -730,6 +734,11 @@
       "completeCta": "Completar Fase e Ganhar Pontos",
       "viewAllSectionsHint": "Leia todas as seções para completar esta fase ({viewed}/{total})",
       "aiDisclaimer": "Este guia foi gerado por Inteligência Artificial e requer revisão humana.",
+      "heroTitle": "Referência Rápida",
+      "sectionUnavailable": "Informação indisponível para esta seção.",
+      "regenerateConfirm": "Os dados da viagem mudaram desde que o guia foi gerado. Regenerar o guia?",
+      "regenerateConfirmYes": "Sim, regenerar",
+      "regenerateConfirmNo": "Manter atual",
       "sections": {
         "timezone": "Fuso Horário",
         "currency": "Moeda",
@@ -782,7 +791,43 @@
       "phaseCompleted": "Fase {phase} concluída!",
       "advancingTo": "Avançando para a Fase {phase}...",
       "continue": "Continuar",
-      "autoAdvance": "Continuando automaticamente..."
+      "autoAdvance": "Avançando em {seconds}s...",
+      "autoAdvanceCancelled": "Avanço automático cancelado.",
+      "nowOnPhase": "Agora na Fase {phase}"
+    },
+    "completeExpedition": "Concluir Expedição",
+    "completeConfirm": "Tem certeza que deseja concluir esta expedição? Você ainda pode editar as fases após a conclusão.",
+    "completeConfirmYes": "Sim, concluir",
+    "completeConfirmNo": "Ainda não",
+    "summary": {
+      "title": "Resumo da Expedição",
+      "editPhase": "Editar",
+      "notCompleted": "Não concluído",
+      "phase1Title": "Destino e Datas",
+      "phase2Title": "Estilo de Viagem",
+      "phase3Title": "Checklist de Preparação",
+      "phase4Title": "Logística",
+      "phase5Title": "Guia do Destino",
+      "phase6Title": "Roteiro",
+      "destination": "Destino",
+      "origin": "Origem",
+      "dates": "Datas",
+      "travelerType": "Tipo de viajante",
+      "accommodation": "Hospedagem",
+      "pace": "Ritmo",
+      "budget": "Orçamento",
+      "passengers": "Passageiros",
+      "checklistProgress": "{done} de {total} itens concluídos",
+      "transportSegments": "{count} segmentos de transporte",
+      "accommodations": "{count} hospedagens",
+      "mobility": "Mobilidade",
+      "guideGenerated": "Guia gerado em {date}",
+      "highlights": "Destaques",
+      "itineraryDays": "{count} dias planejados",
+      "totalActivities": "{count} atividades",
+      "maskedBookingCode": "Código de reserva: {code}",
+      "expeditionCompleted": "Expedição concluída!",
+      "viewDashboard": "Ver Dashboard"
     },
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}",
@@ -954,6 +999,10 @@
     "saveError": "Nao foi possivel salvar. Tente novamente.",
     "saving": "Salvando...",
     "pointsPerCategory": "+5 pts",
+    "next": "Proximo",
+    "previous": "Anterior",
+    "pageIndicator": "Pagina {current} de {total}",
+    "pageChanged": "Pagina {current} de {total}",
     "categories": {
       "travelPace": {
         "title": "Ritmo de Viagem",
@@ -1089,5 +1138,9 @@
         "digital_detox": "Detox digital"
       }
     }
+  },
+  "destination": {
+    "noResults": "Nenhum resultado encontrado. Tente um nome diferente.",
+    "searching": "Buscando..."
   }
 }

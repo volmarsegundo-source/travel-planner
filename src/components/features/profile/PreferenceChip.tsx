@@ -35,7 +35,7 @@ export function PreferenceChip({
         }
         ${
           selected
-            ? "border-2 border-primary bg-primary/10"
+            ? "border-2 border-primary bg-primary/10 dark:bg-primary dark:text-primary-foreground"
             : "border border-border bg-card"
         }
       `}
@@ -48,9 +48,9 @@ export function PreferenceChip({
           ✓
         </span>
       )}
-      <span className="text-sm font-semibold text-foreground">{label}</span>
+      <span className="text-sm font-semibold text-foreground break-words text-center">{label}</span>
       {description && (
-        <span className="mt-0.5 text-xs text-muted-foreground line-clamp-2">
+        <span className="mt-0.5 text-xs text-muted-foreground break-words text-center">
           {description}
         </span>
       )}

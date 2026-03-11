@@ -1,7 +1,7 @@
 # SPEC-UX-004: Preferences Pagination -- UX Specification
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: ux-designer
 **Reviewers**: [product-owner, tech-lead, architect]
 **Product Spec**: N/A (profile improvement, no dedicated product spec)
@@ -211,7 +211,7 @@ Chips MUST:
   - [ ] Save status announced via `aria-live="polite"` (existing)
   - [ ] Error messages linked to context via `role="alert"` (existing)
 - **Color & Contrast**:
-  - [ ] Selected chip text on primary background: must pass 4.5:1
+  - [ ] Selected chip text on primary background: must pass 4.5:1. In dark mode, selected chip text MUST use a dark color (`text-black` or high-contrast `text-primary-foreground`) on `bg-primary` to meet this requirement (Q5 fix).
   - [ ] Unselected chip text on muted background: must pass 4.5:1
   - [ ] Left accent border is decorative (not sole information carrier -- summary text also indicates selection)
   - [ ] Progress bar filled vs unfilled segments distinguishable without color (filled segments could use a pattern or different border in addition to color)
@@ -268,23 +268,21 @@ Chips MUST:
 - [ ] Prototype required: No
 - **Notes**: The pagination is a straightforward UX pattern (show 5 items, Next/Previous buttons). The chip text fix is CSS (remove truncation, allow wrapping). No novel interaction patterns that require prototype validation.
 
-## 10. Open Questions
+## 10. Open Questions (RESOLVED)
 
-- [ ] Should the page grouping (categories 1-5 and 6-10) be fixed or should we order by "most impactful for AI" on page 1? Recommendation: fixed grouping as specified (Page 1 = trip-shaping preferences, Page 2 = lifestyle preferences). This is already reflected in the spec above. (Product Owner to confirm)
-- [ ] Should there be a "Skip" option to bypass preferences entirely? Currently there is no skip -- the section is always shown but is non-blocking (all optional). Recommendation: keep current behavior (no explicit skip, user can simply navigate away). (Product Owner to decide)
-- [ ] On the profile page, should pagination be the default or should there be a "Show all" toggle for power users who prefer seeing everything at once? Recommendation: pagination only, no toggle. Simplicity over flexibility here. (UX decision, documented)
+- [x] **Page grouping resolved:** Fixed grouping as specified: Page 1 = trip-shaping preferences (pace, food, interests, budget, social), Page 2 = lifestyle preferences (accommodation, fitness, photography, wake, connectivity). Confirmed by stakeholder.
+- [x] **Skip option resolved:** No explicit "Skip" button. Preferences are non-blocking and all optional. User can navigate away at any time. Current behavior preserved.
+- [x] **Show all toggle resolved:** Pagination only, no toggle. Simplicity over flexibility. Confirmed.
 
 ---
 
 ## Dark Theme Considerations
 
 - Category cards: `bg-card` background, `border-border` border (existing, adapts automatically)
-- Selected chips: primary color background with white text. Verify contrast in dark mode -- `bg-primary` on dark typically uses the orange (#E8621A). White text on #E8621A = 3.1:1 (FAILS AA for normal text). Solution: use `text-primary-foreground` which should be configured for sufficient contrast. If not, the chip needs a darker variant in dark mode.
+- **Stakeholder decision (Q5 -- WCAG contrast fix, Sprint 26):** Selected chips on `bg-primary` in dark mode MUST use a dark text color (e.g., `text-black` or a high-contrast `text-primary-foreground`) to ensure 4.5:1 contrast ratio. White text on orange `bg-primary` (#E8621A) = 3.1:1 which FAILS WCAG AA. The fix: configure `text-primary-foreground` in the dark theme to be a dark color (black or near-black), OR apply `dark:text-black` explicitly on selected chips. This MUST be implemented in Sprint 26.
 - Unselected chips: `bg-muted` background, `text-foreground` text (adapts automatically)
 - Progress bar segments: filled = `bg-primary`, unfilled = `bg-muted` (adapts)
 - Pagination buttons: standard button variants (adapt automatically)
-
-**Action item**: Verify `text-primary-foreground` contrast on `bg-primary` in dark mode. If below 4.5:1, create a dark-mode-specific chip selected state.
 
 ## Motion Specifications
 
@@ -295,8 +293,8 @@ Chips MUST:
 
 ---
 
-> **Spec Status**: Draft
-> Ready for: Architect
+> **Spec Status**: Approved
+> Ready for: Task breakdown
 
 ---
 
@@ -305,3 +303,4 @@ Chips MUST:
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | ux-designer | Initial draft -- split 10 categories into 2 pages, fix chip truncation |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved with stakeholder decisions: Q5 (dark mode WCAG contrast fix -- selected chip text must use dark color on bg-primary, fix in Sprint 26). Open questions closed. |

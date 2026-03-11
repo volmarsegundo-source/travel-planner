@@ -2,11 +2,11 @@
  * Unit tests for ExpeditionCard component.
  *
  * Tests cover: rendering, progress bar, checklist badge visibility,
- * absence of duplicate shortcut buttons (DEBT-S18-001),
+ * travel dates, phase count text, completed badge, keyboard navigation,
  * and removal of PhaseToolsBar (SPEC-PROD-002).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -46,10 +46,13 @@ import { ExpeditionCard } from "@/components/features/dashboard/ExpeditionCard";
 
 interface RenderOptions {
   currentPhase?: number;
+  completedPhases?: number;
   checklistRequired?: number;
   checklistRequiredDone?: number;
   checklistRecommendedPending?: number;
   hasItineraryPlan?: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
 }
 
 function renderCard(opts: RenderOptions = {}) {
@@ -58,13 +61,15 @@ function renderCard(opts: RenderOptions = {}) {
       tripId="trip-001"
       destination="Paris, France"
       currentPhase={opts.currentPhase ?? 3}
-      completedPhases={2}
+      completedPhases={opts.completedPhases ?? 2}
       totalPhases={8}
       coverEmoji="🗼"
       checklistRequired={opts.checklistRequired ?? 5}
       checklistRequiredDone={opts.checklistRequiredDone ?? 2}
       checklistRecommendedPending={opts.checklistRecommendedPending ?? 1}
       hasItineraryPlan={opts.hasItineraryPlan}
+      startDate={opts.startDate ?? null}
+      endDate={opts.endDate ?? null}
     />
   );
 }
@@ -80,9 +85,7 @@ describe("ExpeditionCard", () => {
     renderCard();
 
     expect(screen.getByText("Paris, France")).toBeInTheDocument();
-    expect(
-      screen.getByText(/dashboard\.currentPhase/)
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("phase-count-text")).toBeInTheDocument();
   });
 
   it("renders phase progress bar", () => {
@@ -91,6 +94,72 @@ describe("ExpeditionCard", () => {
     const progressBar = screen.getByTestId("dashboard-phase-progress-bar");
     expect(progressBar).toBeInTheDocument();
   });
+
+  // ─── Travel dates ───────────────────────────────────────────────────────
+
+  it("displays travel dates when provided", () => {
+    renderCard({ startDate: "2026-04-10", endDate: "2026-04-20" });
+
+    const dates = screen.getByTestId("travel-dates");
+    expect(dates).toBeInTheDocument();
+    expect(dates.textContent).toContain("2026-04-10");
+    expect(dates.textContent).toContain("2026-04-20");
+  });
+
+  it("does not display travel dates when not provided", () => {
+    renderCard({ startDate: null, endDate: null });
+
+    expect(screen.queryByTestId("travel-dates")).not.toBeInTheDocument();
+  });
+
+  // ─── Phase count text ──────────────────────────────────────────────────
+
+  it("displays phase count text with current phase and completed count", () => {
+    renderCard({ currentPhase: 4, completedPhases: 3 });
+
+    const phaseText = screen.getByTestId("phase-count-text");
+    expect(phaseText).toBeInTheDocument();
+    // Mock translation: dashboard.phasesCompleted[4,8,3]
+    expect(phaseText.textContent).toContain("phasesCompleted");
+  });
+
+  // ─── Completed badge ──────────────────────────────────────────────────
+
+  it("shows Completed badge when all phases are completed", () => {
+    renderCard({ currentPhase: 8, completedPhases: 8 });
+
+    const badge = screen.getByTestId("completed-badge");
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveTextContent("dashboard.completed");
+  });
+
+  it("does not show Completed badge when expedition is in progress", () => {
+    renderCard({ currentPhase: 3, completedPhases: 2 });
+
+    expect(screen.queryByTestId("completed-badge")).not.toBeInTheDocument();
+  });
+
+  // ─── Keyboard navigation ──────────────────────────────────────────────
+
+  it("card has tabIndex for keyboard focus", () => {
+    renderCard();
+
+    const article = screen.getByRole("article");
+    expect(article).toHaveAttribute("tabindex", "0");
+  });
+
+  it("Enter key on card triggers link click", () => {
+    renderCard();
+
+    const article = screen.getByRole("article");
+    const link = article.querySelector("a");
+    const clickSpy = vi.spyOn(link!, "click");
+
+    fireEvent.keyDown(article, { key: "Enter" });
+    expect(clickSpy).toHaveBeenCalled();
+  });
+
+  // ─── Checklist badge ──────────────────────────────────────────────────
 
   it("shows checklist badge when currentPhase >= 3", () => {
     renderCard({ currentPhase: 3, checklistRequired: 5, checklistRequiredDone: 2 });
@@ -124,10 +193,11 @@ describe("ExpeditionCard", () => {
     ).not.toBeInTheDocument();
   });
 
+  // ─── Removed features ────────────────────────────────────────────────
+
   it("does not render duplicate checklist shortcut button (DEBT-S18-001)", () => {
     renderCard({ currentPhase: 5 });
 
-    // The old viewChecklist shortcut link should no longer exist
     expect(
       screen.queryByText("dashboard.viewChecklist")
     ).not.toBeInTheDocument();
@@ -136,7 +206,6 @@ describe("ExpeditionCard", () => {
   it("does not render duplicate itinerary shortcut button (DEBT-S18-001)", () => {
     renderCard({ currentPhase: 6, hasItineraryPlan: true });
 
-    // The old viewItinerary shortcut link should no longer exist
     expect(
       screen.queryByText("dashboard.viewItinerary")
     ).not.toBeInTheDocument();
@@ -145,7 +214,6 @@ describe("ExpeditionCard", () => {
   it("does not render PhaseToolsBar (SPEC-PROD-002)", () => {
     renderCard({ currentPhase: 5 });
 
-    // PhaseToolsBar should be completely removed from trip cards
     expect(screen.queryByTestId("phase-tools-bar")).not.toBeInTheDocument();
   });
 
@@ -162,13 +230,11 @@ describe("ExpeditionCard", () => {
   it("content wrapper has pointer-events-none to allow card link clicks", () => {
     renderCard();
 
-    // The main link should be present at z-0
     const mainLink = screen.getByRole("link", {
       name: /dashboard\.viewExpedition/,
     });
     expect(mainLink).toHaveClass("absolute", "inset-0", "z-0");
 
-    // The content wrapper at z-10 should have pointer-events-none
     const contentWrapper = mainLink.nextElementSibling;
     expect(contentWrapper).toHaveClass("pointer-events-none");
   });
