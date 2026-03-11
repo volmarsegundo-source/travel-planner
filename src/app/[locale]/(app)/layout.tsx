@@ -21,10 +21,10 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
   const user = session.user;
   const t = await getTranslations("common");
 
-  // Derive display name: name > email local part > "Traveler"
+  // Derive display name: name > email local part > translated fallback
   const displayName = user.name
     ?? user.email?.split("@")[0]
-    ?? "Traveler";
+    ?? t("traveler");
 
   return (
     <div className="flex min-h-screen flex-col">

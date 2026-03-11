@@ -116,6 +116,7 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
 
 export function RegisterForm() {
   const t = useTranslations("auth");
+  const tCommon = useTranslations("common");
   const router = useRouter();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -344,7 +345,7 @@ export function RegisterForm() {
               aria-expanded={nameOpen}
               aria-controls="register-name-section"
             >
-              <span>{t("name")} (opcional)</span>
+              <span>{t("name")} {tCommon("optional")}</span>
               <ChevronIcon open={nameOpen} />
             </button>
 

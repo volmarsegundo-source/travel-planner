@@ -67,7 +67,7 @@ describe("DashboardPhaseProgressBar", () => {
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
     // Phase 4 (index 3) is current
-    expect(container.children[3]).toHaveClass("bg-primary", "animate-pulse");
+    expect(container.children[3]).toHaveClass("bg-primary", "motion-safe:animate-pulse");
   });
 
   it("marks future phases (not 7-8) with muted background", () => {
@@ -125,15 +125,15 @@ describe("DashboardPhaseProgressBar", () => {
     );
 
     // Completed phase should say "completed"
-    const completedSegment = screen.getByLabelText(/phases\.theCalling.*completed/);
+    const completedSegment = screen.getByLabelText(/phases\.theCalling.*stateCompleted/);
     expect(completedSegment).toBeInTheDocument();
 
     // Current phase should say "current"
-    const currentSegment = screen.getByLabelText(/phases\.theRoute.*current/);
+    const currentSegment = screen.getByLabelText(/phases\.theRoute.*stateCurrent/);
     expect(currentSegment).toBeInTheDocument();
 
-    // Coming soon phase
-    const comingSoonSegment = screen.getByLabelText(/phases\.theExpedition.*coming soon/);
+    // Coming soon phase (state key is phases.stateComingSoon)
+    const comingSoonSegment = screen.getByLabelText(/phases\.theExpedition.*stateComingSoon/);
     expect(comingSoonSegment).toBeInTheDocument();
   });
 
@@ -152,7 +152,7 @@ describe("DashboardPhaseProgressBar", () => {
   // ─── Clickable segments (T-S21-007) ────────────────────────────────────────
 
   describe("clickable segments", () => {
-    it("completed phases are links when tripId is provided", () => {
+    it("completed phases are links to next phase when tripId is provided", () => {
       render(
         <DashboardPhaseProgressBar
           currentPhase={3}
@@ -161,12 +161,20 @@ describe("DashboardPhaseProgressBar", () => {
         />
       );
 
-      // Phase 1 (completed) should be a link
-      const phase1Link = screen.getByLabelText(/phases\.theCalling.*completed/);
+      // Phase 1 (completed) should link to phase-2
+      const phase1Link = screen.getByLabelText(/phases\.theCalling.*stateCompleted/);
       expect(phase1Link.tagName).toBe("A");
       expect(phase1Link).toHaveAttribute(
         "href",
-        "/expedition/trip-abc"
+        "/expedition/trip-abc/phase-2"
+      );
+
+      // Phase 2 (completed) should link to phase-3
+      const phase2Link = screen.getByLabelText(/phases\.theExplorer.*stateCompleted/);
+      expect(phase2Link.tagName).toBe("A");
+      expect(phase2Link).toHaveAttribute(
+        "href",
+        "/expedition/trip-abc/phase-3"
       );
     });
 
@@ -179,7 +187,7 @@ describe("DashboardPhaseProgressBar", () => {
         />
       );
 
-      const currentLink = screen.getByLabelText(/phases\.theRoute.*current/);
+      const currentLink = screen.getByLabelText(/phases\.theRoute.*stateCurrent/);
       expect(currentLink.tagName).toBe("A");
       expect(currentLink).toHaveAttribute(
         "href",
@@ -197,7 +205,7 @@ describe("DashboardPhaseProgressBar", () => {
       );
 
       // Phase 4 (upcoming, not completed, not current) should be a div
-      const phase4 = screen.getByLabelText(/phases\.theLogistics.*upcoming/);
+      const phase4 = screen.getByLabelText(/phases\.theLogistics.*stateUpcoming/);
       expect(phase4.tagName).toBe("DIV");
     });
 
@@ -210,7 +218,7 @@ describe("DashboardPhaseProgressBar", () => {
         />
       );
 
-      const phase7 = screen.getByLabelText(/phases\.theExpedition.*coming soon/);
+      const phase7 = screen.getByLabelText(/phases\.theExpedition.*stateComingSoon/);
       expect(phase7.tagName).toBe("DIV");
     });
 
@@ -220,7 +228,7 @@ describe("DashboardPhaseProgressBar", () => {
       );
 
       // Even completed phases should be divs
-      const phase1 = screen.getByLabelText(/phases\.theCalling.*completed/);
+      const phase1 = screen.getByLabelText(/phases\.theCalling.*stateCompleted/);
       expect(phase1.tagName).toBe("DIV");
     });
 
@@ -233,7 +241,7 @@ describe("DashboardPhaseProgressBar", () => {
         />
       );
 
-      const phase1 = screen.getByLabelText(/phases\.theCalling.*completed/);
+      const phase1 = screen.getByLabelText(/phases\.theCalling.*stateCompleted/);
       expect(phase1.className).toContain("cursor-pointer");
       expect(phase1.className).toContain("hover:opacity-80");
     });
