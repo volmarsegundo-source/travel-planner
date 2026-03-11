@@ -147,14 +147,18 @@ beforeEach(() => {
 describe("DestinationGuideWizard", () => {
   // ─── Initial Render ─────────────────────────────────────────────────
 
-  it("renders title and subtitle", () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-      />
-    );
+  it("renders title and subtitle", async () => {
+    mockGenerateGuide.mockResolvedValue({ success: false, error: "test" });
+
+    await act(async () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
+      );
+    });
 
     expect(
       screen.getByText("expedition.phase5.title")
@@ -164,30 +168,42 @@ describe("DestinationGuideWizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders destination name", () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-      />
-    );
+  it("renders destination name", async () => {
+    mockGenerateGuide.mockResolvedValue({ success: false, error: "test" });
+
+    await act(async () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
+      );
+    });
 
     expect(screen.getByText("Paris, France")).toBeInTheDocument();
   });
 
-  it("shows generate button when no guide exists", () => {
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-      />
-    );
+  it("auto-triggers generation on first visit when no guide exists", async () => {
+    mockGenerateGuide.mockResolvedValue({
+      success: true,
+      data: { content: MOCK_GUIDE, generationCount: 1 },
+    });
 
-    expect(
-      screen.getByText("expedition.phase5.generateCta")
-    ).toBeInTheDocument();
+    await act(async () => {
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
+      );
+    });
+
+    // Auto-trigger should call generateDestinationGuideAction
+    expect(mockGenerateGuide).toHaveBeenCalledWith("trip-1", "en");
+    // Guide sections should be visible after auto-generation
+    expect(screen.getByText("UTC+1")).toBeInTheDocument();
   });
 
   it("shows guide sections when initialGuide is provided", () => {
@@ -270,46 +286,40 @@ describe("DestinationGuideWizard", () => {
 
   // ─── Guide Generation ───────────────────────────────────────────────
 
-  it("calls generateDestinationGuideAction on generate click", async () => {
+  it("shows regenerate button after auto-generation completes", async () => {
     mockGenerateGuide.mockResolvedValue({
       success: true,
       data: { content: MOCK_GUIDE, generationCount: 1 },
     });
 
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-      />
-    );
-
     await act(async () => {
-      fireEvent.click(
-        screen.getByText("expedition.phase5.generateCta")
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
       );
     });
 
-    expect(mockGenerateGuide).toHaveBeenCalledWith("trip-1", "en");
+    // After auto-generation, regenerate button should be visible
+    const regenerateBtn = screen.getByText(/expedition\.phase5\.regenerateCta/);
+    expect(regenerateBtn).toBeInTheDocument();
   });
 
-  it("shows sections after successful generation", async () => {
+  it("shows sections after successful auto-generation", async () => {
     mockGenerateGuide.mockResolvedValue({
       success: true,
       data: { content: MOCK_GUIDE, generationCount: 1 },
     });
 
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-      />
-    );
-
     await act(async () => {
-      fireEvent.click(
-        screen.getByText("expedition.phase5.generateCta")
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
       );
     });
 
@@ -318,29 +328,25 @@ describe("DestinationGuideWizard", () => {
     });
   });
 
-  it("shows error message on generation failure", async () => {
+  it("shows error message on auto-generation failure", async () => {
     mockGenerateGuide.mockResolvedValue({
       success: false,
       error: "errors.guideGenerationLimit",
     });
 
-    render(
-      <DestinationGuideWizard
-        tripId="trip-1"
-        destination="Paris, France"
-        locale="en"
-      />
-    );
-
     await act(async () => {
-      fireEvent.click(
-        screen.getByText("expedition.phase5.generateCta")
+      render(
+        <DestinationGuideWizard
+          tripId="trip-1"
+          destination="Paris, France"
+          locale="en"
+        />
       );
     });
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "errors.guideGenerationLimit"
+        "guideGenerationLimit"
       );
     });
   });
