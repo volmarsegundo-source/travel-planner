@@ -18,24 +18,34 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-11, post Sprint 25)
-- Product version: 0.18.0 (Sprint 25 complete, first SDD sprint)
-- Sprints 1-25 complete (1612 tests, 107 suites)
+### Backlog State (as of 2026-03-11, post Sprint 26)
+- Product version: 0.19.0 (Sprint 26 complete), 1655 tests
+- Sprints 1-26 complete
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-006
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-010
 - Full backlog: US-001 through US-016 + US-100 through US-123
 - Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)
 - Staging: travel-planner-eight-navy.vercel.app
 - Sprint 26 backlog: `docs/specs/sprint-26/SPRINT-26-BACKLOG.md`
+- Sprint 27 backlog: `docs/specs/sprint-27/SPRINT-27-BACKLOG.md`
 
-### Sprint 26 Planning
+### Sprint 27 Planning
+- Theme: "Recurring Bug Blitz + Structural UX Fixes"
+- Budget: 27.5h committed + 12.5h buffer (31%)
+- 14 recurring bugs (REC-001 through REC-014) from v0.19.0 manual testing
+- P0: Navigation bugs (T-S27-001, 4h), Autocomplete (T-S27-002, 2h), Guide fixes (T-S27-003, 3h)
+- P1: Phase 4 labels (1h), Dashboard bar (1h), Preferences (1h), Profile image (0.5h), Phase 1 fields (2h), CTA standardization (SPEC-PROD-009, 6h)
+- P2: Gamification header (SPEC-PROD-006, 4h), Map pin (1h)
+- Mandatory: Manual test re-run (T-S27-012, 2h)
+- Sacrifice order: T-S27-011 (Map Pin) > T-S27-010 (Gamification Header) > T-S27-009 (CTA Buttons)
+- New specs: SPEC-PROD-006, SPEC-PROD-007, SPEC-PROD-008, SPEC-PROD-009
+- Sprint 27 specs stored in: `docs/specs/sprint-27/`
+- Beta readiness (monitoring, LGPD, analytics) deferred to Sprint 28
+
+### Sprint 26 Results
 - Theme: "Guide Visibility, UX Polish & Expedition Closure"
-- Budget: 34h committed + 6h buffer (15%)
-- SPEC-PROD-003: Destination Guide Full Visibility (8h)
-- SPEC-PROD-004: Itinerary Time Auto-Adjustment (10h, DEFERRED to Sprint 27)
-- SPEC-PROD-005: Expedition Completion & Summary (8h)
-- Also: Autocomplete UX fix (4h), Sprint 25 remaining ACs (4h), Phase transitions (4h), Preferences wizard (6h)
-- Sacrifice order: T-S26-006 (Preferences) > T-S26-005 (Transitions) > T-S26-004 (Completion)
+- v0.19.0, 1655 tests
+- Manual testing revealed ~40 NOK out of 111 tests, 14 recurring bugs
 - Sprint 26 specs stored in: `docs/specs/sprint-26/`
 
 ### Sprint 25 Results (first SDD sprint)
@@ -152,13 +162,14 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 25)
-- Sprints 22-25: DONE
-- Sprint 26: Guide visibility + expedition completion + UX polish (SPEC-PROD-003/005)
-- Sprint 27: Beta launch readiness (DnD times, dashboard, manual test re-run, monitoring, LGPD)
-- Sprint 28: Beta launch (50-100 users) + feedback loop
-- Sprint 29-30: US-122 Premium chat + payment gateway + v1.0 GA
+### MVP Roadmap (updated post Sprint 26, 2026-03-11)
+- Sprints 22-26: DONE
+- Sprint 27: Recurring bug blitz + CTA standardization + gamification header (v0.20.0)
+- Sprint 28: Beta polish + nav restructure + summary enhancement + monitoring + LGPD
+- Sprint 29: Beta launch (50-100 users) + feedback loop
+- Sprint 30-31: US-122 Premium chat + payment gateway + v1.0 GA
 - Full roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)
+- Note: Beta launch slipped 1 sprint due to recurring bug debt from S26 manual testing
 
 ### Pending Debts (post Sprint 22-S)
 - DT-S9-001 (HIGH): spendPoints TOCTOU race condition -- scheduled Sprint 22
@@ -195,3 +206,6 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Beta blockers are NOT feature gaps -- they are compliance (LGPD pages), cost (GeminiProvider), and quality (manual testing)
 - v0.17.0 manual testing: 37% failure rate (35/95 NOK). Automated tests (1593) did not catch navigation sequencing, missing UI steps, or legacy button persistence. Lesson: automated test coverage != user journey coverage. Manual testing must happen BEFORE beta planning, not after.
 - Phase naming matters: "A Rota" confused testers who expected route planning, not document checklists. Renamed to "O Preparo". Always validate phase/feature names with actual users.
+- Sprint 26/v0.19.0: 14 recurring bugs (reported 3-4 sprints in a row). Recurring bugs MUST be prioritized over new features -- they signal systemic fix failures and erode tester trust.
+- CTA consistency is a systemic issue, not a per-phase bug. Requires a cross-cutting spec (SPEC-PROD-009) that touches all wizards simultaneously.
+- Phase 5 subtitle confusion: "A Conexao" is fine as a name, but subtitle/description must clearly say "Destination Guide" not "Map of Days". Label accuracy matters as much as phase naming.

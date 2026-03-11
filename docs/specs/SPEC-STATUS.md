@@ -31,6 +31,17 @@
 | SPEC-UX-004 | Preferences Pagination | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
 | SPEC-UX-005 | Dashboard Visual Polish | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
 | SPEC-ARCH-001 | DnD Time Auto-Adjustment | architect | Draft | 1.0.0 | 27 | tech-lead, security-specialist |
+| SPEC-PROD-006 | Gamification Header Display | product-owner | Draft | 1.0.0 | 27 | tech-lead, ux-designer, architect |
+| SPEC-PROD-007 | Complete Journey Summary Enhancement | product-owner | Draft | 1.0.0 | 28 | tech-lead, ux-designer, architect |
+| SPEC-PROD-008 | Navigation Restructure | product-owner | Draft | 1.0.0 | 28 | tech-lead, ux-designer, architect |
+| SPEC-PROD-009 | CTA Button Standardization | product-owner | Draft | 1.0.0 | 27 | tech-lead, ux-designer, architect |
+| SPEC-UX-006 | Autocomplete Portal Fix | ux-designer | Draft | 1.0.0 | 27 | product-owner, tech-lead, architect |
+| SPEC-UX-007 | Gamification Header Visual | ux-designer | Draft | 1.0.0 | 27 | product-owner, tech-lead, architect |
+| SPEC-UX-008 | Navigation Restructure UX | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
+| SPEC-UX-009 | CTA Button Standardization UX | ux-designer | Draft | 1.0.0 | 27 | product-owner, tech-lead, architect |
+| SPEC-UX-010 | Guide Card Uniformity | ux-designer | Draft | 1.0.0 | 27 | product-owner, tech-lead, architect |
+| SPEC-ARCH-002 | Navigation Restructure Architecture | architect | Draft | 1.0.0 | 28 | tech-lead, ux-designer, qa-engineer |
+| SPEC-ARCH-003 | Autocomplete Portal Architecture | architect | Draft | 1.0.0 | 27 | tech-lead, ux-designer, qa-engineer |
 
 ---
 
@@ -80,3 +91,4 @@
 | 2026-03-11 | SPEC-PROD-001 and SPEC-PROD-002 implemented (partial) in Sprint 25 v0.18.0 | tech-lead |
 | 2026-03-11 | Sprint 26 planning: created SPEC-PROD-003/004/005, SPEC-UX-001-005, SPEC-ARCH-001 (all Draft) | tech-lead |
 | 2026-03-11 | Approved 7 Sprint 26 specs (SPEC-PROD-003/005, SPEC-UX-001-005) to v1.1.0 with stakeholder decisions Q1-Q5. SPEC-PROD-004 and SPEC-ARCH-001 remain Draft (Sprint 27). | tech-lead |
+| 2026-03-11 | Sprint 27 planning: created SPEC-PROD-006/007/008/009, SPEC-UX-006-010, SPEC-ARCH-002/003, ARCH-ROOT-CAUSE-ANALYSIS. Theme: Recurring Bug Blitz. | tech-lead |

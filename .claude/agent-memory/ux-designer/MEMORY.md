@@ -119,6 +119,27 @@
 - All specs saved to: docs/specs/sprint-26/SPEC-UX-{001-005}.md
 - Key decisions: progress bar segments non-interactive on dashboard cards; guide sections never collapse; autocomplete dropdown instant (no animation); preferences page 1 has AI-critical categories
 
+## Sprint 27 UX Specs (2026-03-11)
+- SPEC-UX-006: Autocomplete FINAL Fix — portal-based dropdown rendering to escape parent overflow clipping. Recommends shadcn/ui Combobox (Radix Popover portal). Two-line format preserved. No animation on dropdown. This is the DEFINITIVE fix after 4+ sprints of clipping bugs.
+- SPEC-UX-007: Gamification Header — points + rank badge + mini progress bar in AuthenticatedNavbar. Desktop: inline (points + rank + bar). Mobile: collapsed to points only, tap to expand card. Data from getProgressSummary in AppShellLayout. Rank pulse animation 600ms on update.
+- SPEC-UX-008: Navigation Restructure — split "Meu Atlas" into "Expedicoes" (/expeditions, trip list only) and "Meu Atlas" (/atlas, dedicated interactive map). Map pins color-coded by status. Pin click opens popover. /dashboard redirects to /expeditions. AtlasHeroMap removed from expeditions page.
+- SPEC-UX-009: CTA Button Standardization — all phase completion buttons become "Avancar" (phases 1-7), "Concluir Expedicao" (phase 8). Full-width, 48px, size="lg". Single i18n key for phases 1-7. No reward language in CTA. Double-click prevention. White on #E8621A contrast note (3.2:1 passes large text).
+- SPEC-UX-010: Guide Card Uniformity — hero banner gets narrative summary paragraph (new AI field needed). Stat cards: uniform 120px height, tips moved to tooltip. Content cards: uniform min-height 140px, colored bullet dots. Visual cohesion: same border-radius, padding, bg across stat and content cards.
+- All specs saved to: docs/specs/sprint-27/SPEC-UX-{006-010}.md
+- Key decisions: portal rendering for autocomplete (not z-index fixes); gamification widget between nav links and utility controls; /dashboard becomes /expeditions; "Avancar" not "Concluir e Ganhar Pontos"; stat card tips in tooltips for uniform height
+- Blocked: SPEC-UX-010 needs prompt-engineer to add destinationSummary to AI guide schema
+
+## New Patterns (UX-006 through 010 — Sprint 27)
+- PortalCombobox: combobox with portal-rendered listbox (escapes overflow)
+- GamificationWidget: compact header widget (points + rank + progress bar)
+- MiniProgressBar: thin 4px inline progress bar (reusable)
+- MapPinPopover: clickable map marker with anchored popover
+- MapLegend: collapsible overlay legend card for map
+- MapBottomSheet: mobile bottom sheet for pin details (extends BottomSheet)
+- PhaseCompletionButton: standardized CTA wrapper for all phase wizards
+- GuideHeroBanner: narrative summary + quick stats row
+- CardTipTooltip: hover/focus tooltip for supplementary tips on compact cards
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

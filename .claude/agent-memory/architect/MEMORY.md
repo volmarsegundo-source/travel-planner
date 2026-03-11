@@ -65,11 +65,32 @@
 - Key finding: AC-015 (downstream data cascade) only partially works — guide covered by SPEC-PROD-003
 - Expedition summary page (AC-009 PROD-002) not yet built — ~6h effort
 
+## Sprint 27 Architecture (ADR-014 through ADR-016 PROPOSED)
+- Root-cause analysis: docs/specs/sprint-27/ARCH-ROOT-CAUSE-ANALYSIS.md
+- SPEC-ARCH-002: Navigation Restructure (docs/specs/sprint-27/SPEC-ARCH-002.md)
+  - ADR-014: Page split /expeditions + /atlas (PROPOSED)
+  - ADR-015: Server revalidation for map pins, no SSE/WebSocket (PROPOSED)
+  - New fields: Trip.destinationLat, Trip.destinationLon
+  - Mapbox GL JS for interactive atlas; react-simple-maps kept for lightweight use
+- SPEC-ARCH-003: Autocomplete Alternative (docs/specs/sprint-27/SPEC-ARCH-003.md)
+  - ADR-016: Replace custom autocomplete with cmdk + Radix Popover portal (PROPOSED)
+  - Root cause: dropdown trapped inside stacking context, CSS fixes are insufficient
+  - cmdk scored 41/40 weighted vs portal-only 36, Google 27, Mapbox 24
+- Key architectural findings (RCA):
+  - 3 progress bar components cause confusion (PhaseProgressBar, ExpeditionProgressBar, DashboardPhaseProgressBar)
+  - No shared ExpeditionPhaseShell — recommend wrapper component
+  - Phase 2 back button hardcodes /trips (invalid route)
+  - Phase 6 missing ExpeditionProgressBar entirely
+  - Completed phase revisit shows empty form (no state hydration from metadata)
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
 - Sprint 20 Architecture: docs/architecture/SPRINT-20-ARCHITECTURE.md
 - SPEC-ARCH-001: docs/specs/sprint-26/SPEC-ARCH-001.md (DnD Time Adjustment)
+- SPEC-ARCH-002: docs/specs/sprint-27/SPEC-ARCH-002.md (Navigation Restructure)
+- SPEC-ARCH-003: docs/specs/sprint-27/SPEC-ARCH-003.md (Autocomplete Alternative)
+- ARCH-RCA-S27: docs/specs/sprint-27/ARCH-ROOT-CAUSE-ANALYSIS.md
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md

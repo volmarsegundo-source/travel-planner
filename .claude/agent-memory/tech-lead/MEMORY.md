@@ -5,14 +5,17 @@
 - Sprint 25 COMPLETE: first SDD sprint, v0.18.0, 1612 tests
   - SPEC-PROD-001 and SPEC-PROD-002 implemented (partial ACs)
   - Deferred ACs: SPEC-PROD-001 AC-017, SPEC-PROD-002 AC-002/003/004/005/009/011
-- Sprint 26: PLANNED -- docs/specs/sprint-26/SPRINT-26-PLAN.md
-  - 6 items included (ITEM-1 through ITEM-4 P1 + ITEM-6/7 P2), 38h planned, 2h buffer
-  - 14 tasks, 7 new specs required (5 UX, 2 PROD)
-  - ITEM-5 (DnD, 12h) DEFERRED to Sprint 27
-  - SPECS APPROVED: 7 of 7 Sprint 26 specs approved v1.1.0 (SPEC-UX-001..005, SPEC-PROD-003, SPEC-PROD-005)
-  - Sprint 27 specs remain Draft: SPEC-PROD-004, SPEC-ARCH-001
-  - Stakeholder decisions: Q1 bulk +50 pts on guide load, Q2 seniors in summary, Q3 regen confirmation dialog, Q4 API formattedName field, Q5 dark mode bg-primary contrast fix
-  - Test target: 1650+ (from 1612 baseline)
+- Sprint 26 COMPLETE: v0.19.0, 1655 tests
+  - 14 tasks, 7 specs implemented (SPEC-UX-001..005, SPEC-PROD-003, SPEC-PROD-005)
+  - Deferred to Sprint 27: SPEC-PROD-005 AC-007/009/010/014/015
+- Sprint 27: PLANNED -- docs/specs/sprint-27/SPRINT-27-PLAN.md
+  - 18 tasks, 36h planned, 4h buffer
+  - Group A: 9 P0 recurring bug fixes (26h) -- autocomplete portal, navigation, guide, preferences, profile, summary, CTA
+  - Group B: 1 new feature (6h) -- gamification header (SPEC-PROD-006)
+  - Deferred B2 (nav restructure) + B3 (map pins) + DnD to Sprint 28
+  - New specs needed: SPEC-UX-006, SPEC-ARCH-003, SPEC-UX-007, SPEC-UX-009, SPEC-PROD-006 approval
+  - CRITICAL: Recurring Bug Verification Protocol (10 MANUAL-V checks) -- unit tests NOT sufficient
+  - Test target: 1700+ (from 1655 baseline)
   - Budget: 40h
 
 ## Key Docs Paths
@@ -184,6 +187,16 @@
 - Code review: verify code matches spec; reject PRs with undocumented deviations
 - Coordinate cross-agent spec reviews (security, architecture, UX) before approval gate
 - Sprints 1-24 are legacy (pre-SDD) -- retroactive spec coverage not required
+
+## Recurring Bug Root Causes (Sprint 27 investigation)
+- THREE progress bars: PhaseProgressBar (intra-phase steps, Phase 1/2/4), ExpeditionProgressBar (cross-phase nav, Phase 3/5), DashboardPhaseProgressBar (dashboard cards, read-only)
+- Autocomplete dropdown clipping: CSS z-index/bg fixes pass unit tests but fail visually due to parent overflow:hidden -- JSDOM does not compute CSS stacking contexts
+- Architectural fix needed: React createPortal to document.body for dropdown rendering
+- Phase2Wizard line 273: hardcoded router.push("/trips") instead of Phase 1 navigation
+- Phase6Wizard: missing ExpeditionProgressBar entirely (no import, no render)
+- No phase access guards: URL manipulation can skip ahead to future phases
+- LESSON: For CSS/layout bugs, unit tests are NECESSARY but NOT SUFFICIENT -- mandate manual verification protocol (MANUAL-V)
+- LESSON: When multiple similar components exist (3 progress bars), fix tickets MUST specify which component by filename, not by description
 
 ## Lessons Learned (cumulative)
 - Task ID discipline: Commits MUST use planning doc task IDs
