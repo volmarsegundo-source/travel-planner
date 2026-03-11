@@ -28,6 +28,22 @@
 - `aria-label` on a button overrides text content for accessible name — avoid setting both
 - ProgressIndicator mock returns key string without interpolation since `"onboarding.progress"` doesn't contain `{current}` literal — test for `"onboarding.progress"` not interpolated value
 
+## Sprint 26 — Completed Tasks (dev-fullstack-2)
+- TASK-26-001: Autocomplete UX fix — two-line results, opaque dropdown, no-results hint, mobile touch targets, City/Country selected format
+- TASK-26-002: Autocomplete tests — 20 tests (up from 12) covering all new UX behaviors
+- TASK-26-008: Preferences pagination — 2 pages of 5, Previous/Next, single-page fallback, focus management, aria-live
+- TASK-26-009: Preferences tests — 24 tests (up from 16) covering pagination, chip truncation fix
+- TASK-26-010: Dashboard card redesign — non-interactive progress bar, travel dates, completed badge, keyboard nav
+- TASK-26-011: Dashboard tests — 32 tests covering visual states, dates, badge, keyboard
+
+## Sprint 26 Patterns
+- Autocomplete: useTranslations("destination") for no-results/searching; two-line layout via getResultLines()
+- formattedName field added to API route: city + state + country assembled from Nominatim data
+- Preferences pagination: CATEGORIES_PER_PAGE=5, needsPagination when >5, useEffect for focus on page change
+- DashboardPhaseProgressBar: removed tripId prop, Link wrappers, phase labels; segments are read-only divs
+- ExpeditionCard: role="article", tabIndex=0, onKeyDown Enter/Space triggers link click
+- Pre-existing failures: Phase6Wizard.test.tsx (server-only import), 30 TS errors in test mocks (not runtime)
+
 ## Sprint 20 — Completed Tasks (dev-fullstack-2)
 - T-S20-002: Remove duplicate checklist/itinerary shortcuts from ExpeditionCard (PhaseToolsBar already provides them)
 - T-S20-006: Preferences schema — Prisma migration (preferences Json? on UserProfile), Zod PreferencesSchema with 10 categories, PreferencesService
