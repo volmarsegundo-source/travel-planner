@@ -1,7 +1,7 @@
 # SPEC-UX-005: Dashboard Visual Polish -- UX Specification
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: ux-designer
 **Reviewers**: [product-owner, tech-lead, architect]
 **Product Spec**: SPEC-PROD-002 (Dashboard Trip Cards & Phase Confirmation)
@@ -247,11 +247,11 @@ Clickability:
 - [ ] Prototype required: No
 - **Notes**: Changes are visual refinements to existing components (progress bar segment styles, label positioning, tooltip direction). No novel interaction patterns that need prototype validation.
 
-## 10. Open Questions
+## 10. Open Questions (RESOLVED)
 
-- [ ] Should progress bar segments remain as clickable links or become read-only visuals? Recommendation: read-only visuals (specified above). This eliminates the 44px touch target issue and simplifies the card interaction model. The card itself links to the expedition; phase-specific navigation happens from within the expedition view. (Tech-lead + Product Owner to confirm)
-- [ ] Should travel dates be added to the card in this sprint? SPEC-PROD-002 requires it, but it depends on data availability at the dashboard level. Recommendation: yes, add dates. Format: "12 Mar - 20 Mar 2026" below the destination name. (Architect to confirm prop availability)
-- [ ] Should the card show the current phase NAME in addition to the number? E.g., "Fase 3: O Preparo" vs just "Fase 3 de 6". Recommendation: show the name for the current phase only (not all phases). Format: "Fase 3: O Preparo . 2 concluidas". (Product Owner to decide)
+- [x] **Progress bar interactivity resolved:** Progress bar segments become read-only visuals (non-interactive). This eliminates the 44px touch target issue. The card itself links to the expedition; phase-specific navigation happens from within the expedition view. Confirmed by tech-lead and product owner.
+- [x] **Travel dates resolved:** Yes, add dates to the card in Sprint 26. Format: "12 Mar - 20 Mar 2026" below the destination name. The `startDate` and `endDate` props will be passed to ExpeditionCard.
+- [x] **Phase name resolved:** Show the current phase name in addition to the number. Format: "Fase 3: O Preparo . 2 concluidas" / "Phase 3: The Preparation . 2 completed". Only the current phase name is shown, not all phases.
 
 ---
 
@@ -262,7 +262,7 @@ Clickability:
 - Card shadow on hover: `shadow-md shadow-atlas-gold/5` -- verify this is visible in dark mode. Gold shadow on dark card may need increased opacity: `shadow-atlas-gold/10`.
 - Progress bar segments:
   - Completed (gold): `bg-atlas-gold` -- vivid enough for both themes
-  - Current (primary): `bg-primary` -- orange, vivid on both themes
+  - Current (primary): `bg-primary` -- orange, vivid on both themes. **Note (Q5):** Any text or icon overlaid on `bg-primary` in dark mode MUST use a dark color (`text-black` or high-contrast `text-primary-foreground`) to meet WCAG 4.5:1 contrast ratio.
   - Incomplete: `border border-border bg-transparent` -- the border is visible in both themes because `border-border` adapts
   - Coming soon: `border border-dashed border-border/50 bg-transparent opacity-50` -- dashed border distinguishes from incomplete
 - Text: `text-foreground` for destination, `text-muted-foreground` for phase count, `text-primary` for CTA -- all adapt
@@ -278,8 +278,8 @@ Clickability:
 
 ---
 
-> **Spec Status**: Draft
-> Ready for: Architect
+> **Spec Status**: Approved
+> Ready for: Task breakdown
 
 ---
 
@@ -288,3 +288,4 @@ Clickability:
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | ux-designer | Initial draft -- progress bar redesign, card visual hierarchy, touch target fix |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved with stakeholder decisions: Q5 (bg-primary dark mode contrast note), open questions closed (progress bar read-only, dates added, phase name shown) |

@@ -1,7 +1,7 @@
 # SPEC-PROD-005: Expedition Completion & Summary
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: product-owner
 **Reviewers**: [tech-lead, ux-designer, architect]
 **Created**: 2026-03-11
@@ -46,7 +46,7 @@ so that I can confirm everything is correct, feel a sense of completion, and hav
 
 - [ ] AC-005: The Expedition Summary screen MUST display a consolidated view of ALL trip data from all 6 phases, organized in clearly labeled sections:
   - **Phase 1 - O Chamado**: Destination (city, country), Origin (city, country), Travel dates (start - end, with duration in days), Traveler name, Bio
-  - **Phase 2 - O Explorador**: Traveler type, Accommodation preference, Travel pace, Budget level, Passengers breakdown (X adults, Y children, Z infants, W seniors -- total N)
+  - **Phase 2 - O Explorador**: Traveler type, Accommodation preference, Travel pace, Budget level, Passengers breakdown (X adults, Y children, Z infants, W seniors -- total N). **Stakeholder decision (Q2):** Seniors MUST be listed as a separate line item in the passenger breakdown, matching the separate field in the passenger selector. The summary format is: "X adultos, Y criancas, Z bebes, W idosos -- total N" / "X adults, Y children, Z infants, W seniors -- total N".
   - **Phase 3 - O Preparo**: Checklist completion status (N of M items completed), Trip classification (domestic/international/intercontinental)
   - **Phase 4 - A Logistica**: Number of transport segments with summary (e.g., "2 flights, 1 bus"), Number of accommodation bookings with summary (e.g., "2 hotels"), Selected mobility options (e.g., "Walking, Public transit, Taxi")
   - **Phase 5 - A Conexao**: Guide generation status (generated on [date] / not generated), Top 3 highlights from the guide (if available)
@@ -152,3 +152,4 @@ so that I can confirm everything is correct, feel a sense of completion, and hav
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | product-owner | Initial draft for Sprint 26. Consolidates SPEC-PROD-001 AC-017 and SPEC-PROD-002 AC-009 |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved with stakeholder decisions: Q2 (seniors kept as separate field in passenger selector; summary must include seniors as distinct line item in Phase 2 breakdown) |

@@ -1,7 +1,7 @@
 # SPEC-UX-002: Guide Full Visibility -- UX Specification
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: ux-designer
 **Reviewers**: [product-owner, tech-lead, architect]
 **Product Spec**: SPEC-PROD-001 (Phase 5 "A Conexao")
@@ -192,12 +192,12 @@ The error banner appears where the guide content would be. Tone is never blaming
   - [ ] Skeleton loading state has `aria-busy="true"` on the container and a visually hidden `aria-live="polite"` region announcing "Gerando guia..." / "Generating guide..."
   - [ ] Decorative emoji icons have `aria-hidden="true"` (existing)
 - **Color & Contrast**:
-  - [ ] All text on card backgrounds passes 4.5:1 in both light and dark themes
+  - [ ] All text on card backgrounds passes 4.5:1 in both light and dark themes. **Note:** Where `bg-primary` is used (e.g., active/selected states), text MUST use a dark color (`text-black` or `text-primary-foreground` configured for 4.5:1 contrast) in dark mode to ensure WCAG compliance.
   - [ ] Left accent borders are decorative (color is not the sole information carrier -- each section also has a unique icon and title)
   - [ ] Hero banner text on gradient/accent background must pass 4.5:1
 - **Motion**:
   - [ ] Skeleton pulse animation respects `prefers-reduced-motion` (use `motion-safe:animate-pulse`)
-  - [ ] Points animation (+5) respects `prefers-reduced-motion` (use `motion-safe:animate-bounce`)
+  - [ ] Points animation (+50 bulk award) respects `prefers-reduced-motion` (use `motion-safe:animate-bounce`)
 - **Touch**:
   - [ ] "Complete phase" and "Regenerate" buttons are at least 44px tall
   - [ ] No small touch targets since sections are non-interactive
@@ -238,18 +238,18 @@ The error banner appears where the guide content would be. Tone is never blaming
 - Guide auto-generates on first visit (existing behavior, keep it)
 - Remove the manual "Generate" button for first visit (auto-trigger replaces it)
 - Remove the "Update guide" / "Atualizar guia" button -- guide should auto-update when underlying data changes (per ITEM-2 requirements). Keep "Regenerate" as an explicit manual override.
-- Points system: viewing sections awards +5 points each (existing). Since all sections are now visible, points should be awarded on phase entry (all sections "viewed" at once) or on scroll-into-view. Recommendation: award all section points automatically when guide is generated/loaded, since everything is visible.
+- **Stakeholder decision (Q1):** Points for all 10 sections (+50 total) are awarded in bulk when the guide loads successfully. No per-section click tracking needed. The +50 points are awarded as a single transaction when the guide content is rendered (either from cache or after generation). The points animation shows "+50" once, not 10 individual "+5" animations.
 
 ## 9. Prototype
 
 - [ ] Prototype required: No
 - **Notes**: The layout changes are well-defined by the wireframe description above. The key change is removing collapse behavior and making all sections statically visible. CSS changes are straightforward (remove click handlers, remove chevrons, show all content blocks). A prototype would not add significant validation value beyond the spec.
 
-## 10. Open Questions
+## 10. Open Questions (RESOLVED)
 
-- [ ] Should section points (+5 each) be awarded all at once when the guide loads (since everything is visible), or should we track scroll-into-view? Recommendation: award all at once on load for simplicity. (Product Owner to decide)
-- [ ] Should the hero summary banner pull specific fields from the guide data (e.g., timezone offset string, currency symbol), or should it be a separate AI-generated summary sentence? Recommendation: pull structured data from stat sections for consistency and reliability. (Architect to confirm data availability)
-- [ ] Maximum number of tips per section to display? Currently no limit. With all sections expanded, a section with 10+ tips could be very long. Recommendation: show all tips (no artificial limit) but consider a "Show more" after 5 tips if content becomes excessively long. (Product Owner to decide)
+- [x] **Q1 resolved:** Points for all 10 sections (+50 total) are awarded in bulk when the guide loads successfully. No per-section click tracking needed. Confirmed by stakeholder.
+- [x] **Hero banner resolved:** Pull structured data from stat sections (timezone, currency, language, plug type) for consistency and reliability. No separate AI-generated summary sentence.
+- [x] **Tips limit resolved:** Show all tips with no artificial limit. If content is long, the user scrolls. No "Show more" pattern -- full visibility is the core principle of this spec.
 
 ---
 
@@ -264,14 +264,14 @@ The error banner appears where the guide content would be. Tone is never blaming
 ## Motion Specifications
 
 - **Skeleton pulse**: `motion-safe:animate-pulse` (Tailwind built-in). Duration: default (2s cycle). Reduced motion: static muted background.
-- **Points badge (+5)**: `motion-safe:animate-bounce` for 2 seconds, then fade out. Reduced motion: static badge, no bounce, disappears after 2 seconds.
+- **Points badge (+50 bulk)**: `motion-safe:animate-bounce` for 2 seconds, then fade out. Reduced motion: static badge, no bounce, disappears after 2 seconds. Single "+50" animation replaces the per-section "+5" (stakeholder decision Q1).
 - **Section appearance after generation**: No entrance animation. Content replaces skeleton instantly. This is deliberate -- 10 sections animating in would be overwhelming and slow.
 - **Regenerate action**: Same skeleton loading state as initial generation. Existing content fades to skeleton, then new content replaces it.
 
 ---
 
-> **Spec Status**: Draft
-> Ready for: Architect
+> **Spec Status**: Approved
+> Ready for: Task breakdown
 
 ---
 
@@ -280,3 +280,4 @@ The error banner appears where the guide content would be. Tone is never blaming
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | ux-designer | Initial draft -- remove collapsible sections, full visibility layout |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved with stakeholder decisions: Q1 (bulk +50 points on guide load), bg-primary contrast note for dark mode, open questions closed |

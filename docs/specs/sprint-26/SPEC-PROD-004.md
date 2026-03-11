@@ -135,3 +135,4 @@ so that my itinerary always shows a coherent, chronologically correct schedule r
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | product-owner | Initial draft for Sprint 26. Deferred from SPEC-PROD-001 (BUG-P1-009) |
+| 1.0.1 | 2026-03-11 | tech-lead | Noted: remains Draft for Sprint 27. No stakeholder decisions directly affect this spec. |

@@ -1,7 +1,7 @@
 # SPEC-UX-001: Autocomplete Redesign -- UX Specification
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: ux-designer
 **Reviewers**: [product-owner, tech-lead, architect]
 **Product Spec**: SPEC-PROD-001 (Phase 1 data collection)
@@ -209,18 +209,18 @@ If `city` is null in the API response, fall back to `displayName` on line 1 and 
 
 - The autocomplete is used in Phase 1 for both destination and origin fields (SPEC-PROD-001, Phase Data Ownership table)
 - The API endpoint is `/api/destinations/search` which proxies Nominatim with Redis cache + rate limiting
-- The API response includes `displayName`, `shortName`, `city`, `state`, `country`, `countryCode`, `lat`, `lon`
-- Current issue: `shortName` often omits the city name (e.g., "Bahia, Brasil" instead of "Salvador, Bahia, Brasil"). The fix requires either API-level formatting or client-side assembly from `city`, `state`, `country` fields.
+- The API response includes `displayName`, `shortName`, `city`, `state`, `country`, `countryCode`, `lat`, `lon`, and the new `formattedName` field
+- **Stakeholder decision (Q4):** The API will return a pre-formatted `formattedName` field ("City, State, Country") assembled server-side from `city`, `state`, and `country` fields. This resolves the `shortName` issue where city names were sometimes omitted. The client uses `formattedName` directly for display and selection.
 
 ## 9. Prototype
 
 - [ ] Prototype required: No (changes are contained to an existing component with well-defined visual specs above)
 - **Notes**: The changes are primarily CSS fixes (opaque background, shadow, z-index) and content formatting (structured two-line result items). A prototype would not add significant validation value.
 
-## 10. Open Questions
+## 10. Open Questions (RESOLVED)
 
-- [ ] Should the API be updated to always return `city` separately from `state`? Or should the client assemble the display from `city + state + country` fields? (Architect to decide)
-- [ ] Should the selected value in the input show full "City, State, Country" or abbreviated "City, Country"? Recommendation: "City, Country" in the input (space-constrained), full detail in the dropdown.
+- [x] **Q4 resolved:** The API endpoint `/api/destinations/search` will be updated to return a pre-formatted `formattedName` field containing the full "City, State, Country" string (e.g., "Salvador, Bahia, Brasil"). The client uses this `formattedName` directly for both the dropdown display and the input value after selection. The client does NOT need to assemble city+state+country from separate fields. The existing `city`, `state`, `country` fields remain available for structured access if needed, but `formattedName` is the primary display field.
+- [x] **Input display resolved:** The selected value in the input shows the full `formattedName` ("City, State, Country"). The pre-formatted string from the API ensures consistency between dropdown display and input value.
 
 ---
 
@@ -240,8 +240,8 @@ If `city` is null in the API response, fall back to `displayName` on line 1 and 
 
 ---
 
-> **Spec Status**: Draft
-> Ready for: Architect
+> **Spec Status**: Approved
+> Ready for: Task breakdown
 
 ---
 
@@ -250,3 +250,4 @@ If `city` is null in the API response, fall back to `displayName` on line 1 and 
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | ux-designer | Initial draft for Sprint 26 autocomplete fixes |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved with stakeholder decisions: Q4 (API returns pre-formatted `formattedName` field; open questions closed) |

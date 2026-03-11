@@ -1,7 +1,7 @@
 # SPEC-UX-003: Unified Phase Transitions -- UX Specification
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: ux-designer
 **Reviewers**: [product-owner, tech-lead, architect]
 **Product Spec**: SPEC-PROD-001 (Expedition Navigation & Phase Sequencing)
@@ -236,10 +236,10 @@ No error messages specific to transitions. Errors are handled by the triggering 
 - [ ] Prototype required: No
 - **Notes**: The transition behavior is well-defined by timing and easing values. Implementation is CSS/JS animation work. The interstitial screen layout is already implemented (PhaseTransition component) -- changes are to timing, consistency, and adding reduced-motion fallbacks.
 
-## 10. Open Questions
+## 10. Open Questions (RESOLVED)
 
-- [ ] Should the auto-advance timer show a visual countdown (progress ring, shrinking bar)? Recommendation: simple text countdown is sufficient and more accessible. A progress ring could be added as enhancement but is not required for MVP. (Product Owner to decide)
-- [ ] Should clicking the backdrop dismiss the interstitial or just cancel auto-advance? Recommendation: cancel auto-advance only (not dismiss). Dismissing via backdrop is ambiguous -- does it mean "continue" or "go back"? (UX decision: cancel auto-advance only, documented above)
+- [x] **Auto-advance visual resolved:** Simple text countdown is sufficient. No progress ring needed for MVP. Approved as specified.
+- [x] **Backdrop behavior resolved:** Clicking backdrop cancels auto-advance only, does NOT dismiss the interstitial. User must click "Continue" to proceed. Approved as specified in section 4.
 
 ---
 
@@ -299,8 +299,8 @@ Reduced motion override:
 
 ---
 
-> **Spec Status**: Draft
-> Ready for: Architect
+> **Spec Status**: Approved
+> Ready for: Task breakdown
 
 ---
 
@@ -309,3 +309,4 @@ Reduced motion override:
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | ux-designer | Initial draft -- unify 3 animation styles into one consistent system |
+| 1.1.0 | 2026-03-11 | tech-lead | Approved. Open questions closed with existing recommendations confirmed. |
