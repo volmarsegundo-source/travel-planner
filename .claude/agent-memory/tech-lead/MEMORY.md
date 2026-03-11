@@ -1,19 +1,19 @@
 # Tech Lead Memory -- Travel Planner
 
-## Project State (as of 2026-03-10)
-- Sprints 1-20 complete, Sprint 20 on feat/sprint-20 (pending merge)
-- Current: 1489 tests, v0.14.0, 100 suites
-- Sprint 21: BACKLOG SEEDS created (docs/sprints/SPRINT-21-BACKLOG-SEEDS.md)
-  - 11 seeds, 24-34h estimated
-  - Focus: Transport Phase UI (Phase 4 "A Logistica")
+## Project State (as of 2026-03-11)
+- Sprints 1-24 complete (legacy, pre-SDD)
+- Current: 1593 tests, v0.17.0, master branch
+- Sprint 25: FIRST SDD SPRINT -- planning complete
+  - Tech analysis: docs/specs/SPRINT-25-TECH-ANALYSIS.md
+  - 13 bugs analyzed (4 P0, 9 P1), 19 tasks planned, ~36h estimated
+  - BLOCKED on: SPEC-PROD-001 + SPEC-PROD-002 approval
+  - Budget: 40h (4h buffer)
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
-- docs/sprints/SPRINT-20-TASKS.md -- Sprint 20 task breakdown (12 tasks, 28.5h)
-- docs/sprints/SPRINT-21-BACKLOG-SEEDS.md -- Sprint 21 backlog seeds (11 items)
-- docs/sprints/SPRINT-19-TASKS.md -- Sprint 19 task breakdown (12 tasks, 32.5h)
-- docs/security/SPRINT-20-SECURITY-REVIEW.md -- security review (APPROVED, no MEDIUM+)
-- docs/sprint-reviews/SPRINT-020-review.md -- tech-lead sprint review
+- docs/specs/SPRINT-25-TECH-ANALYSIS.md -- Sprint 25 tech analysis + task plan
+- docs/specs/SPEC-STATUS.md -- SDD spec status tracker
+- docs/specs/templates/GUIDE-TECH-LEAD-SDD.md -- SDD orchestration guide
 - docs/architecture.md -- conventions, folder structure, ADRs
 - docs/product/TRANSPORT-PHASE-SPEC.md -- full transport phase product spec
 - docs/prompts/OPTIMIZATION-BACKLOG.md -- prompt-engineer audit findings
@@ -116,16 +116,22 @@
 - DEBT-S18-002: account.actions.ts has two hashUserId functions (local + imported hashForLog)
 - ExpeditionHubPage coming soon uses hardcoded gray colors instead of theme tokens
 
-## Sprint 21 Backlog (from Sprint 20 deferrals + review)
-- Transport UI -- Phase 4 Section A (6-8h)
-- Accommodation UI -- Phase 4 Section B (4-6h)
-- Local mobility UI -- Phase 4 Section C (2-3h)
-- Origin field UI + pre-population (2h)
-- Booking code AES-256-GCM encryption service layer (1.5h)
-- Total passenger cap Zod refinement (0.5h)
-- Phase2Wizard component extraction (1.5h)
-- AI integration: itinerary uses transport data (4-6h)
-- P3: Clickable progress bar segments (2h), progress bar phase labels (1h)
+## Sprint 25 Root-Cause Findings
+- BUG-P0-001: PassengersStep IS in Phase2Wizard, conditional on family/group -- spec ambiguity, not code bug
+- BUG-P0-002: DashboardPhaseProgressBar links completed phases to NEXT phase -- by design, spec clarification needed
+- BUG-P0-003: No "Itens" string exists in codebase; "Checklist"/"Hospedagem" are i18n keys, not dashboard buttons
+- BUG-P0-004: Phase1 and Phase2 each have separate confirmations -- no global confirmation exists
+- BUG-P1-003 CONFIRMED: Car rental question in Phase4Wizard step 1, should be in step 3 (mobility)
+- BUG-P1-004 CONFIRMED: TransportStep does not receive or pre-fill trip origin/destination
+- BUG-P1-007: Points are additive-only by design -- never deducted on deselect
+- BUG-P1-008 CONFIRMED: Phase6Wizard has no back button
+- BUG-P1-009: DnD time adjustment is a NEW FEATURE, not a bug -- deferred to Sprint 26
+- Two progress bars: DashboardPhaseProgressBar (dashboard) vs ExpeditionProgressBar (wizard pages)
+- `name` field NOT in PROFILE_FIELD_POINTS -- saved via separate db.user.update in createExpeditionAction
+
+## Sprint 25 Specs Pending
+- SPEC-PROD-001: Navigation & Phase Sequencing (covers BUG-P0-001, P0-002, P1-001, P1-003, P1-004, P1-008)
+- SPEC-PROD-002: Dashboard & Confirmation UX (covers BUG-P0-003, P0-004, P1-002, P1-007)
 
 ## Spec-Driven Development (SDD) -- Effective Sprint 25
 
@@ -173,3 +179,5 @@
 - Badge map completeness: adding to union types requires updating all exhaustive Records
 - Prisma JSON writes: use `as unknown as Prisma.InputJsonValue`, not `as Record<string, unknown>`
 - Scope creep: preferences had 10 categories vs 8 planned -- devs should flag increases
+- P0 bug triage: 4 of 4 "P0 bugs" in Sprint 25 were spec ambiguities, not code defects -- always root-cause before planning fixes
+- SDD enforcement: never plan implementation tasks until specs are Approved -- Sprint 25 blocked on SPEC-PROD-001/002

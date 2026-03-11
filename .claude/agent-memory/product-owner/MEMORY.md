@@ -19,15 +19,32 @@
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
 ### Backlog State (as of 2026-03-11)
-- Product version: 0.15.1 (post Sprint 22-S Stabilization)
-- Sprints 1-21 complete + Sprint 22-S (stabilization, 14 bug fixes)
-- 1575 tests passing, 0 failures, clean build
+- Product version: 0.17.0 (post Sprint 23 E2E review + Sprint 24)
+- Sprints 1-24 complete (1593 tests, 107 suites)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Task ID: TBD
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-003
 - Full backlog: US-001 through US-016 + US-100 through US-123
-- Sprint 22 backlog seeds: `docs/sprints/SPRINT-22-BACKLOG-SEEDS.md` (11 items, 20-28h)
-- Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md`
-- Staging: travel-planner-eight-navy.vercel.app (manual testing pending)
+- Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update -- Sprint 25 reprioritized)
+- Staging: travel-planner-eight-navy.vercel.app
+
+### Sprint 25 Planning (first SDD sprint)
+- Theme: "Navigation Overhaul + Bug Fixes" (reprioritized from "Beta Launch")
+- Manual test triage: 95 cases, ~55 PASS, ~35 NOK, ~5 not testable
+- Triage doc: `docs/specs/product/SPRINT-25-TRIAGE.md`
+- SPEC-PROD-001: Expedition Navigation & Phase Sequencing (BUG-P0-001/002, OBS-001/002/003)
+- SPEC-PROD-002: Dashboard Trip Cards & Phase Confirmation (BUG-P0-003/004)
+- Budget: 15.5h P0 + 13h P1 + 11.5h buffer = 40h
+- Phase 3 renamed: "A Rota" -> "O Preparo" (decision in triage doc)
+- Beta launch pushed to Sprint 27 (was Sprint 25) due to critical UX bugs
+- Sacrifice order: BUG-P1-007 > BUG-P1-004 > BUG-P1-001
+
+### Phase Names (canonical, post Sprint 25 triage)
+- Phase 1: "O Chamado" (Trip creation)
+- Phase 2: "O Explorador" (Travel style + Passengers)
+- Phase 3: "O Preparo" (Document checklist) -- RENAMED from "A Rota"
+- Phase 4: "A Logistica" (Transport, Accommodation, Mobility)
+- Phase 5: "A Conexao" (Destination guide)
+- Phase 6: "O Roteiro" (Itinerary)
 
 ### Sprint 21 Results (latest feature sprint)
 - ALL Sprint 21 seeds delivered (transport UI, accommodation, mobility, origin, encryption, passenger cap, progress bar UX)
@@ -127,13 +144,14 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 22-S)
-- Sprint 22: AI transport integration + security hardening + code quality (SEED-S22-001 through 011)
-- Sprint 23: GeminiProvider (Free tier) + paginas legais + US-119 (AI cost estimate)
-- Sprint 24: Analytics (PostHog) + testes manuais + prompt caching -- BETA READY
-- Sprint 25: Beta launch (50-100 users) + US-122 (Premium chat AI)
-- Sprint 26-28: Iteration on feedback + payment gateway + v1.0 GA
-- Full roadmap: `docs/product/ROADMAP-2026-Q2.md`
+### MVP Roadmap (updated post Sprint 25 triage)
+- Sprints 22-24: DONE (AI transport, GeminiProvider, analytics, E2E review)
+- Sprint 25: Navigation overhaul + bug fixes (SPEC-PROD-001, SPEC-PROD-002)
+- Sprint 26: Remaining P1/P2 bugs + Phase 6 improvements
+- Sprint 27: Beta launch readiness (manual test re-run, monitoring)
+- Sprint 28: Beta launch (50-100 users) + feedback loop
+- Sprint 29-30: US-122 Premium chat + payment gateway + v1.0 GA
+- Full roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)
 
 ### Pending Debts (post Sprint 22-S)
 - DT-S9-001 (HIGH): spendPoints TOCTOU race condition -- scheduled Sprint 22
@@ -168,3 +186,5 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Sprint 22-S: Stabilization sprint post-feature sprint is valuable -- 14 bugs fixed. Consider scheduling after every major feature sprint.
 - MVP readiness: features ~78% complete but 0% operational readiness (analytics, monitoring, legal pages). Must address before beta.
 - Beta blockers are NOT feature gaps -- they are compliance (LGPD pages), cost (GeminiProvider), and quality (manual testing)
+- v0.17.0 manual testing: 37% failure rate (35/95 NOK). Automated tests (1593) did not catch navigation sequencing, missing UI steps, or legacy button persistence. Lesson: automated test coverage != user journey coverage. Manual testing must happen BEFORE beta planning, not after.
+- Phase naming matters: "A Rota" confused testers who expected route planning, not document checklists. Renamed to "O Preparo". Always validate phase/feature names with actual users.

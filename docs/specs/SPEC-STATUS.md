@@ -20,7 +20,8 @@
 
 | Spec ID | Title | Owner | Status | Version | Sprint | Reviewers |
 |---------|-------|-------|--------|---------|--------|-----------|
-| — | — | — | — | — | — | — |
+| SPEC-PROD-001 | Navigation & Phase Sequencing | product-owner | Draft | 0.1.0 | 25 | tech-lead, architect, security-specialist |
+| SPEC-PROD-002 | Dashboard & Confirmation UX | product-owner | Draft | 0.1.0 | 25 | tech-lead, architect, ux-designer |
 
 ---
 
@@ -28,7 +29,8 @@
 
 | Spec ID | Title | Submitted | Reviewers | Status | Blockers |
 |---------|-------|-----------|-----------|--------|----------|
-| — | — | — | — | — | — |
+| SPEC-PROD-001 | Navigation & Phase Sequencing | 2026-03-11 | tech-lead, architect, security-specialist | Awaiting submission | Pending product-owner draft |
+| SPEC-PROD-002 | Dashboard & Confirmation UX | 2026-03-11 | tech-lead, architect, ux-designer | Awaiting submission | Pending product-owner draft |
 
 ---
 
@@ -58,3 +60,4 @@
 | Date | Change | By |
 |------|--------|----|
 | 2026-03-11 | Created spec status tracker as part of SDD rollout | tech-lead |
+| 2026-03-11 | Added SPEC-PROD-001 and SPEC-PROD-002 to approval queue for Sprint 25 | tech-lead |
