@@ -38,6 +38,8 @@ export function Phase3Wizard({
   currentPhase,
 }: Phase3WizardProps) {
   const t = useTranslations("expedition.phase3");
+  const tExpedition = useTranslations("expedition");
+  const tPhases = useTranslations("gamification.phases");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -180,6 +182,9 @@ export function Phase3Wizard({
 
         {/* Header */}
         <div className="mt-4 text-center">
+          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+            {tExpedition("phaseLabel", { number: 3, name: tPhases("thePreparation") })}
+          </p>
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
           <p className="mt-2 text-sm text-atlas-teal dark:text-atlas-teal-light">
@@ -272,8 +277,20 @@ export function Phase3Wizard({
           </div>
         )}
 
+        {/* Back to previous phase */}
+        <div className="mt-6">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/expedition/${tripId}/phase-2`)}
+            className="min-h-[44px]"
+            data-testid="back-to-phase-2"
+          >
+            {tCommon("back")}
+          </Button>
+        </div>
+
         {/* Advance button — or "Go to current phase" when revisiting */}
-        <div className="mt-8">
+        <div className="mt-4">
           {isRevisiting ? (
             <Button
               onClick={() => router.push(`/expedition/${tripId}/phase-${currentPhase}`)}

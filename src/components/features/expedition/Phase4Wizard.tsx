@@ -33,6 +33,7 @@ const SAVE_SUCCESS_TIMEOUT_MS = 2000;
 interface Phase4WizardProps {
   tripId: string;
   tripType: string;
+  origin: string | null;
   destination: string;
   startDate: string | null;
   currentPhase?: number;
@@ -43,11 +44,14 @@ interface Phase4WizardProps {
 export function Phase4Wizard({
   tripId,
   tripType,
+  origin,
   destination,
   startDate,
   currentPhase,
 }: Phase4WizardProps) {
   const t = useTranslations("expedition.phase4");
+  const tExpedition = useTranslations("expedition");
+  const tPhases = useTranslations("gamification.phases");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -266,6 +270,9 @@ export function Phase4Wizard({
 
         {/* Header */}
         <div className="mt-4 text-center">
+          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+            {tExpedition("phaseLabel", { number: 4, name: tPhases("theLogistics") })}
+          </p>
           <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
           <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
           <p className="mt-2 text-sm text-atlas-teal-light">
@@ -298,8 +305,61 @@ export function Phase4Wizard({
           </div>
         ) : (
           <>
-            {/* Step 1: Prerequisites + Transport */}
+            {/* Step 1: Transport */}
             {currentStep === 1 && (
+              <div className="mt-8 flex flex-col gap-6">
+                <TransportStep
+                  tripId={tripId}
+                  initialSegments={transportSegments}
+                  onSave={handleSaveTransport}
+                  saving={savingTransport}
+                  prefillOrigin={origin}
+                  prefillDestination={destination}
+                  prefillStartDate={startDate}
+                />
+
+                {/* Navigation */}
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push(`/expedition/${tripId}/phase-3`)}
+                    className="flex-1"
+                    aria-label={tCommon("back")}
+                    data-testid="back-to-phase-3"
+                  >
+                    {"\u2190"}
+                  </Button>
+                  <Button onClick={() => goToStep(2)} className="flex-[3]">
+                    {tCommon("next")}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 2: Accommodation */}
+            {currentStep === 2 && (
+              <div className="mt-8 flex flex-col gap-6">
+                <AccommodationStep
+                  tripId={tripId}
+                  initialAccommodations={accommodations}
+                  onSave={handleSaveAccommodation}
+                  saving={savingAccommodation}
+                />
+
+                {/* Navigation */}
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => goToStep(1)} className="flex-1" aria-label={tCommon("back")}>
+                    {"\u2190"}
+                  </Button>
+                  <Button onClick={() => goToStep(3)} className="flex-[3]">
+                    {tCommon("next")}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Car Rental + Mobility + Advance */}
+            {currentStep === 3 && (
               <div className="mt-8 flex flex-col gap-6">
                 {/* Car rental prerequisites */}
                 <div>
@@ -445,48 +505,6 @@ export function Phase4Wizard({
                   </div>
                 )}
 
-                {/* Transport */}
-                <TransportStep
-                  tripId={tripId}
-                  initialSegments={transportSegments}
-                  onSave={handleSaveTransport}
-                  saving={savingTransport}
-                />
-
-                {/* Navigation */}
-                <div className="flex gap-3">
-                  <Button onClick={() => goToStep(2)} className="w-full">
-                    {tCommon("next")}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 2: Accommodation */}
-            {currentStep === 2 && (
-              <div className="mt-8 flex flex-col gap-6">
-                <AccommodationStep
-                  tripId={tripId}
-                  initialAccommodations={accommodations}
-                  onSave={handleSaveAccommodation}
-                  saving={savingAccommodation}
-                />
-
-                {/* Navigation */}
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => goToStep(1)} className="flex-1" aria-label={tCommon("back")}>
-                    {"\u2190"}
-                  </Button>
-                  <Button onClick={() => goToStep(3)} className="flex-[3]">
-                    {tCommon("next")}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Step 3: Mobility + Advance */}
-            {currentStep === 3 && (
-              <div className="mt-8 flex flex-col gap-6">
                 <MobilityStep
                   tripId={tripId}
                   initialMobility={mobility}

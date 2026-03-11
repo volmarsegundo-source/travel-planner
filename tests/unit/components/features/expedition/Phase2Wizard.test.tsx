@@ -2,10 +2,21 @@
  * Unit tests for Phase2Wizard — passenger breakdown UI (T-S20-010).
  *
  * Tests cover: passenger steppers (adults/children/seniors/infants),
- * children age dropdowns, total count, validation, and confirmation display.
+ * children age dropdowns, total count, validation, confirmation display,
+ * and "Not provided" indicators (SPEC-PROD-002).
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+
+// ─── Global polyfills (Radix Slider uses ResizeObserver) ─────────────────────
+
+beforeAll(() => {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+});
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
@@ -60,6 +71,32 @@ function selectTravelerType(type: string) {
 function navigateToPassengersStep(travelerType: string) {
   render(<Phase2Wizard tripId="trip-test-1" />);
   selectTravelerType(travelerType);
+  fireEvent.click(screen.getByText("common.next"));
+}
+
+/**
+ * Navigate a solo traveler through all steps to the confirmation screen.
+ * Steps: travelerType -> accommodation -> pace -> budget -> preferences -> confirmation.
+ */
+function navigateToConfirmation(opts?: { tripContext?: { destination?: string; origin?: string; startDate?: string; endDate?: string } }) {
+  render(<Phase2Wizard tripId="trip-test-1" tripContext={opts?.tripContext} />);
+
+  // Step 1: Traveler type — select solo
+  selectTravelerType("solo");
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 2: Accommodation — select budget
+  const budgetCard = screen.getByText("expedition.phase2.step2.budget");
+  fireEvent.click(budgetCard);
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 3: Pace — just next (default is fine)
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 4: Budget — just next (default 1000 is fine)
+  fireEvent.click(screen.getByText("common.next"));
+
+  // Step 5: Preferences — just next
   fireEvent.click(screen.getByText("common.next"));
 }
 
@@ -274,6 +311,66 @@ describe("Phase2Wizard", () => {
       // Should proceed to accommodation step
       expect(
         screen.getByText("expedition.phase2.step2.title")
+      ).toBeInTheDocument();
+    });
+  });
+
+  describe("Confirmation screen (SPEC-PROD-002)", () => {
+    it("shows 'Not provided' for missing trip context fields", () => {
+      navigateToConfirmation(); // no tripContext provided
+
+      // Should be on confirmation step
+      expect(
+        screen.getByText("expedition.phase2.step5.title")
+      ).toBeInTheDocument();
+
+      // Destination, origin, dates should all show "Not provided"
+      const notProvidedElements = screen.getAllByText("common.notProvided");
+      expect(notProvidedElements.length).toBeGreaterThanOrEqual(3);
+    });
+
+    it("shows trip context data when provided", () => {
+      navigateToConfirmation({
+        tripContext: {
+          destination: "Paris, France",
+          origin: "Sao Paulo, Brazil",
+          startDate: "2026-06-01",
+          endDate: "2026-06-15",
+        },
+      });
+
+      expect(screen.getByText("Paris, France")).toBeInTheDocument();
+      expect(screen.getByText("Sao Paulo, Brazil")).toBeInTheDocument();
+      expect(screen.getByText(/2026-06-01.*2026-06-15/)).toBeInTheDocument();
+    });
+
+    it("always shows traveler type, accommodation, pace, and budget", () => {
+      navigateToConfirmation();
+
+      expect(
+        screen.getByText("expedition.phase2.step5.travelerType")
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("expedition.phase2.step5.accommodation")
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("expedition.phase2.step5.pace")
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("expedition.phase2.step5.budget")
+      ).toBeInTheDocument();
+    });
+
+    it("shows selected traveler type and accommodation in confirmation", () => {
+      navigateToConfirmation();
+
+      // Solo traveler type
+      expect(
+        screen.getByText("expedition.phase2.step1.solo")
+      ).toBeInTheDocument();
+      // Budget accommodation
+      expect(
+        screen.getByText("expedition.phase2.step2.budget")
       ).toBeInTheDocument();
     });
   });

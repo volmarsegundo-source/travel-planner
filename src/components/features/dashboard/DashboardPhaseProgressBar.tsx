@@ -97,12 +97,9 @@ export function DashboardPhaseProgressBar({
 
         if (isClickable) {
           // Phase 1 has no dedicated route (completed during trip creation),
-          // so link to phase-2. For other completed phases, link to the next phase.
-          // Current phase links to its own URL.
-          const targetPhase = isCompleted ? phaseNum + 1 : phaseNum;
-          // Clamp to avoid linking beyond phase-6 (phases 7+ are coming soon)
-          const clampedTarget = Math.min(targetPhase, 6);
-          const phaseHref = `/expedition/${tripId}/phase-${clampedTarget}`;
+          // so always link to phase-2. All other phases link to their own URL.
+          const targetPhase = phaseNum === 1 ? 2 : phaseNum;
+          const phaseHref = `/expedition/${tripId}/phase-${targetPhase}`;
           return (
             <Link
               key={phaseNum}

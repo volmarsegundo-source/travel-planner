@@ -19,6 +19,7 @@
     "skipToContent": "Pular para o conteúdo",
     "traveler": "Viajante",
     "optional": "(opcional)",
+    "notProvided": "Não informado",
     "theme": {
       "switchToLight": "Mudar para modo claro",
       "switchToDark": "Mudar para modo escuro"
@@ -558,7 +559,7 @@
       }
     },
     "phase3": {
-      "title": "A Rota",
+      "title": "O Preparo",
       "subtitle": "Complete seu checklist de preparação de viagem.",
       "requiredSection": "Obrigatório",
       "recommendedSection": "Recomendado",
@@ -784,7 +785,8 @@
       "autoAdvance": "Continuando automaticamente..."
     },
     "progress": "Passo {current} de {total}",
-    "phaseProgress": "Fase {current} de {total}"
+    "phaseProgress": "Fase {current} de {total}",
+    "phaseLabel": "Fase {number}: {name}"
   },
   "gamification": {
     "ranks": {
@@ -798,7 +800,7 @@
     "phases": {
       "theCalling": "O Chamado",
       "theExplorer": "O Explorador",
-      "theRoute": "A Rota",
+      "thePreparation": "O Preparo",
       "theLogistics": "A Logística",
       "theDayMap": "O Mapa dos Dias",
       "theTreasure": "O Tesouro",

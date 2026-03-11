@@ -448,6 +448,56 @@ describe("Phase6Wizard", () => {
     });
   });
 
+  describe("Back button (T-S25-007)", () => {
+    it("renders back button in empty state", async () => {
+      vi.useRealTimers();
+      globalThis.fetch = mockFetchError(400);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      await waitFor(() => {
+        const backBtn = screen.getByTestId("back-to-phase-5");
+        expect(backBtn).toBeInTheDocument();
+      });
+    });
+
+    it("renders back button in generated state", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      const backBtn = screen.getByTestId("back-to-phase-5");
+      expect(backBtn).toBeInTheDocument();
+    });
+
+    it("navigates to phase-5 when back button is clicked in generated state", async () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      await act(async () => {
+        fireEvent.click(screen.getByTestId("back-to-phase-5"));
+      });
+
+      expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-5");
+    });
+  });
+
+  describe("Phase label (T-S25-008)", () => {
+    it("shows phase label in generated state", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      const label = screen.getByTestId("phase-label");
+      expect(label).toBeInTheDocument();
+      // Mock returns the key as-is, so check it contains phaseLabel
+      expect(label.textContent).toContain("phaseLabel");
+    });
+  });
+
   describe("Fetch payload", () => {
     it("sends correct body to streaming endpoint", async () => {
       vi.useRealTimers();

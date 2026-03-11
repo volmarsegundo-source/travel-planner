@@ -2,7 +2,8 @@
  * Unit tests for ExpeditionCard component.
  *
  * Tests cover: rendering, progress bar, checklist badge visibility,
- * and absence of duplicate shortcut buttons (DEBT-S18-001).
+ * absence of duplicate shortcut buttons (DEBT-S18-001),
+ * and removal of PhaseToolsBar (SPEC-PROD-002).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -139,6 +140,13 @@ describe("ExpeditionCard", () => {
     expect(
       screen.queryByText("dashboard.viewItinerary")
     ).not.toBeInTheDocument();
+  });
+
+  it("does not render PhaseToolsBar (SPEC-PROD-002)", () => {
+    renderCard({ currentPhase: 5 });
+
+    // PhaseToolsBar should be completely removed from trip cards
+    expect(screen.queryByTestId("phase-tools-bar")).not.toBeInTheDocument();
   });
 
   it("links to expedition hub", () => {

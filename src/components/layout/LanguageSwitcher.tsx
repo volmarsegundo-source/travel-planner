@@ -1,13 +1,31 @@
 "use client";
 
 import { useLocale } from "next-intl";
-import { Link, usePathname } from "@/i18n/navigation";
-import { useSearchParams } from "next/navigation";
+import { Link } from "@/i18n/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
+import { routing } from "@/i18n/routing";
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+
+/** Locale prefixes that must be stripped from the raw Next.js pathname */
+const LOCALE_PREFIXES = routing.locales.map((l) => `/${l}`);
 
 export function LanguageSwitcher() {
   const locale = useLocale();
-  const pathname = usePathname();
+  // Use Next.js native usePathname to guarantee the full path with dynamic
+  // segments is always preserved (next-intl's usePathname can lose them on
+  // routes like /expedition/[tripId]/phase-3 under localePrefix: 'as-needed').
+  const rawPathname = usePathname();
   const searchParams = useSearchParams();
+
+  // Strip locale prefix so next-intl's Link can re-apply the correct one
+  let pathname = rawPathname ?? "/";
+  for (const prefix of LOCALE_PREFIXES) {
+    if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
+      pathname = pathname.slice(prefix.length) || "/";
+      break;
+    }
+  }
 
   // Build href with search params preserved
   const search = searchParams?.toString() ?? "";

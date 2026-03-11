@@ -4,8 +4,6 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChecklistProgressMini } from "./ChecklistProgressMini";
 import { DashboardPhaseProgressBar } from "./DashboardPhaseProgressBar";
-import { PhaseToolsBar } from "./PhaseToolsBar";
-import { getPhaseTools } from "@/lib/engines/phase-config";
 
 interface ExpeditionCardProps {
   tripId: string;
@@ -70,8 +68,6 @@ export function ExpeditionCard({
               />
             </div>
           )}
-          {/* Phase tools bar — provides checklist, itinerary, and other phase shortcuts */}
-          <PhaseToolsBar tools={getPhaseTools(currentPhase)} tripId={tripId} />
         </div>
         <span className="text-sm font-medium text-primary">
           {t("viewExpedition")}

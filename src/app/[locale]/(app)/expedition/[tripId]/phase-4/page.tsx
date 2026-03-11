@@ -27,6 +27,7 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
       tripType: true,
       startDate: true,
       destination: true,
+      origin: true,
       currentPhase: true,
     },
   });
@@ -49,6 +50,7 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
       <Phase4Wizard
         tripId={tripId}
         tripType={trip.tripType}
+        origin={trip.origin ?? null}
         destination={trip.destination}
         startDate={trip.startDate?.toISOString() ?? null}
         currentPhase={trip.currentPhase}

@@ -2,7 +2,7 @@
 import "server-only";
 import { createHash } from "crypto";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { auth, updateSession } from "@/lib/auth";
 import { db } from "@/server/db";
 import { UnauthorizedError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
@@ -82,7 +82,11 @@ export async function updateUserProfileAction(
 
     logger.info("account.profileUpdated", { userId: hashForLog(session.user.id) });
 
-    revalidatePath("/account");
+    // Refresh the JWT session so the navbar displays the updated name
+    await updateSession({ user: { name: updatedUser.name } });
+
+    // Revalidate all paths so server components re-render with fresh data
+    revalidatePath("/");
 
     return { success: true, data: updatedUser };
   } catch (error) {

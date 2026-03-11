@@ -129,7 +129,7 @@ describe("DashboardPhaseProgressBar", () => {
     expect(completedSegment).toBeInTheDocument();
 
     // Current phase should say "current"
-    const currentSegment = screen.getByLabelText(/phases\.theRoute.*stateCurrent/);
+    const currentSegment = screen.getByLabelText(/phases\.thePreparation.*stateCurrent/);
     expect(currentSegment).toBeInTheDocument();
 
     // Coming soon phase (state key is phases.stateComingSoon)
@@ -152,16 +152,16 @@ describe("DashboardPhaseProgressBar", () => {
   // ─── Clickable segments (T-S21-007) ────────────────────────────────────────
 
   describe("clickable segments", () => {
-    it("completed phases are links to next phase when tripId is provided", () => {
+    it("completed phases link to their own phase (except Phase 1 which links to phase-2)", () => {
       render(
         <DashboardPhaseProgressBar
-          currentPhase={3}
-          completedPhases={2}
+          currentPhase={4}
+          completedPhases={3}
           tripId="trip-abc"
         />
       );
 
-      // Phase 1 (completed) should link to phase-2
+      // Phase 1 (completed) has no route, so links to phase-2
       const phase1Link = screen.getByLabelText(/phases\.theCalling.*stateCompleted/);
       expect(phase1Link.tagName).toBe("A");
       expect(phase1Link).toHaveAttribute(
@@ -169,10 +169,18 @@ describe("DashboardPhaseProgressBar", () => {
         "/expedition/trip-abc/phase-2"
       );
 
-      // Phase 2 (completed) should link to phase-3
+      // Phase 2 (completed) links to its own phase-2
       const phase2Link = screen.getByLabelText(/phases\.theExplorer.*stateCompleted/);
       expect(phase2Link.tagName).toBe("A");
       expect(phase2Link).toHaveAttribute(
+        "href",
+        "/expedition/trip-abc/phase-2"
+      );
+
+      // Phase 3 (completed) links to its own phase-3
+      const phase3Link = screen.getByLabelText(/phases\.thePreparation.*stateCompleted/);
+      expect(phase3Link.tagName).toBe("A");
+      expect(phase3Link).toHaveAttribute(
         "href",
         "/expedition/trip-abc/phase-3"
       );
@@ -187,7 +195,7 @@ describe("DashboardPhaseProgressBar", () => {
         />
       );
 
-      const currentLink = screen.getByLabelText(/phases\.theRoute.*stateCurrent/);
+      const currentLink = screen.getByLabelText(/phases\.thePreparation.*stateCurrent/);
       expect(currentLink.tagName).toBe("A");
       expect(currentLink).toHaveAttribute(
         "href",

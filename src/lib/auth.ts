@@ -17,7 +17,13 @@ import { db } from "@/server/db";
 import { UserSignInSchema } from "@/lib/validations/user.schema";
 import authConfig from "./auth.config";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
+  unstable_update: updateSession,
+} = NextAuth({
   ...authConfig,
   adapter: PrismaAdapter(db),
   // JWT strategy: session validated via signed JWT cookie — no DB round-trip

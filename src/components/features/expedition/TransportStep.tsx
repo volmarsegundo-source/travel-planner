@@ -29,6 +29,12 @@ interface TransportStepProps {
   initialSegments?: TransportSegmentInput[];
   onSave: (segments: TransportSegmentInput[]) => Promise<void>;
   saving?: boolean;
+  /** Pre-fill the first segment's departure place when no data is loaded */
+  prefillOrigin?: string | null;
+  /** Pre-fill the first segment's arrival place when no data is loaded */
+  prefillDestination?: string | null;
+  /** Pre-fill the first segment's departure date when no data is loaded */
+  prefillStartDate?: string | null;
 }
 
 // ─── Default segment factory ────────────────────────────────────────────────
@@ -57,14 +63,28 @@ export function TransportStep({
   initialSegments = [],
   onSave,
   saving = false,
+  prefillOrigin,
+  prefillDestination,
+  prefillStartDate,
 }: TransportStepProps) {
   const t = useTranslations("expedition.phase4.transport");
   const baseId = useId();
-  const [segments, setSegments] = useState<TransportSegmentInput[]>(
-    initialSegments.length > 0
-      ? initialSegments
-      : [createEmptySegment(0)]
-  );
+  const [segments, setSegments] = useState<TransportSegmentInput[]>(() => {
+    if (initialSegments.length > 0) return initialSegments;
+
+    // Pre-fill the first segment with trip data when no saved segments exist
+    const first = createEmptySegment(0);
+    if (prefillOrigin) first.departurePlace = prefillOrigin;
+    if (prefillDestination) first.arrivalPlace = prefillDestination;
+    if (prefillStartDate) {
+      try {
+        first.departureAt = new Date(prefillStartDate);
+      } catch {
+        // Invalid date — leave as null
+      }
+    }
+    return [first];
+  });
 
   function handleAddSegment() {
     if (segments.length >= MAX_TRANSPORT_SEGMENTS) return;
