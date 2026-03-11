@@ -2,7 +2,7 @@
  * Unit tests for PreferencesSection and sub-components.
  *
  * Tests: chip toggle, single-select logic, multi-select logic, progress bar,
- * auto-save behavior.
+ * auto-save behavior, pagination.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -111,6 +111,19 @@ describe("PreferenceChip", () => {
     );
     expect(screen.getByText("Few activities per day")).toBeInTheDocument();
   });
+
+  it("does not have truncate class on label text", () => {
+    render(
+      <PreferenceChip
+        label="A very long label text"
+        selected={false}
+        onToggle={vi.fn()}
+        role="radio"
+      />
+    );
+    const label = screen.getByText("A very long label text");
+    expect(label.className).not.toContain("truncate");
+  });
 });
 
 describe("PreferenceProgressBar", () => {
@@ -142,13 +155,99 @@ describe("PreferencesSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders all 10 category cards", () => {
+  it("renders 5 category cards on page 1 (paginated)", () => {
     render(<PreferencesSection initialPreferences={{}} />);
 
-    // Each category card has a button with aria-expanded
+    // Page 1 shows first 5 categories
     const categoryButtons = screen.getAllByRole("button", { expanded: false });
-    // There should be at least 10 (categories)
-    expect(categoryButtons.length).toBeGreaterThanOrEqual(10);
+    // 5 category buttons + 2 pagination buttons (prev/next) = 7
+    expect(categoryButtons.length).toBeGreaterThanOrEqual(5);
+
+    // Should see the first 5 category titles
+    expect(screen.getByText("preferences.categories.travelPace.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.foodPreferences.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.interests.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.budgetStyle.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.socialPreference.title")).toBeInTheDocument();
+
+    // Should NOT see page 2 categories
+    expect(screen.queryByText("preferences.categories.accommodationStyle.title")).not.toBeInTheDocument();
+  });
+
+  it("shows page 2 categories after clicking Next", () => {
+    render(<PreferencesSection initialPreferences={{}} />);
+
+    // Click Next
+    fireEvent.click(screen.getByTestId("preferences-next-btn"));
+
+    // Should see page 2 categories
+    expect(screen.getByText("preferences.categories.accommodationStyle.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.fitnessLevel.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.photographyInterest.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.wakePreference.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.connectivityNeeds.title")).toBeInTheDocument();
+
+    // Should NOT see page 1 categories
+    expect(screen.queryByText("preferences.categories.travelPace.title")).not.toBeInTheDocument();
+  });
+
+  it("navigates back with Previous button", () => {
+    render(<PreferencesSection initialPreferences={{}} />);
+
+    // Go to page 2
+    fireEvent.click(screen.getByTestId("preferences-next-btn"));
+    expect(screen.queryByText("preferences.categories.travelPace.title")).not.toBeInTheDocument();
+
+    // Go back to page 1
+    fireEvent.click(screen.getByTestId("preferences-prev-btn"));
+    expect(screen.getByText("preferences.categories.travelPace.title")).toBeInTheDocument();
+  });
+
+  it("disables Previous button on page 1", () => {
+    render(<PreferencesSection initialPreferences={{}} />);
+
+    expect(screen.getByTestId("preferences-prev-btn")).toBeDisabled();
+  });
+
+  it("disables Next button on last page", () => {
+    render(<PreferencesSection initialPreferences={{}} />);
+
+    // Go to page 2
+    fireEvent.click(screen.getByTestId("preferences-next-btn"));
+    expect(screen.getByTestId("preferences-next-btn")).toBeDisabled();
+  });
+
+  it("shows page indicator text", () => {
+    render(<PreferencesSection initialPreferences={{}} />);
+
+    const indicator = screen.getByTestId("preferences-page-indicator");
+    expect(indicator).toHaveTextContent("preferences.pageIndicator");
+  });
+
+  it("shows single page with no pagination when <=5 categories after exclusion", () => {
+    // Exclude 5 categories so only 5 remain
+    render(
+      <PreferencesSection
+        initialPreferences={{}}
+        excludeCategories={["accommodationStyle", "fitnessLevel", "photographyInterest", "wakePreference", "connectivityNeeds"]}
+      />
+    );
+
+    // All 5 remaining should be visible
+    expect(screen.getByText("preferences.categories.travelPace.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.socialPreference.title")).toBeInTheDocument();
+
+    // No pagination controls
+    expect(screen.queryByTestId("preferences-next-btn")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("preferences-prev-btn")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("preferences-page-indicator")).not.toBeInTheDocument();
+  });
+
+  it("has aria-live region for page change announcements", () => {
+    render(<PreferencesSection initialPreferences={{}} />);
+
+    const announcement = screen.getByTestId("preferences-page-announcement");
+    expect(announcement).toHaveAttribute("aria-live", "polite");
   });
 
   it("expands category card when clicked", () => {

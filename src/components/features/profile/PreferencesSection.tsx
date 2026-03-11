@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback, useTransition } from "react";
+import { useState, useRef, useCallback, useTransition, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { PreferenceCategory } from "./PreferenceCategory";
 import { PreferenceProgressBar } from "./PreferenceProgressBar";
@@ -156,6 +156,8 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
   },
 ];
 
+const CATEGORIES_PER_PAGE = 5;
+
 // ─── Component ─────────────────────────────────────────────────────────────
 
 interface PreferencesSectionProps {
@@ -172,6 +174,8 @@ export function PreferencesSection({ initialPreferences, excludeCategories, onPr
   const [isPending, startTransition] = useTransition();
   const [saveError, setSaveError] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageContainerRef = useRef<HTMLDivElement>(null);
 
   const visibleCategories = excludeCategories
     ? CATEGORY_CONFIGS.filter((c) => !excludeCategories.includes(c.key))
@@ -181,6 +185,26 @@ export function PreferencesSection({ initialPreferences, excludeCategories, onPr
     (c) => preferences[c.key] !== null && preferences[c.key] !== undefined &&
       (Array.isArray(preferences[c.key]) ? (preferences[c.key] as string[]).length > 0 : true)
   ).length;
+
+  // Pagination: only paginate when more than CATEGORIES_PER_PAGE categories
+  const needsPagination = totalCategories > CATEGORIES_PER_PAGE;
+  const totalPages = needsPagination ? Math.ceil(totalCategories / CATEGORIES_PER_PAGE) : 1;
+  const pageCategories = needsPagination
+    ? visibleCategories.slice(
+        (currentPage - 1) * CATEGORIES_PER_PAGE,
+        currentPage * CATEGORIES_PER_PAGE
+      )
+    : visibleCategories;
+
+  // Focus management: when page changes, focus first category on new page
+  useEffect(() => {
+    if (needsPagination && pageContainerRef.current) {
+      const firstButton = pageContainerRef.current.querySelector<HTMLButtonElement>(
+        "[aria-expanded]"
+      );
+      firstButton?.focus();
+    }
+  }, [currentPage, needsPagination]);
 
   const debouncedSave = useCallback(
     (newPrefs: UserPreferences) => {
@@ -206,6 +230,18 @@ export function PreferencesSection({ initialPreferences, excludeCategories, onPr
     setPreferences(updated);
     debouncedSave(updated);
     onPreferencesChange?.(updated);
+  }
+
+  function handleNextPage() {
+    if (currentPage < totalPages) {
+      setCurrentPage((p) => p + 1);
+    }
+  }
+
+  function handlePreviousPage() {
+    if (currentPage > 1) {
+      setCurrentPage((p) => p - 1);
+    }
   }
 
   // Progress text
@@ -247,23 +283,66 @@ export function PreferencesSection({ initialPreferences, excludeCategories, onPr
         )}
       </div>
 
-      {/* Category cards */}
-      {visibleCategories.map((config) => (
-        <PreferenceCategory
-          key={config.key}
-          categoryKey={config.key}
-          title={t(config.titleKey)}
-          question={t(config.questionKey)}
-          options={config.options}
-          selectionType={config.selectionType}
-          selectedValues={preferences[config.key]}
-          onSelectionChange={(values) =>
-            handleCategoryChange(config.key, values)
-          }
-          t={t}
-          pointsLabel={t("pointsPerCategory")}
-        />
-      ))}
+      {/* Category cards with page transition */}
+      <div
+        ref={pageContainerRef}
+        className="flex flex-col gap-3 motion-safe:transition-opacity motion-safe:duration-150"
+        data-testid="preferences-page-container"
+      >
+        {pageCategories.map((config) => (
+          <PreferenceCategory
+            key={config.key}
+            categoryKey={config.key}
+            title={t(config.titleKey)}
+            question={t(config.questionKey)}
+            options={config.options}
+            selectionType={config.selectionType}
+            selectedValues={preferences[config.key]}
+            onSelectionChange={(values) =>
+              handleCategoryChange(config.key, values)
+            }
+            t={t}
+            pointsLabel={t("pointsPerCategory")}
+          />
+        ))}
+      </div>
+
+      {/* Pagination controls */}
+      {needsPagination && (
+        <div className="flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3">
+          <button
+            type="button"
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="preferences-prev-btn"
+          >
+            {t("previous")}
+          </button>
+          <span
+            className="text-sm text-muted-foreground"
+            data-testid="preferences-page-indicator"
+          >
+            {t("pageIndicator", { current: currentPage, total: totalPages })}
+          </span>
+          <button
+            type="button"
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages}
+            className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
+            data-testid="preferences-next-btn"
+          >
+            {t("next")}
+          </button>
+        </div>
+      )}
+
+      {/* Aria-live region for page change announcements */}
+      {needsPagination && (
+        <div aria-live="polite" className="sr-only" data-testid="preferences-page-announcement">
+          {t("pageChanged", { current: currentPage, total: totalPages })}
+        </div>
+      )}
     </div>
   );
 }
