@@ -462,6 +462,8 @@
         "schengen": "Viagem Schengen"
       },
       "errors": {
+        "nameRequired": "Nome é obrigatório.",
+        "birthDateRequired": "Data de nascimento é obrigatória.",
         "destinationRequired": "Destino é obrigatório.",
         "endDateBeforeStart": "A data de retorno deve ser posterior à data de partida."
       }
@@ -552,6 +554,70 @@
         "pace": "Ritmo",
         "budget": "Orçamento",
         "preferencesCount": "{count} {count, plural, =1 {categoria} other {categorias}}",
+        "prefLabel": {
+          "travelPace": "Ritmo",
+          "budgetStyle": "Estilo de orçamento",
+          "fitnessLevel": "Condicionamento",
+          "photographyInterest": "Fotografia",
+          "wakePreference": "Preferência de horário",
+          "connectivityNeeds": "Conectividade",
+          "foodPreferences": "Alimentação",
+          "interests": "Interesses",
+          "socialPreference": "Social",
+          "accommodationStyle": "Hospedagem"
+        },
+        "prefValue": {
+          "relaxed": "Relaxado",
+          "moderate": "Moderado",
+          "intense": "Intenso",
+          "budget": "Econômico",
+          "comfortable": "Confortável",
+          "luxury": "Luxo",
+          "low": "Baixo",
+          "high": "Alto",
+          "casual": "Casual",
+          "enthusiast": "Entusiasta",
+          "professional": "Profissional",
+          "early_bird": "Madrugador",
+          "flexible": "Flexível",
+          "night_owl": "Noturno",
+          "essential": "Essencial",
+          "occasional": "Ocasional",
+          "digital_detox": "Detox digital",
+          "vegetarian": "Vegetariano",
+          "vegan": "Vegano",
+          "halal": "Halal",
+          "kosher": "Kosher",
+          "gluten_free": "Sem glúten",
+          "lactose_free": "Sem lactose",
+          "local_cuisine": "Culinária local",
+          "street_food": "Comida de rua",
+          "fine_dining": "Alta gastronomia",
+          "no_restrictions": "Sem restrições",
+          "history_museums": "História e Museus",
+          "art_galleries": "Galerias de arte",
+          "nature_hiking": "Natureza e Trilhas",
+          "nightlife": "Vida noturna",
+          "shopping": "Compras",
+          "photography": "Fotografia",
+          "sports_adventure": "Esportes e Aventura",
+          "wellness_spa": "Bem-estar e Spa",
+          "gastronomy": "Gastronomia",
+          "beaches": "Praias",
+          "architecture": "Arquitetura",
+          "wildlife": "Vida selvagem",
+          "solo": "Solo",
+          "meet_travelers": "Conhecer viajantes",
+          "group_activities": "Atividades em grupo",
+          "family": "Família",
+          "romantic_couple": "Casal romântico",
+          "hostel": "Hostel",
+          "hotel": "Hotel",
+          "airbnb": "Airbnb",
+          "glamping": "Glamping",
+          "resort": "Resort",
+          "bed_and_breakfast": "Pousada"
+        },
         "cta": "Concluir e Ganhar Pontos"
       },
       "errors": {
@@ -653,9 +719,9 @@
         "departurePlaceholder": "Cidade / aeroporto de partida...",
         "arrivalPlace": "Para",
         "arrivalPlaceholder": "Cidade / aeroporto de chegada...",
-        "departureAt": "Partida",
-        "arrivalAt": "Chegada",
-        "provider": "Companhia Aérea / Empresa",
+        "departureAt": "Ida",
+        "arrivalAt": "Volta",
+        "provider": "Empresa",
         "providerPlaceholder": "ex: LATAM, Azul...",
         "bookingCode": "Código de Reserva",
         "bookingCodePlaceholder": "ex: ABC123",
@@ -726,7 +792,7 @@
       }
     },
     "phase5": {
-      "title": "O Mapa dos Dias",
+      "title": "Guia do Destino",
       "subtitle": "Seu guia de bolso para o destino.",
       "generateHint": "Gere um guia com IA com informações essenciais sobre o destino: fuso horário, moeda, idioma, eletricidade, conectividade, dicas culturais, segurança, saúde, transporte e costumes locais.",
       "generateCta": "Gerar Guia do Destino",
@@ -794,6 +860,12 @@
       "autoAdvance": "Avançando em {seconds}s...",
       "autoAdvanceCancelled": "Avanço automático cancelado.",
       "nowOnPhase": "Agora na Fase {phase}"
+    },
+    "cta": {
+      "advance": "Avançar",
+      "advancing": "Avançando...",
+      "complete": "Concluir Expedição",
+      "completing": "Concluindo..."
     },
     "completeExpedition": "Concluir Expedição",
     "completeConfirm": "Tem certeza que deseja concluir esta expedição? Você ainda pode editar as fases após a conclusão.",
@@ -1141,6 +1213,7 @@
   },
   "destination": {
     "noResults": "Nenhum resultado encontrado. Tente um nome diferente.",
-    "searching": "Buscando..."
+    "searching": "Buscando...",
+    "searchLabel": "Buscar destinos"
   }
 }

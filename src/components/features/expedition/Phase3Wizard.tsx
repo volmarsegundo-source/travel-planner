@@ -65,7 +65,7 @@ export function Phase3Wizard({
   const requiredItems = items.filter((i) => i.required);
   const recommendedItems = items.filter((i) => !i.required);
   const requiredCompleted = requiredItems.filter((i) => i.completed).length;
-  const allRequiredDone = requiredCompleted === requiredItems.length;
+  const _allRequiredDone = requiredCompleted === requiredItems.length;
 
   async function handleToggle(itemKey: string) {
     setTogglingKey(itemKey);
@@ -304,21 +304,12 @@ export function Phase3Wizard({
               onClick={handleAdvance}
               disabled={isCompleting}
               size="lg"
-              className={`w-full ${
-                allRequiredDone
-                  ? ""
-                  : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
-              }`}
+              className="w-full"
+              aria-busy={isCompleting}
             >
               {isCompleting
-                ? tCommon("loading")
-                : allRequiredDone
-                  ? t("advanceComplete")
-                  : requiredCompleted === 0
-                    ? t("advancePending")
-                    : t("advancePartial", {
-                        count: requiredItems.length - requiredCompleted,
-                      })}
+                ? tExpedition("cta.advancing")
+                : tExpedition("cta.advance")}
             </Button>
           )}
         </div>

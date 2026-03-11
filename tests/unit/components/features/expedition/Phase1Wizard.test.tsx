@@ -23,6 +23,10 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
+vi.mock("next/navigation", () => ({
+  useSearchParams: () => new URLSearchParams(),
+}));
+
 vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
   Link: ({ children, ...props }: Record<string, unknown>) => (
@@ -60,6 +64,14 @@ const INCOMPLETE_PROFILE = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+/** Fill mandatory Step 1 fields (name + birthDate) so validation passes. */
+function fillMandatoryStep1Fields() {
+  const nameInput = screen.getByLabelText(/expedition\.phase1\.step1\.name/);
+  fireEvent.change(nameInput, { target: { value: "Test User" } });
+  const birthDateInput = screen.getByLabelText(/expedition\.phase1\.step1\.birthDate/);
+  fireEvent.change(birthDateInput, { target: { value: "1990-01-01" } });
+}
+
 /**
  * Navigate from Step 1 (About You) through Step 2 (Destination) and Step 3 (Dates)
  * to Step 4 (Confirmation) with a bio filled.
@@ -67,7 +79,11 @@ const INCOMPLETE_PROFILE = {
 function navigateToStep4WithBio(bio: string) {
   render(<Phase1Wizard />);
 
-  // Step 1: enter bio (About You)
+  // Step 1: fill mandatory fields (name and birthDate) + bio
+  const nameInput = screen.getByLabelText(/expedition\.phase1\.step1\.name/);
+  fireEvent.change(nameInput, { target: { value: "Test User" } });
+  const birthDateInput = screen.getByLabelText(/expedition\.phase1\.step1\.birthDate/);
+  fireEvent.change(birthDateInput, { target: { value: "1990-01-01" } });
   const bioTextarea = screen.getByLabelText("expedition.phase1.step1.bio");
   fireEvent.change(bioTextarea, { target: { value: bio } });
   fireEvent.click(screen.getByText("common.next"));
@@ -85,7 +101,7 @@ function navigateToStep4WithBio(bio: string) {
  * Navigate from Step 1 (summary card) to Step 4 when profile is complete.
  */
 function navigateToStep4WithCompleteProfile() {
-  render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+  render(<Phase1Wizard userProfile={COMPLETE_PROFILE} userName="Test User" />);
 
   // Step 1: shows summary card, click next
   fireEvent.click(screen.getByText("common.next"));
@@ -113,7 +129,7 @@ describe("Phase1Wizard", () => {
       // Step 1 should show the About You title
       expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();
       // Profile fields should be visible (no profile = form mode)
-      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(screen.getByLabelText(/expedition\.phase1\.step1\.birthDate/)).toBeInTheDocument();
       expect(screen.getByLabelText("expedition.phase1.step1.phone")).toBeInTheDocument();
       expect(screen.getByLabelText("expedition.phase1.step1.bio")).toBeInTheDocument();
     });
@@ -121,7 +137,8 @@ describe("Phase1Wizard", () => {
     it("navigates from About You (step 1) to Destination (step 2)", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: click next
+      // Step 1: fill mandatory fields and click next
+      fillMandatoryStep1Fields();
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: should show destination input
@@ -132,7 +149,8 @@ describe("Phase1Wizard", () => {
     it("navigates from Destination (step 2) to Dates (step 3)", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: next
+      // Step 1: fill mandatory and next
+      fillMandatoryStep1Fields();
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: enter destination and next
@@ -149,7 +167,8 @@ describe("Phase1Wizard", () => {
     it("validates destination is required on step 2", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: next (no validation needed)
+      // Step 1: fill mandatory and next
+      fillMandatoryStep1Fields();
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: try to proceed without destination
@@ -158,6 +177,30 @@ describe("Phase1Wizard", () => {
       // Should show error
       expect(screen.getByRole("alert")).toHaveTextContent(
         "expedition.phase1.errors.destinationRequired"
+      );
+    });
+
+    it("validates name is required on step 1 (TASK-27-014)", () => {
+      render(<Phase1Wizard />);
+
+      // Try to proceed without filling name
+      fireEvent.click(screen.getByText("common.next"));
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.nameRequired"
+      );
+    });
+
+    it("validates birthDate is required on step 1 (TASK-27-014)", () => {
+      render(<Phase1Wizard />);
+
+      // Fill name but not birthDate
+      const nameInput = screen.getByLabelText(/expedition\.phase1\.step1\.name/);
+      fireEvent.change(nameInput, { target: { value: "Test" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.birthDateRequired"
       );
     });
 
@@ -172,6 +215,7 @@ describe("Phase1Wizard", () => {
       render(<Phase1Wizard />);
 
       // Go to step 2
+      fillMandatoryStep1Fields();
       fireEvent.click(screen.getByText("common.next"));
       expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
 
@@ -199,14 +243,14 @@ describe("Phase1Wizard", () => {
       // Country + city combined
       expect(screen.getByText("Sao Paulo, Brazil")).toBeInTheDocument();
       // Form fields should NOT be visible (summary mode)
-      expect(screen.queryByLabelText("expedition.phase1.step1.birthDate")).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/expedition\.phase1\.step1\.birthDate/)).not.toBeInTheDocument();
     });
 
     it("shows editable form when profile is incomplete", () => {
       render(<Phase1Wizard userProfile={INCOMPLETE_PROFILE} />);
 
       // Should show form fields, not summary card
-      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(screen.getByLabelText(/expedition\.phase1\.step1\.birthDate/)).toBeInTheDocument();
       expect(
         screen.queryByText("expedition.phase1.step1.savedProfileTitle")
       ).not.toBeInTheDocument();
@@ -216,7 +260,7 @@ describe("Phase1Wizard", () => {
       render(<Phase1Wizard />);
 
       // Should show form fields
-      expect(screen.getByLabelText("expedition.phase1.step1.birthDate")).toBeInTheDocument();
+      expect(screen.getByLabelText(/expedition\.phase1\.step1\.birthDate/)).toBeInTheDocument();
       expect(
         screen.queryByText("expedition.phase1.step1.savedProfileTitle")
       ).not.toBeInTheDocument();
@@ -230,7 +274,7 @@ describe("Phase1Wizard", () => {
 
       // Form fields should now be visible with pre-populated values
       const birthDateInput = screen.getByLabelText(
-        "expedition.phase1.step1.birthDate"
+        /expedition\.phase1\.step1\.birthDate/
       ) as HTMLInputElement;
       expect(birthDateInput.value).toBe("1990-05-15");
 
@@ -255,7 +299,7 @@ describe("Phase1Wizard", () => {
 
       // Form is shown (not summary), but fields are pre-populated
       const birthDateInput = screen.getByLabelText(
-        "expedition.phase1.step1.birthDate"
+        /expedition\.phase1\.step1\.birthDate/
       ) as HTMLInputElement;
       expect(birthDateInput.value).toBe("1990-05-15");
 
@@ -275,7 +319,7 @@ describe("Phase1Wizard", () => {
     });
 
     it("summary card allows direct navigation to step 2", () => {
-      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} />);
+      render(<Phase1Wizard userProfile={COMPLETE_PROFILE} userName="Test User" />);
 
       // Click next from summary card
       fireEvent.click(screen.getByText("common.next"));
@@ -295,10 +339,11 @@ describe("Phase1Wizard", () => {
       expect(screen.getByText("I love exploring new cities.")).toBeInTheDocument();
     });
 
-    it("shows 'Not provided' for empty fields in confirmation (SPEC-PROD-002 AC-012)", () => {
+    it("shows 'Not provided' for optional fields in confirmation (SPEC-PROD-002 AC-012)", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: skip all fields, click next
+      // Step 1: fill only mandatory fields (name + birthDate), skip optional
+      fillMandatoryStep1Fields();
       fireEvent.click(screen.getByText("common.next"));
 
       // Step 2: enter destination
@@ -313,10 +358,9 @@ describe("Phase1Wizard", () => {
       expect(screen.getByText("expedition.phase1.step4.profileSummary")).toBeInTheDocument();
       // Bio label should be visible with "Not provided"
       expect(screen.getByText("expedition.phase1.step4.bio")).toBeInTheDocument();
-      // All empty fields should show "Not provided"
+      // Optional empty fields should show "Not provided" (phone, location, bio, origin)
       const notProvidedElements = screen.getAllByText("common.notProvided");
-      // name, birthDate, phone, location, bio, origin = 6 not provided indicators
-      expect(notProvidedElements.length).toBeGreaterThanOrEqual(5);
+      expect(notProvidedElements.length).toBeGreaterThanOrEqual(3);
     });
 
     it("truncates bio to 100 characters with ellipsis when longer", () => {
@@ -331,7 +375,8 @@ describe("Phase1Wizard", () => {
     it("shows bio alongside other profile fields when both are filled", () => {
       render(<Phase1Wizard />);
 
-      // Step 1: fill phone and bio
+      // Step 1: fill mandatory + optional fields
+      fillMandatoryStep1Fields();
       const phoneInput = screen.getByLabelText("expedition.phase1.step1.phone");
       fireEvent.change(phoneInput, { target: { value: "+5511999999999" } });
       const bioTextarea = screen.getByLabelText("expedition.phase1.step1.bio");

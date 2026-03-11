@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Info, Loader2, Map, RefreshCw, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
+import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import {
   getProgressPhase,
   getProgressMessageKey,
@@ -365,7 +366,8 @@ export function Phase6Wizard({
   if (!hasItinerary) {
     return (
       <div className="mx-auto max-w-lg px-4 py-12">
-        <div className="flex flex-col items-center justify-center gap-6 text-center">
+        <ExpeditionProgressBar currentPhase={6} totalPhases={8} tripId={tripId} />
+        <div className="mt-6 flex flex-col items-center justify-center gap-6 text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-atlas-gold/10">
             <Map className="h-10 w-10 text-atlas-gold" aria-hidden="true" />
           </div>
@@ -414,7 +416,8 @@ export function Phase6Wizard({
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <div className="mb-6 space-y-1">
+      <ExpeditionProgressBar currentPhase={6} totalPhases={8} tripId={tripId} />
+      <div className="mb-6 mt-4 space-y-1">
         <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
           {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
         </p>
@@ -535,7 +538,7 @@ export function Phase6Wizard({
           className="min-h-[44px] gap-2"
           data-testid="complete-expedition-button"
         >
-          {isCompleting ? tCommon("loading") : tExpedition("completeExpedition")}
+          {isCompleting ? tExpedition("cta.completing") : tExpedition("cta.complete")}
         </Button>
       </div>
     </div>

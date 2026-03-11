@@ -240,11 +240,10 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    // All stat cards visible with summaries and tips (also in hero banner)
-    expect(screen.getAllByText("UTC+1").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("Euro (EUR)").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("French").length).toBeGreaterThanOrEqual(2);
-    expect(screen.getAllByText("Type C/E, 230V").length).toBeGreaterThanOrEqual(2);
+    // All stat cards visible with summaries (hero banner shows summary paragraph)
+    expect(screen.getByText("UTC+1")).toBeInTheDocument();
+    expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
+    expect(screen.getByText("Type C/E, 230V")).toBeInTheDocument();
 
     // All content sections visible with details
     expect(screen.getByText("eSIM recommended")).toBeInTheDocument();
@@ -343,7 +342,7 @@ describe("DestinationGuideWizard", () => {
     expect(updateButtons.length).toBe(0);
   });
 
-  it("'Regenerate' button IS present as secondary action", () => {
+  it("regenerate button is removed (TASK-27-007)", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -357,9 +356,7 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    const regenerateBtn = screen.getByTestId("regenerate-button");
-    expect(regenerateBtn).toBeInTheDocument();
-    expect(regenerateBtn).toHaveTextContent(/regenerateCta/);
+    expect(screen.queryByTestId("regenerate-button")).not.toBeInTheDocument();
   });
 
   // ─── Skeleton Loading ──────────────────────────────────────────────
@@ -467,7 +464,7 @@ describe("DestinationGuideWizard", () => {
 
   // ─── Phase Completion ───────────────────────────────────────────────
 
-  it("shows complete button when guide exists", () => {
+  it("shows advance button when guide exists", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -482,11 +479,11 @@ describe("DestinationGuideWizard", () => {
     );
 
     expect(
-      screen.getByText("expedition.phase5.completeCta")
+      screen.getByText("expedition.cta.advance")
     ).toBeInTheDocument();
   });
 
-  it("enables complete button immediately when guide exists", () => {
+  it("enables advance button immediately when guide exists", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -500,7 +497,7 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    const completeBtn = screen.getByText("expedition.phase5.completeCta");
+    const completeBtn = screen.getByText("expedition.cta.advance");
     expect(completeBtn.closest("button")).not.toBeDisabled();
   });
 
@@ -531,7 +528,7 @@ describe("DestinationGuideWizard", () => {
 
     await act(async () => {
       fireEvent.click(
-        screen.getByText("expedition.phase5.completeCta")
+        screen.getByText("expedition.cta.advance")
       );
     });
 
@@ -568,7 +565,7 @@ describe("DestinationGuideWizard", () => {
     // Complete the phase
     await act(async () => {
       fireEvent.click(
-        screen.getByText("expedition.phase5.completeCta")
+        screen.getByText("expedition.cta.advance")
       );
     });
 
@@ -616,7 +613,7 @@ describe("DestinationGuideWizard", () => {
 
     await act(async () => {
       fireEvent.click(
-        screen.getByText("expedition.phase5.completeCta")
+        screen.getByText("expedition.cta.advance")
       );
     });
 
@@ -736,9 +733,9 @@ describe("DestinationGuideWizard", () => {
         />
       );
 
-      // Stat titles appear in both hero banner and stat cards
-      expect(screen.getAllByText("UTC+1").length).toBeGreaterThanOrEqual(2);
-      expect(screen.getAllByText("Euro (EUR)").length).toBeGreaterThanOrEqual(2);
+      // Stat titles appear in stat cards (hero banner shows summary paragraph)
+      expect(screen.getByText("UTC+1")).toBeInTheDocument();
+      expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
       expect(screen.getByText("eSIM recommended")).toBeInTheDocument();
       expect(screen.getByText("French etiquette")).toBeInTheDocument();
 
@@ -761,14 +758,52 @@ describe("DestinationGuideWizard", () => {
         />
       );
 
-      const completeBtn = screen.getByText("expedition.phase5.completeCta");
+      const completeBtn = screen.getByText("expedition.cta.advance");
       expect(completeBtn.closest("button")).not.toBeDisabled();
     });
   });
 
+  // ─── Navigation (TASK-27-006) ──────────────────────────────────────
+
+  it("renders back button to Phase 4", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    const backBtn = screen.getByTestId("back-to-phase-4");
+    expect(backBtn).toBeInTheDocument();
+  });
+
+  it("navigates to Phase 4 when back button is clicked", () => {
+    render(
+      <DestinationGuideWizard
+        tripId="trip-1"
+        destination="Paris, France"
+        locale="en"
+        initialGuide={{
+          content: MOCK_GUIDE,
+          generationCount: 1,
+          viewedSections: [],
+        }}
+      />
+    );
+
+    fireEvent.click(screen.getByTestId("back-to-phase-4"));
+    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-4");
+  });
+
   // ─── Guide Generation ───────────────────────────────────────────────
 
-  it("shows regenerate button after auto-generation completes", async () => {
+  it("shows advance button after auto-generation completes", async () => {
     mockGenerateGuide.mockResolvedValue({
       success: true,
       data: { content: MOCK_GUIDE, generationCount: 1 },
@@ -784,13 +819,12 @@ describe("DestinationGuideWizard", () => {
       );
     });
 
-    const regenerateBtn = screen.getByTestId("regenerate-button");
-    expect(regenerateBtn).toBeInTheDocument();
+    // Advance button should be visible, regenerate button should not
+    expect(screen.queryByTestId("regenerate-button")).not.toBeInTheDocument();
+    expect(screen.getByText(/cta\.advance/)).toBeInTheDocument();
   });
 
-  it("shows error message on generation failure", async () => {
-    // Provide initialGuide so auto-generation does not trigger
-    // Then manually click regenerate to test error display
+  it("shows error message on generation failure (via auto-update dialog)", async () => {
     mockGenerateGuide.mockResolvedValue({
       success: false,
       error: "errors.guideGenerationLimit",
@@ -806,12 +840,19 @@ describe("DestinationGuideWizard", () => {
           generationCount: 1,
           viewedSections: ALL_SECTIONS_VIEWED,
         }}
+        tripDataHash="new-hash"
+        storedDataHash="old-hash"
       />
     );
 
-    // Click regenerate
+    // The regenerate confirm dialog should appear due to hash mismatch
+    const confirmDialog = screen.getByTestId("regenerate-confirm-dialog");
+    expect(confirmDialog).toBeInTheDocument();
+
+    // Click "Yes, regenerate" in the dialog
+    const confirmBtn = screen.getByText(/regenerateConfirmYes/);
     await act(async () => {
-      fireEvent.click(screen.getByTestId("regenerate-button"));
+      fireEvent.click(confirmBtn);
     });
 
     await waitFor(() => {

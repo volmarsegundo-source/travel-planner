@@ -130,7 +130,7 @@ export const PHASE3_CHECKLIST: Phase3ChecklistRule[] = [
   },
 ];
 
-// ─── Phase 4 CNH Rules (O Abrigo) ─────────────────────────────────────────
+// ─── Phase 4 CNH Rules (A Logística) ──────────────────────────────────────
 
 export interface CnhRule {
   required: boolean;

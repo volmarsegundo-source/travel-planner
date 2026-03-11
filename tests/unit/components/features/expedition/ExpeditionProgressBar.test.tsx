@@ -99,7 +99,7 @@ describe("ExpeditionProgressBar", () => {
     expect(segments[7].className).toContain("bg-muted");
   });
 
-  it("works for phase 1 (first phase, no past phases to click)", () => {
+  it("works for phase 1 (first phase, current phase is clickable)", () => {
     const { container } = render(
       <ExpeditionProgressBar currentPhase={1} totalPhases={8} tripId="trip-1" />
     );
@@ -108,20 +108,20 @@ describe("ExpeditionProgressBar", () => {
     expect(segments[0].className).toContain("bg-atlas-gold");
     expect(segments[1].className).toContain("bg-muted");
 
-    // No buttons should exist (no past phases)
-    expect(screen.queryAllByRole("button")).toHaveLength(0);
+    // Current phase is clickable (1 button for phase 1)
+    expect(screen.queryAllByRole("button")).toHaveLength(1);
   });
 
   // ─── Navigation tests ──────────────────────────────────────────────────
 
-  it("renders past phases as clickable buttons when tripId is provided", () => {
+  it("renders past and current phases as clickable buttons when tripId is provided", () => {
     render(
       <ExpeditionProgressBar currentPhase={4} totalPhases={8} tripId="trip-1" />
     );
 
-    // Phases 1, 2, 3 should be buttons
+    // Phases 1, 2, 3 (past) + phase 4 (current) should be buttons
     const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(3);
+    expect(buttons).toHaveLength(4);
   });
 
   it("navigates to correct route when clicking phase 1", () => {
@@ -154,14 +154,15 @@ describe("ExpeditionProgressBar", () => {
     expect(screen.queryAllByRole("button")).toHaveLength(0);
   });
 
-  it("current phase is not clickable", () => {
-    const { container } = render(
+  it("current phase is clickable and navigates to itself", () => {
+    render(
       <ExpeditionProgressBar currentPhase={3} totalPhases={8} tripId="trip-1" />
     );
 
-    const segments = getAllSegments(container);
-    // Phase 3 (current) should be a div, not a button
-    expect(segments[2].tagName).toBe("DIV");
+    const buttons = screen.getAllByRole("button");
+    // Phase 3 is current and should be a button
+    fireEvent.click(buttons[2]); // Phase 3
+    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-3");
   });
 
   it("future phases are not clickable", () => {

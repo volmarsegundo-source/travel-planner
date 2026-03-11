@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { PhaseProgressBar } from "./PhaseProgressBar";
+import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { VisualCardSelector } from "./VisualCardSelector";
@@ -219,6 +220,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
+        <ExpeditionProgressBar currentPhase={2} totalPhases={8} tripId={tripId} />
         <PhaseProgressBar currentStep={currentStepIndex + 1} totalSteps={totalSteps} />
 
         <div className="mt-2 text-center">
@@ -270,7 +272,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
               <div className="flex gap-3">
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/trips")}
+                  onClick={() => router.push(`/expedition/${tripId}/phase-1`)}
                   className="flex-1"
                   aria-label={tCommon("back")}
                   data-testid="back-to-dashboard"
@@ -404,7 +406,7 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
           {currentStep === "preferences" && (
             <div className="flex flex-col gap-4">
               <PreferencesSection
-                initialPreferences={{}}
+                initialPreferences={selectedPreferences}
                 excludeCategories={[...excludedPreferenceCategories]}
                 onPreferencesChange={setSelectedPreferences}
               />
@@ -505,12 +507,26 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                     );
                     if (filledPrefs.length === 0) return null;
                     return (
-                      <div className="flex justify-between">
-                        <dt className="text-muted-foreground">{t("step5.preferences")}</dt>
-                        <dd className="font-medium">
-                          {t("step5.preferencesCount", { count: filledPrefs.length })}
-                        </dd>
-                      </div>
+                      <>
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">{t("step5.preferences")}</dt>
+                          <dd className="font-medium">
+                            {t("step5.preferencesCount", { count: filledPrefs.length })}
+                          </dd>
+                        </div>
+                        {filledPrefs.map(([key, val]) => (
+                          <div key={key} className="flex justify-between">
+                            <dt className="text-muted-foreground text-xs pl-2">
+                              {t(`step5.prefLabel.${key}` as Parameters<typeof t>[0])}
+                            </dt>
+                            <dd className="text-xs font-medium text-right max-w-[60%] truncate">
+                              {Array.isArray(val)
+                                ? val.map((v) => t(`step5.prefValue.${v}` as Parameters<typeof t>[0])).join(", ")
+                                : t(`step5.prefValue.${val}` as Parameters<typeof t>[0])}
+                            </dd>
+                          </div>
+                        ))}
+                      </>
                     );
                   })()}
                 </dl>
@@ -524,8 +540,9 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   disabled={isSubmitting}
                   className="flex-[3]"
                   size="lg"
+                  aria-busy={isSubmitting}
                 >
-                  {isSubmitting ? tCommon("loading") : t("step5.cta")}
+                  {isSubmitting ? tExpedition("cta.advancing") : tExpedition("cta.advance")}
                 </Button>
               </div>
             </div>

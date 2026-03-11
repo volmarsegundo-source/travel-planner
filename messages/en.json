@@ -462,6 +462,8 @@
         "schengen": "Schengen trip"
       },
       "errors": {
+        "nameRequired": "Name is required.",
+        "birthDateRequired": "Birth date is required.",
         "destinationRequired": "Destination is required.",
         "endDateBeforeStart": "End date must be after start date."
       }
@@ -552,6 +554,70 @@
         "pace": "Pace",
         "budget": "Budget",
         "preferencesCount": "{count} {count, plural, =1 {category} other {categories}}",
+        "prefLabel": {
+          "travelPace": "Pace",
+          "budgetStyle": "Budget style",
+          "fitnessLevel": "Fitness",
+          "photographyInterest": "Photography",
+          "wakePreference": "Wake preference",
+          "connectivityNeeds": "Connectivity",
+          "foodPreferences": "Food",
+          "interests": "Interests",
+          "socialPreference": "Social",
+          "accommodationStyle": "Accommodation"
+        },
+        "prefValue": {
+          "relaxed": "Relaxed",
+          "moderate": "Moderate",
+          "intense": "Intense",
+          "budget": "Budget",
+          "comfortable": "Comfortable",
+          "luxury": "Luxury",
+          "low": "Low",
+          "high": "High",
+          "casual": "Casual",
+          "enthusiast": "Enthusiast",
+          "professional": "Professional",
+          "early_bird": "Early bird",
+          "flexible": "Flexible",
+          "night_owl": "Night owl",
+          "essential": "Essential",
+          "occasional": "Occasional",
+          "digital_detox": "Digital detox",
+          "vegetarian": "Vegetarian",
+          "vegan": "Vegan",
+          "halal": "Halal",
+          "kosher": "Kosher",
+          "gluten_free": "Gluten-free",
+          "lactose_free": "Lactose-free",
+          "local_cuisine": "Local cuisine",
+          "street_food": "Street food",
+          "fine_dining": "Fine dining",
+          "no_restrictions": "No restrictions",
+          "history_museums": "History & Museums",
+          "art_galleries": "Art galleries",
+          "nature_hiking": "Nature & Hiking",
+          "nightlife": "Nightlife",
+          "shopping": "Shopping",
+          "photography": "Photography",
+          "sports_adventure": "Sports & Adventure",
+          "wellness_spa": "Wellness & Spa",
+          "gastronomy": "Gastronomy",
+          "beaches": "Beaches",
+          "architecture": "Architecture",
+          "wildlife": "Wildlife",
+          "solo": "Solo",
+          "meet_travelers": "Meet travelers",
+          "group_activities": "Group activities",
+          "family": "Family",
+          "romantic_couple": "Romantic couple",
+          "hostel": "Hostel",
+          "hotel": "Hotel",
+          "airbnb": "Airbnb",
+          "glamping": "Glamping",
+          "resort": "Resort",
+          "bed_and_breakfast": "B&B"
+        },
         "cta": "Complete & Earn Points"
       },
       "errors": {
@@ -653,9 +719,9 @@
         "departurePlaceholder": "Departure city / airport...",
         "arrivalPlace": "To",
         "arrivalPlaceholder": "Arrival city / airport...",
-        "departureAt": "Departure",
-        "arrivalAt": "Arrival",
-        "provider": "Airline / Company",
+        "departureAt": "Outbound",
+        "arrivalAt": "Return",
+        "provider": "Company",
         "providerPlaceholder": "e.g., LATAM, Azul...",
         "bookingCode": "Booking Code",
         "bookingCodePlaceholder": "e.g., ABC123",
@@ -726,7 +792,7 @@
       }
     },
     "phase5": {
-      "title": "The Day Map",
+      "title": "Destination Guide",
       "subtitle": "Your pocket guide for the destination.",
       "generateHint": "Generate an AI-powered guide with essential info about your destination: timezone, currency, language, electricity, connectivity, cultural tips, safety, health, transport, and local customs.",
       "generateCta": "Generate Destination Guide",
@@ -794,6 +860,12 @@
       "autoAdvance": "Auto-advancing in {seconds}s...",
       "autoAdvanceCancelled": "Auto-advance cancelled.",
       "nowOnPhase": "Now on Phase {phase}"
+    },
+    "cta": {
+      "advance": "Advance",
+      "advancing": "Advancing...",
+      "complete": "Complete Expedition",
+      "completing": "Completing..."
     },
     "completeExpedition": "Complete Expedition",
     "completeConfirm": "Are you sure you want to complete this expedition? You can still edit phases after completing.",
@@ -1141,6 +1213,7 @@
   },
   "destination": {
     "noResults": "No results found. Try a different name.",
-    "searching": "Searching..."
+    "searching": "Searching...",
+    "searchLabel": "Search destinations"
   }
 }

@@ -43,7 +43,7 @@ export function ExpeditionProgressBar({
 
           const isPast = phaseNum < currentPhase;
           const isCurrent = phaseNum === currentPhase;
-          const isNavigable = isPast && tripId && PHASE_ROUTES[phaseNum] !== undefined;
+          const isNavigable = (isPast || isCurrent) && tripId && PHASE_ROUTES[phaseNum] !== undefined;
 
           let colorClass = "bg-muted";
           if (isPast) colorClass = "bg-atlas-teal";
@@ -59,7 +59,7 @@ export function ExpeditionProgressBar({
                     `/expedition/${tripId}${PHASE_ROUTES[phaseNum]}`
                   )
                 }
-                className={`h-2 rounded-full transition-all ${colorClass} w-6 cursor-pointer hover:-translate-y-0.5`}
+                className={`h-2 rounded-full transition-all ${colorClass} ${isCurrent ? "w-10" : "w-6"} cursor-pointer hover:-translate-y-0.5`}
                 title={phaseName}
                 aria-label={phaseName}
               />

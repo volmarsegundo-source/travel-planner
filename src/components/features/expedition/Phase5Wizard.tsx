@@ -238,11 +238,12 @@ export function Phase5Wizard({
             disabled={!selectedOption || isCompleting}
             size="lg"
             className="flex-[3]"
+            aria-busy={isCompleting}
           >
             {isCompleting
-              ? tCommon("loading")
+              ? tExpedition("cta.advancing")
               : selectedOption
-                ? t("cta")
+                ? tExpedition("cta.advance")
                 : t("ctaDisabled")}
           </Button>
         </div>
