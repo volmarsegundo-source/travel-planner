@@ -80,16 +80,28 @@ export async function GET(request: NextRequest) {
       lon: string;
       importance?: number;
       address?: { country?: string; country_code?: string; state?: string; city?: string };
-    }) => ({
-      displayName: item.display_name,
-      lat: parseFloat(item.lat),
-      lon: parseFloat(item.lon),
-      country: item.address?.country ?? null,
-      countryCode: item.address?.country_code?.toUpperCase() ?? null,
-      state: item.address?.state ?? null,
-      city: item.address?.city ?? null,
-      importance: item.importance ?? 0,
-    }));
+    }) => {
+      // Extract city from address or fallback: parse first segment of displayName
+      const addressCity = item.address?.city ?? null;
+      const country = item.address?.country ?? null;
+      const state = item.address?.state ?? null;
+      const city = addressCity ?? (item.display_name.split(",")[0]?.trim() || null);
+
+      // Assemble formattedName from structured fields
+      const formattedName = [city, state, country].filter(Boolean).join(", ") || item.display_name;
+
+      return {
+        displayName: item.display_name,
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        country,
+        countryCode: item.address?.country_code?.toUpperCase() ?? null,
+        state,
+        city,
+        importance: item.importance ?? 0,
+        formattedName,
+      };
+    });
 
     // Deduplicate by city+state+country — keep the entry with higher importance
     const seen = new Map<string, typeof rawResults[number]>();
@@ -105,9 +117,10 @@ export async function GET(request: NextRequest) {
       }
     }
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const results = [...seen.values()].map(({ importance, ...rest }) => ({
+    const results = [...seen.values()].map(({ importance, formattedName: _fn, ...rest }) => ({
       ...rest,
       shortName: [rest.city, rest.state, rest.country].filter(Boolean).join(", ") || rest.displayName,
+      formattedName: [rest.city, rest.state, rest.country].filter(Boolean).join(", ") || rest.displayName,
     }));
 
     // Cache in Redis
