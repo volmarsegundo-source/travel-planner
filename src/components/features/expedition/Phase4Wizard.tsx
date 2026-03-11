@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { PhaseProgressBar } from "./PhaseProgressBar";
+import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import { TransportStep } from "./TransportStep";
 import { AccommodationStep } from "./AccommodationStep";
 import { MobilityStep } from "./MobilityStep";
@@ -93,7 +94,7 @@ export function Phase4Wizard({
   // Calculate CINH deadline (45 days before trip)
   const cinhDeadline = startDate ? formatDeadlineFromDays(startDate, 45) : null;
 
-  const canComplete =
+  const _canComplete =
     needsCarRental === false ||
     (needsCarRental === true && !needsCinh) ||
     (needsCarRental === true && needsCinh && cnhConfirmed);
@@ -101,6 +102,14 @@ export function Phase4Wizard({
   // ─── Step navigation ─────────────────────────────────────────────────────
 
   function goToStep(step: number) {
+    // Auto-save current step data before advancing
+    if (currentStep === 1 && transportSegments.length > 0) {
+      handleSaveTransport(transportSegments);
+    } else if (currentStep === 2 && accommodations.length > 0) {
+      handleSaveAccommodation(accommodations);
+    } else if (currentStep === 3 && mobility.length > 0) {
+      handleSaveMobility(mobility);
+    }
     setCurrentStep(step);
     setErrorMessage(null);
   }
@@ -266,6 +275,7 @@ export function Phase4Wizard({
   return (
     <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
       <div className="w-full max-w-md">
+        <ExpeditionProgressBar currentPhase={4} totalPhases={8} tripId={tripId} />
         <PhaseProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
 
         {/* Header */}
@@ -534,19 +544,12 @@ export function Phase4Wizard({
                       onClick={handleAdvance}
                       disabled={isCompleting}
                       size="lg"
-                      className={`w-full ${
-                        canComplete
-                          ? ""
-                          : "bg-amber-500 hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-700"
-                      }`}
+                      className="w-full"
+                      aria-busy={isCompleting}
                     >
                       {isCompleting
-                        ? tCommon("loading")
-                        : canComplete
-                          ? t("advanceComplete")
-                          : needsCarRental === null
-                            ? t("advancePending")
-                            : t("advancePartial", { count: 1 })}
+                        ? tExpedition("cta.advancing")
+                        : tExpedition("cta.advance")}
                     </Button>
                   )}
                 </div>

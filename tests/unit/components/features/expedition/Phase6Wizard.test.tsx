@@ -491,6 +491,30 @@ describe("Phase6Wizard", () => {
     });
   });
 
+  describe("ExpeditionProgressBar (TASK-27-006)", () => {
+    it("renders progress bar in empty state (after error)", async () => {
+      vi.useRealTimers();
+      globalThis.fetch = mockFetchError(400);
+
+      await act(async () => {
+        render(<Phase6Wizard {...BASE_PROPS} />);
+      });
+
+      await waitFor(() => {
+        // ExpeditionProgressBar renders a <nav> element
+        expect(screen.getByRole("navigation")).toBeInTheDocument();
+      });
+    });
+
+    it("renders progress bar in generated state", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      expect(screen.getByRole("navigation")).toBeInTheDocument();
+    });
+  });
+
   describe("Phase label (T-S25-008)", () => {
     it("shows phase label in generated state", () => {
       render(

@@ -147,7 +147,14 @@ export function Phase1Wizard({
   }
 
   function handleStep1Next() {
-    // Step 1: About You — no validation, all fields optional
+    if (!name.trim()) {
+      setErrorMessage(t("errors.nameRequired"));
+      return;
+    }
+    if (!birthDate) {
+      setErrorMessage(t("errors.birthDateRequired"));
+      return;
+    }
     goToStep(2);
   }
 
@@ -349,7 +356,9 @@ export function Phase1Wizard({
 
                   <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="profile-name">{t("step1.name")}</Label>
+                      <Label htmlFor="profile-name">
+                        {t("step1.name")} <span className="text-destructive">*</span>
+                      </Label>
                       <Input
                         id="profile-name"
                         type="text"
@@ -357,16 +366,20 @@ export function Phase1Wizard({
                         onChange={(e) => setName(e.target.value)}
                         maxLength={100}
                         placeholder={t("step1.namePlaceholder")}
+                        required
                       />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="profile-birthdate">{t("step1.birthDate")}</Label>
+                      <Label htmlFor="profile-birthdate">
+                        {t("step1.birthDate")} <span className="text-destructive">*</span>
+                      </Label>
                       <Input
                         id="profile-birthdate"
                         type="date"
                         value={birthDate}
                         onChange={(e) => setBirthDate(e.target.value)}
+                        required
                       />
                     </div>
 
@@ -598,8 +611,9 @@ export function Phase1Wizard({
                   disabled={isSubmitting}
                   className="flex-[3]"
                   size="lg"
+                  aria-busy={isSubmitting}
                 >
-                  {isSubmitting ? tCommon("loading") : t("step4.cta")}
+                  {isSubmitting ? tExpedition("cta.advancing") : tExpedition("cta.advance")}
                 </Button>
               </div>
             </div>

@@ -32,8 +32,9 @@ vi.mock("next-intl", () => ({
   useLocale: () => "en",
 }));
 
+const mockRouterPush = vi.fn();
 vi.mock("@/i18n/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: mockRouterPush }),
   Link: ({ children, ...props }: Record<string, unknown>) => (
     <a {...props}>{children as React.ReactNode}</a>
   ),
@@ -312,6 +313,19 @@ describe("Phase2Wizard", () => {
       expect(
         screen.getByText("expedition.phase2.step2.title")
       ).toBeInTheDocument();
+    });
+  });
+
+  describe("Navigation (TASK-27-006)", () => {
+    it("back button navigates to Phase 1 of the same trip", () => {
+      render(<Phase2Wizard tripId="trip-nav-1" />);
+
+      const backBtn = screen.getByTestId("back-to-dashboard");
+      fireEvent.click(backBtn);
+
+      expect(mockRouterPush).toHaveBeenCalledWith(
+        "/expedition/trip-nav-1/phase-1"
+      );
     });
   });
 

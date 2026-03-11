@@ -32,8 +32,17 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
     },
   });
 
-  if (!trip || trip.currentPhase < 4) {
+  if (!trip) {
     redirect({ href: "/dashboard", locale });
+    return null;
+  }
+
+  // Phase access guard: block forward skip, allow backward access
+  if (trip.currentPhase < 4) {
+    const currentPhaseRoute = trip.currentPhase === 1
+      ? `/expedition/${tripId}/phase-1`
+      : `/expedition/${tripId}/phase-${trip.currentPhase}`;
+    redirect({ href: currentPhaseRoute, locale });
     return null;
   }
 

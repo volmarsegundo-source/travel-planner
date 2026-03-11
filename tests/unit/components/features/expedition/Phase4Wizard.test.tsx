@@ -285,7 +285,7 @@ describe("Phase4Wizard", () => {
 
     // Step 3: advance button is present
     expect(
-      screen.getByRole("button", { name: /expedition\.phase4\.advancePending/ })
+      screen.getByRole("button", { name: /expedition\.cta\.advance/ })
     ).toBeInTheDocument();
   });
 
@@ -383,12 +383,12 @@ describe("Phase4Wizard", () => {
     fireEvent.click(yesButton);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advancePartial/,
+      name: /expedition\.cta\.advance/,
     });
     expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows gold advanceComplete button when CINH checkbox is confirmed", async () => {
+  it("shows advance button when CINH checkbox is confirmed", async () => {
     renderWizard({ tripType: "international" });
 
     await waitFor(() => {
@@ -409,7 +409,7 @@ describe("Phase4Wizard", () => {
     fireEvent.click(checkbox!);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     expect(advanceButton).not.toBeDisabled();
   });
@@ -455,7 +455,7 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows advanceComplete for mercosul without CINH checkbox", async () => {
+  it("shows advance button for mercosul without CINH checkbox", async () => {
     renderWizard({ tripType: "mercosul" });
 
     await waitFor(() => {
@@ -470,12 +470,12 @@ describe("Phase4Wizard", () => {
     fireEvent.click(yesButton);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows no car rental message and advanceComplete when selecting no on step 3", async () => {
+  it("shows no car rental message and advance button when selecting no on step 3", async () => {
     renderWizard();
 
     await waitFor(() => {
@@ -494,7 +494,7 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     expect(advanceButton).not.toBeDisabled();
   });
@@ -514,7 +514,7 @@ describe("Phase4Wizard", () => {
     fireEvent.click(noButton);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 
@@ -545,7 +545,7 @@ describe("Phase4Wizard", () => {
     fireEvent.click(checkbox!);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 
@@ -572,7 +572,7 @@ describe("Phase4Wizard", () => {
     fireEvent.click(yesButton);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 
@@ -597,7 +597,7 @@ describe("Phase4Wizard", () => {
     goToStep3();
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advancePending/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 
@@ -629,7 +629,7 @@ describe("Phase4Wizard", () => {
     fireEvent.click(noButton);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 

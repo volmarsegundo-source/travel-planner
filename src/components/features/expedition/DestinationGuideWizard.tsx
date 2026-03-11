@@ -63,6 +63,7 @@ export function DestinationGuideWizard({
   storedDataHash,
 }: DestinationGuideWizardProps) {
   const t = useTranslations("expedition.phase5");
+  const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -296,6 +297,18 @@ export function DestinationGuideWizard({
           </div>
         )}
 
+        {/* Back to previous phase */}
+        <div className="mt-4">
+          <Button
+            variant="outline"
+            onClick={() => router.push(`/expedition/${tripId}/phase-4`)}
+            className="min-h-[44px]"
+            data-testid="back-to-phase-4"
+          >
+            {tCommon("back")}
+          </Button>
+        </div>
+
         {/* Generate button (when no guide) */}
         {!guide && (
           <div className="mt-8 text-center">
@@ -316,7 +329,7 @@ export function DestinationGuideWizard({
         {/* Guide sections — always visible, no collapse */}
         {guide && (
           <>
-            {/* Hero summary banner */}
+            {/* Hero summary banner — paragraph format */}
             <div
               className="mt-6 rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4"
               data-testid="hero-banner"
@@ -324,20 +337,15 @@ export function DestinationGuideWizard({
               <h2 className="text-sm font-semibold text-foreground mb-2">
                 {t("heroTitle")}
               </h2>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+              <p className="text-sm text-foreground leading-relaxed">
                 {STAT_SECTIONS.map((key) => {
                   const section = guide[key];
                   if (!section) return null;
-                  return (
-                    <div key={key} className="flex items-center gap-1.5">
-                      <span aria-hidden="true">{section.icon}</span>
-                      <span className="font-medium text-foreground">
-                        {section.title}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+                  return `${section.icon} ${section.title}: ${section.summary}`;
+                })
+                  .filter(Boolean)
+                  .join(" · ")}
+              </p>
             </div>
 
             {/* Stat cards — compact grid, always visible */}
@@ -348,7 +356,7 @@ export function DestinationGuideWizard({
                   return (
                     <div
                       key={key}
-                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center"
+                      className="flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center min-h-[120px] justify-center"
                       data-section-type="stat"
                       data-section-key={key}
                     >
@@ -361,7 +369,7 @@ export function DestinationGuideWizard({
                 return (
                   <div
                     key={key}
-                    className="flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center"
+                    className="flex flex-col items-center gap-1 rounded-lg border border-border bg-card p-3 text-center min-h-[120px] justify-center"
                     data-section-type="stat"
                     data-section-key={key}
                   >
@@ -405,7 +413,7 @@ export function DestinationGuideWizard({
                   return (
                     <div
                       key={key}
-                      className={`rounded-lg border border-l-4 ${accentColor} bg-card p-4`}
+                      className={`rounded-lg border border-l-4 ${accentColor} bg-card p-4 min-h-[140px]`}
                       data-section-type="content"
                       data-section-key={key}
                     >
@@ -419,7 +427,7 @@ export function DestinationGuideWizard({
                 return (
                   <div
                     key={key}
-                    className={`rounded-lg border border-l-4 ${accentColor} bg-card p-4`}
+                    className={`rounded-lg border border-l-4 ${accentColor} bg-card p-4 min-h-[140px]`}
                     data-section-type="content"
                     data-section-key={key}
                   >
@@ -465,31 +473,16 @@ export function DestinationGuideWizard({
               {t("aiDisclaimer")}
             </p>
 
-            {/* Regenerate button (secondary action) */}
-            <div className="mt-4">
-              <Button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                variant="outline"
-                size="sm"
-                className="w-full"
-                data-testid="regenerate-button"
-              >
-                {isGenerating
-                  ? tCommon("loading")
-                  : t("regenerateCta", { remaining: "" })}
-              </Button>
-            </div>
-
-            {/* Complete button */}
+            {/* Advance button */}
             <div className="mt-3">
               <Button
                 onClick={handleComplete}
                 disabled={isCompleting}
                 size="lg"
                 className="w-full"
+                aria-busy={isCompleting}
               >
-                {isCompleting ? tCommon("loading") : t("completeCta")}
+                {isCompleting ? tExpedition("cta.advancing") : tExpedition("cta.advance")}
               </Button>
             </div>
           </>

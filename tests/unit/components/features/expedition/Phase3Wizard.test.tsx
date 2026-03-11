@@ -170,12 +170,12 @@ describe("Phase3Wizard", () => {
     renderWizard();
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.advancePartial/,
+      name: /expedition\.cta\.advance/,
     });
     expect(advanceButton).not.toBeDisabled();
   });
 
-  it("shows advancePending text when 0 required items are done", () => {
+  it("shows standardized advance label regardless of completion state", () => {
     const noneDone = MOCK_ITEMS.map((item) => ({
       ...item,
       completed: false,
@@ -183,11 +183,11 @@ describe("Phase3Wizard", () => {
     renderWizard(noneDone);
 
     expect(
-      screen.getByRole("button", { name: /expedition\.phase3\.advancePending/ })
+      screen.getByRole("button", { name: /expedition\.cta\.advance/ })
     ).toBeInTheDocument();
   });
 
-  it("shows advanceComplete text when all required items are complete", () => {
+  it("shows same advance label when all required items are complete", () => {
     const allDone = MOCK_ITEMS.map((item) => ({
       ...item,
       completed: item.required ? true : item.completed,
@@ -195,7 +195,7 @@ describe("Phase3Wizard", () => {
     renderWizard(allDone);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     expect(advanceButton).not.toBeDisabled();
   });
@@ -247,7 +247,7 @@ describe("Phase3Wizard", () => {
     renderWizard(allDone);
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.advanceComplete/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 
@@ -260,7 +260,7 @@ describe("Phase3Wizard", () => {
     renderWizard();
 
     const advanceButton = screen.getByRole("button", {
-      name: /expedition\.phase3\.advancePartial/,
+      name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
 
