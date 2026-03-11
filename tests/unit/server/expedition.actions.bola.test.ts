@@ -92,6 +92,7 @@ vi.mock("@/lib/prompts/pii-masker", () => ({
 import {
   completePhase4Action,
   advanceFromPhaseAction,
+  viewGuideSectionAction,
 } from "@/server/actions/expedition.actions";
 import { db } from "@/server/db";
 
@@ -142,6 +143,34 @@ describe("BOLA ownership checks", () => {
       });
 
       expect(result.success).toBe(true);
+    });
+  });
+
+  describe("viewGuideSectionAction", () => {
+    it("rejects when trip does not belong to user", async () => {
+      prismaMock.trip.findFirst.mockResolvedValue(null);
+
+      const result = await viewGuideSectionAction("trip-other-user", "timezone");
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe("errors.tripNotFound");
+    });
+
+    it("proceeds when trip belongs to user and guide exists", async () => {
+      prismaMock.trip.findFirst.mockResolvedValue({ id: "trip-1" } as any);
+      prismaMock.destinationGuide.findUnique.mockResolvedValue({
+        tripId: "trip-1",
+        viewedSections: [],
+      } as any);
+      prismaMock.destinationGuide.update.mockResolvedValue({} as any);
+
+      const { PointsEngine } = await import("@/lib/engines/points-engine");
+      (PointsEngine.earnPoints as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+
+      const result = await viewGuideSectionAction("trip-1", "timezone");
+
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual({ pointsAwarded: 5 });
     });
   });
 

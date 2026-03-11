@@ -453,6 +453,12 @@ export async function viewGuideSectionAction(
     return { success: false, error: "errors.invalidSection" };
   }
 
+  // BOLA: verify trip belongs to user
+  const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+  if (!ownedTrip) {
+    return { success: false, error: "errors.tripNotFound" };
+  }
+
   try {
     const guide = await db.destinationGuide.findUnique({
       where: { tripId },
