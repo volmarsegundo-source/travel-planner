@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,16 @@ export function DestinationGuideWizard({
     badge?: BadgeKey | null;
     rank?: Rank | null;
   }>({ points: 0 });
+
+  // Auto-generate guide on first visit when no guide exists
+  const hasTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!initialGuide && !isGenerating && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      handleGenerate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleGenerate() {
     setIsGenerating(true);
@@ -370,8 +380,21 @@ export function DestinationGuideWizard({
               {t("aiDisclaimer")}
             </p>
 
+            {/* Regenerate button */}
+            <div className="mt-4">
+              <Button
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                variant="outline"
+                size="sm"
+                className="w-full"
+              >
+                {isGenerating ? tCommon("loading") : t("regenerateCta", { remaining: "" })}
+              </Button>
+            </div>
+
             {/* Complete button */}
-            <div className="mt-6">
+            <div className="mt-3">
               <Button
                 onClick={handleComplete}
                 disabled={isCompleting}
