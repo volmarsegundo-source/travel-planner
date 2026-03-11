@@ -1,7 +1,7 @@
 "use server";
 import "server-only";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { auth, updateSession } from "@/lib/auth";
 import { AppError, UnauthorizedError } from "@/lib/errors";
 import { ExpeditionService } from "@/server/services/expedition.service";
 import { ProfileService } from "@/server/services/profile.service";
@@ -77,6 +77,8 @@ export async function createExpeditionAction(
           where: { id: session.user.id },
           data: { name: parsed.data.profileFields.name },
         });
+        // Refresh the JWT session so the navbar displays the updated name
+        await updateSession({ user: { name: parsed.data.profileFields.name } });
       } catch (nameError) {
         logger.error("expedition.name.error", nameError, {
           userId: hashUserId(session.user.id),
@@ -84,6 +86,7 @@ export async function createExpeditionAction(
       }
     }
 
+    revalidatePath("/");
     revalidatePath("/dashboard");
     revalidatePath("/trips");
     return { success: true, data: result };

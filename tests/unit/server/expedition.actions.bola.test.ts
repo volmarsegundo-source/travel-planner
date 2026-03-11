@@ -18,6 +18,7 @@ vi.mock("server-only", () => ({}));
 
 vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
+  updateSession: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("@/server/db", () => ({

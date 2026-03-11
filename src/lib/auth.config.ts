@@ -45,9 +45,14 @@ export default {
       }
       return true;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.sub = user.id;
+      }
+      // When unstable_update({ user: { name } }) is called from a server action,
+      // the JWT callback re-fires with trigger="update" and the new data in session.
+      if (trigger === "update" && session?.user?.name !== undefined) {
+        token.name = session.user.name;
       }
       return token;
     },
@@ -55,6 +60,10 @@ export default {
       // With JWT strategy, user id comes from token.sub (set by NextAuth from user.id).
       if (session.user && token?.sub) {
         session.user.id = token.sub;
+      }
+      // Keep name in sync with the JWT token (refreshed via unstable_update)
+      if (session.user && token?.name) {
+        session.user.name = token.name as string;
       }
       return session;
     },

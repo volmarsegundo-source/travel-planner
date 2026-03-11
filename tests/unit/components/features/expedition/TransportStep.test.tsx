@@ -235,4 +235,101 @@ describe("TransportStep", () => {
       screen.getByText("expedition.phase4.transport.isReturn")
     ).toBeInTheDocument();
   });
+
+  // ─── T-S25-006: Pre-fill with trip data ───────────────────────────────
+
+  it("pre-fills first segment with origin, destination, and startDate", () => {
+    render(
+      <TransportStep
+        {...defaultProps}
+        prefillOrigin="São Paulo, Brazil"
+        prefillDestination="Paris, France"
+        prefillStartDate="2026-06-15T00:00:00Z"
+      />
+    );
+
+    // Departure place should be pre-filled with origin
+    const departureInput = screen.getByLabelText(
+      "expedition.phase4.transport.departurePlace"
+    );
+    expect(departureInput).toHaveValue("São Paulo, Brazil");
+
+    // Arrival place should be pre-filled with destination
+    const arrivalInput = screen.getByLabelText(
+      "expedition.phase4.transport.arrivalPlace"
+    );
+    expect(arrivalInput).toHaveValue("Paris, France");
+
+    // Departure datetime should be pre-filled
+    const departureAtInput = screen.getByLabelText(
+      "expedition.phase4.transport.departureAt"
+    );
+    expect(departureAtInput).toHaveValue("2026-06-15T00:00");
+  });
+
+  it("does not pre-fill when initialSegments are provided", () => {
+    render(
+      <TransportStep
+        {...defaultProps}
+        initialSegments={[makeSegment({ segmentOrder: 0 })]}
+        prefillOrigin="São Paulo, Brazil"
+        prefillDestination="Paris, France"
+        prefillStartDate="2026-06-15T00:00:00Z"
+      />
+    );
+
+    // Departure should NOT be pre-filled because initialSegments were provided
+    const departureInput = screen.getByLabelText(
+      "expedition.phase4.transport.departurePlace"
+    );
+    expect(departureInput).toHaveValue("");
+  });
+
+  it("handles null prefill values gracefully", () => {
+    render(
+      <TransportStep
+        {...defaultProps}
+        prefillOrigin={null}
+        prefillDestination={null}
+        prefillStartDate={null}
+      />
+    );
+
+    // Fields should be empty
+    const departureInput = screen.getByLabelText(
+      "expedition.phase4.transport.departurePlace"
+    );
+    expect(departureInput).toHaveValue("");
+
+    const arrivalInput = screen.getByLabelText(
+      "expedition.phase4.transport.arrivalPlace"
+    );
+    expect(arrivalInput).toHaveValue("");
+  });
+
+  it("includes pre-filled data when saving", async () => {
+    const onSave = vi.fn().mockResolvedValue(undefined);
+    render(
+      <TransportStep
+        {...defaultProps}
+        onSave={onSave}
+        prefillOrigin="São Paulo, Brazil"
+        prefillDestination="Paris, France"
+        prefillStartDate="2026-06-15T00:00:00Z"
+      />
+    );
+
+    fireEvent.click(
+      screen.getByText("expedition.phase4.transport.save")
+    );
+
+    await waitFor(() => {
+      expect(onSave).toHaveBeenCalledTimes(1);
+    });
+
+    const savedSegments = onSave.mock.calls[0][0];
+    expect(savedSegments[0].departurePlace).toBe("São Paulo, Brazil");
+    expect(savedSegments[0].arrivalPlace).toBe("Paris, France");
+    expect(savedSegments[0].departureAt).toEqual(new Date("2026-06-15T00:00:00Z"));
+  });
 });

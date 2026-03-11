@@ -15,9 +15,10 @@ import type { PrismaClient } from "@prisma/client";
 
 // ─── Hoist mock functions before vi.mock factories run ──────────────────────
 
-const { mockAuth, mockRevalidatePath } = vi.hoisted(() => ({
+const { mockAuth, mockRevalidatePath, mockUpdateSession } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockRevalidatePath: vi.fn(),
+  mockUpdateSession: vi.fn().mockResolvedValue(undefined),
 }));
 
 // ─── Module mocks ───────────────────────────────────────────────────────────
@@ -26,6 +27,7 @@ vi.mock("server-only", () => ({}));
 
 vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
+  updateSession: mockUpdateSession,
 }));
 
 vi.mock("next/cache", () => ({
@@ -160,7 +162,8 @@ describe("Account Actions", () => {
           preferredLocale: true,
         },
       });
-      expect(mockRevalidatePath).toHaveBeenCalledWith("/account");
+      expect(mockRevalidatePath).toHaveBeenCalledWith("/");
+      expect(mockUpdateSession).toHaveBeenCalledWith({ user: { name: "New Name" } });
     });
 
     it("updates user name and preferredLocale when locale is provided", async () => {
