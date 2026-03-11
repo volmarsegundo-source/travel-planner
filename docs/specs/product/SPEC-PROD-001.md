@@ -1,7 +1,7 @@
 # SPEC-PROD-001: Expedition Navigation & Phase Sequencing
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: product-owner
 **Reviewers**: [tech-lead, ux-designer, architect]
 **Created**: 2026-03-11
@@ -55,7 +55,7 @@ so that I can complete my trip planning without confusion, review and edit any p
 
 ### Phase 2 -- Passengers
 
-- [ ] AC-004: Phase 2 "O Explorador" MUST include a passengers step with selectors for: adults (default 1, min 1, max 20), children (default 0, min 0), infants (default 0, min 0), seniors (default 0, min 0). The total across all categories MUST NOT exceed 20.
+- [ ] AC-004: Phase 2 "O Explorador" MUST include a passengers step ONLY when traveler type is "Family" or "Group". Solo, couple, business, and student travelers do NOT need a passenger breakdown (they travel alone or as a pair by definition). When shown, the step MUST have selectors for: adults (default 1, min 1, max 20), children (default 0, min 0), infants (default 0, min 0), seniors (default 0, min 0). The total across all categories MUST NOT exceed 20.
 
 ### Navigation -- Bi-directional
 
@@ -180,3 +180,4 @@ so that I can complete my trip planning without confusion, review and edit any p
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | product-owner | Initial draft based on v0.17.0 manual test triage |
+| 1.1.0 | 2026-03-11 | tech-lead | Stakeholder decisions: passengers conditional (family/group only), progress bar click→specific phase, Phase 3 rename approved. Status→Approved |

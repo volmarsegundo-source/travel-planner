@@ -1,7 +1,7 @@
 # SPEC-PROD-002: Dashboard Trip Cards & Phase Confirmation
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: product-owner
 **Reviewers**: [tech-lead, ux-designer, architect]
 **Created**: 2026-03-11
@@ -135,3 +135,4 @@ so that I can trust the product is correctly capturing my trip information and I
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-11 | product-owner | Initial draft based on v0.17.0 manual test triage |
+| 1.1.0 | 2026-03-11 | tech-lead | Stakeholder approval. Passengers conditional display confirmed. Status→Approved |

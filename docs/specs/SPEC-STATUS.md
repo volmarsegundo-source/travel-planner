@@ -20,8 +20,8 @@
 
 | Spec ID | Title | Owner | Status | Version | Sprint | Reviewers |
 |---------|-------|-------|--------|---------|--------|-----------|
-| SPEC-PROD-001 | Navigation & Phase Sequencing | product-owner | Draft | 0.1.0 | 25 | tech-lead, architect, security-specialist |
-| SPEC-PROD-002 | Dashboard & Confirmation UX | product-owner | Draft | 0.1.0 | 25 | tech-lead, architect, ux-designer |
+| SPEC-PROD-001 | Expedition Navigation & Phase Sequencing | product-owner | Approved | 1.1.0 | 25 | tech-lead, architect, security-specialist |
+| SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | product-owner | Approved | 1.1.0 | 25 | tech-lead, architect, ux-designer |
 
 ---
 
