@@ -202,6 +202,37 @@ TTL de 24h (`CACHE_TTL.AI_PLAN = 86400`) adequado — planos não mudam em 24h.
 
 ---
 
+## Spec-Driven Development (SDD) — Sprint 25+
+
+### Process
+- SDD is the official development process starting Sprint 25
+- FinOps reviews cost impact in every SPEC-ARCH-XXX spec before approval
+- Use `docs/specs/templates/CHECKLIST-FINOPS-REVIEW.md` for structured review
+
+### Requirements for Architecture Specs
+- Performance budgets MUST include cost considerations (token limits, API call budgets)
+- Every spec with AI features MUST include token cost estimates (input + output per request)
+- Caching strategy MUST be evaluated for cost reduction potential
+- Rate limiting MUST be specified to prevent cost overruns
+- Third-party API costs MUST be identified and quantified
+
+### Sprint Cost Reports
+- Sprint cost reports (docs/finops/COST-LOG.md) MUST reference spec IDs (SPEC-ARCH-XXX)
+- Cost overruns MUST be traced back to specific specs for accountability
+- Variance analysis: estimated (from spec) vs actual (from production telemetry)
+
+### FinOps Review Verdict Options
+- APPROVED — cost impact acceptable
+- APPROVED WITH CONDITIONS — specific cost optimizations required before implementation
+- BLOCKED — cost impact too high, alternatives needed; spec returns to architect
+
+### Integration Points
+- Architect creates SPEC-ARCH-XXX -> finops-engineer reviews cost section
+- finops-engineer verdict is MANDATORY for spec approval (alongside security-specialist)
+- Any architectural deviation from approved spec requires finops re-review if cost-impacting
+
+---
+
 ## Notas e Observações
 
 - **Sprint 2 — Múltiplos agentes paralelos:** O Sprint 2 utilizou múltiplos subagentes em paralelo (5+ agentes simultâneos). Isso justifica potencialmente Claude Max ($100/mês) em vez de Claude Pro ($20/mês). O custo de desenvolvimento é o item dominante enquanto não há usuários em produção.

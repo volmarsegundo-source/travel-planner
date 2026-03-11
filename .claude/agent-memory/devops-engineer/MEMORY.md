@@ -69,6 +69,34 @@
 - `docker-compose.yml` — local dev services
 - `Dockerfile` — production container
 
+## Spec-Driven Development (SDD) — Starting Sprint 25
+
+SDD is the mandated development methodology from Sprint 25 onward. All work must trace back to approved specs. DevOps responsibilities under SDD:
+
+### CI/CD Enforces Spec Compliance
+- Commit messages SHOULD reference spec IDs: `feat(SPEC-PROD-XXX): description`
+- PR descriptions must include conformance statement: "Implements SPEC-XXX vX.Y.Z"
+- CI pipeline PR checks should validate spec references are present
+- No merge without spec traceability for feature/fix commits
+
+### Infrastructure Changes Require SPEC-ARCH
+- Every infra change (new resource, config change, pipeline modification) requires a SPEC-ARCH-XXX
+- Spec must include rollback strategy and monitoring plan
+- No environment variable additions without spec reference
+
+### Deployment Strategy Documented per Spec
+- Each SPEC-ARCH defines deployment approach (rolling, canary, blue-green)
+- Feature flag requirements captured in the spec
+- Rollback trigger conditions explicit and measurable
+
+### Observability Aligned with Spec Performance Budgets
+- Performance budgets from specs map to monitoring alerts (latency, throughput)
+- Error budgets from specs map to SLO definitions
+- Each spec's constraints produce measurable metrics in dashboards
+
+### SDD Guide Location
+- `docs/specs/templates/GUIDE-DEVOPS-SDD.md` — full integration guide
+
 ## Upstash Redis Warning
 Free tier has strict limits. Monitor from day 1. Provision paid tier at 70% capacity.
 Alert configured in architecture risk register.

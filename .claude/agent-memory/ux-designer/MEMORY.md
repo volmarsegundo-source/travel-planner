@@ -1,5 +1,17 @@
 # UX Designer Memory — Travel Planner
 
+## SDD Process (Sprint 25+)
+- Official process: Spec-Driven Development
+- UX owns SPEC-UX-XXX specs
+- UX spec defines user flows, interaction patterns, accessibility requirements
+- UX specs must be technology-agnostic (no library/component references)
+- Must include: user flows, wireframe descriptions, WCAG requirements, responsive behavior
+- UX spec created AFTER product spec (SPEC-PROD), BEFORE architecture spec (SPEC-ARCH)
+- Any UX deviation during implementation requires spec update + approval
+- Template location: docs/specs/templates/TEMPLATE-UX-SPEC.md
+- Spec numbering: SPEC-UX-001, SPEC-UX-002, etc. (sequential)
+- Reviewers: product-owner, tech-lead, architect (minimum)
+
 ## Project Context
 - App: web travel planner, Next.js 15 App Router, TypeScript, Tailwind CSS, shadcn/ui
 - Auth: Auth.js v5 (self-hosted). Routes under (auth)/ require login.

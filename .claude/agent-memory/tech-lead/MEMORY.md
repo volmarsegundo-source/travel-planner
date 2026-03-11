@@ -127,6 +127,42 @@
 - AI integration: itinerary uses transport data (4-6h)
 - P3: Clickable progress bar segments (2h), progress bar phase labels (1h)
 
+## Spec-Driven Development (SDD) -- Effective Sprint 25
+
+### Role: GATEKEEPER
+- NO code ships without an approved spec (SPEC-PROD, SPEC-UX, SPEC-ARCH, SPEC-SEC as needed)
+- Tech-lead approves/rejects spec change requests during implementation
+- Spec drift is a P0 bug -- treat it like a security vulnerability
+
+### SDD Workflow
+1. Product-owner submits SPEC-PROD-XXX -> tech-lead triggers UX/ARCH/SEC specs
+2. All required specs must reach "Approved" status before task breakdown
+3. Task breakdown references spec IDs explicitly (section-level granularity)
+4. Devs STOP coding if spec change needed -> notify tech-lead -> spec owner updates -> tech-lead approves -> dev resumes
+5. QA validates code conformance against approved spec version
+6. Release-manager ensures changelog references spec IDs
+
+### Commit Convention (SDD)
+- All commits reference spec IDs: `feat(SPEC-PROD-025): description`
+- PR descriptions must include spec conformance checklist
+- Any spec deviation in PR requires pre-approval documentation
+
+### Spec Status Tracking
+- Tracker: docs/specs/SPEC-STATUS.md
+- States: Draft -> In Review -> Approved -> Implemented -> Deprecated
+- Version bumps required for any change to approved specs
+
+### Key Files
+- docs/specs/templates/GUIDE-TECH-LEAD-SDD.md -- orchestration guide
+- docs/specs/SPEC-STATUS.md -- status tracker
+- docs/specs/templates/TEMPLATE-*-SPEC.md -- spec templates (PROD, UX, ARCH, SEC)
+
+### Enforcement Rules
+- Sprint planning: only features with Approved specs can be scheduled for dev
+- Code review: verify code matches spec; reject PRs with undocumented deviations
+- Coordinate cross-agent spec reviews (security, architecture, UX) before approval gate
+- Sprints 1-24 are legacy (pre-SDD) -- retroactive spec coverage not required
+
 ## Lessons Learned (cumulative)
 - Task ID discipline: Commits MUST use planning doc task IDs
 - Key prop for React remount after router.refresh() -- reusable pattern

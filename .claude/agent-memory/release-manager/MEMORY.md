@@ -2,19 +2,20 @@
 
 ## Project State
 
-- **Current version**: 0.14.0 in package.json (Sprint 20 on feat/sprint-20 branch) -- bump pending
+- **Current version**: 0.17.0 in package.json (Sprint 24 complete)
 - **Changelog**: individual changelogs at `C:\travel-planner\docs\changelogs\CHANGELOG-vX.Y.Z.md`
 - **Release risk register**: exists at `C:\travel-planner\docs\release-risk.md` -- CIA-001 closed, CIA-002 open, CIA-003 closed, CIA-004 closed, CIA-005 closed (Sprint 19), CIA-006 closed (Sprint 20)
 - **API contracts**: no public REST endpoints in MVP scope; `/api/v1/health` is the only live REST endpoint; `/api/ai/plan/stream` is internal SSE endpoint
 - **Production users**: zero -- system is in Bootstrap Phase (pre-deploy)
 - **Deploy status**: BLOCKED -- deploy.yml still placeholder (RISK-005)
+- **Release checklist template**: `docs/specs/templates/TEMPLATE-RELEASE-CHECKLIST.md`
 
 ## Versioning Baseline
 
 - Initial release is **0.1.0** (not 1.0.0 -- public API not yet stable; SemVer pre-1.0)
 - Pre-1.0 breaking change policy: even in 0.x.x, any breaking change to an existing Server Action signature or data migration of existing data requires a MINOR bump and a migration guide
 - 1.0.0 will be declared when the REST API is publicly stable
-- Version history: 0.1.0 -> 0.2.0 -> ... -> 0.13.0 -> 0.14.0 (Sprint 20)
+- Version history: 0.1.0 -> 0.2.0 -> ... -> 0.14.0 (Sprint 20) -> 0.15.0 -> 0.16.0 (Sprint 23) -> 0.17.0 (Sprint 24)
 
 ## Key Architectural Facts
 
@@ -82,3 +83,20 @@
 - No new env vars, no new npm deps
 - SEC-S19-001 resolved (RISK-013 closed)
 - Phase 4 renamed from "preparation" to "logistics"
+
+## Spec-Driven Development (SDD) -- Starting Sprint 25
+
+- **SDD officially mandated starting Sprint 25** -- all features require a spec before implementation
+- **Current version at SDD start**: v0.17.0 (Sprint 24 complete)
+- **Changelog entries must reference spec IDs** (e.g., `[SPEC-PROD-XXX]`, `[SPEC-ARCH-XXX]`)
+- **Release notes must link to implemented specs** -- each feature tied to its originating spec
+- **Breaking changes must reference ADR** -- architecture spec ADRs required for any breaking change
+- **Version bump rules under SDD**:
+  - MAJOR = breaking spec change (existing contract violated)
+  - MINOR = new spec implemented (backward-compatible feature)
+  - PATCH = spec-conforming bugfix (no new behavior)
+- **Spec conformance audit (QA-CONF-XXX) must pass before release approval** -- no exceptions
+- **Release checklist template**: `docs/specs/templates/TEMPLATE-RELEASE-CHECKLIST.md`
+- **All commits should reference spec IDs** in their messages
+- **Spec status must be "Implemented" before release** -- partially implemented specs block release
+- **CIA assessments under SDD** reference spec IDs in the "Related Spec / PR" field

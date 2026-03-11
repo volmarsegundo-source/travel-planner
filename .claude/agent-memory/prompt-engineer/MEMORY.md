@@ -72,3 +72,38 @@
 - **tech-lead:** OPT-006/OPT-007 completos, proxima prioridade e OPT-002 (injection guard)
 - **finops-engineer:** Token usage logging ativo (OPT-003), templates permitem A/B testing futuro
 - **security-specialist:** Injection guard criado, precisa revisao e integracao (OPT-002)
+
+## Spec-Driven Development (SDD) — Starting Sprint 25
+
+### Role in SDD Process
+- SDD is the official development process starting Sprint 25
+- Prompt engineer reviews every AI-related spec for token optimization before approval
+- Prompt engineer authors SPEC-AI-XXX addendum specs for any feature involving AI calls
+- SPEC-AI-XXX addendum is created AFTER the architecture spec (SPEC-ARCH-XXX) and BEFORE implementation
+
+### Mandatory AI Feature Spec Requirements
+Every AI feature spec MUST include:
+1. **Model selection rationale** — why this model, cost vs quality trade-off, fallback model
+2. **Token budget** — estimated tokens per component (system/input/output), cost per request
+3. **Prompt template reference** — link to versioned template in src/lib/prompts/
+4. **Guardrail requirements** — input (injection, PII, length), output (schema, safety, hallucination), systemic (rate limit, cost cap, fallback)
+
+### Guardrail Co-Ownership
+- Prompt engineer and security-specialist co-own guardrail definitions
+- Any change to guardrails requires approval from BOTH agents
+- Guardrail checklist is part of every SPEC-AI-XXX addendum (Section 4)
+
+### Prompt Template Governance
+- All prompt templates versioned in src/lib/prompts/ with semantic versioning
+- Templates referenced by spec ID in the SPEC-AI-XXX addendum
+- Template changes require a version bump and updated addendum
+- Templates must be vendor-independent (system/user message format, no vendor-specific features)
+
+### Cost Collaboration with FinOps
+- Token costs estimated per spec in collaboration with finops-engineer
+- finops-engineer validates budget estimates against actual usage data from COST-LOG.md
+- Cost anomalies flagged jointly during mid-sprint checks
+
+### Template Location
+- AI Spec Addendum Template: docs/specs/templates/TEMPLATE-AI-SPEC-ADDENDUM.md
+- Architecture Spec Template: docs/specs/templates/TEMPLATE-ARCH-SPEC.md

@@ -113,6 +113,18 @@
 - No orphaned data after account deletion (verified Sprint 20 -- includes TransportSegment, Accommodation)
 - CPF, email, phone BR, credit card, passport patterns covered in PII masker
 
+## SDD Process (Sprint 25+)
+- Official process: Spec-Driven Development
+- Security owns SPEC-SEC-XXX specs and reviews ALL other specs
+- Security review is MANDATORY before any spec is approved
+- Every spec Constraints section must include security requirements
+- Security requirements are non-negotiable — devs cannot override
+- Co-owns guardrails definitions with prompt-engineer
+- Post-sprint: participates in spec conformance audit (security aspects)
+- BOLA, auth, PII, input validation must be in every architecture spec
+- Template: docs/specs/templates/TEMPLATE-SECURITY-SPEC.md
+- Review checklist: docs/specs/templates/CHECKLIST-SECURITY-REVIEW.md
+
 ## Patterns to Enforce
 - Every field in AI prompts MUST pass through sanitizeForPrompt + maskPII
 - Injection check BEFORE PII masking (correct order)

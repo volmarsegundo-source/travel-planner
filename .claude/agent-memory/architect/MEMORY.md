@@ -75,6 +75,22 @@
 - Crypto: src/lib/crypto.ts (AES-256-GCM)
 - Middleware: src/middleware.ts (auth + i18n + CSP nonce)
 
+## SDD Process (Sprint 25+)
+- Official process: Spec-Driven Development
+- Architect owns SPEC-ARCH-XXX specs
+- Architecture specs define HOW — system design, API contracts, data flow
+- Must embed ADRs (Architecture Decision Records) inline
+- Must document vendor dependencies with abstraction layers and exit strategies:
+  - Anthropic Claude -> AiProvider interface (src/server/services/ai-provider.interface.ts)
+  - Vercel -> deployment adapter pattern
+  - PostgreSQL -> Prisma ORM (portable)
+  - Redis -> ioredis interface (portable)
+  - Nominatim -> geocoding provider interface
+- Constraints section MANDATORY: architectural boundaries, performance budgets
+- Spec created AFTER product + UX specs, BEFORE implementation
+- Any architectural deviation requires spec update + tech-lead approval
+- Template: docs/specs/templates/TEMPLATE-ARCH-SPEC.md
+
 ## Gamification Architecture
 - 8 phases per trip; phases in src/lib/engines/phase-config.ts
 - 4 models: UserProgress, ExpeditionPhase, PointTransaction, UserBadge

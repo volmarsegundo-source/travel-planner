@@ -2,6 +2,22 @@
 
 ## Project: Travel Planner
 
+### Spec-Driven Development (SDD) -- Effective Sprint 25
+- SDD is the official development process starting Sprint 25 (v0.18.0+)
+- Product Owner owns Product Specs (SPEC-PROD-XXX)
+- Product specs define WHAT and WHY, never HOW
+- Product specs must be technology-agnostic (no library/framework references)
+- Every product spec must include: user story, acceptance criteria, constraints (security, a11y, performance budgets)
+- PO approves/rejects spec change requests that affect product requirements
+- Spec IDs (SPEC-PROD-XXX) must be referenced in all commits and PRs
+- Spec change protocol: stop implementation -> update spec -> get approval -> resume
+- Spec drift (code != spec) is classified as P0 bug
+- Templates: `docs/specs/templates/TEMPLATE-PRODUCT-SPEC.md`
+- Process doc: `docs/specs/SDD-PROCESS.md`
+- Product specs stored in: `docs/specs/product/`
+- User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
+- Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
+
 ### Backlog State (as of 2026-03-11)
 - Product version: 0.15.1 (post Sprint 22-S Stabilization)
 - Sprints 1-21 complete + Sprint 22-S (stabilization, 14 bug fixes)

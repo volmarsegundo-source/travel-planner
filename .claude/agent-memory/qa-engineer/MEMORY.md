@@ -68,6 +68,37 @@ Every AC from `docs/tasks.md` must map to at least one test in QA-SPEC. Coverage
 - **Phase engine test gap**: `phase-engine.test.ts` uses `tripType: "international"` in all mock trips — domestic/mercosul paths completely untested.
 - **Full E2E review document**: `docs/qa/END-TO-END-REVIEW.md`
 
+## Spec-Driven Development (SDD) — Effective Sprint 25
+
+### Core Principles
+- SDD is the official development methodology starting Sprint 25
+- QA validates code AGAINST approved specs, not just "does it work"
+- Spec conformance audit is mandatory at end of every sprint
+- **Spec drift = P0 bug** — any deviation from approved spec is treated as a blocker
+- QA creates test plans directly from spec acceptance criteria (traceability required)
+- Any deviation from spec discovered during testing must be flagged immediately to tech-lead
+- Specs are the single source of truth; if code deviates, either code is fixed or spec is formally amended
+
+### QA Workflow Under SDD
+1. **Pre-sprint**: Read all approved specs (SPEC-PROD, SPEC-UX, SPEC-ARCH, SPEC-SEC) for planned work
+2. **Test plan creation**: Derive test cases from spec ACs — every AC maps to at least one test case
+3. **During sprint**: Flag spec drift immediately when found during testing
+4. **Post-sprint**: Run spec conformance audit using `TEMPLATE-QA-CONFORMANCE.md`
+5. **Sign-off**: QA sign-off now includes conformance audit verdict alongside test execution results
+
+### SDD Templates
+- Conformance audit: `docs/specs/templates/TEMPLATE-QA-CONFORMANCE.md`
+- Test plan (spec-based): `docs/specs/templates/TEMPLATE-QA-TEST-PLAN.md`
+
+### Drift Classification
+| Drift Type | Severity | Example |
+|---|---|---|
+| Missing AC | P0 | AC says "show error toast on failure" — no toast implemented |
+| Behavioral deviation | P0 | AC says "redirect to /trips" — code redirects to /dashboard |
+| Constraint violation | P0 | Spec says "< 200ms response" — measured 450ms |
+| Cosmetic deviation | P1 | Spec says "red badge" — code shows orange badge |
+| Extra feature (not in spec) | P1 | Feature added that has no spec coverage — risk of untested code |
+
 ## Key Docs for QA Context
 - `docs/SPEC-001.md` — data model, Server Actions, business logic
 - `docs/ux-patterns.md` — UX-001 screen specs, error states, accessibility checklist
