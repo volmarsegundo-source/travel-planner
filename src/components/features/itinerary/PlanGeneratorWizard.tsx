@@ -281,8 +281,7 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3" role="radiogroup">
             {STYLE_OPTIONS.map((option) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const label = t(option.labelKey as any);
+              const label = t(option.labelKey);
               const isSelected = travelStyle === option.value;
               return (
                 <button
