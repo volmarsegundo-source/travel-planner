@@ -41,7 +41,9 @@
     "eval:watch": "vitest watch --config vitest.eval.config.ts",
     "eval:report": "vitest run --config vitest.eval.config.ts --reporter=json --outputFile=eval-report.json",
     "eval:gate": "npx tsx scripts/eval-gate.ts eval-report.json",
-    "eval:drift": "npx tsx scripts/drift-check.ts"
+    "eval:drift": "npx tsx scripts/drift-check.ts",
+    "eval:scheduled": "npx tsx scripts/scheduled-eval.ts",
+    "eval:trend": "npx tsx scripts/eval-trend.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

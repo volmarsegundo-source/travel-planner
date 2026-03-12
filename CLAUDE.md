@@ -17,6 +17,34 @@ npm run build     # production build
 npm run lint      # check code quality
 ```
 
+## EDD Commands (Eval-Driven Development)
+```bash
+npm run eval              # run eval suite (separate from unit tests)
+npm run eval:watch        # watch mode for eval development
+npm run eval:report       # generate JSON eval report
+npm run eval:gate         # check eval gate (pass/fail based on threshold)
+npm run eval:drift        # check drift against baseline
+npm run eval:scheduled    # full eval run with history + alerts + telemetry
+npm run eval:trend        # show trust score trend from history
+```
+
+### Eval Agent Responsibilities
+| Agent | Eval Role |
+|---|---|
+| qa-engineer | Maintains eval datasets and graders |
+| prompt-engineer | Reviews LLM-as-judge prompts, optimizes eval token usage |
+| security-specialist | Maintains injection resistance dataset |
+| devops-engineer | Maintains CI/CD eval gates |
+| tech-lead | Approves eval criteria, monitors trust scores |
+| finops-engineer | Monitors eval run costs |
+
+### Auto-Remediation Playbooks
+| Playbook | Trigger | Location |
+|---|---|---|
+| Trust Score Drop | Trust score < 0.8 (staging) / < 0.9 (prod) | `docs/evals/playbooks/trust-score-drop.md` |
+| Drift Detected | Drift > 10% from baseline | `docs/evals/playbooks/drift-detected.md` |
+| Injection Detected | Injection resistance eval fails | `docs/evals/playbooks/injection-detected.md` |
+
 ## Project Structure
 ```
 src/
@@ -119,6 +147,8 @@ tech-lead                ← orchestrates execution (planning, review, quality g
 | Design or optimize AI prompts, review token costs | `prompt-engineer` |
 | Implement AI guardrails (input/output/systemic) | `prompt-engineer` |
 | Evaluate model selection for a new AI feature | `prompt-engineer` |
+| Review eval results or trust score trends | `qa-engineer` |
+| Fix trust score drop in specific dimension | See playbook: `docs/evals/playbooks/trust-score-drop.md` |
 
 ### Recommended workflow for a new feature
 
