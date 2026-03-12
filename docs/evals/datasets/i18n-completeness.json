@@ -1,0 +1,275 @@
+{
+  "eval_id": "EVAL-I18N-001",
+  "version": "1.0.0",
+  "description": "Avaliacao de completude e consistencia de internacionalizacao. Verifica presenca de todas as chaves em en.json e pt-BR.json, detecta strings hardcoded, valida formatacao locale-aware e verifica variaveis de interpolacao.",
+  "spec_ref": "SPEC-ARCH-001",
+  "created": "2026-03-12",
+  "updated": "2026-03-12",
+  "owner": "qa-engineer",
+  "tags": ["i18n", "next-intl", "locale", "translation", "completeness"],
+  "grader_types": ["code"],
+  "pass_threshold": 0.95,
+  "locale_files": {
+    "en": "messages/en.json",
+    "pt_BR": "messages/pt-BR.json"
+  },
+  "test_cases": [
+    {
+      "id": "IL-001",
+      "category": "key_presence",
+      "description": "Todas as chaves de en.json devem existir em pt-BR.json",
+      "input": {
+        "source_locale": "en",
+        "target_locale": "pt-BR"
+      },
+      "expected": {
+        "missing_keys_count": 0,
+        "all_keys_present": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Chaves faltantes em pt-BR significam que usuarios brasileiros verao fallback em ingles ou chave bruta"
+    },
+    {
+      "id": "IL-002",
+      "category": "key_presence",
+      "description": "Todas as chaves de pt-BR.json devem existir em en.json",
+      "input": {
+        "source_locale": "pt-BR",
+        "target_locale": "en"
+      },
+      "expected": {
+        "missing_keys_count": 0,
+        "all_keys_present": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Chaves extras em pt-BR sem correspondente em en.json indicam traducao orfao ou chave renomeada"
+    },
+    {
+      "id": "IL-003",
+      "category": "duplicate_keys",
+      "description": "Nenhum arquivo de locale deve ter chaves JSON duplicadas (ref: I18N-011)",
+      "input": {
+        "files_to_check": ["messages/en.json", "messages/pt-BR.json"]
+      },
+      "expected": {
+        "duplicate_keys_count": 0,
+        "no_silent_overwrites": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Bug I18N-011 encontrou chave duplicada gamification.phases em en.json. JSON parseia sem erro mas segunda definicao sobrescreve a primeira silenciosamente."
+    },
+    {
+      "id": "IL-004",
+      "category": "interpolation_variables",
+      "description": "Variaveis de interpolacao ({name}, {count}, etc.) devem ser identicas entre locales",
+      "input": {
+        "comparison": "en vs pt-BR",
+        "variable_pattern": "\\{[a-zA-Z_][a-zA-Z0-9_]*\\}"
+      },
+      "expected": {
+        "mismatched_variables_count": 0,
+        "all_variables_match": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Se en.json tem {userName} mas pt-BR.json tem {nome}, next-intl mostrara variavel bruta ao usuario"
+    },
+    {
+      "id": "IL-005",
+      "category": "hardcoded_strings",
+      "description": "Componentes React nao devem ter strings de UI hardcoded em portugues ou ingles",
+      "input": {
+        "scan_directories": [
+          "src/components/",
+          "src/app/"
+        ],
+        "file_extensions": [".tsx", ".ts"],
+        "exclude_patterns": [
+          "*.test.*",
+          "*.spec.*",
+          "src/lib/",
+          "src/server/"
+        ],
+        "known_violations": [
+          {
+            "file": "src/app/[locale]/(app)/layout.tsx",
+            "string": "Traveler",
+            "bug_ref": "BUG-S7-005"
+          },
+          {
+            "file": "src/app/[locale]/(app)/loading.tsx",
+            "string": "Loading",
+            "bug_ref": "BUG-S7-006"
+          }
+        ]
+      },
+      "expected": {
+        "new_hardcoded_strings": 0,
+        "known_violations_tracked": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Strings em JSX que nao usam t() ou useTranslations() sao potenciais hardcoded strings. Excecoes: nomes de arquivo, constantes tecnicas, aria-labels com i18n key."
+    },
+    {
+      "id": "IL-006",
+      "category": "locale_formatting",
+      "subcategory": "dates",
+      "description": "Datas devem ser formatadas de acordo com o locale (DD/MM/YYYY para pt-BR, MM/DD/YYYY para en)",
+      "input": {
+        "test_date": "2026-07-15T10:30:00Z",
+        "locales": {
+          "en": {
+            "expected_formats": ["7/15/2026", "Jul 15, 2026", "July 15, 2026"]
+          },
+          "pt-BR": {
+            "expected_formats": ["15/07/2026", "15 de jul. de 2026", "15 de julho de 2026"]
+          }
+        }
+      },
+      "expected": {
+        "format_matches_locale": true,
+        "no_en_format_in_pt_br": true,
+        "no_pt_br_format_in_en": true
+      },
+      "grading": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "IL-007",
+      "category": "locale_formatting",
+      "subcategory": "numbers",
+      "description": "Numeros devem usar separadores de acordo com o locale (1,000.50 en vs 1.000,50 pt-BR)",
+      "input": {
+        "test_number": 1234567.89,
+        "locales": {
+          "en": {
+            "expected_separators": {
+              "thousands": ",",
+              "decimal": "."
+            }
+          },
+          "pt-BR": {
+            "expected_separators": {
+              "thousands": ".",
+              "decimal": ","
+            }
+          }
+        }
+      },
+      "expected": {
+        "separators_match_locale": true,
+        "no_mixed_formats": true
+      },
+      "grading": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "IL-008",
+      "category": "locale_formatting",
+      "subcategory": "currency",
+      "description": "Moedas devem ser formatadas com simbolo e formato do locale",
+      "input": {
+        "test_cases": [
+          {
+            "amount": 1500.00,
+            "currency": "USD",
+            "locale": "en",
+            "expected": "$1,500.00"
+          },
+          {
+            "amount": 1500.00,
+            "currency": "USD",
+            "locale": "pt-BR",
+            "expected": "US$ 1.500,00"
+          },
+          {
+            "amount": 3000.00,
+            "currency": "BRL",
+            "locale": "pt-BR",
+            "expected": "R$ 3.000,00"
+          },
+          {
+            "amount": 3000.00,
+            "currency": "EUR",
+            "locale": "en",
+            "expected_contains": "3,000.00"
+          }
+        ]
+      },
+      "expected": {
+        "currency_format_correct": true,
+        "symbol_position_correct": true
+      },
+      "grading": {
+        "weight": 1.0
+      }
+    },
+    {
+      "id": "IL-009",
+      "category": "ai_output_locale",
+      "description": "AI outputs (itinerario, guia, checklist) devem estar no idioma solicitado",
+      "input": {
+        "scenarios": [
+          {
+            "feature": "itinerary",
+            "requested_language": "pt-BR",
+            "check_fields": ["days[].theme", "days[].activities[].title", "days[].activities[].description", "tips[]"]
+          },
+          {
+            "feature": "itinerary",
+            "requested_language": "en",
+            "check_fields": ["days[].theme", "days[].activities[].title", "days[].activities[].description", "tips[]"]
+          },
+          {
+            "feature": "guide",
+            "requested_language": "pt-BR",
+            "check_fields": ["*.title", "*.summary", "*.tips[]", "*.details"]
+          },
+          {
+            "feature": "guide",
+            "requested_language": "en",
+            "check_fields": ["*.title", "*.summary", "*.tips[]", "*.details"]
+          }
+        ]
+      },
+      "expected": {
+        "output_in_requested_language": true,
+        "no_language_mixing": true,
+        "technical_terms_allowed_in_english": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Termos tecnicos universais (Wi-Fi, GPS, SIM card) podem permanecer em ingles em ambos os locales"
+    },
+    {
+      "id": "IL-010",
+      "category": "empty_values",
+      "description": "Nenhuma chave de traducao deve ter valor vazio",
+      "input": {
+        "files_to_check": ["messages/en.json", "messages/pt-BR.json"],
+        "empty_patterns": ["", " ", "TODO", "FIXME", "TRANSLATE"]
+      },
+      "expected": {
+        "empty_values_count": 0,
+        "placeholder_values_count": 0,
+        "all_values_meaningful": true
+      },
+      "grading": {
+        "weight": 1.0
+      },
+      "notes": "Valores vazios fazem next-intl renderizar string vazia, pior que mostrar a chave bruta"
+    }
+  ]
+}

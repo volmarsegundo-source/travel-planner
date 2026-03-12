@@ -99,6 +99,13 @@ Every AC from `docs/tasks.md` must map to at least one test in QA-SPEC. Coverage
 | Cosmetic deviation | P1 | Spec says "red badge" — code shows orange badge |
 | Extra feature (not in spec) | P1 | Feature added that has no spec coverage — risk of untested code |
 
+## Eval-Driven Development (EDD) — Effective Sprint 27
+- [Full EDD details](project_edd_framework.md)
+- Process: `docs/process/EVAL-DRIVEN-DEVELOPMENT.md`
+- Trust Score: `docs/process/TRUST-SCORE.md`
+- Eval Template: `docs/process/templates/EVAL-TEMPLATE.md`
+- Datasets: `docs/evals/datasets/` (itinerary-quality, guide-accuracy, injection-resistance, i18n-completeness)
+
 ## Key Docs for QA Context
 - `docs/SPEC-001.md` — data model, Server Actions, business logic
 - `docs/ux-patterns.md` — UX-001 screen specs, error states, accessibility checklist

@@ -1,0 +1,372 @@
+{
+  "eval_id": "EVAL-AI-001",
+  "version": "1.0.0",
+  "description": "Avaliacao de qualidade de itinerarios gerados por IA. Verifica estrutura dia-a-dia, coerencia de atividades, adequacao ao perfil do viajante, respeito ao orcamento e locale-awareness.",
+  "spec_ref": "SPEC-PROD-012",
+  "created": "2026-03-12",
+  "updated": "2026-03-12",
+  "owner": "qa-engineer",
+  "tags": ["ai", "itinerary", "quality", "travel-plan"],
+  "grader_types": ["code", "llm-judge"],
+  "pass_threshold": 0.80,
+  "test_cases": [
+    {
+      "id": "IQ-001",
+      "description": "Viagem em familia para Paris, 5 dias, orcamento moderado, em portugues",
+      "input": {
+        "destination": "Paris, France",
+        "startDate": "2026-07-15",
+        "endDate": "2026-07-19",
+        "days": 5,
+        "travelStyle": "moderate",
+        "budgetTotal": 3000,
+        "budgetCurrency": "USD",
+        "travelers": 4,
+        "language": "pt-BR",
+        "travelNotes": "Viajando com criancas de 8 e 12 anos"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 5,
+        "activities_per_day": [3, 7],
+        "includes_meals": true,
+        "budget_aware": true,
+        "family_appropriate": true,
+        "language": "pt-BR",
+        "has_tips": true,
+        "tips_count": [3, 5],
+        "no_adult_only_venues": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-002",
+      "description": "Viajante solo para Tokyo, 7 dias, orcamento alto, em ingles",
+      "input": {
+        "destination": "Tokyo, Japan",
+        "startDate": "2026-04-01",
+        "endDate": "2026-04-07",
+        "days": 7,
+        "travelStyle": "luxury",
+        "budgetTotal": 8000,
+        "budgetCurrency": "USD",
+        "travelers": 1,
+        "language": "en",
+        "travelNotes": "Interested in technology, anime culture, and fine dining"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 7,
+        "activities_per_day": [3, 5],
+        "includes_meals": true,
+        "budget_aware": true,
+        "solo_appropriate": true,
+        "language": "en",
+        "has_tips": true,
+        "tips_count": [3, 5],
+        "includes_cultural_activities": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-003",
+      "description": "Grupo de amigos para Rio de Janeiro, 3 dias, orcamento baixo, em portugues",
+      "input": {
+        "destination": "Rio de Janeiro, Brazil",
+        "startDate": "2026-02-14",
+        "endDate": "2026-02-16",
+        "days": 3,
+        "travelStyle": "budget",
+        "budgetTotal": 800,
+        "budgetCurrency": "BRL",
+        "travelers": 6,
+        "language": "pt-BR",
+        "travelNotes": "Grupo de amigos, carnaval, queremos curtir a cidade"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 3,
+        "activities_per_day": [3, 7],
+        "includes_meals": true,
+        "budget_aware": true,
+        "group_appropriate": true,
+        "language": "pt-BR",
+        "has_tips": true,
+        "respects_low_budget": true,
+        "carnival_context_aware": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-004",
+      "description": "Casal em lua de mel para Maldivas, 10 dias, orcamento alto, em ingles",
+      "input": {
+        "destination": "Maldives",
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-10",
+        "days": 10,
+        "travelStyle": "luxury",
+        "budgetTotal": 15000,
+        "budgetCurrency": "USD",
+        "travelers": 2,
+        "language": "en",
+        "travelNotes": "Honeymoon trip, romantic experiences, water activities"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 10,
+        "activities_per_day": [3, 5],
+        "includes_meals": true,
+        "budget_aware": true,
+        "couple_appropriate": true,
+        "language": "en",
+        "has_tips": true,
+        "includes_romantic_activities": true,
+        "includes_water_activities": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-005",
+      "description": "Viagem de negocios para Nova York, 2 dias, orcamento moderado, em portugues",
+      "input": {
+        "destination": "New York, USA",
+        "startDate": "2026-09-15",
+        "endDate": "2026-09-16",
+        "days": 2,
+        "travelStyle": "moderate",
+        "budgetTotal": 1500,
+        "budgetCurrency": "USD",
+        "travelers": 1,
+        "language": "pt-BR",
+        "travelNotes": "Viagem de negocios, reunioes durante o dia, quero aproveitar a noite"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 2,
+        "activities_per_day": [3, 5],
+        "includes_meals": true,
+        "budget_aware": true,
+        "language": "pt-BR",
+        "has_tips": true,
+        "respects_business_context": true,
+        "evening_activities_included": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-006",
+      "description": "Viagem domestica curta para Salvador, 1 dia, orcamento minimo, em portugues",
+      "input": {
+        "destination": "Salvador, Bahia, Brazil",
+        "startDate": "2026-06-20",
+        "endDate": "2026-06-20",
+        "days": 1,
+        "travelStyle": "budget",
+        "budgetTotal": 200,
+        "budgetCurrency": "BRL",
+        "travelers": 2,
+        "language": "pt-BR",
+        "travelNotes": ""
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 1,
+        "activities_per_day": [3, 5],
+        "includes_meals": true,
+        "budget_aware": true,
+        "language": "pt-BR",
+        "has_tips": true,
+        "respects_low_budget": true,
+        "single_day_coherent": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-007",
+      "description": "Viagem longa para Europa (multi-cidade implicita), 14 dias, orcamento alto, em ingles",
+      "input": {
+        "destination": "Barcelona, Spain",
+        "startDate": "2026-08-01",
+        "endDate": "2026-08-14",
+        "days": 14,
+        "travelStyle": "luxury",
+        "budgetTotal": 12000,
+        "budgetCurrency": "EUR",
+        "travelers": 2,
+        "language": "en",
+        "travelNotes": "Art lovers, Gaudi architecture, Mediterranean food"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 14,
+        "activities_per_day": [3, 3],
+        "includes_meals": true,
+        "budget_aware": true,
+        "language": "en",
+        "has_tips": true,
+        "long_trip_variety": true,
+        "no_repetitive_activities": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-008",
+      "description": "Familia com bebe para Lisboa, 4 dias, orcamento moderado, em portugues",
+      "input": {
+        "destination": "Lisbon, Portugal",
+        "startDate": "2026-05-10",
+        "endDate": "2026-05-13",
+        "days": 4,
+        "travelStyle": "moderate",
+        "budgetTotal": 2500,
+        "budgetCurrency": "EUR",
+        "travelers": 3,
+        "language": "pt-BR",
+        "travelNotes": "Viajando com bebe de 1 ano, preciso de ritmo mais lento"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 4,
+        "activities_per_day": [3, 5],
+        "includes_meals": true,
+        "budget_aware": true,
+        "family_appropriate": true,
+        "language": "pt-BR",
+        "has_tips": true,
+        "infant_friendly_pace": true,
+        "no_strenuous_activities": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-009",
+      "description": "Mochileiro solo para Bangkok, 5 dias, orcamento minimo, em ingles",
+      "input": {
+        "destination": "Bangkok, Thailand",
+        "startDate": "2026-12-01",
+        "endDate": "2026-12-05",
+        "days": 5,
+        "travelStyle": "budget",
+        "budgetTotal": 500,
+        "budgetCurrency": "USD",
+        "travelers": 1,
+        "language": "en",
+        "travelNotes": "Backpacker, street food, temples, nightlife"
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 5,
+        "activities_per_day": [3, 7],
+        "includes_meals": true,
+        "budget_aware": true,
+        "solo_appropriate": true,
+        "language": "en",
+        "has_tips": true,
+        "respects_low_budget": true,
+        "includes_street_food": true,
+        "includes_temples": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "IQ-010",
+      "description": "Viagem com context de expedicao (transporte e acomodacao pre-definidos), em portugues",
+      "input": {
+        "destination": "Buenos Aires, Argentina",
+        "startDate": "2026-10-05",
+        "endDate": "2026-10-09",
+        "days": 5,
+        "travelStyle": "moderate",
+        "budgetTotal": 2000,
+        "budgetCurrency": "USD",
+        "travelers": 2,
+        "language": "pt-BR",
+        "travelNotes": "Tango, carne, vinho, cultura",
+        "expeditionContext": {
+          "tripType": "international",
+          "travelerType": "couple",
+          "accommodationStyle": "boutique hotel",
+          "travelPace": 6,
+          "budget": 2000,
+          "currency": "USD",
+          "destinationGuideContext": "Buenos Aires e conhecida pelo tango, gastronomia e arquitetura europeia"
+        }
+      },
+      "expected": {
+        "has_day_structure": true,
+        "total_days": 5,
+        "activities_per_day": [3, 5],
+        "includes_meals": true,
+        "budget_aware": true,
+        "couple_appropriate": true,
+        "language": "pt-BR",
+        "has_tips": true,
+        "expedition_context_used": true,
+        "pace_respected": true,
+        "accommodation_style_reflected": true,
+        "estimated_budget_within_range": true
+      },
+      "grading": {
+        "structure": 0.30,
+        "relevance": 0.30,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    }
+  ]
+}

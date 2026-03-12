@@ -1,0 +1,298 @@
+{
+  "eval_id": "EVAL-AI-002",
+  "version": "1.0.0",
+  "description": "Avaliacao de precisao e completude dos guias de destino gerados por IA. Verifica as 10 secoes obrigatorias (timezone, currency, language, electricity, connectivity, cultural_tips, safety, health, transport_overview, local_customs), precisao factual, sensibilidade cultural e locale-awareness.",
+  "spec_ref": "SPEC-PROD-013",
+  "created": "2026-03-12",
+  "updated": "2026-03-12",
+  "owner": "qa-engineer",
+  "tags": ["ai", "guide", "accuracy", "destination", "factual"],
+  "grader_types": ["code", "llm-judge"],
+  "pass_threshold": 0.85,
+  "required_sections": [
+    "timezone", "currency", "language", "electricity",
+    "connectivity", "cultural_tips", "safety", "health",
+    "transport_overview", "local_customs"
+  ],
+  "section_types": {
+    "stat": ["timezone", "currency", "language", "electricity"],
+    "content": ["connectivity", "cultural_tips", "safety", "health", "transport_overview", "local_customs"]
+  },
+  "test_cases": [
+    {
+      "id": "GA-001",
+      "description": "Guia para Tokyo, Japao em ingles -- verifica precisao factual de dados basicos",
+      "input": {
+        "destination": "Tokyo, Japan",
+        "language": "en"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "en",
+        "stat_sections_have_type_stat": true,
+        "content_sections_have_type_content": true,
+        "content_sections_have_details": true,
+        "factual_checks": {
+          "timezone": "JST or UTC+9 or GMT+9",
+          "currency": "JPY or Japanese Yen",
+          "language": "Japanese",
+          "electricity": "100V or Type A or Type B"
+        },
+        "each_section_has_icon": true,
+        "each_section_has_summary": true,
+        "each_section_has_tips": true,
+        "tips_count_per_section": [1, 3]
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-002",
+      "description": "Guia para Paris, Franca em portugues -- verifica idioma do output",
+      "input": {
+        "destination": "Paris, France",
+        "language": "pt-BR"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "pt-BR",
+        "factual_checks": {
+          "timezone": "CET or UTC+1 or GMT+1",
+          "currency": "EUR or Euro",
+          "language": "French or Francês or Francés",
+          "electricity": "230V or Type C or Type E"
+        },
+        "titles_in_portuguese": true,
+        "summaries_in_portuguese": true,
+        "tips_in_portuguese": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-003",
+      "description": "Guia para Dubai, UAE em ingles -- verifica sensibilidade cultural (pais com costumes rigorosos)",
+      "input": {
+        "destination": "Dubai, United Arab Emirates",
+        "language": "en"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "en",
+        "factual_checks": {
+          "timezone": "GST or UTC+4 or GMT+4",
+          "currency": "AED or Dirham",
+          "language": "Arabic",
+          "electricity": "220V or 230V or Type G"
+        },
+        "cultural_tips_mention_dress_code": true,
+        "cultural_tips_mention_ramadan_awareness": true,
+        "safety_section_relevant": true,
+        "local_customs_respectful": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-004",
+      "description": "Guia para Buenos Aires, Argentina em portugues -- destino Mercosul, proximidade cultural",
+      "input": {
+        "destination": "Buenos Aires, Argentina",
+        "language": "pt-BR"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "pt-BR",
+        "factual_checks": {
+          "timezone": "ART or UTC-3 or GMT-3",
+          "currency": "ARS or Peso",
+          "language": "Spanish or Espanhol or Castellano",
+          "electricity": "220V or Type C or Type I"
+        },
+        "transport_overview_mentions_subte": true,
+        "cultural_tips_relevant_to_argentinians": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-005",
+      "description": "Guia para Bangkok, Tailandia em ingles -- verifica informacoes de saude e seguranca",
+      "input": {
+        "destination": "Bangkok, Thailand",
+        "language": "en"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "en",
+        "factual_checks": {
+          "timezone": "ICT or UTC+7 or GMT+7",
+          "currency": "THB or Baht",
+          "language": "Thai",
+          "electricity": "220V or Type A or Type B or Type C"
+        },
+        "health_section_relevant": true,
+        "safety_section_mentions_scams_or_caution": true,
+        "transport_overview_mentions_bts_or_mrt": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-006",
+      "description": "Guia para Reykjavik, Islandia em ingles -- destino remoto com particularidades de clima",
+      "input": {
+        "destination": "Reykjavik, Iceland",
+        "language": "en"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "en",
+        "factual_checks": {
+          "timezone": "GMT or UTC+0 or UTC",
+          "currency": "ISK or Icelandic Krona or Icelandic Króna",
+          "language": "Icelandic",
+          "electricity": "230V or Type C or Type F"
+        },
+        "connectivity_section_relevant": true,
+        "health_mentions_weather_preparation": true,
+        "safety_mentions_natural_hazards": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-007",
+      "description": "Guia para Sao Paulo, Brasil em portugues -- destino domestico",
+      "input": {
+        "destination": "São Paulo, Brazil",
+        "language": "pt-BR"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "pt-BR",
+        "factual_checks": {
+          "timezone": "BRT or UTC-3 or GMT-3",
+          "currency": "BRL or Real",
+          "language": "Portuguese or Português",
+          "electricity": "127V or 220V or Type N"
+        },
+        "domestic_trip_awareness": true,
+        "transport_overview_mentions_metro": true,
+        "safety_section_realistic": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-008",
+      "description": "Guia para Marrakech, Marrocos em ingles -- destino com forte identidade cultural",
+      "input": {
+        "destination": "Marrakech, Morocco",
+        "language": "en"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "en",
+        "factual_checks": {
+          "timezone": "WET or UTC+1 or GMT+1",
+          "currency": "MAD or Dirham or Moroccan Dirham",
+          "language": "Arabic or Berber or French",
+          "electricity": "220V or Type C or Type E"
+        },
+        "cultural_tips_mention_bargaining": true,
+        "cultural_tips_respectful_of_islam": true,
+        "local_customs_relevant": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-009",
+      "description": "Guia para Sydney, Australia em ingles -- destino no hemisferio sul, estacoes invertidas",
+      "input": {
+        "destination": "Sydney, Australia",
+        "language": "en"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "en",
+        "factual_checks": {
+          "timezone": "AEST or AEDT or UTC+10 or UTC+11 or GMT+10",
+          "currency": "AUD or Australian Dollar",
+          "language": "English",
+          "electricity": "230V or Type I"
+        },
+        "health_mentions_sun_protection": true,
+        "safety_mentions_wildlife_or_ocean": true,
+        "transport_overview_mentions_opal_or_trains": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    },
+    {
+      "id": "GA-010",
+      "description": "Guia para Cidade do Mexico, Mexico em portugues -- destino latinoamericano com desafios de seguranca",
+      "input": {
+        "destination": "Mexico City, Mexico",
+        "language": "pt-BR"
+      },
+      "expected": {
+        "all_10_sections_present": true,
+        "language": "pt-BR",
+        "factual_checks": {
+          "timezone": "CST or UTC-6 or GMT-6",
+          "currency": "MXN or Peso Mexicano or Peso",
+          "language": "Spanish or Espanhol",
+          "electricity": "127V or Type A or Type B"
+        },
+        "safety_section_realistic_not_alarmist": true,
+        "transport_mentions_metro": true,
+        "cultural_tips_mention_food_culture": true,
+        "health_mentions_altitude": true
+      },
+      "grading": {
+        "structure": 0.25,
+        "factual_accuracy": 0.35,
+        "cultural_sensitivity": 0.20,
+        "locale_awareness": 0.20
+      }
+    }
+  ]
+}

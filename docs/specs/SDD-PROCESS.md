@@ -249,3 +249,130 @@ fix(auth): correct BOLA check per spec update [SPEC-SEC-002 v1.1.0]
 - **XS tasks**: Bug fixes under 2 hours that fall within an existing spec's scope do not need a new spec. Reference the existing spec ID.
 - **Documentation-only changes**: Updates to README, CHANGELOG, or process docs do not require specs.
 - **Dependency updates**: Routine dependency bumps do not require specs unless they change behavior covered by an existing spec.
+
+---
+
+## 11. Integracao EDD (Eval-Driven Development)
+
+> **Adicionado em**: 2026-03-12
+> **Referencia completa**: `docs/process/EVAL-DRIVEN-DEVELOPMENT.md` (quando criado)
+> **Status**: Draft — processo em definicao
+
+### 11.1 Contexto
+
+Eval-Driven Development (EDD) complementa o SDD adicionando **metricas objetivas e repetiveis** de qualidade a cada feature. Enquanto o SDD define O QUE construir (specs) e garante conformidade (spec drift = P0), o EDD mede QUAO BEM foi construido atraves de eval datasets, graders automatizados e trust scores.
+
+EDD nao substitui SDD — estende-o. Toda feature continua precisando de spec aprovada. EDD adiciona gates quantitativos ao fluxo existente.
+
+### 11.2 Mudancas na Definition of Ready
+
+A Definition of Ready para mover uma spec de **Approved** para **In Development** agora inclui:
+
+| Criterio Existente (SDD) | Criterio Novo (EDD) |
+|---------------------------|---------------------|
+| Spec aprovada por todos os revisores | **Eval criteria definidos**: quais metricas serao medidas e quais sao os thresholds de aceitacao |
+| Tech-lead aprovou | **Golden set baseline**: pelo menos 3 exemplos de input/output esperado para features com logica de negocio |
+| Security review completa (para L/XL) | **Performance budget declarado**: latencia maxima aceitavel para server actions (p95) |
+
+**Formato dos eval criteria no spec**:
+
+```markdown
+## Eval Criteria (EDD)
+
+| Metrica | Threshold | Grader |
+|---------|-----------|--------|
+| Schema conformance | 100% | Programatico (Zod) |
+| Response latency (p95) | < 200ms | Heuristico |
+| AI output quality | >= 7/10 | LLM-as-judge |
+| Test coverage | >= 80% | Programatico (Vitest) |
+```
+
+### 11.3 Mudancas na Definition of Done
+
+A Definition of Done para mover uma spec de **In Development** para **Implemented** agora inclui:
+
+| Criterio Existente (SDD) | Criterio Novo (EDD) |
+|---------------------------|---------------------|
+| Todos os ACs passam | **Eval suite passa**: todos os evals definidos no spec passam com os thresholds especificados |
+| QA conformance audit completa | **Trust score >= 70**: pontuacao composta atinge minimo aceitavel |
+| Testes unitarios >= 80% coverage | **Regression anchors**: bugs corrigidos durante implementacao sao adicionados ao eval dataset |
+| Security checklist aprovada | **Eval report gerado**: relatorio de eval documentado para audit trail |
+
+### 11.4 Trust Score Gate no Release
+
+O trust score e uma metrica composta (0-100) que quantifica a confianca em uma feature estar pronta para producao.
+
+**Composicao**:
+
+| Componente | Peso | Fonte |
+|------------|------|-------|
+| Test Coverage | 25% | Vitest coverage report |
+| Eval Pass Rate | 30% | Eval suite results |
+| Spec Conformance | 20% | QA conformance audit |
+| Security Audit | 15% | Security-specialist sign-off |
+| Debt Ratio | 10% | Divida tecnica aberta na feature |
+
+**Gates de release**:
+
+| Trust Score | Decisao |
+|-------------|---------|
+| >= 90 | Release permitido (tech-lead pode aprovar diretamente) |
+| 70-89 | Release permitido com aprovacao explicita do tech-lead |
+| 50-69 | Release bloqueado — requer plano de remediacao |
+| < 50 | Feature revertida ou pausada |
+
+**Nota**: durante a fase de adocao (primeiros 3 sprints com EDD), trust scores sao **informativos** e nao bloqueantes. Apos validacao do processo, tornam-se gates mandatorios.
+
+### 11.5 Fluxo SDD+EDD Integrado
+
+O fluxo de feature agora inclui passos de EDD (marcados com `[EDD]`):
+
+```
+Step 1:  product-owner       --> SPEC-PROD-XXX (WHAT and WHY)
+Step 2:  ux-designer         --> SPEC-UX-XXX (experience and flows)
+Step 3:  architect           --> SPEC-ARCH-XXX (HOW to build it)
+Step 3b: [EDD] architect     --> Define eval criteria no SPEC-ARCH    [NOVO]
+Step 4:  data-engineer       --> SPEC-DATA-XXX (if analytics/data needed)
+Step 5:  security-specialist --> Reviews all specs + SPEC-SEC-XXX
+Step 6:  finops-engineer     --> Cost impact assessment
+Step 6b: [EDD] qa-engineer   --> Cria golden set baseline             [NOVO]
+Step 7:  tech-lead           --> Approves all specs + eval criteria
+Step 8:  dev-fullstack-1/2   --> Implement against approved specs
+Step 8b: [EDD] dev           --> Adiciona regression anchors ao dataset [NOVO]
+Step 9:  qa-engineer         --> Validates against specs + runs evals
+Step 9b: [EDD] qa-engineer   --> Calcula trust score                   [NOVO]
+Step 10: release-manager     --> Documents changes, version bump
+Step 10b:[EDD] release-mgr   --> Inclui trust score no release notes   [NOVO]
+Step 11: Any deviation       --> STOP, update spec + eval criteria, RESUME
+```
+
+### 11.6 Responsabilidades EDD por Agente
+
+| Agente | Responsabilidade EDD |
+|--------|---------------------|
+| **architect** | Define eval criteria em SPEC-ARCH; define performance budgets |
+| **qa-engineer** | Mantem eval datasets (golden sets, regression anchors); executa eval suites; calcula trust scores |
+| **dev-fullstack-1/2** | Adiciona regression anchors durante implementacao; garante que evals passam antes de submeter PR |
+| **tech-lead** | Aprova eval criteria na Definition of Ready; valida trust scores antes de release |
+| **security-specialist** | Contribui para trust score (security audit component) |
+| **finops-engineer** | Monitora custo de evals (especialmente LLM-as-judge) |
+| **prompt-engineer** | Define evals para features AI (schema conformance, output quality) |
+| **release-manager** | Documenta trust scores no CHANGELOG e release notes |
+
+### 11.7 Excecoes EDD
+
+As mesmas excecoes da Secao 10 se aplicam ao EDD, com as seguintes adicoes:
+
+- **Hotfixes**: eval criteria podem ser definidos retroativamente (mesmo sprint), mas trust score deve ser calculado antes do proximo release regular.
+- **XS tasks**: nao requerem eval criteria proprios se cobertos por um eval dataset existente.
+- **Fase de adocao**: nos primeiros 3 sprints com EDD, trust scores sao informativos. Nenhuma feature sera bloqueada por score baixo, mas o score sera documentado para calibracao.
+
+### 11.8 Documentacao Relacionada
+
+| Documento | Localizacao | Descricao |
+|-----------|-------------|-----------|
+| EDD Framework Completo | `docs/process/EVAL-DRIVEN-DEVELOPMENT.md` | Processo detalhado de EDD (a ser criado) |
+| Auditoria de Estado Atual | `docs/process/CURRENT-STATE-AUDIT.md` | Gaps identificados e prioridades |
+| Arquitetura AS-IS | `docs/architecture/AS-IS.md` | Estado atual da arquitetura |
+| Arquitetura TO-BE | `docs/architecture/TO-BE.md` | Visao alvo com EDD integrado |
+| Genesis Spec | `docs/specs/GENESIS-SPEC.md` | Especificacao fundacional do projeto |
