@@ -27,6 +27,7 @@
   },
   "navigation": {
     "myTrips": "Minhas viagens",
+    "expeditions": "Expedições",
     "myAtlas": "Meu Atlas",
     "myProfile": "Perfil",
     "myAccount": "Minha conta",
@@ -903,7 +904,21 @@
     },
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}",
-    "phaseLabel": "Fase {number}: {name}"
+    "phaseLabel": "Fase {number}: {name}",
+    "countdown": {
+      "daysUntil": "{days, plural, one {# dia para sua viagem} other {# dias para sua viagem}}",
+      "inProgress": "Sua viagem está em andamento!",
+      "completed": "Viagem concluída!",
+      "noDates": "Datas ainda não definidas"
+    },
+    "nextSteps": {
+      "title": "Próximos Passos",
+      "allDone": "Tudo pronto! Revise o resumo da sua expedição.",
+      "startPhase": "Iniciar {phase}",
+      "continuePhase": "Continuar {phase}",
+      "completeChecklist": "Complete seu checklist ({done}/{total})",
+      "startPlanning": "Comece a planejar sua expedição"
+    }
   },
   "gamification": {
     "ranks": {
@@ -930,7 +945,21 @@
       "stateComingSoon": "em breve",
       "stateUpcoming": "próxima"
     },
-    "points": "pts"
+    "points": "pts",
+    "badge": {
+      "viewProfile": "Ver seu perfil Atlas"
+    }
+  },
+  "atlas": {
+    "title": "Meu Atlas",
+    "totalPoints": "Pontos Totais",
+    "currentRank": "Rank",
+    "badges": "Medalhas",
+    "streakDays": "Dias de Sequência",
+    "badgesEarned": "Medalhas Conquistadas",
+    "emptyTitle": "Seu Atlas aguarda",
+    "emptyDescription": "Comece sua primeira expedição para ganhar pontos, medalhas e subir no ranking!",
+    "startExpedition": "Começar primeira expedição"
   },
   "errors": {
     "boundary": {

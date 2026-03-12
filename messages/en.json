@@ -27,6 +27,7 @@
   },
   "navigation": {
     "myTrips": "My trips",
+    "expeditions": "Expeditions",
     "myAtlas": "My Atlas",
     "myProfile": "Profile",
     "myAccount": "My account",
@@ -903,7 +904,21 @@
     },
     "progress": "Step {current} of {total}",
     "phaseProgress": "Phase {current} of {total}",
-    "phaseLabel": "Phase {number}: {name}"
+    "phaseLabel": "Phase {number}: {name}",
+    "countdown": {
+      "daysUntil": "{days, plural, one {# day until your trip} other {# days until your trip}}",
+      "inProgress": "Your trip is in progress!",
+      "completed": "Trip completed!",
+      "noDates": "No dates set yet"
+    },
+    "nextSteps": {
+      "title": "Next Steps",
+      "allDone": "All done! Review your expedition summary.",
+      "startPhase": "Start {phase}",
+      "continuePhase": "Continue {phase}",
+      "completeChecklist": "Complete your checklist ({done}/{total})",
+      "startPlanning": "Start planning your expedition"
+    }
   },
   "gamification": {
     "ranks": {
@@ -930,7 +945,21 @@
       "stateComingSoon": "coming soon",
       "stateUpcoming": "upcoming"
     },
-    "points": "pts"
+    "points": "pts",
+    "badge": {
+      "viewProfile": "View your Atlas profile"
+    }
+  },
+  "atlas": {
+    "title": "My Atlas",
+    "totalPoints": "Total Points",
+    "currentRank": "Rank",
+    "badges": "Badges",
+    "streakDays": "Streak Days",
+    "badgesEarned": "Badges Earned",
+    "emptyTitle": "Your Atlas awaits",
+    "emptyDescription": "Start your first expedition to earn points, badges, and climb the ranks!",
+    "startExpedition": "Start your first expedition"
   },
   "errors": {
     "boundary": {

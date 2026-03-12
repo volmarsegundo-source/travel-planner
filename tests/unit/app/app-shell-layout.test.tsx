@@ -57,6 +57,20 @@ vi.mock("next-auth/react", () => ({
   signOut: vi.fn(),
 }));
 
+vi.mock("@/lib/engines/points-engine", () => ({
+  PointsEngine: {
+    getBalance: vi.fn().mockResolvedValue({ totalPoints: 100 }),
+  },
+}));
+
+vi.mock("@/lib/engines/phase-config", () => ({
+  PHASE_DEFINITIONS: [
+    { name: "Phase 1" },
+    { name: "Phase 2" },
+    { name: "Phase 3" },
+  ],
+}));
+
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import AppShellLayout from "@/app/[locale]/(app)/layout";
@@ -65,6 +79,7 @@ import AppShellLayout from "@/app/[locale]/(app)/layout";
 
 const mockSession = {
   user: {
+    id: "user-123",
     name: "Test User",
     email: "test@example.com",
     image: null,
