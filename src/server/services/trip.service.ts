@@ -12,6 +12,8 @@ const TRIP_SELECT = {
   userId: true,
   title: true,
   destination: true,
+  destinationLat: true,
+  destinationLon: true,
   description: true,
   startDate: true,
   endDate: true,

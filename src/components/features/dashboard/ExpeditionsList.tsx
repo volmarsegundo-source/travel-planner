@@ -16,6 +16,10 @@ interface ExpeditionTrip {
   checklistRequiredDone: number;
   checklistRecommendedPending: number;
   hasItineraryPlan?: boolean;
+  startDate?: string | null;
+  endDate?: string | null;
+  destinationLat?: number | null;
+  destinationLon?: number | null;
 }
 
 interface ExpeditionsListProps {
@@ -70,6 +74,10 @@ export function ExpeditionsList({ expeditions }: ExpeditionsListProps) {
           checklistRequiredDone={exp.checklistRequiredDone}
           checklistRecommendedPending={exp.checklistRecommendedPending}
           hasItineraryPlan={exp.hasItineraryPlan}
+          startDate={exp.startDate}
+          endDate={exp.endDate}
+          destinationLat={exp.destinationLat}
+          destinationLon={exp.destinationLon}
         />
       ))}
     </div>

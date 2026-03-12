@@ -19,6 +19,8 @@ interface ExpeditionCardProps {
   hasItineraryPlan?: boolean;
   startDate?: string | null;
   endDate?: string | null;
+  destinationLat?: number | null;
+  destinationLon?: number | null;
 }
 
 export function ExpeditionCard({
@@ -33,6 +35,8 @@ export function ExpeditionCard({
   checklistRecommendedPending,
   startDate,
   endDate,
+  destinationLat,
+  destinationLon,
   // hasItineraryPlan removed — PhaseToolsBar handles itinerary shortcut (DEBT-S18-001)
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
@@ -72,6 +76,16 @@ export function ExpeditionCard({
             <h3 className="font-semibold text-foreground truncate">
               {destination}
             </h3>
+            {destinationLat != null && destinationLon != null && (
+              <span
+                className="shrink-0 text-atlas-teal"
+                title={`${destinationLat.toFixed(2)}, ${destinationLon.toFixed(2)}`}
+                data-testid="map-pin"
+                aria-hidden="true"
+              >
+                📍
+              </span>
+            )}
             {isExpeditionCompleted && (
               <span
                 className="inline-flex shrink-0 items-center rounded-full bg-atlas-gold/10 px-2 py-0.5 text-xs font-medium text-atlas-gold"
