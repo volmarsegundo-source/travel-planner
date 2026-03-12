@@ -148,6 +148,52 @@ describe("Phase1Schema", () => {
     });
     expect(result.success).toBe(false);
   });
+
+  // destinationLat / destinationLon
+  it("accepts valid coordinates", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      destinationLat: 48.8566,
+      destinationLon: 2.3522,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("accepts coordinates at boundary values", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      destinationLat: -90,
+      destinationLon: 180,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects latitude out of range", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      destinationLat: 91,
+      destinationLon: 0,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects longitude out of range", () => {
+    const result = Phase1Schema.safeParse({
+      ...validPhase1,
+      destinationLat: 0,
+      destinationLon: -181,
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("allows omitting coordinates (optional)", () => {
+    const result = Phase1Schema.safeParse(validPhase1);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.destinationLat).toBeUndefined();
+      expect(result.data.destinationLon).toBeUndefined();
+    }
+  });
 });
 
 // ─── Phase2Schema ─────────────────────────────────────────────────────────────
