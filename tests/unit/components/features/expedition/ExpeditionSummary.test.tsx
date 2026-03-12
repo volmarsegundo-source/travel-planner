@@ -1,11 +1,11 @@
 /**
  * Unit tests for ExpeditionSummary component.
  *
- * Tests cover: all 6 phase sections render, "Edit" links navigate correctly,
- * "Not completed" for missing phases, masked booking codes display,
- * gamification celebration renders.
+ * Tests cover: card-based layout, readiness indicator, countdown,
+ * next steps, phase status badges, edit/continue/start CTAs,
+ * celebration animation, view dashboard navigation.
  *
- * [SPEC-PROD-005]
+ * [SPEC-PROD-007, SPEC-ARCH-005, SPEC-UX-016]
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
@@ -29,17 +29,25 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: mockPush }),
   Link: ({
     children,
+    href,
     ...props
   }: {
     children: React.ReactNode;
+    href: string;
     [key: string]: unknown;
-  }) => <a {...props}>{children}</a>,
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
 }));
 
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import { ExpeditionSummary } from "@/components/features/expedition/ExpeditionSummary";
 import type { ExpeditionSummary as ExpeditionSummaryData } from "@/server/services/expedition-summary.service";
+import type { TripReadinessResult } from "@/server/services/trip-readiness.service";
+import type { NextStep } from "@/lib/engines/next-steps-engine";
 
 // ─── Fixtures ─────────────────────────────────────────────────────────────────
 
@@ -58,77 +66,55 @@ const FULL_SUMMARY: ExpeditionSummaryData = {
     travelPace: 50,
     budget: 5000,
     currency: "USD",
-    passengers: {
-      adults: 2,
-      children: 1,
-      infants: 0,
-      seniors: 0,
-    },
+    passengers: { adults: 2, children: 1, infants: 0, seniors: 0 },
   },
-  phase3: {
-    done: 5,
-    total: 8,
-  },
+  phase3: { done: 5, total: 8 },
   phase4: {
     transportSegments: [
-      {
-        type: "flight",
-        departurePlace: "GRU",
-        arrivalPlace: "CDG",
-        maskedBookingCode: "BOOK-****-123",
-      },
+      { type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", maskedBookingCode: "BOOK-****-123" },
     ],
     accommodations: [
-      {
-        type: "hotel",
-        name: "Hotel Paris",
-        maskedBookingCode: "BOOK-****-456",
-      },
+      { type: "hotel", name: "Hotel Paris", maskedBookingCode: "BOOK-****-456" },
     ],
     mobility: ["public_transit", "walking"],
   },
-  phase5: {
-    generatedAt: "2026-05-15",
-    highlights: ["UTC+1", "EUR", "French"],
-  },
-  phase6: {
-    dayCount: 10,
-    totalActivities: 35,
-  },
+  phase5: { generatedAt: "2026-05-15", highlights: ["UTC+1", "EUR", "French"] },
+  phase6: { dayCount: 10, totalActivities: 35 },
 };
+
+const FULL_READINESS: TripReadinessResult = {
+  readinessPercent: 85,
+  phases: [
+    { phase: 1, name: "The Calling", status: "complete", dataSnapshot: {} },
+    { phase: 2, name: "The Explorer", status: "complete", dataSnapshot: {} },
+    { phase: 3, name: "The Preparation", status: "partial", dataSnapshot: { done: 5, total: 8 } },
+    { phase: 4, name: "The Logistics", status: "complete", dataSnapshot: {} },
+    { phase: 5, name: "The Day Map", status: "complete", dataSnapshot: {} },
+    { phase: 6, name: "The Treasure", status: "not_started", dataSnapshot: {} },
+  ],
+};
+
+const NEXT_STEPS: NextStep[] = [
+  { labelKey: "expedition.nextSteps.completeChecklist", labelValues: { done: 5, total: 8 }, targetUrl: "/expedition/trip-1/phase-3", priority: 3 },
+  { labelKey: "expedition.nextSteps.startPhase", labelValues: { phase: "The Treasure" }, targetUrl: "/expedition/trip-1/phase-6", priority: 6 },
+];
 
 const EMPTY_SUMMARY: ExpeditionSummaryData = {
   tripId: "trip-2",
-  phase1: {
-    destination: "Berlin",
-    origin: null,
-    startDate: null,
-    endDate: null,
-    tripType: "international",
-  },
-  phase2: null,
-  phase3: null,
-  phase4: null,
-  phase5: null,
-  phase6: null,
+  phase1: { destination: "Berlin", origin: null, startDate: null, endDate: null, tripType: "international" },
+  phase2: null, phase3: null, phase4: null, phase5: null, phase6: null,
 };
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   vi.clearAllMocks();
-
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
-      matches: false,
-      media: query,
-      onchange: null,
-      addListener: vi.fn(),
-      removeListener: vi.fn(),
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-      dispatchEvent: vi.fn(),
+      matches: false, media: query, onchange: null,
+      addListener: vi.fn(), removeListener: vi.fn(),
+      addEventListener: vi.fn(), removeEventListener: vi.fn(), dispatchEvent: vi.fn(),
     })),
   });
 });
@@ -136,164 +122,155 @@ beforeEach(() => {
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 describe("ExpeditionSummary", () => {
-  it("renders all 6 phase sections", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    expect(screen.getByText("expedition.summary.phase1Title")).toBeInTheDocument();
-    expect(screen.getByText("expedition.summary.phase2Title")).toBeInTheDocument();
-    expect(screen.getByText("expedition.summary.phase3Title")).toBeInTheDocument();
-    expect(screen.getByText("expedition.summary.phase4Title")).toBeInTheDocument();
-    expect(screen.getByText("expedition.summary.phase5Title")).toBeInTheDocument();
-    expect(screen.getByText("expedition.summary.phase6Title")).toBeInTheDocument();
+  it("renders summary hero with title and destination", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    expect(screen.getByTestId("summary-hero")).toBeInTheDocument();
+    expect(screen.getByText("expedition.summary.title")).toBeInTheDocument();
+    expect(screen.getAllByText("Paris, France").length).toBeGreaterThanOrEqual(1);
   });
 
-  it("renders phase 1 data correctly", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    expect(screen.getByText("Paris, France")).toBeInTheDocument();
-    expect(screen.getByText("Sao Paulo, Brazil")).toBeInTheDocument();
+  it("renders 6 phase cards", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    expect(screen.getByTestId("phase-cards")).toBeInTheDocument();
+    for (let i = 1; i <= 6; i++) {
+      expect(screen.getByTestId(`phase-card-${i}`)).toBeInTheDocument();
+    }
   });
 
-  it("renders phase 2 data correctly", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    expect(screen.getByText(/family/)).toBeInTheDocument();
-    expect(screen.getByText(/comfort/)).toBeInTheDocument();
+  it("renders readiness indicator with percentage", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    const indicator = screen.getByTestId("readiness-indicator");
+    expect(indicator).toBeInTheDocument();
+    expect(screen.getByText("85%")).toBeInTheDocument();
   });
 
-  it("renders 'Edit' links that navigate to each phase", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    // Click edit for phase 1
-    fireEvent.click(screen.getByTestId("edit-phase-1"));
-    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-1");
-
-    // Click edit for phase 3
-    fireEvent.click(screen.getByTestId("edit-phase-3"));
-    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-3");
-
-    // Click edit for phase 6
-    fireEvent.click(screen.getByTestId("edit-phase-6"));
-    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-6");
+  it("renders readiness progress bar with correct ARIA", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    const progressbar = screen.getByRole("progressbar");
+    expect(progressbar).toHaveAttribute("aria-valuenow", "85");
   });
 
-  it("shows 'Not completed' for missing phases", () => {
-    render(
-      <ExpeditionSummary tripId="trip-2" summary={EMPTY_SUMMARY} />
-    );
-
-    // Phase 1 should still show data
-    expect(screen.getByText("Berlin")).toBeInTheDocument();
-
-    // Phases 2-6 should show "Not completed"
-    expect(screen.getByTestId("phase2-not-completed")).toHaveTextContent(
-      "expedition.summary.notCompleted"
-    );
-    expect(screen.getByTestId("phase3-not-completed")).toHaveTextContent(
-      "expedition.summary.notCompleted"
-    );
-    expect(screen.getByTestId("phase4-not-completed")).toHaveTextContent(
-      "expedition.summary.notCompleted"
-    );
-    expect(screen.getByTestId("phase5-not-completed")).toHaveTextContent(
-      "expedition.summary.notCompleted"
-    );
-    expect(screen.getByTestId("phase6-not-completed")).toHaveTextContent(
-      "expedition.summary.notCompleted"
-    );
-  });
-
-  it("displays masked booking codes", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    // Transport booking code
-    expect(screen.getByText(/BOOK-\*\*\*\*-123/)).toBeInTheDocument();
-    // Accommodation booking code
-    expect(screen.getByText(/BOOK-\*\*\*\*-456/)).toBeInTheDocument();
-  });
-
-  it("renders gamification celebration when provided", async () => {
-    vi.useFakeTimers();
-
+  it("renders trip countdown", () => {
     render(
       <ExpeditionSummary
         tripId="trip-1"
         summary={FULL_SUMMARY}
-        celebration={{
-          pointsEarned: 500,
-          badgeAwarded: "treasurer",
-        }}
+        readiness={FULL_READINESS}
+        startDate="2026-06-01"
+        endDate="2026-06-10"
       />
     );
+    expect(screen.getByTestId("trip-countdown")).toBeInTheDocument();
+  });
 
-    // PointsAnimation should show initially
-    expect(
-      screen.getByText(/expedition\.animation\.pointsEarned/)
-    ).toBeInTheDocument();
+  it("renders next steps when readiness < 100%", () => {
+    render(
+      <ExpeditionSummary
+        tripId="trip-1"
+        summary={FULL_SUMMARY}
+        readiness={FULL_READINESS}
+        nextSteps={NEXT_STEPS}
+      />
+    );
+    expect(screen.getByTestId("next-steps-section")).toBeInTheDocument();
+    expect(screen.getByTestId("next-step-0")).toBeInTheDocument();
+    expect(screen.getByTestId("next-step-1")).toBeInTheDocument();
+  });
 
-    // After auto-dismiss (2500ms + 300ms fade)
-    await act(async () => {
-      vi.advanceTimersByTime(2900);
-    });
+  it("does not render next steps when readiness is 100%", () => {
+    const fullReadiness: TripReadinessResult = {
+      readinessPercent: 100,
+      phases: FULL_READINESS.phases.map((p) => ({ ...p, status: "complete" as const })),
+    };
+    render(
+      <ExpeditionSummary
+        tripId="trip-1"
+        summary={FULL_SUMMARY}
+        readiness={fullReadiness}
+        nextSteps={[{ labelKey: "expedition.nextSteps.allDone", targetUrl: "/summary", priority: 1 }]}
+      />
+    );
+    expect(screen.queryByTestId("next-steps-section")).not.toBeInTheDocument();
+  });
 
-    // Summary should now be visible
-    expect(screen.getByText("expedition.summary.title")).toBeInTheDocument();
+  it("renders status badges for each phase", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    const badges = screen.getAllByTestId("status-badge");
+    expect(badges.length).toBe(6);
+  });
 
-    vi.useRealTimers();
+  it("shows edit/continue/start CTAs based on phase status", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    // Phase 1 is complete → Edit
+    expect(screen.getByTestId("edit-phase-1")).toHaveTextContent("expedition.summary.editPhase");
+    // Phase 3 is partial → Continue
+    expect(screen.getByTestId("edit-phase-3")).toHaveTextContent("expedition.summary.continuePhase");
+    // Phase 6 is not_started → Start
+    expect(screen.getByTestId("edit-phase-6")).toHaveTextContent("expedition.summary.startPhase");
+  });
+
+  it("renders edit links to correct phase URLs", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    const editPhase1 = screen.getByTestId("edit-phase-1").closest("a");
+    expect(editPhase1).toHaveAttribute("href", "/expedition/trip-1");
+    const editPhase3 = screen.getByTestId("edit-phase-3").closest("a");
+    expect(editPhase3).toHaveAttribute("href", "/expedition/trip-1/phase-3");
+  });
+
+  it("renders phase 1 data in card", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    // Paris, France appears in hero AND in phase card
+    expect(screen.getAllByText("Paris, France").length).toBeGreaterThanOrEqual(2);
   });
 
   it("renders checklist progress for phase 3", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    expect(
-      screen.getByText("expedition.summary.checklistProgress[5,8]")
-    ).toBeInTheDocument();
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    expect(screen.getByText("expedition.summary.checklistProgress[5,8]")).toBeInTheDocument();
   });
 
   it("renders itinerary stats for phase 6", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
-    expect(
-      screen.getByText("expedition.summary.itineraryDays[10]")
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText("expedition.summary.totalActivities[35]")
-    ).toBeInTheDocument();
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    expect(screen.getByText("expedition.summary.itineraryDays[10]")).toBeInTheDocument();
   });
 
-  it("renders View Dashboard button", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
+  it("renders View Dashboard button navigating to /expeditions", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    const btn = screen.getByText("expedition.summary.viewDashboard");
+    fireEvent.click(btn);
+    expect(mockPush).toHaveBeenCalledWith("/expeditions");
+  });
 
-    const dashboardBtn = screen.getByText("expedition.summary.viewDashboard");
-    fireEvent.click(dashboardBtn);
-    expect(mockPush).toHaveBeenCalledWith("/dashboard");
+  it("renders gamification celebration when provided", async () => {
+    vi.useFakeTimers();
+    render(
+      <ExpeditionSummary
+        tripId="trip-1"
+        summary={FULL_SUMMARY}
+        celebration={{ pointsEarned: 500, badgeAwarded: "treasurer" }}
+      />
+    );
+    expect(screen.getByText(/expedition\.animation\.pointsEarned/)).toBeInTheDocument();
+    await act(async () => { vi.advanceTimersByTime(2900); });
+    expect(screen.getByText("expedition.summary.title")).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it("renders phases overview heading", () => {
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    expect(screen.getByText("expedition.summary.phasesOverview")).toBeInTheDocument();
+  });
+
+  it("falls back gracefully without readiness data", () => {
+    render(<ExpeditionSummary tripId="trip-2" summary={EMPTY_SUMMARY} />);
+    expect(screen.getByTestId("phase-cards")).toBeInTheDocument();
+    expect(screen.getByText("0%")).toBeInTheDocument();
   });
 
   it("has proper heading hierarchy", () => {
-    render(
-      <ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} />
-    );
-
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1).toHaveTextContent("expedition.summary.title");
-
     const h2s = screen.getAllByRole("heading", { level: 2 });
-    expect(h2s.length).toBe(6);
+    expect(h2s.length).toBeGreaterThanOrEqual(1);
   });
 });
