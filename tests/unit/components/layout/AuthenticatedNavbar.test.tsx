@@ -66,31 +66,47 @@ describe("AuthenticatedNavbar", () => {
     mockUsePathname.mockReturnValue("/dashboard");
   });
 
-  it("renders the app logo/name linking to /dashboard", () => {
+  it("renders the app logo/name linking to /expeditions", () => {
     render(<AuthenticatedNavbar {...defaultProps} />);
 
     const logo = screen.getByText("common.appName");
-    expect(logo.closest("a")).toHaveAttribute("href", "/dashboard");
+    expect(logo.closest("a")).toHaveAttribute("href", "/expeditions");
   });
 
-  it("renders My Atlas link", () => {
+  it("renders Expeditions link", () => {
+    render(<AuthenticatedNavbar {...defaultProps} />);
+
+    const links = screen.getAllByText("navigation.expeditions");
+    expect(links.length).toBeGreaterThanOrEqual(1);
+    expect(links[0].closest("a")).toHaveAttribute("href", "/expeditions");
+  });
+
+  it("renders My Atlas link to /atlas", () => {
     render(<AuthenticatedNavbar {...defaultProps} />);
 
     const links = screen.getAllByText("navigation.myAtlas");
     expect(links.length).toBeGreaterThanOrEqual(1);
-    expect(links[0].closest("a")).toHaveAttribute("href", "/dashboard");
+    expect(links[0].closest("a")).toHaveAttribute("href", "/atlas");
   });
 
-  it("highlights My Atlas link when pathname is /dashboard", () => {
-    mockUsePathname.mockReturnValue("/dashboard");
+  it("highlights Expeditions link when pathname is /expeditions", () => {
+    mockUsePathname.mockReturnValue("/expeditions");
     render(<AuthenticatedNavbar {...defaultProps} />);
 
-    const links = screen.getAllByText("navigation.myAtlas");
+    const links = screen.getAllByText("navigation.expeditions");
     expect(links[0].closest("a")?.className).toContain("font-semibold");
   });
 
-  it("highlights My Atlas link when pathname starts with /expedition", () => {
+  it("highlights Expeditions link when pathname starts with /expedition", () => {
     mockUsePathname.mockReturnValue("/expedition/some-id");
+    render(<AuthenticatedNavbar {...defaultProps} />);
+
+    const links = screen.getAllByText("navigation.expeditions");
+    expect(links[0].closest("a")?.className).toContain("font-semibold");
+  });
+
+  it("highlights My Atlas link when pathname is /atlas", () => {
+    mockUsePathname.mockReturnValue("/atlas");
     render(<AuthenticatedNavbar {...defaultProps} />);
 
     const links = screen.getAllByText("navigation.myAtlas");
