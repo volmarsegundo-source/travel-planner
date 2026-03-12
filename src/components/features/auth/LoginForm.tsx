@@ -99,7 +99,7 @@ export function LoginForm() {
         return;
       }
 
-      router.push("/dashboard");
+      router.push("/expeditions");
     } catch {
       // signIn may throw instead of returning { ok: false }
       // in some Auth.js v5 versions with Credentials provider

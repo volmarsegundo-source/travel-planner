@@ -177,7 +177,7 @@ export function RegisterForm() {
       });
 
       if (signInResult?.ok) {
-        router.push("/dashboard");
+        router.push("/expeditions");
       } else {
         // Fallback to login page if auto-login fails
         router.push("/auth/login?registered=true");

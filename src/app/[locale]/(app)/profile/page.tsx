@@ -83,7 +83,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
       <div className="mx-auto max-w-2xl px-4 pt-6 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[
-            { label: tNav("breadcrumb.home"), href: "/dashboard" },
+            { label: tNav("breadcrumb.home"), href: "/expeditions" },
             { label: tNav("breadcrumb.profile") },
           ]}
         />
