@@ -52,6 +52,13 @@ interface Phase1WizardProps {
   userCountry?: string;
   userProfile?: UserProfileData;
   userName?: string;
+  /** Previously saved trip data for revisit pre-population */
+  savedDestination?: string;
+  savedOrigin?: string;
+  savedStartDate?: string;
+  savedEndDate?: string;
+  /** Trip ID — present when revisiting an existing expedition */
+  tripId?: string;
 }
 
 export function Phase1Wizard({
@@ -59,6 +66,11 @@ export function Phase1Wizard({
   // userCountry prop kept for backward compat but no longer used for classification
   userProfile,
   userName,
+  savedDestination,
+  savedOrigin,
+  savedStartDate,
+  savedEndDate,
+  tripId,
 }: Phase1WizardProps) {
   const t = useTranslations("expedition.phase1");
   const tExpedition = useTranslations("expedition");
@@ -89,17 +101,20 @@ export function Phase1Wizard({
     [userProfile]
   );
 
-  // Form data
-  const [destination, setDestination] = useState("");
+  // Form data — pre-populate from saved trip data when revisiting
+  const [destination, setDestination] = useState(savedDestination ?? "");
   const [destinationCountryCode, setDestinationCountryCode] = useState<string | null>(null);
+  const [destinationLat, setDestinationLat] = useState<number | undefined>(undefined);
+  const [destinationLon, setDestinationLon] = useState<number | undefined>(undefined);
   const [originCountryCode, setOriginCountryCode] = useState<string | null>(null);
   const [origin, setOrigin] = useState(
-    userProfile?.city && userProfile?.country
-      ? `${userProfile.city}, ${userProfile.country}`
-      : ""
+    savedOrigin
+      ?? (userProfile?.city && userProfile?.country
+        ? `${userProfile.city}, ${userProfile.country}`
+        : "")
   );
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
+  const [startDate, setStartDate] = useState(savedStartDate ?? "");
+  const [endDate, setEndDate] = useState(savedEndDate ?? "");
   const [flexibleDates, setFlexibleDates] = useState(false);
 
   // Profile fields (Step 1: About You) — pre-populated from saved profile
@@ -194,6 +209,8 @@ export function Phase1Wizard({
         origin: origin.trim() || undefined,
         destinationCountryCode: destinationCountryCode ?? undefined,
         originCountryCode: originCountryCode ?? undefined,
+        destinationLat,
+        destinationLon,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         flexibleDates,
@@ -228,8 +245,10 @@ export function Phase1Wizard({
     router.push(`/expedition/${tripIdRef.current}/phase-2`);
   }
 
-  function handleDestinationSelect(result: { displayName: string; country: string | null; countryCode: string | null }) {
+  function handleDestinationSelect(result: { displayName: string; country: string | null; countryCode: string | null; lat: number; lon: number }) {
     setDestinationCountryCode(result.countryCode);
+    setDestinationLat(result.lat);
+    setDestinationLon(result.lon);
   }
 
   function handleOriginSelect(result: { displayName: string; country: string | null; countryCode: string | null }) {

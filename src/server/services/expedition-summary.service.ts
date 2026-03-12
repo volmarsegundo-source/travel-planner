@@ -13,6 +13,8 @@ export interface ExpeditionSummaryPhase1 {
   startDate: string | null;
   endDate: string | null;
   tripType: string;
+  destinationLat: number | null;
+  destinationLon: number | null;
 }
 
 export interface ExpeditionSummaryPhase2 {
@@ -123,6 +125,8 @@ export class ExpeditionSummaryService {
         id: true,
         destination: true,
         origin: true,
+        destinationLat: true,
+        destinationLon: true,
         startDate: true,
         endDate: true,
         tripType: true,
@@ -186,6 +190,8 @@ export class ExpeditionSummaryService {
     const phase1: ExpeditionSummaryPhase1 = {
       destination: trip.destination,
       origin: trip.origin,
+      destinationLat: trip.destinationLat,
+      destinationLon: trip.destinationLon,
       startDate: trip.startDate
         ? trip.startDate.toISOString().split("T")[0]!
         : null,

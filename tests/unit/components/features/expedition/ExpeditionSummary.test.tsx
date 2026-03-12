@@ -56,6 +56,8 @@ const FULL_SUMMARY: ExpeditionSummaryData = {
   phase1: {
     destination: "Paris, France",
     origin: "Sao Paulo, Brazil",
+    destinationLat: 48.8566,
+    destinationLon: 2.3522,
     startDate: "2026-06-01",
     endDate: "2026-06-10",
     tripType: "international",
@@ -101,7 +103,7 @@ const NEXT_STEPS: NextStep[] = [
 
 const EMPTY_SUMMARY: ExpeditionSummaryData = {
   tripId: "trip-2",
-  phase1: { destination: "Berlin", origin: null, startDate: null, endDate: null, tripType: "international" },
+  phase1: { destination: "Berlin", origin: null, destinationLat: null, destinationLon: null, startDate: null, endDate: null, tripType: "international" },
   phase2: null, phase3: null, phase4: null, phase5: null, phase6: null,
 };
 
