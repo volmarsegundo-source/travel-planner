@@ -37,6 +37,10 @@ export default async function ExpeditionsPage({ params }: ExpeditionsPageProps) 
       checklistRequiredDone: t.checklistRequiredDone,
       checklistRecommendedPending: t.checklistRecommendedPending,
       hasItineraryPlan: t.hasItineraryPlan,
+      startDate: t.startDate ? t.startDate.toISOString().split("T")[0]! : null,
+      endDate: t.endDate ? t.endDate.toISOString().split("T")[0]! : null,
+      destinationLat: t.destinationLat ?? null,
+      destinationLon: t.destinationLon ?? null,
     }));
 
   return (

@@ -207,8 +207,8 @@ describe("Phase1Wizard", () => {
     it("step 1 has no back button (first step)", () => {
       render(<Phase1Wizard />);
 
-      // The back arrow should not exist on step 1
-      expect(screen.queryByText("\u2190")).not.toBeInTheDocument();
+      // The WizardFooter back button should not exist on step 1
+      expect(screen.queryByTestId("wizard-back")).not.toBeInTheDocument();
     });
 
     it("step 2 back button returns to step 1", () => {
@@ -219,8 +219,8 @@ describe("Phase1Wizard", () => {
       fireEvent.click(screen.getByText("common.next"));
       expect(screen.getByText("expedition.phase1.step2.title")).toBeInTheDocument();
 
-      // Click back
-      fireEvent.click(screen.getByText("\u2190"));
+      // Click WizardFooter back button
+      fireEvent.click(screen.getByTestId("wizard-back"));
 
       // Should be back on step 1
       expect(screen.getByText("expedition.phase1.step1.title")).toBeInTheDocument();

@@ -14,7 +14,7 @@ export default async function HomePage({ params }: HomePageProps) {
   const { locale } = await params;
 
   if (session) {
-    redirect({ href: "/dashboard", locale });
+    redirect({ href: "/expeditions", locale });
   }
 
   return (

@@ -11,6 +11,8 @@ export const Phase1Schema = z.object({
   origin: z.string().trim().max(150).optional(),
   destinationCountryCode: z.string().length(2).toUpperCase().optional(),
   originCountryCode: z.string().length(2).toUpperCase().optional(),
+  destinationLat: z.number().min(-90).max(90).optional(),
+  destinationLon: z.number().min(-180).max(180).optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   flexibleDates: z.boolean().default(false),

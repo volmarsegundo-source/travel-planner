@@ -900,7 +900,12 @@
       "totalActivities": "{count} activities",
       "maskedBookingCode": "Booking code: {code}",
       "expeditionCompleted": "Expedition completed!",
-      "viewDashboard": "View Dashboard"
+      "viewDashboard": "View Dashboard",
+      "readiness": "Trip readiness",
+      "readinessLabel": "{percent}% ready",
+      "phasesOverview": "Phases Overview",
+      "continuePhase": "Continue",
+      "startPhase": "Start"
     },
     "progress": "Step {current} of {total}",
     "phaseProgress": "Phase {current} of {total}",

@@ -50,7 +50,7 @@ export default async function ExpeditionNewPage({ params }: ExpeditionNewPagePro
       <div className="mx-auto max-w-md px-4 pt-6 sm:px-6">
         <Breadcrumb
           items={[
-            { label: tNav("breadcrumb.home"), href: "/dashboard" },
+            { label: tNav("breadcrumb.home"), href: "/expeditions" },
             { label: tNav("breadcrumb.expedition") },
           ]}
         />

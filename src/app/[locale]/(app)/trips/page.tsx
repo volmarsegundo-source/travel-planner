@@ -5,10 +5,10 @@ interface TripsPageProps {
 }
 
 /**
- * /trips now redirects to /dashboard.
+ * /trips now redirects to /expeditions.
  * Trip management lives inside the expedition flow (Atlas gamification).
  */
 export default async function TripsPage({ params }: TripsPageProps) {
   const { locale } = await params;
-  redirect({ href: "/dashboard", locale });
+  redirect({ href: "/expeditions", locale });
 }

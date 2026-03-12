@@ -900,7 +900,12 @@
       "totalActivities": "{count} atividades",
       "maskedBookingCode": "Código de reserva: {code}",
       "expeditionCompleted": "Expedição concluída!",
-      "viewDashboard": "Ver Dashboard"
+      "viewDashboard": "Ver Dashboard",
+      "readiness": "Preparação da viagem",
+      "readinessLabel": "{percent}% pronto",
+      "phasesOverview": "Visão Geral das Fases",
+      "continuePhase": "Continuar",
+      "startPhase": "Iniciar"
     },
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}",

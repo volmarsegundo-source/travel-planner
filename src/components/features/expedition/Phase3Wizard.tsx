@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { WizardFooter } from "./WizardFooter";
 import {
   togglePhase3ItemAction,
   advanceFromPhaseAction,
@@ -40,7 +40,6 @@ export function Phase3Wizard({
   const t = useTranslations("expedition.phase3");
   const tExpedition = useTranslations("expedition");
   const tPhases = useTranslations("gamification.phases");
-  const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const router = useRouter();
 
@@ -277,41 +276,23 @@ export function Phase3Wizard({
           </div>
         )}
 
-        {/* Back to previous phase */}
+        {/* Navigation */}
         <div className="mt-6">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/expedition/${tripId}/phase-2`)}
-            className="min-h-[44px]"
-            data-testid="back-to-phase-2"
-          >
-            {tCommon("back")}
-          </Button>
-        </div>
-
-        {/* Advance button — or "Go to current phase" when revisiting */}
-        <div className="mt-4">
-          {isRevisiting ? (
-            <Button
-              onClick={() => router.push(`/expedition/${tripId}/phase-${currentPhase}`)}
-              size="lg"
-              className="w-full"
-            >
-              {t("goToCurrentPhase", { phase: currentPhase })}
-            </Button>
-          ) : (
-            <Button
-              onClick={handleAdvance}
-              disabled={isCompleting}
-              size="lg"
-              className="w-full"
-              aria-busy={isCompleting}
-            >
-              {isCompleting
-                ? tExpedition("cta.advancing")
-                : tExpedition("cta.advance")}
-            </Button>
-          )}
+          <WizardFooter
+            onBack={() => router.push(`/expedition/${tripId}/phase-2`)}
+            onPrimary={
+              isRevisiting
+                ? () => router.push(`/expedition/${tripId}/phase-${currentPhase}`)
+                : handleAdvance
+            }
+            primaryLabel={
+              isRevisiting
+                ? t("goToCurrentPhase", { phase: currentPhase })
+                : tExpedition("cta.advance")
+            }
+            isLoading={isCompleting}
+            isDisabled={isCompleting}
+          />
         </div>
       </div>
     </div>

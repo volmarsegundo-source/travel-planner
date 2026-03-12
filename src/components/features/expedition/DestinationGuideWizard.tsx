@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { WizardFooter } from "./WizardFooter";
 import {
   generateDestinationGuideAction,
   completePhase5Action,
@@ -297,33 +298,22 @@ export function DestinationGuideWizard({
           </div>
         )}
 
-        {/* Back to previous phase */}
-        <div className="mt-4">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/expedition/${tripId}/phase-4`)}
-            className="min-h-[44px]"
-            data-testid="back-to-phase-4"
-          >
-            {tCommon("back")}
-          </Button>
-        </div>
-
-        {/* Generate button (when no guide) */}
+        {/* Generate button + back (when no guide) */}
         {!guide && (
-          <div className="mt-8 text-center">
-            <p className="mb-4 text-sm text-muted-foreground">
-              {t("generateHint")}
-            </p>
-            <Button
-              onClick={handleGenerate}
-              disabled={isGenerating}
-              size="lg"
-              className="w-full"
-            >
-              {isGenerating ? tCommon("loading") : t("generateCta")}
-            </Button>
-          </div>
+          <>
+            <div className="mt-8 text-center">
+              <p className="mb-4 text-sm text-muted-foreground">
+                {t("generateHint")}
+              </p>
+            </div>
+            <WizardFooter
+              onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+              onPrimary={handleGenerate}
+              primaryLabel={t("generateCta")}
+              isLoading={isGenerating}
+              isDisabled={isGenerating}
+            />
+          </>
         )}
 
         {/* Guide sections — always visible, no collapse */}
@@ -473,17 +463,15 @@ export function DestinationGuideWizard({
               {t("aiDisclaimer")}
             </p>
 
-            {/* Advance button */}
+            {/* Navigation */}
             <div className="mt-3">
-              <Button
-                onClick={handleComplete}
-                disabled={isCompleting}
-                size="lg"
-                className="w-full"
-                aria-busy={isCompleting}
-              >
-                {isCompleting ? tExpedition("cta.advancing") : tExpedition("cta.advance")}
-              </Button>
+              <WizardFooter
+                onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+                onPrimary={handleComplete}
+                primaryLabel={tExpedition("cta.advance")}
+                isLoading={isCompleting}
+                isDisabled={isCompleting}
+              />
             </div>
           </>
         )}

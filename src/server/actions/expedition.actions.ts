@@ -90,7 +90,7 @@ export async function createExpeditionAction(
     }
 
     revalidatePath("/");
-    revalidatePath("/dashboard");
+    revalidatePath("/expeditions");
     revalidatePath("/trips");
     return { success: true, data: result };
   } catch (error) {
@@ -148,7 +148,7 @@ export async function completePhase2Action(
       }
     }
 
-    revalidatePath("/dashboard");
+    revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
   } catch (error) {
@@ -197,7 +197,7 @@ export async function completePhase3Action(
 
   try {
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 3);
-    revalidatePath("/dashboard");
+    revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
   } catch (error) {
@@ -246,7 +246,7 @@ export async function completePhase4Action(
     }
 
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 4);
-    revalidatePath("/dashboard");
+    revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
   } catch (error) {
@@ -268,7 +268,7 @@ export async function completePhase5Action(
 
   try {
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 5);
-    revalidatePath("/dashboard");
+    revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
   } catch (error) {
@@ -631,7 +631,7 @@ export async function advanceFromPhaseAction(
         session.user.id,
         phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
       );
-      revalidatePath("/dashboard");
+      revalidatePath("/expeditions");
       revalidatePath(`/expedition/${tripId}`);
       return {
         success: true,
@@ -648,7 +648,7 @@ export async function advanceFromPhaseAction(
         session.user.id,
         phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
       );
-      revalidatePath("/dashboard");
+      revalidatePath("/expeditions");
       revalidatePath(`/expedition/${tripId}`);
       return {
         success: true,
@@ -737,7 +737,7 @@ export async function completeExpeditionAction(
       // Badge may already exist — non-blocking
     }
 
-    revalidatePath("/dashboard");
+    revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
 
     return {

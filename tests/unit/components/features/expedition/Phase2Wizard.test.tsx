@@ -320,7 +320,7 @@ describe("Phase2Wizard", () => {
     it("back button navigates to Phase 1 of the same trip", () => {
       render(<Phase2Wizard tripId="trip-nav-1" />);
 
-      const backBtn = screen.getByTestId("back-to-dashboard");
+      const backBtn = screen.getByTestId("wizard-back");
       fireEvent.click(backBtn);
 
       expect(mockRouterPush).toHaveBeenCalledWith(

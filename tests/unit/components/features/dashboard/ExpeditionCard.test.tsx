@@ -53,6 +53,8 @@ interface RenderOptions {
   hasItineraryPlan?: boolean;
   startDate?: string | null;
   endDate?: string | null;
+  destinationLat?: number | null;
+  destinationLon?: number | null;
 }
 
 function renderCard(opts: RenderOptions = {}) {
@@ -70,6 +72,8 @@ function renderCard(opts: RenderOptions = {}) {
       hasItineraryPlan={opts.hasItineraryPlan}
       startDate={opts.startDate ?? null}
       endDate={opts.endDate ?? null}
+      destinationLat={opts.destinationLat ?? null}
+      destinationLon={opts.destinationLon ?? null}
     />
   );
 }
@@ -226,6 +230,37 @@ describe("ExpeditionCard", () => {
     );
     expect(mainLink).toBeDefined();
   });
+
+  // ─── Map pin ───────────────────────────────────────────────────────
+
+  it("shows map pin when coordinates are present", () => {
+    renderCard({ destinationLat: 48.8566, destinationLon: 2.3522 });
+    expect(screen.getByTestId("map-pin")).toBeInTheDocument();
+  });
+
+  it("hides map pin when coordinates are null", () => {
+    renderCard({ destinationLat: null, destinationLon: null });
+    expect(screen.queryByTestId("map-pin")).not.toBeInTheDocument();
+  });
+
+  it("hides map pin when only lat is present", () => {
+    renderCard({ destinationLat: 48.8566, destinationLon: null });
+    expect(screen.queryByTestId("map-pin")).not.toBeInTheDocument();
+  });
+
+  // ─── Countdown inline ─────────────────────────────────────────────
+
+  it("shows trip countdown when startDate is present", () => {
+    renderCard({ startDate: "2026-06-01" });
+    expect(screen.getByTestId("trip-countdown-inline")).toBeInTheDocument();
+  });
+
+  it("hides trip countdown when startDate is null", () => {
+    renderCard({ startDate: null });
+    expect(screen.queryByTestId("trip-countdown-inline")).not.toBeInTheDocument();
+  });
+
+  // ─── Card link ─────────────────────────────────────────────────────
 
   it("content wrapper has pointer-events-none to allow card link clicks", () => {
     renderCard();

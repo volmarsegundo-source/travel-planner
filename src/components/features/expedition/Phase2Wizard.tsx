@@ -3,7 +3,6 @@
 import { useRef, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -12,6 +11,7 @@ import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { VisualCardSelector } from "./VisualCardSelector";
+import { WizardFooter } from "./WizardFooter";
 import { PassengersStep } from "./PassengersStep";
 import { PreferencesSection } from "@/components/features/profile/PreferencesSection";
 import { completePhase2Action } from "@/server/actions/expedition.actions";
@@ -26,15 +26,34 @@ interface TripContext {
   endDate?: string;
 }
 
+interface SavedPhase2Data {
+  travelerType?: string;
+  accommodationStyle?: string;
+  travelPace?: number;
+  budget?: number;
+  currency?: string;
+}
+
+interface SavedPassengers {
+  adults: number;
+  children?: { count: number; ages: number[] };
+  seniors: number;
+  infants: number;
+}
+
 interface Phase2WizardProps {
   tripId: string;
   tripContext?: TripContext;
+  /** Previously saved Phase 2 data for revisit pre-population */
+  savedData?: SavedPhase2Data;
+  /** Previously saved passengers breakdown */
+  savedPassengers?: SavedPassengers;
 }
 
 // Step definitions (order matters)
 type StepKey = "travelerType" | "passengers" | "accommodation" | "pace" | "budget" | "preferences" | "confirmation";
 
-export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
+export function Phase2Wizard({ tripId, tripContext, savedData, savedPassengers }: Phase2WizardProps) {
   const t = useTranslations("expedition.phase2");
   const tExpedition = useTranslations("expedition");
   const tPhases = useTranslations("gamification.phases");
@@ -54,17 +73,17 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
     rank?: Rank | null;
   }>({ points: 0 });
 
-  // Form data
-  const [travelerType, setTravelerType] = useState<string | null>(null);
-  const [adults, setAdults] = useState(1);
-  const [childrenCount, setChildrenCount] = useState(0);
-  const [childrenAges, setChildrenAges] = useState<number[]>([]);
-  const [seniors, setSeniors] = useState(0);
-  const [infants, setInfants] = useState(0);
-  const [accommodationStyle, setAccommodationStyle] = useState<string | null>(null);
-  const [travelPace, setTravelPace] = useState(5);
-  const [budget, setBudget] = useState(1000);
-  const [currency, setCurrency] = useState(() => getDefaultCurrency(locale));
+  // Form data — pre-populate from saved expedition data when revisiting
+  const [travelerType, setTravelerType] = useState<string | null>(savedData?.travelerType ?? null);
+  const [adults, setAdults] = useState(savedPassengers?.adults ?? 1);
+  const [childrenCount, setChildrenCount] = useState(savedPassengers?.children?.count ?? 0);
+  const [childrenAges, setChildrenAges] = useState<number[]>(savedPassengers?.children?.ages ?? []);
+  const [seniors, setSeniors] = useState(savedPassengers?.seniors ?? 0);
+  const [infants, setInfants] = useState(savedPassengers?.infants ?? 0);
+  const [accommodationStyle, setAccommodationStyle] = useState<string | null>(savedData?.accommodationStyle ?? null);
+  const [travelPace, setTravelPace] = useState(savedData?.travelPace ?? 5);
+  const [budget, setBudget] = useState(savedData?.budget ?? 1000);
+  const [currency, setCurrency] = useState(() => savedData?.currency ?? getDefaultCurrency(locale));
   const [selectedPreferences, setSelectedPreferences] = useState<UserPreferences>({} as UserPreferences);
 
   // Categories already collected in earlier wizard steps
@@ -269,20 +288,11 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 }}
                 label={t("step1.title")}
               />
-              <div className="flex gap-3">
-                <Button
-                  variant="outline"
-                  onClick={() => router.push(`/expedition/${tripId}/phase-1`)}
-                  className="flex-1"
-                  aria-label={tCommon("back")}
-                  data-testid="back-to-dashboard"
-                >
-                  {"\u2190"}
-                </Button>
-                <Button onClick={handleNext} size="lg" className="flex-[3]">
-                  {tCommon("next")}
-                </Button>
-              </div>
+              <WizardFooter
+                onBack={() => router.push(`/expedition/${tripId}/phase-1`)}
+                onPrimary={handleNext}
+                primaryLabel={tCommon("next")}
+              />
             </div>
           )}
 
@@ -315,14 +325,11 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 onChange={setAccommodationStyle}
                 label={t("step2.title")}
               />
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
-                  &larr;
-                </Button>
-                <Button onClick={handleNext} className="flex-[3]">
-                  {tCommon("next")}
-                </Button>
-              </div>
+              <WizardFooter
+                onBack={handleBack}
+                onPrimary={handleNext}
+                primaryLabel={tCommon("next")}
+              />
             </div>
           )}
 
@@ -342,14 +349,11 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 step={1}
               />
               <p className="text-center text-lg font-semibold">{travelPace}/10</p>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
-                  &larr;
-                </Button>
-                <Button onClick={handleNext} className="flex-[3]">
-                  {tCommon("next")}
-                </Button>
-              </div>
+              <WizardFooter
+                onBack={handleBack}
+                onPrimary={handleNext}
+                primaryLabel={tCommon("next")}
+              />
             </div>
           )}
 
@@ -391,14 +395,11 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 max={100000}
                 step={100}
               />
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
-                  &larr;
-                </Button>
-                <Button onClick={handleNext} className="flex-[3]">
-                  {tCommon("next")}
-                </Button>
-              </div>
+              <WizardFooter
+                onBack={handleBack}
+                onPrimary={handleNext}
+                primaryLabel={tCommon("next")}
+              />
             </div>
           )}
 
@@ -410,14 +411,11 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                 excludeCategories={[...excludedPreferenceCategories]}
                 onPreferencesChange={setSelectedPreferences}
               />
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
-                  &larr;
-                </Button>
-                <Button onClick={handleNext} className="flex-[3]">
-                  {tCommon("next")}
-                </Button>
-              </div>
+              <WizardFooter
+                onBack={handleBack}
+                onPrimary={handleNext}
+                primaryLabel={tCommon("next")}
+              />
             </div>
           )}
 
@@ -531,20 +529,13 @@ export function Phase2Wizard({ tripId, tripContext }: Phase2WizardProps) {
                   })()}
                 </dl>
               </div>
-              <div className="flex gap-3">
-                <Button variant="outline" onClick={handleBack} className="flex-1" aria-label={tCommon("back")}>
-                  &larr;
-                </Button>
-                <Button
-                  onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="flex-[3]"
-                  size="lg"
-                  aria-busy={isSubmitting}
-                >
-                  {isSubmitting ? tExpedition("cta.advancing") : tExpedition("cta.advance")}
-                </Button>
-              </div>
+              <WizardFooter
+                onBack={handleBack}
+                onPrimary={handleSubmit}
+                primaryLabel={tExpedition("cta.advance")}
+                isLoading={isSubmitting}
+                isDisabled={isSubmitting}
+              />
             </div>
           )}
         </div>

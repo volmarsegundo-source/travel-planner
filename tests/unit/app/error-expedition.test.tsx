@@ -49,6 +49,6 @@ describe("ExpeditionError", () => {
     render(<ExpeditionError error={new Error("test")} reset={reset} />);
 
     const link = screen.getByText("errors.boundary.goBack").closest("a");
-    expect(link).toHaveAttribute("href", "/dashboard");
+    expect(link).toHaveAttribute("href", "/expeditions");
   });
 });

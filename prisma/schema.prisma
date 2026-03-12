@@ -134,6 +134,10 @@ model Trip {
   origin         String?        @db.VarChar(150)
   localMobility  String[]       @default([])
 
+  // Sprint 29: Map pin coordinates
+  destinationLat Float?
+  destinationLon Float?
+
   // Relacoes
   user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   itineraryDays     ItineraryDay[]

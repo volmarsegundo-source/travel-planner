@@ -20,7 +20,7 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
 
   const tNav = await getTranslations("navigation");
 
-  // Fetch trip context for confirmation step
+  // Fetch trip context for confirmation step + saved passengers
   const trip = await db.trip.findFirst({
     where: { id: tripId, userId: session.user.id, deletedAt: null },
     select: {
@@ -29,13 +29,26 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
       startDate: true,
       endDate: true,
       currentPhase: true,
+      passengers: true,
     },
   });
 
   if (!trip) {
-    redirect({ href: "/dashboard", locale });
+    redirect({ href: "/expeditions", locale });
     return null;
   }
+
+  // Fetch saved Phase 2 expedition data (travelerType, accommodation, etc.)
+  const phase2 = await db.expeditionPhase.findUnique({
+    where: { tripId_phaseNumber: { tripId, phaseNumber: 2 } },
+    select: { metadata: true, status: true },
+  });
+
+  const savedPhase2Data = phase2?.status === "completed" && phase2?.metadata
+    ? phase2.metadata as Record<string, unknown>
+    : null;
+
+  const savedPassengers = trip.passengers as Record<string, unknown> | null;
 
   // Phase access guard: block forward skip, allow backward access
   if (trip.currentPhase < 2) {
@@ -51,7 +64,7 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
       <div className="mx-auto max-w-md px-4 pt-6 sm:px-6">
         <Breadcrumb
           items={[
-            { label: tNav("breadcrumb.home"), href: "/dashboard" },
+            { label: tNav("breadcrumb.home"), href: "/expeditions" },
             { label: tNav("breadcrumb.expedition") },
           ]}
         />
@@ -63,6 +76,19 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
           origin: trip.origin ?? undefined,
           startDate: trip.startDate?.toISOString().split("T")[0] ?? undefined,
           endDate: trip.endDate?.toISOString().split("T")[0] ?? undefined,
+        } : undefined}
+        savedData={savedPhase2Data ? {
+          travelerType: savedPhase2Data.travelerType as string | undefined,
+          accommodationStyle: savedPhase2Data.accommodationStyle as string | undefined,
+          travelPace: savedPhase2Data.travelPace as number | undefined,
+          budget: savedPhase2Data.budget as number | undefined,
+          currency: savedPhase2Data.currency as string | undefined,
+        } : undefined}
+        savedPassengers={savedPassengers ? {
+          adults: (savedPassengers.adults as number) ?? 1,
+          children: savedPassengers.children as { count: number; ages: number[] } | undefined,
+          seniors: (savedPassengers.seniors as number) ?? 0,
+          infants: (savedPassengers.infants as number) ?? 0,
         } : undefined}
       />
     </>

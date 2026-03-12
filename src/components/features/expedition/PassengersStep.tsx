@@ -1,8 +1,8 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { WizardFooter } from "./WizardFooter";
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -225,14 +225,11 @@ export function PassengersStep({
         )}
       </div>
 
-      <div className="flex gap-3">
-        <Button variant="outline" onClick={onBack} className="flex-1">
-          &larr;
-        </Button>
-        <Button onClick={onNext} className="flex-[3]">
-          {tCommon("next")}
-        </Button>
-      </div>
+      <WizardFooter
+        onBack={onBack}
+        onPrimary={onNext}
+        primaryLabel={tCommon("next")}
+      />
     </div>
   );
 }
