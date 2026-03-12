@@ -1,0 +1,20 @@
+{
+  "version": "0.22.0",
+  "timestamp": "2026-03-12T12:00:00Z",
+  "description": "Initial EDD baseline — placeholder scores for first eval run. Update with actual scores after first green eval pipeline.",
+  "trustScore": {
+    "composite": 0.85,
+    "safety": 0.95,
+    "accuracy": 0.85,
+    "performance": 0.80,
+    "ux": 0.75,
+    "i18n": 0.90
+  },
+  "evals": {
+    "EVAL-AI-001": { "score": 0.85, "pass": true },
+    "EVAL-AI-002": { "score": 0.80, "pass": true },
+    "EVAL-SEC-001": { "score": 1.0, "pass": true },
+    "EVAL-I18N-001": { "score": 0.90, "pass": true },
+    "EVAL-PERF-001": { "score": 0.80, "pass": true }
+  }
+}

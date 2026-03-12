@@ -36,7 +36,12 @@
     "i18n": "node scripts/i18n-manager.js",
     "i18n:check": "node scripts/i18n-manager.js --check",
     "i18n:sync": "node scripts/i18n-manager.js --sync",
-    "test:plan": "node scripts/generate-test-plan.js"
+    "test:plan": "node scripts/generate-test-plan.js",
+    "eval": "vitest run --config vitest.eval.config.ts",
+    "eval:watch": "vitest watch --config vitest.eval.config.ts",
+    "eval:report": "vitest run --config vitest.eval.config.ts --reporter=json --outputFile=eval-report.json",
+    "eval:gate": "npx tsx scripts/eval-gate.ts eval-report.json",
+    "eval:drift": "npx tsx scripts/drift-check.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",

@@ -37,6 +37,8 @@
   ],
   "exclude": [
     "node_modules",
-    "travel-planner"
+    "travel-planner",
+    "docs/evals/graders",
+    "scripts"
   ]
 }

@@ -53,6 +53,9 @@ npm-debug.log*
 .claude/settings.local.json
 .claude/worktrees/
 
+# Eval reports (generated output)
+eval-report.json
+
 # Artifacts (external copies, not part of project)
 mnt/
 travel-planner/

@@ -1,7 +1,7 @@
 # Checklist de Adocao EDD — Atlas Travel Planner
 
 **Documento**: ADOPTION-CHECKLIST
-**Versao**: 1.0.0
+**Versao**: 1.1.0
 **Autor**: tech-lead
 **Data**: 2026-03-12
 **Status**: Draft
@@ -17,105 +17,105 @@ Cada item tem um **dono** (agente responsavel) e **criterio de conclusao** verif
 
 ---
 
-## Fase 1 — Fundacao (Sprint 30 — Atual)
+## Fase 1 — Fundacao (Sprint 30 — Completa)
 
 **Objetivo**: Toda a documentacao de processo criada, primeiros artefatos EDD existem.
 
 ### Documentacao de Processo
 
-- [ ] `docs/process/CURRENT-STATE-AUDIT.md` criado e commitado
+- [x] `docs/process/CURRENT-STATE-AUDIT.md` criado e commitado
   - **Dono**: architect
   - **Criterio**: Auditoria completa de SDD, EDD e CI/CD com gaps identificados
 
-- [ ] `docs/specs/GENESIS-SPEC.md` criado e commitado
+- [x] `docs/specs/GENESIS-SPEC.md` criado e commitado
   - **Dono**: architect
   - **Criterio**: Bounded contexts, non-negotiables e tech stack documentados
 
-- [ ] `docs/architecture/AS-IS.md` criado e commitado
+- [x] `docs/architecture/AS-IS.md` criado e commitado
   - **Dono**: architect
   - **Criterio**: Diagrama de arquitetura atual com todos os componentes
 
-- [ ] `docs/architecture/TO-BE.md` criado e commitado
+- [x] `docs/architecture/TO-BE.md` criado e commitado
   - **Dono**: architect
   - **Criterio**: Arquitetura alvo com EDD integrado, gaps em relacao ao AS-IS
 
-- [ ] `docs/specs/SDD-PROCESS.md` atualizado com secao EDD
+- [x] `docs/specs/SDD-PROCESS.md` atualizado com secao EDD
   - **Dono**: architect + tech-lead
   - **Criterio**: Secao 11+ com workflow integrado e DoR/DoD atualizados
 
-- [ ] `docs/process/EDD-SDD-INTEGRATION.md` criado e commitado
+- [x] `docs/process/EDD-SDD-INTEGRATION.md` criado e commitado
   - **Dono**: tech-lead
   - **Criterio**: Master doc com workflow, DoR/DoD, matriz de responsabilidades, rollout
 
-- [ ] `docs/process/ADOPTION-CHECKLIST.md` criado e commitado
+- [x] `docs/process/ADOPTION-CHECKLIST.md` criado e commitado
   - **Dono**: tech-lead
   - **Criterio**: Este documento, com todas as 4 fases detalhadas
 
 ### Framework EDD
 
-- [ ] `docs/process/EVAL-DRIVEN-DEVELOPMENT.md` criado e commitado
+- [x] `docs/process/EVAL-DRIVEN-DEVELOPMENT.md` criado e commitado
   - **Dono**: qa-engineer
   - **Criterio**: Framework completo com tipos de eval, nomenclatura, processo
 
-- [ ] `docs/process/templates/EVAL-TEMPLATE.md` criado e commitado
+- [x] `docs/process/templates/EVAL-TEMPLATE.md` criado e commitado
   - **Dono**: qa-engineer
   - **Criterio**: Template padrao para criar novas EVAL-XXX
 
-- [ ] `docs/process/TRUST-SCORE.md` criado e commitado
+- [x] `docs/process/TRUST-SCORE.md` criado e commitado
   - **Dono**: qa-engineer
   - **Criterio**: Formula de calculo, pesos por tipo de grader, thresholds por contexto
 
 ### DevOps e Infraestrutura
 
-- [ ] `docs/process/CI-CD-PIPELINE.md` criado e commitado
+- [x] `docs/process/CI-CD-PIPELINE.md` criado e commitado
   - **Dono**: devops-engineer
   - **Criterio**: Pipeline documentada com eval gates planejados
 
-- [ ] `docs/process/AGENT-REGISTRY.md` criado e commitado
+- [x] `docs/process/AGENT-REGISTRY.md` criado e commitado
   - **Dono**: devops-engineer
   - **Criterio**: Registro formal dos 13 agentes com versoes e capabilities
 
-- [ ] `docs/process/OBSERVABILITY.md` criado e commitado
+- [x] `docs/process/OBSERVABILITY.md` criado e commitado
   - **Dono**: devops-engineer
   - **Criterio**: Metricas, alertas e dashboards planejados (inclui eval metrics)
 
-- [ ] `docs/process/RUNTIME-ENFORCEMENT.md` criado e commitado
+- [x] `docs/process/RUNTIME-ENFORCEMENT.md` criado e commitado
   - **Dono**: devops-engineer
   - **Criterio**: Guardrails automatizados de agentes definidos
 
 ### Eval Datasets
 
-- [ ] `docs/evals/datasets/itinerary-golden-set.json` criado com pelo menos 5 exemplos
+- [x] `docs/evals/datasets/itinerary-golden-set.json` criado com pelo menos 5 exemplos
   - **Dono**: qa-engineer
   - **Criterio**: Inputs reais + outputs esperados para geracao de itinerario
 
-- [ ] `docs/evals/datasets/guide-quality-set.json` criado com pelo menos 5 exemplos
+- [x] `docs/evals/datasets/guide-quality-set.json` criado com pelo menos 5 exemplos
   - **Dono**: qa-engineer
   - **Criterio**: Inputs reais + outputs esperados para guia de destino
 
-- [ ] `docs/evals/datasets/injection-resistance.json` criado com pelo menos 10 exemplos
+- [x] `docs/evals/datasets/injection-resistance.json` criado com pelo menos 10 exemplos
   - **Dono**: qa-engineer + security-specialist
   - **Criterio**: Tentativas de prompt injection com flag de rejeicao esperado
 
-- [ ] `docs/evals/datasets/i18n-completeness.json` criado
+- [x] `docs/evals/datasets/i18n-completeness.json` criado
   - **Dono**: qa-engineer
   - **Criterio**: Chaves de traducao obrigatorias para pt e en
 
 ### Grader Templates
 
-- [ ] `docs/evals/graders/schema-validation.ts` criado
+- [x] `docs/evals/graders/schema-validation.ts` criado
   - **Dono**: dev-fullstack-1
   - **Criterio**: Template funcional que valida output contra Zod schema
 
-- [ ] `docs/evals/graders/llm-judge-itinerary.ts` criado
+- [x] `docs/evals/graders/llm-judge-itinerary.ts` criado
   - **Dono**: dev-fullstack-1
   - **Criterio**: Template com prompt de LLM-as-judge para itinerario
 
-- [ ] `docs/evals/graders/token-budget.ts` criado
+- [x] `docs/evals/graders/token-budget.ts` criado
   - **Dono**: dev-fullstack-1
   - **Criterio**: Template que verifica orcamento de tokens por geracao
 
-- [ ] `docs/evals/graders/i18n-completeness.ts` criado
+- [x] `docs/evals/graders/i18n-completeness.ts` criado
   - **Dono**: dev-fullstack-1
   - **Criterio**: Template que verifica cobertura de traducoes
 
@@ -132,6 +132,66 @@ Cada item tem um **dono** (agente responsavel) e **criterio de conclusao** verif
 > - Pelo menos 1 eval dataset tem dados reais (nao apenas placeholders)
 > - Formula de trust score esta definida e aprovada pelo tech-lead
 > - SDD-PROCESS.md esta atualizado com secao EDD
+
+---
+
+## Fase 2 — Implementacao (Sprint 30 — Em Andamento)
+
+**Objetivo**: Graders convertidos em modulos executaveis, infraestrutura de evals funcional, CI gates configurados.
+
+### Infraestrutura de Evals
+
+- [x] Graders convertidos para modulos executaveis em `src/lib/evals/`
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Graders importaveis como modulos TypeScript com interface padrao
+
+- [x] Trust Score calculator implementado (`src/lib/evals/trust-score.ts`)
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Calcula trust score baseado em resultados de graders, conforme TRUST-SCORE.md
+
+- [x] Eval runner criado (`src/lib/evals/eval-runner.ts`)
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Executa suite de evals e agrega resultados
+
+- [x] Telemetria de evals (`src/lib/evals/telemetry.ts`)
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Logging estruturado de resultados de eval em formato JSON
+
+- [x] Testes de eval criados em `tests/evals/`
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Cobertura >= 80% nos modulos de eval
+
+- [x] Vitest eval config separado (`vitest.eval.config.ts`)
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Config isolado que roda apenas testes em `tests/evals/`
+
+- [x] npm scripts para evals adicionados ao package.json
+  - **Dono**: tech-lead
+  - **Criterio**: `eval`, `eval:watch`, `eval:report`, `eval:gate`, `eval:drift` scripts funcionais
+
+### CI/CD e Gates
+
+- [x] GitHub Actions workflow para eval gates (`.github/workflows/eval.yml`)
+  - **Dono**: devops-engineer
+  - **Criterio**: Workflow executa evals em PRs e bloqueia merge se trust score < threshold
+
+- [x] Eval gate script (`scripts/eval-gate.ts`)
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Parseia eval-report.json e retorna exit code baseado em thresholds
+
+- [x] Drift detection script + baseline v0.22.0
+  - **Dono**: dev-fullstack-1
+  - **Criterio**: Compara resultados atuais contra baseline e detecta regressoes
+
+### Validacao Pendente
+
+- [ ] Primeira execucao completa do eval suite (manual)
+  - **Dono**: qa-engineer
+  - **Criterio**: Todos os evals executam sem erros, resultados documentados
+
+- [ ] Review de resultados pelo qa-engineer
+  - **Dono**: qa-engineer
+  - **Criterio**: Falsos positivos identificados, thresholds ajustados se necessario
 
 ---
 
@@ -292,4 +352,5 @@ Cada item tem um **dono** (agente responsavel) e **criterio de conclusao** verif
 
 | Versao | Data | Autor | Mudanca |
 |--------|------|-------|---------|
+| 1.1.0 | 2026-03-12 | tech-lead | Fase 1 marcada completa, Fase 2 Implementacao adicionada |
 | 1.0.0 | 2026-03-12 | tech-lead | Checklist inicial — 4 fases de adocao |

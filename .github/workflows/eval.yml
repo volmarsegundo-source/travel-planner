@@ -1,0 +1,56 @@
+name: EDD Eval Gates
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+concurrency:
+  group: eval-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: "20"
+
+jobs:
+  eval-gates:
+    name: EDD Eval Gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    env:
+      SKIP_ENV_VALIDATION: "true"
+      NODE_ENV: test
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run eval suite
+        run: npx vitest run --config vitest.eval.config.ts --reporter=json --outputFile=eval-report.json
+
+      - name: Check eval gate
+        run: npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.8
+
+      - name: Run drift check
+        run: npx tsx scripts/drift-check.ts docs/evals/baselines/v0.22.0-baseline.json eval-report.json --delta=0.1
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report-${{ github.sha }}
+          path: eval-report.json
+          retention-days: 30
