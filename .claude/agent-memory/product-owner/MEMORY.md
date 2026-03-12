@@ -18,43 +18,36 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-11, post Sprint 26)
-- Product version: 0.19.0 (Sprint 26 complete), 1655 tests
-- Sprints 1-26 complete
+### Backlog State (as of 2026-03-12, post Sprint 28)
+- Product version: 0.21.0 (Sprint 28 complete), 1721 tests
+- Sprints 1-28 complete
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-010
-- Full backlog: US-001 through US-016 + US-100 through US-123
-- Q2 2026 Roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-016
+- Sprint 29 backlog: `docs/specs/sprint-29/SPRINT-29-BACKLOG.md`
+- Sprint 29 specs: SPEC-PROD-013, SPEC-PROD-014, SPEC-PROD-015
 - Staging: travel-planner-eight-navy.vercel.app
-- Sprint 26 backlog: `docs/specs/sprint-26/SPRINT-26-BACKLOG.md`
-- Sprint 27 backlog: `docs/specs/sprint-27/SPRINT-27-BACKLOG.md`
 
-### Sprint 27 Planning
+### Sprint 29 Planning
+- Theme: "Beta Readiness -- Summary Polish, Data Persistence & CTA Closure"
+- Budget: 38h committed + 7h buffer (16%)
+- 7 deferred items from Sprint 28 (profile name, map pins, auto-save, phase revisit, summary cards, next steps, CTA integration)
+- P0: Summary card redesign (5h), Next Steps integration (2h), CTA integration (3h), Summary tests (3h)
+- P1: Phase revisit (4h), Map pins full (5h), Auto-save (3h), Profile name (2h), Beta validation (3h)
+- P2: Shareable summary link (SPEC-PROD-014, 3h), Trip duplication (SPEC-PROD-015, 2h)
+- Mandatory: Manual test re-run (3h)
+- Sacrifice order: T-S29-011 > T-S29-010 > T-S29-007 > T-S29-006 partial
+- New specs: SPEC-PROD-013 (Beta Validation), SPEC-PROD-014 (Shareable Link), SPEC-PROD-015 (Trip Duplication)
+
+### Sprint 28 Results
+- Theme: "Structural Improvements -- Navigation, Summary & Gamification"
+- v0.21.0, 1721 tests
+- Delivered: Navigation restructure (Expeditions + Meu Atlas), gamification header, LGPD pages, monitoring
+- 7 items deferred to Sprint 29 (summary integration, CTA integration, profile fix, map pins, auto-save, phase revisit)
+
+### Sprint 27 Results
 - Theme: "Recurring Bug Blitz + Structural UX Fixes"
-- Budget: 27.5h committed + 12.5h buffer (31%)
-- 14 recurring bugs (REC-001 through REC-014) from v0.19.0 manual testing
-- P0: Navigation bugs (T-S27-001, 4h), Autocomplete (T-S27-002, 2h), Guide fixes (T-S27-003, 3h)
-- P1: Phase 4 labels (1h), Dashboard bar (1h), Preferences (1h), Profile image (0.5h), Phase 1 fields (2h), CTA standardization (SPEC-PROD-009, 6h)
-- P2: Gamification header (SPEC-PROD-006, 4h), Map pin (1h)
-- Mandatory: Manual test re-run (T-S27-012, 2h)
-- Sacrifice order: T-S27-011 (Map Pin) > T-S27-010 (Gamification Header) > T-S27-009 (CTA Buttons)
-- New specs: SPEC-PROD-006, SPEC-PROD-007, SPEC-PROD-008, SPEC-PROD-009
-- Sprint 27 specs stored in: `docs/specs/sprint-27/`
-- Beta readiness (monitoring, LGPD, analytics) deferred to Sprint 28
-
-### Sprint 26 Results
-- Theme: "Guide Visibility, UX Polish & Expedition Closure"
-- v0.19.0, 1655 tests
-- Manual testing revealed ~40 NOK out of 111 tests, 14 recurring bugs
-- Sprint 26 specs stored in: `docs/specs/sprint-26/`
-
-### Sprint 25 Results (first SDD sprint)
-- Theme: "Navigation Overhaul + Bug Fixes"
-- SPEC-PROD-001: 7/18 ACs implemented, 11 deferred (many already working)
-- SPEC-PROD-002: 5/12 ACs implemented, 7 deferred
-- Key deliverables: Phase 3 rename, bi-directional nav, progress bar click fix, legacy buttons removed, confirmation screens completed
-- v0.18.0, 1612 tests, build clean
-- Deferred to S26: AC-017 (Complete Expedition), AC-009 (Summary), AC-002 (trip card redesign)
+- v0.20.0, 14 recurring bugs resolved, CTA standardization partial
+- WizardFooter component created but not integrated across phases
 
 ### Phase Names (canonical, post Sprint 25 triage)
 - Phase 1: "O Chamado" (Trip creation)
@@ -64,29 +57,11 @@
 - Phase 5: "A Conexao" (Destination guide)
 - Phase 6: "O Roteiro" (Itinerary)
 
-### Sprint 21 Results (latest feature sprint)
-- ALL Sprint 21 seeds delivered (transport UI, accommodation, mobility, origin, encryption, passenger cap, progress bar UX)
-- 1575 tests (106 suites), v0.15.0
-- Sprint review: APPROVED (all 6 reviewers)
-- Stabilization Sprint 22-S: 14 bug fixes, v0.15.1
-
-### Sprint 20 Results
-- 12/12 tasks completed (100%)
-- Preferences 10 categories, passengers airline-style, Phase 1 reorder, profile persistence
-- SEC-S19-001 RESOLVED (last known security debt at time)
-- v0.14.0, 1489 tests
-
-### Sprint 19 Results
-- 10 of 12 tasks delivered
-- Guide redesign (10 cats), streaming fix, cascade delete, auto-advance
-- Carried to S20: DEFER-001, DEFER-002 (both resolved)
-
-### Sprint 20 Plan (theme: "Personal Preferences + UX Debt Cleanup")
-- P0: T-S20-001 verify guide redesign on staging (0.5h)
-- P1: T-S20-002 preferences expansion 8 categories (10h), T-S20-003 Phase 1 reorder (8h), T-S20-004 remove dup buttons (1h)
-- P2: T-S20-005 SEC-S19-001 hash userId (1h), T-S20-006 passenger details airline-style (6h), T-S20-007 theme tokens (1h)
-- Total committed: ~27.5h + 12.5h buffer (31%)
-- Sacrifice order: T-S20-007 -> T-S20-006 -> T-S20-005
+### Sprint 19-21 Summary
+- Sprint 19: Guide redesign, streaming fix (v0.13.0, 1365 tests)
+- Sprint 20: Preferences 10 cats, passengers airline-style, Phase 1 reorder (v0.14.0, 1489 tests)
+- Sprint 21: Transport UI, accommodation, mobility, origin, encryption (v0.15.0, 1575 tests)
+- Sprint 22-S: Stabilization, 14 bug fixes (v0.15.1)
 
 ### US-123 Preference Categories (8 categories, defined Sprint 20)
 1. Cuisine (multi-select): local, italian, japanese, mexican, vegetarian, vegan, street_food, fine_dining, cafes
@@ -118,12 +93,6 @@
 - Trip.origin field required (new column)
 - Transport: round-trip AND one-way (PO-2), multi-city connections (PO-3)
 - Multiple accommodations per trip, max 5 (UX-1)
-
-### Transport Assessment (Sprint 20 decision)
-- Transport full scope (US-115+116+117+118+rename) = 36-40h = entire sprint
-- Decision: DO NOT include in Sprint 20. Dedicate Sprint 21 to transport.
-- Sprint 21: US-118 + US-115 + US-117 + rename (~26-30h)
-- Sprint 22: US-116 + US-119 (~14-16h)
 
 ### Scoring Formula
 Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strategic Align (15%) + Competitive Diff (10%)
@@ -162,25 +131,17 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 26, 2026-03-11)
-- Sprints 22-26: DONE
-- Sprint 27: Recurring bug blitz + CTA standardization + gamification header (v0.20.0)
-- Sprint 28: Beta polish + nav restructure + summary enhancement + monitoring + LGPD
-- Sprint 29: Beta launch (50-100 users) + feedback loop
-- Sprint 30-31: US-122 Premium chat + payment gateway + v1.0 GA
-- Full roadmap: `docs/product/ROADMAP-2026-Q2.md` (needs update)
-- Note: Beta launch slipped 1 sprint due to recurring bug debt from S26 manual testing
+### MVP Roadmap (updated post Sprint 28, 2026-03-12)
+- Sprints 22-28: DONE
+- Sprint 29: Summary polish + CTA closure + persistence fixes + beta validation (v0.22.0)
+- Sprint 30: Beta launch (50-100 users) + feedback loop (GO/NO-GO at S29 review)
+- Sprint 31-32: US-122 Premium chat + payment gateway + v1.0 GA
+- Note: Beta launch slipped 2 sprints from original plan (recurring bugs + structural nav work)
 
-### Pending Debts (post Sprint 22-S)
-- DT-S9-001 (HIGH): spendPoints TOCTOU race condition -- scheduled Sprint 22
-- DT-S15-005 (MEDIUM): recordGeneration catch block vazio -- scheduled Sprint 23
-- DT-010 (MEDIUM): TrustSignals.tsx uses next/link incorrectly -- scheduled Sprint 23
-- Redis singleton globalThis (MEDIUM): connection leak risk -- scheduled Sprint 23
-- DEBT-S6-003 (MEDIUM): Analytics events not implemented -- scheduled Sprint 23
-- BUG-S7-004 (LOW): Footer links 404 -- scheduled Sprint 22
-- BUG-S7-006 (LOW): aria-label hardcoded English -- scheduled Sprint 22
-- 8 LOW items: DEBT-S7-002/003, DEBT-S8-005, DEBT-S18-002, DT-S15-001, SEC-S16/S17 findings
-- Total: 17 debt items across 21 sprints (~0.8/sprint, healthy rate)
+### Pending Debts (as of Sprint 29)
+- Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
+- BUG-S7-001: Raw userId in logger.info (LOW)
+- Most HIGH/MEDIUM debts resolved in Sprints 22-28
 
 ### Gemini Flash Pricing (March 2026)
 - Gemini 2.5 Flash: $0.30/M input, $2.50/M output

@@ -83,6 +83,38 @@
   - Phase 6 missing ExpeditionProgressBar entirely
   - Completed phase revisit shows empty form (no state hydration from metadata)
 
+## Sprint 28 Architecture (ADR-019 through ADR-020 PROPOSED)
+- SPEC-ARCH-004: Summary Page Data Architecture (referenced in Sprint 28 plan)
+- SPEC-ARCH-005: Journey Summary Data Aggregation (docs/specs/sprint-28/SPEC-ARCH-005.md)
+  - ADR-019: Parallel Promise.all queries for summary assembly (PROPOSED)
+  - ADR-020: No cache for MVP, Redis-ready interface (PROPOSED)
+  - JourneySummaryService: 6 parallel queries, JourneySummaryDTO
+- SPEC-ARCH-006: Phase Auto-Save Architecture (referenced in Sprint 28 plan)
+- Sprint 28 services: TripReadinessService, NextStepsEngine, TripCountdown, WizardFooter
+- Sprint 28 baseline: v0.21.0, 1721 tests
+
+## Sprint 29 Architecture (ADR-021 through ADR-026 PROPOSED)
+- SPEC-ARCH-007: Summary Page Integration (docs/specs/sprint-29/SPEC-ARCH-007.md)
+  - ADR-021: Parallel calls in page.tsx, no facade service (PROPOSED)
+  - Integrates TripReadinessService + NextStepsEngine + TripCountdown into summary page
+  - New components: ReadinessIndicator (SVG ring), NextStepsList (action cards)
+  - Date extraction from readiness.phases[0].dataSnapshot to avoid extra DB call
+- SPEC-ARCH-008: Phase Data Pre-population (docs/specs/sprint-29/SPEC-ARCH-008.md)
+  - ADR-022: Server props for saved data (not client fetch) (PROPOSED)
+  - ADR-023: Edit mode inferred from presence of savedData prop (PROPOSED)
+  - ADR-024: Phase 4 auto-save via parent dirty-check on sub-step change (PROPOSED)
+  - Phases 1,2,4 need pre-population; Phases 3,5,6 already handle existing data
+  - Phase 1 needs new updatePhase1Action for edit mode
+  - bookingCodeEnc MUST NOT cross server-client boundary
+- SPEC-ARCH-009: Map Coordinates & Destination Pin (docs/specs/sprint-29/SPEC-ARCH-009.md)
+  - ADR-025: Two nullable Float columns (destinationLat, destinationLon) on Trip (PROPOSED)
+  - ADR-026: CSS pin on cards, interactive Mapbox GL JS on /atlas page (PROPOSED)
+  - Migration: add_destination_coordinates
+  - Coordinates captured from DestinationAutocomplete.onSelect (lat/lon already available)
+  - No backfill for existing trips (MVP decision)
+  - Mapbox GL JS loaded via dynamic import on /atlas only
+  - GeoJSON coordinate order: [lon, lat] (NOT [lat, lon])
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
@@ -91,6 +123,10 @@
 - SPEC-ARCH-002: docs/specs/sprint-27/SPEC-ARCH-002.md (Navigation Restructure)
 - SPEC-ARCH-003: docs/specs/sprint-27/SPEC-ARCH-003.md (Autocomplete Alternative)
 - ARCH-RCA-S27: docs/specs/sprint-27/ARCH-ROOT-CAUSE-ANALYSIS.md
+- SPEC-ARCH-005: docs/specs/sprint-28/SPEC-ARCH-005.md (Journey Summary Data Aggregation)
+- SPEC-ARCH-007: docs/specs/sprint-29/SPEC-ARCH-007.md (Summary Page Integration)
+- SPEC-ARCH-008: docs/specs/sprint-29/SPEC-ARCH-008.md (Phase Data Pre-population)
+- SPEC-ARCH-009: docs/specs/sprint-29/SPEC-ARCH-009.md (Map Coordinates & Destination Pin)
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md

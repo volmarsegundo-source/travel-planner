@@ -140,6 +140,14 @@
 - GuideHeroBanner: narrative summary + quick stats row
 - CardTipTooltip: hover/focus tooltip for supplementary tips on compact cards
 
+## Sprint 29 UX Specs (2026-03-12)
+- SPEC-UX-016: Summary Page Card Redesign — hero with TripCountdown + readiness progress bar, next steps cards (1-3 actionable), 6 phase summary cards with status + edit links, skeleton loading. Readiness bar: horizontal, #2DB8A0 fill. Phase cards: left border accent (green=completed, gold=current). No prototype needed.
+- SPEC-UX-017: Phase Revisit Edit Mode — edit banner (info style, #EFF6FF bg), "Salvar alteracoes" CTA replaces "Avancar", "Cancelar" secondary action, pre-populated fields, no confirmation dialog (non-destructive), beforeunload guard for unsaved changes. Multi-step phases: auto-save on step transition preserved. No component changes to WizardFooter needed.
+- SPEC-UX-018: WizardFooter Integration Across Phases — standardize all 6 phase wizards to use WizardFooter. Back button rules: never on step 1 of phase 1; goes to previous phase on step 1 of phases 2-6; goes to previous step otherwise. Primary labels: "Proximo" (intermediate), "Avancar" (final), "Salvar alteracoes" (edit mode). Remove all arrow-character back buttons. Single WizardFooter per wizard (outside step conditionals). Migration checklist for 6 wizard files.
+- All specs saved to: docs/specs/sprint-29/SPEC-UX-{016-018}.md
+- Key decisions: no diff view in edit mode; no confirmation dialog for edits; readiness bar horizontal (not circular); back button text "Voltar" (not arrow); WizardFooter teal vs orange CTA color open question
+- Open: readiness weighting (equal vs importance-based) — PO decision; CTA color teal vs orange — UX decision pending
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

@@ -1,7 +1,7 @@
 # Spec Status Tracker
 
 > Maintained by: tech-lead
-> Last updated: 2026-03-11
+> Last updated: 2026-03-12
 > SDD effective from: Sprint 25
 
 ## Status Definitions
@@ -32,9 +32,9 @@
 | SPEC-UX-005 | Dashboard Visual Polish | ux-designer | Approved | 1.1.0 | 26 | product-owner, tech-lead, architect |
 | SPEC-ARCH-001 | DnD Time Auto-Adjustment | architect | Draft | 1.0.0 | 27 | tech-lead, security-specialist |
 | SPEC-PROD-006 | Gamification Header Display | product-owner | Draft | 1.0.0 | 27 | tech-lead, ux-designer, architect |
-| SPEC-PROD-007 | Complete Journey Summary Enhancement | product-owner | Draft | 1.0.0 | 28 | tech-lead, ux-designer, architect |
+| SPEC-PROD-007 | Complete Journey Summary Enhancement | product-owner | Approved | 1.1.0 | 29 | tech-lead, ux-designer, architect |
 | SPEC-PROD-008 | Navigation Restructure | product-owner | Draft | 1.0.0 | 28 | tech-lead, ux-designer, architect |
-| SPEC-PROD-009 | CTA Button Standardization | product-owner | Draft | 1.0.0 | 27 | tech-lead, ux-designer, architect |
+| SPEC-PROD-009 | CTA Button Standardization | product-owner | Approved | 1.1.0 | 29 | tech-lead, ux-designer, architect |
 | SPEC-UX-006 | Autocomplete Portal Fix | ux-designer | Draft | 1.0.0 | 27 | product-owner, tech-lead, architect |
 | SPEC-UX-007 | Gamification Header Visual | ux-designer | Draft | 1.0.0 | 27 | product-owner, tech-lead, architect |
 | SPEC-UX-008 | Navigation Restructure UX | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
@@ -46,13 +46,19 @@
 | SPEC-PROD-011 | Journey Summary with Edit | product-owner | Draft | 1.0.0 | 28 | tech-lead, ux-designer, architect |
 | SPEC-PROD-012 | Navigation Restructure | product-owner | Draft | 1.0.0 | 28 | tech-lead, ux-designer, architect |
 | SPEC-UX-011 | Gamification Header Indicator | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
-| SPEC-UX-012 | Journey Summary Page | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
+| SPEC-UX-012 | Journey Summary Page | ux-designer | Approved | 1.1.0 | 29 | product-owner, tech-lead, architect |
 | SPEC-UX-013 | Navigation Restructure UX | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
-| SPEC-UX-014 | CTA Button Standardization | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
+| SPEC-UX-014 | CTA Button Standardization | ux-designer | Approved | 1.1.0 | 29 | product-owner, tech-lead, architect |
 | SPEC-UX-015 | Bug Fix UX Patterns | ux-designer | Draft | 1.0.0 | 28 | product-owner, tech-lead, architect |
 | SPEC-ARCH-004 | Navigation Restructure Architecture | architect | Draft | 1.0.0 | 28 | tech-lead, ux-designer, qa-engineer |
-| SPEC-ARCH-005 | Journey Summary Data Aggregation | architect | Draft | 1.0.0 | 28 | tech-lead, ux-designer, qa-engineer |
+| SPEC-ARCH-005 | Journey Summary Data Aggregation | architect | Approved | 1.1.0 | 29 | tech-lead, ux-designer, qa-engineer |
 | SPEC-ARCH-006 | Real-time Gamification in Header | architect | Draft | 1.0.0 | 28 | tech-lead, ux-designer, qa-engineer |
+| SPEC-PROD-013 | Phase Revisit Data Loading | product-owner | Draft | 1.0.0 | 29 | tech-lead, ux-designer, architect |
+| SPEC-UX-016 | Map Pin Dashboard Interaction | ux-designer | Draft | 1.0.0 | 29 | product-owner, tech-lead, architect |
+| SPEC-UX-017 | Dashboard Countdown Card | ux-designer | Draft | 1.0.0 | 29 | product-owner, tech-lead, architect |
+| SPEC-ARCH-007 | Map Pin Coordinate Persistence | architect | Draft | 1.0.0 | 29 | tech-lead, security-specialist |
+| SPEC-ARCH-008 | Phase 4 Auto-Save Pattern | architect | Draft | 1.0.0 | 29 | tech-lead, ux-designer |
+| SPEC-ARCH-010 | Phase Access Guard | architect | Draft | 1.0.0 | 29 | tech-lead, security-specialist |
 
 ---
 
@@ -66,7 +72,12 @@
 | SPEC-UX-002 | Guide Full Visibility | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
 | SPEC-UX-003 | Unified Phase Transitions | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
 | SPEC-UX-004 | Preferences Pagination | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
-| SPEC-UX-005 | Dashboard Visual Polish | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | — |
+| SPEC-UX-005 | Dashboard Visual Polish | 2026-03-11 | product-owner, tech-lead, architect | Approved v1.1.0 | -- |
+| SPEC-PROD-007 | Complete Journey Summary Enhancement | 2026-03-12 | tech-lead, ux-designer, architect | Approved v1.1.0 | -- |
+| SPEC-PROD-009 | CTA Button Standardization | 2026-03-12 | tech-lead, ux-designer, architect | Approved v1.1.0 | -- |
+| SPEC-UX-012 | Journey Summary Page | 2026-03-12 | product-owner, tech-lead, architect | Approved v1.1.0 | -- |
+| SPEC-UX-014 | CTA Button Standardization | 2026-03-12 | product-owner, tech-lead, architect | Approved v1.1.0 | -- |
+| SPEC-ARCH-005 | Journey Summary Data Aggregation | 2026-03-12 | tech-lead, ux-designer, qa-engineer | Approved v1.1.0 | -- |
 
 ---
 
@@ -105,3 +116,4 @@
 | 2026-03-11 | Sprint 27 planning: created SPEC-PROD-006/007/008/009, SPEC-UX-006-010, SPEC-ARCH-002/003, ARCH-ROOT-CAUSE-ANALYSIS. Theme: Recurring Bug Blitz. | tech-lead |
 | 2026-03-11 | SPEC-UX-006 and SPEC-ARCH-003 implemented (Autocomplete cmdk rewrite) in Sprint 27 v0.20.0 | tech-lead |
 | 2026-03-11 | Sprint 28 planning: created SPEC-PROD-010/011/012, SPEC-UX-011-015, SPEC-ARCH-004/005/006, SPRINT-28-PLAN, SPRINT-28-BACKLOG. Theme: Structural Improvements. | tech-lead |
+| 2026-03-12 | Sprint 29 planning: approved 5 specs for Sprint 29 (SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005 to v1.1.0). Created 6 new specs (SPEC-PROD-013, SPEC-UX-016/017, SPEC-ARCH-007/008/010). Theme: Sprint 28 Completion + Summary Page Integration. | tech-lead |
