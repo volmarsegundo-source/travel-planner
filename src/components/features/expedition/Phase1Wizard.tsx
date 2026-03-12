@@ -70,7 +70,7 @@ export function Phase1Wizard({
   savedOrigin,
   savedStartDate,
   savedEndDate,
-  tripId,
+  tripId: _tripId,
 }: Phase1WizardProps) {
   const t = useTranslations("expedition.phase1");
   const tExpedition = useTranslations("expedition");
