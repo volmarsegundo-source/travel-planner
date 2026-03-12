@@ -59,9 +59,9 @@ describe("AppError", () => {
     expect(mockReset).toHaveBeenCalledOnce();
   });
 
-  it("renders Go Back link pointing to /trips", () => {
+  it("renders Go Back link pointing to /expeditions", () => {
     render(<AppError error={mockError} reset={mockReset} />);
     const link = screen.getByText("errors.boundary.goBack");
-    expect(link.closest("a")).toHaveAttribute("href", "/trips");
+    expect(link.closest("a")).toHaveAttribute("href", "/expeditions");
   });
 });
