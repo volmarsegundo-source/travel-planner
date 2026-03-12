@@ -6,14 +6,25 @@ import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { GamificationBadge } from "@/components/features/gamification/GamificationBadge";
 
 interface AuthenticatedNavbarProps {
   userName: string;
   userImage: string | null;
   userEmail: string;
+  gamification?: {
+    totalPoints: number;
+    currentLevel: number;
+    phaseName: string;
+  };
 }
 
-export function AuthenticatedNavbar({ userName, userImage, userEmail }: AuthenticatedNavbarProps) {
+export function AuthenticatedNavbar({
+  userName,
+  userImage,
+  userEmail,
+  gamification,
+}: AuthenticatedNavbarProps) {
   const t = useTranslations();
   const tNav = useTranslations("navigation");
   const pathname = usePathname();
@@ -29,8 +40,17 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [mobileMenuOpen]);
 
-  const isDashboardActive = pathname === "/dashboard" || pathname.startsWith("/expedition");
+  const isExpeditionsActive = pathname === "/expeditions" || pathname === "/dashboard" || pathname.startsWith("/expedition");
+  const isAtlasActive = pathname === "/atlas";
   const isProfileActive = pathname === "/profile";
+
+  function navLinkClass(active: boolean) {
+    return `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+      active
+        ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
+        : "text-foreground hover:bg-accent"
+    }`;
+  }
 
   return (
     <header
@@ -43,7 +63,7 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
       >
         {/* Logo */}
         <Link
-          href="/dashboard"
+          href="/expeditions"
           className="flex items-center gap-2 text-xl font-bold"
         >
           <span aria-hidden="true">🧭</span>
@@ -53,27 +73,33 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
         {/* Desktop nav */}
         <div className="hidden items-center gap-4 md:flex">
           <Link
-            href="/dashboard"
-            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              isDashboardActive
-                ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
-                : "text-foreground hover:bg-accent"
-            }`}
-            aria-current={isDashboardActive ? "page" : undefined}
+            href="/expeditions"
+            className={navLinkClass(isExpeditionsActive)}
+            aria-current={isExpeditionsActive ? "page" : undefined}
+          >
+            {tNav("expeditions")}
+          </Link>
+          <Link
+            href="/atlas"
+            className={navLinkClass(isAtlasActive)}
+            aria-current={isAtlasActive ? "page" : undefined}
           >
             {tNav("myAtlas")}
           </Link>
           <Link
             href="/profile"
-            className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-              isProfileActive
-                ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
-                : "text-foreground hover:bg-accent"
-            }`}
+            className={navLinkClass(isProfileActive)}
             aria-current={isProfileActive ? "page" : undefined}
           >
             {tNav("myProfile")}
           </Link>
+          {gamification && (
+            <GamificationBadge
+              totalPoints={gamification.totalPoints}
+              currentLevel={gamification.currentLevel}
+              phaseName={gamification.phaseName}
+            />
+          )}
           <ThemeToggle />
           <LanguageSwitcher />
           <UserMenu
@@ -112,29 +138,38 @@ export function AuthenticatedNavbar({ userName, userImage, userEmail }: Authenti
         >
           <div className="flex flex-col gap-3">
             <Link
-              href="/dashboard"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                isDashboardActive
-                  ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
-                  : "text-foreground hover:bg-accent"
-              }`}
-              aria-current={isDashboardActive ? "page" : undefined}
+              href="/expeditions"
+              className={navLinkClass(isExpeditionsActive)}
+              aria-current={isExpeditionsActive ? "page" : undefined}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              {tNav("expeditions")}
+            </Link>
+            <Link
+              href="/atlas"
+              className={navLinkClass(isAtlasActive)}
+              aria-current={isAtlasActive ? "page" : undefined}
               onClick={() => setMobileMenuOpen(false)}
             >
               {tNav("myAtlas")}
             </Link>
             <Link
               href="/profile"
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-                isProfileActive
-                  ? "bg-atlas-gold/10 font-semibold text-atlas-gold"
-                  : "text-foreground hover:bg-accent"
-              }`}
+              className={navLinkClass(isProfileActive)}
               aria-current={isProfileActive ? "page" : undefined}
               onClick={() => setMobileMenuOpen(false)}
             >
               {tNav("myProfile")}
             </Link>
+            {gamification && (
+              <div className="border-t border-border/40 pt-2">
+                <GamificationBadge
+                  totalPoints={gamification.totalPoints}
+                  currentLevel={gamification.currentLevel}
+                  phaseName={gamification.phaseName}
+                />
+              </div>
+            )}
             <div className="border-t border-border/40 pt-2">
               <ThemeToggle />
             </div>

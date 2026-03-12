@@ -1,6 +1,8 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
+import { PointsEngine } from "@/lib/engines/points-engine";
+import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 import { AuthenticatedNavbar } from "@/components/layout/AuthenticatedNavbar";
 import { Footer } from "@/components/layout/Footer";
 
@@ -26,6 +28,24 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     ?? user.email?.split("@")[0]
     ?? t("traveler");
 
+  // Fetch gamification data for header badge
+  let gamification: { totalPoints: number; currentLevel: number; phaseName: string } | undefined;
+  try {
+    const progress = await PointsEngine.getBalance(user.id!);
+    const currentLevel = Math.min(
+      Math.floor(progress.totalPoints / 100) + 1,
+      PHASE_DEFINITIONS.length
+    );
+    const phaseDef = PHASE_DEFINITIONS[currentLevel - 1];
+    gamification = {
+      totalPoints: progress.totalPoints,
+      currentLevel,
+      phaseName: phaseDef?.name ?? `Phase ${currentLevel}`,
+    };
+  } catch {
+    // Gamification data is non-critical — badge simply won't render
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -38,6 +58,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
         userName={displayName}
         userImage={user.image ?? null}
         userEmail={user.email ?? ""}
+        gamification={gamification}
       />
       <main id="main-content" className="flex-1">
         {children}
