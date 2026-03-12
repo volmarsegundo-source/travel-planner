@@ -112,7 +112,7 @@ export function LoginForm() {
   async function handleGoogleSignIn() {
     setIsGoogleLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/dashboard" });
+      await signIn("google", { callbackUrl: "/expeditions" });
     } finally {
       // signIn with redirect does not return here in normal flow;
       // reset loading only on error path

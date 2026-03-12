@@ -30,7 +30,7 @@ export default function ExpeditionError({ error: _error, reset }: ErrorProps) {
             {t("tryAgain")}
           </Button>
           <Button variant="outline" asChild className="min-h-[44px]">
-            <Link href="/dashboard">
+            <Link href="/expeditions">
               {t("goBack")}
             </Link>
           </Button>
