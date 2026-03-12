@@ -3,12 +3,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { PhaseProgressBar } from "./PhaseProgressBar";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { WizardFooter } from "./WizardFooter";
 import { TransportStep } from "./TransportStep";
 import { AccommodationStep } from "./AccommodationStep";
 import { MobilityStep } from "./MobilityStep";
@@ -329,20 +329,11 @@ export function Phase4Wizard({
                 />
 
                 {/* Navigation */}
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => router.push(`/expedition/${tripId}/phase-3`)}
-                    className="flex-1"
-                    aria-label={tCommon("back")}
-                    data-testid="back-to-phase-3"
-                  >
-                    {"\u2190"}
-                  </Button>
-                  <Button onClick={() => goToStep(2)} className="flex-[3]">
-                    {tCommon("next")}
-                  </Button>
-                </div>
+                <WizardFooter
+                  onBack={() => router.push(`/expedition/${tripId}/phase-3`)}
+                  onPrimary={() => goToStep(2)}
+                  primaryLabel={tCommon("next")}
+                />
               </div>
             )}
 
@@ -357,14 +348,11 @@ export function Phase4Wizard({
                 />
 
                 {/* Navigation */}
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => goToStep(1)} className="flex-1" aria-label={tCommon("back")}>
-                    {"\u2190"}
-                  </Button>
-                  <Button onClick={() => goToStep(3)} className="flex-[3]">
-                    {tCommon("next")}
-                  </Button>
-                </div>
+                <WizardFooter
+                  onBack={() => goToStep(1)}
+                  onPrimary={() => goToStep(3)}
+                  primaryLabel={tCommon("next")}
+                />
               </div>
             )}
 
@@ -522,37 +510,22 @@ export function Phase4Wizard({
                   saving={savingMobility}
                 />
 
-                {/* Navigation */}
-                <div className="flex gap-3">
-                  <Button variant="outline" onClick={() => goToStep(2)} className="flex-1" aria-label={tCommon("back")}>
-                    {"\u2190"}
-                  </Button>
-                </div>
-
-                {/* Advance button — or "Go to current phase" when revisiting */}
-                <div>
-                  {isRevisiting ? (
-                    <Button
-                      onClick={() => router.push(`/expedition/${tripId}/phase-${currentPhase}`)}
-                      size="lg"
-                      className="w-full"
-                    >
-                      {t("goToCurrentPhase", { phase: currentPhase })}
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={handleAdvance}
-                      disabled={isCompleting}
-                      size="lg"
-                      className="w-full"
-                      aria-busy={isCompleting}
-                    >
-                      {isCompleting
-                        ? tExpedition("cta.advancing")
-                        : tExpedition("cta.advance")}
-                    </Button>
-                  )}
-                </div>
+                {/* Navigation + Advance */}
+                <WizardFooter
+                  onBack={() => goToStep(2)}
+                  onPrimary={
+                    isRevisiting
+                      ? () => router.push(`/expedition/${tripId}/phase-${currentPhase}`)
+                      : handleAdvance
+                  }
+                  primaryLabel={
+                    isRevisiting
+                      ? t("goToCurrentPhase", { phase: currentPhase })
+                      : tExpedition("cta.advance")
+                  }
+                  isLoading={isCompleting}
+                  isDisabled={isCompleting}
+                />
               </div>
             )}
           </>

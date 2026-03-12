@@ -765,7 +765,7 @@ describe("DestinationGuideWizard", () => {
 
   // ─── Navigation (TASK-27-006) ──────────────────────────────────────
 
-  it("renders back button to Phase 4", () => {
+  it("renders WizardFooter with back button to Phase 4", () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -779,8 +779,8 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    const backBtn = screen.getByTestId("back-to-phase-4");
-    expect(backBtn).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-back")).toBeInTheDocument();
   });
 
   it("navigates to Phase 4 when back button is clicked", () => {
@@ -797,7 +797,7 @@ describe("DestinationGuideWizard", () => {
       />
     );
 
-    fireEvent.click(screen.getByTestId("back-to-phase-4"));
+    fireEvent.click(screen.getByTestId("wizard-back"));
     expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-4");
   });
 

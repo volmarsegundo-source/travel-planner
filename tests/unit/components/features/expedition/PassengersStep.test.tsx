@@ -272,10 +272,18 @@ describe("PassengersStep", () => {
     const onBack = vi.fn();
     render(<PassengersStep {...createDefaultProps({ onBack })} />);
 
-    // Back button is the arrow
-    const backButton = screen.getByText("\u2190");
+    // Back button is rendered by WizardFooter
+    const backButton = screen.getByTestId("wizard-back");
     fireEvent.click(backButton);
 
     expect(onBack).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders WizardFooter component", () => {
+    render(<PassengersStep {...createDefaultProps()} />);
+
+    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-back")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-primary")).toBeInTheDocument();
   });
 });

@@ -303,4 +303,12 @@ describe("Phase3Wizard", () => {
       screen.queryByText("expedition.phase3.recommendedSection")
     ).not.toBeInTheDocument();
   });
+
+  it("renders WizardFooter with back and advance buttons (TASK-29-008)", () => {
+    renderWizard();
+
+    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-back")).toBeInTheDocument();
+    expect(screen.getByTestId("wizard-primary")).toBeInTheDocument();
+  });
 });

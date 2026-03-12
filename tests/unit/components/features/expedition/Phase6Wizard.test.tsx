@@ -455,7 +455,7 @@ describe("Phase6Wizard", () => {
   });
 
   describe("Back button (T-S25-007)", () => {
-    it("renders back button in empty state", async () => {
+    it("renders WizardFooter with back button in empty state", async () => {
       vi.useRealTimers();
       globalThis.fetch = mockFetchError(400);
 
@@ -464,18 +464,18 @@ describe("Phase6Wizard", () => {
       });
 
       await waitFor(() => {
-        const backBtn = screen.getByTestId("back-to-phase-5");
-        expect(backBtn).toBeInTheDocument();
+        expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+        expect(screen.getByTestId("wizard-back")).toBeInTheDocument();
       });
     });
 
-    it("renders back button in generated state", () => {
+    it("renders WizardFooter with back button in generated state", () => {
       render(
         <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
       );
 
-      const backBtn = screen.getByTestId("back-to-phase-5");
-      expect(backBtn).toBeInTheDocument();
+      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+      expect(screen.getByTestId("wizard-back")).toBeInTheDocument();
     });
 
     it("navigates to phase-5 when back button is clicked in generated state", async () => {
@@ -484,7 +484,7 @@ describe("Phase6Wizard", () => {
       );
 
       await act(async () => {
-        fireEvent.click(screen.getByTestId("back-to-phase-5"));
+        fireEvent.click(screen.getByTestId("wizard-back"));
       });
 
       expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-5");

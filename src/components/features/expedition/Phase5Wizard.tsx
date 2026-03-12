@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { PointsAnimation } from "./PointsAnimation";
 import { PhaseTransition } from "./PhaseTransition";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { WizardFooter } from "./WizardFooter";
 import { completePhase5Action } from "@/server/actions/expedition.actions";
 import type { BadgeKey, Rank, ConnectivityOption } from "@/types/gamification.types";
 
@@ -39,7 +39,6 @@ export function Phase5Wizard({
   const t = useTranslations("expedition.phase5");
   const tExpedition = useTranslations("expedition");
   const tPhases = useTranslations("gamification.phases");
-  const tCommon = useTranslations("common");
   const router = useRouter();
 
   const [selectedOption, setSelectedOption] =
@@ -223,29 +222,18 @@ export function Phase5Wizard({
         </div>
 
         {/* Navigation */}
-        <div className="mt-8 flex gap-3">
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/expedition/${tripId}/phase-4`)}
-            className="flex-1"
-            aria-label={tCommon("back")}
-            data-testid="back-to-phase-4"
-          >
-            {"\u2190"}
-          </Button>
-          <Button
-            onClick={handleComplete}
-            disabled={!selectedOption || isCompleting}
-            size="lg"
-            className="flex-[3]"
-            aria-busy={isCompleting}
-          >
-            {isCompleting
-              ? tExpedition("cta.advancing")
-              : selectedOption
+        <div className="mt-8">
+          <WizardFooter
+            onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+            onPrimary={handleComplete}
+            primaryLabel={
+              selectedOption
                 ? tExpedition("cta.advance")
-                : t("ctaDisabled")}
-          </Button>
+                : t("ctaDisabled")
+            }
+            isLoading={isCompleting}
+            isDisabled={!selectedOption || isCompleting}
+          />
         </div>
       </div>
     </div>

@@ -2,10 +2,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Info, Loader2, Map, RefreshCw, Sparkles, X } from "lucide-react";
+import { Info, Map, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
 import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { WizardFooter } from "./WizardFooter";
 import {
   getProgressPhase,
   getProgressMessageKey,
@@ -390,23 +391,11 @@ export function Phase6Wizard({
             </p>
           )}
 
-          <Button
-            onClick={handleGenerate}
-            className="min-h-[44px] gap-2"
-            size="lg"
-          >
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
-            {t("generateCta")}
-          </Button>
-
-          <Button
-            variant="outline"
-            onClick={() => router.push(`/expedition/${tripId}/phase-5`)}
-            className="min-h-[44px]"
-            data-testid="back-to-phase-5"
-          >
-            {tCommon("back")}
-          </Button>
+          <WizardFooter
+            onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
+            onPrimary={handleGenerate}
+            primaryLabel={t("generateCta")}
+          />
         </div>
       </div>
     );
@@ -507,39 +496,20 @@ export function Phase6Wizard({
         </div>
       )}
 
-      <div className="mt-8 flex justify-center gap-3">
-        <Button
-          variant="outline"
-          onClick={() => router.push(`/expedition/${tripId}/phase-5`)}
-          className="min-h-[44px]"
-          data-testid="back-to-phase-5"
-        >
-          {tCommon("back")}
-        </Button>
-        <Button
-          variant="outline"
-          onClick={handleRegenerateClick}
-          disabled={isGenerating}
-          className="min-h-[44px] gap-2"
-        >
-          <Loader2
-            className={`h-4 w-4 ${isGenerating ? "animate-spin" : "hidden"}`}
-            aria-hidden="true"
-          />
-          <RefreshCw
-            className={`h-4 w-4 ${isGenerating ? "hidden" : ""}`}
-            aria-hidden="true"
-          />
-          {t("regenerateCta")}
-        </Button>
-        <Button
-          onClick={handleCompleteExpeditionClick}
-          disabled={isCompleting}
-          className="min-h-[44px] gap-2"
-          data-testid="complete-expedition-button"
-        >
-          {isCompleting ? tExpedition("cta.completing") : tExpedition("cta.complete")}
-        </Button>
+      <div className="mt-8">
+        <WizardFooter
+          onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
+          onPrimary={handleCompleteExpeditionClick}
+          primaryLabel={tExpedition("cta.complete")}
+          isLoading={isCompleting}
+          isDisabled={isCompleting}
+          secondaryActions={[
+            {
+              label: t("regenerateCta"),
+              onClick: handleRegenerateClick,
+            },
+          ]}
+        />
       </div>
     </div>
   );

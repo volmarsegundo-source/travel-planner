@@ -708,4 +708,25 @@ describe("Phase4Wizard", () => {
       ).toBeInTheDocument();
     });
   });
+
+  it("renders WizardFooter on each step (TASK-29-008)", async () => {
+    renderWizard();
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("expedition.phase4.transport.title")
+      ).toBeInTheDocument();
+    });
+
+    // Step 1: WizardFooter present
+    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+
+    // Step 2: WizardFooter present
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+
+    // Step 3: WizardFooter present
+    fireEvent.click(screen.getByRole("button", { name: "common.next" }));
+    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+  });
 });
