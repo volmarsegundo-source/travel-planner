@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { ChecklistProgressMini } from "./ChecklistProgressMini";
 import { DashboardPhaseProgressBar } from "./DashboardPhaseProgressBar";
+import { TripCountdownInline } from "./TripCountdownInline";
 
 interface ExpeditionCardProps {
   tripId: string;
@@ -84,6 +85,9 @@ export function ExpeditionCard({
             <p className="mt-0.5 text-xs text-muted-foreground" data-testid="travel-dates">
               {formattedDates}
             </p>
+          )}
+          {startDate && (
+            <TripCountdownInline startDate={startDate} endDate={endDate ?? undefined} />
           )}
           <p className="mt-1 text-sm text-muted-foreground" data-testid="phase-count-text">
             {t("phasesCompleted", {
