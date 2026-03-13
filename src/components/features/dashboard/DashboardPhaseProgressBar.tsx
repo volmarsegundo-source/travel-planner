@@ -1,14 +1,25 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
+const PHASE_ROUTES: Record<number, string> = {
+  1: "",
+  2: "/phase-2",
+  3: "/phase-3",
+  4: "/phase-4",
+  5: "/phase-5",
+  6: "/phase-6",
+};
+
 interface DashboardPhaseProgressBarProps {
   currentPhase: number;
   completedPhases: number;
+  tripId?: string;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────────
@@ -16,8 +27,10 @@ interface DashboardPhaseProgressBarProps {
 export function DashboardPhaseProgressBar({
   currentPhase,
   completedPhases,
+  tripId,
 }: DashboardPhaseProgressBarProps) {
   const t = useTranslations("gamification");
+  const router = useRouter();
 
   return (
     <div
@@ -64,6 +77,26 @@ export function DashboardPhaseProgressBar({
             : isComingSoon
               ? t("phases.stateComingSoon")
               : t("phases.stateUpcoming");
+
+        const isNavigable = (isCompleted || isCurrent) && tripId && PHASE_ROUTES[phaseNum] !== undefined;
+
+        if (isNavigable) {
+          return (
+            <button
+              key={phaseNum}
+              type="button"
+              onClick={() =>
+                router.push(`/expedition/${tripId}${PHASE_ROUTES[phaseNum]}`)
+              }
+              className={`group/segment ${segmentClasses} cursor-pointer hover:-translate-y-0.5`}
+              aria-label={`${phaseName} — ${stateLabel}`}
+              title={phaseName}
+              data-testid={`phase-segment-${phaseNum}`}
+            >
+              {indicator}
+            </button>
+          );
+        }
 
         return (
           <div

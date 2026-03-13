@@ -110,11 +110,14 @@ export function ExpeditionCard({
               completed: completedPhases,
             })}
           </p>
-          {/* Phase progress bar with indicators */}
-          <DashboardPhaseProgressBar
-            currentPhase={currentPhase}
-            completedPhases={completedPhases}
-          />
+          {/* Phase progress bar with indicators — interactive (pointer-events-auto) */}
+          <div className="pointer-events-auto">
+            <DashboardPhaseProgressBar
+              currentPhase={currentPhase}
+              completedPhases={completedPhases}
+              tripId={tripId}
+            />
+          </div>
           {/* Checklist badge — visible from phase 3 onward */}
           {currentPhase >= 3 && checklistRequired > 0 && (
             <div className="pointer-events-auto">

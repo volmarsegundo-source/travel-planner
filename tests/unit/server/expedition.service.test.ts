@@ -225,14 +225,15 @@ describe("ExpeditionService", () => {
       expect(getData()?.tripType).toBe("international");
     });
 
-    it("defaults to international when only destinationCountryCode is provided", async () => {
+    it("does not classify when only destinationCountryCode is provided (no origin)", async () => {
       const getData = setupTxMock();
       await ExpeditionService.createExpedition("user-1", {
         destination: "Tokyo",
         flexibleDates: false,
         destinationCountryCode: "JP",
       });
-      expect(getData()?.tripType).toBe("international");
+      // Without origin country code, classification is not possible — tripType stays null
+      expect(getData()?.tripType).toBeUndefined();
     });
 
     it("does not set tripType when no country codes are provided", async () => {

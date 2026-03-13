@@ -1,9 +1,9 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -113,6 +113,9 @@ export function Phase1Wizard({
         ? `${userProfile.city}, ${userProfile.country}`
         : "")
   );
+  // Track whether destination/origin were selected via autocomplete
+  const [destinationSelectedRef] = useState<{ value: string | null }>({ value: null });
+  const [originSelectedRef] = useState<{ value: string | null }>({ value: null });
   const [startDate, setStartDate] = useState(savedStartDate ?? "");
   const [endDate, setEndDate] = useState(savedEndDate ?? "");
   const [flexibleDates, setFlexibleDates] = useState(false);
@@ -127,6 +130,34 @@ export function Phase1Wizard({
 
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>("");
+  const locale = useLocale();
+
+  // Auto-resolve origin country code when pre-populated from profile
+  const resolveCountryCode = useCallback(async (query: string, setter: (code: string | null) => void) => {
+    if (query.length < 2) return;
+    try {
+      const response = await fetch(
+        `/api/destinations/search?q=${encodeURIComponent(query)}&locale=${encodeURIComponent(locale)}`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const results = data.results ?? [];
+        if (results.length > 0 && results[0].countryCode) {
+          setter(results[0].countryCode);
+        }
+      }
+    } catch {
+      // Silently degrade — classification will default to null
+    }
+  }, [locale]);
+
+  useEffect(() => {
+    // If origin is pre-populated (from profile) but no country code, auto-resolve
+    if (origin && !originCountryCode && !savedOrigin) {
+      resolveCountryCode(origin, setOriginCountryCode);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Trip type classification — uses ISO country codes for locale-independent matching
   const tripType = useMemo(() => {
@@ -249,10 +280,31 @@ export function Phase1Wizard({
     setDestinationCountryCode(result.countryCode);
     setDestinationLat(result.lat);
     setDestinationLon(result.lon);
+    destinationSelectedRef.value = result.displayName;
   }
 
   function handleOriginSelect(result: { displayName: string; country: string | null; countryCode: string | null }) {
     setOriginCountryCode(result.countryCode);
+    originSelectedRef.value = result.displayName;
+  }
+
+  // Clear stale country codes when user edits text after autocomplete selection
+  function handleDestinationChange(newValue: string) {
+    setDestination(newValue);
+    if (destinationSelectedRef.value && newValue !== destinationSelectedRef.value) {
+      setDestinationCountryCode(null);
+      setDestinationLat(undefined);
+      setDestinationLon(undefined);
+      destinationSelectedRef.value = null;
+    }
+  }
+
+  function handleOriginChange(newValue: string) {
+    setOrigin(newValue);
+    if (originSelectedRef.value && newValue !== originSelectedRef.value) {
+      setOriginCountryCode(null);
+      originSelectedRef.value = null;
+    }
   }
 
   if (showAnimation) {
@@ -469,7 +521,7 @@ export function Phase1Wizard({
               <Label htmlFor="destination">{t("step2.title")}</Label>
               <DestinationAutocomplete
                 value={destination}
-                onChange={setDestination}
+                onChange={handleDestinationChange}
                 onSelect={handleDestinationSelect}
                 placeholder={t("step2.placeholder")}
               />
@@ -477,7 +529,7 @@ export function Phase1Wizard({
                 <Label htmlFor="origin">{t("step2.origin")}</Label>
                 <DestinationAutocomplete
                   value={origin}
-                  onChange={setOrigin}
+                  onChange={handleOriginChange}
                   onSelect={handleOriginSelect}
                   placeholder={t("step2.originPlaceholder")}
                 />

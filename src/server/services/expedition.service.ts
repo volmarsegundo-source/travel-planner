@@ -41,11 +41,11 @@ export class ExpeditionService {
     }
 
     // Classify trip type server-side from country codes
+    // Both origin and destination codes are required for accurate classification.
+    // Without origin code, we leave tripType null rather than assuming international.
     let tripType: string | null = null;
     if (data.destinationCountryCode && data.originCountryCode) {
       tripType = classifyTrip(data.originCountryCode, data.destinationCountryCode);
-    } else if (data.destinationCountryCode) {
-      tripType = "international";
     }
 
     const result = await db.$transaction(async (tx: Tx) => {

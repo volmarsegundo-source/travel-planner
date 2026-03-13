@@ -282,14 +282,10 @@ export function Phase3Wizard({
             onBack={() => router.push(`/expedition/${tripId}/phase-2`)}
             onPrimary={
               isRevisiting
-                ? () => router.push(`/expedition/${tripId}/phase-${currentPhase}`)
+                ? () => router.push(`/expedition/${tripId}/phase-4`)
                 : handleAdvance
             }
-            primaryLabel={
-              isRevisiting
-                ? t("goToCurrentPhase", { phase: currentPhase })
-                : tExpedition("cta.advance")
-            }
+            primaryLabel={tExpedition("cta.advance")}
             isLoading={isCompleting}
             isDisabled={isCompleting}
           />

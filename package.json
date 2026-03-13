@@ -1,6 +1,6 @@
 {
   "name": "travel-planner",
-  "version": "0.22.0",
+  "version": "0.23.0",
   "private": true,
   "scripts": {
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",
@@ -14,6 +14,7 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
+    "test:e2e:staging": "cross-env PLAYWRIGHT_BASE_URL=https://travel-planner-staging.vercel.app playwright test",
     "test:smoke": "playwright test --project=smoke",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
@@ -81,7 +82,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.4",
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/postcss": "^4.0.0",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.6.0",
