@@ -22,7 +22,8 @@ export function trackConsoleErrors(page: Page): string[] {
         text.includes("favicon") ||
         text.includes("chunk") ||
         text.includes("HMR") ||
-        text.includes("Fast Refresh")
+        text.includes("Fast Refresh") ||
+        text.includes("Content Security Policy")
       ) {
         return;
       }

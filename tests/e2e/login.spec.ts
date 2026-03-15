@@ -63,26 +63,30 @@ test.describe("Login — valid credentials", () => {
     await page
       .getByRole("button", { name: /create account/i })
       .click();
-    // After registration, redirects to /auth/login?registered=true
-    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+    // After registration, may redirect to /auth/login?registered=true or auto-login to /expeditions
+    await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, { timeout: 60_000 });
 
-    // Verify success banner is visible
+    // If redirected to login page, sign in manually
+    if (page.url().includes("/auth/login")) {
+      // Verify success banner is visible
+      await expect(
+        page.getByText(/account created|conta criada/i)
+      ).toBeVisible({ timeout: 5_000 });
+
+      // Already on login page — fill credentials
+      await page.getByLabel(/email/i).fill(email);
+      await page.getByLabel(/password/i).fill(password);
+      await page.getByRole("button", { name: /sign in/i }).click();
+
+      // Should redirect to expeditions
+      await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
+    }
+
+    // Should be on the authenticated expeditions page
+    await expect(page).toHaveURL(/\/expeditions|\/trips/);
     await expect(
-      page.getByText(/account created|conta criada/i)
-    ).toBeVisible({ timeout: 5_000 });
-
-    // Already on login page — fill credentials
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
-    await page.getByRole("button", { name: /sign in/i }).click();
-
-    // Should redirect to /trips
-    await page.waitForURL(/\/trips/, { timeout: 60_000 });
-
-    // Should see dashboard content (heading)
-    await expect(
-      page.getByRole("heading", { name: /my trips|minhas viagens/i })
-    ).toBeVisible();
+      page.getByText(/expeditions|expedições/i).first()
+    ).toBeVisible({ timeout: 10_000 });
 
     expect(errors).toHaveLength(0);
   });
@@ -183,14 +187,20 @@ test.describe("Login — register link", () => {
   }) => {
     await page.goto("/en/auth/login");
 
-    // "Don't have an account?" text and "Create account" link
+    // "Don't have an account?" text and "Create account" / "Sign up" link
     await expect(
-      page.getByText(/don't have an account/i)
+      page.getByText(/don't have an account|não tem uma conta|sign up|criar conta/i)
     ).toBeVisible();
 
-    await page
-      .getByRole("link", { name: /create account/i })
-      .click();
+    // Use the link in the page body (not header) to avoid strict mode violation
+    const createAccountLink = page
+      .locator("main, form, [role='main'], .auth-form, section")
+      .getByRole("link", { name: /create account|sign up|criar conta|cadastr/i });
+    // Fall back to first match if no scoped element found
+    const linkToClick = await createAccountLink.count() > 0
+      ? createAccountLink.first()
+      : page.getByRole("link", { name: /create account|sign up|criar conta|cadastr/i }).first();
+    await linkToClick.click();
 
     await page.waitForURL(/\/auth\/register/, { timeout: 30_000 });
 

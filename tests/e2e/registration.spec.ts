@@ -65,13 +65,18 @@ test.describe("Registration — successful flow", () => {
       .getByRole("button", { name: /create account/i })
       .click();
 
-    // After successful registration, redirects to /auth/login?registered=true
-    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+    // After successful registration — staging may auto-login to /expeditions,
+    // dev redirects to /auth/login?registered=true. Handle both flows.
+    await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, {
+      timeout: 60_000,
+    });
 
-    // Success banner should be visible
-    await expect(
-      page.getByText(/account created|conta criada/i)
-    ).toBeVisible({ timeout: 5_000 });
+    if (page.url().includes("/auth/login")) {
+      // Success banner should be visible
+      await expect(
+        page.getByText(/account created|conta criada/i)
+      ).toBeVisible({ timeout: 5_000 });
+    }
   });
 });
 
@@ -94,9 +99,14 @@ test.describe("Registration — duplicate email", () => {
     await page
       .getByRole("button", { name: /create account/i })
       .click();
-    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+
+    // First registration — handle both redirect flows
+    await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, {
+      timeout: 60_000,
+    });
 
     // Now try to register again with the same email
+    // Navigate explicitly to register page (needed if auto-logged in on staging)
     await page.goto("/en/auth/register");
     await page.getByLabel(/email/i).fill(dupEmail);
     await page.getByLabel(/^password$/i).fill("TestPassword@123");

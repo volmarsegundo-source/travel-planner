@@ -8,7 +8,6 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { loginAs } from "./helpers";
 import { trackConsoleErrors } from "./helpers/console-errors";
 
 test.describe.configure({ timeout: 120_000 });
@@ -21,11 +20,11 @@ function uniqueEmail(prefix: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// 1. Register with valid credentials -> redirected to login with success message
+// 1. Register with valid credentials -> redirected to login or auto-logged in
 // ---------------------------------------------------------------------------
 
 test.describe("Registration E2E -- valid credentials", () => {
-  test("register with valid data redirects to login page with success banner", async ({
+  test("register with valid data redirects to login page or auto-logs in", async ({
     page,
   }) => {
     const errors = trackConsoleErrors(page);
@@ -39,13 +38,20 @@ test.describe("Registration E2E -- valid credentials", () => {
 
     await page.getByRole("button", { name: /create account/i }).click();
 
-    // Should redirect to login with ?registered=true
-    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+    // Should redirect to login with ?registered=true OR auto-login to dashboard
+    await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, { timeout: 60_000 });
 
-    // Success banner visible
-    await expect(
-      page.getByText(/account created|conta criada/i)
-    ).toBeVisible({ timeout: 5_000 });
+    if (page.url().includes("/auth/login")) {
+      // Success banner visible
+      await expect(
+        page.getByText(/account created|conta criada/i)
+      ).toBeVisible({ timeout: 5_000 });
+    } else {
+      // Auto-logged in — main content should be visible
+      await page.waitForLoadState("networkidle");
+      const main = page.locator("main");
+      await expect(main).not.toBeEmpty({ timeout: 10_000 });
+    }
 
     expect(errors).toHaveLength(0);
   });
@@ -69,19 +75,20 @@ test.describe("Registration E2E -- register then login", () => {
     await page.getByLabel(/^password$/i).fill(password);
     await page.getByLabel(/confirm password/i).fill(password);
     await page.getByRole("button", { name: /create account/i }).click();
-    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+    await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, { timeout: 60_000 });
 
-    // Login
-    await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/password/i).fill(password);
-    await page.getByRole("button", { name: /sign in/i }).click();
-
-    // Should land on /trips (which redirects to dashboard)
-    await page.waitForURL(/\/trips|\/dashboard/, { timeout: 60_000 });
+    // If redirected to login, sign in manually
+    if (page.url().includes("/auth/login")) {
+      await page.getByLabel(/email/i).fill(email);
+      await page.getByLabel(/password/i).fill(password);
+      await page.getByRole("button", { name: /sign in/i }).click();
+      await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
+    }
 
     // Dashboard should render main content
-    const mainContent = await page.textContent("main");
-    expect(mainContent).toBeTruthy();
+    await page.waitForLoadState("networkidle");
+    const main = page.locator("main");
+    await expect(main).not.toBeEmpty({ timeout: 10_000 });
 
     expect(errors).toHaveLength(0);
   });
@@ -105,7 +112,7 @@ test.describe("Registration E2E -- duplicate email", () => {
     await page.getByLabel(/^password$/i).fill(password);
     await page.getByLabel(/confirm password/i).fill(password);
     await page.getByRole("button", { name: /create account/i }).click();
-    await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+    await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, { timeout: 60_000 });
 
     // Second registration with the same email
     await page.goto("/en/auth/register");

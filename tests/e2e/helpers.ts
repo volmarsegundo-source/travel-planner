@@ -1,8 +1,15 @@
 import { Page } from "@playwright/test";
 
 /**
+ * Set of emails that have already been registered during this test run.
+ * Prevents duplicate registration attempts within the same worker.
+ */
+const registeredEmails = new Set<string>();
+
+/**
  * Navigates to /auth/login and performs a credentials sign-in.
- * Waits until the URL changes to /trips after success.
+ * If login fails (user doesn't exist on staging), auto-registers the user first.
+ * Waits until the URL changes to /trips or /expeditions after success.
  */
 export async function loginAs(
   page: Page,
@@ -15,8 +22,58 @@ export async function loginAs(
   await page.getByLabel(/password/i).fill(password);
   await page.getByRole("button", { name: /sign in/i }).click();
 
-  // Turbopack dev server may need extra time for on-demand compilation
-  await page.waitForURL(/\/trips/, { timeout: 60_000 });
+  // Wait for redirect to dashboard — generous timeout for staging cold starts
+  try {
+    await page.waitForURL(/\/trips|\/expeditions/, { timeout: 30_000 });
+    return;
+  } catch {
+    // Login failed — check if we're still on login page with an error
+  }
+
+  // Check if login page shows a specific error (not just any [role=alert])
+  const loginError = page.locator("#login-server-error");
+  const hasLoginError = await loginError.isVisible({ timeout: 2_000 }).catch(() => false);
+
+  if (!hasLoginError) {
+    // Might just be slow — try waiting longer
+    try {
+      await page.waitForURL(/\/trips|\/expeditions/, { timeout: 30_000 });
+      return;
+    } catch {
+      // Still not redirected — try registering
+    }
+  }
+
+  // Login failed — user probably doesn't exist on staging. Register first.
+  if (!registeredEmails.has(email)) {
+    await page.goto("/en/auth/register");
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByLabel(/^password$/i).fill(password);
+    await page.getByLabel(/confirm password/i).fill(password);
+    await page.getByRole("button", { name: /create account/i }).click();
+
+    // Registration may auto-login or redirect to login
+    // Also handle case where email is already registered (stays on register)
+    try {
+      await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, { timeout: 30_000 });
+    } catch {
+      // May have stayed on register page — check for "already registered" error
+      // In that case the user exists but login failed for another reason
+    }
+    registeredEmails.add(email);
+
+    // If auto-logged in (redirected to dashboard), we're done
+    if (page.url().includes("/expeditions") || page.url().includes("/trips")) {
+      return;
+    }
+  }
+
+  // Now login
+  await page.goto("/en/auth/login");
+  await page.getByLabel(/email/i).fill(email);
+  await page.getByLabel(/password/i).fill(password);
+  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
 }
 
 /**
@@ -36,20 +93,23 @@ export async function registerAndLogin(
   await page.getByLabel(/^password$/i).fill(password);
   await page.getByLabel(/confirm password/i).fill(password);
   await page.getByRole("button", { name: /create account/i }).click();
-  // After successful registration, redirects to /auth/login?registered=true
-  await page.waitForURL(/\/auth\/login/, { timeout: 60_000 });
+  // Registration may redirect to /auth/login?registered=true OR auto-login to /expeditions
+  await page.waitForURL(/\/auth\/login|\/expeditions|\/trips/, { timeout: 60_000 });
 
-  // Already on login page — fill credentials and sign in
-  await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForURL(/\/trips/, { timeout: 60_000 });
+  // If redirected to login page, sign in manually
+  if (page.url().includes("/auth/login")) {
+    await page.getByLabel(/email/i).fill(email);
+    await page.getByLabel(/password/i).fill(password);
+    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
+  }
 
   return { email, password };
 }
 
 /**
  * Seeded test user credentials (created by `npm run dev:setup`).
+ * On staging, loginAs will auto-register these if needed.
  * Override via environment variables in CI.
  */
 export const TEST_USER = {

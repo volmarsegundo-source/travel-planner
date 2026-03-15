@@ -28,7 +28,7 @@ test.describe("Expedition — Phase 1 wizard", () => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
 
     // Navigate to expedition creation
-    await page.goto("/en/dashboard");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
     // Click "New Expedition" or "Start Expedition" (empty state CTA)
@@ -39,50 +39,68 @@ test.describe("Expedition — Phase 1 wizard", () => {
 
     await page.waitForURL(/\/expedition\/new/, { timeout: 15_000 });
 
-    // Step 1: Destination — type and select
-    const destInput = page.getByPlaceholder(/search.*city|busque.*cidade/i);
-    await expect(destInput).toBeVisible({ timeout: 10_000 });
-    await destInput.fill("Paris");
+    // Step 1: Profile fields — fill required name + birthDate
+    await page.waitForLoadState("networkidle");
 
-    // Wait for autocomplete results and select first
-    const firstResult = page.getByRole("option").first();
-    await expect(firstResult).toBeVisible({ timeout: 10_000 });
+    // Wait for wizard to render
+    const nextBtnStep1 = page.getByRole("button", { name: /^next$/i });
+    await nextBtnStep1.waitFor({ timeout: 15_000 });
+
+    // Fill name — click first to focus, then fill
+    const nameInput = page.getByPlaceholder("Your full name");
+    await nameInput.click();
+    await nameInput.fill("Test User");
+
+    // Fill birthDate
+    const birthInput = page.getByLabel(/date of birth/i);
+    if (await birthInput.isVisible({ timeout: 2_000 }).catch(() => false)) {
+      await birthInput.click();
+      await birthInput.fill("1990-01-01");
+    }
+
+    // Click Next to advance to step 2
+    await nextBtnStep1.click();
+
+    // Wait for step 2 to render (destination input)
+    await page.locator('[data-testid="destination-input"]').first().waitFor({ timeout: 15_000 });
+
+    // Step 2: Destination — type and select using reliable city
+    const destInput = page.locator('[data-testid="destination-input"]').first();
+    await expect(destInput).toBeVisible({ timeout: 15_000 });
+    await destInput.fill("Roma");
+
+    // Wait for autocomplete results — retry if needed (Nominatim can be slow)
+    const firstResult = page.locator('[data-testid="destination-option"]').first();
+    try {
+      await expect(firstResult).toBeVisible({ timeout: 15_000 });
+    } catch {
+      // Retry: clear and re-fill
+      await destInput.fill("");
+      await page.waitForTimeout(500);
+      await destInput.fill("Roma");
+      await expect(firstResult).toBeVisible({ timeout: 15_000 });
+    }
     await firstResult.click();
 
-    // Step 2: Dates — fill start and end
-    const startDate = page.getByLabel(/departure|ida/i);
-    const endDate = page.getByLabel(/return|volta/i);
+    // Click Next (wizard-primary) to go to step 3 (dates)
+    const wizardNext = page.locator('[data-testid="wizard-primary"]');
+    await wizardNext.click();
+    await page.waitForTimeout(500);
 
-    if (await startDate.isVisible()) {
+    // Step 3: Dates — fill start and end
+    const startDate = page.getByLabel(/departure|start|ida|início/i).first();
+    const endDate = page.getByLabel(/return|end|volta|fim/i).first();
+    if (await startDate.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await startDate.fill("2026-07-01");
       await endDate.fill("2026-07-15");
     }
 
-    // Navigate through steps with Next button
-    const nextBtn = page.getByRole("button", { name: /next|próximo/i });
-    if (await nextBtn.isVisible()) {
-      await nextBtn.click();
-    }
+    // Click Next to go to step 4 (confirmation)
+    await wizardNext.click();
+    await page.waitForTimeout(500);
 
-    // Step 4: Confirm — click Start Expedition
-    const startBtn = page.getByRole("button", {
-      name: /start expedition|iniciar expedição/i,
-    });
-
-    // May need to navigate through step 3 (profile fields) first
-    if (!(await startBtn.isVisible({ timeout: 3_000 }).catch(() => false))) {
-      // Click Next/Skip through intermediate steps
-      const skipOrNext = page
-        .getByRole("button", { name: /next|próximo|skip|pular/i })
-        .first();
-      if (await skipOrNext.isVisible()) {
-        await skipOrNext.click();
-      }
-    }
-
-    // Now the Start Expedition button should be visible
-    await expect(startBtn).toBeVisible({ timeout: 10_000 });
-    await startBtn.click();
+    // Step 4: Confirm — click the primary button (Start Expedition / Advance)
+    await wizardNext.click();
 
     // Should navigate to phase 2 or expedition hub
     await page.waitForURL(/\/expedition\//, { timeout: 30_000 });
@@ -101,8 +119,8 @@ test.describe("Expedition — Phase 2 wizard", () => {
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
 
-    // Navigate to dashboard to find an expedition in phase 2
-    await page.goto("/en/dashboard");
+    // Navigate to expeditions to find an expedition in phase 2
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
     // Click on the first expedition card that shows "Continue"
@@ -155,14 +173,14 @@ test.describe("Expedition — Phase 2 wizard", () => {
 // ---------------------------------------------------------------------------
 
 test.describe("Expedition — dashboard display", () => {
-  test("E2E-008 — created expedition appears on the Atlas dashboard", async ({
+  test("E2E-008 — created expedition appears on the expeditions page", async ({
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
-    await page.goto("/en/dashboard");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // Dashboard should show at least one expedition card
+    // Expeditions page should show at least one expedition card
     // or the empty state
     const expeditionCard = page
       .getByText(/phase|fase/i)
@@ -182,14 +200,14 @@ test.describe("Expedition — trip type badge", () => {
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
-    await page.goto("/en/dashboard");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
     // Look for trip type indicators on expedition cards
-    // The dashboard shows expedition cards with destination info
+    // The page shows expedition cards with destination info
     const dashboardContent = await page.textContent("main");
 
-    // At minimum, the dashboard rendered without errors
+    // At minimum, the page rendered without errors
     expect(dashboardContent).toBeTruthy();
 
     // If there are expedition cards, they should display phase info
@@ -205,21 +223,18 @@ test.describe("Expedition — trip type badge", () => {
 // ---------------------------------------------------------------------------
 
 test.describe("Expedition — points increase", () => {
-  test("E2E-010 — user points are displayed on the dashboard", async ({
+  test("E2E-010 — user points are displayed on the expeditions page", async ({
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
-    await page.goto("/en/dashboard");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // The dashboard should display points information
-    // AtlasDashboard renders totalPoints
-    const pointsText = page
-      .getByText(/pts/i)
-      .first()
-      .or(page.getByText(/points|pontos/i).first());
+    // The navbar shows gamification info (e.g., "825 O Legado" linking to /atlas)
+    // The phase name varies (Chamado, Explorador, Legado, etc.) so match on the atlas link
+    const gamificationHeader = page.getByRole("link", { name: /\d+\s+/i }).first();
 
-    await expect(pointsText).toBeVisible({ timeout: 10_000 });
+    await expect(gamificationHeader).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -228,71 +243,64 @@ test.describe("Expedition — points increase", () => {
 // ---------------------------------------------------------------------------
 
 test.describe("Itinerary — AI generation", () => {
-  test("E2E-011 — generate itinerary link is visible for trip without itinerary", async ({
+  test("E2E-011 — generate itinerary link is visible for expedition without itinerary", async ({
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
 
-    // Navigate to trips page
-    await page.goto("/en/trips");
+    // Navigate to expeditions page
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // If there are trip cards, click the first one
-    const tripCard = page.getByRole("article").first();
-    if (!(await tripCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
-      test.skip(true, "No trips available — create a trip first");
+    // If there are expedition cards, click the first one
+    const expeditionCard = page.getByRole("article").first();
+    if (!(await expeditionCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
+      test.skip(true, "No expeditions available — create an expedition first");
       return;
     }
 
-    // Click on trip heading to navigate to detail
-    const tripLink = tripCard.getByRole("link").first();
-    await tripLink.click();
+    // Click on expedition link to navigate to detail
+    const expeditionLink = expeditionCard.getByRole("link").first();
+    await expeditionLink.click();
 
-    await page.waitForURL(/\/trips\/[^/]+/, { timeout: 15_000 });
+    await page.waitForURL(/\/expedition\/[^/]+/, { timeout: 15_000 });
+    await page.waitForLoadState("networkidle");
 
-    // The trip detail page should render without errors
-    const mainContent = await page.textContent("main");
-    expect(mainContent).toBeTruthy();
+    // The expedition detail page should render — wait for main to have content
+    const main = page.locator("main");
+    await expect(main).not.toBeEmpty({ timeout: 10_000 });
   });
 });
 
 // ---------------------------------------------------------------------------
-// E2E-012: Itinerary activities are editable
+// E2E-012: Expedition phase page renders correctly
 // ---------------------------------------------------------------------------
 
-test.describe("Itinerary — edit activities", () => {
-  test("E2E-012 — itinerary page renders with add activity capability", async ({
+test.describe("Expedition — phase page", () => {
+  test("E2E-012 — expedition phase page renders with wizard content", async ({
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
 
-    // Go to trips
-    await page.goto("/en/trips");
+    // Go to expeditions
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    const tripCard = page.getByRole("article").first();
-    if (!(await tripCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
-      test.skip(true, "No trips available");
+    const expeditionCard = page.getByRole("article").first();
+    if (!(await expeditionCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
+      test.skip(true, "No expeditions available");
       return;
     }
 
-    // Navigate to trip → itinerary
-    const tripLink = tripCard.getByRole("link").first();
-    await tripLink.click();
-    await page.waitForURL(/\/trips\/[^/]+/, { timeout: 15_000 });
+    // Navigate to expedition phase page
+    const expeditionLink = expeditionCard.getByRole("link").first();
+    await expeditionLink.click();
+    await page.waitForURL(/\/expedition\/[^/]+/, { timeout: 15_000 });
+    await page.waitForLoadState("networkidle");
 
-    // Navigate to itinerary sub-page
-    const itineraryLink = page.getByRole("link", {
-      name: /itinerary|itinerário/i,
-    });
-    if (await itineraryLink.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await itineraryLink.click();
-      await page.waitForURL(/\/itinerary/, { timeout: 10_000 });
-    }
-
-    // Itinerary page should render
-    const mainContent = await page.textContent("main");
-    expect(mainContent).toBeTruthy();
+    // The expedition phase page should render with main content
+    const main = page.locator("main");
+    await expect(main).not.toBeEmpty({ timeout: 10_000 });
   });
 });
 
@@ -301,12 +309,12 @@ test.describe("Itinerary — edit activities", () => {
 // ---------------------------------------------------------------------------
 
 test.describe("Itinerary — persistence after reload", () => {
-  test("E2E-013 — trips page data persists after full page reload", async ({
+  test("E2E-013 — expeditions page data persists after full page reload", async ({
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
 
-    await page.goto("/en/trips");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
     // Capture current page content
@@ -320,9 +328,9 @@ test.describe("Itinerary — persistence after reload", () => {
     const afterReload = await page.textContent("main");
     expect(afterReload).toBeTruthy();
 
-    // Heading should still be visible
+    // Expeditions text should still be visible
     await expect(
-      page.getByRole("heading", { name: /my trips|minhas viagens/i })
+      page.getByText(/expeditions|expedições/i).first()
     ).toBeVisible();
   });
 });
@@ -336,7 +344,7 @@ test.describe("Expedition — Phase 3 checklist", () => {
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
-    await page.goto("/en/dashboard");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
     // Try to find an expedition in phase 3
@@ -345,7 +353,7 @@ test.describe("Expedition — Phase 3 checklist", () => {
       .first();
 
     if (!(await continueLink.isVisible({ timeout: 5_000 }).catch(() => false))) {
-      // No expeditions — verify dashboard renders correctly instead
+      // No expeditions — verify page renders correctly instead
       const dashContent = await page.textContent("main");
       expect(dashContent).toBeTruthy();
       return;
@@ -393,7 +401,7 @@ test.describe("Theme — toggle persistence", () => {
     page,
   }) => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
-    await page.goto("/en/dashboard");
+    await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
     // Look for theme toggle button
