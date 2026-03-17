@@ -99,7 +99,7 @@ export function PhaseShell({
       <div className={`mx-auto w-full ${widthClass} px-4 sm:px-6`}>
         {/* 3. Phase header */}
         <div className="mt-6 text-center">
-          <h1 className="text-2xl font-bold text-foreground">
+          <h1 className="text-2xl font-bold text-foreground" data-testid="phase-label">
             {phaseTitle}
           </h1>
           {phaseSubtitle && (

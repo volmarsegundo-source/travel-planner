@@ -25,17 +25,29 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
     ? phase2.metadata as Record<string, unknown>
     : null;
 
-  const savedPassengers = trip.passengers as Record<string, unknown> | null;
+  const savedPassengers = (trip.passengers != null && typeof trip.passengers === "object")
+    ? trip.passengers as Record<string, unknown>
+    : null;
+
+  // Safely extract trip context fields (guard returns [key: string]: unknown)
+  const destination = typeof trip.destination === "string" ? trip.destination : "";
+  const origin = typeof trip.origin === "string" ? trip.origin : undefined;
+  const startDate = trip.startDate instanceof Date
+    ? trip.startDate.toISOString().split("T")[0]
+    : undefined;
+  const endDate = trip.endDate instanceof Date
+    ? trip.endDate.toISOString().split("T")[0]
+    : undefined;
 
   return (
     <Phase2Wizard
       tripId={tripId}
-      tripContext={trip ? {
-        destination: trip.destination as string,
-        origin: (trip.origin as string | null) ?? undefined,
-        startDate: trip.startDate ? (trip.startDate as Date).toISOString().split("T")[0] : undefined,
-        endDate: trip.endDate ? (trip.endDate as Date).toISOString().split("T")[0] : undefined,
-      } : undefined}
+      tripContext={{
+        destination,
+        origin,
+        startDate,
+        endDate,
+      }}
       savedData={savedPhase2Data ? {
         travelerType: savedPhase2Data.travelerType as string | undefined,
         accommodationStyle: savedPhase2Data.accommodationStyle as string | undefined,

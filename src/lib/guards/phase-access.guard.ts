@@ -67,6 +67,14 @@ export async function guardPhaseAccess(
     throw new Error("unreachable");
   }
 
+  // Defensive: coerce currentPhase to a valid number (default 1)
+  // Prisma schema has @default(1), but guard against edge cases from
+  // legacy data or migration gaps.
+  const safeCurrentPhase: number =
+    typeof trip.currentPhase === "number" && trip.currentPhase >= 1
+      ? trip.currentPhase
+      : 1;
+
   // Fetch completed phases from ExpeditionPhase table
   const phases = await db.expeditionPhase.findMany({
     where: { tripId, status: "completed" },
@@ -76,17 +84,17 @@ export async function guardPhaseAccess(
   const completedPhases = phases.map((p) => p.phaseNumber);
 
   // Resolve access using the navigation engine
-  const access = resolveAccess(requestedPhase, trip.currentPhase, completedPhases);
+  const access = resolveAccess(requestedPhase, safeCurrentPhase, completedPhases);
 
   if (!access.allowed) {
     // Redirect to the correct phase
-    const redirectUrl = getPhaseUrl(tripId, trip.currentPhase);
+    const redirectUrl = getPhaseUrl(tripId, safeCurrentPhase);
     redirect({ href: redirectUrl, locale });
     throw new Error("unreachable");
   }
 
   return {
-    trip: trip as GuardResult["trip"],
+    trip: { ...trip, currentPhase: safeCurrentPhase } as GuardResult["trip"],
     accessMode: access.mode,
     completedPhases,
   };

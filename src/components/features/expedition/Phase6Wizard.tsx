@@ -401,7 +401,7 @@ export function Phase6Wizard({
           </div>
 
           <div className="space-y-2">
-            <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+            <p className="text-sm font-medium text-atlas-gold" data-testid="phase-6-label">
               {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
             </p>
           </div>
@@ -440,7 +440,7 @@ export function Phase6Wizard({
       contentMaxWidth="4xl"
     >
       <div className="mb-6 space-y-1">
-        <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
+        <p className="text-sm font-medium text-atlas-gold" data-testid="phase-6-label">
           {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
         </p>
         <p className="text-sm text-muted-foreground">{destination}</p>

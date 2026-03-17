@@ -521,7 +521,7 @@ describe("Phase6Wizard", () => {
         <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
       );
 
-      const label = screen.getByTestId("phase-label");
+      const label = screen.getByTestId("phase-6-label");
       expect(label).toBeInTheDocument();
       // Mock returns the key as-is, so check it contains phaseLabel
       expect(label.textContent).toContain("phaseLabel");

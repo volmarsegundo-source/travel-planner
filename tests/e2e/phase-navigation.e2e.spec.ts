@@ -76,7 +76,7 @@ test.describe("Phase navigation -- access guards", () => {
       expect(url).toMatch(/\/expedition\/[^/]+\/phase-\d/);
     }
 
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 
   test("Phase 1 page has access guard (was previously missing)", async ({
@@ -98,7 +98,7 @@ test.describe("Phase navigation -- access guards", () => {
     // Should be on /phase-1 (not redirected to phase-2)
     expect(page.url()).toContain(`/expedition/${tripId}/phase-1`);
 
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 });
 
@@ -129,7 +129,7 @@ test.describe("Phase navigation -- progress bar", () => {
       expect(count).toBe(6);
     }
 
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 
   test("progress bar Phase 1 route is /phase-1 (not empty)", async ({
@@ -157,7 +157,7 @@ test.describe("Phase navigation -- progress bar", () => {
       expect(page.url()).toContain("/phase-1");
     }
 
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 });
 
@@ -188,7 +188,7 @@ test.describe("Phase navigation -- hub redirect", () => {
     // Specifically should NOT redirect phase 1 to phase-2
     // (The old bug: hub redirected phase 1 -> phase 2)
 
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 });
 
@@ -220,7 +220,7 @@ test.describe("Phase navigation -- canonical phase names", () => {
       expect(title).toContain("Destination Guide");
     }
 
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 });
 
@@ -261,7 +261,7 @@ test.describe("Phase navigation -- validations", () => {
 
     // This test verifies the schema validation exists
     // Full E2E execution requires form interaction with autocomplete
-    errors.assertNoErrors();
+    expect(errors).toHaveLength(0);
   });
 });
 
