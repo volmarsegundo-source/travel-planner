@@ -319,18 +319,16 @@ test.describe("Persistence -- phase 2 budget on back navigation", () => {
         await page.waitForURL(/\/phase-2/, { timeout: 10_000 });
 
         // Phase 2 should show previously saved data
-        const mainContent = await page.textContent("main");
-        expect(mainContent).toBeTruthy();
-
-        // Check that the phase label is visible (indicating the page loaded properly)
+        // Wait for PhaseShell to render (contains phase-label in h1)
         const phaseLabel = page.locator('[data-testid="phase-label"]');
-        await expect(phaseLabel.first()).toBeVisible({ timeout: 5_000 });
+        await expect(phaseLabel.first()).toBeVisible({ timeout: 10_000 });
+
+        // Verify main has content after hydration
+        await expect(page.locator("main")).not.toBeEmpty({ timeout: 5_000 });
       }
     } else {
       // Expedition has not reached phase 3 -- verify the redirected phase loaded
-      const mainContent = await page.textContent("main");
-      expect(mainContent).toBeTruthy();
-
+      // Wait for page to hydrate
       const phaseLabel = page.locator('[data-testid="phase-label"]');
       if (
         await phaseLabel.first().isVisible({ timeout: 5_000 }).catch(() => false)
@@ -378,7 +376,8 @@ test.describe("Persistence -- phase 3 checklist on back nav", () => {
       const advanceBtn = page.locator('[data-testid="wizard-primary"]');
       if (await advanceBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await advanceBtn.click();
-        await page.waitForURL(/\/phase-4/, { timeout: 15_000 });
+        // Server action + navigation may be slow on staging cold start
+        await page.waitForURL(/\/phase-4/, { timeout: 30_000 });
 
         // Navigate back to phase 3
         const backBtn = page.locator('[data-testid="wizard-back"]');

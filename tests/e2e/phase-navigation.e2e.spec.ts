@@ -148,12 +148,18 @@ test.describe("Phase navigation -- progress bar", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    const phase1Segment = page.locator('[data-testid="phase-segment-1"]').first();
-    if (await phase1Segment.isVisible({ timeout: 3_000 }).catch(() => false)) {
+    // Navigate to an expedition phase page where UnifiedProgressBar renders
+    // (Dashboard uses DashboardPhaseProgressBar with different navigability rules)
+    await page.goto(`/en/expedition/${tripId}/phase-2`);
+    await page.waitForLoadState("networkidle");
+
+    // On the expedition phase page, UnifiedProgressBar uses progress-phase-N testids
+    const phase1Segment = page.locator('[data-testid="progress-phase-1"]').first();
+    if (await phase1Segment.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await phase1Segment.click();
       await page.waitForLoadState("networkidle");
 
-      // Should navigate to /phase-1 (not expedition root)
+      // Should navigate to /phase-1 (not expedition root or /expeditions)
       expect(page.url()).toContain("/phase-1");
     }
 
