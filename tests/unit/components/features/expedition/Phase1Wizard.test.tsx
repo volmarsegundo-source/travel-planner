@@ -129,7 +129,9 @@ function navigateToStep4WithBio(bio: string) {
   fireEvent.change(destinationInput, { target: { value: "Paris, France" } });
   fireEvent.click(screen.getByText("common.next"));
 
-  // Step 3: skip dates, click next
+  // Step 3: check flexible dates to bypass mandatory date requirement, click next
+  const flexCheckbox1 = screen.getByLabelText("expedition.phase1.step3.flexibleDates");
+  fireEvent.click(flexCheckbox1);
   fireEvent.click(screen.getByText("common.next"));
 }
 
@@ -147,7 +149,9 @@ function navigateToStep4WithCompleteProfile() {
   fireEvent.change(destinationInput, { target: { value: "Tokyo, Japan" } });
   fireEvent.click(screen.getByText("common.next"));
 
-  // Step 3: skip dates, click next
+  // Step 3: check flexible dates to bypass mandatory date requirement, click next
+  const flexCheckbox2 = screen.getByLabelText("expedition.phase1.step3.flexibleDates");
+  fireEvent.click(flexCheckbox2);
   fireEvent.click(screen.getByText("common.next"));
 }
 
@@ -387,7 +391,8 @@ describe("Phase1Wizard", () => {
       fireEvent.change(destinationInput, { target: { value: "Paris" } });
       fireEvent.click(screen.getByText("common.next"));
 
-      // Step 3: skip dates, click next
+      // Step 3: check flexible dates to bypass mandatory, click next
+      fireEvent.click(screen.getByLabelText("expedition.phase1.step3.flexibleDates"));
       fireEvent.click(screen.getByText("common.next"));
 
       // Profile section should always be visible
@@ -424,7 +429,8 @@ describe("Phase1Wizard", () => {
       fireEvent.change(destinationInput, { target: { value: "Tokyo" } });
       fireEvent.click(screen.getByText("common.next"));
 
-      // Step 3: next
+      // Step 3: check flexible dates to bypass mandatory, click next
+      fireEvent.click(screen.getByLabelText("expedition.phase1.step3.flexibleDates"));
       fireEvent.click(screen.getByText("common.next"));
 
       // Both should be visible

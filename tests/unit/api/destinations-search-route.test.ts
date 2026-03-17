@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 
+// ─── Hoisted mocks ──────────────────────────────────────────────────────────
+
+const hoisted = vi.hoisted(() => ({
+  mockSearchWithFallback: vi.fn(),
+}));
+
 // ─── Module mocks ───────────────────────────────────────────────────────────
 vi.mock("server-only", () => ({}));
 
@@ -23,33 +29,57 @@ vi.mock("@/lib/logger", () => ({
   logger: { info: vi.fn(), error: vi.fn(), warn: vi.fn() },
 }));
 
+vi.mock("@/server/services/geocoding/geocoding.service", () => ({
+  searchWithFallback: hoisted.mockSearchWithFallback,
+}));
+
 // ─── Import SUT ──────────────────────────────────────────────────────────────
 
 import { GET } from "@/app/api/destinations/search/route";
 import { auth } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { redis } from "@/server/cache/redis";
 
 const mockAuth = auth as ReturnType<typeof vi.fn>;
 const mockRateLimit = checkRateLimit as ReturnType<typeof vi.fn>;
-const mockRedisGet = redis.get as ReturnType<typeof vi.fn>;
-const mockRedisSetex = redis.setex as ReturnType<typeof vi.fn>;
 
-function createRequest(query: string, locale?: string) {
-  const url = new URL(`http://localhost:3000/api/destinations/search?q=${encodeURIComponent(query)}`);
+function createRequest(query: string, locale?: string, limit?: number) {
+  const url = new URL(
+    `http://localhost:3000/api/destinations/search?q=${encodeURIComponent(query)}`
+  );
   if (locale) url.searchParams.set("locale", locale);
+  if (limit !== undefined) url.searchParams.set("limit", String(limit));
   return new NextRequest(url);
 }
+
+const parisResult = {
+  displayName: "Paris, Ile-de-France, France",
+  shortName: "Paris, France",
+  formattedName: "Paris, Ile-de-France, France",
+  lat: 48.8566,
+  lon: 2.3522,
+  country: "France",
+  countryCode: "FR",
+  state: "Ile-de-France",
+  city: "Paris",
+};
 
 describe("GET /api/destinations/search", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue({ user: { id: "user-1" } });
-    mockRateLimit.mockResolvedValue({ allowed: true, remaining: 1, resetAt: 0 });
-    mockRedisGet.mockResolvedValue(null);
-    // Mock global fetch
-    vi.stubGlobal("fetch", vi.fn());
+    mockRateLimit.mockResolvedValue({
+      allowed: true,
+      remaining: 5,
+      resetAt: 0,
+    });
+    hoisted.mockSearchWithFallback.mockResolvedValue({
+      results: [parisResult],
+      provider: "nominatim",
+      cached: false,
+    });
   });
+
+  // ─── Auth ───────────────────────────────────────────────────────────────
 
   it("returns 401 when not authenticated", async () => {
     mockAuth.mockResolvedValue(null);
@@ -57,201 +87,112 @@ describe("GET /api/destinations/search", () => {
     expect(res.status).toBe(401);
   });
 
+  // ─── Input validation ──────────────────────────────────────────────────
+
   it("returns empty results for query shorter than 2 chars", async () => {
     const res = await GET(createRequest("P"));
     const data = await res.json();
     expect(data.results).toEqual([]);
   });
 
+  it("returns empty results for empty query", async () => {
+    const res = await GET(createRequest(""));
+    const data = await res.json();
+    expect(data.results).toEqual([]);
+  });
+
+  // ─── Rate limiting ─────────────────────────────────────────────────────
+
   it("returns 429 when rate limited", async () => {
-    mockRateLimit.mockResolvedValue({ allowed: false, remaining: 0, resetAt: 0 });
+    mockRateLimit.mockResolvedValue({
+      allowed: false,
+      remaining: 0,
+      resetAt: 0,
+    });
     const res = await GET(createRequest("Paris"));
     expect(res.status).toBe(429);
   });
 
-  it("uses relaxed rate limit of 3 per 2 seconds", async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve([]),
-    });
-
+  it("uses rate limit key with geocoding prefix and user id", async () => {
     await GET(createRequest("Paris"));
-
-    expect(mockRateLimit).toHaveBeenCalledWith("nominatim:user-1", 3, 2);
+    expect(mockRateLimit).toHaveBeenCalledWith(
+      "geocoding:user-1",
+      10,
+      5
+    );
   });
 
-  it("returns cached results from Redis (includes locale in key)", async () => {
-    const cached = [{ displayName: "Paris, France", lat: 48.8, lon: 2.3, country: "France", state: null, city: "Paris" }];
-    mockRedisGet.mockResolvedValue(JSON.stringify(cached));
-    const res = await GET(createRequest("Paris", "en"));
-    const data = await res.json();
-    expect(data.results).toEqual(cached);
-    expect(fetch).not.toHaveBeenCalled();
-    // Verify locale is included in cache key
-    expect(mockRedisGet).toHaveBeenCalledWith("dest:search:en:paris");
+  // ─── Geocoding service delegation ──────────────────────────────────────
+
+  it("delegates to searchWithFallback with query and locale", async () => {
+    await GET(createRequest("Paris", "en"));
+    expect(hoisted.mockSearchWithFallback).toHaveBeenCalledWith({
+      query: "Paris",
+      locale: "en",
+      limit: 5,
+    });
   });
 
   it("defaults locale to pt-BR when not specified", async () => {
-    const cached = [{ displayName: "Paris, France", lat: 48.8, lon: 2.3, country: "France", state: null, city: "Paris" }];
-    mockRedisGet.mockResolvedValue(JSON.stringify(cached));
     await GET(createRequest("Paris"));
-    expect(mockRedisGet).toHaveBeenCalledWith("dest:search:pt-BR:paris");
+    expect(hoisted.mockSearchWithFallback).toHaveBeenCalledWith(
+      expect.objectContaining({ locale: "pt-BR" })
+    );
   });
 
-  it("fetches from Nominatim and caches results", async () => {
-    const nominatimResponse = [
-      {
-        display_name: "Paris, Île-de-France, France",
-        lat: "48.8566",
-        lon: "2.3522",
-        address: { country: "France", country_code: "fr", state: "Île-de-France", city: "Paris" },
-      },
-    ];
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(nominatimResponse),
-    });
+  it("passes limit parameter to geocoding service", async () => {
+    await GET(createRequest("Paris", "en", 8));
+    expect(hoisted.mockSearchWithFallback).toHaveBeenCalledWith(
+      expect.objectContaining({ limit: 8 })
+    );
+  });
 
+  it("clamps limit to max 10", async () => {
+    await GET(createRequest("Paris", "en", 20));
+    expect(hoisted.mockSearchWithFallback).toHaveBeenCalledWith(
+      expect.objectContaining({ limit: 10 })
+    );
+  });
+
+  it("defaults limit to 5 when not specified", async () => {
+    await GET(createRequest("Paris"));
+    expect(hoisted.mockSearchWithFallback).toHaveBeenCalledWith(
+      expect.objectContaining({ limit: 5 })
+    );
+  });
+
+  // ─── Response format ───────────────────────────────────────────────────
+
+  it("returns results with provider and cached fields", async () => {
     const res = await GET(createRequest("Paris"));
     const data = await res.json();
-
-    expect(data.results).toHaveLength(1);
-    expect(data.results[0].displayName).toBe("Paris, Île-de-France, France");
-    expect(data.results[0].lat).toBe(48.8566);
-    expect(data.results[0].country).toBe("France");
-    expect(data.results[0].countryCode).toBe("FR");
-    expect(mockRedisSetex).toHaveBeenCalled();
+    expect(data.results).toEqual([parisResult]);
+    expect(data.provider).toBe("nominatim");
+    expect(data.cached).toBe(false);
   });
 
-  it("includes User-Agent and Accept-Language headers in Nominatim request", async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve([]),
+  it("returns cached flag when results come from cache", async () => {
+    hoisted.mockSearchWithFallback.mockResolvedValue({
+      results: [parisResult],
+      provider: "mapbox",
+      cached: true,
     });
+    const res = await GET(createRequest("Paris"));
+    const data = await res.json();
+    expect(data.cached).toBe(true);
+    expect(data.provider).toBe("mapbox");
+  });
 
-    await GET(createRequest("Tokyo", "en"));
+  // ─── Error handling ────────────────────────────────────────────────────
 
-    expect(fetch).toHaveBeenCalledWith(
-      expect.stringContaining("nominatim.openstreetmap.org"),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          "User-Agent": expect.any(String),
-          "Accept-Language": "en,en-US;q=0.9",
-        }),
-      })
+  it("returns empty results on geocoding service error", async () => {
+    hoisted.mockSearchWithFallback.mockRejectedValue(
+      new Error("Service unavailable")
     );
-  });
-
-  it("sends pt-BR Accept-Language when locale is pt-BR", async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve([]),
-    });
-
-    await GET(createRequest("Sao Paulo", "pt-BR"));
-
-    expect(fetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        headers: expect.objectContaining({
-          "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.5",
-        }),
-      })
-    );
-  });
-
-  it("includes AbortSignal.timeout in fetch options", async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve([]),
-    });
-
-    await GET(createRequest("Berlin"));
-
-    expect(fetch).toHaveBeenCalledWith(
-      expect.any(String),
-      expect.objectContaining({
-        signal: expect.any(AbortSignal),
-      })
-    );
-  });
-
-  it("returns empty results on Nominatim error", async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: false,
-      status: 500,
-    });
-
     const res = await GET(createRequest("Error City"));
     const data = await res.json();
     expect(data.results).toEqual([]);
-  });
-
-  it("returns empty results on network error", async () => {
-    (fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error("Network error"));
-
-    const res = await GET(createRequest("Offline"));
-    const data = await res.json();
-    expect(data.results).toEqual([]);
-  });
-
-  it("deduplicates results by city+state+country, keeping higher importance", async () => {
-    const nominatimResponse = [
-      {
-        display_name: "Paris, Ile-de-France, France",
-        lat: "48.8566",
-        lon: "2.3522",
-        importance: 0.9,
-        address: { country: "France", state: "Ile-de-France", city: "Paris" },
-      },
-      {
-        display_name: "Paris, Ile-de-France, France (duplicate)",
-        lat: "48.8567",
-        lon: "2.3523",
-        importance: 0.7,
-        address: { country: "France", state: "Ile-de-France", city: "Paris" },
-      },
-      {
-        display_name: "Paris, Texas, United States",
-        lat: "33.6609",
-        lon: "-95.5555",
-        importance: 0.5,
-        address: { country: "United States", state: "Texas", city: "Paris" },
-      },
-    ];
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(nominatimResponse),
-    });
-
-    const res = await GET(createRequest("Paris"));
-    const data = await res.json();
-
-    // Should have 2 results: Paris France (higher importance) + Paris Texas
-    expect(data.results).toHaveLength(2);
-    expect(data.results[0].displayName).toBe("Paris, Ile-de-France, France");
-    expect(data.results[1].displayName).toBe("Paris, Texas, United States");
-  });
-
-  it("does not include importance field in response", async () => {
-    const nominatimResponse = [
-      {
-        display_name: "Tokyo, Japan",
-        lat: "35.6762",
-        lon: "139.6503",
-        importance: 0.95,
-        address: { country: "Japan", state: null, city: "Tokyo" },
-      },
-    ];
-    (fetch as ReturnType<typeof vi.fn>).mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve(nominatimResponse),
-    });
-
-    const res = await GET(createRequest("Tokyo"));
-    const data = await res.json();
-
-    expect(data.results[0]).not.toHaveProperty("importance");
-    expect(data.results[0].displayName).toBe("Tokyo, Japan");
+    expect(data.provider).toBe("none");
+    expect(res.status).toBe(200); // graceful degradation
   });
 });

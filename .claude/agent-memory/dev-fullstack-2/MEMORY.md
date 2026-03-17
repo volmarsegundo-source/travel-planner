@@ -28,68 +28,33 @@
 - `aria-label` on a button overrides text content for accessible name — avoid setting both
 - ProgressIndicator mock returns key string without interpolation since `"onboarding.progress"` doesn't contain `{current}` literal — test for `"onboarding.progress"` not interpolated value
 
-## Sprint 26 — Completed Tasks (dev-fullstack-2)
-- TASK-26-001: Autocomplete UX fix — two-line results, opaque dropdown, no-results hint, mobile touch targets, City/Country selected format
-- TASK-26-002: Autocomplete tests — 20 tests (up from 12) covering all new UX behaviors
-- TASK-26-008: Preferences pagination — 2 pages of 5, Previous/Next, single-page fallback, focus management, aria-live
-- TASK-26-009: Preferences tests — 24 tests (up from 16) covering pagination, chip truncation fix
-- TASK-26-010: Dashboard card redesign — non-interactive progress bar, travel dates, completed badge, keyboard nav
-- TASK-26-011: Dashboard tests — 32 tests covering visual states, dates, badge, keyboard
+## Sprint 30 — Completed Tasks (dev-fullstack-2)
+- Dashboard rewrite: ExpeditionsDashboard (filter/sort), ExpeditionCardRedesigned (status accents), ExpeditionCardSkeleton
+- ExpeditionDTO type + deriveExpeditionStatus utility in src/types/expedition.types.ts
+- expedition-filters.ts: filterExpeditions, sortExpeditions, filterAndSortExpeditions (pure functions)
+- Bug 1 fix: Phase 5 re-advance — skip completePhase5Action when revisiting already-completed phase
+- Bug 6 fix: Schengen displays as "International" in UI badges (data stays "schengen" in classifier)
+- Bug 10 fix: revalidatePath("/") added to advanceFromPhaseAction + completeExpeditionAction + completePhase5Action
+- Bug 11 fix: Dates mandatory in Phase1Wizard handleStep3Next (unless flexibleDates checked)
+- 73 new tests: 19 filter, 28 dashboard, 22 card, 4 skeleton
 
-## Sprint 26 Patterns
-- Autocomplete: useTranslations("destination") for no-results/searching; two-line layout via getResultLines()
-- formattedName field added to API route: city + state + country assembled from Nominatim data
-- Preferences pagination: CATEGORIES_PER_PAGE=5, needsPagination when >5, useEffect for focus on page change
-- DashboardPhaseProgressBar: removed tripId prop, Link wrappers, phase labels; segments are read-only divs
-- ExpeditionCard: role="article", tabIndex=0, onKeyDown Enter/Space triggers link click
-- Pre-existing failures: Phase6Wizard.test.tsx (server-only import), 30 TS errors in test mocks (not runtime)
+## Sprint 30 Patterns
+- ExpeditionDTO: plain serializable object (no Date objects), createdAt + status added to page.tsx mapping
+- Status derivation: completed > overdue (startDate < today) > active (phase > 1) > planned
+- Filter chips: role="radiogroup", 3 options (all/active/completed), client-side with useState
+- Sort: newest (createdAt desc), departure (startDate asc, nulls last), destination (A-Z)
+- Card: Link as root element, 4px left border accent, status badge, contextual CTA
+- Grid: CSS grid-cols-1 md:grid-cols-2 lg:grid-cols-3, max-w-6xl
+- Mobile FAB: fixed bottom-right, md:hidden, 56x56px rounded-full
+
+## Sprint 26 — Completed Tasks (dev-fullstack-2)
+- [sprint-26.md](sprint-26.md) for full details
 
 ## Sprint 20 — Completed Tasks (dev-fullstack-2)
-- T-S20-002: Remove duplicate checklist/itinerary shortcuts from ExpeditionCard (PhaseToolsBar already provides them)
-- T-S20-006: Preferences schema — Prisma migration (preferences Json? on UserProfile), Zod PreferencesSchema with 10 categories, PreferencesService
-- T-S20-007: Preferences UI — PreferenceChip, PreferenceCategory, PreferenceProgressBar, PreferencesSection with debounced auto-save (500ms)
-- T-S20-008: Preferences gamification — savePreferencesAction awards 5pts per newly filled category, identity_explorer badge at 5+ categories
-- T-S20-011: Transport data model — TransportSegment + Accommodation Prisma models, Zod schemas, Phase 4 rename "A Logistica", cascade deletion
-- T-S20-012: Fix test regressions — phase-engine test (Phase 4 rename), account.actions test (transport/accommodation mock in makeMockTx)
-
-## Sprint 20 Patterns
-- Preferences: 10 categories, 6 single-select (nullable enum) + 4 multi-select (string array), stored as Json in UserProfile
-- Chip-based UI: PreferenceChip with role="radio"|"checkbox", min 44px touch target, aria-checked
-- Debounced auto-save: useRef for debounce timer, useTransition for isPending state, 500ms delay
-- "no_restrictions" mutual exclusivity: selecting it clears other food preferences, selecting others clears it
-- Prisma permission denied on Windows: create migration SQL manually, skip prisma generate (tests mock PrismaClient)
-- When adding cascade deletion models, update makeMockTx() in account.actions.test.ts
+- [sprint-20.md](sprint-20.md) for full details
 
 ## Sprint 19 — Completed Tasks (dev-fullstack-2)
-- T-S19-002: Fix navigation for completed trips — added `getHighestCompletedPhase()` to PhaseEngine, simplified ExpeditionHubPage redirect logic
-- T-S19-003: Cascade deletion (SEC-S18-001) — added Activity, ItineraryDay, ChecklistItem cleanup in deleteUserAccountAction transaction
-- T-S19-004: Fix completedPhases count — `Math.max(explicit, currentPhase - 1)` in trip.service.ts
-- T-S19-005: Show bio in Phase1Wizard confirmation — added bio display with 100-char truncation, i18n keys
-- T-S19-006: Deduplicate destinations — dedup by city+state+country in API route, keeping higher importance
-- T-S19-011: Consistent currency format — `getDefaultCurrency(locale)` + `formatCurrency()` utility, updated Phase2Wizard, PlanGeneratorWizard, OnboardingWizard
-- T-S19-009: SKIPPED — T-S19-008 (guide backend by dev-1) not committed yet
-
-## Sprint 19 — Pre-existing Test Failures (NOT regressions)
-- `ai.service.test.ts`: "passes system prompt to provider for guide generation" — expects "6 sections" but prompt now says "10 sections" (guide redesign by another agent)
-- `DestinationGuideWizard.test.tsx`: "section buttons have aria-expanded attribute" — expects 6 sections but now 10 (same cause)
-
-## Sprint 19 Patterns
-- Currency utility: `src/lib/utils/currency.ts` — `getDefaultCurrency(locale)` and `formatCurrency(value, currency, locale)`
-- PhaseTransition auto-advance: useEffect with 2s timer after `showAdvancing` state, cancelled on manual click or unmount
-- Destination dedup: Map by `city|state|country` lowercase key, keep entry with higher `importance` from Nominatim
-- completedPhases fix: `Math.max(explicit_count, currentPhase - 1)` accounts for skipped non-blocking phases
+- [sprint-19.md](sprint-19.md) for full details
 
 ## Sprint 18 — Completed Tasks (dev-fullstack-2)
-- T-S18-001: Fixed z-index/pointer-events on ExpeditionCard
-- T-S18-002: Account deletion data cleanup
-- T-S18-010: Dashboard cards with phase tools
-- T-S18-008: Streaming UI in Phase6Wizard
-- T-S18-009: Auto-generation + AI disclaimer + regenerate
-- T-S18-011: DashboardPhaseProgressBar
-
-## Sprint 18 Patterns
-- Streaming fetch: use ReadableStream reader + TextDecoder, parse SSE lines starting with "data: "
-- Auto-trigger: useEffect + useRef guard (hasTriggeredRef) to prevent double-trigger in StrictMode
-- Overlay card pattern: z-0 Link + z-10 pointer-events-none wrapper + z-20 pointer-events-auto children
-- Phase tools: separate PHASE_TOOLS config in phase-config.ts, PhaseTool interface with status field
-- Test pre-existing failure: project-bootstrap.test.ts ".env.local" test fails in worktrees (no .env.local)
+- [sprint-18.md](sprint-18.md) for full details

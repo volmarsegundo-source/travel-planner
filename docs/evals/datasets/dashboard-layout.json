@@ -1,0 +1,218 @@
+{
+  "eval_id": "EVAL-UX-005",
+  "version": "1.0.0",
+  "description": "Avaliacao de qualidade do layout do dashboard de expedicoes. Verifica exibicao de cards, ordenacao, filtros, estado vazio, responsividade, e acessibilidade.",
+  "spec_ref": "SPEC-QA-003",
+  "created": "2026-03-17",
+  "updated": "2026-03-17",
+  "owner": "qa-engineer",
+  "tags": ["ux", "dashboard", "layout", "cards", "responsive"],
+  "grader_types": ["code"],
+  "pass_threshold": 0.80,
+  "test_cases": [
+    {
+      "id": "DL-001",
+      "description": "Card de trip completed mostra destino, datas, e indicador 100% / 'Completed'",
+      "input": {
+        "trip": {
+          "destination": "Paris, France",
+          "startDate": "2026-07-15",
+          "endDate": "2026-07-20",
+          "status": "completed",
+          "progress": 100,
+          "phasesCompleted": 6,
+          "phasesTotal": 6
+        },
+        "locale": "en",
+        "viewport": "desktop"
+      },
+      "expected": {
+        "card_visible": true,
+        "shows_destination": true,
+        "shows_date_range": true,
+        "shows_completed_indicator": true,
+        "date_format_locale_aware": true
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "ux": 0.30
+      },
+      "notes": "Card de trip completa deve ser visualmente distinto (badge, cor, icone)."
+    },
+    {
+      "id": "DL-002",
+      "description": "Card de trip in-progress mostra barra de progresso parcial",
+      "input": {
+        "trip": {
+          "destination": "Tokyo, Japan",
+          "startDate": "2026-08-10",
+          "endDate": "2026-08-20",
+          "status": "in_progress",
+          "progress": 45,
+          "phasesCompleted": 3,
+          "phasesTotal": 6
+        },
+        "locale": "en",
+        "viewport": "desktop"
+      },
+      "expected": {
+        "card_visible": true,
+        "shows_progress_bar": true,
+        "progress_bar_value": 45,
+        "shows_phases_count": true
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "ux": 0.30
+      },
+      "notes": "Barra de progresso deve refletir valor real. 3/6 fases = ~50%."
+    },
+    {
+      "id": "DL-003",
+      "description": "Card de trip planned (sem datas) mostra placeholder de datas",
+      "input": {
+        "trip": {
+          "destination": "Rio de Janeiro, Brazil",
+          "startDate": null,
+          "endDate": null,
+          "status": "planned",
+          "progress": 10,
+          "phasesCompleted": 1,
+          "phasesTotal": 6
+        },
+        "locale": "pt-BR",
+        "viewport": "desktop"
+      },
+      "expected": {
+        "card_visible": true,
+        "shows_destination": true,
+        "shows_date_placeholder": true,
+        "date_placeholder_text_locale": "pt-BR"
+      },
+      "grading": {
+        "accuracy": 0.30,
+        "format": 0.40,
+        "ux": 0.30
+      },
+      "notes": "Sem datas = 'Datas nao definidas' (pt-BR) ou 'Dates not set' (en)."
+    },
+    {
+      "id": "DL-004",
+      "description": "Card com destino muito longo trunca com ellipsis",
+      "input": {
+        "trip": {
+          "destination": "São José dos Campos, São Paulo, Brazil",
+          "startDate": "2026-09-01",
+          "endDate": "2026-09-05",
+          "status": "planned",
+          "progress": 0
+        },
+        "locale": "pt-BR",
+        "viewport": "mobile_375"
+      },
+      "expected": {
+        "card_visible": true,
+        "destination_truncated": true,
+        "no_horizontal_overflow": true,
+        "full_name_in_tooltip_or_aria": true
+      },
+      "grading": {
+        "format": 0.50,
+        "accessibility": 0.50
+      },
+      "notes": "Nomes longos devem truncar visualmente mas estar acessiveis via tooltip ou aria-label."
+    },
+    {
+      "id": "DL-005",
+      "description": "Estado vazio (0 trips) mostra CTA para nova expedicao",
+      "input": {
+        "trip_count": 0,
+        "locale": "en",
+        "viewport": "desktop"
+      },
+      "expected": {
+        "empty_state_visible": true,
+        "has_illustration_or_icon": true,
+        "has_cta_button": true,
+        "cta_navigates_to": "/expedition/new",
+        "message_in_locale": true
+      },
+      "grading": {
+        "ux": 0.50,
+        "accessibility": 0.25,
+        "format": 0.25
+      },
+      "notes": "Nao deve mostrar grid vazio ou mensagem generica. CTA claro para criar primeira expedicao."
+    },
+    {
+      "id": "DL-006",
+      "description": "Responsivo: 3 colunas em desktop (1280px), 2 em tablet (768px), 1 em mobile (375px)",
+      "input": {
+        "trip_count": 6,
+        "viewports": [
+          { "width": 1280, "expected_columns": 3 },
+          { "width": 768, "expected_columns": 2 },
+          { "width": 375, "expected_columns": 1 }
+        ]
+      },
+      "expected": {
+        "columns_match_breakpoints": true,
+        "no_horizontal_scroll_at_any_breakpoint": true,
+        "cards_fill_available_width": true
+      },
+      "grading": {
+        "ux": 0.60,
+        "format": 0.40
+      },
+      "notes": "Breakpoints: 1 col < 640px, 2 col 640-1024px, 3 col > 1024px."
+    },
+    {
+      "id": "DL-007",
+      "description": "Filtro 'Active' mostra apenas trips in-progress e planned; 'Completed' mostra apenas completed",
+      "input": {
+        "trips": [
+          { "status": "completed", "destination": "Paris" },
+          { "status": "in_progress", "destination": "Tokyo" },
+          { "status": "planned", "destination": "Rio" }
+        ],
+        "filters": ["All", "Active", "Completed"]
+      },
+      "expected": {
+        "all_filter_count": 3,
+        "active_filter_count": 2,
+        "completed_filter_count": 1,
+        "active_filter_excludes_completed": true,
+        "completed_filter_excludes_active": true
+      },
+      "grading": {
+        "accuracy": 0.60,
+        "ux": 0.40
+      },
+      "notes": "Active = in_progress + planned. Completed = completed."
+    },
+    {
+      "id": "DL-008",
+      "description": "Ordenacao por data: trips mais recentes primeiro (default), alternavel para mais antigas primeiro",
+      "input": {
+        "trips": [
+          { "destination": "Paris", "startDate": "2026-07-15" },
+          { "destination": "Tokyo", "startDate": "2026-08-10" },
+          { "destination": "Rio", "startDate": null }
+        ],
+        "sort_options": ["newest_first", "oldest_first"]
+      },
+      "expected": {
+        "newest_first_order": ["Tokyo", "Paris", "Rio"],
+        "oldest_first_order": ["Paris", "Tokyo", "Rio"],
+        "null_dates_always_last": true
+      },
+      "grading": {
+        "accuracy": 0.60,
+        "ux": 0.40
+      },
+      "notes": "Trips sem data devem sempre aparecer por ultimo, independente da direcao de ordenacao."
+    }
+  ]
+}

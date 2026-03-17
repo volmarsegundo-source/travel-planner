@@ -18,13 +18,14 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-12, post Sprint 28)
-- Product version: 0.21.0 (Sprint 28 complete), 1721 tests
-- Sprints 1-28 complete
+### Backlog State (as of 2026-03-17, Sprint 30 planning)
+- Product version: v0.23.0 (Sprint 29 complete), 1776 tests
+- Sprints 1-29 complete
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-016
-- Sprint 29 backlog: `docs/specs/sprint-29/SPRINT-29-BACKLOG.md`
-- Sprint 29 specs: SPEC-PROD-013, SPEC-PROD-014, SPEC-PROD-015
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-021
+- Sprint 30 backlog: `docs/specs/sprint-30/SPRINT-30-PRIORITIES.md`
+- Sprint 30 product specs: SPEC-PROD-017, SPEC-PROD-018, SPEC-PROD-019, SPEC-PROD-020
+- Sprint 30 phase-config.ts: 8 phases defined, only 6 active. Phase 5 name = "Guia do Destino" (confirm vs canonical "A Conexao")
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -131,12 +132,12 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated post Sprint 28, 2026-03-12)
-- Sprints 22-28: DONE
-- Sprint 29: Summary polish + CTA closure + persistence fixes + beta validation (v0.22.0)
-- Sprint 30: Beta launch (50-100 users) + feedback loop (GO/NO-GO at S29 review)
-- Sprint 31-32: US-122 Premium chat + payment gateway + v1.0 GA
-- Note: Beta launch slipped 2 sprints from original plan (recurring bugs + structural nav work)
+### MVP Roadmap (updated 2026-03-17, Sprint 30 planning)
+- Sprints 22-29: DONE (v0.23.0, 1776 tests)
+- Sprint 30: P0 navigation stabilization (SPEC-PROD-016) + 4 rewrites (SPEC-PROD-017/018/019/020) + 5 staging bugs (v0.24.0)
+- Sprint 31: Beta launch (50-100 users) + GeminiProvider + feedback loop (GO/NO-GO at S30 review)
+- Sprint 32-33: US-122 Premium chat + payment gateway + v1.0 GA
+- Note: Beta launch slipped 3 sprints from original plan (recurring bugs + nav crisis + structural work)
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
@@ -156,15 +157,16 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Payment gateway: not chosen yet (needed for Premium upgrade in Sprint 10+)
 - Google AI free tier privacy disclosure: must be added to terms of use
 
-### Sprint 30 Navigation Crisis (2026-03-16)
-- v0.23.0: 115 E2E tests pass but 60%+ manual test failure rate — same 5 nav bugs recurring
-- Phase navigation is architecturally broken: guard logic, state restoration, and progress bar are systemic
-- SPEC-PROD-001 marked "Implemented" but only 7/18 ACs pass QA conformance
-- phase-config.ts defines 8 phases; only 6 are active (Phases 7-8 are future roadmap)
-- Phase 6 Back button was explicitly deferred in SPEC-PROD-001 Out of Scope — must be addressed in Sprint 30
-- New product requirements document created: `docs/specs/product/SPEC-PROD-016.md`
-- Recommended: dedicated navigation consolidation sprint (Sprint 30) before beta launch
-- Beta launch now blocked by nav crisis — must resolve before GO/NO-GO
+### Sprint 30 Planning (2026-03-17)
+- Theme: "Navigation Stabilization + 4 Product Rewrites"
+- Budget: 40-50h
+- P0: SPEC-PROD-016 full conformance (navigation engine, ~23h) -- beta launch blocked until resolved
+- P1: 5 staging bugs -- BUG-S30-001 (Phase 3->4 timeout), BUG-S30-002 (guide card height), BUG-S30-003 (profile menu), BUG-S30-004 (gamification points realtime), BUG-S30-005 (date fields mandatory)
+- P2: SPEC-PROD-019 (Expedicoes Dashboard) + SPEC-PROD-017 scoped (Autocomplete, mobile UX only)
+- Deferred to Sprint 31: SPEC-PROD-018 (Meu Atlas map, needs SPEC-ARCH-007), SPEC-PROD-020 full (PDF + share link)
+- Specs files in: `docs/specs/sprint-30/`
+- GO/NO-GO criteria: nav failure rate <= 5%, SPEC-PROD-016 >= 16/18 ACs, Phase 3->4 timeout resolved, dates mandatory enforced
+- phase-config.ts Phase 5 name discrepancy: config says "Guia do Destino", PO memory says "A Conexao" -- tech-lead must confirm before SPEC-PROD-016 implementation
 
 ### Lessons Learned
 - Sprint 19: guide redesign took more scope than estimated, causing 2 P1 items to slip. Use generous buffer (>25%) for sprints with UI redesign work.

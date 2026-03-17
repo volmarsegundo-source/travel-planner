@@ -1,7 +1,7 @@
 # Spec Status Tracker
 
 > Maintained by: tech-lead
-> Last updated: 2026-03-12
+> Last updated: 2026-03-17
 > SDD effective from: Sprint 25
 
 ## Status Definitions
@@ -58,7 +58,18 @@
 | SPEC-UX-017 | Dashboard Countdown Card | ux-designer | Draft | 1.0.0 | 29 | product-owner, tech-lead, architect |
 | SPEC-ARCH-007 | Map Pin Coordinate Persistence | architect | Draft | 1.0.0 | 29 | tech-lead, security-specialist |
 | SPEC-ARCH-008 | Phase 4 Auto-Save Pattern | architect | Draft | 1.0.0 | 29 | tech-lead, ux-designer |
-| SPEC-ARCH-010 | Phase Access Guard | architect | Draft | 1.0.0 | 29 | tech-lead, security-specialist |
+| SPEC-ARCH-010 | Phase Access Guard | architect | Implemented | 1.0.0 | 29 | tech-lead, security-specialist |
+| SPEC-PROD-016 | Phase Navigation Engine | product-owner | Implemented | 1.0.0 | 29 | tech-lead, ux-designer, architect |
+| SPEC-UX-019 | Phase Navigation UX | ux-designer | Implemented | 1.0.0 | 29 | product-owner, tech-lead, architect |
+| SPEC-PROD-017 | Destination Autocomplete Rewrite | product-owner | Draft | 1.0.0 | 30 | tech-lead, architect, ux-designer |
+| SPEC-PROD-018 | Meu Atlas — Interactive World Map | product-owner | Draft | 1.0.0 | 30 | tech-lead, architect, ux-designer |
+| SPEC-PROD-019 | Expedicoes Dashboard Rewrite | product-owner | Draft | 1.0.0 | 30 | tech-lead, architect, ux-designer |
+| SPEC-PROD-020 | Expedition Summary & Trip Report | product-owner | Draft | 1.0.0 | 30 | tech-lead, architect, ux-designer |
+| SPEC-UX-020 | Autocomplete Rewrite Visual Spec | ux-designer | Draft | 1.0.0 | 30 | product-owner, tech-lead, architect |
+| SPEC-UX-021 | Dashboard Rewrite Visual Spec | ux-designer | Draft | 1.0.0 | 30 | product-owner, tech-lead, architect |
+| SPEC-ARCH-011 | Autocomplete Provider Evaluation | architect | Draft | 1.0.0 | 30 | tech-lead, security-specialist |
+| SPEC-ARCH-012 | Dashboard Query Optimization | architect | Draft | 1.0.0 | 30 | tech-lead, security-specialist |
+| SPEC-QA-001 | Sprint 30 Test Strategy | qa-engineer | Draft | 1.0.0 | 30 | tech-lead, qa-engineer |
 
 ---
 
@@ -92,7 +103,15 @@
 | SPEC-ARCH-009 | Atlas Gamification Engine | 1.0.0 | Sprint 9 | Legacy (pre-SDD) |
 | SPEC-PROD-TRANSPORT | Transport Phase (Phase 4) | 1.0.0 | Sprint 20-21 | Legacy (pre-SDD) |
 | SPEC-PROD-001 | Expedition Navigation & Phase Sequencing | 1.1.0 | Sprint 25 | Partial (7/18 ACs — remaining deferred to Sprint 26) |
-| SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | 1.1.0 | Sprint 25 | Partial (5/12 ACs — remaining deferred to Sprint 26) |
+| SPEC-PROD-002 | Dashboard Trip Cards & Phase Confirmation | 1.1.0 | Sprint 25 | Partial (5/12 ACs -- remaining deferred to Sprint 26) |
+| SPEC-PROD-007 | Complete Journey Summary Enhancement | 1.1.0 | Sprint 29 | Full |
+| SPEC-PROD-009 | CTA Button Standardization | 1.1.0 | Sprint 29 | Full |
+| SPEC-UX-012 | Journey Summary Page | 1.1.0 | Sprint 29 | Full |
+| SPEC-UX-014 | CTA Button Standardization | 1.1.0 | Sprint 29 | Full |
+| SPEC-ARCH-005 | Journey Summary Data Aggregation | 1.1.0 | Sprint 29 | Full |
+| SPEC-ARCH-010 | Phase Access Guard | 1.0.0 | Sprint 29 | Full |
+| SPEC-PROD-016 | Phase Navigation Engine | 1.0.0 | Sprint 29 | Full (v0.24.0 -- Phase Navigation Redesign) |
+| SPEC-UX-019 | Phase Navigation UX | 1.0.0 | Sprint 29 | Full (v0.24.0 -- Phase Navigation Redesign) |
 
 ---
 
@@ -117,3 +136,5 @@
 | 2026-03-11 | SPEC-UX-006 and SPEC-ARCH-003 implemented (Autocomplete cmdk rewrite) in Sprint 27 v0.20.0 | tech-lead |
 | 2026-03-11 | Sprint 28 planning: created SPEC-PROD-010/011/012, SPEC-UX-011-015, SPEC-ARCH-004/005/006, SPRINT-28-PLAN, SPRINT-28-BACKLOG. Theme: Structural Improvements. | tech-lead |
 | 2026-03-12 | Sprint 29 planning: approved 5 specs for Sprint 29 (SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005 to v1.1.0). Created 6 new specs (SPEC-PROD-013, SPEC-UX-016/017, SPEC-ARCH-007/008/010). Theme: Sprint 28 Completion + Summary Page Integration. | tech-lead |
+| 2026-03-17 | Sprint 29 complete: marked SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005/010 as Implemented. Phase Navigation Redesign (SPEC-PROD-016, SPEC-UX-019, SPEC-ARCH-010) shipped as v0.24.0 with 1869 tests. | tech-lead |
+| 2026-03-17 | Sprint 30 planning: created 9 new specs (SPEC-PROD-017/018/019/020, SPEC-UX-020/021, SPEC-ARCH-011/012, SPEC-QA-001). Theme: Navigation Stabilization + 4 Product Rewrites (Autocomplete, Meu Atlas, Expedicoes Dashboard, Summary Report). P0: SPEC-PROD-016 full conformance. Budget: 40-50h. | product-owner |

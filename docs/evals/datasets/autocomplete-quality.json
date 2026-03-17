@@ -1,0 +1,408 @@
+{
+  "eval_id": "EVAL-UX-002",
+  "version": "1.0.0",
+  "description": "Avaliacao de qualidade do autocomplete de destinos. Verifica precisao do primeiro resultado, suporte a caracteres acentuados, codigos IATA, cidades ambiguas, e scripts nao-latinos.",
+  "spec_ref": "SPEC-PROD-017",
+  "created": "2026-03-17",
+  "updated": "2026-03-17",
+  "owner": "qa-engineer",
+  "tags": ["ux", "autocomplete", "search", "destination", "quality"],
+  "grader_types": ["code"],
+  "pass_threshold": 0.85,
+  "test_cases": [
+    {
+      "id": "AQ-001",
+      "description": "Busca 'Sao Paulo' em pt-BR deve retornar Sao Paulo, Brasil como primeiro resultado",
+      "input": {
+        "query": "São Paulo",
+        "locale": "pt-BR",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_city": "São Paulo",
+        "first_result_country_iso2": "BR",
+        "has_flag_emoji": true,
+        "has_secondary_text": true,
+        "result_count_min": 1,
+        "result_count_max": 8
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "Cidade mais populosa do Brasil. Resultado inequivoco."
+    },
+    {
+      "id": "AQ-002",
+      "description": "Busca 'New York' em en deve retornar New York City, USA como primeiro resultado",
+      "input": {
+        "query": "New York",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_city": "New York",
+        "first_result_country_iso2": "US",
+        "has_flag_emoji": true,
+        "has_secondary_text": true,
+        "secondary_text_contains": "New York"
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "Deve retornar NYC, nao New York (estado) ou outra cidade homonima."
+    },
+    {
+      "id": "AQ-003",
+      "description": "Busca 'London' em en deve retornar London, England como primeiro resultado",
+      "input": {
+        "query": "London",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_city": "London",
+        "first_result_country_iso2": "GB",
+        "has_flag_emoji": true,
+        "secondary_text_contains": "England"
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "London, England deve vencer London, Ontario (Canada) e London, Kentucky (USA)."
+    },
+    {
+      "id": "AQ-004",
+      "description": "Busca vazia nao deve disparar chamada de API",
+      "input": {
+        "query": "",
+        "locale": "en",
+        "min_chars_met": false
+      },
+      "expected": {
+        "api_call_made": false,
+        "dropdown_visible": false
+      },
+      "grading": {
+        "accuracy": 1.0
+      },
+      "notes": "String vazia = nenhuma acao."
+    },
+    {
+      "id": "AQ-005",
+      "description": "Busca de 1 caractere nao deve disparar chamada de API",
+      "input": {
+        "query": "P",
+        "locale": "en",
+        "min_chars_met": false
+      },
+      "expected": {
+        "api_call_made": false,
+        "dropdown_visible": false
+      },
+      "grading": {
+        "accuracy": 1.0
+      },
+      "notes": "Minimo 2 caracteres conforme RF-005."
+    },
+    {
+      "id": "AQ-006",
+      "description": "Busca por codigo IATA 'GRU' deve retornar aeroporto Guarulhos",
+      "input": {
+        "query": "GRU",
+        "locale": "pt-BR",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_contains": "Guarulhos",
+        "first_result_country_iso2": "BR",
+        "is_airport_result": true
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "format": 0.25,
+        "performance": 0.25
+      },
+      "notes": "IATA GRU = Aeroporto Internacional de Guarulhos, Sao Paulo."
+    },
+    {
+      "id": "AQ-007",
+      "description": "Busca por codigo IATA 'CDG' deve retornar Charles de Gaulle",
+      "input": {
+        "query": "CDG",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_contains": "Charles de Gaulle",
+        "first_result_country_iso2": "FR",
+        "is_airport_result": true
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "format": 0.25,
+        "performance": 0.25
+      },
+      "notes": "IATA CDG = Aeroport Charles de Gaulle, Paris."
+    },
+    {
+      "id": "AQ-008",
+      "description": "Busca por codigo IATA 'JFK' deve retornar John F. Kennedy",
+      "input": {
+        "query": "JFK",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_contains": "Kennedy",
+        "first_result_country_iso2": "US",
+        "is_airport_result": true
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "format": 0.25,
+        "performance": 0.25
+      },
+      "notes": "IATA JFK = John F. Kennedy International Airport, New York."
+    },
+    {
+      "id": "AQ-009",
+      "description": "Busca com caracteres acentuados 'Zürich' retorna Zurique corretamente",
+      "input": {
+        "query": "Zürich",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_contains": "Zurich",
+        "first_result_country_iso2": "CH",
+        "has_flag_emoji": true
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "Umlaut deve funcionar. Aceita Zurich ou Zürich no resultado."
+    },
+    {
+      "id": "AQ-010",
+      "description": "Busca 'Bogota' sem acento retorna Bogota, Colombia",
+      "input": {
+        "query": "Bogota",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_contains": "Bogot",
+        "first_result_country_iso2": "CO",
+        "has_flag_emoji": true
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "Busca sem acento 'Bogota' deve casar com 'Bogota' (com acento)."
+    },
+    {
+      "id": "AQ-011",
+      "description": "Busca 'Tokyo' em en retorna Tokyo, Japan como primeiro resultado",
+      "input": {
+        "query": "Tokyo",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_city": "Tokyo",
+        "first_result_country_iso2": "JP",
+        "has_flag_emoji": true
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "Resultado inequivoco."
+    },
+    {
+      "id": "AQ-012",
+      "description": "Cidade ambigua 'Springfield' retorna multiplos resultados de paises diferentes",
+      "input": {
+        "query": "Springfield",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "result_count_min": 2,
+        "results_have_different_countries": true,
+        "all_results_have_secondary_text": true
+      },
+      "grading": {
+        "accuracy": 0.30,
+        "format": 0.40,
+        "performance": 0.30
+      },
+      "notes": "Springfield existe em 10+ estados dos EUA. Texto secundario e essencial para desambiguacao."
+    },
+    {
+      "id": "AQ-013",
+      "description": "Cidade ambigua 'San Jose' retorna resultados de multiplos paises com desambiguacao",
+      "input": {
+        "query": "San Jose",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "result_count_min": 2,
+        "results_include_countries": ["US", "CR"],
+        "all_results_have_secondary_text": true
+      },
+      "grading": {
+        "accuracy": 0.30,
+        "format": 0.40,
+        "performance": 0.30
+      },
+      "notes": "San Jose existe nos EUA (California) e Costa Rica (capital). Ambos devem aparecer."
+    },
+    {
+      "id": "AQ-014",
+      "description": "Busca com caracteres especiais nao causa erro",
+      "input": {
+        "query": "<script>alert(1)</script>",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "no_error": true,
+        "no_xss_execution": true,
+        "result_count": 0
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "security": 0.50
+      },
+      "notes": "Input malicioso deve ser sanitizado. Nenhum resultado e aceitavel. Nenhum erro no console."
+    },
+    {
+      "id": "AQ-015",
+      "description": "Busca 'zzzzqqqxxx' (cidade inexistente) mostra mensagem 'Sem resultados'",
+      "input": {
+        "query": "zzzzqqqxxx",
+        "locale": "pt-BR",
+        "min_chars_met": true
+      },
+      "expected": {
+        "result_count": 0,
+        "no_results_message_visible": true,
+        "no_results_message_locale": "pt-BR"
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "format": 0.50
+      },
+      "notes": "Cidade inexistente deve mostrar 'Sem resultados' em pt-BR, nao lista vazia silenciosa."
+    },
+    {
+      "id": "AQ-016",
+      "description": "Debounce: digitacao rapida gera no maximo 4 chamadas de API",
+      "input": {
+        "query": "Barcelona",
+        "typing_speed_ms": 50,
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "api_call_count_max": 4,
+        "api_call_count_min": 1,
+        "final_results_present": true
+      },
+      "grading": {
+        "performance": 1.0
+      },
+      "notes": "9 chars a 50ms = 450ms total. Com debounce de 300ms, espera-se 1-4 chamadas."
+    },
+    {
+      "id": "AQ-017",
+      "description": "Busca 'Rio' em pt-BR retorna Rio de Janeiro com flag BR",
+      "input": {
+        "query": "Rio",
+        "locale": "pt-BR",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_contains": "Rio de Janeiro",
+        "first_result_country_iso2": "BR",
+        "has_flag_emoji": true,
+        "secondary_text_contains": "RJ"
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "format": 0.30,
+        "performance": 0.30
+      },
+      "notes": "Match parcial. 'Rio' deve priorizar Rio de Janeiro sobre outros 'Rio' (Rio Branco, Rio Grande)."
+    },
+    {
+      "id": "AQ-018",
+      "description": "Touch target em mobile >= 44px por resultado",
+      "input": {
+        "query": "Paris",
+        "locale": "en",
+        "viewport_width": 375,
+        "min_chars_met": true
+      },
+      "expected": {
+        "result_row_height_min_px": 44,
+        "result_gap_min_px": 4
+      },
+      "grading": {
+        "mobile": 1.0
+      },
+      "notes": "WCAG 2.5.5 recomenda 44x44px para alvos de toque. Verificar via bounding box."
+    },
+    {
+      "id": "AQ-019",
+      "description": "Teclado ArrowDown destaca primeiro resultado",
+      "input": {
+        "query": "Berlin",
+        "locale": "en",
+        "action": "ArrowDown",
+        "min_chars_met": true
+      },
+      "expected": {
+        "first_result_highlighted": true,
+        "aria_activedescendant_set": true
+      },
+      "grading": {
+        "accessibility": 1.0
+      },
+      "notes": "Navegacao por teclado conforme RF-013."
+    },
+    {
+      "id": "AQ-020",
+      "description": "Busca 'Patagonia' (landmark/regiao) retorna resultado valido",
+      "input": {
+        "query": "Patagonia",
+        "locale": "en",
+        "min_chars_met": true
+      },
+      "expected": {
+        "result_count_min": 1,
+        "first_result_contains": "Patagonia",
+        "first_result_country_iso2_in": ["AR", "CL"]
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "format": 0.25,
+        "performance": 0.25
+      },
+      "notes": "Patagonia e regiao compartilhada entre Argentina e Chile. Conforme RF-001."
+    }
+  ]
+}

@@ -148,6 +148,15 @@
 - Key decisions: no diff view in edit mode; no confirmation dialog for edits; readiness bar horizontal (not circular); back button text "Voltar" (not arrow); WizardFooter teal vs orange CTA color open question
 - Open: readiness weighting (equal vs importance-based) — PO decision; CTA color teal vs orange — UX decision pending
 
+## Sprint 30 UX Specs (2026-03-17)
+- SPEC-UX-019: Unified Phase Navigation — audit of 3 progress bar components, PhaseShell wrapper, UnifiedProgressBar, StepProgressIndicator, EditModeBanner. Complete interaction states table. Saved to docs/specs/SPEC-UX-019-unified-phase-navigation.md
+- SPEC-UX-020: Autocomplete Rewrite — mobile full-screen overlay, desktop dropdown (max 6 visible), flag emoji + 2-line results, recent searches (localStorage, max 3), skeleton loading, error state with manual fallback. Saved to docs/specs/sprint-30/SPEC-UX-020-autocomplete-rewrite.md
+- SPEC-UX-021: Meu Atlas Map — interactive map page (/atlas), 3 pin states (gold=completed, blue=active, gray=planned), desktop sidebar + mobile bottom sheet, filter chips, pin popover/bottom sheet, empty state, dark map tiles. Saved to docs/specs/sprint-30/SPEC-UX-021-meu-atlas-map.md
+- SPEC-UX-022: Expeditions Dashboard — CSS Grid (1/2/3 col), card status accents (left border), filter chips + sort dropdown, FAB on mobile, skeleton loading, overdue status detection. Saved to docs/specs/sprint-30/SPEC-UX-022-expeditions-dashboard.md
+- SPEC-UX-023: Summary/Report — collapsible phase sections, @media print A4 layout, PDF export, share link, detailed phase data (not just counts), booking code masking with toggle, action bar (print/export/share). Saved to docs/specs/sprint-30/SPEC-UX-023-summary-report.md
+- Key decisions: autocomplete uses full-screen overlay on mobile (not dropdown); atlas map sidebar on right; expedition cards have 4 status states (active/completed/overdue/planned); summary sections collapsed by default except Phase 1; print forces all expanded + masked booking codes
+- Open questions: map library selection (architect); PDF generation approach (architect+finops); flag emoji on Windows rendering; public share links (PO)
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

@@ -119,7 +119,8 @@
       "Bash(PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test tests/e2e/expedition-domestic.spec.ts --reporter=list 2>&1)",
       "Bash(PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test tests/e2e/expedition-domestic.spec.ts -g \"Phase 1 creation|trip type badge|Phase 1 confirmation\" --reporter=list 2>&1)",
       "Bash(find test-results:*)",
-      "Bash(PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test tests/e2e/navigation.e2e.spec.ts tests/e2e/expedition-domestic.spec.ts --reporter=list 2>&1 | tail -35)"
+      "Bash(PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test tests/e2e/navigation.e2e.spec.ts tests/e2e/expedition-domestic.spec.ts --reporter=list 2>&1 | tail -35)",
+      "Bash(find:*)"
     ]
   }
 }
