@@ -154,12 +154,14 @@ test.describe("Phase navigation -- progress bar", () => {
     await page.waitForLoadState("networkidle");
 
     // On the expedition phase page, UnifiedProgressBar uses progress-phase-N testids
-    const phase1Segment = page.locator('[data-testid="progress-phase-1"]').first();
-    if (await phase1Segment.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      await phase1Segment.click();
-      await page.waitForLoadState("networkidle");
-
-      // Should navigate to /phase-1 (not expedition root or /expeditions)
+    // Wait for hydration: the Phase 1 segment should be a <button> (not span) when completed
+    const phase1Button = page.locator('button[data-testid="progress-phase-1"]').first();
+    if (await phase1Button.isVisible({ timeout: 10_000 }).catch(() => false)) {
+      // Wait for hydration — onClick handler needs to be attached
+      await page.waitForTimeout(1_000);
+      await phase1Button.click();
+      // Wait for actual navigation to happen
+      await page.waitForURL(/\/phase-1/, { timeout: 15_000 });
       expect(page.url()).toContain("/phase-1");
     }
 

@@ -17,10 +17,10 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
   return (
     <Phase4Wizard
       tripId={tripId}
-      tripType={trip.tripType as string}
-      origin={(trip.origin as string | null) ?? null}
-      destination={trip.destination as string}
-      startDate={trip.startDate ? (trip.startDate as Date).toISOString() : null}
+      tripType={typeof trip.tripType === "string" ? trip.tripType : "international"}
+      origin={typeof trip.origin === "string" ? trip.origin : null}
+      destination={typeof trip.destination === "string" ? trip.destination : ""}
+      startDate={trip.startDate instanceof Date ? trip.startDate.toISOString() : typeof trip.startDate === "string" ? trip.startDate : null}
       currentPhase={trip.currentPhase}
       accessMode={accessMode}
       tripCurrentPhase={trip.currentPhase}

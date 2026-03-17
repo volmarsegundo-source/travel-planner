@@ -49,10 +49,10 @@ export default async function Phase1Page({ params }: Phase1PageProps) {
     <Phase1Wizard
       userProfile={userProfile}
       userName={user?.name ?? undefined}
-      savedDestination={trip.destination as string | undefined}
-      savedOrigin={trip.origin as string | undefined}
-      savedStartDate={trip.startDate ? (trip.startDate as Date).toISOString().split("T")[0] : undefined}
-      savedEndDate={trip.endDate ? (trip.endDate as Date).toISOString().split("T")[0] : undefined}
+      savedDestination={typeof trip.destination === "string" ? trip.destination : undefined}
+      savedOrigin={typeof trip.origin === "string" ? trip.origin : undefined}
+      savedStartDate={trip.startDate instanceof Date ? trip.startDate.toISOString().split("T")[0] : typeof trip.startDate === "string" ? trip.startDate.split("T")[0] : undefined}
+      savedEndDate={trip.endDate instanceof Date ? trip.endDate.toISOString().split("T")[0] : typeof trip.endDate === "string" ? trip.endDate.split("T")[0] : undefined}
       tripId={tripId}
       accessMode={accessMode}
       tripCurrentPhase={trip.currentPhase}

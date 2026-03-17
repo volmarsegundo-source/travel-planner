@@ -32,12 +32,24 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
   // Safely extract trip context fields (guard returns [key: string]: unknown)
   const destination = typeof trip.destination === "string" ? trip.destination : "";
   const origin = typeof trip.origin === "string" ? trip.origin : undefined;
-  const startDate = trip.startDate instanceof Date
-    ? trip.startDate.toISOString().split("T")[0]
-    : undefined;
-  const endDate = trip.endDate instanceof Date
-    ? trip.endDate.toISOString().split("T")[0]
-    : undefined;
+
+  // Dates: Prisma returns Date objects, but handle string fallback for safety
+  let startDate: string | undefined;
+  let endDate: string | undefined;
+  try {
+    if (trip.startDate instanceof Date) {
+      startDate = trip.startDate.toISOString().split("T")[0];
+    } else if (typeof trip.startDate === "string") {
+      startDate = trip.startDate.split("T")[0];
+    }
+    if (trip.endDate instanceof Date) {
+      endDate = trip.endDate.toISOString().split("T")[0];
+    } else if (typeof trip.endDate === "string") {
+      endDate = trip.endDate.split("T")[0];
+    }
+  } catch {
+    // Graceful degradation — dates remain undefined
+  }
 
   return (
     <Phase2Wizard

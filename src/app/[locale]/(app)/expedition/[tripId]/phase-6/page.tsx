@@ -60,13 +60,13 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
     <Phase6Wizard
       key={`phase6-${itineraryDays.length}`}
       tripId={tripId}
-      destination={trip.destination as string}
+      destination={typeof trip.destination === "string" ? trip.destination : ""}
       locale={locale}
       startDate={
-        trip.startDate ? (trip.startDate as Date).toISOString().split("T")[0]! : null
+        trip.startDate instanceof Date ? trip.startDate.toISOString().split("T")[0] : typeof trip.startDate === "string" ? trip.startDate.split("T")[0] : null
       }
       endDate={
-        trip.endDate ? (trip.endDate as Date).toISOString().split("T")[0]! : null
+        trip.endDate instanceof Date ? trip.endDate.toISOString().split("T")[0] : typeof trip.endDate === "string" ? trip.endDate.split("T")[0] : null
       }
       initialDays={itineraryDays}
       travelStyle={
