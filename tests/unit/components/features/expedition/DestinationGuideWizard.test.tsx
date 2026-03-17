@@ -147,7 +147,7 @@ beforeEach(() => {
     data: { totalPointsAwarded: 50 },
   });
 
-  // Mock matchMedia for PhaseTransition prefers-reduced-motion check
+  // Mock matchMedia (may be needed by components)
   Object.defineProperty(window, "matchMedia", {
     writable: true,
     value: vi.fn().mockImplementation((query: string) => ({
@@ -535,9 +535,7 @@ describe("DestinationGuideWizard", () => {
     expect(mockCompletePhase5).toHaveBeenCalledWith("trip-1");
   });
 
-  it("navigates to phase-6 after completion animation", async () => {
-    vi.useFakeTimers();
-
+  it("navigates directly to phase-6 after completion (no animation)", async () => {
     mockCompletePhase5.mockResolvedValue({
       success: true,
       data: {
@@ -569,27 +567,8 @@ describe("DestinationGuideWizard", () => {
       );
     });
 
-    // PointsAnimation auto-dismisses after 2500ms + 300ms fade
-    await act(async () => {
-      vi.advanceTimersByTime(2900);
-    });
-
-    // PhaseTransition shows -> advancing state shows after 1200ms with Continue button
-    await act(async () => {
-      vi.advanceTimersByTime(1300);
-    });
-
-    // Click Continue button
-    const continueButton = screen.getByRole("button", {
-      name: "expedition.transition.continue",
-    });
-    await act(async () => {
-      fireEvent.click(continueButton);
-    });
-
+    // Should navigate directly — no PointsAnimation or PhaseTransition
     expect(mockPush).toHaveBeenCalledWith("/expedition/trip-1/phase-6");
-
-    vi.useRealTimers();
   });
 
   it("shows error on completion failure", async () => {

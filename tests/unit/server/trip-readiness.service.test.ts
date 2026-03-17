@@ -301,8 +301,8 @@ describe("TripReadinessService", () => {
       expect(result.phases[1]!.name).toBe("O Explorador");
       expect(result.phases[2]!.name).toBe("O Preparo");
       expect(result.phases[3]!.name).toBe("A Logística");
-      expect(result.phases[4]!.name).toBe("O Mapa dos Dias");
-      expect(result.phases[5]!.name).toBe("O Tesouro");
+      expect(result.phases[4]!.name).toBe("Guia do Destino");
+      expect(result.phases[5]!.name).toBe("O Roteiro");
     });
 
     it("handles half-completed checklist with correct weight", async () => {

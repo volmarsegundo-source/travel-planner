@@ -2,10 +2,11 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Info, Map, X } from "lucide-react";
+import { Map, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
-import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { PhaseShell } from "./PhaseShell";
+import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
 import {
   getProgressPhase,
@@ -17,6 +18,7 @@ import {
 import { completeExpeditionAction } from "@/server/actions/expedition.actions";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle } from "@/types/ai.types";
+import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -32,6 +34,12 @@ interface Phase6WizardProps {
   budgetCurrency?: string;
   travelers?: number;
   travelNotes?: string;
+  /** Access mode from navigation engine */
+  accessMode?: PhaseAccessMode;
+  /** Trip's current phase from DB */
+  tripCurrentPhase?: number;
+  /** Completed phase numbers from DB */
+  completedPhases?: number[];
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -66,6 +74,9 @@ export function Phase6Wizard({
   budgetCurrency = "USD",
   travelers = 1,
   travelNotes,
+  accessMode = "first_visit",
+  tripCurrentPhase = 6,
+  completedPhases = [],
 }: Phase6WizardProps) {
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
@@ -266,7 +277,7 @@ export function Phase6Wizard({
         return;
       }
 
-      // Navigate to summary page
+      // Navigate directly to summary page (no animation)
       router.push(`/expedition/${tripId}/summary`);
     } catch {
       setError(t("errorGenerate"));
@@ -299,7 +310,15 @@ export function Phase6Wizard({
 
   if (isGenerating) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-12">
+      <PhaseShell
+        tripId={tripId}
+        viewingPhase={6}
+        tripCurrentPhase={tripCurrentPhase}
+        completedPhases={completedPhases}
+        phaseTitle={t("title")}
+        showFooter={false}
+        contentMaxWidth="4xl"
+      >
         <div
           className="flex flex-col items-center justify-center gap-6 text-center"
           role="status"
@@ -356,7 +375,7 @@ export function Phase6Wizard({
             {t("cancelGeneration")}
           </Button>
         </div>
-      </div>
+      </PhaseShell>
     );
   }
 
@@ -366,9 +385,17 @@ export function Phase6Wizard({
 
   if (!hasItinerary) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-12">
-        <ExpeditionProgressBar currentPhase={6} totalPhases={8} tripId={tripId} />
-        <div className="mt-6 flex flex-col items-center justify-center gap-6 text-center">
+      <PhaseShell
+        tripId={tripId}
+        viewingPhase={6}
+        tripCurrentPhase={tripCurrentPhase}
+        completedPhases={completedPhases}
+        phaseTitle={t("title")}
+        phaseSubtitle={t("subtitle")}
+        showFooter={false}
+        contentMaxWidth="4xl"
+      >
+        <div className="flex flex-col items-center justify-center gap-6 text-center">
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-atlas-gold/10">
             <Map className="h-10 w-10 text-atlas-gold" aria-hidden="true" />
           </div>
@@ -377,8 +404,6 @@ export function Phase6Wizard({
             <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
               {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
             </p>
-            <h1 className="text-2xl font-bold">{t("title")}</h1>
-            <p className="text-muted-foreground">{t("subtitle")}</p>
           </div>
 
           <p className="max-w-sm text-sm text-muted-foreground">
@@ -397,33 +422,35 @@ export function Phase6Wizard({
             primaryLabel={t("generateCta")}
           />
         </div>
-      </div>
+      </PhaseShell>
     );
   }
 
   // ─── State: Generated (show ItineraryEditor) ─────────────────────────────
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <ExpeditionProgressBar currentPhase={6} totalPhases={8} tripId={tripId} />
-      <div className="mb-6 mt-4 space-y-1">
+    <PhaseShell
+      tripId={tripId}
+      viewingPhase={6}
+      tripCurrentPhase={tripCurrentPhase}
+      completedPhases={completedPhases}
+      phaseTitle={t("title")}
+      isEditMode={accessMode === "revisit"}
+      showFooter={false}
+      contentMaxWidth="4xl"
+    >
+      <div className="mb-6 space-y-1">
         <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
           {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
         </p>
-        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-sm text-muted-foreground">{destination}</p>
       </div>
 
       <ItineraryEditor initialDays={days} tripId={tripId} locale={locale} />
 
-      {/* AI Disclaimer */}
-      <div
-        className="mt-6 flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800 dark:border-blue-800/40 dark:bg-blue-950/30 dark:text-blue-200"
-        role="note"
-        data-testid="ai-disclaimer"
-      >
-        <Info className="mt-0.5 h-4 w-4 flex-shrink-0" aria-hidden="true" />
-        <p>{t("aiDisclaimer")}</p>
+      {/* AI Disclaimer — standardized component */}
+      <div className="mt-6">
+        <AiDisclaimer message={t("aiDisclaimer")} />
       </div>
 
       {error && (
@@ -511,6 +538,6 @@ export function Phase6Wizard({
           ]}
         />
       </div>
-    </div>
+    </PhaseShell>
   );
 }

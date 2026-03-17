@@ -2,12 +2,10 @@
 export const maxDuration = 120;
 
 import { auth } from "@/lib/auth";
-import { redirect } from "@/i18n/navigation";
-import { getTranslations } from "next-intl/server";
 import { db } from "@/server/db";
+import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { Phase6Wizard } from "@/components/features/expedition/Phase6Wizard";
-import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import type { TravelStyle } from "@/types/ai.types";
 
 interface Phase6PageProps {
@@ -16,23 +14,14 @@ interface Phase6PageProps {
 
 export default async function Phase6Page({ params }: Phase6PageProps) {
   const { locale, tripId } = await params;
-  const session = await auth();
 
-  if (!session?.user?.id) {
-    redirect({ href: "/auth/login", locale });
-    return null;
-  }
-
-  const tNav = await getTranslations("navigation");
-
-  const trip = await db.trip.findFirst({
-    where: { id: tripId, userId: session.user.id, deletedAt: null },
-    select: {
-      id: true,
+  // Phase access guard (replaces inline currentPhase < 6 check)
+  const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+    tripId, 6, locale,
+    {
       destination: true,
       startDate: true,
       endDate: true,
-      currentPhase: true,
       itineraryDays: {
         orderBy: { dayNumber: "asc" },
         include: {
@@ -41,27 +30,15 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
           },
         },
       },
-    },
-  });
+    }
+  );
 
-  if (!trip) {
-    redirect({ href: "/expeditions", locale });
-    return null;
-  }
-
-  // Phase access guard: block forward skip, allow backward access
-  if (trip.currentPhase < 6) {
-    const currentPhaseRoute = trip.currentPhase === 1
-      ? `/expedition/${tripId}/phase-1`
-      : `/expedition/${tripId}/phase-${trip.currentPhase}`;
-    redirect({ href: currentPhaseRoute, locale });
-    return null;
-  }
+  const session = await auth();
 
   // Ensure ItineraryPlan exists
   await ItineraryPlanService.getOrCreateItineraryPlan(
     tripId,
-    session.user.id,
+    session!.user!.id!,
     locale
   );
 
@@ -76,39 +53,34 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
       ? (phase2.metadata as Record<string, unknown> | null)
       : null;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const itineraryDays = (trip.itineraryDays ?? []) as any;
+
   return (
-    <>
-      <div className="mx-auto max-w-md px-4 pt-6 sm:px-6">
-        <Breadcrumb
-          items={[
-            { label: tNav("breadcrumb.home"), href: "/expeditions" },
-            { label: tNav("breadcrumb.expedition") },
-          ]}
-        />
-      </div>
-      {/* key forces remount when initialDays changes after router.refresh() (T-S19-001c) */}
-      <Phase6Wizard
-        key={`phase6-${trip.itineraryDays.length}`}
-        tripId={tripId}
-        destination={trip.destination}
-        locale={locale}
-        startDate={
-          trip.startDate ? trip.startDate.toISOString().split("T")[0]! : null
-        }
-        endDate={
-          trip.endDate ? trip.endDate.toISOString().split("T")[0]! : null
-        }
-        initialDays={trip.itineraryDays}
-        travelStyle={
-          (phase2Meta?.travelStyle as TravelStyle | undefined) ?? undefined
-        }
-        budgetTotal={
-          (phase2Meta?.budget as number | undefined) ?? undefined
-        }
-        budgetCurrency={
-          (phase2Meta?.currency as string | undefined) ?? undefined
-        }
-      />
-    </>
+    <Phase6Wizard
+      key={`phase6-${itineraryDays.length}`}
+      tripId={tripId}
+      destination={trip.destination as string}
+      locale={locale}
+      startDate={
+        trip.startDate ? (trip.startDate as Date).toISOString().split("T")[0]! : null
+      }
+      endDate={
+        trip.endDate ? (trip.endDate as Date).toISOString().split("T")[0]! : null
+      }
+      initialDays={itineraryDays}
+      travelStyle={
+        (phase2Meta?.travelStyle as TravelStyle | undefined) ?? undefined
+      }
+      budgetTotal={
+        (phase2Meta?.budget as number | undefined) ?? undefined
+      }
+      budgetCurrency={
+        (phase2Meta?.currency as string | undefined) ?? undefined
+      }
+      accessMode={accessMode}
+      tripCurrentPhase={trip.currentPhase}
+      completedPhases={completedPhases}
+    />
   );
 }

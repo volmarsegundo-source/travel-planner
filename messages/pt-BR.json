@@ -910,6 +910,9 @@
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}",
     "phaseLabel": "Fase {number}: {name}",
+    "editBanner": "Voce esta revisitando a Fase {phase}. Suas alteracoes serao salvas quando voce confirmar.",
+    "progressBarLabel": "Progresso da expedicao",
+    "aiDisclaimer": "Conteudo gerado por IA. Revise e ajuste conforme necessario para sua viagem.",
     "countdown": {
       "daysUntil": "{days, plural, one {# dia para sua viagem} other {# dias para sua viagem}}",
       "inProgress": "Sua viagem está em andamento!",
@@ -940,7 +943,9 @@
       "thePreparation": "O Preparo",
       "theLogistics": "A Logística",
       "theDayMap": "O Mapa dos Dias",
+      "theDestinationGuide": "Guia do Destino",
       "theTreasure": "O Tesouro",
+      "theItinerary": "O Roteiro",
       "theExpedition": "A Expedição",
       "theLegacy": "O Legado",
       "progressLabel": "Progresso das fases: {completed} de {total} concluídas",
@@ -948,7 +953,8 @@
       "stateCompleted": "concluída",
       "stateCurrent": "atual",
       "stateComingSoon": "em breve",
-      "stateUpcoming": "próxima"
+      "stateUpcoming": "próxima",
+      "stateLocked": "bloqueada"
     },
     "points": "pts",
     "badge": {

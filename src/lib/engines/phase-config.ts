@@ -49,8 +49,8 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
   },
   {
     phaseNumber: 5,
-    name: "O Mapa dos Dias",
-    nameKey: "phases.theDayMap",
+    name: "Guia do Destino",
+    nameKey: "phases.theDestinationGuide",
     isFree: true,
     pointsReward: 40,
     aiCost: 150,
@@ -60,8 +60,8 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
   },
   {
     phaseNumber: 6,
-    name: "O Tesouro",
-    nameKey: "phases.theTreasure",
+    name: "O Roteiro",
+    nameKey: "phases.theItinerary",
     isFree: false,
     pointsReward: 250,
     aiCost: 0,

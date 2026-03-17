@@ -20,6 +20,7 @@ import { mapErrorToKey } from "@/lib/action-utils";
 import { hashUserId } from "@/lib/hash";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
+import { classifyTrip } from "@/lib/travel/trip-classifier";
 
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
@@ -96,6 +97,113 @@ export async function createExpeditionAction(
   } catch (error) {
     logger.error("expedition.createExpedition.error", error, {
       userId: hashUserId(session.user.id),
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── updatePhase1Action ──────────────────────────────────────────────────────
+
+/**
+ * Updates Phase 1 trip data when revisiting a completed phase.
+ * Does NOT re-create expedition phases or award points again.
+ */
+export async function updatePhase1Action(
+  tripId: string,
+  data: Phase1Input
+): Promise<ActionResult<{ tripId: string }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  const parsed = Phase1Schema.safeParse(data);
+  if (!parsed.success) {
+    const firstError = parsed.error.errors[0];
+    return {
+      success: false,
+      error: firstError?.message ?? "errors.generic",
+    };
+  }
+
+  try {
+    // BOLA: verify trip belongs to user
+    const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+    if (!ownedTrip) {
+      return { success: false, error: "errors.tripNotFound" };
+    }
+
+    // Classify trip type server-side from country codes
+    let tripType: string | null = null;
+    if (parsed.data.destinationCountryCode && parsed.data.originCountryCode) {
+      tripType = classifyTrip(
+        parsed.data.originCountryCode,
+        parsed.data.destinationCountryCode
+      );
+    }
+
+    // Update trip data (no expedition re-creation, no point awards)
+    await db.trip.update({
+      where: { id: tripId },
+      data: {
+        title: parsed.data.destination,
+        destination: parsed.data.destination,
+        origin: parsed.data.origin ?? null,
+        destinationLat: parsed.data.destinationLat ?? null,
+        destinationLon: parsed.data.destinationLon ?? null,
+        startDate: parsed.data.startDate ? new Date(parsed.data.startDate) : null,
+        endDate: parsed.data.endDate ? new Date(parsed.data.endDate) : null,
+        ...(tripType ? { tripType } : {}),
+      },
+    });
+
+    // Save profile fields if provided
+    if (parsed.data.profileFields) {
+      try {
+        await ProfileService.saveAndAwardProfileFields(
+          session.user.id,
+          parsed.data.profileFields as Record<string, string | undefined>
+        );
+        await ProfileService.recalculateCompletionScore(session.user.id);
+      } catch (profileError) {
+        logger.error("expedition.updatePhase1.profileFields.error", profileError, {
+          userId: hashUserId(session.user.id),
+        });
+      }
+    }
+
+    // Save name to User model if provided
+    if (parsed.data.profileFields?.name) {
+      try {
+        await db.user.update({
+          where: { id: session.user.id },
+          data: { name: parsed.data.profileFields.name },
+        });
+        await updateSession({ user: { name: parsed.data.profileFields.name } });
+      } catch (nameError) {
+        logger.error("expedition.updatePhase1.name.error", nameError, {
+          userId: hashUserId(session.user.id),
+        });
+      }
+    }
+
+    // Update phase 1 metadata
+    await db.expeditionPhase.updateMany({
+      where: { tripId, phaseNumber: 1 },
+      data: {
+        metadata: {
+          destination: parsed.data.destination,
+          flexibleDates: parsed.data.flexibleDates,
+        },
+      },
+    });
+
+    revalidatePath("/");
+    revalidatePath("/expeditions");
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: { tripId } };
+  } catch (error) {
+    logger.error("expedition.updatePhase1.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
   }

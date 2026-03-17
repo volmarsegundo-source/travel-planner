@@ -32,6 +32,16 @@ export const Phase1Schema = z.object({
     return true;
   },
   { message: "End date must be after start date", path: ["endDate"] }
+).refine(
+  (data) => {
+    if (data.origin && data.destination) {
+      const normalizedOrigin = data.origin.trim().toLowerCase();
+      const normalizedDest = data.destination.trim().toLowerCase();
+      return normalizedOrigin !== normalizedDest;
+    }
+    return true;
+  },
+  { message: "Origin and destination cannot be the same city", path: ["destination"] }
 );
 
 export type Phase1Input = z.infer<typeof Phase1Schema>;
