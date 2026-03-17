@@ -3,15 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { PointsAnimation } from "./PointsAnimation";
-import { PhaseTransition } from "./PhaseTransition";
-import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
-import { WizardFooter } from "./WizardFooter";
+import { PhaseShell } from "./PhaseShell";
 import {
   togglePhase3ItemAction,
   advanceFromPhaseAction,
 } from "@/server/actions/expedition.actions";
-import type { BadgeKey, Rank } from "@/types/gamification.types";
+import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 interface ChecklistItemData {
   id: string;
@@ -28,6 +25,12 @@ interface Phase3WizardProps {
   tripType: string;
   destination: string;
   currentPhase?: number;
+  /** Access mode from navigation engine */
+  accessMode?: PhaseAccessMode;
+  /** Trip's current phase from DB */
+  tripCurrentPhase?: number;
+  /** Completed phase numbers from DB */
+  completedPhases?: number[];
 }
 
 export function Phase3Wizard({
@@ -36,35 +39,30 @@ export function Phase3Wizard({
   tripType,
   destination,
   currentPhase,
+  accessMode = "first_visit",
+  tripCurrentPhase = 3,
+  completedPhases = [],
 }: Phase3WizardProps) {
   const t = useTranslations("expedition.phase3");
   const tExpedition = useTranslations("expedition");
-  const tPhases = useTranslations("gamification.phases");
   const tErrors = useTranslations("errors");
   const router = useRouter();
+
+  const isEditMode = accessMode === "revisit";
+  const isRevisiting = currentPhase !== undefined && currentPhase > 3;
 
   const [items, setItems] = useState(initialItems);
   const [togglingKey, setTogglingKey] = useState<string | null>(null);
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showAnimation, setShowAnimation] = useState(false);
-  const [showTransition, setShowTransition] = useState(false);
-  const [animationData, setAnimationData] = useState<{
-    points: number;
-    badge?: BadgeKey | null;
-    rank?: Rank | null;
-  }>({ points: 0 });
   const [itemPoints, setItemPoints] = useState<{
     key: string;
     points: number;
   } | null>(null);
 
-  const isRevisiting = currentPhase !== undefined && currentPhase > 3;
-
   const requiredItems = items.filter((i) => i.required);
   const recommendedItems = items.filter((i) => !i.required);
   const requiredCompleted = requiredItems.filter((i) => i.completed).length;
-  const _allRequiredDone = requiredCompleted === requiredItems.length;
 
   async function handleToggle(itemKey: string) {
     setTogglingKey(itemKey);
@@ -111,32 +109,12 @@ export function Phase3Wizard({
         return;
       }
 
-      if (result.data!.completed && result.data!.phaseResult) {
-        // All prerequisites met — show points animation first
-        setAnimationData({
-          points: result.data!.phaseResult.pointsEarned,
-          badge: result.data!.phaseResult.badgeAwarded as BadgeKey | null,
-          rank: result.data!.phaseResult.newRank as Rank | null,
-        });
-        setShowAnimation(true);
-      } else {
-        // Skipped ahead — go straight to phase transition
-        setShowTransition(true);
-      }
+      // Navigate directly to phase-4
+      router.push(`/expedition/${tripId}/phase-4`);
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
     }
-  }
-
-  function handleAnimationDismiss() {
-    setShowAnimation(false);
-    setShowTransition(true);
-  }
-
-  function handleTransitionContinue() {
-    setShowTransition(false);
-    router.push(`/expedition/${tripId}/phase-4`);
   }
 
   function formatDeadline(iso: string | null): string | null {
@@ -153,89 +131,100 @@ export function Phase3Wizard({
     }
   }
 
-  if (showAnimation) {
-    return (
-      <PointsAnimation
-        points={animationData.points}
-        badge={animationData.badge}
-        rank={animationData.rank}
-        onDismiss={handleAnimationDismiss}
-      />
-    );
-  }
-
-  if (showTransition) {
-    return (
-      <PhaseTransition
-        fromPhase={3}
-        toPhase={4}
-        onContinue={handleTransitionContinue}
-      />
-    );
-  }
-
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <ExpeditionProgressBar currentPhase={3} totalPhases={8} tripId={tripId} />
+    <PhaseShell
+      tripId={tripId}
+      viewingPhase={3}
+      tripCurrentPhase={tripCurrentPhase}
+      completedPhases={completedPhases}
+      phaseTitle={t("title")}
+      phaseSubtitle={t("subtitle")}
+      isEditMode={isEditMode}
+      showFooter={true}
+      footerProps={{
+        onBack: () => router.push(`/expedition/${tripId}/phase-2`),
+        onPrimary: isRevisiting
+          ? () => router.push(`/expedition/${tripId}/phase-4`)
+          : handleAdvance,
+        primaryLabel: tExpedition("cta.advance"),
+        isLoading: isCompleting,
+        isDisabled: isCompleting,
+      }}
+    >
+      {/* Trip context */}
+      <p className="text-center text-sm text-atlas-teal dark:text-atlas-teal-light">
+        {destination} -- {t(`tripTypes.${tripType}`)}
+      </p>
 
-        {/* Header */}
-        <div className="mt-4 text-center">
-          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
-            {tExpedition("phaseLabel", { number: 3, name: tPhases("thePreparation") })}
-          </p>
-          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
-          <p className="mt-2 text-sm text-atlas-teal dark:text-atlas-teal-light">
-            {destination} — {t(`tripTypes.${tripType}`)}
-          </p>
+      {/* Progress */}
+      <div className="mt-4 rounded-lg bg-muted p-3">
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">
+            {t("progress", {
+              completed: requiredCompleted,
+              total: requiredItems.length,
+            })}
+          </span>
+          <span className="font-semibold text-foreground">
+            {requiredItems.length > 0
+              ? Math.round((requiredCompleted / requiredItems.length) * 100)
+              : 100}
+            %
+          </span>
         </div>
-
-        {/* Progress */}
-        <div className="mt-6 rounded-lg bg-muted p-3">
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">
-              {t("progress", {
-                completed: requiredCompleted,
-                total: requiredItems.length,
-              })}
-            </span>
-            <span className="font-semibold text-foreground">
-              {requiredItems.length > 0
-                ? Math.round((requiredCompleted / requiredItems.length) * 100)
-                : 100}
-              %
-            </span>
-          </div>
-          <div className="mt-2 h-2 overflow-hidden rounded-full bg-border">
-            <div
-              className="h-full rounded-full bg-atlas-gold transition-all duration-500"
-              style={{
-                width: `${requiredItems.length > 0 ? (requiredCompleted / requiredItems.length) * 100 : 100}%`,
-              }}
-            />
-          </div>
-        </div>
-
-        {errorMessage && (
+        <div className="mt-2 h-2 overflow-hidden rounded-full bg-border">
           <div
-            role="alert"
-            className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
-          >
-            {errorMessage.startsWith("errors.")
-              ? tErrors(errorMessage.replace("errors.", ""))
-              : errorMessage}
-          </div>
-        )}
+            className="h-full rounded-full bg-atlas-gold transition-all duration-500"
+            style={{
+              width: `${requiredItems.length > 0 ? (requiredCompleted / requiredItems.length) * 100 : 100}%`,
+            }}
+          />
+        </div>
+      </div>
 
-        {/* Required items */}
+      {errorMessage && (
+        <div
+          role="alert"
+          className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
+        >
+          {errorMessage.startsWith("errors.")
+            ? tErrors(errorMessage.replace("errors.", ""))
+            : errorMessage}
+        </div>
+      )}
+
+      {/* Required items */}
+      <div className="mt-6">
+        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-foreground">
+          <span className="inline-block h-2 w-2 rounded-full bg-atlas-rust" />
+          {t("requiredSection")}
+        </h2>
+        <div className="flex flex-col gap-2">
+          {requiredItems.map((item) => (
+            <ChecklistRow
+              key={item.itemKey}
+              item={item}
+              toggling={togglingKey === item.itemKey}
+              onToggle={handleToggle}
+              formatDeadline={formatDeadline}
+              t={t}
+              pointsPopup={
+                itemPoints?.key === item.itemKey ? itemPoints.points : null
+              }
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Recommended items */}
+      {recommendedItems.length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-foreground">
-            <span className="inline-block h-2 w-2 rounded-full bg-atlas-rust" />
-            {t("requiredSection")}
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+            <span className="inline-block h-2 w-2 rounded-full bg-atlas-teal" />
+            {t("recommendedSection")}
           </h2>
           <div className="flex flex-col gap-2">
-            {requiredItems.map((item) => (
+            {recommendedItems.map((item) => (
               <ChecklistRow
                 key={item.itemKey}
                 item={item}
@@ -250,52 +239,12 @@ export function Phase3Wizard({
             ))}
           </div>
         </div>
-
-        {/* Recommended items */}
-        {recommendedItems.length > 0 && (
-          <div className="mt-6">
-            <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              <span className="inline-block h-2 w-2 rounded-full bg-atlas-teal" />
-              {t("recommendedSection")}
-            </h2>
-            <div className="flex flex-col gap-2">
-              {recommendedItems.map((item) => (
-                <ChecklistRow
-                  key={item.itemKey}
-                  item={item}
-                  toggling={togglingKey === item.itemKey}
-                  onToggle={handleToggle}
-                  formatDeadline={formatDeadline}
-                  t={t}
-                  pointsPopup={
-                    itemPoints?.key === item.itemKey ? itemPoints.points : null
-                  }
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <div className="mt-6">
-          <WizardFooter
-            onBack={() => router.push(`/expedition/${tripId}/phase-2`)}
-            onPrimary={
-              isRevisiting
-                ? () => router.push(`/expedition/${tripId}/phase-4`)
-                : handleAdvance
-            }
-            primaryLabel={tExpedition("cta.advance")}
-            isLoading={isCompleting}
-            isDisabled={isCompleting}
-          />
-        </div>
-      </div>
-    </div>
+      )}
+    </PhaseShell>
   );
 }
 
-// ─── Checklist Row ────────────────────────────────────────────────────────────
+// --- Checklist Row -----------------------------------------------------------
 
 interface ChecklistRowProps {
   item: ChecklistItemData;

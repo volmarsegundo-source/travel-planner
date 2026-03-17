@@ -7,14 +7,11 @@ import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-const PHASE_ROUTES: Record<number, string> = {
-  1: "",
-  2: "/phase-2",
-  3: "/phase-3",
-  4: "/phase-4",
-  5: "/phase-5",
-  6: "/phase-6",
-};
+// Import canonical route map from navigation engine (single source of truth)
+import { PHASE_ROUTE_MAP } from "@/lib/engines/phase-navigation.engine";
+
+// Use engine's PHASE_ROUTE_MAP — fixes Phase 1 route from "" to "/phase-1"
+const PHASE_ROUTES = PHASE_ROUTE_MAP;
 
 interface DashboardPhaseProgressBarProps {
   currentPhase: number;

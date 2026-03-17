@@ -1,12 +1,9 @@
 // Allow AI generation requests up to 120s (Anthropic SDK timeout is 90s)
 export const maxDuration = 120;
 
-import { auth } from "@/lib/auth";
-import { redirect } from "@/i18n/navigation";
-import { getTranslations } from "next-intl/server";
 import { db } from "@/server/db";
+import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { DestinationGuideWizard } from "@/components/features/expedition/DestinationGuideWizard";
-import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
 interface Phase5PageProps {
@@ -15,37 +12,12 @@ interface Phase5PageProps {
 
 export default async function Phase5Page({ params }: Phase5PageProps) {
   const { locale, tripId } = await params;
-  const session = await auth();
 
-  if (!session?.user?.id) {
-    redirect({ href: "/auth/login", locale });
-    return null;
-  }
-
-  const tNav = await getTranslations("navigation");
-
-  const trip = await db.trip.findFirst({
-    where: { id: tripId, userId: session.user.id, deletedAt: null },
-    select: {
-      id: true,
-      destination: true,
-      currentPhase: true,
-    },
-  });
-
-  if (!trip) {
-    redirect({ href: "/expeditions", locale });
-    return null;
-  }
-
-  // Phase access guard: block forward skip, allow backward access
-  if (trip.currentPhase < 5) {
-    const currentPhaseRoute = trip.currentPhase === 1
-      ? `/expedition/${tripId}/phase-1`
-      : `/expedition/${tripId}/phase-${trip.currentPhase}`;
-    redirect({ href: currentPhaseRoute, locale });
-    return null;
-  }
+  // Phase access guard (replaces inline currentPhase < 5 check)
+  const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+    tripId, 5, locale,
+    { destination: true }
+  );
 
   // Fetch existing guide if any
   const guide = await db.destinationGuide.findUnique({
@@ -61,21 +33,14 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
     : null;
 
   return (
-    <>
-      <div className="mx-auto max-w-md px-4 pt-6 sm:px-6">
-        <Breadcrumb
-          items={[
-            { label: tNav("breadcrumb.home"), href: "/expeditions" },
-            { label: tNav("breadcrumb.expedition") },
-          ]}
-        />
-      </div>
-      <DestinationGuideWizard
-        tripId={tripId}
-        destination={trip.destination}
-        locale={locale}
-        initialGuide={initialGuide}
-      />
-    </>
+    <DestinationGuideWizard
+      tripId={tripId}
+      destination={trip.destination as string}
+      locale={locale}
+      initialGuide={initialGuide}
+      accessMode={accessMode}
+      tripCurrentPhase={trip.currentPhase}
+      completedPhases={completedPhases}
+    />
   );
 }

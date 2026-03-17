@@ -54,6 +54,41 @@ vi.mock("@/lib/utils/currency", () => ({
     `${currency} ${amount}`,
 }));
 
+// Mock PhaseShell as a pass-through wrapper that renders title, children, and footer
+vi.mock("@/components/features/expedition/PhaseShell", () => ({
+  PhaseShell: ({ children, phaseTitle, phaseSubtitle, footerProps, showFooter }: {
+    children: React.ReactNode;
+    phaseTitle?: string;
+    phaseSubtitle?: string;
+    footerProps?: { onBack?: () => void; onPrimary: () => void; primaryLabel: string; isLoading?: boolean; isDisabled?: boolean };
+    showFooter?: boolean;
+    [key: string]: unknown;
+  }) => (
+    <div data-testid="phase-shell">
+      {phaseTitle && <h1>{phaseTitle}</h1>}
+      {phaseSubtitle && <p>{phaseSubtitle}</p>}
+      {children}
+      {showFooter && footerProps && (
+        <div data-testid="wizard-footer">
+          {footerProps.onBack && (
+            <button type="button" data-testid="wizard-back" onClick={footerProps.onBack}>
+              common.back
+            </button>
+          )}
+          <button
+            type="button"
+            data-testid="wizard-primary"
+            onClick={footerProps.onPrimary}
+            disabled={footerProps.isDisabled || footerProps.isLoading}
+          >
+            {footerProps.primaryLabel}
+          </button>
+        </div>
+      )}
+    </div>
+  ),
+}));
+
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import { Phase2Wizard } from "@/components/features/expedition/Phase2Wizard";

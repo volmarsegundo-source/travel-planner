@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import { PhaseEngine } from "@/lib/engines/phase-engine";
+import { db } from "@/server/db";
+import { getPhaseUrl, TOTAL_ACTIVE_PHASES } from "@/lib/engines/phase-navigation.engine";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 
 interface ExpeditionHubPageProps {
@@ -20,37 +21,23 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
   const t = await getTranslations("expedition.hub");
   const tNav = await getTranslations("navigation");
 
-  let phaseNumber = 1;
-  try {
-    const currentPhase = await PhaseEngine.getCurrentPhase(tripId, session.user.id);
-    if (currentPhase) {
-      phaseNumber = currentPhase.phaseNumber;
-    } else {
-      // No active phase — find the highest completed phase
-      const highest = await PhaseEngine.getHighestCompletedPhase(tripId, session.user.id);
-      if (highest) {
-        phaseNumber = highest.phaseNumber;
-      } else {
-        // Fallback: read currentPhase directly from trip record
-        const { db } = await import("@/server/db");
-        const trip = await db.trip.findFirst({
-          where: { id: tripId, userId: session.user.id, deletedAt: null },
-          select: { currentPhase: true },
-        });
-        if (trip) {
-          phaseNumber = trip.currentPhase;
-        }
-      }
-    }
-  } catch {
-    // Gracefully degrade — default to phase 1 redirect
+  // Fetch trip to determine current phase
+  const trip = await db.trip.findFirst({
+    where: { id: tripId, userId: session.user.id, deletedAt: null },
+    select: { currentPhase: true },
+  });
+
+  if (!trip) {
+    redirect({ href: "/expeditions", locale });
+    return null;
   }
 
-  // Route to the correct phase wizard
-  if (phaseNumber >= 1 && phaseNumber <= 6) {
-    // Phase 1 is completed during creation, redirect to phase-2 as fallback
-    const targetPhase = phaseNumber === 1 ? 2 : phaseNumber;
-    redirect({ href: `/expedition/${tripId}/phase-${targetPhase}`, locale });
+  // Route to the correct phase wizard using the navigation engine
+  if (trip.currentPhase >= 1 && trip.currentPhase <= TOTAL_ACTIVE_PHASES) {
+    // Use getPhaseUrl from the engine — single source of truth
+    // Phase 1 now correctly routes to /phase-1 (not to phase-2)
+    const targetUrl = getPhaseUrl(tripId, trip.currentPhase);
+    redirect({ href: targetUrl, locale });
     return null;
   }
 
@@ -66,9 +53,9 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
         />
       </div>
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
-        <span className="text-5xl" aria-hidden="true">🚀</span>
+        <span className="text-5xl" aria-hidden="true">&#x1F680;</span>
         <h1 className="mt-4 text-2xl font-bold text-gray-900">
-          {t("comingSoon", { number: phaseNumber })}
+          {t("comingSoon", { number: trip.currentPhase })}
         </h1>
         <p className="mt-2 max-w-sm text-gray-500">
           {t("comingSoonSubtitle")}

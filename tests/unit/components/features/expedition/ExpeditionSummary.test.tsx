@@ -214,7 +214,7 @@ describe("ExpeditionSummary", () => {
   it("renders edit links to correct phase URLs", () => {
     render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
     const editPhase1 = screen.getByTestId("edit-phase-1").closest("a");
-    expect(editPhase1).toHaveAttribute("href", "/expedition/trip-1");
+    expect(editPhase1).toHaveAttribute("href", "/expedition/trip-1/phase-1");
     const editPhase3 = screen.getByTestId("edit-phase-3").closest("a");
     expect(editPhase3).toHaveAttribute("href", "/expedition/trip-1/phase-3");
   });

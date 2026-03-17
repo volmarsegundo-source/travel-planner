@@ -987,7 +987,7 @@ describe("PhaseEngine.useAiInPhase", () => {
       TEST_USER_ID,
       150,
       "ai_usage",
-      "AI usage in phase 5: O Mapa dos Dias (ai_itinerary)",
+      "AI usage in phase 5: Guia do Destino (ai_itinerary)",
       TEST_TRIP_ID
     );
   });

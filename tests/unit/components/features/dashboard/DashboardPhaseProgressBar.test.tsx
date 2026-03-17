@@ -130,14 +130,14 @@ describe("DashboardPhaseProgressBar", () => {
     expect(mockPush).toHaveBeenCalledWith("/expedition/trip-123/phase-3");
   });
 
-  it("clicking phase 1 navigates to expedition root", () => {
+  it("clicking phase 1 navigates to phase-1 (not expedition root)", () => {
     render(
       <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} tripId="trip-123" />
     );
 
     const seg1 = screen.getByTestId("phase-segment-1");
     fireEvent.click(seg1);
-    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-123");
+    expect(mockPush).toHaveBeenCalledWith("/expedition/trip-123/phase-1");
   });
 
   // ─── Visual states ──────────────────────────────────────────────────────

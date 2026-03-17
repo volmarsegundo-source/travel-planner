@@ -89,8 +89,8 @@ export function ExpeditionSummary({
     return phase?.status ?? "not_started";
   }
 
-  function getPhaseUrl(phaseNum: number): string {
-    if (phaseNum === 1) return `/expedition/${tripId}`;
+  function getPhaseUrlLocal(phaseNum: number): string {
+    // Use navigation engine's canonical route map — phase 1 is /phase-1
     return `/expedition/${tripId}/phase-${phaseNum}`;
   }
 
@@ -99,8 +99,8 @@ export function ExpeditionSummary({
     tPhases("theExplorer"),
     tPhases("thePreparation"),
     tPhases("theLogistics"),
-    tPhases("theDayMap"),
-    tPhases("theTreasure"),
+    tPhases("theDestinationGuide"),
+    tPhases("theItinerary"),
   ];
 
   const readinessPercent = readiness?.readinessPercent ?? 0;
@@ -199,7 +199,7 @@ export function ExpeditionSummary({
                       <StatusBadge status={status} />
                     </div>
                   </div>
-                  <Link href={getPhaseUrl(phaseNum)}>
+                  <Link href={getPhaseUrlLocal(phaseNum)}>
                     <Button
                       variant="ghost"
                       size="sm"

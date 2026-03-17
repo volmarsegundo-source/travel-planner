@@ -4,10 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Skeleton } from "@/components/ui/skeleton";
-import { PointsAnimation } from "./PointsAnimation";
-import { PhaseTransition } from "./PhaseTransition";
-import { PhaseProgressBar } from "./PhaseProgressBar";
-import { ExpeditionProgressBar } from "./ExpeditionProgressBar";
+import { PhaseShell } from "./PhaseShell";
 import { WizardFooter } from "./WizardFooter";
 import { TransportStep } from "./TransportStep";
 import { AccommodationStep } from "./AccommodationStep";
@@ -21,8 +18,8 @@ import {
   saveLocalMobilityAction,
   getLocalMobilityAction,
 } from "@/server/actions/transport.actions";
-import type { BadgeKey, Rank } from "@/types/gamification.types";
 import type { TransportSegmentInput, AccommodationInput } from "@/lib/validations/transport.schema";
+import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -38,6 +35,12 @@ interface Phase4WizardProps {
   destination: string;
   startDate: string | null;
   currentPhase?: number;
+  /** Access mode from navigation engine */
+  accessMode?: PhaseAccessMode;
+  /** Trip's current phase from DB */
+  tripCurrentPhase?: number;
+  /** Completed phase numbers from DB */
+  completedPhases?: number[];
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -49,10 +52,12 @@ export function Phase4Wizard({
   destination,
   startDate,
   currentPhase,
+  accessMode = "first_visit",
+  tripCurrentPhase = 4,
+  completedPhases = [],
 }: Phase4WizardProps) {
   const t = useTranslations("expedition.phase4");
   const tExpedition = useTranslations("expedition");
-  const tPhases = useTranslations("gamification.phases");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -79,15 +84,8 @@ export function Phase4Wizard({
   // Completion flow states
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showAnimation, setShowAnimation] = useState(false);
-  const [showTransition, setShowTransition] = useState(false);
-  const [animationData, setAnimationData] = useState<{
-    points: number;
-    badge?: BadgeKey | null;
-    rank?: Rank | null;
-  }>({ points: 0 });
 
-  const isRevisiting = currentPhase !== undefined && currentPhase > 4;
+  const isRevisiting = accessMode === "revisit" || (currentPhase !== undefined && currentPhase > 4);
   const needsCinh = tripType === "international" || tripType === "schengen";
   const isMercosul = tripType === "mercosul";
 
@@ -223,311 +221,269 @@ export function Phase4Wizard({
         return;
       }
 
-      if (result.data!.completed && result.data!.phaseResult) {
-        setAnimationData({
-          points: result.data!.phaseResult.pointsEarned,
-          badge: result.data!.phaseResult.badgeAwarded as BadgeKey | null,
-          rank: result.data!.phaseResult.newRank as Rank | null,
-        });
-        setShowAnimation(true);
-      } else {
-        setShowTransition(true);
-      }
+      // Navigate directly to phase 5 (no animation/transition)
+      router.push(`/expedition/${tripId}/phase-5`);
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
     }
   }
 
-  function handleAnimationDismiss() {
-    setShowAnimation(false);
-    setShowTransition(true);
-  }
-
-  function handleTransitionContinue() {
-    setShowTransition(false);
-    router.push(`/expedition/${tripId}/phase-5`);
-  }
-
-  // ─── Animation / Transition overlays ──────────────────────────────────────
-
-  if (showAnimation) {
-    return (
-      <PointsAnimation
-        points={animationData.points}
-        badge={animationData.badge}
-        rank={animationData.rank}
-        onDismiss={handleAnimationDismiss}
-      />
-    );
-  }
-
-  if (showTransition) {
-    return (
-      <PhaseTransition
-        fromPhase={4}
-        toPhase={5}
-        onContinue={handleTransitionContinue}
-      />
-    );
-  }
-
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center p-6">
-      <div className="w-full max-w-md">
-        <ExpeditionProgressBar currentPhase={4} totalPhases={8} tripId={tripId} />
-        <PhaseProgressBar currentStep={currentStep} totalSteps={TOTAL_STEPS} />
+    <PhaseShell
+      tripId={tripId}
+      viewingPhase={4}
+      tripCurrentPhase={tripCurrentPhase}
+      completedPhases={completedPhases}
+      phaseTitle={t("title")}
+      phaseSubtitle={t("subtitle")}
+      currentStep={currentStep}
+      totalSteps={TOTAL_STEPS}
+      isEditMode={isRevisiting}
+      showFooter={false}
+      contentMaxWidth="2xl"
+    >
+      <p className="mt-2 text-center text-sm text-atlas-teal-light">
+        {destination} — {t(`tripTypes.${tripType}`)}
+      </p>
 
-        {/* Header */}
-        <div className="mt-4 text-center">
-          <p className="text-sm font-medium text-atlas-gold" data-testid="phase-label">
-            {tExpedition("phaseLabel", { number: 4, name: tPhases("theLogistics") })}
-          </p>
-          <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
-          <p className="mt-1 text-muted-foreground">{t("subtitle")}</p>
-          <p className="mt-2 text-sm text-atlas-teal-light">
-            {destination} — {t(`tripTypes.${tripType}`)}
-          </p>
+      {errorMessage && (
+        <div
+          role="alert"
+          className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
+        >
+          {errorMessage.startsWith("errors.")
+            ? tErrors(errorMessage.replace("errors.", ""))
+            : errorMessage}
         </div>
+      )}
 
-        {errorMessage && (
-          <div
-            role="alert"
-            className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
-          >
-            {errorMessage.startsWith("errors.")
-              ? tErrors(errorMessage.replace("errors.", ""))
-              : errorMessage}
-          </div>
-        )}
+      {saveSuccess && (
+        <div className="mt-2 rounded-md bg-atlas-teal/10 px-3 py-2 text-sm text-atlas-teal border border-atlas-teal/30">
+          {t(`steps.${saveSuccess}.saved`)}
+        </div>
+      )}
 
-        {saveSuccess && (
-          <div className="mt-2 rounded-md bg-atlas-teal/10 px-3 py-2 text-sm text-atlas-teal border border-atlas-teal/30">
-            {t(`steps.${saveSuccess}.saved`)}
-          </div>
-        )}
+      {loadingData ? (
+        <div className="mt-8 flex flex-col gap-4">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-10 w-3/4" />
+        </div>
+      ) : (
+        <>
+          {/* Step 1: Transport */}
+          {currentStep === 1 && (
+            <div className="mt-8 flex flex-col gap-6">
+              <TransportStep
+                tripId={tripId}
+                initialSegments={transportSegments}
+                onSave={handleSaveTransport}
+                saving={savingTransport}
+                prefillOrigin={origin}
+                prefillDestination={destination}
+                prefillStartDate={startDate}
+              />
 
-        {loadingData ? (
-          <div className="mt-8 flex flex-col gap-4">
-            <Skeleton className="h-10 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-10 w-3/4" />
-          </div>
-        ) : (
-          <>
-            {/* Step 1: Transport */}
-            {currentStep === 1 && (
-              <div className="mt-8 flex flex-col gap-6">
-                <TransportStep
-                  tripId={tripId}
-                  initialSegments={transportSegments}
-                  onSave={handleSaveTransport}
-                  saving={savingTransport}
-                  prefillOrigin={origin}
-                  prefillDestination={destination}
-                  prefillStartDate={startDate}
-                />
+              {/* Navigation */}
+              <WizardFooter
+                onBack={() => router.push(`/expedition/${tripId}/phase-3`)}
+                onPrimary={() => goToStep(2)}
+                primaryLabel={tCommon("next")}
+              />
+            </div>
+          )}
 
-                {/* Navigation */}
-                <WizardFooter
-                  onBack={() => router.push(`/expedition/${tripId}/phase-3`)}
-                  onPrimary={() => goToStep(2)}
-                  primaryLabel={tCommon("next")}
-                />
-              </div>
-            )}
+          {/* Step 2: Accommodation */}
+          {currentStep === 2 && (
+            <div className="mt-8 flex flex-col gap-6">
+              <AccommodationStep
+                tripId={tripId}
+                initialAccommodations={accommodations}
+                onSave={handleSaveAccommodation}
+                saving={savingAccommodation}
+              />
 
-            {/* Step 2: Accommodation */}
-            {currentStep === 2 && (
-              <div className="mt-8 flex flex-col gap-6">
-                <AccommodationStep
-                  tripId={tripId}
-                  initialAccommodations={accommodations}
-                  onSave={handleSaveAccommodation}
-                  saving={savingAccommodation}
-                />
+              {/* Navigation */}
+              <WizardFooter
+                onBack={() => goToStep(1)}
+                onPrimary={() => goToStep(3)}
+                primaryLabel={tCommon("next")}
+              />
+            </div>
+          )}
 
-                {/* Navigation */}
-                <WizardFooter
-                  onBack={() => goToStep(1)}
-                  onPrimary={() => goToStep(3)}
-                  primaryLabel={tCommon("next")}
-                />
-              </div>
-            )}
+          {/* Step 3: Car Rental + Mobility + Advance */}
+          {currentStep === 3 && (
+            <div className="mt-8 flex flex-col gap-6">
+              {/* Car rental prerequisites */}
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">
+                  {t("carRentalQuestion")}
+                </h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {t("carRentalHint")}
+                </p>
 
-            {/* Step 3: Car Rental + Mobility + Advance */}
-            {currentStep === 3 && (
-              <div className="mt-8 flex flex-col gap-6">
-                {/* Car rental prerequisites */}
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">
-                    {t("carRentalQuestion")}
-                  </h2>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {t("carRentalHint")}
-                  </p>
-
-                  <div className="mt-4 flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNeedsCarRental(true);
-                        setCnhConfirmed(false);
-                        setErrorMessage(null);
-                      }}
-                      className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
-                        needsCarRental === true
-                          ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
-                          : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
-                      }`}
-                      aria-pressed={needsCarRental === true}
-                    >
-                      <span className="block text-2xl" aria-hidden="true">
-                        {"\uD83D\uDE97"}
-                      </span>
-                      <span className="mt-1 block text-sm font-medium">
-                        {t("carRentalYes")}
-                      </span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNeedsCarRental(false);
-                        setCnhConfirmed(false);
-                        setErrorMessage(null);
-                      }}
-                      className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
-                        needsCarRental === false
-                          ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
-                          : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
-                      }`}
-                      aria-pressed={needsCarRental === false}
-                    >
-                      <span className="block text-2xl" aria-hidden="true">
-                        {"\uD83D\uDE8C"}
-                      </span>
-                      <span className="mt-1 block text-sm font-medium">
-                        {t("carRentalNo")}
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* CNH Alert Section */}
-                {needsCarRental === true && (
-                  <div>
-                    {needsCinh && (
-                      <div className="rounded-lg border-2 border-atlas-rust/30 bg-atlas-rust/5 p-4">
-                        <div className="flex items-start gap-3">
-                          <span className="text-xl" aria-hidden="true">
-                            {"\u26A0\uFE0F"}
-                          </span>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground">
-                              {t("cinhRequired")}
-                            </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {t("cinhDescription")}
-                            </p>
-                            {cinhDeadline && (
-                              <p className="mt-2 text-sm font-medium text-atlas-rust">
-                                {t("cinhDeadline", { date: cinhDeadline })}
-                              </p>
-                            )}
-                            <p className="mt-2 text-sm text-muted-foreground">
-                              {t("cinhLeadTime", { days: 45 })}
-                            </p>
-                            <label className="mt-4 flex cursor-pointer items-start gap-3">
-                              <input
-                                type="checkbox"
-                                checked={cnhConfirmed}
-                                onChange={(e) => setCnhConfirmed(e.target.checked)}
-                                className="mt-0.5 h-5 w-5 rounded border-border accent-atlas-gold"
-                              />
-                              <span className="text-sm text-foreground">
-                                {t("cinhConfirm")}
-                              </span>
-                            </label>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {isMercosul && (
-                      <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
-                        <div className="flex items-start gap-3">
-                          <span className="text-xl" aria-hidden="true">
-                            {"\u2705"}
-                          </span>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground">
-                              {t("cnhBrasileiraValid")}
-                            </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {t("cnhBrasileiraDescription")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {tripType === "domestic" && (
-                      <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
-                        <div className="flex items-start gap-3">
-                          <span className="text-xl" aria-hidden="true">
-                            {"\u2705"}
-                          </span>
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-foreground">
-                              {t("cnhRegularValid")}
-                            </h3>
-                            <p className="mt-1 text-sm text-muted-foreground">
-                              {t("cnhRegularDescription")}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {needsCarRental === false && (
-                  <div className="rounded-lg border border-border bg-muted p-4 text-center">
-                    <span className="text-2xl" aria-hidden="true">
-                      {"\uD83D\uDC4D"}
+                <div className="mt-4 flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNeedsCarRental(true);
+                      setCnhConfirmed(false);
+                      setErrorMessage(null);
+                    }}
+                    className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
+                      needsCarRental === true
+                        ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
+                        : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
+                    }`}
+                    aria-pressed={needsCarRental === true}
+                  >
+                    <span className="block text-2xl" aria-hidden="true">
+                      {"\uD83D\uDE97"}
                     </span>
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      {t("noCarRental")}
-                    </p>
-                  </div>
-                )}
-
-                <MobilityStep
-                  tripId={tripId}
-                  initialMobility={mobility}
-                  onSave={handleSaveMobility}
-                  saving={savingMobility}
-                />
-
-                {/* Navigation + Advance */}
-                <WizardFooter
-                  onBack={() => goToStep(2)}
-                  onPrimary={
-                    isRevisiting
-                      ? () => router.push(`/expedition/${tripId}/phase-5`)
-                      : handleAdvance
-                  }
-                  primaryLabel={tExpedition("cta.advance")}
-                  isLoading={isCompleting}
-                  isDisabled={isCompleting}
-                />
+                    <span className="mt-1 block text-sm font-medium">
+                      {t("carRentalYes")}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNeedsCarRental(false);
+                      setCnhConfirmed(false);
+                      setErrorMessage(null);
+                    }}
+                    className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
+                      needsCarRental === false
+                        ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
+                        : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
+                    }`}
+                    aria-pressed={needsCarRental === false}
+                  >
+                    <span className="block text-2xl" aria-hidden="true">
+                      {"\uD83D\uDE8C"}
+                    </span>
+                    <span className="mt-1 block text-sm font-medium">
+                      {t("carRentalNo")}
+                    </span>
+                  </button>
+                </div>
               </div>
-            )}
-          </>
-        )}
-      </div>
-    </div>
+
+              {/* CNH Alert Section */}
+              {needsCarRental === true && (
+                <div>
+                  {needsCinh && (
+                    <div className="rounded-lg border-2 border-atlas-rust/30 bg-atlas-rust/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl" aria-hidden="true">
+                          {"\u26A0\uFE0F"}
+                        </span>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">
+                            {t("cinhRequired")}
+                          </h3>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {t("cinhDescription")}
+                          </p>
+                          {cinhDeadline && (
+                            <p className="mt-2 text-sm font-medium text-atlas-rust">
+                              {t("cinhDeadline", { date: cinhDeadline })}
+                            </p>
+                          )}
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {t("cinhLeadTime", { days: 45 })}
+                          </p>
+                          <label className="mt-4 flex cursor-pointer items-start gap-3">
+                            <input
+                              type="checkbox"
+                              checked={cnhConfirmed}
+                              onChange={(e) => setCnhConfirmed(e.target.checked)}
+                              className="mt-0.5 h-5 w-5 rounded border-border accent-atlas-gold"
+                            />
+                            <span className="text-sm text-foreground">
+                              {t("cinhConfirm")}
+                            </span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {isMercosul && (
+                    <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl" aria-hidden="true">
+                          {"\u2705"}
+                        </span>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">
+                            {t("cnhBrasileiraValid")}
+                          </h3>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {t("cnhBrasileiraDescription")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {tripType === "domestic" && (
+                    <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-xl" aria-hidden="true">
+                          {"\u2705"}
+                        </span>
+                        <div className="flex-1">
+                          <h3 className="font-semibold text-foreground">
+                            {t("cnhRegularValid")}
+                          </h3>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            {t("cnhRegularDescription")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {needsCarRental === false && (
+                <div className="rounded-lg border border-border bg-muted p-4 text-center">
+                  <span className="text-2xl" aria-hidden="true">
+                    {"\uD83D\uDC4D"}
+                  </span>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {t("noCarRental")}
+                  </p>
+                </div>
+              )}
+
+              <MobilityStep
+                tripId={tripId}
+                initialMobility={mobility}
+                onSave={handleSaveMobility}
+                saving={savingMobility}
+              />
+
+              {/* Navigation + Advance */}
+              <WizardFooter
+                onBack={() => goToStep(2)}
+                onPrimary={
+                  isRevisiting
+                    ? () => router.push(`/expedition/${tripId}/phase-5`)
+                    : handleAdvance
+                }
+                primaryLabel={tExpedition("cta.advance")}
+                isLoading={isCompleting}
+                isDisabled={isCompleting}
+              />
+            </div>
+          )}
+        </>
+      )}
+    </PhaseShell>
   );
 }
 

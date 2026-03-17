@@ -115,10 +115,24 @@
   - Mapbox GL JS loaded via dynamic import on /atlas only
   - GeoJSON coordinate order: [lon, lat] (NOT [lat, lon])
 
+## Phase Navigation Redesign (SPEC-ARCH-010, ADR-017 PROPOSED)
+- Full analysis: docs/architecture/PHASE-NAVIGATION-REDESIGN.md
+- ADR-017: Centralized isomorphic PhaseNavigationEngine (PROPOSED)
+- New files: src/lib/engines/phase-navigation.ts (isomorphic), src/lib/guards/phase-access-guard.ts (server)
+- 8 bugs catalogued (NAV-001 through NAV-008), 11 inconsistencies documented
+- NAV-001 CRITICAL: Phase 1 has no access guard — URL manipulation creates duplicate trips
+- NAV-002 HIGH: Phase 5 revisit throws PHASE_ALREADY_COMPLETED
+- Key design: `resolveAccess()` returns PhaseAccessMode (first_visit | revisit | blocked)
+- `accessMode` replaces all `isRevisiting` inference patterns
+- PHASE_ROUTE_MAP consolidates 3 independent route dictionaries
+- Migration: 5 phases (A-E), ~16h effort, ~15 files changed
+- Open: OQ-1 (updatePhase1Action), OQ-4 (Phase5Wizard dead code disposition)
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
 - Sprint 20 Architecture: docs/architecture/SPRINT-20-ARCHITECTURE.md
+- SPEC-ARCH-010: docs/architecture/PHASE-NAVIGATION-REDESIGN.md (Phase Navigation Redesign)
 - SPEC-ARCH-001: docs/specs/sprint-26/SPEC-ARCH-001.md (DnD Time Adjustment)
 - SPEC-ARCH-002: docs/specs/sprint-27/SPEC-ARCH-002.md (Navigation Restructure)
 - SPEC-ARCH-003: docs/specs/sprint-27/SPEC-ARCH-003.md (Autocomplete Alternative)

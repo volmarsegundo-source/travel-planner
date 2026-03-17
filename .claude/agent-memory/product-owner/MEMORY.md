@@ -156,6 +156,16 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Payment gateway: not chosen yet (needed for Premium upgrade in Sprint 10+)
 - Google AI free tier privacy disclosure: must be added to terms of use
 
+### Sprint 30 Navigation Crisis (2026-03-16)
+- v0.23.0: 115 E2E tests pass but 60%+ manual test failure rate — same 5 nav bugs recurring
+- Phase navigation is architecturally broken: guard logic, state restoration, and progress bar are systemic
+- SPEC-PROD-001 marked "Implemented" but only 7/18 ACs pass QA conformance
+- phase-config.ts defines 8 phases; only 6 are active (Phases 7-8 are future roadmap)
+- Phase 6 Back button was explicitly deferred in SPEC-PROD-001 Out of Scope — must be addressed in Sprint 30
+- New product requirements document created: `docs/specs/product/SPEC-PROD-016.md`
+- Recommended: dedicated navigation consolidation sprint (Sprint 30) before beta launch
+- Beta launch now blocked by nav crisis — must resolve before GO/NO-GO
+
 ### Lessons Learned
 - Sprint 19: guide redesign took more scope than estimated, causing 2 P1 items to slip. Use generous buffer (>25%) for sprints with UI redesign work.
 - Task ID discipline: commit IDs must match planning doc IDs (Sprint 19 lesson)

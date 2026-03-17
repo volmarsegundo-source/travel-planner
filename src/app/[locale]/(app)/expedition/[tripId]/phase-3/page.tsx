@@ -1,10 +1,7 @@
 import { auth } from "@/lib/auth";
-import { redirect } from "@/i18n/navigation";
-import { getTranslations } from "next-intl/server";
-import { db } from "@/server/db";
 import { ChecklistEngine } from "@/lib/engines/checklist-engine";
+import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { Phase3Wizard } from "@/components/features/expedition/Phase3Wizard";
-import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import type { TripType } from "@/lib/travel/trip-classifier";
 
 interface Phase3PageProps {
@@ -13,46 +10,21 @@ interface Phase3PageProps {
 
 export default async function Phase3Page({ params }: Phase3PageProps) {
   const { locale, tripId } = await params;
+
+  // Phase access guard (replaces inline currentPhase < 3 check)
+  const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+    tripId, 3, locale,
+    { tripType: true, startDate: true, destination: true }
+  );
+
   const session = await auth();
-
-  if (!session?.user?.id) {
-    redirect({ href: "/auth/login", locale });
-    return null;
-  }
-
-  const tNav = await getTranslations("navigation");
-
-  const trip = await db.trip.findFirst({
-    where: { id: tripId, userId: session.user.id, deletedAt: null },
-    select: {
-      id: true,
-      tripType: true,
-      startDate: true,
-      destination: true,
-      currentPhase: true,
-    },
-  });
-
-  if (!trip) {
-    redirect({ href: "/expeditions", locale });
-    return null;
-  }
-
-  // Phase access guard: block forward skip, allow backward access
-  if (trip.currentPhase < 3) {
-    const currentPhaseRoute = trip.currentPhase === 1
-      ? `/expedition/${tripId}/phase-1`
-      : `/expedition/${tripId}/phase-${trip.currentPhase}`;
-    redirect({ href: currentPhaseRoute, locale });
-    return null;
-  }
 
   // Initialize phase 3 checklist (idempotent)
   await ChecklistEngine.initializePhase3Checklist(
     tripId,
-    session.user.id,
+    session!.user!.id!,
     trip.tripType as TripType,
-    trip.startDate
+    trip.startDate as Date | null
   );
 
   // Fetch checklist items
@@ -68,22 +40,15 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
   }));
 
   return (
-    <>
-      <div className="mx-auto max-w-md px-4 pt-6 sm:px-6">
-        <Breadcrumb
-          items={[
-            { label: tNav("breadcrumb.home"), href: "/expeditions" },
-            { label: tNav("breadcrumb.expedition") },
-          ]}
-        />
-      </div>
-      <Phase3Wizard
-        tripId={tripId}
-        items={serializedItems}
-        tripType={trip.tripType}
-        destination={trip.destination}
-        currentPhase={trip.currentPhase}
-      />
-    </>
+    <Phase3Wizard
+      tripId={tripId}
+      items={serializedItems}
+      tripType={trip.tripType as string}
+      destination={trip.destination as string}
+      currentPhase={trip.currentPhase}
+      accessMode={accessMode}
+      tripCurrentPhase={trip.currentPhase}
+      completedPhases={completedPhases}
+    />
   );
 }
