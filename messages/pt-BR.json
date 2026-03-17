@@ -339,6 +339,36 @@
       "community": "Comunidade",
       "transport": "Transporte",
       "comingSoon": "Em construção"
+    },
+    "expeditions": {
+      "pageTitle": "Expedições",
+      "newExpedition": "Nova Expedição",
+      "filterAll": "Todas",
+      "filterActive": "Ativas",
+      "filterCompleted": "Concluídas",
+      "sortLabel": "Ordenar por",
+      "sortNewest": "Mais recente",
+      "sortDeparture": "Data de partida",
+      "sortDestination": "Destino A-Z",
+      "tripCount": "{count} {count, plural, one {expedição} other {expedições}}",
+      "emptyTitle": "Sua aventura começa aqui",
+      "emptySubtitle": "Crie sua primeira expedição e comece a planejar a viagem dos seus sonhos.",
+      "filteredEmpty": "Nenhuma expedição {filter} encontrada.",
+      "clearFilter": "Ver todas",
+      "noDates": "Datas não definidas",
+      "limitReached": "Limite de 20 expedições atingido.",
+      "statusActive": "Ativa",
+      "statusCompleted": "Concluída",
+      "statusOverdue": "Atenção",
+      "statusPlanned": "Planejada",
+      "ctaStart": "Iniciar",
+      "ctaContinue": "Continuar",
+      "ctaViewSummary": "Ver Resumo",
+      "phaseLabel": "Fase {current} de {total}",
+      "gridLabel": "Lista de expedições",
+      "filterLabel": "Filtrar por status",
+      "sortAnnouncement": "Ordenado por {criterion}",
+      "loadError": "Não foi possível carregar suas expedições. Tente novamente."
     }
   },
   "profile": {
@@ -460,13 +490,14 @@
         "domestic": "Viagem nacional",
         "mercosul": "Viagem Mercosul",
         "international": "Viagem internacional",
-        "schengen": "Viagem Schengen"
+        "schengen": "Viagem internacional"
       },
       "errors": {
         "nameRequired": "Nome é obrigatório.",
         "birthDateRequired": "Data de nascimento é obrigatória.",
         "destinationRequired": "Destino é obrigatório.",
-        "endDateBeforeStart": "A data de retorno deve ser posterior à data de partida."
+        "endDateBeforeStart": "A data de retorno deve ser posterior à data de partida.",
+        "datesRequired": "As datas de ida e volta são obrigatórias. Marque 'datas flexíveis' se ainda não decidiu."
       }
     },
     "phase2": {
@@ -646,7 +677,7 @@
         "domestic": "Nacional",
         "mercosul": "Mercosul",
         "international": "Internacional",
-        "schengen": "Schengen"
+        "schengen": "Internacional"
       },
       "items": {
         "passport_valid_6m": "Passaporte válido por 6+ meses",
@@ -686,7 +717,7 @@
         "domestic": "Nacional",
         "mercosul": "Mercosul",
         "international": "Internacional",
-        "schengen": "Schengen"
+        "schengen": "Internacional"
       },
       "tabs": {
         "transport": "Transporte",
@@ -1252,8 +1283,16 @@
     }
   },
   "destination": {
-    "noResults": "Nenhum resultado encontrado. Tente um nome diferente.",
-    "searching": "Buscando...",
-    "searchLabel": "Buscar destinos"
+    "noResults": "Nenhuma cidade encontrada. Tente outra ortografia.",
+    "searching": "Buscando destinos...",
+    "searchLabel": "Buscar destinos",
+    "searchError": "Busca indisponivel. Digite o destino manualmente.",
+    "placeholder": "Para onde voce vai?",
+    "recentSearches": "Buscas recentes",
+    "clearRecent": "Limpar",
+    "resultsCount": "{count} {count, plural, one {resultado encontrado} other {resultados encontrados}}",
+    "overlayTitle": "Escolha o destino",
+    "rateLimited": "Muitas buscas. Aguarde alguns segundos.",
+    "poweredBy": "Powered by Mapbox"
   }
 }

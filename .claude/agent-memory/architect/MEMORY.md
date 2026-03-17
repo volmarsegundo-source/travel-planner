@@ -128,6 +128,34 @@
 - Migration: 5 phases (A-E), ~16h effort, ~15 files changed
 - Open: OQ-1 (updatePhase1Action), OQ-4 (Phase5Wizard dead code disposition)
 
+## Sprint 30 Architecture (ADR-018, ADR-019, ADR-020 PROPOSED)
+- SPEC-ARCH-011: Autocomplete Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-011.md)
+  - ADR-018: Mapbox Geocoding v6 as primary, Nominatim fallback (PROPOSED)
+  - GeocodingProvider interface (like AiProvider pattern)
+  - Redis cache 7-day TTL; client debounce 300ms; top-100 offline fallback
+  - New env: MAPBOX_ACCESS_TOKEN (optional)
+- SPEC-ARCH-012: Map Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-012.md)
+  - ADR-019: Leaflet + OpenStreetMap replaces react-simple-maps (PROPOSED)
+  - Interactive atlas page at /atlas; CSS pin overlay for dashboard hero
+  - MapProvider interface for tile source swapping
+  - Dark mode via CartoDB Dark Matter tiles
+  - New deps: leaflet, react-leaflet, leaflet.markercluster
+  - Removes: react-simple-maps (+ d3-geo transitive)
+- SPEC-ARCH-013: Dashboard Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-013.md)
+  - No ADR — extends existing TanStack Query stack
+  - Client-side filter/sort + URL param persistence
+  - TanStack Query hydration (initialData from server)
+  - Virtual scroll via @tanstack/react-virtual for >20 items
+  - Compact row view + card view toggle
+  - New API: GET /api/trips/expeditions
+- SPEC-ARCH-014: Summary/Report Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-014.md)
+  - ADR-020: @react-pdf/renderer + CSS print + HMAC share URLs (PROPOSED)
+  - PDF generation server-side, streamed via API route
+  - Share URLs: stateless HMAC-SHA256 signed tokens with expiry
+  - Public /shared/{token} page with stripped summary (no PII, no booking codes)
+  - New deps: @react-pdf/renderer
+  - New env: SHARE_LINK_SECRET (optional, falls back to AUTH_SECRET)
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
@@ -141,6 +169,10 @@
 - SPEC-ARCH-007: docs/specs/sprint-29/SPEC-ARCH-007.md (Summary Page Integration)
 - SPEC-ARCH-008: docs/specs/sprint-29/SPEC-ARCH-008.md (Phase Data Pre-population)
 - SPEC-ARCH-009: docs/specs/sprint-29/SPEC-ARCH-009.md (Map Coordinates & Destination Pin)
+- SPEC-ARCH-011: docs/specs/sprint-30/SPEC-ARCH-011.md (Autocomplete Architecture Rewrite)
+- SPEC-ARCH-012: docs/specs/sprint-30/SPEC-ARCH-012.md (Map Architecture Rewrite)
+- SPEC-ARCH-013: docs/specs/sprint-30/SPEC-ARCH-013.md (Dashboard Architecture Rewrite)
+- SPEC-ARCH-014: docs/specs/sprint-30/SPEC-ARCH-014.md (Summary/Report Architecture Rewrite)
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md

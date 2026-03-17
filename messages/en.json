@@ -339,6 +339,36 @@
       "community": "Community",
       "transport": "Transport",
       "comingSoon": "Coming soon"
+    },
+    "expeditions": {
+      "pageTitle": "Expeditions",
+      "newExpedition": "New Expedition",
+      "filterAll": "All",
+      "filterActive": "Active",
+      "filterCompleted": "Completed",
+      "sortLabel": "Sort by",
+      "sortNewest": "Newest",
+      "sortDeparture": "Departure date",
+      "sortDestination": "Destination A-Z",
+      "tripCount": "{count} {count, plural, one {expedition} other {expeditions}}",
+      "emptyTitle": "Your adventure starts here",
+      "emptySubtitle": "Create your first expedition and start planning your dream trip.",
+      "filteredEmpty": "No {filter} expeditions found.",
+      "clearFilter": "View all",
+      "noDates": "Dates not set",
+      "limitReached": "20 expedition limit reached.",
+      "statusActive": "Active",
+      "statusCompleted": "Completed",
+      "statusOverdue": "Attention",
+      "statusPlanned": "Planned",
+      "ctaStart": "Start",
+      "ctaContinue": "Continue",
+      "ctaViewSummary": "View Summary",
+      "phaseLabel": "Phase {current} of {total}",
+      "gridLabel": "Expeditions list",
+      "filterLabel": "Filter by status",
+      "sortAnnouncement": "Sorted by {criterion}",
+      "loadError": "Could not load your expeditions. Try again."
     }
   },
   "profile": {
@@ -460,13 +490,14 @@
         "domestic": "Domestic trip",
         "mercosul": "Mercosul trip",
         "international": "International trip",
-        "schengen": "Schengen trip"
+        "schengen": "International trip"
       },
       "errors": {
         "nameRequired": "Name is required.",
         "birthDateRequired": "Birth date is required.",
         "destinationRequired": "Destination is required.",
-        "endDateBeforeStart": "End date must be after start date."
+        "endDateBeforeStart": "End date must be after start date.",
+        "datesRequired": "Departure and return dates are required. Check 'flexible dates' if you haven't decided yet."
       }
     },
     "phase2": {
@@ -646,7 +677,7 @@
         "domestic": "Domestic",
         "mercosul": "Mercosul",
         "international": "International",
-        "schengen": "Schengen"
+        "schengen": "International"
       },
       "items": {
         "passport_valid_6m": "Passport valid for 6+ months",
@@ -686,7 +717,7 @@
         "domestic": "Domestic",
         "mercosul": "Mercosul",
         "international": "International",
-        "schengen": "Schengen"
+        "schengen": "International"
       },
       "tabs": {
         "transport": "Transport",
@@ -1252,8 +1283,16 @@
     }
   },
   "destination": {
-    "noResults": "No results found. Try a different name.",
-    "searching": "Searching...",
-    "searchLabel": "Search destinations"
+    "noResults": "No cities found. Try a different spelling.",
+    "searching": "Searching destinations...",
+    "searchLabel": "Search destinations",
+    "searchError": "Search unavailable. Please type your destination manually.",
+    "placeholder": "Where are you going?",
+    "recentSearches": "Recent searches",
+    "clearRecent": "Clear",
+    "resultsCount": "{count} {count, plural, one {result found} other {results found}}",
+    "overlayTitle": "Choose destination",
+    "rateLimited": "Too many searches. Wait a few seconds.",
+    "poweredBy": "Powered by Mapbox"
   }
 }

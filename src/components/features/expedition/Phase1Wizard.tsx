@@ -22,7 +22,7 @@ const TRIP_TYPE_BADGES: Record<TripType, { emoji: string; key: string }> = {
   domestic: { emoji: "\u{1F3E0}", key: "domestic" },
   mercosul: { emoji: "\u{1F33F}", key: "mercosul" },
   international: { emoji: "\u{1F30D}", key: "international" },
-  schengen: { emoji: "\u{1F1EA}\u{1F1FA}", key: "schengen" },
+  schengen: { emoji: "\u{1F30D}", key: "international" },
 };
 
 /** Pre-filled profile data from server. */
@@ -219,6 +219,11 @@ export function Phase1Wizard({
   }
 
   function handleStep3Next() {
+    // Dates are mandatory unless flexible dates is checked
+    if (!flexibleDates && (!startDate || !endDate)) {
+      setErrorMessage(t("errors.datesRequired"));
+      return;
+    }
     if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
       setErrorMessage(t("errors.endDateBeforeStart"));
       return;

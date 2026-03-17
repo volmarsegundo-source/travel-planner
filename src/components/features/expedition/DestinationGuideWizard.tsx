@@ -149,6 +149,12 @@ export function DestinationGuideWizard({
     setIsCompleting(true);
     setErrorMessage(null);
 
+    // If revisiting an already-completed phase, skip the action and navigate
+    if (accessMode === "revisit" && completedPhases.includes(5)) {
+      router.push(`/expedition/${tripId}/phase-6`);
+      return;
+    }
+
     try {
       const result = await completePhase5Action(tripId);
 

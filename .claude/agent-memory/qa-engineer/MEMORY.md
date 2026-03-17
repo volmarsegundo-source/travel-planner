@@ -101,10 +101,11 @@ Every AC from `docs/tasks.md` must map to at least one test in QA-SPEC. Coverage
 
 ## Eval-Driven Development (EDD) — Effective Sprint 27
 - [Full EDD details](project_edd_framework.md)
+- [Sprint 30 EDD Plan](project_sprint30_edd_plan.md)
 - Process: `docs/process/EVAL-DRIVEN-DEVELOPMENT.md`
 - Trust Score: `docs/process/TRUST-SCORE.md`
 - Eval Template: `docs/process/templates/EVAL-TEMPLATE.md`
-- Datasets: `docs/evals/datasets/` (itinerary-quality, guide-accuracy, injection-resistance, i18n-completeness)
+- Datasets: `docs/evals/datasets/` (itinerary-quality, guide-accuracy, injection-resistance, i18n-completeness, autocomplete-quality, map-rendering, dashboard-layout, summary-completeness)
 
 ## Key Docs for QA Context
 - `docs/SPEC-001.md` — data model, Server Actions, business logic

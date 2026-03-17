@@ -1,22 +1,15 @@
 # Tech Lead Memory -- Travel Planner
 
-## Project State (as of 2026-03-12)
+## Project State (as of 2026-03-17)
 - Sprints 1-24 complete (legacy, pre-SDD)
-- Sprint 25 COMPLETE: v0.18.0, 1612 tests (first SDD sprint)
+- Sprint 25 COMPLETE: v0.18.0, 1612 tests
 - Sprint 26 COMPLETE: v0.19.0, 1655 tests
 - Sprint 27 COMPLETE: v0.20.0, recurring bug blitz
 - Sprint 28 COMPLETE: v0.21.0, 1721 tests (partial delivery)
-  - Completed: gamification header, navigation restructure routes, readiness service, next steps engine, WizardFooter component, countdown component
-  - Deferred to Sprint 29: profile name fix, map pin coordinates, Phase 4 auto-save, phase revisit, summary page card redesign, WizardFooter CTA integration
-- Sprint 29: PLANNED -- docs/specs/sprint-29/SPRINT-29-PLAN.md
-  - 16 tasks, 40h planned, 5h buffer, 45h budget
-  - Group A (Days 1-3, 26h): Sprint 28 deferred work -- summary page redesign, map pin, auto-save, phase revisit, CTA integration
-  - Group B (Days 4-5, 14h): Phase 5-6 revisit, dashboard countdown, edit links, phase access guard, tech debt
-  - 5 specs approved (SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005)
-  - 6 new specs needed (SPEC-PROD-013, SPEC-UX-016/017, SPEC-ARCH-007/008/010)
-  - Test target: 1780+ (from 1721 baseline)
-  - CRITICAL: Summary page card redesign is top user-facing priority
-  - Backend already built: TripReadinessService, NextStepsEngine, WizardFooter -- Sprint 29 is integration/wiring
+- Sprint 29 COMPLETE: v0.22.0, 1776 tests (summary redesign, coordinates, WizardFooter, countdown)
+- Phase Nav Redesign SHIPPED: v0.24.0, 1869 tests (PhaseNavigationEngine, PhaseShell, ADR-017)
+- Sprint 30: PLANNED -- docs/specs/sprint-30/SPRINT-30-PLAN.md
+  - See: [project_sprint30_plan.md](project_sprint30_plan.md)
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)

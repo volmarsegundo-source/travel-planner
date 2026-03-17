@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { redis } from "@/server/cache/redis";
 import { logger } from "@/lib/logger";
+import { searchWithFallback } from "@/server/services/geocoding/geocoding.service";
 
-const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
-const CACHE_TTL = 86400; // 24 hours in seconds
-const USER_AGENT = "TravelPlannerAtlas/1.0 (https://github.com/travel-planner)";
-const NOMINATIM_TIMEOUT_MS = 5000;
 const DEFAULT_LOCALE = "pt-BR";
+const DEFAULT_LIMIT = 5;
+const MAX_LIMIT = 10;
+const MIN_QUERY_LENGTH = 2;
+const MAX_QUERY_LENGTH = 100;
 
-// Map app locales to HTTP Accept-Language values
-const LOCALE_TO_ACCEPT_LANGUAGE: Record<string, string> = {
-  "pt-BR": "pt-BR,pt;q=0.9,en;q=0.5",
-  "en": "en,en-US;q=0.9",
-};
+/** Rate limit: 10 requests per 5 seconds per user (relaxed for Mapbox) */
+const RATE_LIMIT_MAX = 10;
+const RATE_LIMIT_WINDOW_SECONDS = 5;
 
 export async function GET(request: NextRequest) {
   const session = await auth();
@@ -23,14 +21,24 @@ export async function GET(request: NextRequest) {
   }
 
   const q = request.nextUrl.searchParams.get("q")?.trim();
-  if (!q || q.length < 2) {
+  if (!q || q.length < MIN_QUERY_LENGTH || q.length > MAX_QUERY_LENGTH) {
     return NextResponse.json({ results: [] });
   }
 
-  const locale = request.nextUrl.searchParams.get("locale")?.trim() || DEFAULT_LOCALE;
+  const locale =
+    request.nextUrl.searchParams.get("locale")?.trim() || DEFAULT_LOCALE;
 
-  // Rate limit: 3 requests per 2 seconds per user (relaxed for autocomplete UX)
-  const rl = await checkRateLimit(`nominatim:${session.user.id}`, 3, 2);
+  const limitParam = request.nextUrl.searchParams.get("limit");
+  const limit = limitParam
+    ? Math.min(Math.max(1, parseInt(limitParam, 10) || DEFAULT_LIMIT), MAX_LIMIT)
+    : DEFAULT_LIMIT;
+
+  // Rate limit per user
+  const rl = await checkRateLimit(
+    `geocoding:${session.user.id}`,
+    RATE_LIMIT_MAX,
+    RATE_LIMIT_WINDOW_SECONDS
+  );
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "Rate limit exceeded" },
@@ -38,101 +46,20 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // Include locale in cache key for language-specific results
-  const cacheKey = `dest:search:${locale}:${q.toLowerCase()}`;
   try {
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return NextResponse.json({ results: JSON.parse(cached) });
-    }
-  } catch {
-    // Cache miss or Redis error — continue to Nominatim
-  }
-
-  try {
-    const url = new URL(NOMINATIM_URL);
-    url.searchParams.set("q", q);
-    url.searchParams.set("format", "json");
-    url.searchParams.set("featuretype", "city");
-    url.searchParams.set("limit", "5");
-    url.searchParams.set("addressdetails", "1");
-
-    const acceptLanguage = LOCALE_TO_ACCEPT_LANGUAGE[locale] ?? LOCALE_TO_ACCEPT_LANGUAGE[DEFAULT_LOCALE];
-
-    const response = await fetch(url.toString(), {
-      headers: {
-        "User-Agent": USER_AGENT,
-        "Accept-Language": acceptLanguage,
-      },
-      signal: AbortSignal.timeout(NOMINATIM_TIMEOUT_MS),
+    const { results, provider, cached } = await searchWithFallback({
+      query: q,
+      locale,
+      limit,
     });
 
-    if (!response.ok) {
-      logger.error("nominatim.fetchError", new Error(`Nominatim returned ${response.status}`));
-      return NextResponse.json({ results: [] });
-    }
-
-    const data = await response.json();
-
-    const rawResults = data.map((item: {
-      display_name: string;
-      lat: string;
-      lon: string;
-      importance?: number;
-      address?: { country?: string; country_code?: string; state?: string; city?: string };
-    }) => {
-      // Extract city from address or fallback: parse first segment of displayName
-      const addressCity = item.address?.city ?? null;
-      const country = item.address?.country ?? null;
-      const state = item.address?.state ?? null;
-      const city = addressCity ?? (item.display_name.split(",")[0]?.trim() || null);
-
-      // Assemble formattedName from structured fields
-      const formattedName = [city, state, country].filter(Boolean).join(", ") || item.display_name;
-
-      return {
-        displayName: item.display_name,
-        lat: parseFloat(item.lat),
-        lon: parseFloat(item.lon),
-        country,
-        countryCode: item.address?.country_code?.toUpperCase() ?? null,
-        state,
-        city,
-        importance: item.importance ?? 0,
-        formattedName,
-      };
-    });
-
-    // Deduplicate by city+state+country — keep the entry with higher importance
-    const seen = new Map<string, typeof rawResults[number]>();
-    for (const result of rawResults) {
-      const key = [
-        result.city?.toLowerCase() ?? "",
-        result.state?.toLowerCase() ?? "",
-        result.country?.toLowerCase() ?? "",
-      ].join("|");
-      const existing = seen.get(key);
-      if (!existing || result.importance > existing.importance) {
-        seen.set(key, result);
-      }
-    }
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const results = [...seen.values()].map(({ importance, formattedName: _fn, ...rest }) => ({
-      ...rest,
-      shortName: [rest.city, rest.state, rest.country].filter(Boolean).join(", ") || rest.displayName,
-      formattedName: [rest.city, rest.state, rest.country].filter(Boolean).join(", ") || rest.displayName,
-    }));
-
-    // Cache in Redis
-    try {
-      await redis.setex(cacheKey, CACHE_TTL, JSON.stringify(results));
-    } catch {
-      // Cache write failure is non-fatal
-    }
-
-    return NextResponse.json({ results });
+    return NextResponse.json({ results, provider, cached });
   } catch (error) {
-    logger.error("nominatim.error", error instanceof Error ? error : new Error(String(error)));
-    return NextResponse.json({ results: [] });
+    logger.error(
+      "geocoding.routeError",
+      error instanceof Error ? error : new Error(String(error))
+    );
+    // Graceful degradation — never 500 to client
+    return NextResponse.json({ results: [], provider: "none", cached: false });
   }
 }

@@ -1,0 +1,234 @@
+{
+  "eval_id": "EVAL-UX-004",
+  "version": "1.0.0",
+  "description": "Avaliacao de qualidade da renderizacao do mapa de expedicoes. Verifica carregamento de tiles, posicionamento de pins, cores por status, popup cards, estado vazio, e acessibilidade.",
+  "spec_ref": "SPEC-QA-002",
+  "created": "2026-03-17",
+  "updated": "2026-03-17",
+  "owner": "qa-engineer",
+  "tags": ["ux", "map", "rendering", "pins", "geolocation"],
+  "grader_types": ["code"],
+  "pass_threshold": 0.80,
+  "test_cases": [
+    {
+      "id": "MR-001",
+      "description": "Estado vazio: usuario sem trips ve ilustracao de empty state, nao mapa vazio",
+      "input": {
+        "user_trip_count": 0,
+        "viewport": "desktop"
+      },
+      "expected": {
+        "map_visible": false,
+        "empty_state_visible": true,
+        "empty_state_has_illustration": true,
+        "empty_state_has_cta": true
+      },
+      "grading": {
+        "ux": 0.50,
+        "accessibility": 0.50
+      },
+      "notes": "Mapa nao deve renderizar tiles se nao ha pins para mostrar."
+    },
+    {
+      "id": "MR-002",
+      "description": "Uma trip completed exibe pin dourado com popup funcional",
+      "input": {
+        "user_trips": [
+          {
+            "destination": "Paris",
+            "lat": 48.8566,
+            "lon": 2.3522,
+            "status": "completed",
+            "progress": 100
+          }
+        ],
+        "viewport": "desktop"
+      },
+      "expected": {
+        "pin_count": 1,
+        "pin_color": "gold",
+        "pin_has_pulse": false,
+        "popup_on_click": true,
+        "popup_contains_destination": true,
+        "popup_contains_progress": true
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "ux": 0.40,
+        "performance": 0.20
+      },
+      "notes": "Pin dourado = trip concluida. Popup mostra dados corretos."
+    },
+    {
+      "id": "MR-003",
+      "description": "Uma trip in-progress exibe pin azul com animacao pulse",
+      "input": {
+        "user_trips": [
+          {
+            "destination": "Tokyo",
+            "lat": 35.6762,
+            "lon": 139.6503,
+            "status": "in_progress",
+            "progress": 45
+          }
+        ],
+        "viewport": "desktop"
+      },
+      "expected": {
+        "pin_count": 1,
+        "pin_color": "blue",
+        "pin_has_pulse": true,
+        "popup_on_click": true,
+        "popup_progress_value": 45
+      },
+      "grading": {
+        "accuracy": 0.40,
+        "ux": 0.40,
+        "performance": 0.20
+      },
+      "notes": "Pin azul com pulse = trip em andamento."
+    },
+    {
+      "id": "MR-004",
+      "description": "Multiplos pins (3 trips) renderizam com cores corretas e bounds ajustados",
+      "input": {
+        "user_trips": [
+          { "destination": "Paris", "lat": 48.8566, "lon": 2.3522, "status": "completed" },
+          { "destination": "Tokyo", "lat": 35.6762, "lon": 139.6503, "status": "in_progress" },
+          { "destination": "Rio de Janeiro", "lat": -22.9068, "lon": -43.1729, "status": "planned" }
+        ],
+        "viewport": "desktop"
+      },
+      "expected": {
+        "pin_count": 3,
+        "all_pins_visible_in_viewport": true,
+        "map_bounds_fit_all_pins": true
+      },
+      "grading": {
+        "accuracy": 0.30,
+        "ux": 0.40,
+        "performance": 0.30
+      },
+      "notes": "Mapa ajusta bounds para mostrar todos os pins. Nenhum pin fora do viewport inicial."
+    },
+    {
+      "id": "MR-005",
+      "description": "Trip sem coordenadas nao gera pin e nao causa erro",
+      "input": {
+        "user_trips": [
+          { "destination": "Paris", "lat": 48.8566, "lon": 2.3522, "status": "completed" },
+          { "destination": "Unknown Place", "lat": null, "lon": null, "status": "planned" }
+        ],
+        "viewport": "desktop"
+      },
+      "expected": {
+        "pin_count": 1,
+        "no_console_errors": true,
+        "map_renders": true
+      },
+      "grading": {
+        "accuracy": 0.50,
+        "stability": 0.50
+      },
+      "notes": "Trip sem lat/lon deve ser silenciosamente ignorada no mapa."
+    },
+    {
+      "id": "MR-006",
+      "description": "Click no pin abre popup; click fora fecha popup",
+      "input": {
+        "user_trips": [
+          { "destination": "Berlin", "lat": 52.5200, "lon": 13.4050, "status": "in_progress", "progress": 60 }
+        ],
+        "action_sequence": ["click_pin", "verify_popup", "click_map_background", "verify_popup_closed"]
+      },
+      "expected": {
+        "popup_opens_on_pin_click": true,
+        "popup_closes_on_background_click": true,
+        "popup_contains": ["Berlin", "60%"]
+      },
+      "grading": {
+        "ux": 0.60,
+        "accuracy": 0.40
+      },
+      "notes": "Popup deve abrir e fechar corretamente. Dados devem corresponder a trip."
+    },
+    {
+      "id": "MR-007",
+      "description": "Mapa carrega dentro de 3s em conexao 4G simulada",
+      "input": {
+        "user_trips": [
+          { "destination": "Paris", "lat": 48.8566, "lon": 2.3522, "status": "completed" }
+        ],
+        "network_throttle": "4G",
+        "viewport": "desktop"
+      },
+      "expected": {
+        "map_tiles_loaded_within_ms": 3000,
+        "pins_rendered_after_tiles": true
+      },
+      "grading": {
+        "performance": 1.0
+      },
+      "notes": "Target de performance: tiles visiveis em < 3s em 4G."
+    },
+    {
+      "id": "MR-008",
+      "description": "Mobile: pinch-to-zoom funciona sem travar o mapa",
+      "input": {
+        "user_trips": [
+          { "destination": "Tokyo", "lat": 35.6762, "lon": 139.6503, "status": "completed" }
+        ],
+        "viewport": "mobile_375"
+      },
+      "expected": {
+        "pinch_zoom_enabled": true,
+        "map_responsive_at_375px": true,
+        "no_horizontal_overflow": true
+      },
+      "grading": {
+        "ux": 0.60,
+        "performance": 0.40
+      },
+      "notes": "Emulacao mobile. Pinch-to-zoom real requer teste manual em dispositivo fisico."
+    },
+    {
+      "id": "MR-009",
+      "description": "Pins possuem aria-labels descritivos para screen readers",
+      "input": {
+        "user_trips": [
+          { "destination": "London", "lat": 51.5074, "lon": -0.1278, "status": "completed" }
+        ],
+        "viewport": "desktop"
+      },
+      "expected": {
+        "pin_has_aria_label": true,
+        "aria_label_contains_destination": true,
+        "aria_label_contains_status": true
+      },
+      "grading": {
+        "accessibility": 1.0
+      },
+      "notes": "aria-label deve incluir destino e status. Ex: 'Trip to London, completed'."
+    },
+    {
+      "id": "MR-010",
+      "description": "Coordenadas no antimeridiano (Fiji) renderizam pin corretamente",
+      "input": {
+        "user_trips": [
+          { "destination": "Suva, Fiji", "lat": -18.1416, "lon": 178.4419, "status": "planned" }
+        ],
+        "viewport": "desktop"
+      },
+      "expected": {
+        "pin_count": 1,
+        "pin_visible_in_viewport": true,
+        "no_console_errors": true
+      },
+      "grading": {
+        "accuracy": 0.60,
+        "stability": 0.40
+      },
+      "notes": "Coordenadas perto do antimeridiano (lon ~180) podem causar bugs em map libraries."
+    }
+  ]
+}

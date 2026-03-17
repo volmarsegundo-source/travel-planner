@@ -1,0 +1,202 @@
+{
+  "eval_id": "EVAL-UX-006",
+  "version": "1.0.0",
+  "description": "Avaliacao de completude e precisao do relatorio de resumo de expedicao. Verifica presenca dos dados de todas as 6 fases, indicadores para fases incompletas, mascaramento de booking codes, e correspondencia com dados do banco.",
+  "spec_ref": "SPEC-QA-004",
+  "created": "2026-03-17",
+  "updated": "2026-03-17",
+  "owner": "qa-engineer",
+  "tags": ["ux", "summary", "report", "completeness", "data-integrity"],
+  "grader_types": ["code"],
+  "pass_threshold": 0.85,
+  "test_cases": [
+    {
+      "id": "SC-001",
+      "description": "Phase 1 (O Perfil): secao exibe dados pessoais, origem, destino, e datas corretamente",
+      "input": {
+        "phase": 1,
+        "phase_name": "O Perfil",
+        "trip_data": {
+          "traveler_name": "Test Traveler",
+          "origin": "São Paulo, Brazil",
+          "destination": "Paris, France",
+          "startDate": "2026-07-15",
+          "endDate": "2026-07-20",
+          "tripType": "international"
+        },
+        "locale": "pt-BR"
+      },
+      "expected": {
+        "section_visible": true,
+        "section_heading_matches_phase_name": true,
+        "shows_origin": true,
+        "shows_destination": true,
+        "shows_date_range": true,
+        "shows_trip_type": true,
+        "dates_formatted_for_locale": true,
+        "data_matches_db": true
+      },
+      "grading": {
+        "completeness": 0.40,
+        "accuracy": 0.40,
+        "format": 0.20
+      },
+      "notes": "Dados de Phase 1 sao criticos — sao a base de todas as outras fases."
+    },
+    {
+      "id": "SC-002",
+      "description": "Phase 2 (Os Viajantes): secao exibe passageiros com contagem por tipo",
+      "input": {
+        "phase": 2,
+        "phase_name": "Os Viajantes",
+        "trip_data": {
+          "passengers": {
+            "adults": 2,
+            "children": 1,
+            "infants": 0,
+            "total": 3
+          }
+        },
+        "locale": "en"
+      },
+      "expected": {
+        "section_visible": true,
+        "shows_adult_count": true,
+        "shows_children_count": true,
+        "shows_total": true,
+        "data_matches_db": true
+      },
+      "grading": {
+        "completeness": 0.40,
+        "accuracy": 0.40,
+        "format": 0.20
+      },
+      "notes": "Infants = 0 pode ser omitido ou mostrado como '0'. Ambos aceitaveis."
+    },
+    {
+      "id": "SC-003",
+      "description": "Phase 3 (A Preparacao): secao exibe checklist com status de itens",
+      "input": {
+        "phase": 3,
+        "phase_name": "A Preparação",
+        "trip_data": {
+          "checklist_items": 12,
+          "checklist_completed": 8,
+          "checklist_categories": ["documents", "health", "packing"]
+        },
+        "locale": "pt-BR"
+      },
+      "expected": {
+        "section_visible": true,
+        "shows_completion_ratio": true,
+        "shows_categories": true,
+        "data_matches_db": true
+      },
+      "grading": {
+        "completeness": 0.40,
+        "accuracy": 0.40,
+        "format": 0.20
+      },
+      "notes": "Checklist pode mostrar ratio (8/12) ou percentual (67%). Ambos aceitaveis."
+    },
+    {
+      "id": "SC-004",
+      "description": "Phase 4 (A Logistica): secao exibe transporte, hospedagem, e mobilidade com booking codes mascarados",
+      "input": {
+        "phase": 4,
+        "phase_name": "A Logística",
+        "trip_data": {
+          "transport_segments": [
+            {
+              "type": "flight",
+              "from": "GRU",
+              "to": "CDG",
+              "bookingCode_encrypted": "aes256gcm:iv:ciphertext:tag",
+              "bookingCode_last4": "AB12"
+            }
+          ],
+          "accommodations": [
+            {
+              "name": "Hotel Test Paris",
+              "checkIn": "2026-07-15",
+              "checkOut": "2026-07-20",
+              "bookingCode_encrypted": "aes256gcm:iv:ciphertext:tag",
+              "bookingCode_last4": "CD34"
+            }
+          ],
+          "mobility": ["metro", "walking"]
+        },
+        "locale": "en"
+      },
+      "expected": {
+        "section_visible": true,
+        "shows_transport_segments": true,
+        "shows_accommodations": true,
+        "shows_mobility": true,
+        "booking_code_masked": true,
+        "booking_code_format": "****AB12",
+        "no_encrypted_blob_visible": true,
+        "data_matches_db": true
+      },
+      "grading": {
+        "completeness": 0.30,
+        "accuracy": 0.30,
+        "security": 0.40
+      },
+      "notes": "Booking codes DEVEM estar mascarados. Blob criptografado NUNCA deve aparecer na UI."
+    },
+    {
+      "id": "SC-005",
+      "description": "Phase 5 (O Roteiro): secao exibe itinerario dia-a-dia quando gerado por IA",
+      "input": {
+        "phase": 5,
+        "phase_name": "O Roteiro",
+        "trip_data": {
+          "itinerary_generated": true,
+          "itinerary_days": 5,
+          "itinerary_has_activities": true
+        },
+        "locale": "pt-BR"
+      },
+      "expected": {
+        "section_visible": true,
+        "shows_day_headers": true,
+        "day_count_matches": true,
+        "shows_activities_per_day": true,
+        "data_matches_db": true
+      },
+      "grading": {
+        "completeness": 0.40,
+        "accuracy": 0.40,
+        "format": 0.20
+      },
+      "notes": "Se itinerario nao gerado, secao mostra indicador 'Nao gerado'."
+    },
+    {
+      "id": "SC-006",
+      "description": "Phase 6 (O Guia): secao exibe highlights do guia de destino quando gerado",
+      "input": {
+        "phase": 6,
+        "phase_name": "O Guia",
+        "trip_data": {
+          "guide_generated": true,
+          "guide_sections": ["overview", "culture", "food", "transport", "safety"],
+          "guide_locale": "pt-BR"
+        },
+        "locale": "pt-BR"
+      },
+      "expected": {
+        "section_visible": true,
+        "shows_guide_highlights": true,
+        "guide_in_correct_locale": true,
+        "data_matches_db": true
+      },
+      "grading": {
+        "completeness": 0.40,
+        "accuracy": 0.40,
+        "format": 0.20
+      },
+      "notes": "Guia pode mostrar resumo/highlights, nao necessariamente o guia completo."
+    }
+  ]
+}

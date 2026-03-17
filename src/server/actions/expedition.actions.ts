@@ -376,6 +376,7 @@ export async function completePhase5Action(
 
   try {
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 5);
+    revalidatePath("/");
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
@@ -739,6 +740,7 @@ export async function advanceFromPhaseAction(
         session.user.id,
         phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
       );
+      revalidatePath("/");
       revalidatePath("/expeditions");
       revalidatePath(`/expedition/${tripId}`);
       return {
@@ -756,6 +758,7 @@ export async function advanceFromPhaseAction(
         session.user.id,
         phaseNumber as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
       );
+      revalidatePath("/");
       revalidatePath("/expeditions");
       revalidatePath(`/expedition/${tripId}`);
       return {
@@ -845,6 +848,7 @@ export async function completeExpeditionAction(
       // Badge may already exist — non-blocking
     }
 
+    revalidatePath("/");
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
 
