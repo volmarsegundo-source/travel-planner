@@ -299,6 +299,8 @@ describe("TripService", () => {
         })),
         phaseChecklist: [],
         itineraryPlan: null,
+        destinationGuide: null,
+        _count: { transportSegments: 0, accommodations: 0 },
       };
     }
 

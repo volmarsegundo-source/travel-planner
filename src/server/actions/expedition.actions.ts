@@ -24,6 +24,7 @@ import { classifyTrip } from "@/lib/travel/trip-classifier";
 
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
+import { PhaseCompletionService } from "@/server/services/phase-completion.service";
 
 // ─── Ownership helper ────────────────────────────────────────────────────────
 
@@ -93,6 +94,12 @@ export async function createExpeditionAction(
     revalidatePath("/");
     revalidatePath("/expeditions");
     revalidatePath("/trips");
+
+    // Fire-and-forget: check if expedition is now fully complete
+    PhaseCompletionService.checkAndCompleteTrip(result.tripId, session.user.id).catch((err) => {
+      logger.warn("trip.auto-complete.failed", { tripId: result.tripId, error: (err as Error).message });
+    });
+
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.createExpedition.error", error, {
@@ -258,6 +265,12 @@ export async function completePhase2Action(
 
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
+
+    // Fire-and-forget: check if expedition is now fully complete
+    PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+      logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+    });
+
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase2.error", error, {
@@ -307,6 +320,12 @@ export async function completePhase3Action(
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 3);
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
+
+    // Fire-and-forget: check if expedition is now fully complete
+    PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+      logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+    });
+
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase3.error", error, {
@@ -356,6 +375,12 @@ export async function completePhase4Action(
     const result = await PhaseEngine.completePhase(tripId, session.user.id, 4);
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
+
+    // Fire-and-forget: check if expedition is now fully complete
+    PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+      logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+    });
+
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase4.error", error, {
@@ -379,6 +404,12 @@ export async function completePhase5Action(
     revalidatePath("/");
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
+
+    // Fire-and-forget: check if expedition is now fully complete
+    PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+      logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+    });
+
     return { success: true, data: result };
   } catch (error) {
     logger.error("expedition.completePhase5.error", error, {
@@ -487,6 +518,12 @@ export async function generateDestinationGuideAction(
     }
 
     revalidatePath(`/expedition/${tripId}`);
+
+    // Fire-and-forget: check if expedition is now fully complete
+    PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+      logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+    });
+
     return {
       success: true,
       data: {
@@ -743,6 +780,12 @@ export async function advanceFromPhaseAction(
       revalidatePath("/");
       revalidatePath("/expeditions");
       revalidatePath(`/expedition/${tripId}`);
+
+      // Fire-and-forget: check if expedition is now fully complete
+      PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+        logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+      });
+
       return {
         success: true,
         data: {
@@ -761,6 +804,12 @@ export async function advanceFromPhaseAction(
       revalidatePath("/");
       revalidatePath("/expeditions");
       revalidatePath(`/expedition/${tripId}`);
+
+      // Fire-and-forget: check if expedition is now fully complete
+      PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
+        logger.warn("trip.auto-complete.failed", { tripId, error: (err as Error).message });
+      });
+
       return {
         success: true,
         data: {

@@ -1,7 +1,7 @@
 # Spec Status Tracker
 
 > Maintained by: tech-lead
-> Last updated: 2026-03-17
+> Last updated: 2026-03-17 (Sprint 31 planning)
 > SDD effective from: Sprint 25
 
 ## Status Definitions
@@ -70,6 +70,26 @@
 | SPEC-ARCH-011 | Autocomplete Provider Evaluation | architect | Draft | 1.0.0 | 30 | tech-lead, security-specialist |
 | SPEC-ARCH-012 | Dashboard Query Optimization | architect | Draft | 1.0.0 | 30 | tech-lead, security-specialist |
 | SPEC-QA-001 | Sprint 30 Test Strategy | qa-engineer | Draft | 1.0.0 | 30 | tech-lead, qa-engineer |
+| SPEC-PROD-021 | Meu Atlas -- Interactive World Map Redesign | product-owner | Draft | 1.0.0 | 31 | tech-lead, architect, ux-designer |
+| SPEC-PROD-022 | Dashboard Improvements | product-owner | Draft | 1.0.0 | 31 | tech-lead, architect, ux-designer |
+| SPEC-PROD-023 | Phase Completion Logic | product-owner | Draft | 1.0.0 | 31 | tech-lead, architect, ux-designer |
+| SPEC-PROD-024 | UX Cleanups | product-owner | Draft | 1.0.0 | 31 | tech-lead, ux-designer |
+| SPEC-UX-024 | Meu Atlas Page | ux-designer | Draft | 1.0.0 | 31 | product-owner, tech-lead, architect |
+| SPEC-UX-025 | Dashboard Card Quick-Access | ux-designer | Draft | 1.0.0 | 31 | product-owner, tech-lead, architect |
+| SPEC-UX-026 | Progress Bar 4-State Colors | ux-designer | Draft | 1.0.0 | 31 | product-owner, tech-lead, architect |
+| SPEC-UX-027 | Header Cleanup | ux-designer | Draft | 1.0.0 | 31 | product-owner, tech-lead, architect |
+| SPEC-ARCH-015 | Atlas Map Architecture | architect | Draft | 1.0.0 | 31 | tech-lead, security-specialist |
+| SPEC-ARCH-016 | Phase Completion Engine Architecture | architect | Draft | 1.0.0 | 31 | tech-lead, security-specialist |
+| SPEC-ARCH-017 | Dashboard Quick-Access Architecture | architect | Draft | 1.0.0 | 31 | tech-lead, security-specialist |
+| SPEC-QA-005 | Atlas Map Test Strategy | qa-engineer | Draft | 1.0.0 | 31 | tech-lead, architect, ux-designer |
+| SPEC-QA-006 | Phase Completion Test Strategy | qa-engineer | Draft | 1.0.0 | 31 | tech-lead, architect |
+| SPEC-QA-007 | Dashboard Quick-Access Test Strategy | qa-engineer | Draft | 1.0.0 | 31 | tech-lead, ux-designer |
+| SPEC-QA-008 | UX Cleanups Test Strategy | qa-engineer | Draft | 1.0.0 | 31 | tech-lead, ux-designer |
+| SPEC-SEC-002-S31 | Sprint 31 Security Review | security-specialist | Draft | 1.0.0 | 31 | tech-lead, architect |
+| SPEC-INFRA-002-S31 | Sprint 31 Infrastructure | devops-engineer | Draft | 1.0.0 | 31 | tech-lead, architect |
+| SPEC-RELEASE-002-S31 | v0.26.0 Release Plan | release-manager | Draft | 1.0.0 | 31 | tech-lead |
+| SPEC-COST-002-S31 | Sprint 31 Cost Assessment | finops-engineer | Draft | 1.0.0 | 31 | tech-lead, architect |
+| SPEC-AI-002-S31 | Sprint 31 AI Impact Review | prompt-engineer | Draft | 1.0.0 | 31 | tech-lead |
 
 ---
 
@@ -138,3 +158,4 @@
 | 2026-03-12 | Sprint 29 planning: approved 5 specs for Sprint 29 (SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005 to v1.1.0). Created 6 new specs (SPEC-PROD-013, SPEC-UX-016/017, SPEC-ARCH-007/008/010). Theme: Sprint 28 Completion + Summary Page Integration. | tech-lead |
 | 2026-03-17 | Sprint 29 complete: marked SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005/010 as Implemented. Phase Navigation Redesign (SPEC-PROD-016, SPEC-UX-019, SPEC-ARCH-010) shipped as v0.24.0 with 1869 tests. | tech-lead |
 | 2026-03-17 | Sprint 30 planning: created 9 new specs (SPEC-PROD-017/018/019/020, SPEC-UX-020/021, SPEC-ARCH-011/012, SPEC-QA-001). Theme: Navigation Stabilization + 4 Product Rewrites (Autocomplete, Meu Atlas, Expedicoes Dashboard, Summary Report). P0: SPEC-PROD-016 full conformance. Budget: 40-50h. | product-owner |
+| 2026-03-17 | Sprint 31 planning: registered 20 specs total. Pre-existing from other agents: SPEC-PROD-021/022/023/024, SPEC-UX-024/025/026/027, SPEC-ARCH-015/016/017. New from tech-lead: SPEC-QA-005/006/007/008, SPEC-SEC-002-S31, SPEC-INFRA-002-S31, SPEC-RELEASE-002-S31, SPEC-COST-002-S31, SPEC-AI-002-S31. Created 4 eval datasets (atlas-map-rendering, phase-completion-states, dashboard-quickaccess, date-validation). Created SPRINT-31-PLAN.md with 16 tasks, 45h budget. Theme: Meu Atlas Rewrite + Phase Completion + Dashboard Quick-Access + UX Cleanups. | tech-lead |

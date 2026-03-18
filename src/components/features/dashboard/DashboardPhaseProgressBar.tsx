@@ -5,8 +5,6 @@ import { useRouter } from "@/i18n/navigation";
 import { Check } from "lucide-react";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 // Import canonical route map from navigation engine (single source of truth)
 import { PHASE_ROUTE_MAP } from "@/lib/engines/phase-navigation.engine";
 
@@ -45,25 +43,27 @@ export function DashboardPhaseProgressBar({
         const isCurrent = phaseNum === currentPhase;
         const isComingSoon = phaseNum >= 7;
 
-        // Determine segment style — all non-interactive (read-only)
+        // Determine segment style — 4-state color system (SPEC-UX-026)
         let segmentClasses = "relative h-2 flex-1 rounded-sm transition-all";
         let indicator: React.ReactNode = null;
 
         if (isCompleted) {
-          segmentClasses += " bg-atlas-gold";
+          // Green for completed phases
+          segmentClasses += " bg-green-500";
           indicator = (
             <Check
-              className="absolute -top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 text-atlas-gold"
+              className="absolute -top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 text-green-500"
               aria-hidden="true"
             />
           );
         } else if (isCurrent) {
-          segmentClasses += " bg-primary motion-safe:animate-pulse";
+          // Blue for current phase with pulse
+          segmentClasses += " bg-blue-500 motion-safe:animate-pulse";
         } else if (isComingSoon) {
           segmentClasses += " border border-dashed border-muted-foreground/30 bg-transparent opacity-50";
         } else {
-          // Incomplete (upcoming)
-          segmentClasses += " border border-muted-foreground/20 bg-transparent";
+          // Gray for pending (upcoming)
+          segmentClasses += " border border-gray-500/20 bg-transparent";
         }
 
         const phaseName = t(phase.nameKey);
@@ -86,7 +86,7 @@ export function DashboardPhaseProgressBar({
                 router.push(`/expedition/${tripId}${PHASE_ROUTES[phaseNum]}`)
               }
               className={`group/segment ${segmentClasses} cursor-pointer hover:-translate-y-0.5`}
-              aria-label={`${phaseName} — ${stateLabel}`}
+              aria-label={`${phaseName} \u2014 ${stateLabel}`}
               title={phaseName}
               data-testid={`phase-segment-${phaseNum}`}
             >
@@ -99,7 +99,7 @@ export function DashboardPhaseProgressBar({
           <div
             key={phaseNum}
             className={`group/segment ${segmentClasses}`}
-            aria-label={`${phaseName} — ${stateLabel}`}
+            aria-label={`${phaseName} \u2014 ${stateLabel}`}
             title={phaseName}
             data-testid={`phase-segment-${phaseNum}`}
           >

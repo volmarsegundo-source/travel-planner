@@ -71,12 +71,20 @@ export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuPro
           </div>
         </div>
         <Link
+          href="/profile"
+          role="menuitem"
+          className="block min-h-[44px] rounded-md px-2 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors leading-[28px]"
+        >
+          {tNav("myProfile")}
+        </Link>
+        <Link
           href="/account"
           role="menuitem"
           className="block min-h-[44px] rounded-md px-2 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors leading-[28px]"
         >
           {tNav("myAccount")}
         </Link>
+        <div className="border-t border-border/40" role="separator" />
         <button
           type="button"
           role="menuitem"
@@ -113,6 +121,14 @@ export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuPro
             <p className="truncate text-xs text-muted-foreground">{userEmail}</p>
           </div>
           <Link
+            href="/profile"
+            role="menuitem"
+            className="block w-full min-h-[44px] px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors leading-[28px]"
+            onClick={() => setOpen(false)}
+          >
+            {tNav("myProfile")}
+          </Link>
+          <Link
             href="/account"
             role="menuitem"
             className="block w-full min-h-[44px] px-4 py-2 text-left text-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors leading-[28px]"
@@ -120,6 +136,7 @@ export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuPro
           >
             {tNav("myAccount")}
           </Link>
+          <div className="border-t border-border/40" role="separator" />
           <button
             type="button"
             role="menuitem"

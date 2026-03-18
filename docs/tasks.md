@@ -1257,6 +1257,75 @@ Restricoes criticas:
 
 > Identificados na Sprint Review 7. Devem ser resolvidos antes de novas features.
 
+## Sprint 31 — Atlas Map Rewrite + Date Validation + Phase6 Cleanup (dev-fullstack-1)
+
+### Track A: Atlas Map Rewrite (Leaflet + OSM)
+
+- [x] **T-S31-001**: Create map types (`src/lib/map/types.ts`) — TripGeoFeature, PIN_COLORS, TripPinStatus
+- [x] **T-S31-002**: Create tile provider (`src/lib/map/map-provider.ts`) — light/dark theme configs
+- [x] **T-S31-003**: Create GeoJSON builder (`src/lib/map/build-geojson.ts`) — derivePinStatus, buildTripGeoJSON
+- [x] **T-S31-004**: Create Mercator projection (`src/lib/map/mercator.ts`) — toMercatorXY for hero map pins
+- [x] **T-S31-005**: Create InteractiveAtlasMap + LeafletMapInner + TripMarkerPopup + AtlasFilterChips + AtlasMapSkeleton
+- [x] **T-S31-006**: Rewrite atlas page as server component with BOLA-safe Prisma query
+- [x] **T-S31-007**: Rewrite AtlasHeroMap with CSS-positioned pins (replace react-simple-maps)
+- [x] **T-S31-008**: Add `/atlas` to PROTECTED_PATH_SEGMENTS in middleware CSP
+- [x] **T-S31-009**: Remove react-simple-maps, add leaflet + react-leaflet + @types/leaflet
+- [x] **T-S31-010**: Write 42 tests (mercator 8, map-provider 3, build-geojson 15, filter-chips 6, date-validation 10)
+
+### Track B: Date Validation (SPEC-PROD-024)
+
+- [x] **T-S31-011**: Add server-side Zod refinements to Phase1Schema (past dates, today, same dates)
+- [x] **T-S31-012**: Add client-side date validation in Phase1Wizard handleStep3Next
+- [x] **T-S31-013**: Add i18n error keys (dateInPast, sameDates, startAfterEnd, dateRequired)
+- [x] **T-S31-014**: Write 17 tests (10 schema + 7 UI) for date validation
+
+### Track C: Remove Complete Button (Phase6Wizard)
+
+- [x] **T-S31-015**: Remove completeExpeditionAction and related state/handlers from Phase6Wizard
+- [x] **T-S31-016**: Add "View Expeditions" button navigating to /expeditions
+- [x] **T-S31-017**: Add i18n key cta.viewExpeditions, update 3 Phase6Wizard tests
+
+### Test Fixes (branch compatibility)
+
+- [x] **T-S31-FIX-001**: Fix trip.service.test.ts mock — add _count + destinationGuide to makeExpeditionTrip
+- [x] **T-S31-FIX-002**: Update expedition.schema.test.ts — same dates now rejected per spec
+- [x] **T-S31-FIX-003**: Fix GamificationBadge.test.tsx mock — useTranslations param interpolation
+
+## Sprint 31 — Phase Completion + Dashboard Quick-Access + Colors + Header (dev-fullstack-2)
+
+### Track A: Phase Completion Engine
+
+- [x] **T-S31-D2-001**: Create isomorphic engine `src/lib/engines/phase-completion.engine.ts` — PhaseDataSnapshot, evaluatePhaseCompletion, getExpeditionCompletionSummary, isExpeditionComplete
+- [x] **T-S31-D2-002**: Create server service `src/server/services/phase-completion.service.ts` — buildSnapshot (8 parallel queries), checkAndCompleteTrip (one-way PLANNING->COMPLETED)
+- [x] **T-S31-D2-003**: Write 34 unit tests for phase-completion engine (all phases, edge cases, summary, isComplete)
+- [x] **T-S31-D2-004**: Integrate fire-and-forget auto-completion into expedition actions (createExpedition, completePhase2-5, advanceFromPhase, generateGuide)
+
+### Track B: Dashboard Quick-Access
+
+- [x] **T-S31-D2-005**: Add quick-access links to ExpeditionCardRedesigned (checklist, guide, itinerary, report) with overlay card pattern
+- [x] **T-S31-D2-006**: Add hasChecklist, hasGuide, hasLogistics to ExpeditionDTO + trip.service + page.tsx mapping
+- [x] **T-S31-D2-007**: Create report page (server component), TripReport client component, ReportGenerationService, loading skeleton
+- [x] **T-S31-D2-008**: Write 8 new quick-access tests in ExpeditionCardRedesigned.test.tsx
+
+### Track C: Status Colors 4-State
+
+- [x] **T-S31-D2-009**: Update UnifiedProgressBar — green/blue/gray/gray-dashed color system, connector classes
+- [x] **T-S31-D2-010**: Update DashboardPhaseProgressBar — bg-green-500 completed, bg-blue-500 current, border-gray-500 pending
+- [x] **T-S31-D2-011**: Update DashboardPhaseProgressBar.test.tsx — 4 color assertions updated
+
+### Track D: Header Cleanup
+
+- [x] **T-S31-D2-012**: Move Profile link from AuthenticatedNavbar top-level to UserMenu dropdown
+- [x] **T-S31-D2-013**: Make GamificationBadge display-only (div, role=status, aria-label, no Link)
+- [x] **T-S31-D2-014**: Write/update header tests: 10 new AuthenticatedNavbar tests, 8 GamificationBadge tests
+
+### Test Fixes
+
+- [x] **T-S31-D2-FIX-001**: Fix ExpeditionCardRedesigned.test.tsx — div root, overlay pattern, green border, new DTO fields, quick-access assertions
+- [x] **T-S31-D2-FIX-002**: Fix DashboardPhaseProgressBar.test.tsx — bg-atlas-gold->bg-green-500, bg-primary->bg-blue-500
+
+---
+
 ### P0 — Obrigatorio
 
 - [ ] **DT-004**: `updateTrip` Server Action aceita qualquer campo via spread — vulneravel a mass assignment. Adicionar whitelist explicita de campos permitidos. (Pendente desde Sprint 2, identificado pelo architect)

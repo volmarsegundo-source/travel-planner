@@ -42,7 +42,6 @@ export function AuthenticatedNavbar({
 
   const isExpeditionsActive = pathname === "/expeditions" || pathname === "/dashboard" || pathname.startsWith("/expedition");
   const isAtlasActive = pathname === "/atlas";
-  const isProfileActive = pathname === "/profile";
 
   function navLinkClass(active: boolean) {
     return `rounded-md px-3 py-2 text-sm font-medium transition-colors ${
@@ -66,7 +65,7 @@ export function AuthenticatedNavbar({
           href="/expeditions"
           className="flex items-center gap-2 text-xl font-bold"
         >
-          <span aria-hidden="true">🧭</span>
+          <span aria-hidden="true">{"\uD83E\uDDED"}</span>
           <span className="font-heading text-atlas-gold-light">{t("common.appName")}</span>
         </Link>
 
@@ -86,13 +85,8 @@ export function AuthenticatedNavbar({
           >
             {tNav("myAtlas")}
           </Link>
-          <Link
-            href="/profile"
-            className={navLinkClass(isProfileActive)}
-            aria-current={isProfileActive ? "page" : undefined}
-          >
-            {tNav("myProfile")}
-          </Link>
+          <ThemeToggle />
+          <LanguageSwitcher />
           {gamification && (
             <GamificationBadge
               totalPoints={gamification.totalPoints}
@@ -100,8 +94,6 @@ export function AuthenticatedNavbar({
               phaseName={gamification.phaseName}
             />
           )}
-          <ThemeToggle />
-          <LanguageSwitcher />
           <UserMenu
             userName={userName}
             userImage={userImage}
@@ -153,14 +145,6 @@ export function AuthenticatedNavbar({
             >
               {tNav("myAtlas")}
             </Link>
-            <Link
-              href="/profile"
-              className={navLinkClass(isProfileActive)}
-              aria-current={isProfileActive ? "page" : undefined}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              {tNav("myProfile")}
-            </Link>
             {gamification && (
               <div className="border-t border-border/40 pt-2">
                 <GamificationBadge
@@ -170,10 +154,8 @@ export function AuthenticatedNavbar({
                 />
               </div>
             )}
-            <div className="border-t border-border/40 pt-2">
+            <div className="border-t border-border/40 pt-2 flex gap-2">
               <ThemeToggle />
-            </div>
-            <div className="border-t border-border/40 pt-2">
               <LanguageSwitcher />
             </div>
             <div className="border-t border-border/40 pt-2">

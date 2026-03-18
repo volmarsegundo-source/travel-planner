@@ -18,14 +18,14 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-17, Sprint 30 planning)
-- Product version: v0.23.0 (Sprint 29 complete), 1776 tests
-- Sprints 1-29 complete
+### Backlog State (as of 2026-03-17, Sprint 31 planning)
+- Product version: v0.24.0 (Sprint 30 assumed complete) / v0.25.0 in planning
+- Sprints 1-30 complete (assumed)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-021
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-025
 - Sprint 30 backlog: `docs/specs/sprint-30/SPRINT-30-PRIORITIES.md`
-- Sprint 30 product specs: SPEC-PROD-017, SPEC-PROD-018, SPEC-PROD-019, SPEC-PROD-020
-- Sprint 30 phase-config.ts: 8 phases defined, only 6 active. Phase 5 name = "Guia do Destino" (confirm vs canonical "A Conexao")
+- Sprint 31 backlog: `docs/specs/sprint-31/SPRINT-31-PRIORITIES.md`
+- Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -50,13 +50,14 @@
 - v0.20.0, 14 recurring bugs resolved, CTA standardization partial
 - WizardFooter component created but not integrated across phases
 
-### Phase Names (canonical, post Sprint 25 triage)
+### Phase Names (canonical, confirmed from phase-config.ts v0.23.0)
 - Phase 1: "O Chamado" (Trip creation)
 - Phase 2: "O Explorador" (Travel style + Passengers)
 - Phase 3: "O Preparo" (Document checklist) -- RENAMED from "A Rota"
 - Phase 4: "A Logistica" (Transport, Accommodation, Mobility)
-- Phase 5: "A Conexao" (Destination guide)
+- Phase 5: "Guia do Destino" (Destination guide) -- CONFIRMED from code; prior memory "A Conexao" was stale
 - Phase 6: "O Roteiro" (Itinerary)
+- Phases 7-8 ("A Expedicao", "O Legado"): defined in config, NOT active in MVP, not counted for completion
 
 ### Sprint 19-21 Summary
 - Sprint 19: Guide redesign, streaming fix (v0.13.0, 1365 tests)
@@ -132,12 +133,11 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated 2026-03-17, Sprint 30 planning)
-- Sprints 22-29: DONE (v0.23.0, 1776 tests)
-- Sprint 30: P0 navigation stabilization (SPEC-PROD-016) + 4 rewrites (SPEC-PROD-017/018/019/020) + 5 staging bugs (v0.24.0)
-- Sprint 31: Beta launch (50-100 users) + GeminiProvider + feedback loop (GO/NO-GO at S30 review)
+### MVP Roadmap (updated 2026-03-17, Sprint 31 planning)
+- Sprints 22-30: DONE (v0.24.0 assumed)
+- Sprint 31: "Beta Hardening" -- SPEC-PROD-023 (phase completion logic) + SPEC-PROD-024 (UX cleanups) + SPEC-PROD-022 (dashboard) + SPEC-PROD-021 (Atlas map, P3/scope risk) + Beta launch (50-100 users) (v0.25.0)
 - Sprint 32-33: US-122 Premium chat + payment gateway + v1.0 GA
-- Note: Beta launch slipped 3 sprints from original plan (recurring bugs + nav crisis + structural work)
+- Note: Beta launch slipped 3+ sprints from original plan (recurring bugs + nav crisis + structural work)
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
@@ -157,16 +157,27 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Payment gateway: not chosen yet (needed for Premium upgrade in Sprint 10+)
 - Google AI free tier privacy disclosure: must be added to terms of use
 
+### Sprint 31 Planning (2026-03-17)
+- Theme: "Beta Hardening -- States, Dashboard & Atlas"
+- Budget: ~45h
+- P0: SPEC-PROD-023 (Phase Completion Logic, 8-10h) -- foundation for dashboard and auto-completion
+- P1: SPEC-PROD-024 (UX Cleanups: REQ-002/003/005/006, 6-8h) -- REQ-002/003/005 independent of SPEC-PROD-023
+- P2: SPEC-PROD-022 (Dashboard Improvements, 10-13h) -- depends on SPEC-PROD-023
+- P3: SPEC-PROD-021 (Meu Atlas Map, 16-20h full / 8-10h reduced scope) -- highest risk, last to start
+- Sacrifice order: SPEC-PROD-021 full -> SPEC-PROD-022 RF-003 -> SPEC-PROD-022 RF-004 partial -> SPEC-PROD-024 REQ-002
+- Non-negotiable: SPEC-PROD-023 complete + SPEC-PROD-024 REQ-005 (date validation) + SPEC-PROD-024 REQ-006 (auto-completion)
+- Specs files in: `docs/specs/sprint-31/`
+- Beta GO criteria: SPEC-PROD-023 100% ACs, date validation 0 invalid trips, nav regression <= 5%, GeminiProvider active
+
 ### Sprint 30 Planning (2026-03-17)
 - Theme: "Navigation Stabilization + 4 Product Rewrites"
 - Budget: 40-50h
 - P0: SPEC-PROD-016 full conformance (navigation engine, ~23h) -- beta launch blocked until resolved
 - P1: 5 staging bugs -- BUG-S30-001 (Phase 3->4 timeout), BUG-S30-002 (guide card height), BUG-S30-003 (profile menu), BUG-S30-004 (gamification points realtime), BUG-S30-005 (date fields mandatory)
 - P2: SPEC-PROD-019 (Expedicoes Dashboard) + SPEC-PROD-017 scoped (Autocomplete, mobile UX only)
-- Deferred to Sprint 31: SPEC-PROD-018 (Meu Atlas map, needs SPEC-ARCH-007), SPEC-PROD-020 full (PDF + share link)
+- Deferred to Sprint 31: SPEC-PROD-018 (Meu Atlas map), SPEC-PROD-020 full (PDF + share link)
 - Specs files in: `docs/specs/sprint-30/`
 - GO/NO-GO criteria: nav failure rate <= 5%, SPEC-PROD-016 >= 16/18 ACs, Phase 3->4 timeout resolved, dates mandatory enforced
-- phase-config.ts Phase 5 name discrepancy: config says "Guia do Destino", PO memory says "A Conexao" -- tech-lead must confirm before SPEC-PROD-016 implementation
 
 ### Lessons Learned
 - Sprint 19: guide redesign took more scope than estimated, causing 2 P1 items to slip. Use generous buffer (>25%) for sprints with UI redesign work.
@@ -182,3 +193,4 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Sprint 26/v0.19.0: 14 recurring bugs (reported 3-4 sprints in a row). Recurring bugs MUST be prioritized over new features -- they signal systemic fix failures and erode tester trust.
 - CTA consistency is a systemic issue, not a per-phase bug. Requires a cross-cutting spec (SPEC-PROD-009) that touches all wizards simultaneously.
 - Phase 5 subtitle confusion: "A Conexao" is fine as a name, but subtitle/description must clearly say "Destination Guide" not "Map of Days". Label accuracy matters as much as phase naming.
+- Phase 5 name resolution (Sprint 31): code (phase-config.ts) is authoritative over PO memory. The name "A Conexao" in memory was stale. Canonical name confirmed as "Guia do Destino". When memory and code conflict, always read the code.

@@ -80,14 +80,18 @@ describe("Phase1Schema", () => {
     }
   });
 
-  // endDate >= startDate refine
-  it("accepts endDate equal to startDate", () => {
+  // endDate must be strictly after startDate (same dates rejected per SPEC-PROD-024)
+  it("rejects endDate equal to startDate (same dates)", () => {
     const result = Phase1Schema.safeParse({
       ...validPhase1,
       startDate: "2026-06-01",
       endDate: "2026-06-01",
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      const messages = result.error.issues.map((i) => i.message);
+      expect(messages).toContain("expedition.phase1.errors.sameDates");
+    }
   });
 
   it("accepts endDate after startDate", () => {

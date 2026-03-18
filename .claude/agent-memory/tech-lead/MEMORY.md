@@ -8,8 +8,10 @@
 - Sprint 28 COMPLETE: v0.21.0, 1721 tests (partial delivery)
 - Sprint 29 COMPLETE: v0.22.0, 1776 tests (summary redesign, coordinates, WizardFooter, countdown)
 - Phase Nav Redesign SHIPPED: v0.24.0, 1869 tests (PhaseNavigationEngine, PhaseShell, ADR-017)
-- Sprint 30: PLANNED -- docs/specs/sprint-30/SPRINT-30-PLAN.md
+- Sprint 30 COMPLETE: v0.25.0, 2024 tests (autocomplete rewrite, dashboard overhaul, bug fixes)
   - See: [project_sprint30_plan.md](project_sprint30_plan.md)
+- Sprint 31: PLANNED -- docs/specs/sprint-31/SPRINT-31-PLAN.md
+  - See: [project_sprint31_plan.md](project_sprint31_plan.md)
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
@@ -135,15 +137,6 @@
 - SPEC-PROD-001 and SPEC-PROD-002 implemented (partial) in v0.18.0
 - 7/18 ACs implemented for SPEC-PROD-001, 5/12 for SPEC-PROD-002
 - Remaining ACs addressed in Sprint 26 (ITEM-6 dashboard polish, ITEM-7 completion summary)
-
-## Sprint 26 Specs Pending
-- SPEC-UX-001: Autocomplete UX pattern
-- SPEC-PROD-003: Guide redesign (what/why)
-- SPEC-UX-002: Guide redesign (visual/interaction)
-- SPEC-UX-003: Phase transition animations/feedback
-- SPEC-UX-004: Preferences pagination/grouping
-- SPEC-UX-005: Dashboard trip card visual spec
-- SPEC-PROD-005: Expedition completion summary (what/why)
 
 ## Spec-Driven Development (SDD) -- Effective Sprint 25
 

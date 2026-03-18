@@ -26,12 +26,40 @@ export const Phase1Schema = z.object({
   }).optional(),
 }).refine(
   (data) => {
+    // Skip date validation when dates are not provided (flexible dates mode)
+    if (!data.startDate) return true;
+    const start = new Date(data.startDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    // startDate must be strictly after today (tomorrow or later)
+    return start > today;
+  },
+  { message: "expedition.phase1.errors.dateInPast", path: ["startDate"] }
+).refine(
+  (data) => {
+    if (!data.endDate) return true;
+    const end = new Date(data.endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return end > today;
+  },
+  { message: "expedition.phase1.errors.dateInPast", path: ["endDate"] }
+).refine(
+  (data) => {
     if (data.startDate && data.endDate) {
-      return new Date(data.endDate) >= new Date(data.startDate);
+      return data.startDate !== data.endDate;
     }
     return true;
   },
-  { message: "End date must be after start date", path: ["endDate"] }
+  { message: "expedition.phase1.errors.sameDates", path: ["endDate"] }
+).refine(
+  (data) => {
+    if (data.startDate && data.endDate) {
+      return new Date(data.endDate) > new Date(data.startDate);
+    }
+    return true;
+  },
+  { message: "expedition.phase1.errors.startAfterEnd", path: ["endDate"] }
 ).refine(
   (data) => {
     if (data.origin && data.destination) {

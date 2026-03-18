@@ -1,11 +1,10 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
-import { PointsEngine } from "@/lib/engines/points-engine";
-import { TripService } from "@/server/services/trip.service";
+import { db } from "@/server/db";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
-import { AtlasProfilePage } from "@/components/features/dashboard/AtlasProfilePage";
-import type { Rank } from "@/types/gamification.types";
+import { InteractiveAtlasMap } from "@/components/features/atlas/InteractiveAtlasMap";
+import { buildTripGeoJSON } from "@/lib/map/build-geojson";
 
 interface AtlasPageProps {
   params: Promise<{ locale: string }>;
@@ -23,32 +22,45 @@ export default async function AtlasPage({ params }: AtlasPageProps) {
   const tNav = await getTranslations("navigation");
   const t = await getTranslations("atlas");
 
-  const [progress, tripsWithPhases] = await Promise.all([
-    PointsEngine.getProgressSummary(session.user.id),
-    TripService.getUserTripsWithExpeditionData(session.user.id),
-  ]);
+  // BOLA: userId filter ensures user can only see their own trips
+  const trips = await db.trip.findMany({
+    where: {
+      userId: session.user.id,
+      deletedAt: null,
+      status: { not: "ARCHIVED" },
+      destinationLat: { not: null },
+      destinationLon: { not: null },
+    },
+    select: {
+      id: true,
+      destination: true,
+      currentPhase: true,
+      status: true,
+      startDate: true,
+      endDate: true,
+      coverEmoji: true,
+      destinationLat: true,
+      destinationLon: true,
+    },
+    orderBy: { createdAt: "desc" },
+  });
 
-  const expeditionCount = tripsWithPhases.filter(
-    (t: (typeof tripsWithPhases)[number]) => t.expeditionMode
-  ).length;
+  const geoData = buildTripGeoJSON(trips);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
+    <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <Breadcrumb
         items={[
           { label: tNav("breadcrumb.home"), href: "/expeditions" },
           { label: tNav("breadcrumb.atlas") },
         ]}
       />
-      <h1 className="mt-6 text-2xl font-bold text-foreground">{t("title")}</h1>
+      <h1 className="mt-4 text-2xl font-bold text-foreground">{t("title")}</h1>
+      <p className="mt-1 text-sm text-muted-foreground">
+        {t("pageDescription")}
+      </p>
       <div className="mt-4">
-        <AtlasProfilePage
-          totalPoints={progress.totalPoints}
-          currentRank={progress.currentRank as Rank}
-          streakDays={progress.streakDays}
-          badges={progress.badges}
-          expeditionCount={expeditionCount}
-        />
+        <InteractiveAtlasMap geoData={geoData} />
       </div>
     </div>
   );
