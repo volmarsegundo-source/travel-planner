@@ -23,10 +23,10 @@ interface UnifiedProgressBarProps {
  * Unified expedition progress bar showing all 6 active phases.
  * Replaces ExpeditionProgressBar and is the single cross-phase navigation component.
  *
- * Visual states (SPEC-UX-019 Section 4.1):
- * - Completed: gold (#F59E0B) + checkmark
- * - Current: navy (#1A3C5E) + pulse + phase number
- * - Available: transparent + outlined border + phase number
+ * Visual states (SPEC-UX-026 4-state color system):
+ * - Completed: green (#10B981) + checkmark
+ * - Current: blue (#3B82F6) + pulse + phase number
+ * - Available/Pending: gray outlined (#6B7280) + phase number
  * - Locked: gray 30% + lock icon + dashed border
  *
  * Touch targets: 44x44px minimum.
@@ -72,6 +72,18 @@ export function UnifiedProgressBar({
     }
   }
 
+  /**
+   * Determine the connector line color between two adjacent segments.
+   * SPEC-UX-026 Section 4.5.
+   */
+  function getConnectorClass(currentState: PhaseState, nextPhaseNum: number): string {
+    const nextState = getPhaseState(nextPhaseNum, tripCurrentPhase, completedPhases);
+    if (currentState === "completed" && nextState === "completed") {
+      return "bg-green-500";
+    }
+    return "bg-muted";
+  }
+
   return (
     <nav
       className="flex items-center justify-center gap-2 px-4 py-3"
@@ -103,7 +115,7 @@ export function UnifiedProgressBar({
                 onKeyDown={(e) => handleKeyDown(e, index)}
                 className={getSegmentClasses(state, isViewing)}
                 aria-label={ariaLabel}
-                title={`${phaseName} — ${stateLabel}`}
+                title={`${phaseName} \u2014 ${stateLabel}`}
                 data-testid={`progress-phase-${phaseNum}`}
               >
                 {getSegmentContent(state, phaseNum)}
@@ -118,7 +130,7 @@ export function UnifiedProgressBar({
                 className={getSegmentClasses(state, isViewing)}
                 aria-label={ariaLabel}
                 aria-current="step"
-                title={`${phaseName} — ${stateLabel}`}
+                title={`${phaseName} \u2014 ${stateLabel}`}
                 data-testid={`progress-phase-${phaseNum}`}
               >
                 {getSegmentContent(state, phaseNum)}
@@ -131,7 +143,7 @@ export function UnifiedProgressBar({
                 className={getSegmentClasses(state, isViewing)}
                 aria-label={ariaLabel}
                 role="img"
-                title={`${phaseName} — ${stateLabel}`}
+                title={`${phaseName} \u2014 ${stateLabel}`}
                 data-testid={`progress-phase-${phaseNum}`}
               >
                 {getSegmentContent(state, phaseNum)}
@@ -141,9 +153,7 @@ export function UnifiedProgressBar({
             {/* Connector line */}
             {showConnector && (
               <div
-                className={`mx-1 h-0.5 w-4 sm:w-6 ${
-                  state === "completed" ? "bg-amber-500" : "bg-muted"
-                }`}
+                className={`mx-1 h-0.5 w-4 sm:w-6 ${getConnectorClass(state, phaseNum + 1)}`}
                 aria-hidden="true"
               />
             )}
@@ -160,13 +170,13 @@ function getSegmentClasses(state: PhaseState, isViewing: boolean): string {
 
   switch (state) {
     case "completed":
-      return `${base} bg-amber-500 text-white cursor-pointer hover:-translate-y-0.5${viewingRing}`;
+      return `${base} bg-green-500 text-white cursor-pointer motion-safe:hover:-translate-y-0.5${viewingRing}`;
     case "current":
-      return `${base} bg-[#1A3C5E] text-white motion-safe:animate-pulse cursor-default${viewingRing}`;
+      return `${base} bg-blue-500 text-white motion-safe:animate-pulse cursor-default${viewingRing}`;
     case "available":
-      return `${base} bg-transparent border-2 border-[#5C6B7A] text-[#5C6B7A] cursor-pointer hover:-translate-y-0.5${viewingRing}`;
+      return `${base} bg-transparent border-2 border-gray-500 text-gray-500 cursor-pointer motion-safe:hover:-translate-y-0.5${viewingRing}`;
     case "locked":
-      return `${base} bg-gray-200/30 border-2 border-dashed border-[#9BA8B5] text-[#9BA8B5] cursor-not-allowed${viewingRing}`;
+      return `${base} bg-gray-700/30 border-2 border-dashed border-[#9BA8B5] text-[#9BA8B5] cursor-not-allowed${viewingRing}`;
   }
 }
 

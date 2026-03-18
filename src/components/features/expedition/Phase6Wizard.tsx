@@ -15,7 +15,7 @@ import {
   calculateTotalDays,
   calculateProgressPercent,
 } from "@/lib/utils/stream-progress";
-import { completeExpeditionAction } from "@/server/actions/expedition.actions";
+// completeExpeditionAction removed -- expedition completion is now automatic (SPEC-PROD-023)
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
@@ -81,14 +81,13 @@ export function Phase6Wizard({
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
   const tPhases = useTranslations("gamification.phases");
-  const tCommon = useTranslations("common");
+  // tCommon removed -- no longer needed after complete button removal
   const router = useRouter();
   const [isGenerating, setIsGenerating] = useState(false);
   const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
-  const [showCompleteConfirm, setShowCompleteConfirm] = useState(false);
-  const [isCompleting, setIsCompleting] = useState(false);
+  // Complete expedition state removed (SPEC-PROD-024 REQ-006)
   const [progressMessage, setProgressMessage] = useState("");
   const [daysGenerated, setDaysGenerated] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
@@ -260,33 +259,8 @@ export function Phase6Wizard({
     abortControllerRef.current?.abort();
   }
 
-  function handleCompleteExpeditionClick() {
-    setShowCompleteConfirm(true);
-  }
-
-  async function handleCompleteExpeditionConfirm() {
-    setShowCompleteConfirm(false);
-    setIsCompleting(true);
-    setError(null);
-
-    try {
-      const result = await completeExpeditionAction(tripId);
-      if (!result.success) {
-        setError(result.error ?? t("errorGenerate"));
-        setIsCompleting(false);
-        return;
-      }
-
-      // Navigate directly to summary page (no animation)
-      router.push(`/expedition/${tripId}/summary`);
-    } catch {
-      setError(t("errorGenerate"));
-      setIsCompleting(false);
-    }
-  }
-
-  function handleCompleteExpeditionCancel() {
-    setShowCompleteConfirm(false);
+  function handleViewExpeditions() {
+    router.push("/expeditions");
   }
 
   function handleRegenerateClick() {
@@ -491,45 +465,11 @@ export function Phase6Wizard({
         </div>
       )}
 
-      {/* Complete Expedition confirm dialog */}
-      {showCompleteConfirm && (
-        <div
-          className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4 dark:border-green-800/40 dark:bg-green-950/30"
-          role="alertdialog"
-          aria-label={tExpedition("completeConfirm")}
-          data-testid="complete-expedition-confirm"
-        >
-          <p className="text-sm text-green-800 dark:text-green-200">
-            {tExpedition("completeConfirm")}
-          </p>
-          <div className="mt-3 flex gap-2">
-            <Button
-              size="sm"
-              onClick={handleCompleteExpeditionConfirm}
-              disabled={isCompleting}
-            >
-              {isCompleting
-                ? tCommon("loading")
-                : tExpedition("completeConfirmYes")}
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={handleCompleteExpeditionCancel}
-            >
-              {tExpedition("completeConfirmNo")}
-            </Button>
-          </div>
-        </div>
-      )}
-
       <div className="mt-8">
         <WizardFooter
           onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
-          onPrimary={handleCompleteExpeditionClick}
-          primaryLabel={tExpedition("cta.complete")}
-          isLoading={isCompleting}
-          isDisabled={isCompleting}
+          onPrimary={handleViewExpeditions}
+          primaryLabel={tExpedition("cta.viewExpeditions")}
           secondaryActions={[
             {
               label: t("regenerateCta"),

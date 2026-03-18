@@ -3,7 +3,8 @@
  *
  * Tests cover: status badge rendering, CTA text, CTA href,
  * date display, destination truncation, progress bar, skeleton respect,
- * keyboard navigation, accessibility.
+ * keyboard navigation, accessibility, quick-access links.
+ * Updated Sprint 31: Card uses overlay pattern (div root, Link overlay).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -68,6 +69,9 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     checklistRecommendedPending: 2,
     hasItineraryPlan: false,
     createdAt: "2026-03-01T12:00:00.000Z",
+    hasChecklist: false,
+    hasGuide: false,
+    hasLogistics: false,
     ...overrides,
   };
 }
@@ -149,15 +153,17 @@ describe("ExpeditionCardRedesigned", () => {
 
   // ─── CTA Href ──────────────────────────────────────────────────────
 
-  it("links to expedition hub for active trip", () => {
+  it("overlay link targets expedition hub for active trip", () => {
     renderCard({ currentPhase: 3, completedPhases: 2 });
-    const link = screen.getByTestId("expedition-card") as HTMLAnchorElement;
+    const card = screen.getByTestId("expedition-card");
+    const link = card.querySelector("a") as HTMLAnchorElement;
     expect(link.getAttribute("href")).toBe("/expedition/trip-1");
   });
 
-  it("links to summary for completed trip", () => {
+  it("overlay link targets summary for completed trip", () => {
     renderCard({ currentPhase: 6, completedPhases: 6 });
-    const link = screen.getByTestId("expedition-card") as HTMLAnchorElement;
+    const card = screen.getByTestId("expedition-card");
+    const link = card.querySelector("a") as HTMLAnchorElement;
     expect(link.getAttribute("href")).toBe("/expedition/trip-1/summary");
   });
 
@@ -209,11 +215,12 @@ describe("ExpeditionCardRedesigned", () => {
 
   // ─── Accessibility ─────────────────────────────────────────────────
 
-  it("card link has aria-label with destination and status", () => {
+  it("overlay link has aria-label with destination and status", () => {
     renderCard();
     const card = screen.getByTestId("expedition-card");
-    expect(card).toHaveAttribute("aria-label");
-    const label = card.getAttribute("aria-label")!;
+    const link = card.querySelector("a") as HTMLAnchorElement;
+    expect(link).toHaveAttribute("aria-label");
+    const label = link.getAttribute("aria-label")!;
     expect(label).toContain("Paris, France");
   });
 
@@ -231,15 +238,72 @@ describe("ExpeditionCardRedesigned", () => {
     expect(card.className).toContain("border-l-blue-500");
   });
 
-  it("completed card has amber left border", () => {
+  it("completed card has green left border", () => {
     renderCard({ currentPhase: 6, completedPhases: 6 });
     const card = screen.getByTestId("expedition-card");
-    expect(card.className).toContain("border-l-amber-500");
+    expect(card.className).toContain("border-l-green-500");
   });
 
   it("planned card has gray left border", () => {
     renderCard({ currentPhase: 1, completedPhases: 0, startDate: null });
     const card = screen.getByTestId("expedition-card");
     expect(card.className).toContain("border-l-gray-400");
+  });
+
+  // ─── Card structure (Sprint 31 overlay pattern) ───────────────────
+
+  it("card root is a DIV element (not a link)", () => {
+    renderCard();
+    const card = screen.getByTestId("expedition-card");
+    expect(card.tagName).toBe("DIV");
+  });
+
+  // ─── Quick-access links ───────────────────────────────────────────
+
+  it("shows no quick-access row when all flags are false", () => {
+    renderCard({ hasChecklist: false, hasGuide: false, hasLogistics: false, hasItineraryPlan: false });
+    expect(screen.queryByTestId("quick-access-row")).not.toBeInTheDocument();
+  });
+
+  it("shows checklist quick-access link when hasChecklist is true", () => {
+    renderCard({ hasChecklist: true });
+    expect(screen.getByTestId("quick-access-checklist")).toBeInTheDocument();
+    const link = screen.getByTestId("quick-access-checklist") as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe("/expedition/trip-1/phase-3");
+  });
+
+  it("shows guide quick-access link when hasGuide is true", () => {
+    renderCard({ hasGuide: true });
+    expect(screen.getByTestId("quick-access-guide")).toBeInTheDocument();
+    const link = screen.getByTestId("quick-access-guide") as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe("/expedition/trip-1/phase-5");
+  });
+
+  it("shows itinerary quick-access link when hasItineraryPlan is true", () => {
+    renderCard({ hasItineraryPlan: true });
+    expect(screen.getByTestId("quick-access-itinerary")).toBeInTheDocument();
+    const link = screen.getByTestId("quick-access-itinerary") as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe("/expedition/trip-1/phase-6");
+  });
+
+  it("shows report link only when all three content flags are true", () => {
+    renderCard({ hasChecklist: true, hasGuide: true, hasItineraryPlan: true });
+    expect(screen.getByTestId("quick-access-report")).toBeInTheDocument();
+    const link = screen.getByTestId("quick-access-report") as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe("/expedition/trip-1/report");
+  });
+
+  it("does NOT show report link when only two content flags are true", () => {
+    renderCard({ hasChecklist: true, hasGuide: true, hasItineraryPlan: false });
+    expect(screen.queryByTestId("quick-access-report")).not.toBeInTheDocument();
+  });
+
+  it("quick-access nav has aria-label with destination", () => {
+    renderCard({ hasChecklist: true });
+    const nav = screen.getByTestId("quick-access-row");
+    expect(nav.tagName).toBe("NAV");
+    expect(nav).toHaveAttribute("aria-label");
+    const label = nav.getAttribute("aria-label")!;
+    expect(label).toContain("Paris, France");
   });
 });

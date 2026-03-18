@@ -1,0 +1,186 @@
+{
+  "dataset_id": "phase-completion-states",
+  "version": "1.0.0",
+  "sprint": 31,
+  "spec_ref": "SPEC-QA-006",
+  "description": "Eval cases for phase completion logic — all 6 phases x complete/incomplete states, plus auto-completion and readiness calculation",
+  "grader": "state-transition-correctness",
+  "cases": [
+    {
+      "case_id": "PHASE-001",
+      "title": "Phase 1 complete: destination + startDate + endDate all set",
+      "input": {
+        "trip": {
+          "destination": "Tokyo, Japan",
+          "startDate": "2026-08-01",
+          "endDate": "2026-08-10",
+          "origin": "Sao Paulo, Brazil"
+        }
+      },
+      "expected": {
+        "phase_1_status": "complete",
+        "progress_bar_segment_1": "filled"
+      }
+    },
+    {
+      "case_id": "PHASE-002",
+      "title": "Phase 1 incomplete: destination set but dates missing",
+      "input": {
+        "trip": {
+          "destination": "Tokyo, Japan",
+          "startDate": null,
+          "endDate": null,
+          "origin": null
+        }
+      },
+      "expected": {
+        "phase_1_status": "partial",
+        "progress_bar_segment_1": "partial"
+      }
+    },
+    {
+      "case_id": "PHASE-003",
+      "title": "Phase 2 complete: travelerType set, solo (no passengers required)",
+      "input": {
+        "expedition_phase_2": {
+          "status": "completed",
+          "metadata": { "travelerType": "solo" }
+        }
+      },
+      "expected": {
+        "phase_2_status": "complete"
+      }
+    },
+    {
+      "case_id": "PHASE-004",
+      "title": "Phase 2 incomplete: travelerType=family but no passengers",
+      "input": {
+        "expedition_phase_2": {
+          "status": "active",
+          "metadata": { "travelerType": "family" }
+        },
+        "passengers": []
+      },
+      "expected": {
+        "phase_2_status": "partial"
+      }
+    },
+    {
+      "case_id": "PHASE-005",
+      "title": "Phase 3 complete: all mandatory checklist items checked",
+      "input": {
+        "checklist_items": [
+          { "text": "Passaporte valido", "mandatory": true, "completed": true },
+          { "text": "Seguro viagem", "mandatory": true, "completed": true },
+          { "text": "Vacina febre amarela", "mandatory": true, "completed": true },
+          { "text": "Guia de frases", "mandatory": false, "completed": false }
+        ]
+      },
+      "expected": {
+        "phase_3_status": "complete",
+        "note": "Optional items unchecked do not block completion"
+      }
+    },
+    {
+      "case_id": "PHASE-006",
+      "title": "Phase 3 incomplete: mandatory items exist but some unchecked",
+      "input": {
+        "checklist_items": [
+          { "text": "Passaporte valido", "mandatory": true, "completed": true },
+          { "text": "Seguro viagem", "mandatory": true, "completed": false },
+          { "text": "Vacina febre amarela", "mandatory": true, "completed": true }
+        ]
+      },
+      "expected": {
+        "phase_3_status": "partial",
+        "mandatory_done": 2,
+        "mandatory_total": 3
+      }
+    },
+    {
+      "case_id": "PHASE-007",
+      "title": "Phase 4 complete: transport exists (no accommodation)",
+      "input": {
+        "transport_segments": [
+          { "type": "flight", "departure": "GRU", "arrival": "NRT" }
+        ],
+        "accommodations": []
+      },
+      "expected": {
+        "phase_4_status": "complete",
+        "note": "Transport OR accommodation is sufficient"
+      }
+    },
+    {
+      "case_id": "PHASE-008",
+      "title": "Phase 4 incomplete: no transport AND no accommodation",
+      "input": {
+        "transport_segments": [],
+        "accommodations": [],
+        "expedition_phase_4": { "status": "active" }
+      },
+      "expected": {
+        "phase_4_status": "partial",
+        "note": "Phase started but no logistics data entered"
+      }
+    },
+    {
+      "case_id": "PHASE-009",
+      "title": "Phase 5 complete: guide generated",
+      "input": {
+        "expedition_phase_5": {
+          "status": "completed",
+          "completedAt": "2026-07-20T14:30:00Z"
+        }
+      },
+      "expected": {
+        "phase_5_status": "complete"
+      }
+    },
+    {
+      "case_id": "PHASE-010",
+      "title": "Phase 5 incomplete: phase started but guide not generated",
+      "input": {
+        "expedition_phase_5": {
+          "status": "active",
+          "completedAt": null
+        }
+      },
+      "expected": {
+        "phase_5_status": "partial"
+      }
+    },
+    {
+      "case_id": "PHASE-011",
+      "title": "Phase 6 complete: itinerary generated",
+      "input": {
+        "expedition_phase_6": {
+          "status": "completed",
+          "completedAt": "2026-07-22T10:00:00Z"
+        }
+      },
+      "expected": {
+        "phase_6_status": "complete"
+      }
+    },
+    {
+      "case_id": "PHASE-012",
+      "title": "Auto-completion: triggers when all 6 phases complete",
+      "input": {
+        "phases": [
+          { "phase": 1, "status": "complete" },
+          { "phase": 2, "status": "complete" },
+          { "phase": 3, "status": "complete" },
+          { "phase": 4, "status": "complete" },
+          { "phase": 5, "status": "complete" },
+          { "phase": 6, "status": "complete" }
+        ]
+      },
+      "expected": {
+        "expedition_status": "completed",
+        "auto_completion_triggered": true,
+        "readiness_percent": 100
+      }
+    }
+  ]
+}

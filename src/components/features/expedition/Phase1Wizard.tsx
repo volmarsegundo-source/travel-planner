@@ -224,10 +224,39 @@ export function Phase1Wizard({
       setErrorMessage(t("errors.datesRequired"));
       return;
     }
-    if (startDate && endDate && new Date(endDate) < new Date(startDate)) {
-      setErrorMessage(t("errors.endDateBeforeStart"));
-      return;
+
+    if (startDate) {
+      const start = new Date(startDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      // startDate must be strictly after today
+      if (start <= today) {
+        setErrorMessage(t("errors.dateInPast"));
+        return;
+      }
     }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (end <= today) {
+        setErrorMessage(t("errors.dateInPast"));
+        return;
+      }
+    }
+
+    if (startDate && endDate) {
+      if (startDate === endDate) {
+        setErrorMessage(t("errors.sameDates"));
+        return;
+      }
+      if (new Date(endDate) < new Date(startDate)) {
+        setErrorMessage(t("errors.startAfterEnd"));
+        return;
+      }
+    }
+
     goToStep(4);
   }
 

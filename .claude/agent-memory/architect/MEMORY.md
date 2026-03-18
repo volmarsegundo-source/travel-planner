@@ -14,7 +14,7 @@
 - Prisma 7 + PostgreSQL 16, Redis via ioredis, Auth.js v5 (JWT strategy)
 - AI: Anthropic SDK (sonnet for itinerary, haiku for checklist)
 - i18n: next-intl, locales: pt-BR (default), en
-- Maps: Mapbox GL JS 3.x, State: TanStack Query v5, Forms: React Hook Form + Zod
+- Maps: Leaflet 1.9 + react-leaflet 4.2 + OSM tiles (ADR-019), State: TanStack Query v5, Forms: React Hook Form + Zod
 - Testing: Vitest + Playwright, CI/CD: GitHub Actions, Hosting: Vercel + Railway/Render
 
 ## Key Architectural Decisions
@@ -128,33 +128,33 @@
 - Migration: 5 phases (A-E), ~16h effort, ~15 files changed
 - Open: OQ-1 (updatePhase1Action), OQ-4 (Phase5Wizard dead code disposition)
 
-## Sprint 30 Architecture (ADR-018, ADR-019, ADR-020 PROPOSED)
-- SPEC-ARCH-011: Autocomplete Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-011.md)
-  - ADR-018: Mapbox Geocoding v6 as primary, Nominatim fallback (PROPOSED)
-  - GeocodingProvider interface (like AiProvider pattern)
-  - Redis cache 7-day TTL; client debounce 300ms; top-100 offline fallback
-  - New env: MAPBOX_ACCESS_TOKEN (optional)
-- SPEC-ARCH-012: Map Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-012.md)
-  - ADR-019: Leaflet + OpenStreetMap replaces react-simple-maps (PROPOSED)
-  - Interactive atlas page at /atlas; CSS pin overlay for dashboard hero
-  - MapProvider interface for tile source swapping
-  - Dark mode via CartoDB Dark Matter tiles
-  - New deps: leaflet, react-leaflet, leaflet.markercluster
-  - Removes: react-simple-maps (+ d3-geo transitive)
-- SPEC-ARCH-013: Dashboard Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-013.md)
-  - No ADR — extends existing TanStack Query stack
-  - Client-side filter/sort + URL param persistence
-  - TanStack Query hydration (initialData from server)
-  - Virtual scroll via @tanstack/react-virtual for >20 items
-  - Compact row view + card view toggle
-  - New API: GET /api/trips/expeditions
-- SPEC-ARCH-014: Summary/Report Architecture Rewrite (docs/specs/sprint-30/SPEC-ARCH-014.md)
-  - ADR-020: @react-pdf/renderer + CSS print + HMAC share URLs (PROPOSED)
-  - PDF generation server-side, streamed via API route
-  - Share URLs: stateless HMAC-SHA256 signed tokens with expiry
-  - Public /shared/{token} page with stripped summary (no PII, no booking codes)
-  - New deps: @react-pdf/renderer
-  - New env: SHARE_LINK_SECRET (optional, falls back to AUTH_SECRET)
+## Sprint 30 Architecture (ADR-018 through ADR-020 PROPOSED)
+- SPEC-ARCH-011: Autocomplete Rewrite — ADR-018 Mapbox Geocoding v6 + Nominatim fallback
+- SPEC-ARCH-012: Map Rewrite — ADR-019 Leaflet+OSM, removes react-simple-maps
+- SPEC-ARCH-013: Dashboard Rewrite — TanStack Query, filter/sort, virtual scroll
+- SPEC-ARCH-014: Summary/Report — ADR-020 @react-pdf/renderer + HMAC share URLs
+
+## Sprint 31 Architecture (ADR-019-IMPL, ADR-021, ADR-022 PROPOSED)
+- SPEC-ARCH-015: Meu Atlas with Leaflet/OSM (docs/specs/sprint-31/SPEC-ARCH-015.md)
+  - ADR-019-IMPL: Confirms Sprint 30 ADR-019 for implementation
+  - react-leaflet v4.2.1 (stable, not RC v5); no /api/trips/geo (server component only)
+  - 3 pin colors: yellow=planning, blue=in_progress, green=completed
+  - Hero map rewritten as CSS pins on static SVG; CITY_COORDS eliminated
+  - New deps: leaflet, react-leaflet, react-leaflet-markercluster, @types/leaflet
+  - Removes: react-simple-maps
+- SPEC-ARCH-016: Phase Completion Engine (docs/specs/sprint-31/SPEC-ARCH-016.md)
+  - ADR-021: Isomorphic engine + server service (mirrors phase-navigation pattern)
+  - Engine: src/lib/engines/phase-completion.engine.ts (pure functions, no DB)
+  - Service: src/server/services/phase-completion.service.ts (DB queries + auto-complete)
+  - Per-phase rules: P1(5 fields), P2(travelerType), P3(all required checked), P4(transport OR accommodation), P5(guide exists), P6(itinerary exists)
+  - Auto-completion: checkAndCompleteTrip() sets trip.status=COMPLETED when all 6 done
+  - Fire-and-forget integration in phase action files
+- SPEC-ARCH-017: Report Generation Service (docs/specs/sprint-31/SPEC-ARCH-017.md)
+  - ADR-022: Composition on ExpeditionSummaryService + enrichment queries
+  - Report available when phases 3+5+6 have content
+  - Full guide sections, full checklist items, full itinerary+activities
+  - No PDF (deferred from SPEC-ARCH-014); structured TripReportDTO only
+  - BOLA on all methods; booking codes masked; no PII
 
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
@@ -173,6 +173,9 @@
 - SPEC-ARCH-012: docs/specs/sprint-30/SPEC-ARCH-012.md (Map Architecture Rewrite)
 - SPEC-ARCH-013: docs/specs/sprint-30/SPEC-ARCH-013.md (Dashboard Architecture Rewrite)
 - SPEC-ARCH-014: docs/specs/sprint-30/SPEC-ARCH-014.md (Summary/Report Architecture Rewrite)
+- SPEC-ARCH-015: docs/specs/sprint-31/SPEC-ARCH-015.md (Meu Atlas with Leaflet/OSM)
+- SPEC-ARCH-016: docs/specs/sprint-31/SPEC-ARCH-016.md (Phase Completion Engine)
+- SPEC-ARCH-017: docs/specs/sprint-31/SPEC-ARCH-017.md (Report Generation Service)
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md

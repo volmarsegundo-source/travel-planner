@@ -25,7 +25,7 @@ const { mockPush, mockRefresh } = vi.hoisted(() => ({
 vi.mock("server-only", () => ({}));
 
 vi.mock("@/server/actions/expedition.actions", () => ({
-  completeExpeditionAction: vi.fn().mockResolvedValue({ pointsEarned: 500, badgeAwarded: "treasurer" }),
+  // completeExpeditionAction removed (SPEC-PROD-024 REQ-006)
 }));
 
 vi.mock("next-intl", () => ({
@@ -525,6 +525,48 @@ describe("Phase6Wizard", () => {
       expect(label).toBeInTheDocument();
       // Mock returns the key as-is, so check it contains phaseLabel
       expect(label.textContent).toContain("phaseLabel");
+    });
+  });
+
+  describe("View Expeditions button (SPEC-PROD-024 REQ-006)", () => {
+    it("renders 'View Expeditions' button instead of 'Complete Expedition'", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      // Should have "View Expeditions" CTA
+      expect(
+        screen.getByRole("button", { name: "cta.viewExpeditions" })
+      ).toBeInTheDocument();
+
+      // Should NOT have "Complete Expedition" CTA
+      expect(
+        screen.queryByRole("button", { name: "cta.complete" })
+      ).not.toBeInTheDocument();
+    });
+
+    it("navigates to /expeditions when View Expeditions is clicked", async () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      await act(async () => {
+        fireEvent.click(
+          screen.getByRole("button", { name: "cta.viewExpeditions" })
+        );
+      });
+
+      expect(mockPush).toHaveBeenCalledWith("/expeditions");
+    });
+
+    it("does not render complete expedition confirmation dialog", () => {
+      render(
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+      );
+
+      expect(
+        screen.queryByTestId("complete-expedition-confirm")
+      ).not.toBeInTheDocument();
     });
   });
 

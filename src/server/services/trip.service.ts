@@ -223,6 +223,17 @@ export class TripService {
             generatedAt: true,
           },
         },
+        destinationGuide: {
+          select: {
+            id: true,
+          },
+        },
+        _count: {
+          select: {
+            transportSegments: true,
+            accommodations: true,
+          },
+        },
       },
     });
 
@@ -240,6 +251,9 @@ export class TripService {
         checklistRequiredDone: requiredItems.filter((i) => i.completed).length,
         checklistRecommendedPending: recommendedItems.filter((i) => !i.completed).length,
         hasItineraryPlan: trip.itineraryPlan?.generatedAt != null,
+        hasChecklist: trip.phaseChecklist.length > 0,
+        hasGuide: trip.destinationGuide !== null,
+        hasLogistics: (trip._count.transportSegments + trip._count.accommodations) > 0,
       };
     });
   }

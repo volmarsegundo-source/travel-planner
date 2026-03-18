@@ -45,6 +45,9 @@ export default async function ExpeditionsPage({ params }: ExpeditionsPageProps) 
       checklistRecommendedPending: t.checklistRecommendedPending,
       hasItineraryPlan: t.hasItineraryPlan,
       createdAt: t.createdAt.toISOString(),
+      hasChecklist: t.hasChecklist,
+      hasGuide: t.hasGuide,
+      hasLogistics: t.hasLogistics,
     }));
 
   return (

@@ -3,6 +3,7 @@
  *
  * Tests cover: interactive segments when tripId is provided, non-interactive when not,
  * completed/current/incomplete/coming-soon visual states, aria-labels.
+ * Updated Sprint 31: 4-state color system (green/blue/gray/gray-dashed).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -142,24 +143,24 @@ describe("DashboardPhaseProgressBar", () => {
 
   // ─── Visual states ──────────────────────────────────────────────────────
 
-  it("completed phases have gold background", () => {
+  it("completed phases have green background", () => {
     render(
       <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} />
     );
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
     for (let i = 0; i < 3; i++) {
-      expect(container.children[i]).toHaveClass("bg-atlas-gold");
+      expect(container.children[i]).toHaveClass("bg-green-500");
     }
   });
 
-  it("current phase has primary color with pulse animation", () => {
+  it("current phase has blue color with pulse animation", () => {
     render(
       <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} />
     );
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
-    expect(container.children[3]).toHaveClass("bg-primary", "motion-safe:animate-pulse");
+    expect(container.children[3]).toHaveClass("bg-blue-500", "motion-safe:animate-pulse");
   });
 
   it("incomplete (upcoming) phases have outlined border, no fill", () => {
@@ -194,7 +195,7 @@ describe("DashboardPhaseProgressBar", () => {
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
     for (let i = 0; i < 8; i++) {
-      expect(container.children[i]).toHaveClass("bg-atlas-gold");
+      expect(container.children[i]).toHaveClass("bg-green-500");
     }
   });
 
@@ -205,7 +206,7 @@ describe("DashboardPhaseProgressBar", () => {
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
     // Phase 1 (index 0) is current
-    expect(container.children[0]).toHaveClass("bg-primary");
+    expect(container.children[0]).toHaveClass("bg-blue-500");
     // Phases 2-6 are incomplete
     for (let i = 1; i < 6; i++) {
       expect(container.children[i]).toHaveClass("bg-transparent");

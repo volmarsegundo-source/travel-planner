@@ -21,6 +21,12 @@ export interface ExpeditionDTO {
   checklistRecommendedPending: number;
   hasItineraryPlan: boolean;
   createdAt: string;
+  /** Quick-access: whether phase 3 generated a checklist */
+  hasChecklist: boolean;
+  /** Quick-access: whether phase 5 generated a guide */
+  hasGuide: boolean;
+  /** Quick-access: whether phase 4 has any logistics entries */
+  hasLogistics: boolean;
 }
 
 // ─── Filter/Sort types ───────────────────────────────────────────────────────

@@ -1,6 +1,7 @@
 /**
  * Unit tests for GamificationBadge component.
  * SPEC-ARCH-006: Real-time gamification in header.
+ * Updated Sprint 31: Badge is display-only (not a link).
  */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -8,24 +9,14 @@ import { render, screen } from "@testing-library/react";
 vi.mock("next-intl", () => ({
   useTranslations:
     (namespace?: string) =>
-    (key: string) =>
-      namespace ? `${namespace}.${key}` : key,
-}));
-
-vi.mock("@/i18n/navigation", () => ({
-  Link: ({
-    children,
-    href,
-    ...props
-  }: {
-    children: React.ReactNode;
-    href: string;
-    [key: string]: unknown;
-  }) => (
-    <a href={href} {...props}>
-      {children}
-    </a>
-  ),
+    (key: string, params?: Record<string, unknown>) => {
+      const fullKey = namespace ? `${namespace}.${key}` : key;
+      if (params) {
+        const paramStr = Object.values(params).map(String).join(" ");
+        return `${fullKey} ${paramStr}`;
+      }
+      return fullKey;
+    },
 }));
 
 import { GamificationBadge } from "@/components/features/gamification/GamificationBadge";
@@ -43,16 +34,26 @@ describe("GamificationBadge", () => {
     expect(screen.getByTestId("badge-phase")).toHaveTextContent("The Preparation");
   });
 
-  it("links to /atlas", () => {
+  it("is NOT a link (display-only div)", () => {
     render(<GamificationBadge {...defaultProps} />);
-    const link = screen.getByTestId("gamification-badge");
-    expect(link).toHaveAttribute("href", "/atlas");
+    const badge = screen.getByTestId("gamification-badge");
+    expect(badge.tagName).toBe("DIV");
+    expect(badge).not.toHaveAttribute("href");
   });
 
-  it("shows viewProfile tooltip", () => {
+  it("has role=status for accessibility", () => {
     render(<GamificationBadge {...defaultProps} />);
-    const link = screen.getByTestId("gamification-badge");
-    expect(link).toHaveAttribute("title", "gamification.badge.viewProfile");
+    const badge = screen.getByTestId("gamification-badge");
+    expect(badge).toHaveAttribute("role", "status");
+  });
+
+  it("has aria-label with points and rank name", () => {
+    render(<GamificationBadge {...defaultProps} />);
+    const badge = screen.getByTestId("gamification-badge");
+    expect(badge).toHaveAttribute("aria-label");
+    const label = badge.getAttribute("aria-label")!;
+    expect(label).toContain("250");
+    expect(label).toContain("The Preparation");
   });
 
   it("renders zero points", () => {
@@ -67,7 +68,14 @@ describe("GamificationBadge", () => {
 
   it("has atlas-gold styling", () => {
     render(<GamificationBadge {...defaultProps} />);
-    const link = screen.getByTestId("gamification-badge");
-    expect(link.className).toContain("atlas-gold");
+    const badge = screen.getByTestId("gamification-badge");
+    expect(badge.className).toContain("atlas-gold");
+  });
+
+  it("has cursor-default (not pointer)", () => {
+    render(<GamificationBadge {...defaultProps} />);
+    const badge = screen.getByTestId("gamification-badge");
+    expect(badge.className).toContain("cursor-default");
+    expect(badge.className).not.toContain("cursor-pointer");
   });
 });

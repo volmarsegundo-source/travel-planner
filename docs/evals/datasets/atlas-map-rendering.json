@@ -1,0 +1,179 @@
+{
+  "dataset_id": "atlas-map-rendering",
+  "version": "1.0.0",
+  "sprint": 31,
+  "spec_ref": "SPEC-QA-005",
+  "description": "Eval cases for Meu Atlas interactive map rendering, pin colors, popups, empty state, filters, and mobile behavior",
+  "grader": "visual-regression + data-correctness",
+  "cases": [
+    {
+      "case_id": "MAP-001",
+      "title": "Map renders with 3 pins for 3 geocoded trips",
+      "input": {
+        "user_trips": [
+          { "destination": "Paris, France", "lat": 48.8566, "lon": 2.3522, "status": "completed", "phases_complete": 6 },
+          { "destination": "Tokyo, Japan", "lat": 35.6762, "lon": 139.6503, "status": "active", "phases_complete": 3 },
+          { "destination": "Rio de Janeiro, Brazil", "lat": -22.9068, "lon": -43.1729, "status": "planned", "phases_complete": 0 }
+        ]
+      },
+      "expected": {
+        "pins_count": 3,
+        "map_rendered": true,
+        "render_time_ms_max": 3000
+      }
+    },
+    {
+      "case_id": "MAP-002",
+      "title": "Pin colors match trip status — completed=green/gold, active=blue, planned=gray",
+      "input": {
+        "user_trips": [
+          { "destination": "Berlin, Germany", "lat": 52.52, "lon": 13.405, "status": "completed" },
+          { "destination": "Bangkok, Thailand", "lat": 13.7563, "lon": 100.5018, "status": "active" },
+          { "destination": "Cairo, Egypt", "lat": 30.0444, "lon": 31.2357, "status": "planned" }
+        ]
+      },
+      "expected": {
+        "pin_colors": {
+          "completed": "green_or_gold",
+          "active": "blue_with_pulse",
+          "planned": "gray_no_animation"
+        }
+      }
+    },
+    {
+      "case_id": "MAP-003",
+      "title": "Click pin shows popup with correct expedition data",
+      "input": {
+        "clicked_trip": {
+          "destination": "Lisbon, Portugal",
+          "lat": 38.7223,
+          "lon": -9.1393,
+          "status": "active",
+          "start_date": "2026-07-01",
+          "end_date": "2026-07-10",
+          "phases_complete": 4,
+          "phases_total": 6
+        }
+      },
+      "expected": {
+        "popup_visible": true,
+        "popup_destination": "Lisbon, Portugal",
+        "popup_dates": "01/07/2026 - 10/07/2026",
+        "popup_status_badge": "Em Progresso",
+        "popup_phase_progress": "4/6",
+        "popup_primary_cta": "Continuar Expedicao",
+        "popup_secondary_cta": "Ver Detalhes"
+      }
+    },
+    {
+      "case_id": "MAP-004",
+      "title": "Empty state when user has no trips",
+      "input": {
+        "user_trips": []
+      },
+      "expected": {
+        "pins_count": 0,
+        "map_rendered": true,
+        "empty_state_visible": true,
+        "empty_state_cta": "Criar Expedicao",
+        "no_js_errors": true
+      }
+    },
+    {
+      "case_id": "MAP-005",
+      "title": "Filter 'Concluidas' shows only completed pins",
+      "input": {
+        "user_trips": [
+          { "destination": "Rome, Italy", "status": "completed" },
+          { "destination": "Madrid, Spain", "status": "completed" },
+          { "destination": "Oslo, Norway", "status": "active" },
+          { "destination": "Seoul, South Korea", "status": "planned" }
+        ],
+        "selected_filter": "Concluidas"
+      },
+      "expected": {
+        "visible_pins_count": 2,
+        "all_visible_pins_status": "completed"
+      }
+    },
+    {
+      "case_id": "MAP-006",
+      "title": "Filter 'Em Progresso' shows only active pins",
+      "input": {
+        "user_trips": [
+          { "destination": "Rome, Italy", "status": "completed" },
+          { "destination": "Oslo, Norway", "status": "active" }
+        ],
+        "selected_filter": "Em Progresso"
+      },
+      "expected": {
+        "visible_pins_count": 1,
+        "all_visible_pins_status": "active"
+      }
+    },
+    {
+      "case_id": "MAP-007",
+      "title": "Mobile viewport shows bottom sheet instead of centered popup",
+      "input": {
+        "viewport": { "width": 375, "height": 812 },
+        "clicked_trip": {
+          "destination": "Cape Town, South Africa",
+          "status": "active"
+        }
+      },
+      "expected": {
+        "popup_type": "bottom_sheet",
+        "touch_target_min_px": 44,
+        "bottom_sheet_contains_same_data_as_desktop": true
+      }
+    },
+    {
+      "case_id": "MAP-008",
+      "title": "Dark mode renders dark tiles",
+      "input": {
+        "color_scheme": "dark",
+        "user_trips": [
+          { "destination": "Amsterdam, Netherlands", "lat": 52.3676, "lon": 4.9041, "status": "completed" }
+        ]
+      },
+      "expected": {
+        "tile_provider": "dark_variant",
+        "pin_colors_distinguishable": true,
+        "no_white_flash": true
+      }
+    },
+    {
+      "case_id": "MAP-009",
+      "title": "Trip without coordinates shown in fallback list, not on map",
+      "input": {
+        "user_trips": [
+          { "destination": "Paris, France", "lat": 48.8566, "lon": 2.3522, "status": "completed" },
+          { "destination": "Unknown City", "lat": null, "lon": null, "status": "planned" }
+        ]
+      },
+      "expected": {
+        "pins_count": 1,
+        "fallback_list_visible": true,
+        "fallback_list_count": 1,
+        "fallback_list_contains": "Unknown City"
+      }
+    },
+    {
+      "case_id": "MAP-010",
+      "title": "Pinch-to-zoom does not break pin positions",
+      "input": {
+        "viewport": { "width": 375, "height": 812 },
+        "user_trips": [
+          { "destination": "New York, USA", "lat": 40.7128, "lon": -74.006, "status": "active" },
+          { "destination": "Los Angeles, USA", "lat": 34.0522, "lon": -118.2437, "status": "planned" }
+        ],
+        "zoom_action": "pinch_zoom_in"
+      },
+      "expected": {
+        "pins_remain_positioned": true,
+        "map_zoom_changed": true,
+        "no_pin_overlap_at_zoom": true
+      }
+    }
+  ]
+}

@@ -157,6 +157,14 @@
 - Key decisions: autocomplete uses full-screen overlay on mobile (not dropdown); atlas map sidebar on right; expedition cards have 4 status states (active/completed/overdue/planned); summary sections collapsed by default except Phase 1; print forces all expanded + masked booking codes
 - Open questions: map library selection (architect); PDF generation approach (architect+finops); flag emoji on Windows rendering; public share links (PO)
 
+## Sprint 31 UX Specs (2026-03-17)
+- SPEC-UX-024: Meu Atlas Page Design — supersedes SPEC-UX-021, Leaflet+OSM decided, right sidebar with gamification profile section, 3 pin colors (yellow/blue/gray), popup cards, mobile bottom sheet, dark map tiles, filter chips. Saved to docs/specs/sprint-31/SPEC-UX-024-meu-atlas-page.md
+- SPEC-UX-025: Dashboard Card Quick-Access + Status Colors — quick-access links row (Checklist/Guia/Roteiro/Relatorio) conditional on phase completion, status colors refined (green=completed, amber=in-progress, gray=planned, blue=active), links use stopPropagation. Saved to docs/specs/sprint-31/SPEC-UX-025-dashboard-card-quick-access.md
+- SPEC-UX-026: Progress Bar 4-State Color System — replace gold/navy with green(#10B981)/blue(#3B82F6)/gray(#6B7280)/gray-dashed(#9BA8B5). New design tokens: --color-phase-completed/current/pending/locked. Applied to UnifiedProgressBar + DashboardPhaseProgressBar. Green connecting lines for completed path. Saved to docs/specs/sprint-31/SPEC-UX-026-progress-bar-4-state-colors.md
+- SPEC-UX-027: Header Cleanup — remove "Perfil" from top nav, move to avatar dropdown. GamificationBadge: Link->div (display-only, no click/hover/focus, role="status"). Desktop: Logo | Expeditions | Meu Atlas | [controls] | [badge] | [avatar dropdown]. Saved to docs/specs/sprint-31/SPEC-UX-027-header-cleanup.md
+- Key decisions: Leaflet+OSM for map (not Mapbox); gamification badge display-only; profile in dropdown (not top nav); 4-state color tokens shared across progress bar, cards, and map pins; quick-access links conditional on phase completion
+- Open: nested interactive elements in card (architect); route existence for checklist/guide/itinerary views (tech-lead); map auto-zoom feasibility (architect); connecting line gradient (architect)
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

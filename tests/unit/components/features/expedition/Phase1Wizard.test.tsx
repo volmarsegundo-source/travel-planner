@@ -447,4 +447,196 @@ describe("Phase1Wizard", () => {
       expect(screen.getByText("Just bio, nothing else.")).toBeInTheDocument();
     });
   });
+
+  describe("Date validation (SPEC-PROD-024 REQ-005)", () => {
+    function navigateToStep3() {
+      render(<Phase1Wizard />);
+
+      // Step 1: fill mandatory fields
+      fillMandatoryStep1Fields();
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: enter destination
+      const destinationInput = screen.getByPlaceholderText(
+        "expedition.phase1.step2.placeholder"
+      );
+      fireEvent.change(destinationInput, {
+        target: { value: "Paris, France" },
+      });
+      fireEvent.click(screen.getByText("common.next"));
+    }
+
+    it("rejects past start date and shows error", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-03-17T12:00:00Z"));
+
+      navigateToStep3();
+
+      // Enter past start date
+      const startInput = screen.getByLabelText(
+        "expedition.phase1.step3.startDate"
+      );
+      fireEvent.change(startInput, { target: { value: "2026-03-01" } });
+      const endInput = screen.getByLabelText(
+        "expedition.phase1.step3.endDate"
+      );
+      fireEvent.change(endInput, { target: { value: "2026-03-20" } });
+
+      // Try to advance
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should show date in past error
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.dateInPast"
+      );
+
+      vi.useRealTimers();
+    });
+
+    it("rejects today as start date", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-03-17T12:00:00Z"));
+
+      navigateToStep3();
+
+      const startInput = screen.getByLabelText(
+        "expedition.phase1.step3.startDate"
+      );
+      fireEvent.change(startInput, { target: { value: "2026-03-17" } });
+      const endInput = screen.getByLabelText(
+        "expedition.phase1.step3.endDate"
+      );
+      fireEvent.change(endInput, { target: { value: "2026-03-20" } });
+
+      fireEvent.click(screen.getByText("common.next"));
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.dateInPast"
+      );
+
+      vi.useRealTimers();
+    });
+
+    it("rejects same start and end dates", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-03-17T12:00:00Z"));
+
+      navigateToStep3();
+
+      const startInput = screen.getByLabelText(
+        "expedition.phase1.step3.startDate"
+      );
+      fireEvent.change(startInput, { target: { value: "2026-04-01" } });
+      const endInput = screen.getByLabelText(
+        "expedition.phase1.step3.endDate"
+      );
+      fireEvent.change(endInput, { target: { value: "2026-04-01" } });
+
+      fireEvent.click(screen.getByText("common.next"));
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.sameDates"
+      );
+
+      vi.useRealTimers();
+    });
+
+    it("rejects start date after end date", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-03-17T12:00:00Z"));
+
+      navigateToStep3();
+
+      const startInput = screen.getByLabelText(
+        "expedition.phase1.step3.startDate"
+      );
+      fireEvent.change(startInput, { target: { value: "2026-04-10" } });
+      const endInput = screen.getByLabelText(
+        "expedition.phase1.step3.endDate"
+      );
+      fireEvent.change(endInput, { target: { value: "2026-04-01" } });
+
+      fireEvent.click(screen.getByText("common.next"));
+
+      expect(screen.getByRole("alert")).toHaveTextContent(
+        "expedition.phase1.errors.startAfterEnd"
+      );
+
+      vi.useRealTimers();
+    });
+
+    it("accepts valid future dates and advances to step 4", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-03-17T12:00:00Z"));
+
+      navigateToStep3();
+
+      const startInput = screen.getByLabelText(
+        "expedition.phase1.step3.startDate"
+      );
+      fireEvent.change(startInput, { target: { value: "2026-04-01" } });
+      const endInput = screen.getByLabelText(
+        "expedition.phase1.step3.endDate"
+      );
+      fireEvent.change(endInput, { target: { value: "2026-04-10" } });
+
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should be on step 4 (confirmation)
+      expect(
+        screen.getByText("expedition.phase1.step4.title")
+      ).toBeInTheDocument();
+
+      vi.useRealTimers();
+    });
+
+    it("allows flexible dates to bypass validation", () => {
+      navigateToStep3();
+
+      // Check flexible dates
+      fireEvent.click(
+        screen.getByLabelText("expedition.phase1.step3.flexibleDates")
+      );
+
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should advance to step 4
+      expect(
+        screen.getByText("expedition.phase1.step4.title")
+      ).toBeInTheDocument();
+    });
+
+    it("clears error message after entering valid dates", () => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date("2026-03-17T12:00:00Z"));
+
+      navigateToStep3();
+
+      // Enter same dates (invalid)
+      const startInput = screen.getByLabelText(
+        "expedition.phase1.step3.startDate"
+      );
+      const endInput = screen.getByLabelText(
+        "expedition.phase1.step3.endDate"
+      );
+
+      fireEvent.change(startInput, { target: { value: "2026-04-01" } });
+      fireEvent.change(endInput, { target: { value: "2026-04-01" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Error should be visible
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+
+      // Fix the dates
+      fireEvent.change(endInput, { target: { value: "2026-04-10" } });
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Should now advance to step 4
+      expect(
+        screen.getByText("expedition.phase1.step4.title")
+      ).toBeInTheDocument();
+
+      vi.useRealTimers();
+    });
+  });
 });

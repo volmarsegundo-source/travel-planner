@@ -368,7 +368,12 @@
       "gridLabel": "Lista de expedições",
       "filterLabel": "Filtrar por status",
       "sortAnnouncement": "Ordenado por {criterion}",
-      "loadError": "Não foi possível carregar suas expedições. Tente novamente."
+      "loadError": "Não foi possível carregar suas expedições. Tente novamente.",
+      "quickAccessChecklist": "Checklist",
+      "quickAccessGuide": "Guia",
+      "quickAccessItinerary": "Roteiro",
+      "quickAccessReport": "Relatorio",
+      "quickAccessLabel": "Acesso rapido \u2014 {destination}"
     }
   },
   "profile": {
@@ -497,7 +502,11 @@
         "birthDateRequired": "Data de nascimento é obrigatória.",
         "destinationRequired": "Destino é obrigatório.",
         "endDateBeforeStart": "A data de retorno deve ser posterior à data de partida.",
-        "datesRequired": "As datas de ida e volta são obrigatórias. Marque 'datas flexíveis' se ainda não decidiu."
+        "datesRequired": "As datas de ida e volta são obrigatórias. Marque 'datas flexíveis' se ainda não decidiu.",
+        "dateInPast": "A data de partida deve ser no futuro",
+        "sameDates": "A viagem precisa ter pelo menos 1 noite",
+        "startAfterEnd": "A data de retorno deve ser após a partida",
+        "dateRequired": "Data obrigatória"
       }
     },
     "phase2": {
@@ -897,7 +906,8 @@
       "advance": "Avançar",
       "advancing": "Avançando...",
       "complete": "Concluir Expedição",
-      "completing": "Concluindo..."
+      "completing": "Concluindo...",
+      "viewExpeditions": "Ver Expedições"
     },
     "completeExpedition": "Concluir Expedição",
     "completeConfirm": "Tem certeza que deseja concluir esta expedição? Você ainda pode editar as fases após a conclusão.",
@@ -989,19 +999,67 @@
     },
     "points": "pts",
     "badge": {
-      "viewProfile": "Ver seu perfil Atlas"
+      "viewProfile": "Ver seu perfil Atlas",
+      "ariaLabel": "{points} pontos, nivel {rankName}"
     }
   },
   "atlas": {
     "title": "Meu Atlas",
+    "pageDescription": "Veja todos os seus destinos no mapa",
     "totalPoints": "Pontos Totais",
     "currentRank": "Rank",
     "badges": "Medalhas",
     "streakDays": "Dias de Sequência",
     "badgesEarned": "Medalhas Conquistadas",
-    "emptyTitle": "Seu Atlas aguarda",
+    "emptyTitle": "Seu mapa está vazio",
     "emptyDescription": "Comece sua primeira expedição para ganhar pontos, medalhas e subir no ranking!",
-    "startExpedition": "Começar primeira expedição"
+    "emptySubtitle": "Crie sua primeira expedição para ver destinos no mapa.",
+    "emptyCta": "Planejar primeira expedição",
+    "startExpedition": "Começar primeira expedição",
+    "loading": "Carregando mapa...",
+    "viewExpedition": "Ver expedição",
+    "viewFullMap": "Ver mapa completo",
+    "continueExpedition": "Continuar expedição",
+    "viewSummary": "Ver resumo",
+    "filterAll": "Todas",
+    "filterActive": "Ativas",
+    "filterCompleted": "Concluídas",
+    "filterPlanned": "Planejadas",
+    "pinStatus": {
+      "completed": "concluída",
+      "active": "em andamento",
+      "planned": "planejada"
+    },
+    "noCoordinates": "Sem coordenadas",
+    "noCoordinatesHint": "Sem coordenadas -- edite a Fase 1 para adicionar.",
+    "mapError": "Não foi possível carregar o mapa. Verifique sua conexão.",
+    "retry": "Tentar novamente"
+  },
+  "report": {
+    "title": "Relatorio da Expedicao",
+    "viewReport": "Ver relatorio",
+    "reportNotAvailable": "O relatorio estara disponivel quando as fases de preparo, guia e roteiro estiverem completas.",
+    "generatedAt": "Gerado em {date}",
+    "phase1Title": "O Chamado",
+    "phase2Title": "O Explorador",
+    "phase3Title": "O Preparo",
+    "phase4Title": "A Logistica",
+    "phase5Title": "Guia do Destino",
+    "phase6Title": "O Roteiro",
+    "destination": "Destino",
+    "origin": "Origem",
+    "dates": "Datas",
+    "tripType": "Tipo de viagem",
+    "travelerType": "Tipo de viajante",
+    "accommodationStyle": "Estilo de hospedagem",
+    "passengers": "Passageiros",
+    "checklistProgress": "{done} de {total} itens completos",
+    "transport": "Transporte",
+    "accommodation": "Hospedagem",
+    "mobility": "Mobilidade local",
+    "itineraryDays": "{count} dias de roteiro",
+    "activities": "{count} atividades",
+    "dayLabel": "Dia {number}"
   },
   "errors": {
     "boundary": {

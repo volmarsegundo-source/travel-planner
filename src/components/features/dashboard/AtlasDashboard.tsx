@@ -19,6 +19,9 @@ interface ExpeditionTrip {
   checklistRequiredDone: number;
   checklistRecommendedPending: number;
   hasItineraryPlan?: boolean;
+  destinationLat?: number | null;
+  destinationLon?: number | null;
+  status?: string;
 }
 
 interface AtlasDashboardProps {
@@ -38,7 +41,19 @@ export function AtlasDashboard({
 
   return (
     <div className="relative mx-auto min-h-[400px] max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <AtlasHeroMap destinations={expeditions.map((e) => e.destination)} />
+      <AtlasHeroMap
+        pins={expeditions
+          .filter((e) => e.destinationLat != null && e.destinationLon != null)
+          .map((e) => ({
+            lat: e.destinationLat!,
+            lon: e.destinationLon!,
+            status: (e.status === "COMPLETED"
+              ? "COMPLETED"
+              : e.currentPhase > 1
+                ? "IN_PROGRESS"
+                : "PLANNING") as "PLANNING" | "IN_PROGRESS" | "COMPLETED",
+          }))}
+      />
 
       <div className="relative z-10">
         <DashboardHeader

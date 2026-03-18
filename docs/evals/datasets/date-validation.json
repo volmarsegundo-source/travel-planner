@@ -1,0 +1,132 @@
+{
+  "dataset_id": "date-validation",
+  "version": "1.0.0",
+  "sprint": 31,
+  "spec_ref": "SPEC-QA-008",
+  "description": "Eval cases for trip date validation — past dates, same day, start>end, and valid combinations",
+  "grader": "input-validation-correctness",
+  "cases": [
+    {
+      "case_id": "DATE-001",
+      "title": "Past start date rejected",
+      "input": {
+        "startDate": "2026-03-10",
+        "endDate": "2026-03-20",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": false,
+        "error_field": "startDate",
+        "error_key": "errors.dateMustBeTodayOrLater",
+        "server_side_enforced": true,
+        "client_side_enforced": true
+      }
+    },
+    {
+      "case_id": "DATE-002",
+      "title": "Past end date rejected",
+      "input": {
+        "startDate": "2026-03-18",
+        "endDate": "2026-03-15",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": false,
+        "error_field": "endDate",
+        "error_key": "errors.endDateMustBeAfterStartDate",
+        "server_side_enforced": true,
+        "client_side_enforced": true
+      }
+    },
+    {
+      "case_id": "DATE-003",
+      "title": "Same-day start and end rejected (minimum 1-day trip)",
+      "input": {
+        "startDate": "2026-03-20",
+        "endDate": "2026-03-20",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": false,
+        "error_field": "endDate",
+        "error_key": "errors.endDateMustBeAfterStartDate",
+        "server_side_enforced": true,
+        "client_side_enforced": true
+      }
+    },
+    {
+      "case_id": "DATE-004",
+      "title": "Start date after end date rejected",
+      "input": {
+        "startDate": "2026-04-15",
+        "endDate": "2026-04-10",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": false,
+        "error_field": "endDate",
+        "error_key": "errors.endDateMustBeAfterStartDate",
+        "server_side_enforced": true,
+        "client_side_enforced": true
+      }
+    },
+    {
+      "case_id": "DATE-005",
+      "title": "Valid dates accepted: start tomorrow, end in 5 days",
+      "input": {
+        "startDate": "2026-03-18",
+        "endDate": "2026-03-22",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": true,
+        "trip_created": true
+      }
+    },
+    {
+      "case_id": "DATE-006",
+      "title": "Valid dates accepted: start today, end tomorrow",
+      "input": {
+        "startDate": "2026-03-17",
+        "endDate": "2026-03-18",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": true,
+        "trip_created": true,
+        "note": "Today as start date is valid (not past)"
+      }
+    },
+    {
+      "case_id": "DATE-007",
+      "title": "Valid dates accepted: far future dates",
+      "input": {
+        "startDate": "2027-06-01",
+        "endDate": "2027-06-30",
+        "current_date": "2026-03-17"
+      },
+      "expected": {
+        "valid": true,
+        "trip_created": true,
+        "note": "No upper bound on future dates"
+      }
+    },
+    {
+      "case_id": "DATE-008",
+      "title": "Server-side enforcement: client bypass attempt with past dates",
+      "input": {
+        "startDate": "2025-01-01",
+        "endDate": "2025-01-05",
+        "current_date": "2026-03-17",
+        "submission_method": "direct_api_call_bypassing_client"
+      },
+      "expected": {
+        "valid": false,
+        "server_response_status": 400,
+        "error_field": "startDate",
+        "trip_created": false,
+        "note": "Server-side Zod validation catches bypassed client validation"
+      }
+    }
+  ]
+}

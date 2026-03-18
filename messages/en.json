@@ -368,7 +368,12 @@
       "gridLabel": "Expeditions list",
       "filterLabel": "Filter by status",
       "sortAnnouncement": "Sorted by {criterion}",
-      "loadError": "Could not load your expeditions. Try again."
+      "loadError": "Could not load your expeditions. Try again.",
+      "quickAccessChecklist": "Checklist",
+      "quickAccessGuide": "Guide",
+      "quickAccessItinerary": "Itinerary",
+      "quickAccessReport": "Report",
+      "quickAccessLabel": "Quick access \u2014 {destination}"
     }
   },
   "profile": {
@@ -497,7 +502,11 @@
         "birthDateRequired": "Birth date is required.",
         "destinationRequired": "Destination is required.",
         "endDateBeforeStart": "End date must be after start date.",
-        "datesRequired": "Departure and return dates are required. Check 'flexible dates' if you haven't decided yet."
+        "datesRequired": "Departure and return dates are required. Check 'flexible dates' if you haven't decided yet.",
+        "dateInPast": "Departure date must be in the future",
+        "sameDates": "Trip must be at least 1 night",
+        "startAfterEnd": "Return date must be after departure",
+        "dateRequired": "Date required"
       }
     },
     "phase2": {
@@ -897,7 +906,8 @@
       "advance": "Advance",
       "advancing": "Advancing...",
       "complete": "Complete Expedition",
-      "completing": "Completing..."
+      "completing": "Completing...",
+      "viewExpeditions": "View Expeditions"
     },
     "completeExpedition": "Complete Expedition",
     "completeConfirm": "Are you sure you want to complete this expedition? You can still edit phases after completing.",
@@ -989,19 +999,67 @@
     },
     "points": "pts",
     "badge": {
-      "viewProfile": "View your Atlas profile"
+      "viewProfile": "View your Atlas profile",
+      "ariaLabel": "{points} points, level {rankName}"
     }
   },
   "atlas": {
     "title": "My Atlas",
+    "pageDescription": "See all your destinations on the map",
     "totalPoints": "Total Points",
     "currentRank": "Rank",
     "badges": "Badges",
     "streakDays": "Streak Days",
     "badgesEarned": "Badges Earned",
-    "emptyTitle": "Your Atlas awaits",
+    "emptyTitle": "Your map is empty",
     "emptyDescription": "Start your first expedition to earn points, badges, and climb the ranks!",
-    "startExpedition": "Start your first expedition"
+    "emptySubtitle": "Create your first expedition to see destinations on the map.",
+    "emptyCta": "Plan first expedition",
+    "startExpedition": "Start your first expedition",
+    "loading": "Loading map...",
+    "viewExpedition": "View expedition",
+    "viewFullMap": "View full map",
+    "continueExpedition": "Continue expedition",
+    "viewSummary": "View summary",
+    "filterAll": "All",
+    "filterActive": "Active",
+    "filterCompleted": "Completed",
+    "filterPlanned": "Planned",
+    "pinStatus": {
+      "completed": "completed",
+      "active": "in progress",
+      "planned": "planned"
+    },
+    "noCoordinates": "No coordinates",
+    "noCoordinatesHint": "No coordinates -- edit Phase 1 to add.",
+    "mapError": "Could not load the map. Check your connection.",
+    "retry": "Try again"
+  },
+  "report": {
+    "title": "Expedition Report",
+    "viewReport": "View report",
+    "reportNotAvailable": "The report will be available when the preparation, guide, and itinerary phases are complete.",
+    "generatedAt": "Generated on {date}",
+    "phase1Title": "The Calling",
+    "phase2Title": "The Explorer",
+    "phase3Title": "The Preparation",
+    "phase4Title": "The Logistics",
+    "phase5Title": "Destination Guide",
+    "phase6Title": "The Itinerary",
+    "destination": "Destination",
+    "origin": "Origin",
+    "dates": "Dates",
+    "tripType": "Trip type",
+    "travelerType": "Traveler type",
+    "accommodationStyle": "Accommodation style",
+    "passengers": "Passengers",
+    "checklistProgress": "{done} of {total} items completed",
+    "transport": "Transport",
+    "accommodation": "Accommodation",
+    "mobility": "Local mobility",
+    "itineraryDays": "{count} itinerary days",
+    "activities": "{count} activities",
+    "dayLabel": "Day {number}"
   },
   "errors": {
     "boundary": {
