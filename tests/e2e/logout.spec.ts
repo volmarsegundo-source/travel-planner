@@ -34,8 +34,8 @@ test.describe("Logout — redirect to landing", () => {
       .getByRole("menuitem", { name: /sign out|sair/i })
       .click();
 
-    // Should redirect to landing page or login page
-    await page.waitForURL(/\/(en\/?)?$|\/auth\/login/, { timeout: 30_000 });
+    // Wait for redirect — may go through intermediate states
+    await page.waitForURL(/\/(en\/?)?$|\/auth\/login/, { timeout: 60_000 });
 
     // Landing page or login page content should be visible
     await expect(

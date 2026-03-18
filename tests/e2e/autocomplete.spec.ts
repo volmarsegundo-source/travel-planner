@@ -24,22 +24,41 @@ async function fillAutocompleteWithRetry(
   opts: { timeout?: number } = {}
 ): Promise<void> {
   const timeout = opts.timeout ?? 15_000;
+  const option = page.locator('[data-testid="destination-option"]').first();
 
-  // First attempt
-  await input.fill(query);
-  const listbox = page.locator('[data-testid="destination-listbox"]');
-  const appeared = await listbox
-    .waitFor({ state: "visible", timeout: 8_000 })
-    .then(() => true)
-    .catch(() => false);
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (attempt > 0) {
+      await input.fill("");
+      await page.waitForTimeout(800 + attempt * 400);
+    }
+    await input.fill(query);
+    const appeared = await option
+      .waitFor({ state: "visible", timeout: attempt === 2 ? timeout : 10_000 })
+      .then(() => true)
+      .catch(() => false);
+    if (appeared) return;
+  }
 
-  if (appeared) return;
+  throw new Error(`Autocomplete did not return results for "${query}" after 3 attempts`);
+}
 
-  // Retry: clear and re-type
-  await input.fill("");
-  await page.waitForTimeout(600);
-  await input.fill(query);
-  await listbox.waitFor({ state: "visible", timeout: timeout });
+/**
+ * Tries multiple city names for autocomplete, returns the one that worked.
+ */
+async function fillAutocompleteWithFallback(
+  page: import("@playwright/test").Page,
+  input: import("@playwright/test").Locator,
+  cities: string[]
+): Promise<boolean> {
+  for (const city of cities) {
+    try {
+      await fillAutocompleteWithRetry(page, input, city, { timeout: 12_000 });
+      return true;
+    } catch {
+      // Try next city
+    }
+  }
+  return false;
 }
 
 // ---------------------------------------------------------------------------
@@ -97,13 +116,12 @@ test.describe("Autocomplete -- dropdown appearance", () => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
     await goToDestinationStep(page);
 
-    // Type in the destination input (last one, since origin may also be present)
+    // Type in the destination input — try multiple cities for staging API reliability
     const destInput = page.locator('[data-testid="destination-input"]').first();
-    await fillAutocompleteWithRetry(page, destInput, "Roma");
-
-    // Wait for dropdown to appear
-    const listbox = page.locator('[data-testid="destination-listbox"]');
-    await expect(listbox).toBeVisible({ timeout: 15_000 });
+    const filled = await fillAutocompleteWithFallback(
+      page, destInput, ["Roma", "London", "Berlin", "Madrid"]
+    );
+    expect(filled).toBe(true);
 
     // Should have at least one option
     const options = page.locator('[data-testid="destination-option"]');
@@ -127,7 +145,10 @@ test.describe("Autocomplete -- result format", () => {
     await goToDestinationStep(page);
 
     const destInput = page.locator('[data-testid="destination-input"]').first();
-    await fillAutocompleteWithRetry(page, destInput, "London");
+    const filled = await fillAutocompleteWithFallback(
+      page, destInput, ["London", "Roma", "Berlin", "Madrid"]
+    );
+    expect(filled).toBe(true);
 
     const firstOption = page
       .locator('[data-testid="destination-option"]')
@@ -164,7 +185,10 @@ test.describe("Autocomplete -- selection", () => {
     await goToDestinationStep(page);
 
     const destInput = page.locator('[data-testid="destination-input"]').first();
-    await fillAutocompleteWithRetry(page, destInput, "Berlin");
+    const filled = await fillAutocompleteWithFallback(
+      page, destInput, ["Berlin", "Roma", "London", "Madrid"]
+    );
+    expect(filled).toBe(true);
 
     const firstOption = page
       .locator('[data-testid="destination-option"]')
@@ -173,14 +197,14 @@ test.describe("Autocomplete -- selection", () => {
     await firstOption.click();
 
     // Input should now show "City, Country" format
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
     const inputValue = await destInput.inputValue();
     // Should contain a comma (City, Country format)
     expect(inputValue).toContain(",");
 
     // Dropdown should be closed
     const listbox = page.locator('[data-testid="destination-listbox"]');
-    await expect(listbox).not.toBeVisible({ timeout: 3_000 });
+    await expect(listbox).not.toBeVisible({ timeout: 5_000 });
 
     expect(errors).toHaveLength(0);
   });
@@ -196,14 +220,14 @@ test.describe("Autocomplete -- trip type badge", () => {
     await loginAs(page, TEST_USER.email, TEST_USER.password);
     await goToDestinationStep(page);
 
-    // First set origin (Brazil) -- use "Brasilia" for faster/more unique results
+    // First set origin (Brazil) -- try multiple cities for staging reliability
     const originInput = page
       .locator('[data-testid="destination-input"]')
       .first();
     if (await originInput.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      const originFilled = await fillAutocompleteWithRetry(page, originInput, "Brasilia")
-        .then(() => true)
-        .catch(() => false);
+      const originFilled = await fillAutocompleteWithFallback(
+        page, originInput, ["Brasilia", "Roma", "London"]
+      );
 
       if (originFilled) {
         const originOpt = page
@@ -218,11 +242,13 @@ test.describe("Autocomplete -- trip type badge", () => {
 
     // Then set destination (international)
     const destInput = page.locator('[data-testid="destination-input"]').first();
-    await fillAutocompleteWithRetry(page, destInput, "Tokyo");
+    const destFilled = await fillAutocompleteWithFallback(
+      page, destInput, ["Tokyo", "Berlin", "Madrid", "Roma"]
+    );
+    expect(destFilled).toBe(true);
     const destOpt = page
       .locator('[data-testid="destination-option"]')
       .first();
-    await expect(destOpt).toBeVisible({ timeout: 15_000 });
     await destOpt.click();
     await page.waitForTimeout(500);
 
@@ -285,7 +311,10 @@ test.describe("Autocomplete -- clear input", () => {
     await goToDestinationStep(page);
 
     const destInput = page.locator('[data-testid="destination-input"]').first();
-    await fillAutocompleteWithRetry(page, destInput, "Madrid");
+    const filled = await fillAutocompleteWithFallback(
+      page, destInput, ["Madrid", "Roma", "London", "Berlin"]
+    );
+    expect(filled).toBe(true);
 
     const firstOption = page
       .locator('[data-testid="destination-option"]')

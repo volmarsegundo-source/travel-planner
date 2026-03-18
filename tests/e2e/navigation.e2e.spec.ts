@@ -31,7 +31,7 @@ async function getFirstTripId(
   }
 
   // Extract tripId from the expedition card link
-  const expLink = page.getByRole("article").first().getByRole("link").first();
+  const expLink = page.locator('[data-testid="expedition-card"]').first().locator("a").first();
   if (!(await expLink.isVisible({ timeout: 3_000 }).catch(() => false))) {
     return null;
   }
@@ -370,13 +370,13 @@ test.describe("Navigation -- dashboard continue link", () => {
     await page.waitForLoadState("networkidle");
 
     // Find the first expedition card link
-    const expCard = page.getByRole("article").first();
+    const expCard = page.locator('[data-testid="expedition-card"]').first();
     if (!(await expCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
       test.skip(true, "No expedition cards on dashboard");
       return;
     }
 
-    const cardLink = expCard.getByRole("link").first();
+    const cardLink = expCard.locator("a").first();
     await cardLink.click();
     await page.waitForURL(/\/expedition\//, { timeout: 15_000 });
     expect(page.url()).toContain("/expedition/");

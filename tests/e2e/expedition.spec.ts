@@ -39,23 +39,28 @@ test.describe("Expedition — Phase 1 wizard", () => {
 
     await page.waitForURL(/\/expedition\/new/, { timeout: 15_000 });
 
-    // Step 1: Profile fields — fill required name + birthDate
+    // Step 1: Profile fields — fill required name + birthDate (or skip if pre-populated)
     await page.waitForLoadState("networkidle");
 
     // Wait for wizard to render
     const nextBtnStep1 = page.getByRole("button", { name: /^next$/i });
     await nextBtnStep1.waitFor({ timeout: 15_000 });
 
-    // Fill name — click first to focus, then fill
-    const nameInput = page.getByPlaceholder("Your full name");
-    await nameInput.click();
-    await nameInput.fill("Test User");
-
-    // Fill birthDate
-    const birthInput = page.getByLabel(/date of birth/i);
-    if (await birthInput.isVisible({ timeout: 2_000 }).catch(() => false)) {
-      await birthInput.click();
-      await birthInput.fill("1990-01-01");
+    // Check for profile summary card first (profile already populated)
+    const summaryCard = page.locator('[data-testid="edit-profile-btn"]');
+    if (await summaryCard.isVisible({ timeout: 5_000 }).catch(() => false)) {
+      // Profile already populated — just click Next
+    } else {
+      // Fill name and birthDate
+      const nameInput = page.locator("#profile-name");
+      if (await nameInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        await nameInput.fill("Test User");
+      }
+      const birthInput = page.locator("#profile-birthdate");
+      if (await birthInput.isVisible({ timeout: 2_000 }).catch(() => false)) {
+        const bval = await birthInput.inputValue();
+        if (!bval) await birthInput.fill("1990-01-01");
+      }
     }
 
     // Click Next to advance to step 2
@@ -64,22 +69,27 @@ test.describe("Expedition — Phase 1 wizard", () => {
     // Wait for step 2 to render (destination input)
     await page.locator('[data-testid="destination-input"]').first().waitFor({ timeout: 15_000 });
 
-    // Step 2: Destination — type and select using reliable city
+    // Step 2: Destination — type and select using reliable city (with fallback)
     const destInput = page.locator('[data-testid="destination-input"]').first();
     await expect(destInput).toBeVisible({ timeout: 15_000 });
-    await destInput.fill("Roma");
 
-    // Wait for autocomplete results — retry if needed (Nominatim can be slow)
     const firstResult = page.locator('[data-testid="destination-option"]').first();
-    try {
-      await expect(firstResult).toBeVisible({ timeout: 15_000 });
-    } catch {
-      // Retry: clear and re-fill
+    const cities = ["Roma", "London", "Berlin", "Madrid"];
+    let selected = false;
+    for (const city of cities) {
       await destInput.fill("");
-      await page.waitForTimeout(500);
-      await destInput.fill("Roma");
-      await expect(firstResult).toBeVisible({ timeout: 15_000 });
+      await page.waitForTimeout(300);
+      await destInput.fill(city);
+      const appeared = await firstResult
+        .waitFor({ state: "visible", timeout: 12_000 })
+        .then(() => true)
+        .catch(() => false);
+      if (appeared) {
+        selected = true;
+        break;
+      }
     }
+    expect(selected).toBe(true);
     await firstResult.click();
 
     // Click Next (wizard-primary) to go to step 3 (dates)
@@ -230,11 +240,9 @@ test.describe("Expedition — points increase", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // The navbar shows gamification info (e.g., "825 O Legado" linking to /atlas)
-    // The phase name varies (Chamado, Explorador, Legado, etc.) so match on the atlas link
-    const gamificationHeader = page.getByRole("link", { name: /\d+\s+/i }).first();
-
-    await expect(gamificationHeader).toBeVisible({ timeout: 10_000 });
+    // The navbar shows gamification info as a badge with role="status"
+    const gamificationBadge = page.locator('[data-testid="gamification-badge"]');
+    await expect(gamificationBadge).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -253,14 +261,14 @@ test.describe("Itinerary — AI generation", () => {
     await page.waitForLoadState("networkidle");
 
     // If there are expedition cards, click the first one
-    const expeditionCard = page.getByRole("article").first();
+    const expeditionCard = page.locator('[data-testid="expedition-card"]').first();
     if (!(await expeditionCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
       test.skip(true, "No expeditions available — create an expedition first");
       return;
     }
 
     // Click on expedition link to navigate to detail
-    const expeditionLink = expeditionCard.getByRole("link").first();
+    const expeditionLink = expeditionCard.locator("a").first();
     await expeditionLink.click();
 
     await page.waitForURL(/\/expedition\/[^/]+/, { timeout: 15_000 });
@@ -286,14 +294,14 @@ test.describe("Expedition — phase page", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    const expeditionCard = page.getByRole("article").first();
+    const expeditionCard = page.locator('[data-testid="expedition-card"]').first();
     if (!(await expeditionCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
       test.skip(true, "No expeditions available");
       return;
     }
 
     // Navigate to expedition phase page
-    const expeditionLink = expeditionCard.getByRole("link").first();
+    const expeditionLink = expeditionCard.locator("a").first();
     await expeditionLink.click();
     await page.waitForURL(/\/expedition\/[^/]+/, { timeout: 15_000 });
     await page.waitForLoadState("networkidle");

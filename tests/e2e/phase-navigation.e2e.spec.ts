@@ -37,7 +37,7 @@ async function getFirstTripId(
     return null;
   }
 
-  const expLink = page.getByRole("article").first().getByRole("link").first();
+  const expLink = page.locator('[data-testid="expedition-card"]').first().locator("a").first();
   if (!(await expLink.isVisible({ timeout: 3_000 }).catch(() => false))) {
     return null;
   }

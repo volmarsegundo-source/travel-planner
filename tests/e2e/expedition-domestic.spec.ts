@@ -88,26 +88,24 @@ async function createDomesticExpedition(page: Page): Promise<string> {
   await newExpBtn.first().click();
   await page.waitForURL(/\/expedition\/new/, { timeout: 30_000 });
 
-  // Step 1: About You -- fill name and birthDate
+  // Step 1: About You -- fill name and birthDate (or skip if summary card shown)
   await page.waitForLoadState("networkidle");
   const nextBtnReady = page.getByRole("button", { name: /^next$/i });
-  await nextBtnReady.waitFor({ timeout: 15_000 });
+  await nextBtnReady.first().waitFor({ timeout: 15_000 });
 
-  const nameInput = page.getByPlaceholder("Your full name");
+  // Check if profile form is shown (not summary card)
+  const nameInput = page.locator("#profile-name");
   if (await nameInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
     const currentValue = await nameInput.inputValue();
     if (!currentValue) {
-      await nameInput.click();
       await nameInput.fill("Test Traveler");
     }
-  }
-
-  const birthInput = page.getByLabel(/date of birth/i);
-  if (await birthInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
-    const currentValue = await birthInput.inputValue();
-    if (!currentValue) {
-      await birthInput.click();
-      await birthInput.fill("1990-05-15");
+    const birthInput = page.locator("#profile-birthdate");
+    if (await birthInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      const currentValue = await birthInput.inputValue();
+      if (!currentValue) {
+        await birthInput.fill("1990-05-15");
+      }
     }
   }
 
@@ -173,8 +171,8 @@ async function createDomesticExpedition(page: Page): Promise<string> {
   const confirmBtn = page.locator('[data-testid="wizard-primary"]');
   await confirmBtn.click();
 
-  // Should navigate to phase 2
-  await page.waitForURL(/\/expedition\/[^/]+\/phase-2/, { timeout: 30_000 });
+  // Should navigate to phase 2 (increase timeout for slow staging environments)
+  await page.waitForURL(/\/expedition\/[^/]+\/phase-2/, { timeout: 45_000 });
 
   // Extract tripId from URL
   const url = page.url();
@@ -191,31 +189,23 @@ async function getOrCreateExpedition(page: Page): Promise<string> {
   await page.goto("/en/expeditions");
   await page.waitForLoadState("networkidle");
 
-  // Try to find an existing expedition card
-  const expCard = page.getByRole("article").first();
-  const continueLink = page
-    .getByRole("link", { name: /continue|continuar/i })
-    .first()
-    .or(page.getByText(/view expedition/i).first());
-
+  // Try to find an existing expedition card (new card uses div, not article)
+  const expCard = page.locator('[data-testid="expedition-card"]').first();
   const hasCard = await expCard.isVisible({ timeout: 5_000 }).catch(() => false);
-  const hasLink = await continueLink.isVisible({ timeout: 2_000 }).catch(() => false);
 
-  if (hasCard || hasLink) {
-    // Try via continue link first
-    if (hasLink) {
-      await continueLink.click();
-      await page.waitForURL(/\/expedition\//, { timeout: 15_000 });
-    } else {
-      const expLink = expCard.getByRole("link").first();
-      if (await expLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
+  if (hasCard) {
+    // Extract tripId from the card's overlay link
+    const expLink = expCard.locator("a").first();
+    if (await expLink.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      const href = await expLink.getAttribute("href");
+      const tripIdMatch = href?.match(/\/expedition\/([^/]+)/);
+      if (tripIdMatch) {
+        // Navigate to the expedition
         await expLink.click();
         await page.waitForURL(/\/expedition\//, { timeout: 15_000 });
+        return tripIdMatch[1];
       }
     }
-
-    const tripIdMatch = page.url().match(/\/expedition\/([^/]+)/);
-    if (tripIdMatch) return tripIdMatch[1];
   }
 
   // No existing expedition -- create one
@@ -271,25 +261,23 @@ test.describe("Domestic Expedition -- trip type badge", () => {
     // Fill step 1 minimally and advance to step 2
     await page.waitForLoadState("networkidle");
     const step1Next = page.getByRole("button", { name: /^next$/i });
-    await step1Next.waitFor({ timeout: 15_000 });
+    await step1Next.first().waitFor({ timeout: 15_000 });
 
-    const nameInput = page.getByPlaceholder("Your full name");
+    const nameInput = page.locator("#profile-name");
     if (await nameInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
       const val = await nameInput.inputValue();
       if (!val) {
-        await nameInput.click();
         await nameInput.fill("Badge Test");
       }
-    }
-    const birthInput = page.getByLabel(/date of birth/i);
-    if (await birthInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      const val = await birthInput.inputValue();
-      if (!val) {
-        await birthInput.click();
-        await birthInput.fill("1990-01-01");
+      const birthInput = page.locator("#profile-birthdate");
+      if (await birthInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        const val = await birthInput.inputValue();
+        if (!val) {
+          await birthInput.fill("1990-01-01");
+        }
       }
     }
-    await step1Next.click();
+    await step1Next.first().click();
     await page.locator('[data-testid="destination-input"]').first().waitFor({ timeout: 15_000 });
 
     // Fill origin (BR) + destination (BR) to trigger domestic badge
@@ -786,25 +774,23 @@ test.describe("Domestic Expedition -- Phase 1 confirmation", () => {
     // Step 1: About You
     await page.waitForLoadState("networkidle");
     const step1Next = page.getByRole("button", { name: /^next$/i });
-    await step1Next.waitFor({ timeout: 15_000 });
+    await step1Next.first().waitFor({ timeout: 15_000 });
 
-    const nameInput = page.getByPlaceholder("Your full name");
+    const nameInput = page.locator("#profile-name");
     if (await nameInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
       const val = await nameInput.inputValue();
       if (!val) {
-        await nameInput.click();
         await nameInput.fill("Confirm Test");
       }
-    }
-    const birthInput = page.getByLabel(/date of birth/i);
-    if (await birthInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
-      const val = await birthInput.inputValue();
-      if (!val) {
-        await birthInput.click();
-        await birthInput.fill("1990-01-01");
+      const birthInput = page.locator("#profile-birthdate");
+      if (await birthInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        const val = await birthInput.inputValue();
+        if (!val) {
+          await birthInput.fill("1990-01-01");
+        }
       }
     }
-    await step1Next.click();
+    await step1Next.first().click();
     await page.locator('[data-testid="destination-input"]').first().waitFor({ timeout: 15_000 });
 
     const nextBtn = page.locator('[data-testid="wizard-primary"]');
@@ -930,7 +916,7 @@ test.describe("Domestic Expedition -- dashboard display", () => {
     await page.waitForLoadState("networkidle");
 
     // At least one expedition card should exist or dashboard has content
-    const expCard = page.getByRole("article").first();
+    const expCard = page.locator('[data-testid="expedition-card"]').first();
     if (await expCard.isVisible({ timeout: 5_000 }).catch(() => false)) {
       // Card should have content (destination name, phase info, etc.)
       await expect(expCard).not.toBeEmpty();
