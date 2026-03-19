@@ -90,6 +90,23 @@
 | SPEC-RELEASE-002-S31 | v0.26.0 Release Plan | release-manager | Draft | 1.0.0 | 31 | tech-lead |
 | SPEC-COST-002-S31 | Sprint 31 Cost Assessment | finops-engineer | Draft | 1.0.0 | 31 | tech-lead, architect |
 | SPEC-AI-002-S31 | Sprint 31 AI Impact Review | prompt-engineer | Draft | 1.0.0 | 31 | tech-lead |
+| SPEC-PROD-025 | Phase Transition Fixes (P0-001, P0-006) | product-owner | Draft | 1.0.0 | 32 | tech-lead, architect, ux-designer |
+| SPEC-PROD-026 | Completion Engine Fixes (P0-002, P0-003, P0-007, UX-006, UX-008) | product-owner | Draft | 1.0.0 | 32 | tech-lead, architect, ux-designer |
+| SPEC-PROD-027 | Report i18n e Completude (P1-004, P1-005) | product-owner | Draft | 1.0.0 | 32 | tech-lead, architect, ux-designer |
+| SPEC-PROD-028 | UX Improvements (UX-001–005, UX-007) | product-owner | Draft | 1.0.0 | 32 | tech-lead, ux-designer |
+| SPEC-QA-009 | Sprint 32 Regression Test Plan — Stabilization v0.26.0 | qa-engineer | Draft | 1.1.0 | 32 | tech-lead, architect |
+| SPEC-AI-003 | Sprint 32 AI Impact Review — Phase 6 Auto-Generation | prompt-engineer | Draft | 1.0.0 | 32 | tech-lead, finops-engineer |
+| SPEC-INFRA-003 | Sprint 32 Infrastructure Review | devops-engineer | Draft | 1.0.0 | 32 | tech-lead |
+| SPEC-RELEASE-003 | v0.27.0 Release Plan | release-manager | Draft | 1.0.0 | 32 | tech-lead |
+| SPEC-COST-003 | Sprint 32 Cost Impact Assessment | finops-engineer | Draft | 1.0.0 | 32 | tech-lead |
+| SPEC-SEC-003 | Sprint 32 Security Review — Phase Transition, Completion Engine, Report i18n | security-specialist | Draft | 1.0.0 | 32 | tech-lead, architect |
+| SPEC-UX-028 | Autocomplete Side-by-Side Layout (UX-001) | ux-designer | Draft | 1.0.0 | 32 | product-owner, tech-lead, architect |
+| SPEC-UX-029 | Preferences 4+3 Split (UX-003) | ux-designer | Draft | 1.0.0 | 32 | product-owner, tech-lead, architect |
+| SPEC-UX-030 | Phase Names Below Progress Bar (UX-007) | ux-designer | Draft | 1.0.0 | 32 | product-owner, tech-lead, architect |
+| SPEC-UX-031 | Incomplete Phase Warning Dialog (UX-008) | ux-designer | Draft | 1.0.0 | 32 | product-owner, tech-lead, architect |
+| SPEC-UX-032 | Car Rental Conditional Question (UX-004) | ux-designer | Draft | 1.0.0 | 32 | product-owner, tech-lead, architect |
+| SPEC-ARCH-018 | Phase Completion Engine Fixes (P0-001/002/003/005/006/007, UX-006) | architect | Draft | 1.0.0 | 32 | tech-lead, security-specialist, qa-engineer |
+| SPEC-ARCH-019 | Report Data Aggregation i18n Layer (P1-004, P1-005) | architect | Draft | 1.0.0 | 32 | tech-lead, security-specialist, qa-engineer |
 
 ---
 
@@ -159,3 +176,10 @@
 | 2026-03-17 | Sprint 29 complete: marked SPEC-PROD-007/009, SPEC-UX-012/014, SPEC-ARCH-005/010 as Implemented. Phase Navigation Redesign (SPEC-PROD-016, SPEC-UX-019, SPEC-ARCH-010) shipped as v0.24.0 with 1869 tests. | tech-lead |
 | 2026-03-17 | Sprint 30 planning: created 9 new specs (SPEC-PROD-017/018/019/020, SPEC-UX-020/021, SPEC-ARCH-011/012, SPEC-QA-001). Theme: Navigation Stabilization + 4 Product Rewrites (Autocomplete, Meu Atlas, Expedicoes Dashboard, Summary Report). P0: SPEC-PROD-016 full conformance. Budget: 40-50h. | product-owner |
 | 2026-03-17 | Sprint 31 planning: registered 20 specs total. Pre-existing from other agents: SPEC-PROD-021/022/023/024, SPEC-UX-024/025/026/027, SPEC-ARCH-015/016/017. New from tech-lead: SPEC-QA-005/006/007/008, SPEC-SEC-002-S31, SPEC-INFRA-002-S31, SPEC-RELEASE-002-S31, SPEC-COST-002-S31, SPEC-AI-002-S31. Created 4 eval datasets (atlas-map-rendering, phase-completion-states, dashboard-quickaccess, date-validation). Created SPRINT-31-PLAN.md with 16 tasks, 45h budget. Theme: Meu Atlas Rewrite + Phase Completion + Dashboard Quick-Access + UX Cleanups. | tech-lead |
+| 2026-03-19 | Sprint 32 planning: created SPEC-PROD-025 (Phase Transition Fixes — P0-001/P0-006) and SPEC-QA-009 (Sprint 32 Regression Test Plan). Theme: Stabilization v0.26.0. 6 P0 bugs + 5 P1 bugs. Target: >= 95% pass rate. E2E test spec: tests/e2e/phase-completion.spec.ts. | qa-engineer |
+| 2026-03-19 | Sprint 32 product specs complete: created SPEC-PROD-026 (Completion Engine Fixes — P0-002/P0-003/P0-007/UX-006/UX-008), SPEC-PROD-027 (Report i18n e Completude — P1-004/P1-005), SPEC-PROD-028 (UX Improvements — UX-001/002/003/004/005/007). Created SPRINT-32-PRIORITIES.md. All 4 product specs as Draft. | product-owner |
+| 2026-03-19 | Sprint 32 support specs: created SPEC-INFRA-003 (Infrastructure Review — no blockers), SPEC-RELEASE-003 (v0.27.0 Release Plan — changelog, rollback, checklist), SPEC-COST-003 (Cost Impact Assessment — zero incremental cost). All 3 specs as Draft. | devops-engineer, release-manager, finops-engineer |
+| 2026-03-19 | Sprint 32 AI review: created SPEC-AI-003 (Phase 6 Auto-Generation AI Impact Review). Conclusion: zero cost delta, no prompt changes, existing rate limiting sufficient. Recommends error fallback to manual button. | prompt-engineer |
+| 2026-03-19 | Sprint 32 security review: created SPEC-SEC-003 (Phase Transition, Completion Engine, Report i18n). 10 findings, 15 recommendations. Key: BOLA checks required on new actions (updatePhase2Action, syncPhase6CompletionAction), syncPhaseStatus must NOT be a server action, Phase 6 auto-gen must check existing itinerary before triggering AI, report must not expose birthDate. | security-specialist |
+| 2026-03-19 | Sprint 32 UX specs: created SPEC-UX-028 (Autocomplete Side-by-Side), SPEC-UX-029 (Preferences 4+3 Split), SPEC-UX-030 (Phase Names Progress Bar), SPEC-UX-031 (Incomplete Phase Warning), SPEC-UX-032 (Car Rental Conditional). All Draft, covering UX-001/003/004/007/008 from SPEC-PROD-028 and SPEC-PROD-026. | ux-designer |
+| 2026-03-19 | Sprint 32 architecture specs: created SPEC-ARCH-018 (Phase Completion Engine Fixes — ADR-018 Phase Completion Sync Pattern, root cause analysis for P0-001/002/003/005/006/007 + UX-006, new syncPhaseStatus method, updatePhase2Action, syncPhase6CompletionAction, completedPhases number[] refactor) and SPEC-ARCH-019 (Report i18n Layer — translation mapping for all enum values, data enrichment for missing Phase 1/2 fields, checklist pending highlight, phaseStatuses map). Both Draft. | architect |

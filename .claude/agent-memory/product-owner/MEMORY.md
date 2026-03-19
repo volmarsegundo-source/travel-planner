@@ -18,14 +18,16 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-17, Sprint 31 planning)
-- Product version: v0.24.0 (Sprint 30 assumed complete) / v0.25.0 in planning
-- Sprints 1-30 complete (assumed)
+### Backlog State (as of 2026-03-19, Sprint 32 planning)
+- Product version: v0.26.0 (Sprint 31 complete) / v0.27.0 in planning
+- Sprints 1-31 complete (assumed)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-025
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-029
 - Sprint 30 backlog: `docs/specs/sprint-30/SPRINT-30-PRIORITIES.md`
 - Sprint 31 backlog: `docs/specs/sprint-31/SPRINT-31-PRIORITIES.md`
+- Sprint 32 backlog: `docs/specs/sprint-32/SPRINT-32-PRIORITIES.md`
 - Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
+- Sprint 32 product specs: SPEC-PROD-025, SPEC-PROD-026, SPEC-PROD-027, SPEC-PROD-028
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -133,11 +135,12 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated 2026-03-17, Sprint 31 planning)
-- Sprints 22-30: DONE (v0.24.0 assumed)
-- Sprint 31: "Beta Hardening" -- SPEC-PROD-023 (phase completion logic) + SPEC-PROD-024 (UX cleanups) + SPEC-PROD-022 (dashboard) + SPEC-PROD-021 (Atlas map, P3/scope risk) + Beta launch (50-100 users) (v0.25.0)
-- Sprint 32-33: US-122 Premium chat + payment gateway + v1.0 GA
-- Note: Beta launch slipped 3+ sprints from original plan (recurring bugs + nav crisis + structural work)
+### MVP Roadmap (updated 2026-03-19, Sprint 32 planning)
+- Sprints 22-31: DONE (v0.26.0)
+- Sprint 32: "Stabilization" -- SPEC-PROD-025 (phase transition fixes P0) + SPEC-PROD-026 (completion engine fixes P0) + SPEC-PROD-027 (report i18n P1) + SPEC-PROD-028 (UX improvements P1/P2). v0.26.0 pass rate ~78%, target >= 90% (v0.27.0)
+- Sprint 33+: US-122 Premium chat + payment gateway + v1.0 GA
+- Note: Beta launch slipped further due to v0.26.0 test results (78% pass rate, P0 bugs in critical path)
+- v0.26.0 test results: ~78% pass rate. P0 bugs: P0-001 (Phase 2->3 error), P0-002 (state not reverting), P0-003 (Phase 4 premature completion), P0-006 (2->3 after back nav), P0-007 (auto-completion not triggering). P1 bugs: P1-004 (enum values raw in report), P1-005 (missing data in report)
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
@@ -156,6 +159,18 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Analytics platform: PostHog self-hosted is candidate (GDPR)
 - Payment gateway: not chosen yet (needed for Premium upgrade in Sprint 10+)
 - Google AI free tier privacy disclosure: must be added to terms of use
+
+### Sprint 32 Planning (2026-03-19)
+- Theme: "Stabilization -- Phase Transitions, Completion Engine, Report & UX Polish"
+- Budget: ~30-40h
+- P0: SPEC-PROD-025 (Phase Transition Fixes, 6-8h) -- P0-001/P0-006, critical path blocked
+- P0/P1: SPEC-PROD-026 (Completion Engine Fixes, 8-10h) -- P0-002/P0-003/P0-007 + UX-006/UX-008
+- P1: SPEC-PROD-027 (Report i18n e Completude, 6-8h) -- P1-004/P1-005, independent
+- P1/P2: SPEC-PROD-028 (UX Improvements, 10-14h) -- UX-001/002/003/004/005/007
+- Sacrifice order: UX-005 (auto-save) > UX-007 (phase names) > UX-003 (pref split) > SPEC-PROD-027 scope growth
+- Non-negotiable: SPEC-PROD-025 complete + SPEC-PROD-026 P0-002/003/007 + SPEC-PROD-027 P1-004
+- Specs files in: `docs/specs/sprint-32/`
+- Beta GO criteria: zero P0 bugs, zero enum values in report, manual pass rate >= 90%
 
 ### Sprint 31 Planning (2026-03-17)
 - Theme: "Beta Hardening -- States, Dashboard & Atlas"

@@ -1,0 +1,253 @@
+{
+  "dataset_id": "completion-engine-fixes",
+  "version": "1.0.0",
+  "sprint": 32,
+  "spec_ref": "SPEC-QA-009",
+  "description": "Eval cases for completion engine bug fixes — covers Phase 3 checklist status, Phase 4 data-based completion, Phase 6 auto-generation completion, expedition auto-complete, and status revert scenarios. Derived from P0-002, P0-003, P0-004/P0-007.",
+  "grader": "programmatic",
+  "created": "2026-03-19",
+  "owner": "qa-engineer",
+  "tags": ["completion-engine", "phase-status", "stabilization", "p0"],
+  "pass_threshold": 1.0,
+  "cases": [
+    {
+      "id": "CEF-001",
+      "description": "Phase 3: all required checklist items checked -> completed",
+      "input": {
+        "phaseNumber": 3,
+        "snapshot": {
+          "totalRequired": 5,
+          "completedRequired": 5,
+          "hasAnyItems": true,
+          "totalOptional": 2,
+          "completedOptional": 1
+        }
+      },
+      "expected": {
+        "status": "completed",
+        "note": "Optional items do not affect completion"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-002"
+    },
+    {
+      "id": "CEF-002",
+      "description": "Phase 3: some required items unchecked -> in_progress",
+      "input": {
+        "phaseNumber": 3,
+        "snapshot": {
+          "totalRequired": 5,
+          "completedRequired": 3,
+          "hasAnyItems": true,
+          "totalOptional": 2,
+          "completedOptional": 2
+        }
+      },
+      "expected": {
+        "status": "in_progress",
+        "note": "Even if all optional are done, missing required items means in_progress"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-002"
+    },
+    {
+      "id": "CEF-003",
+      "description": "Phase 3: no checklist items at all -> pending",
+      "input": {
+        "phaseNumber": 3,
+        "snapshot": {
+          "totalRequired": 0,
+          "completedRequired": 0,
+          "hasAnyItems": false,
+          "totalOptional": 0,
+          "completedOptional": 0
+        }
+      },
+      "expected": {
+        "status": "pending",
+        "note": "No items generated yet — phase has not started"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-002"
+    },
+    {
+      "id": "CEF-004",
+      "description": "Phase 4: no transport AND no accommodation -> pending",
+      "input": {
+        "phaseNumber": 4,
+        "snapshot": {
+          "transportSegmentCount": 0,
+          "accommodationCount": 0
+        }
+      },
+      "expected": {
+        "status": "pending",
+        "note": "Phase 4 must NOT be marked completed without data"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-003"
+    },
+    {
+      "id": "CEF-005",
+      "description": "Phase 4: has transport only -> completed",
+      "input": {
+        "phaseNumber": 4,
+        "snapshot": {
+          "transportSegmentCount": 2,
+          "accommodationCount": 0
+        }
+      },
+      "expected": {
+        "status": "completed",
+        "note": "Transport alone is sufficient for Phase 4 completion"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-003"
+    },
+    {
+      "id": "CEF-006",
+      "description": "Phase 4: has accommodation only -> completed",
+      "input": {
+        "phaseNumber": 4,
+        "snapshot": {
+          "transportSegmentCount": 0,
+          "accommodationCount": 1
+        }
+      },
+      "expected": {
+        "status": "completed",
+        "note": "Accommodation alone is sufficient for Phase 4 completion"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-003"
+    },
+    {
+      "id": "CEF-007",
+      "description": "Phase 6: no itinerary days -> pending",
+      "input": {
+        "phaseNumber": 6,
+        "snapshot": {
+          "itineraryDayCount": 0
+        }
+      },
+      "expected": {
+        "status": "pending",
+        "note": "Itinerary not yet generated"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-004"
+    },
+    {
+      "id": "CEF-008",
+      "description": "Phase 6: has itinerary days -> completed",
+      "input": {
+        "phaseNumber": 6,
+        "snapshot": {
+          "itineraryDayCount": 5
+        }
+      },
+      "expected": {
+        "status": "completed",
+        "note": "Itinerary generation triggers auto-completion of Phase 6"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-004"
+    },
+    {
+      "id": "CEF-009",
+      "description": "Auto-complete: all 6 phases completed -> expedition complete",
+      "input": {
+        "phases": [
+          { "phase": 1, "status": "completed" },
+          { "phase": 2, "status": "completed" },
+          { "phase": 3, "status": "completed" },
+          { "phase": 4, "status": "completed" },
+          { "phase": 5, "status": "completed" },
+          { "phase": 6, "status": "completed" }
+        ]
+      },
+      "expected": {
+        "expeditionComplete": true,
+        "tripStatus": "COMPLETED",
+        "note": "checkAndCompleteTrip must fire when last phase is completed"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-004"
+    },
+    {
+      "id": "CEF-010",
+      "description": "Auto-complete: 5 of 6 phases completed -> expedition NOT complete",
+      "input": {
+        "phases": [
+          { "phase": 1, "status": "completed" },
+          { "phase": 2, "status": "completed" },
+          { "phase": 3, "status": "completed" },
+          { "phase": 4, "status": "pending" },
+          { "phase": 5, "status": "completed" },
+          { "phase": 6, "status": "completed" }
+        ]
+      },
+      "expected": {
+        "expeditionComplete": false,
+        "tripStatus": "IN_PROGRESS",
+        "note": "Phase 4 pending blocks expedition completion even though later phases are done"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "CEF-011",
+      "description": "Revert: Phase 3 was completed, required item unchecked -> reverts to in_progress",
+      "input": {
+        "phaseNumber": 3,
+        "previousStatus": "completed",
+        "action": "uncheck_required_item",
+        "snapshotAfter": {
+          "totalRequired": 5,
+          "completedRequired": 4,
+          "hasAnyItems": true
+        }
+      },
+      "expected": {
+        "status": "in_progress",
+        "statusChanged": true,
+        "previousStatus": "completed",
+        "note": "syncPhaseStatus must detect the change and update ExpeditionPhase.status"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-002"
+    },
+    {
+      "id": "CEF-012",
+      "description": "Revert: Phase 4 was completed, all transport deleted -> reverts to pending",
+      "input": {
+        "phaseNumber": 4,
+        "previousStatus": "completed",
+        "action": "delete_all_transport",
+        "snapshotAfter": {
+          "transportSegmentCount": 0,
+          "accommodationCount": 0
+        }
+      },
+      "expected": {
+        "status": "pending",
+        "statusChanged": true,
+        "previousStatus": "completed",
+        "note": "Removing all logistics data must revert Phase 4 to pending"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-003"
+    }
+  ]
+}

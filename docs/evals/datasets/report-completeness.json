@@ -1,0 +1,210 @@
+{
+  "dataset_id": "report-completeness",
+  "version": "1.0.0",
+  "sprint": 32,
+  "spec_ref": "SPEC-QA-009",
+  "description": "Eval cases for expedition report completeness and i18n — covers Phase 1 and Phase 2 field presence, enum translation, pending item highlighting, and empty state handling. Derived from P1-004, P1-005.",
+  "grader": "programmatic",
+  "created": "2026-03-19",
+  "owner": "qa-engineer",
+  "tags": ["report", "completeness", "i18n", "stabilization", "p1"],
+  "pass_threshold": 0.95,
+  "cases": [
+    {
+      "id": "RC-001",
+      "description": "Phase 1 section has all required fields present",
+      "input": {
+        "phaseNumber": 1,
+        "locale": "pt-BR",
+        "tripData": {
+          "travelerName": "Maria Silva",
+          "birthDate": "1990-05-15",
+          "destination": "Paris, France",
+          "origin": "Sao Paulo, Brazil",
+          "startDate": "2026-08-01",
+          "endDate": "2026-08-10",
+          "tripType": "international"
+        }
+      },
+      "expected": {
+        "fieldsPresent": ["travelerName", "birthDate", "destination", "origin", "startDate", "endDate", "tripType"],
+        "fieldCount": 7,
+        "allFieldsVisible": true,
+        "noFieldMissing": true
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-005"
+    },
+    {
+      "id": "RC-002",
+      "description": "Phase 2 section has all required fields present",
+      "input": {
+        "phaseNumber": 2,
+        "locale": "en",
+        "tripData": {
+          "travelerType": "family",
+          "preferences": ["cultural", "gastronomic", "adventure"],
+          "pace": "moderate",
+          "budget": "medium",
+          "passengers": { "adults": 2, "children": 1, "infants": 0 }
+        }
+      },
+      "expected": {
+        "fieldsPresent": ["travelerType", "preferences", "pace", "budget", "passengers"],
+        "fieldCount": 5,
+        "allFieldsVisible": true,
+        "noFieldMissing": true
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-005"
+    },
+    {
+      "id": "RC-003",
+      "description": "Enum values translated in pt-BR (no snake_case in output)",
+      "input": {
+        "locale": "pt-BR",
+        "enumValues": {
+          "tripType": "international",
+          "travelerType": "family",
+          "pace": "moderate",
+          "budget": "medium"
+        }
+      },
+      "expected": {
+        "renderedValues": {
+          "tripType": "Internacional",
+          "travelerType": "Familia",
+          "pace": "Moderado",
+          "budget": "Medio"
+        },
+        "noSnakeCaseVisible": true,
+        "noRawDbKeysVisible": true,
+        "note": "DB keys like 'international', 'family', 'moderate' must never appear in rendered output"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-004"
+    },
+    {
+      "id": "RC-004",
+      "description": "Enum values translated in en (proper casing, not raw keys)",
+      "input": {
+        "locale": "en",
+        "enumValues": {
+          "tripType": "international",
+          "travelerType": "solo",
+          "pace": "relaxed",
+          "budget": "luxury"
+        }
+      },
+      "expected": {
+        "renderedValues": {
+          "tripType": "International",
+          "travelerType": "Solo",
+          "pace": "Relaxed",
+          "budget": "Luxury"
+        },
+        "noSnakeCaseVisible": true,
+        "noRawDbKeysVisible": true,
+        "note": "Even in English, DB keys must be translated to display labels with proper casing"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-004"
+    },
+    {
+      "id": "RC-005",
+      "description": "Pending required items highlighted with visual indicator",
+      "input": {
+        "locale": "pt-BR",
+        "tripData": {
+          "destination": "Tokyo, Japan",
+          "origin": null,
+          "startDate": "2026-09-01",
+          "endDate": null,
+          "tripType": "international"
+        }
+      },
+      "expected": {
+        "missingFields": ["origin", "endDate"],
+        "missingFieldsHighlighted": true,
+        "highlightStyle": "placeholder_text_or_badge",
+        "placeholderText": "Nao informado",
+        "note": "Missing fields must show 'Nao informado' (pt-BR) or 'Not provided' (en), not empty space"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-005"
+    },
+    {
+      "id": "RC-006",
+      "description": "Pending required items highlighted in English locale",
+      "input": {
+        "locale": "en",
+        "tripData": {
+          "destination": "Tokyo, Japan",
+          "origin": null,
+          "startDate": null,
+          "endDate": null,
+          "tripType": null
+        }
+      },
+      "expected": {
+        "missingFields": ["origin", "startDate", "endDate", "tripType"],
+        "missingFieldsHighlighted": true,
+        "placeholderText": "Not provided",
+        "note": "Multiple missing fields all show placeholder, never empty strings"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-005"
+    },
+    {
+      "id": "RC-007",
+      "description": "Empty phase section shows appropriate empty state (Phase 4 no logistics)",
+      "input": {
+        "phaseNumber": 4,
+        "locale": "pt-BR",
+        "tripData": {
+          "transportSegments": [],
+          "accommodations": [],
+          "mobility": []
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "emptyStateShown": true,
+        "emptyStateHasMessage": true,
+        "noBlankSection": true,
+        "note": "Empty phase must show a message like 'Nenhum dado cadastrado' — never a blank/collapsed section"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-005"
+    },
+    {
+      "id": "RC-008",
+      "description": "Empty phase section shows appropriate empty state (Phase 6 no itinerary)",
+      "input": {
+        "phaseNumber": 6,
+        "locale": "en",
+        "tripData": {
+          "itineraryDays": [],
+          "itineraryGenerated": false
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "emptyStateShown": true,
+        "emptyStateHasMessage": true,
+        "noBlankSection": true,
+        "note": "Must show 'Not yet generated' or equivalent — never blank"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P1-005"
+    }
+  ]
+}

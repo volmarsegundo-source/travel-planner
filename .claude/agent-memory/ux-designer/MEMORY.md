@@ -165,6 +165,16 @@
 - Key decisions: Leaflet+OSM for map (not Mapbox); gamification badge display-only; profile in dropdown (not top nav); 4-state color tokens shared across progress bar, cards, and map pins; quick-access links conditional on phase completion
 - Open: nested interactive elements in card (architect); route existence for checklist/guide/itinerary views (tech-lead); map auto-zoom feasibility (architect); connecting line gradient (architect)
 
+## Sprint 32 UX Specs (2026-03-19)
+- SPEC-UX-028: Autocomplete Side-by-Side — Destino left, Origem right, 50/50 width on md+, stacked on mobile. Portal dropdown. No new strings.
+- SPEC-UX-029: Preferences 4+3 Split — Page 1: travelPace, budgetStyle, socialPreference, accommodationStyle. Page 2: interests, foodPreferences, fitnessLevel. 3 categories hidden (photographyInterest, wakePreference, connectivityNeeds). Dot pagination.
+- SPEC-UX-030: Phase Names Below Progress Bar — Full names on sm+, short names on xs. Dashboard always short names. 11px for UnifiedProgressBar, 9px for dashboard. Contrast fix: completed labels use #059669 (not #10B981) for small text. New i18n keys for shortName variants.
+- SPEC-UX-031: Incomplete Phase Warning Dialog — Modal informative dialog when advancing from IN_PROGRESS phase. Lists pending items from PhaseCompletionEngine. "Completar agora" (primary) + "Avancar mesmo assim" (secondary). Focus trap, Escape = stay. Not shown for COMPLETED phases.
+- SPEC-UX-032: Car Rental Conditional — Car rental section only visible when "car_rental" in mobility selection. Slide-down+fade-in 200ms on show, fade-out 150ms on hide. Data reset on deselection. Focus returns to car_rental button on deselect.
+- All specs saved to: docs/specs/sprint-32/SPEC-UX-{028-032}.md
+- Key decisions: preferences reduced from 10 to 7 visible categories; phase name labels use darker green for WCAG on small text; warning dialog is modal (not inline banner) despite SPEC-PROD saying "inline" — justified by need for conscious decision
+- Open: PO confirmation on 3 excluded preference categories
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

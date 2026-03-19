@@ -156,6 +156,20 @@
   - No PDF (deferred from SPEC-ARCH-014); structured TripReportDTO only
   - BOLA on all methods; booking codes masked; no PII
 
+## Sprint 32 Architecture (ADR-018 PROPOSED)
+- SPEC-ARCH-018: Phase Completion Engine Fixes (docs/specs/sprint-32/SPEC-ARCH-018-completion-engine-fixes.md)
+  - ADR-018: Phase Completion Sync Pattern — new syncPhaseStatus() method on PhaseCompletionService
+  - Root causes: missing revisit guard (Phase2Wizard), inflated completedPhases (Math.max heuristic), no sync after toggle/generation
+  - New actions: updatePhase2Action, syncPhase6CompletionAction
+  - Modified: togglePhase3ItemAction (adds sync), TripService (completedPhases number[] not count)
+  - No schema migration needed
+- SPEC-ARCH-019: Report i18n Layer (docs/specs/sprint-32/SPEC-ARCH-019-report-i18n-layer.md)
+  - Translate enums in TripReport.tsx via report.enums.* i18n keys (component-side, not service-side)
+  - Enrich ReportPhase1 (duration, ageRange, passengers), ReportPhase2 (preferences)
+  - Checklist item translation via expedition.phase3.checklist namespace
+  - Required pending items highlighted with text+icon (WCAG), not just color
+  - No schema migration needed
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
@@ -176,6 +190,8 @@
 - SPEC-ARCH-015: docs/specs/sprint-31/SPEC-ARCH-015.md (Meu Atlas with Leaflet/OSM)
 - SPEC-ARCH-016: docs/specs/sprint-31/SPEC-ARCH-016.md (Phase Completion Engine)
 - SPEC-ARCH-017: docs/specs/sprint-31/SPEC-ARCH-017.md (Report Generation Service)
+- SPEC-ARCH-018: docs/specs/sprint-32/SPEC-ARCH-018-completion-engine-fixes.md (Phase Completion Engine Fixes)
+- SPEC-ARCH-019: docs/specs/sprint-32/SPEC-ARCH-019-report-i18n-layer.md (Report i18n Layer)
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md

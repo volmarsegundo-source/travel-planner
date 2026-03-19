@@ -10,8 +10,11 @@
 - Phase Nav Redesign SHIPPED: v0.24.0, 1869 tests (PhaseNavigationEngine, PhaseShell, ADR-017)
 - Sprint 30 COMPLETE: v0.25.0, 2024 tests (autocomplete rewrite, dashboard overhaul, bug fixes)
   - See: [project_sprint30_plan.md](project_sprint30_plan.md)
-- Sprint 31: PLANNED -- docs/specs/sprint-31/SPRINT-31-PLAN.md
+- Sprint 31 COMPLETE: v0.26.0 (Atlas map, completion engine, quick-access, header cleanup)
   - See: [project_sprint31_plan.md](project_sprint31_plan.md)
+- Sprint 32: PLANNED -- stabilization sprint, 9 tasks, v0.27.0
+  - See: [project_sprint32_plan.md](project_sprint32_plan.md)
+  - Plan: docs/specs/sprint-32/SPRINT-32-PLAN.md
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)

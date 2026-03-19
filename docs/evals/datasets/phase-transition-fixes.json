@@ -1,0 +1,212 @@
+{
+  "dataset_id": "phase-transition-fixes",
+  "version": "1.0.0",
+  "sprint": 32,
+  "spec_ref": "SPEC-QA-009",
+  "description": "Eval cases for phase transition bug fixes — covers first visit forward, revisit forward, back navigation, revisit-then-forward, and error scenarios for locked phases. Derived from P0-001, P0-005, P0-006.",
+  "grader": "programmatic",
+  "created": "2026-03-19",
+  "owner": "qa-engineer",
+  "tags": ["phase-transition", "navigation", "stabilization", "p0"],
+  "pass_threshold": 1.0,
+  "cases": [
+    {
+      "id": "PTF-001",
+      "description": "Phase 2->3 first visit transition succeeds",
+      "input": {
+        "tripCurrentPhase": 2,
+        "completedPhases": [1],
+        "accessMode": "first_visit",
+        "action": "advance"
+      },
+      "expected": {
+        "newCurrentPhase": 3,
+        "error": null,
+        "redirectTo": "/phase-3"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-001"
+    },
+    {
+      "id": "PTF-002",
+      "description": "Phase 5->6 first visit transition succeeds",
+      "input": {
+        "tripCurrentPhase": 5,
+        "completedPhases": [1, 2, 3, 4],
+        "accessMode": "first_visit",
+        "action": "advance"
+      },
+      "expected": {
+        "newCurrentPhase": 6,
+        "error": null,
+        "redirectTo": "/phase-6"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-001"
+    },
+    {
+      "id": "PTF-003",
+      "description": "Phase 2->3 revisit forward after back navigation from Phase 6",
+      "input": {
+        "tripCurrentPhase": 6,
+        "completedPhases": [1, 2, 3, 4, 5],
+        "accessMode": "revisit",
+        "currentViewedPhase": 2,
+        "action": "advance"
+      },
+      "expected": {
+        "newCurrentPhase": 6,
+        "error": null,
+        "redirectTo": "/phase-3",
+        "note": "currentPhase stays at 6, user navigates forward from revisited phase"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-006"
+    },
+    {
+      "id": "PTF-004",
+      "description": "Phase 3->4 revisit forward after back navigation",
+      "input": {
+        "tripCurrentPhase": 6,
+        "completedPhases": [1, 2, 3, 4, 5],
+        "accessMode": "revisit",
+        "currentViewedPhase": 3,
+        "action": "advance"
+      },
+      "expected": {
+        "newCurrentPhase": 6,
+        "error": null,
+        "redirectTo": "/phase-4"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-006"
+    },
+    {
+      "id": "PTF-005",
+      "description": "Back navigation Phase 6->5 succeeds",
+      "input": {
+        "tripCurrentPhase": 6,
+        "completedPhases": [1, 2, 3, 4, 5],
+        "accessMode": "revisit",
+        "currentViewedPhase": 6,
+        "action": "navigate_back"
+      },
+      "expected": {
+        "newCurrentPhase": 6,
+        "error": null,
+        "redirectTo": "/phase-5",
+        "accessGranted": true
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-006"
+    },
+    {
+      "id": "PTF-006",
+      "description": "Back navigation Phase 5->4->3->2 chain succeeds",
+      "input": {
+        "tripCurrentPhase": 6,
+        "completedPhases": [1, 2, 3, 4, 5],
+        "accessMode": "revisit",
+        "navigationChain": [5, 4, 3, 2],
+        "action": "navigate_back_chain"
+      },
+      "expected": {
+        "newCurrentPhase": 6,
+        "error": null,
+        "finalViewedPhase": 2,
+        "allNavigationsSucceeded": true,
+        "note": "Each step in reverse navigation must be individually allowed"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-006"
+    },
+    {
+      "id": "PTF-007",
+      "description": "Revisit then forward: after navigating 6->2, advance 2->3 succeeds without re-completing Phase 2",
+      "input": {
+        "tripCurrentPhase": 6,
+        "completedPhases": [1, 2, 3, 4, 5],
+        "accessMode": "revisit",
+        "currentViewedPhase": 2,
+        "action": "advance",
+        "phaseAlreadyCompleted": true
+      },
+      "expected": {
+        "newCurrentPhase": 6,
+        "error": null,
+        "redirectTo": "/phase-3",
+        "completePhaseActionCalled": false,
+        "note": "Revisit guard must skip completePhase2Action and navigate directly"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-001"
+    },
+    {
+      "id": "PTF-008",
+      "description": "Error: cannot advance from locked phase (Phase 6 when currentPhase is 3)",
+      "input": {
+        "tripCurrentPhase": 3,
+        "completedPhases": [1, 2],
+        "accessMode": "blocked",
+        "currentViewedPhase": 6,
+        "action": "advance"
+      },
+      "expected": {
+        "newCurrentPhase": 3,
+        "error": "PHASE_ACCESS_DENIED",
+        "redirectTo": null,
+        "accessGranted": false
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-005"
+    },
+    {
+      "id": "PTF-009",
+      "description": "Error: progress bar click on Phase 6 blocked when Phase 3 is current",
+      "input": {
+        "tripCurrentPhase": 3,
+        "completedPhases": [1, 2],
+        "accessMode": "blocked",
+        "progressBarClickTarget": 6,
+        "action": "progress_bar_click"
+      },
+      "expected": {
+        "navigationAllowed": false,
+        "phaseState": "locked",
+        "redirectTo": null,
+        "note": "Progress bar must not allow clicking locked phases"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match",
+      "bug_ref": "P0-005"
+    },
+    {
+      "id": "PTF-010",
+      "description": "Error: cannot advance from Phase 4 when Phase 3 is current (skip not allowed for blocking phase)",
+      "input": {
+        "tripCurrentPhase": 3,
+        "completedPhases": [1, 2],
+        "accessMode": "blocked",
+        "currentViewedPhase": 4,
+        "action": "advance"
+      },
+      "expected": {
+        "newCurrentPhase": 3,
+        "error": "PHASE_ACCESS_DENIED",
+        "redirectTo": null,
+        "accessGranted": false,
+        "note": "Phase 4 is non-blocking for advancement but cannot be accessed before Phase 3 is current"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    }
+  ]
+}
