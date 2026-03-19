@@ -46,7 +46,7 @@ import { ExpeditionCard } from "@/components/features/dashboard/ExpeditionCard";
 
 interface RenderOptions {
   currentPhase?: number;
-  completedPhases?: number;
+  completedPhases?: number[];
   checklistRequired?: number;
   checklistRequiredDone?: number;
   checklistRecommendedPending?: number;
@@ -63,7 +63,7 @@ function renderCard(opts: RenderOptions = {}) {
       tripId="trip-001"
       destination="Paris, France"
       currentPhase={opts.currentPhase ?? 3}
-      completedPhases={opts.completedPhases ?? 2}
+      completedPhases={opts.completedPhases ?? [1, 2]}
       totalPhases={8}
       coverEmoji="🗼"
       checklistRequired={opts.checklistRequired ?? 5}
@@ -119,7 +119,7 @@ describe("ExpeditionCard", () => {
   // ─── Phase count text ──────────────────────────────────────────────────
 
   it("displays phase count text with current phase and completed count", () => {
-    renderCard({ currentPhase: 4, completedPhases: 3 });
+    renderCard({ currentPhase: 4, completedPhases: [1, 2, 3] });
 
     const phaseText = screen.getByTestId("phase-count-text");
     expect(phaseText).toBeInTheDocument();
@@ -130,7 +130,7 @@ describe("ExpeditionCard", () => {
   // ─── Completed badge ──────────────────────────────────────────────────
 
   it("shows Completed badge when all phases are completed", () => {
-    renderCard({ currentPhase: 8, completedPhases: 8 });
+    renderCard({ currentPhase: 8, completedPhases: [1, 2, 3, 4, 5, 6, 7, 8] });
 
     const badge = screen.getByTestId("completed-badge");
     expect(badge).toBeInTheDocument();
@@ -138,7 +138,7 @@ describe("ExpeditionCard", () => {
   });
 
   it("does not show Completed badge when expedition is in progress", () => {
-    renderCard({ currentPhase: 3, completedPhases: 2 });
+    renderCard({ currentPhase: 3, completedPhases: [1, 2] });
 
     expect(screen.queryByTestId("completed-badge")).not.toBeInTheDocument();
   });

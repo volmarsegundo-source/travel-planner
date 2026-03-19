@@ -10,7 +10,7 @@ interface ExpeditionCardProps {
   tripId: string;
   destination: string;
   currentPhase: number;
-  completedPhases: number;
+  completedPhases: number[];
   totalPhases: number;
   coverEmoji: string;
   checklistRequired: number;
@@ -41,7 +41,7 @@ export function ExpeditionCard({
 }: ExpeditionCardProps) {
   const t = useTranslations("dashboard");
 
-  const isExpeditionCompleted = completedPhases >= totalPhases;
+  const isExpeditionCompleted = completedPhases.length >= totalPhases;
 
   // Format dates using locale-aware formatting
   const formattedDates = startDate && endDate
@@ -107,7 +107,7 @@ export function ExpeditionCard({
             {t("phasesCompleted", {
               current: currentPhase,
               total: totalPhases,
-              completed: completedPhases,
+              completed: completedPhases.length,
             })}
           </p>
           {/* Phase progress bar with indicators — interactive (pointer-events-auto) */}

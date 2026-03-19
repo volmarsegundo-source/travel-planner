@@ -16,6 +16,7 @@ import {
   calculateProgressPercent,
 } from "@/lib/utils/stream-progress";
 // completeExpeditionAction removed -- expedition completion is now automatic (SPEC-PROD-023)
+import { syncPhase6CompletionAction } from "@/server/actions/expedition.actions";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
@@ -197,6 +198,10 @@ export function Phase6Wizard({
             const data = line.slice(6);
             if (data === "[DONE]") {
               stopProgressTimer();
+              // Fire-and-forget: sync Phase 6 completion after itinerary persisted
+              syncPhase6CompletionAction(tripId).catch(() => {
+                // Non-blocking -- completion sync failure is not user-visible
+              });
               router.refresh();
               setIsGenerating(false);
               return;

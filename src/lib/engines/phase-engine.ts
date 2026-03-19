@@ -152,7 +152,7 @@ export class PhaseEngine {
     if (!trip.expeditionMode) {
       throw new AppError(
         "NOT_EXPEDITION",
-        "Trip is not in expedition mode",
+        "errors.notExpeditionMode",
         400
       );
     }
@@ -160,7 +160,7 @@ export class PhaseEngine {
     // 2. Validate phase order (non-blocking phases can be completed retroactively)
     const definition = getPhaseDefinition(phaseNumber);
     if (!definition) {
-      throw new AppError("INVALID_PHASE", `Phase ${phaseNumber} not found`, 400);
+      throw new AppError("INVALID_PHASE", "errors.invalidPhase", 400);
     }
 
     if (definition.nonBlocking) {
@@ -168,7 +168,7 @@ export class PhaseEngine {
       if (phaseNumber > trip.currentPhase) {
         throw new AppError(
           "PHASE_ORDER_VIOLATION",
-          "errors.phaseAlreadyCompleted",
+          "errors.phaseOrderViolation",
           400
         );
       }
@@ -176,7 +176,7 @@ export class PhaseEngine {
       if (phaseNumber !== trip.currentPhase) {
         throw new AppError(
           "PHASE_ORDER_VIOLATION",
-          "errors.phaseAlreadyCompleted",
+          "errors.phaseOrderViolation",
           400
         );
       }
@@ -190,7 +190,7 @@ export class PhaseEngine {
     if (!phase || phase.status === "locked") {
       throw new AppError(
         "PHASE_NOT_ACTIVE",
-        `Phase ${phaseNumber} is not active`,
+        "errors.phaseNotActive",
         400
       );
     }
@@ -199,7 +199,7 @@ export class PhaseEngine {
     if (phase.status === "completed") {
       throw new AppError(
         "PHASE_ALREADY_COMPLETED",
-        `Phase ${phaseNumber} is already completed`,
+        "errors.phaseAlreadyCompleted",
         400
       );
     }
@@ -318,7 +318,7 @@ export class PhaseEngine {
     if (!trip.expeditionMode) {
       throw new AppError(
         "NOT_EXPEDITION",
-        "Trip is not in expedition mode",
+        "errors.notExpeditionMode",
         400
       );
     }
@@ -327,7 +327,7 @@ export class PhaseEngine {
     if (phaseNumber !== trip.currentPhase) {
       throw new AppError(
         "PHASE_ORDER_VIOLATION",
-        "errors.phaseAlreadyCompleted",
+        "errors.phaseOrderViolation",
         400
       );
     }
@@ -340,7 +340,7 @@ export class PhaseEngine {
     if (!phase || phase.status !== "active") {
       throw new AppError(
         "PHASE_NOT_ACTIVE",
-        `Phase ${phaseNumber} is not active`,
+        "errors.phaseNotActive",
         400
       );
     }
@@ -349,7 +349,7 @@ export class PhaseEngine {
     if (!definition || !definition.nonBlocking) {
       throw new AppError(
         "PHASE_NOT_NON_BLOCKING",
-        `Phase ${phaseNumber} cannot be skipped — it must be completed`,
+        "errors.phaseNotSkippable",
         400
       );
     }
@@ -482,7 +482,7 @@ export class PhaseEngine {
       if (requiredIncomplete > 0) {
         throw new AppError(
           "PHASE_PREREQUISITES_NOT_MET",
-          `Phase 3 has ${requiredIncomplete} required checklist items incomplete`,
+          "errors.prerequisitesNotMet",
           400
         );
       }
@@ -499,7 +499,7 @@ export class PhaseEngine {
         if (needsCinh && metadata?.cnhResolved !== true) {
           throw new AppError(
             "PHASE_PREREQUISITES_NOT_MET",
-            "CNH Internacional (CINH) must be resolved before completing Phase 4",
+            "errors.prerequisitesNotMet",
             400
           );
         }
@@ -513,7 +513,7 @@ export class PhaseEngine {
       if (!guide) {
         throw new AppError(
           "PHASE_PREREQUISITES_NOT_MET",
-          "A destination guide must be generated before completing Phase 5",
+          "errors.prerequisitesNotMet",
           400
         );
       }
@@ -540,7 +540,7 @@ export class PhaseEngine {
     if (!definition || definition.aiCost === 0) {
       throw new AppError(
         "AI_NOT_AVAILABLE",
-        `Phase ${phaseNumber} does not support AI usage`,
+        "errors.aiNotAvailable",
         400
       );
     }
@@ -552,7 +552,7 @@ export class PhaseEngine {
     if (!phase || phase.status !== "active") {
       throw new AppError(
         "PHASE_NOT_ACTIVE",
-        `Phase ${phaseNumber} is not active`,
+        "errors.phaseNotActive",
         400
       );
     }
@@ -565,7 +565,7 @@ export class PhaseEngine {
     if (!canUseAI(userProfile?.birthDate)) {
       throw new AppError(
         "AI_AGE_RESTRICTED",
-        "User must be 18 or older to use AI features",
+        "errors.aiAgeRestricted",
         403
       );
     }

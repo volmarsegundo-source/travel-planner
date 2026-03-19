@@ -7,7 +7,7 @@ export interface ExpeditionDTO {
   id: string;
   destination: string;
   currentPhase: number;
-  completedPhases: number;
+  completedPhases: number[];
   totalPhases: number;
   coverEmoji: string;
   startDate: string | null;
@@ -45,7 +45,7 @@ export type ExpeditionStatus = "active" | "completed" | "overdue" | "planned";
  * - "planned": currentPhase <= 1 AND not completed
  */
 export function deriveExpeditionStatus(exp: ExpeditionDTO): ExpeditionStatus {
-  const isCompleted = exp.completedPhases >= exp.totalPhases;
+  const isCompleted = exp.completedPhases.length >= exp.totalPhases;
   if (isCompleted) return "completed";
 
   if (exp.startDate) {

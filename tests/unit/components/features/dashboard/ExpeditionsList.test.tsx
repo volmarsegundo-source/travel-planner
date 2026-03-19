@@ -42,7 +42,7 @@ describe("ExpeditionsList", () => {
     id: "trip-1",
     destination: "Tokyo",
     currentPhase: 2,
-    completedPhases: 1,
+    completedPhases: [1],
     totalPhases: 6,
     coverEmoji: "🗼",
     checklistRequired: 5,

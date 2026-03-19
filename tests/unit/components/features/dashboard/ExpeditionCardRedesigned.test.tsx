@@ -55,7 +55,7 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     id: "trip-1",
     destination: "Paris, France",
     currentPhase: 3,
-    completedPhases: 2,
+    completedPhases: [1, 2],
     totalPhases: 6,
     coverEmoji: "\u{1F5FC}",
     startDate: "2026-06-15",
@@ -106,19 +106,19 @@ describe("ExpeditionCardRedesigned", () => {
   // ─── Status Badge ───────────────────────────────────────────────────
 
   it("shows 'Active' badge for active trip", () => {
-    renderCard({ currentPhase: 3, completedPhases: 2 });
+    renderCard({ currentPhase: 3, completedPhases: [1, 2] });
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveTextContent("statusActive");
   });
 
   it("shows 'Completed' badge for completed trip", () => {
-    renderCard({ currentPhase: 6, completedPhases: 6 });
+    renderCard({ currentPhase: 6, completedPhases: [1, 2, 3, 4, 5, 6] });
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveTextContent("statusCompleted");
   });
 
   it("shows 'Planned' badge for phase-1 trip", () => {
-    renderCard({ currentPhase: 1, completedPhases: 0, startDate: null });
+    renderCard({ currentPhase: 1, completedPhases: [], startDate: null });
     const badge = screen.getByTestId("status-badge");
     expect(badge).toHaveTextContent("statusPlanned");
   });
@@ -126,7 +126,7 @@ describe("ExpeditionCardRedesigned", () => {
   it("shows 'Overdue' badge for past-start-date trip", () => {
     renderCard({
       currentPhase: 2,
-      completedPhases: 1,
+      completedPhases: [1],
       startDate: "2020-01-01",
       endDate: "2020-01-10",
     });
@@ -137,31 +137,31 @@ describe("ExpeditionCardRedesigned", () => {
   // ─── CTA Labels ────────────────────────────────────────────────────
 
   it("shows 'Continue' CTA for active trip", () => {
-    renderCard({ currentPhase: 3, completedPhases: 2 });
+    renderCard({ currentPhase: 3, completedPhases: [1, 2] });
     expect(screen.getByTestId("card-cta")).toHaveTextContent("ctaContinue");
   });
 
   it("shows 'Start' CTA for planned trip", () => {
-    renderCard({ currentPhase: 1, completedPhases: 0, startDate: null });
+    renderCard({ currentPhase: 1, completedPhases: [], startDate: null });
     expect(screen.getByTestId("card-cta")).toHaveTextContent("ctaStart");
   });
 
   it("shows 'View Summary' CTA for completed trip", () => {
-    renderCard({ currentPhase: 6, completedPhases: 6 });
+    renderCard({ currentPhase: 6, completedPhases: [1, 2, 3, 4, 5, 6] });
     expect(screen.getByTestId("card-cta")).toHaveTextContent("ctaViewSummary");
   });
 
   // ─── CTA Href ──────────────────────────────────────────────────────
 
   it("overlay link targets expedition hub for active trip", () => {
-    renderCard({ currentPhase: 3, completedPhases: 2 });
+    renderCard({ currentPhase: 3, completedPhases: [1, 2] });
     const card = screen.getByTestId("expedition-card");
     const link = card.querySelector("a") as HTMLAnchorElement;
     expect(link.getAttribute("href")).toBe("/expedition/trip-1");
   });
 
   it("overlay link targets summary for completed trip", () => {
-    renderCard({ currentPhase: 6, completedPhases: 6 });
+    renderCard({ currentPhase: 6, completedPhases: [1, 2, 3, 4, 5, 6] });
     const card = screen.getByTestId("expedition-card");
     const link = card.querySelector("a") as HTMLAnchorElement;
     expect(link.getAttribute("href")).toBe("/expedition/trip-1/summary");
@@ -233,19 +233,19 @@ describe("ExpeditionCardRedesigned", () => {
   // ─── Left Border Accent ────────────────────────────────────────────
 
   it("active card has blue left border", () => {
-    renderCard({ currentPhase: 3, completedPhases: 2 });
+    renderCard({ currentPhase: 3, completedPhases: [1, 2] });
     const card = screen.getByTestId("expedition-card");
     expect(card.className).toContain("border-l-blue-500");
   });
 
   it("completed card has green left border", () => {
-    renderCard({ currentPhase: 6, completedPhases: 6 });
+    renderCard({ currentPhase: 6, completedPhases: [1, 2, 3, 4, 5, 6] });
     const card = screen.getByTestId("expedition-card");
     expect(card.className).toContain("border-l-green-500");
   });
 
   it("planned card has gray left border", () => {
-    renderCard({ currentPhase: 1, completedPhases: 0, startDate: null });
+    renderCard({ currentPhase: 1, completedPhases: [], startDate: null });
     const card = screen.getByTestId("expedition-card");
     expect(card.className).toContain("border-l-gray-400");
   });

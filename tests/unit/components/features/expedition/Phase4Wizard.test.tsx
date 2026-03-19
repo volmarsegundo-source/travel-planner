@@ -85,6 +85,20 @@ function goToStep3() {
   fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 }
 
+/** Select car_rental in MobilityStep and save to make car rental section visible */
+async function selectCarRentalInMobility() {
+  // Find and click the car_rental option in MobilityStep
+  const carRentalOption = screen.getByText("expedition.phase4.mobility.options.car_rental");
+  fireEvent.click(carRentalOption);
+  // Click save to update parent mobility state
+  const saveButton = screen.getByText("expedition.phase4.mobility.save");
+  fireEvent.click(saveButton);
+  // Wait for save to complete (mockSaveMobility resolves immediately)
+  await waitFor(() => {
+    expect(screen.getByText("expedition.phase4.carRentalQuestion")).toBeInTheDocument();
+  });
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
@@ -219,7 +233,7 @@ describe("Phase4Wizard", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders car rental and mobility on step 3", async () => {
+  it("renders mobility on step 3, car rental hidden until car_rental selected", async () => {
     renderWizard();
 
     await waitFor(() => {
@@ -231,15 +245,26 @@ describe("Phase4Wizard", () => {
     // Navigate to step 3
     goToStep3();
 
-    expect(
-      screen.getByText("expedition.phase4.carRentalQuestion")
-    ).toBeInTheDocument();
+    // Mobility section is always visible
     expect(
       screen.getByText("expedition.phase4.mobility.title")
     ).toBeInTheDocument();
+
+    // Car rental question is hidden until car_rental is selected in mobility
+    expect(
+      screen.queryByText("expedition.phase4.carRentalQuestion")
+    ).not.toBeInTheDocument();
+
+    // Select car_rental and save
+    await selectCarRentalInMobility();
+
+    // Now car rental question is visible
+    expect(
+      screen.getByText("expedition.phase4.carRentalQuestion")
+    ).toBeInTheDocument();
   });
 
-  it("renders car rental question with yes/no buttons on step 3", async () => {
+  it("renders car rental question with yes/no buttons after selecting car_rental in mobility", async () => {
     renderWizard();
 
     await waitFor(() => {
@@ -249,6 +274,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     expect(
       screen.getByText("expedition.phase4.carRentalYes")
@@ -299,6 +325,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -321,6 +348,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -340,6 +368,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -359,6 +388,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -378,6 +408,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -398,6 +429,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -424,6 +456,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -446,6 +479,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -465,6 +499,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -485,6 +520,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
@@ -509,6 +545,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
@@ -536,6 +573,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -567,6 +605,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);
@@ -624,6 +663,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const noButton = screen.getByText("expedition.phase4.carRentalNo");
     fireEvent.click(noButton);
@@ -648,6 +688,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     // Select yes
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
@@ -678,6 +719,7 @@ describe("Phase4Wizard", () => {
     });
 
     goToStep3();
+    await selectCarRentalInMobility();
 
     const yesButton = screen.getByText("expedition.phase4.carRentalYes");
     fireEvent.click(yesButton);

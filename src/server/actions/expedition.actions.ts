@@ -280,6 +280,70 @@ export async function completePhase2Action(
   }
 }
 
+// ─── updatePhase2Action ──────────────────────────────────────────────────────
+
+/**
+ * Updates Phase 2 trip data when revisiting a completed phase.
+ * Does NOT call PhaseEngine.completePhase — no points/badges awarded.
+ */
+export async function updatePhase2Action(
+  tripId: string,
+  data: Phase2Input
+): Promise<ActionResult<{ tripId: string }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  // BOLA: verify trip belongs to user
+  const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+  if (!ownedTrip) {
+    return { success: false, error: "errors.tripNotFound" };
+  }
+
+  const parsed = Phase2Schema.safeParse(data);
+  if (!parsed.success) {
+    const firstError = parsed.error.errors[0];
+    return {
+      success: false,
+      error: firstError?.message ?? "errors.generic",
+    };
+  }
+
+  try {
+    // Save passengers breakdown to Trip if provided
+    if (parsed.data.passengers) {
+      await db.trip.update({
+        where: { id: tripId },
+        data: { passengers: parsed.data.passengers as unknown as import("@prisma/client").Prisma.InputJsonValue },
+      });
+    }
+
+    // Update phase 2 metadata on ExpeditionPhase (no completion, no points)
+    await db.expeditionPhase.updateMany({
+      where: { tripId, phaseNumber: 2 },
+      data: {
+        metadata: {
+          travelerType: parsed.data.travelerType,
+          accommodationStyle: parsed.data.accommodationStyle,
+          travelPace: parsed.data.travelPace,
+          budget: parsed.data.budget,
+          currency: parsed.data.currency,
+        },
+      },
+    });
+
+    revalidatePath("/expeditions");
+    revalidatePath(`/expedition/${tripId}`);
+
+    return { success: true, data: { tripId } };
+  } catch (error) {
+    logger.error("expedition.updatePhase2.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
 // ─── togglePhase3ItemAction ──────────────────────────────────────────────────
 
 export async function togglePhase3ItemAction(
@@ -296,6 +360,12 @@ export async function togglePhase3ItemAction(
       3,
       itemKey
     );
+
+    // Sync Phase 3 completion status based on current checklist state
+    PhaseCompletionService.syncPhaseStatus(tripId, session.user.id, 3).catch((err) => {
+      logger.warn("phase3.sync.failed", { tripId, error: (err as Error).message });
+    });
+
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
   } catch (error) {
@@ -910,6 +980,76 @@ export async function completeExpeditionAction(
     };
   } catch (error) {
     logger.error("expedition.completeExpedition.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── syncPhase6CompletionAction ──────────────────────────────────────────────
+
+/**
+ * Syncs Phase 6 completion based on itinerary presence.
+ * If itinerary days exist and Phase 6 is not completed, completes it via PhaseEngine.
+ * Then checks if all 6 phases are complete and marks trip as COMPLETED.
+ */
+export async function syncPhase6CompletionAction(
+  tripId: string
+): Promise<ActionResult<{ completed: boolean; tripCompleted: boolean }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  // BOLA: verify trip belongs to user
+  const ownedTrip = await assertTripOwnership(tripId, session.user.id);
+  if (!ownedTrip) {
+    return { success: false, error: "errors.tripNotFound" };
+  }
+
+  try {
+    // Check if itinerary days exist
+    const itineraryDayCount = await db.itineraryDay.count({ where: { tripId } });
+
+    if (itineraryDayCount === 0) {
+      return { success: true, data: { completed: false, tripCompleted: false } };
+    }
+
+    // Check if Phase 6 is already completed
+    const phase6 = await db.expeditionPhase.findUnique({
+      where: { tripId_phaseNumber: { tripId, phaseNumber: 6 } },
+    });
+
+    let phase6Completed = false;
+    if (phase6 && phase6.status !== "completed") {
+      try {
+        await PhaseEngine.completePhase(tripId, session.user.id, 6);
+        phase6Completed = true;
+      } catch (error) {
+        // Phase may not be active yet or other constraint -- log and continue
+        logger.warn("phase6.auto-complete.failed", {
+          tripId,
+          error: (error as Error).message,
+        });
+      }
+    } else if (phase6?.status === "completed") {
+      phase6Completed = true;
+    }
+
+    // Check if expedition is fully complete
+    const tripCompleted = await PhaseCompletionService.checkAndCompleteTrip(
+      tripId,
+      session.user.id
+    );
+
+    revalidatePath("/expeditions");
+    revalidatePath(`/expedition/${tripId}`);
+
+    return {
+      success: true,
+      data: { completed: phase6Completed, tripCompleted },
+    };
+  } catch (error) {
+    logger.error("expedition.syncPhase6.error", error, {
       userId: hashUserId(session.user.id),
       tripId,
     });

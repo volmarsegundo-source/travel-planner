@@ -152,6 +152,12 @@ export function Phase2Wizard({
   async function handleSubmit() {
     if (!travelerType || !accommodationStyle) return;
 
+    // Revisit guard: if revisiting a completed phase, just navigate without re-completing
+    if (accessMode === "revisit" && completedPhases.includes(2)) {
+      router.push(`/expedition/${tripId}/phase-3`);
+      return;
+    }
+
     setIsSubmitting(true);
     setErrorMessage(null);
 

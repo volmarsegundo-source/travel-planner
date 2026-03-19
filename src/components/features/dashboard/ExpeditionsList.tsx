@@ -9,7 +9,7 @@ interface ExpeditionTrip {
   id: string;
   destination: string;
   currentPhase: number;
-  completedPhases: number;
+  completedPhases: number[];
   totalPhases: number;
   coverEmoji: string;
   checklistRequired: number;

@@ -34,44 +34,6 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
     ],
   },
   {
-    key: "foodPreferences",
-    titleKey: "categories.foodPreferences.title",
-    questionKey: "categories.foodPreferences.question",
-    selectionType: "multi",
-    options: [
-      { value: "vegetarian", labelKey: "options.foodPreferences.vegetarian" },
-      { value: "vegan", labelKey: "options.foodPreferences.vegan" },
-      { value: "halal", labelKey: "options.foodPreferences.halal" },
-      { value: "kosher", labelKey: "options.foodPreferences.kosher" },
-      { value: "gluten_free", labelKey: "options.foodPreferences.gluten_free" },
-      { value: "lactose_free", labelKey: "options.foodPreferences.lactose_free" },
-      { value: "local_cuisine", labelKey: "options.foodPreferences.local_cuisine" },
-      { value: "street_food", labelKey: "options.foodPreferences.street_food" },
-      { value: "fine_dining", labelKey: "options.foodPreferences.fine_dining" },
-      { value: "no_restrictions", labelKey: "options.foodPreferences.no_restrictions" },
-    ],
-  },
-  {
-    key: "interests",
-    titleKey: "categories.interests.title",
-    questionKey: "categories.interests.question",
-    selectionType: "multi",
-    options: [
-      { value: "history_museums", labelKey: "options.interests.history_museums" },
-      { value: "art_galleries", labelKey: "options.interests.art_galleries" },
-      { value: "nature_hiking", labelKey: "options.interests.nature_hiking" },
-      { value: "nightlife", labelKey: "options.interests.nightlife" },
-      { value: "shopping", labelKey: "options.interests.shopping" },
-      { value: "photography", labelKey: "options.interests.photography" },
-      { value: "sports_adventure", labelKey: "options.interests.sports_adventure" },
-      { value: "wellness_spa", labelKey: "options.interests.wellness_spa" },
-      { value: "gastronomy", labelKey: "options.interests.gastronomy" },
-      { value: "beaches", labelKey: "options.interests.beaches" },
-      { value: "architecture", labelKey: "options.interests.architecture" },
-      { value: "wildlife", labelKey: "options.interests.wildlife" },
-    ],
-  },
-  {
     key: "budgetStyle",
     titleKey: "categories.budgetStyle.title",
     questionKey: "categories.budgetStyle.question",
@@ -108,6 +70,44 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
       { value: "glamping", labelKey: "options.accommodationStyle.glamping" },
       { value: "resort", labelKey: "options.accommodationStyle.resort" },
       { value: "bed_and_breakfast", labelKey: "options.accommodationStyle.bed_and_breakfast" },
+    ],
+  },
+  {
+    key: "interests",
+    titleKey: "categories.interests.title",
+    questionKey: "categories.interests.question",
+    selectionType: "multi",
+    options: [
+      { value: "history_museums", labelKey: "options.interests.history_museums" },
+      { value: "art_galleries", labelKey: "options.interests.art_galleries" },
+      { value: "nature_hiking", labelKey: "options.interests.nature_hiking" },
+      { value: "nightlife", labelKey: "options.interests.nightlife" },
+      { value: "shopping", labelKey: "options.interests.shopping" },
+      { value: "photography", labelKey: "options.interests.photography" },
+      { value: "sports_adventure", labelKey: "options.interests.sports_adventure" },
+      { value: "wellness_spa", labelKey: "options.interests.wellness_spa" },
+      { value: "gastronomy", labelKey: "options.interests.gastronomy" },
+      { value: "beaches", labelKey: "options.interests.beaches" },
+      { value: "architecture", labelKey: "options.interests.architecture" },
+      { value: "wildlife", labelKey: "options.interests.wildlife" },
+    ],
+  },
+  {
+    key: "foodPreferences",
+    titleKey: "categories.foodPreferences.title",
+    questionKey: "categories.foodPreferences.question",
+    selectionType: "multi",
+    options: [
+      { value: "vegetarian", labelKey: "options.foodPreferences.vegetarian" },
+      { value: "vegan", labelKey: "options.foodPreferences.vegan" },
+      { value: "halal", labelKey: "options.foodPreferences.halal" },
+      { value: "kosher", labelKey: "options.foodPreferences.kosher" },
+      { value: "gluten_free", labelKey: "options.foodPreferences.gluten_free" },
+      { value: "lactose_free", labelKey: "options.foodPreferences.lactose_free" },
+      { value: "local_cuisine", labelKey: "options.foodPreferences.local_cuisine" },
+      { value: "street_food", labelKey: "options.foodPreferences.street_food" },
+      { value: "fine_dining", labelKey: "options.foodPreferences.fine_dining" },
+      { value: "no_restrictions", labelKey: "options.foodPreferences.no_restrictions" },
     ],
   },
   {
@@ -156,7 +156,7 @@ const CATEGORY_CONFIGS: CategoryConfig[] = [
   },
 ];
 
-const CATEGORIES_PER_PAGE = 5;
+const CATEGORIES_PER_PAGE = 4;
 
 // ─── Component ─────────────────────────────────────────────────────────────
 

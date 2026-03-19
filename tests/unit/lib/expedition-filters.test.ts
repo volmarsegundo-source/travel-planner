@@ -18,7 +18,7 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     id: "trip-1",
     destination: "Paris, France",
     currentPhase: 3,
-    completedPhases: 2,
+    completedPhases: [1, 2],
     totalPhases: 6,
     coverEmoji: "\u{1F5FC}",
     startDate: "2026-06-15",
@@ -32,6 +32,9 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     checklistRecommendedPending: 2,
     hasItineraryPlan: false,
     createdAt: "2026-03-01T12:00:00.000Z",
+    hasChecklist: false,
+    hasGuide: false,
+    hasLogistics: false,
     ...overrides,
   };
 }
@@ -39,7 +42,7 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
 const activeTrip = makeExpedition({
   id: "active-1",
   currentPhase: 3,
-  completedPhases: 2,
+  completedPhases: [1, 2],
   destination: "Tokyo, Japan",
   createdAt: "2026-03-10T00:00:00.000Z",
   startDate: "2026-07-01",
@@ -48,7 +51,7 @@ const activeTrip = makeExpedition({
 const completedTrip = makeExpedition({
   id: "completed-1",
   currentPhase: 6,
-  completedPhases: 6,
+  completedPhases: [1, 2, 3, 4, 5, 6],
   destination: "London, UK",
   createdAt: "2026-01-15T00:00:00.000Z",
   startDate: "2026-02-01",
@@ -58,7 +61,7 @@ const completedTrip = makeExpedition({
 const plannedTrip = makeExpedition({
   id: "planned-1",
   currentPhase: 1,
-  completedPhases: 0,
+  completedPhases: [],
   destination: "Buenos Aires, Argentina",
   createdAt: "2026-03-15T00:00:00.000Z",
   startDate: null,
@@ -68,7 +71,7 @@ const plannedTrip = makeExpedition({
 const overdueTrip = makeExpedition({
   id: "overdue-1",
   currentPhase: 2,
-  completedPhases: 1,
+  completedPhases: [1],
   destination: "Rome, Italy",
   createdAt: "2026-02-01T00:00:00.000Z",
   startDate: "2025-12-01",
@@ -99,7 +102,7 @@ describe("deriveExpeditionStatus", () => {
   it("returns 'planned' for phase 1 even with future start date", () => {
     const trip = makeExpedition({
       currentPhase: 1,
-      completedPhases: 0,
+      completedPhases: [],
       startDate: "2027-01-01",
     });
     expect(deriveExpeditionStatus(trip)).toBe("planned");

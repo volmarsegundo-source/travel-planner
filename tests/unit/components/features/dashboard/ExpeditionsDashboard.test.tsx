@@ -64,7 +64,7 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     id: "trip-1",
     destination: "Paris, France",
     currentPhase: 3,
-    completedPhases: 2,
+    completedPhases: [1, 2],
     totalPhases: 6,
     coverEmoji: "\u{1F5FC}",
     startDate: "2026-06-15",
@@ -78,6 +78,9 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     checklistRecommendedPending: 2,
     hasItineraryPlan: false,
     createdAt: "2026-03-01T12:00:00.000Z",
+    hasChecklist: false,
+    hasGuide: false,
+    hasLogistics: false,
     ...overrides,
   };
 }
@@ -86,21 +89,21 @@ const activeTrip = makeExpedition({
   id: "active-1",
   destination: "Tokyo, Japan",
   currentPhase: 3,
-  completedPhases: 2,
+  completedPhases: [1, 2],
 });
 
 const completedTrip = makeExpedition({
   id: "completed-1",
   destination: "London, UK",
   currentPhase: 6,
-  completedPhases: 6,
+  completedPhases: [1, 2, 3, 4, 5, 6],
 });
 
 const plannedTrip = makeExpedition({
   id: "planned-1",
   destination: "Buenos Aires",
   currentPhase: 1,
-  completedPhases: 0,
+  completedPhases: [],
   startDate: null,
   endDate: null,
 });
@@ -342,7 +345,7 @@ describe("ExpeditionsDashboard", () => {
         id: `trip-${i}`,
         destination: `City ${i}`,
         currentPhase: 2,
-        completedPhases: 1,
+        completedPhases: [1],
         createdAt: `2026-03-${String(i + 1).padStart(2, "0")}T00:00:00.000Z`,
       })
     );
@@ -359,7 +362,7 @@ describe("ExpeditionsDashboard", () => {
           id: `trip-${i}`,
           destination: `City ${i}`,
           currentPhase: 2,
-          completedPhases: 1,
+          completedPhases: [1],
           createdAt: `2026-03-${String(i + 1).padStart(2, "0")}T00:00:00.000Z`,
         })
       ),
@@ -367,7 +370,7 @@ describe("ExpeditionsDashboard", () => {
         id: "completed-extra",
         destination: "Done City",
         currentPhase: 6,
-        completedPhases: 6,
+        completedPhases: [1, 2, 3, 4, 5, 6],
         createdAt: "2026-01-01T00:00:00.000Z",
       }),
     ];
