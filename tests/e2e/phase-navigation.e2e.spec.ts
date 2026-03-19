@@ -123,8 +123,8 @@ test.describe("Phase navigation -- progress bar", () => {
     // If UnifiedProgressBar is rendered
     const progressBar = page.locator('[data-testid="unified-progress-bar"]');
     if (await progressBar.isVisible({ timeout: 5_000 }).catch(() => false)) {
-      // Should have exactly 6 phase segments
-      const segments = page.locator('[data-testid^="progress-phase-"]');
+      // Should have exactly 6 phase segments (exclude phase-name labels)
+      const segments = page.locator('[data-testid^="progress-phase-"]:not([data-testid*="name"])');
       const count = await segments.count();
       expect(count).toBe(6);
     }
