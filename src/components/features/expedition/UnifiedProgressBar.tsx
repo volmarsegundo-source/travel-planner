@@ -105,50 +105,59 @@ export function UnifiedProgressBar({
 
         return (
           <div key={phaseNum} className="flex items-center">
-            {/* Segment */}
-            {isNavigable && state !== "current" ? (
-              <button
-                type="button"
-                data-phase-segment
-                tabIndex={isViewing ? 0 : -1}
-                onClick={() => router.push(getPhaseUrl(tripId, phaseNum))}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                className={getSegmentClasses(state, isViewing)}
-                aria-label={ariaLabel}
-                title={`${phaseName} \u2014 ${stateLabel}`}
-                data-testid={`progress-phase-${phaseNum}`}
-              >
-                {getSegmentContent(state, phaseNum)}
-              </button>
-            ) : state === "current" ? (
-              <button
-                type="button"
-                data-phase-segment
-                tabIndex={isViewing ? 0 : -1}
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                className={getSegmentClasses(state, isViewing)}
-                aria-label={ariaLabel}
-                aria-current="step"
-                title={`${phaseName} \u2014 ${stateLabel}`}
-                data-testid={`progress-phase-${phaseNum}`}
-              >
-                {getSegmentContent(state, phaseNum)}
-              </button>
-            ) : (
+            {/* Segment + label */}
+            <div className="flex flex-col items-center">
+              {isNavigable && state !== "current" ? (
+                <button
+                  type="button"
+                  data-phase-segment
+                  tabIndex={isViewing ? 0 : -1}
+                  onClick={() => router.push(getPhaseUrl(tripId, phaseNum))}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className={getSegmentClasses(state, isViewing)}
+                  aria-label={ariaLabel}
+                  title={`${phaseName} \u2014 ${stateLabel}`}
+                  data-testid={`progress-phase-${phaseNum}`}
+                >
+                  {getSegmentContent(state, phaseNum)}
+                </button>
+              ) : state === "current" ? (
+                <button
+                  type="button"
+                  data-phase-segment
+                  tabIndex={isViewing ? 0 : -1}
+                  onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className={getSegmentClasses(state, isViewing)}
+                  aria-label={ariaLabel}
+                  aria-current="step"
+                  title={`${phaseName} \u2014 ${stateLabel}`}
+                  data-testid={`progress-phase-${phaseNum}`}
+                >
+                  {getSegmentContent(state, phaseNum)}
+                </button>
+              ) : (
+                <span
+                  data-phase-segment
+                  tabIndex={isViewing ? 0 : -1}
+                  onKeyDown={(e) => handleKeyDown(e, index)}
+                  className={getSegmentClasses(state, isViewing)}
+                  aria-label={ariaLabel}
+                  role="img"
+                  title={`${phaseName} \u2014 ${stateLabel}`}
+                  data-testid={`progress-phase-${phaseNum}`}
+                >
+                  {getSegmentContent(state, phaseNum)}
+                </span>
+              )}
               <span
-                data-phase-segment
-                tabIndex={isViewing ? 0 : -1}
-                onKeyDown={(e) => handleKeyDown(e, index)}
-                className={getSegmentClasses(state, isViewing)}
-                aria-label={ariaLabel}
-                role="img"
-                title={`${phaseName} \u2014 ${stateLabel}`}
-                data-testid={`progress-phase-${phaseNum}`}
+                className="mt-1 hidden text-[10px] text-muted-foreground sm:block truncate max-w-[60px] text-center"
+                aria-hidden="true"
+                data-testid={`progress-phase-name-${phaseNum}`}
               >
-                {getSegmentContent(state, phaseNum)}
+                {phaseName}
               </span>
-            )}
+            </div>
 
             {/* Connector line */}
             {showConnector && (

@@ -188,6 +188,7 @@ export function Phase4Wizard({
   async function handleSaveMobility(selected: string[]) {
     setSavingMobility(true);
     setErrorMessage(null);
+    setMobility(selected);
     try {
       const result = await saveLocalMobilityAction(tripId, selected);
       if (!result.success) {
@@ -313,159 +314,163 @@ export function Phase4Wizard({
             </div>
           )}
 
-          {/* Step 3: Car Rental + Mobility + Advance */}
+          {/* Step 3: Mobility + Car Rental (conditional) + Advance */}
           {currentStep === 3 && (
             <div className="mt-8 flex flex-col gap-6">
-              {/* Car rental prerequisites */}
-              <div>
-                <h2 className="text-lg font-semibold text-foreground">
-                  {t("carRentalQuestion")}
-                </h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {t("carRentalHint")}
-                </p>
-
-                <div className="mt-4 flex gap-3">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNeedsCarRental(true);
-                      setCnhConfirmed(false);
-                      setErrorMessage(null);
-                    }}
-                    className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
-                      needsCarRental === true
-                        ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
-                        : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
-                    }`}
-                    aria-pressed={needsCarRental === true}
-                  >
-                    <span className="block text-2xl" aria-hidden="true">
-                      {"\uD83D\uDE97"}
-                    </span>
-                    <span className="mt-1 block text-sm font-medium">
-                      {t("carRentalYes")}
-                    </span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNeedsCarRental(false);
-                      setCnhConfirmed(false);
-                      setErrorMessage(null);
-                    }}
-                    className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
-                      needsCarRental === false
-                        ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
-                        : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
-                    }`}
-                    aria-pressed={needsCarRental === false}
-                  >
-                    <span className="block text-2xl" aria-hidden="true">
-                      {"\uD83D\uDE8C"}
-                    </span>
-                    <span className="mt-1 block text-sm font-medium">
-                      {t("carRentalNo")}
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* CNH Alert Section */}
-              {needsCarRental === true && (
-                <div>
-                  {needsCinh && (
-                    <div className="rounded-lg border-2 border-atlas-rust/30 bg-atlas-rust/5 p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-xl" aria-hidden="true">
-                          {"\u26A0\uFE0F"}
-                        </span>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">
-                            {t("cinhRequired")}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {t("cinhDescription")}
-                          </p>
-                          {cinhDeadline && (
-                            <p className="mt-2 text-sm font-medium text-atlas-rust">
-                              {t("cinhDeadline", { date: cinhDeadline })}
-                            </p>
-                          )}
-                          <p className="mt-2 text-sm text-muted-foreground">
-                            {t("cinhLeadTime", { days: 45 })}
-                          </p>
-                          <label className="mt-4 flex cursor-pointer items-start gap-3">
-                            <input
-                              type="checkbox"
-                              checked={cnhConfirmed}
-                              onChange={(e) => setCnhConfirmed(e.target.checked)}
-                              className="mt-0.5 h-5 w-5 rounded border-border accent-atlas-gold"
-                            />
-                            <span className="text-sm text-foreground">
-                              {t("cinhConfirm")}
-                            </span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {isMercosul && (
-                    <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-xl" aria-hidden="true">
-                          {"\u2705"}
-                        </span>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">
-                            {t("cnhBrasileiraValid")}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {t("cnhBrasileiraDescription")}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {tripType === "domestic" && (
-                    <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-xl" aria-hidden="true">
-                          {"\u2705"}
-                        </span>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-foreground">
-                            {t("cnhRegularValid")}
-                          </h3>
-                          <p className="mt-1 text-sm text-muted-foreground">
-                            {t("cnhRegularDescription")}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {needsCarRental === false && (
-                <div className="rounded-lg border border-border bg-muted p-4 text-center">
-                  <span className="text-2xl" aria-hidden="true">
-                    {"\uD83D\uDC4D"}
-                  </span>
-                  <p className="mt-2 text-sm text-muted-foreground">
-                    {t("noCarRental")}
-                  </p>
-                </div>
-              )}
-
               <MobilityStep
                 tripId={tripId}
                 initialMobility={mobility}
                 onSave={handleSaveMobility}
                 saving={savingMobility}
               />
+
+              {/* Car rental prerequisites — only shown when car_rental is selected */}
+              {mobility.includes("car_rental") && (
+                <>
+                  <div>
+                    <h2 className="text-lg font-semibold text-foreground">
+                      {t("carRentalQuestion")}
+                    </h2>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {t("carRentalHint")}
+                    </p>
+
+                    <div className="mt-4 flex gap-3">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNeedsCarRental(true);
+                          setCnhConfirmed(false);
+                          setErrorMessage(null);
+                        }}
+                        className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
+                          needsCarRental === true
+                            ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
+                            : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
+                        }`}
+                        aria-pressed={needsCarRental === true}
+                      >
+                        <span className="block text-2xl" aria-hidden="true">
+                          {"\uD83D\uDE97"}
+                        </span>
+                        <span className="mt-1 block text-sm font-medium">
+                          {t("carRentalYes")}
+                        </span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNeedsCarRental(false);
+                          setCnhConfirmed(false);
+                          setErrorMessage(null);
+                        }}
+                        className={`flex-1 rounded-lg border-2 p-4 text-center transition-all ${
+                          needsCarRental === false
+                            ? "border-atlas-gold bg-atlas-gold/10 text-foreground"
+                            : "border-border bg-card text-muted-foreground hover:border-atlas-gold/30"
+                        }`}
+                        aria-pressed={needsCarRental === false}
+                      >
+                        <span className="block text-2xl" aria-hidden="true">
+                          {"\uD83D\uDE8C"}
+                        </span>
+                        <span className="mt-1 block text-sm font-medium">
+                          {t("carRentalNo")}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* CNH Alert Section */}
+                  {needsCarRental === true && (
+                    <div>
+                      {needsCinh && (
+                        <div className="rounded-lg border-2 border-atlas-rust/30 bg-atlas-rust/5 p-4">
+                          <div className="flex items-start gap-3">
+                            <span className="text-xl" aria-hidden="true">
+                              {"\u26A0\uFE0F"}
+                            </span>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground">
+                                {t("cinhRequired")}
+                              </h3>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {t("cinhDescription")}
+                              </p>
+                              {cinhDeadline && (
+                                <p className="mt-2 text-sm font-medium text-atlas-rust">
+                                  {t("cinhDeadline", { date: cinhDeadline })}
+                                </p>
+                              )}
+                              <p className="mt-2 text-sm text-muted-foreground">
+                                {t("cinhLeadTime", { days: 45 })}
+                              </p>
+                              <label className="mt-4 flex cursor-pointer items-start gap-3">
+                                <input
+                                  type="checkbox"
+                                  checked={cnhConfirmed}
+                                  onChange={(e) => setCnhConfirmed(e.target.checked)}
+                                  className="mt-0.5 h-5 w-5 rounded border-border accent-atlas-gold"
+                                />
+                                <span className="text-sm text-foreground">
+                                  {t("cinhConfirm")}
+                                </span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {isMercosul && (
+                        <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
+                          <div className="flex items-start gap-3">
+                            <span className="text-xl" aria-hidden="true">
+                              {"\u2705"}
+                            </span>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground">
+                                {t("cnhBrasileiraValid")}
+                              </h3>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {t("cnhBrasileiraDescription")}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {tripType === "domestic" && (
+                        <div className="rounded-lg border border-atlas-teal/30 bg-atlas-teal/5 p-4">
+                          <div className="flex items-start gap-3">
+                            <span className="text-xl" aria-hidden="true">
+                              {"\u2705"}
+                            </span>
+                            <div className="flex-1">
+                              <h3 className="font-semibold text-foreground">
+                                {t("cnhRegularValid")}
+                              </h3>
+                              <p className="mt-1 text-sm text-muted-foreground">
+                                {t("cnhRegularDescription")}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {needsCarRental === false && (
+                    <div className="rounded-lg border border-border bg-muted p-4 text-center">
+                      <span className="text-2xl" aria-hidden="true">
+                        {"\uD83D\uDC4D"}
+                      </span>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        {t("noCarRental")}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
 
               {/* Navigation + Advance */}
               <WizardFooter

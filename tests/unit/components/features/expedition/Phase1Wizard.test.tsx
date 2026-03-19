@@ -186,6 +186,21 @@ describe("Phase1Wizard", () => {
       expect(screen.getByPlaceholderText("expedition.phase1.step2.placeholder")).toBeInTheDocument();
     });
 
+    it("step 2 uses responsive grid for destination and origin fields (UX-001)", () => {
+      render(<Phase1Wizard />);
+
+      // Step 1: fill mandatory and next
+      fillMandatoryStep1Fields();
+      fireEvent.click(screen.getByText("common.next"));
+
+      // Step 2: verify the grid container has responsive grid classes
+      const grid = screen.getByTestId("step2-fields-grid");
+      expect(grid).toBeInTheDocument();
+      expect(grid.className).toContain("grid");
+      expect(grid.className).toContain("grid-cols-1");
+      expect(grid.className).toContain("md:grid-cols-2");
+    });
+
     it("navigates from Destination (step 2) to Dates (step 3)", () => {
       render(<Phase1Wizard />);
 

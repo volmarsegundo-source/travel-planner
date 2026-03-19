@@ -242,10 +242,9 @@ export class TripService {
       const recommendedItems = trip.phaseChecklist.filter((i) => !i.required);
       return {
         ...trip,
-        completedPhases: Math.max(
-          trip.phases.filter((p) => p.status === "completed").length,
-          trip.currentPhase - 1,
-        ),
+        completedPhases: trip.phases
+          .filter((p) => p.status === "completed")
+          .map((p) => p.phaseNumber),
         totalPhases: trip.phases.length,
         checklistRequired: requiredItems.length,
         checklistRequiredDone: requiredItems.filter((i) => i.completed).length,

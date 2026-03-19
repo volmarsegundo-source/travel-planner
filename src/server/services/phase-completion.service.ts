@@ -124,6 +124,55 @@ export class PhaseCompletionService {
   }
 
   /**
+   * Sync the ExpeditionPhase.status for a single phase based on actual data.
+   * Evaluates phase completion from the snapshot and updates DB if status differs.
+   *
+   * Returns true if the status was changed, false otherwise.
+   */
+  static async syncPhaseStatus(
+    tripId: string,
+    userId: string,
+    phaseNumber: number
+  ): Promise<boolean> {
+    const snapshot = await this.buildSnapshot(tripId, userId);
+    const result = evaluatePhaseCompletion(phaseNumber, snapshot);
+
+    // Map evaluation status to ExpeditionPhase status
+    const targetStatus = result.status === "completed" ? "completed" : "active";
+
+    const phase = await db.expeditionPhase.findUnique({
+      where: { tripId_phaseNumber: { tripId, phaseNumber } },
+    });
+
+    if (!phase) return false;
+
+    // Only sync if status differs and phase is not locked
+    if (phase.status === "locked" || phase.status === targetStatus) {
+      return false;
+    }
+
+    await db.expeditionPhase.update({
+      where: { id: phase.id },
+      data: {
+        status: targetStatus,
+        ...(targetStatus === "completed" && !phase.completedAt
+          ? { completedAt: new Date() }
+          : {}),
+      },
+    });
+
+    logger.info("phase.status.synced", {
+      tripId,
+      userIdHash: hashUserId(userId),
+      phaseNumber,
+      previousStatus: phase.status,
+      newStatus: targetStatus,
+    });
+
+    return true;
+  }
+
+  /**
    * Check if all 6 phases are complete. If so, set trip.status = "COMPLETED".
    * Called after each phase wizard submission.
    *

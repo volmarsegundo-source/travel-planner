@@ -26,6 +26,10 @@ vi.mock("server-only", () => ({}));
 
 vi.mock("@/server/actions/expedition.actions", () => ({
   // completeExpeditionAction removed (SPEC-PROD-024 REQ-006)
+  syncPhase6CompletionAction: vi.fn().mockResolvedValue({
+    success: true,
+    data: { completed: true, tripCompleted: false },
+  }),
 }));
 
 vi.mock("next-intl", () => ({

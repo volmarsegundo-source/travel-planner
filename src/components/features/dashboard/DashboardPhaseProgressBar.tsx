@@ -13,7 +13,7 @@ const PHASE_ROUTES = PHASE_ROUTE_MAP;
 
 interface DashboardPhaseProgressBarProps {
   currentPhase: number;
-  completedPhases: number;
+  completedPhases: number[];
   tripId?: string;
 }
 
@@ -32,14 +32,14 @@ export function DashboardPhaseProgressBar({
       className="group/bar relative mt-3 flex gap-0.5"
       role="group"
       aria-label={t("phases.progressLabel", {
-        completed: completedPhases,
+        completed: completedPhases.length,
         total: PHASE_DEFINITIONS.length,
       })}
       data-testid="dashboard-phase-progress-bar"
     >
       {PHASE_DEFINITIONS.map((phase) => {
         const phaseNum = phase.phaseNumber;
-        const isCompleted = phaseNum <= completedPhases;
+        const isCompleted = completedPhases.includes(phaseNum);
         const isCurrent = phaseNum === currentPhase;
         const isComingSoon = phaseNum >= 7;
 
@@ -77,33 +77,47 @@ export function DashboardPhaseProgressBar({
 
         const isNavigable = (isCompleted || isCurrent) && tripId && PHASE_ROUTES[phaseNum] !== undefined;
 
+        const phaseLabel = (
+          <span
+            className="mt-1 hidden text-[9px] leading-tight text-muted-foreground sm:block truncate text-center"
+            aria-hidden="true"
+            data-testid={`phase-name-${phaseNum}`}
+          >
+            {phaseName}
+          </span>
+        );
+
         if (isNavigable) {
           return (
-            <button
-              key={phaseNum}
-              type="button"
-              onClick={() =>
-                router.push(`/expedition/${tripId}${PHASE_ROUTES[phaseNum]}`)
-              }
-              className={`group/segment ${segmentClasses} cursor-pointer hover:-translate-y-0.5`}
+            <div key={phaseNum} className="flex flex-1 flex-col items-stretch">
+              <button
+                type="button"
+                onClick={() =>
+                  router.push(`/expedition/${tripId}${PHASE_ROUTES[phaseNum]}`)
+                }
+                className={`group/segment ${segmentClasses} cursor-pointer hover:-translate-y-0.5`}
+                aria-label={`${phaseName} \u2014 ${stateLabel}`}
+                title={phaseName}
+                data-testid={`phase-segment-${phaseNum}`}
+              >
+                {indicator}
+              </button>
+              {phaseLabel}
+            </div>
+          );
+        }
+
+        return (
+          <div key={phaseNum} className="flex flex-1 flex-col items-stretch">
+            <div
+              className={`group/segment ${segmentClasses}`}
               aria-label={`${phaseName} \u2014 ${stateLabel}`}
               title={phaseName}
               data-testid={`phase-segment-${phaseNum}`}
             >
               {indicator}
-            </button>
-          );
-        }
-
-        return (
-          <div
-            key={phaseNum}
-            className={`group/segment ${segmentClasses}`}
-            aria-label={`${phaseName} \u2014 ${stateLabel}`}
-            title={phaseName}
-            data-testid={`phase-segment-${phaseNum}`}
-          >
-            {indicator}
+            </div>
+            {phaseLabel}
           </div>
         );
       })}

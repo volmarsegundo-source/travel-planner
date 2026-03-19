@@ -1059,7 +1059,45 @@
     "mobility": "Mobilidade local",
     "itineraryDays": "{count} dias de roteiro",
     "activities": "{count} atividades",
-    "dayLabel": "Dia {number}"
+    "dayLabel": "Dia {number}",
+    "name": "Nome",
+    "ageRange": "Faixa etaria",
+    "passengerCounts": "Passageiros",
+    "passengersDetail": "{adults} adultos, {children} criancas, {seniors} idosos, {infants} bebes",
+    "travelPace": "Ritmo de viagem",
+    "paceValue": "{value}/10",
+    "budgetLabel": "Orcamento",
+    "interestsLabel": "Interesses",
+    "pendingRequired": "Itens obrigatorios pendentes",
+    "pendingRequiredCount": "{count} itens obrigatorios restantes",
+    "enums": {
+      "tripType": {
+        "domestic": "Nacional",
+        "international": "Internacional",
+        "mercosul": "Mercosul",
+        "schengen": "Schengen"
+      },
+      "travelerType": {
+        "solo": "Solo",
+        "couple": "Casal",
+        "family": "Familia",
+        "group": "Grupo",
+        "student": "Estudante",
+        "business": "Negocios"
+      },
+      "accommodationStyle": {
+        "budget": "Economico",
+        "comfort": "Conforto",
+        "luxury": "Luxo",
+        "adventure": "Aventura",
+        "hostel": "Hostel",
+        "hotel": "Hotel",
+        "airbnb": "Airbnb",
+        "glamping": "Glamping",
+        "resort": "Resort",
+        "bed_and_breakfast": "Pousada"
+      }
+    }
   },
   "errors": {
     "boundary": {
@@ -1083,7 +1121,15 @@
     "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
     "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
     "validation": "Dados de entrada inválidos.",
-    "phaseAlreadyCompleted": "Esta fase já foi concluída. Você pode revisitar os dados."
+    "phaseAlreadyCompleted": "Esta fase já foi concluída. Você pode revisitar os dados.",
+    "phaseOrderViolation": "Não é possível completar esta fase fora de ordem.",
+    "phaseNotActive": "Esta fase ainda não está ativa.",
+    "prerequisitesNotMet": "Os pré-requisitos desta fase não foram cumpridos.",
+    "notExpeditionMode": "Esta viagem não está em modo expedição.",
+    "invalidPhase": "Número de fase inválido.",
+    "phaseNotSkippable": "Esta fase não pode ser pulada — deve ser concluída.",
+    "aiNotAvailable": "IA não disponível para esta fase.",
+    "aiAgeRestricted": "Você precisa ter 18 anos ou mais para usar recursos de IA."
   },
   "legal": {
     "terms": {

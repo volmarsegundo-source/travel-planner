@@ -1059,7 +1059,45 @@
     "mobility": "Local mobility",
     "itineraryDays": "{count} itinerary days",
     "activities": "{count} activities",
-    "dayLabel": "Day {number}"
+    "dayLabel": "Day {number}",
+    "name": "Name",
+    "ageRange": "Age range",
+    "passengerCounts": "Passengers",
+    "passengersDetail": "{adults} adults, {children} children, {seniors} seniors, {infants} infants",
+    "travelPace": "Travel pace",
+    "paceValue": "{value}/10",
+    "budgetLabel": "Budget",
+    "interestsLabel": "Interests",
+    "pendingRequired": "Pending required items",
+    "pendingRequiredCount": "{count} required items remaining",
+    "enums": {
+      "tripType": {
+        "domestic": "Domestic",
+        "international": "International",
+        "mercosul": "Mercosul",
+        "schengen": "Schengen"
+      },
+      "travelerType": {
+        "solo": "Solo",
+        "couple": "Couple",
+        "family": "Family",
+        "group": "Group",
+        "student": "Student",
+        "business": "Business"
+      },
+      "accommodationStyle": {
+        "budget": "Budget",
+        "comfort": "Comfort",
+        "luxury": "Luxury",
+        "adventure": "Adventure",
+        "hostel": "Hostel",
+        "hotel": "Hotel",
+        "airbnb": "Airbnb",
+        "glamping": "Glamping",
+        "resort": "Resort",
+        "bed_and_breakfast": "Bed & Breakfast"
+      }
+    }
   },
   "errors": {
     "boundary": {
@@ -1083,7 +1121,15 @@
     "aiSchemaError": "The AI returned an unexpected format. Please try again.",
     "rateLimitExceeded": "Too many requests. Please try again later.",
     "validation": "Invalid input data.",
-    "phaseAlreadyCompleted": "This phase is already completed. You can review your data."
+    "phaseAlreadyCompleted": "This phase is already completed. You can review your data.",
+    "phaseOrderViolation": "Cannot complete this phase out of order.",
+    "phaseNotActive": "This phase is not active yet.",
+    "prerequisitesNotMet": "Prerequisites for this phase have not been met.",
+    "notExpeditionMode": "This trip is not in expedition mode.",
+    "invalidPhase": "Invalid phase number.",
+    "phaseNotSkippable": "This phase cannot be skipped — it must be completed.",
+    "aiNotAvailable": "AI is not available for this phase.",
+    "aiAgeRestricted": "You must be 18 or older to use AI features."
   },
   "legal": {
     "terms": {

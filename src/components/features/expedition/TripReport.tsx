@@ -9,6 +9,7 @@ interface TripReportProps {
 
 export function TripReport({ data }: TripReportProps) {
   const t = useTranslations("report");
+  const tEnums = useTranslations("report.enums");
 
   return (
     <article className="space-y-6" data-testid="trip-report">
@@ -44,7 +45,7 @@ export function TripReport({ data }: TripReportProps) {
               </>
             )}
             <dt className="text-muted-foreground">{t("tripType")}</dt>
-            <dd className="font-medium">{data.phase1.tripType}</dd>
+            <dd className="font-medium">{tEnums(`tripType.${data.phase1.tripType}` as Parameters<typeof tEnums>[0])}</dd>
           </dl>
         </ReportSection>
       )}
@@ -54,18 +55,37 @@ export function TripReport({ data }: TripReportProps) {
         <ReportSection title={t("phase2Title")} testId="report-phase-2">
           <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
             <dt className="text-muted-foreground">{t("travelerType")}</dt>
-            <dd className="font-medium">{data.phase2.travelerType}</dd>
+            <dd className="font-medium">{tEnums(`travelerType.${data.phase2.travelerType}` as Parameters<typeof tEnums>[0])}</dd>
             {data.phase2.accommodationStyle && (
               <>
                 <dt className="text-muted-foreground">{t("accommodationStyle")}</dt>
-                <dd className="font-medium">{data.phase2.accommodationStyle}</dd>
+                <dd className="font-medium">{tEnums(`accommodationStyle.${data.phase2.accommodationStyle}` as Parameters<typeof tEnums>[0])}</dd>
+              </>
+            )}
+            {data.phase2.travelPace != null && (
+              <>
+                <dt className="text-muted-foreground">{t("travelPace")}</dt>
+                <dd className="font-medium">{t("paceValue", { value: data.phase2.travelPace })}</dd>
+              </>
+            )}
+            {data.phase2.budget != null && (
+              <>
+                <dt className="text-muted-foreground">{t("budgetLabel")}</dt>
+                <dd className="font-medium">
+                  {data.phase2.currency ? `${data.phase2.currency} ` : ""}{data.phase2.budget.toLocaleString()}
+                </dd>
               </>
             )}
             {data.phase2.passengers && (
               <>
-                <dt className="text-muted-foreground">{t("passengers")}</dt>
+                <dt className="text-muted-foreground">{t("passengerCounts")}</dt>
                 <dd className="font-medium">
-                  {data.phase2.passengers.adults + data.phase2.passengers.children + data.phase2.passengers.infants + data.phase2.passengers.seniors}
+                  {t("passengersDetail", {
+                    adults: data.phase2.passengers.adults,
+                    children: data.phase2.passengers.children,
+                    seniors: data.phase2.passengers.seniors,
+                    infants: data.phase2.passengers.infants,
+                  })}
                 </dd>
               </>
             )}
@@ -82,6 +102,16 @@ export function TripReport({ data }: TripReportProps) {
               total: data.phase3.totalCount,
             })}
           </p>
+          {data.phase3.completedCount < data.phase3.totalCount && (
+            <p
+              className="mb-3 text-sm font-medium text-amber-600 dark:text-amber-400"
+              data-testid="report-pending-required"
+            >
+              {t("pendingRequiredCount", {
+                count: data.phase3.totalCount - data.phase3.completedCount,
+              })}
+            </p>
+          )}
           <ul className="space-y-1">
             {data.phase3.items.map((item) => (
               <li

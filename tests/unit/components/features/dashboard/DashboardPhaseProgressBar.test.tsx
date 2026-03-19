@@ -4,6 +4,7 @@
  * Tests cover: interactive segments when tripId is provided, non-interactive when not,
  * completed/current/incomplete/coming-soon visual states, aria-labels.
  * Updated Sprint 31: 4-state color system (green/blue/gray/gray-dashed).
+ * Updated Sprint 32: completedPhases changed from count (number) to array (number[]).
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -42,7 +43,7 @@ beforeEach(() => {
 describe("DashboardPhaseProgressBar", () => {
   it("renders 8 segments", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
@@ -53,7 +54,7 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("segments are NOT links (no anchor elements) when no tripId", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} />
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} />
     );
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
@@ -61,25 +62,25 @@ describe("DashboardPhaseProgressBar", () => {
     expect(anchors).toHaveLength(0);
   });
 
-  it("all segments are DIV elements when no tripId", () => {
+  it("all segment elements are DIV elements when no tripId", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} />
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    for (let i = 0; i < 8; i++) {
-      expect(container.children[i].tagName).toBe("DIV");
+    for (let i = 1; i <= 8; i++) {
+      const seg = screen.getByTestId(`phase-segment-${i}`);
+      expect(seg.tagName).toBe("DIV");
     }
   });
 
   it("segments do not have cursor-pointer class when no tripId", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    for (let i = 0; i < 8; i++) {
-      expect(container.children[i].className).not.toContain("cursor-pointer");
+    for (let i = 1; i <= 8; i++) {
+      const seg = screen.getByTestId(`phase-segment-${i}`);
+      expect(seg.className).not.toContain("cursor-pointer");
     }
   });
 
@@ -87,23 +88,24 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("completed/current segments are BUTTON elements when tripId is provided", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} tripId="trip-123" />
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} tripId="trip-123" />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
     // Phases 1-3 completed, phase 4 current = 4 buttons
-    for (let i = 0; i < 4; i++) {
-      expect(container.children[i].tagName).toBe("BUTTON");
+    for (let i = 1; i <= 4; i++) {
+      const seg = screen.getByTestId(`phase-segment-${i}`);
+      expect(seg.tagName).toBe("BUTTON");
     }
     // Phases 5-8 not navigable = DIV
-    for (let i = 4; i < 8; i++) {
-      expect(container.children[i].tagName).toBe("DIV");
+    for (let i = 5; i <= 8; i++) {
+      const seg = screen.getByTestId(`phase-segment-${i}`);
+      expect(seg.tagName).toBe("DIV");
     }
   });
 
   it("completed segments have cursor-pointer class when tripId provided", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} tripId="trip-123" />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} tripId="trip-123" />
     );
 
     // Phase 1 (completed) should have cursor-pointer
@@ -113,7 +115,7 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("clicking completed phase navigates to that phase", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} tripId="trip-123" />
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} tripId="trip-123" />
     );
 
     const seg2 = screen.getByTestId("phase-segment-2");
@@ -123,7 +125,7 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("clicking current phase navigates to that phase", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} tripId="trip-123" />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} tripId="trip-123" />
     );
 
     const seg3 = screen.getByTestId("phase-segment-3");
@@ -133,7 +135,7 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("clicking phase 1 navigates to phase-1 (not expedition root)", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} tripId="trip-123" />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} tripId="trip-123" />
     );
 
     const seg1 = screen.getByTestId("phase-segment-1");
@@ -145,79 +147,92 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("completed phases have green background", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} />
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    for (let i = 0; i < 3; i++) {
-      expect(container.children[i]).toHaveClass("bg-green-500");
+    for (let i = 1; i <= 3; i++) {
+      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-green-500");
     }
   });
 
   it("current phase has blue color with pulse animation", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={4} completedPhases={3} />
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    expect(container.children[3]).toHaveClass("bg-blue-500", "motion-safe:animate-pulse");
+    const seg4 = screen.getByTestId("phase-segment-4");
+    expect(seg4).toHaveClass("bg-blue-500", "motion-safe:animate-pulse");
   });
 
   it("incomplete (upcoming) phases have outlined border, no fill", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    // Phases 4-6 (indices 3-5) should be outlined (border, bg-transparent)
-    for (let i = 3; i < 6; i++) {
-      expect(container.children[i]).toHaveClass("border");
-      expect(container.children[i]).toHaveClass("bg-transparent");
-      expect(container.children[i]).not.toHaveClass("opacity-50");
+    // Phases 4-6 should be outlined (border, bg-transparent)
+    for (let i = 4; i <= 6; i++) {
+      const seg = screen.getByTestId(`phase-segment-${i}`);
+      expect(seg).toHaveClass("border");
+      expect(seg).toHaveClass("bg-transparent");
+      expect(seg).not.toHaveClass("opacity-50");
     }
   });
 
   it("coming-soon phases (7-8) have dashed border and 50% opacity", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    // Phases 7-8 (indices 6-7)
-    expect(container.children[6]).toHaveClass("border-dashed", "opacity-50");
-    expect(container.children[7]).toHaveClass("border-dashed", "opacity-50");
+    expect(screen.getByTestId("phase-segment-7")).toHaveClass("border-dashed", "opacity-50");
+    expect(screen.getByTestId("phase-segment-8")).toHaveClass("border-dashed", "opacity-50");
   });
 
-  it("all completed when completedPhases equals 8", () => {
+  it("all completed when completedPhases includes all 8 phases", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={8} completedPhases={8} />
+      <DashboardPhaseProgressBar currentPhase={8} completedPhases={[1, 2, 3, 4, 5, 6, 7, 8]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    for (let i = 0; i < 8; i++) {
-      expect(container.children[i]).toHaveClass("bg-green-500");
+    for (let i = 1; i <= 8; i++) {
+      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-green-500");
     }
   });
 
-  it("no completed when completedPhases is 0", () => {
+  it("no completed when completedPhases is empty", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={1} completedPhases={0} />
+      <DashboardPhaseProgressBar currentPhase={1} completedPhases={[]} />
     );
 
-    const container = screen.getByTestId("dashboard-phase-progress-bar");
-    // Phase 1 (index 0) is current
-    expect(container.children[0]).toHaveClass("bg-blue-500");
+    // Phase 1 is current
+    expect(screen.getByTestId("phase-segment-1")).toHaveClass("bg-blue-500");
     // Phases 2-6 are incomplete
-    for (let i = 1; i < 6; i++) {
-      expect(container.children[i]).toHaveClass("bg-transparent");
+    for (let i = 2; i <= 6; i++) {
+      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-transparent");
     }
+  });
+
+  // ─── Array-based completedPhases: non-sequential ─────────────────────
+
+  it("marks only specific phases as completed when array is non-sequential", () => {
+    // Only phases 1 and 3 are completed (skipped phase 2)
+    render(
+      <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 3]} />
+    );
+
+    // Phase 1: completed (green)
+    expect(screen.getByTestId("phase-segment-1")).toHaveClass("bg-green-500");
+    // Phase 2: NOT completed (transparent, since it's behind currentPhase)
+    expect(screen.getByTestId("phase-segment-2")).not.toHaveClass("bg-green-500");
+    // Phase 3: completed (green)
+    expect(screen.getByTestId("phase-segment-3")).toHaveClass("bg-green-500");
+    // Phase 4: current (blue)
+    expect(screen.getByTestId("phase-segment-4")).toHaveClass("bg-blue-500");
   });
 
   // ─── Aria labels ────────────────────────────────────────────────────────
 
   it("segments have aria-labels with phase names and state", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
     // Completed phase should say "completed"
@@ -235,7 +250,7 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("has group role with progress label", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
     const group = screen.getByRole("group");
@@ -245,16 +260,17 @@ describe("DashboardPhaseProgressBar", () => {
     );
   });
 
-  // ─── No visible phase labels ────────────────────────────────────────────
+  // ─── Phase name labels (UX-007) ────────────────────────────────────────
 
-  it("does not render visible phase label text elements", () => {
+  it("renders phase name labels below each segment", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    // The old phase-label test-ids should NOT exist
     for (let i = 1; i <= 8; i++) {
-      expect(screen.queryByTestId(`phase-label-${i}`)).not.toBeInTheDocument();
+      const label = screen.getByTestId(`phase-name-${i}`);
+      expect(label).toBeInTheDocument();
+      expect(label).toHaveAttribute("aria-hidden", "true");
     }
   });
 
@@ -262,7 +278,7 @@ describe("DashboardPhaseProgressBar", () => {
 
   it("completed phases display a checkmark icon", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={3} completedPhases={2} />
+      <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
     // Completed phases (1, 2) should each have a child element with the check icon

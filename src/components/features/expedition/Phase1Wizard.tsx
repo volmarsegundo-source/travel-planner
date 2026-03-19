@@ -573,22 +573,26 @@ export function Phase1Wizard({
         {/* Step 2: Destination */}
         {currentStep === 2 && (
           <div className="flex flex-col gap-4">
-            <Label htmlFor="destination">{t("step2.title")}</Label>
-            <DestinationAutocomplete
-              value={destination}
-              onChange={handleDestinationChange}
-              onSelect={handleDestinationSelect}
-              placeholder={t("step2.placeholder")}
-            />
-            <div className="mt-4">
-              <Label htmlFor="origin">{t("step2.origin")}</Label>
-              <DestinationAutocomplete
-                value={origin}
-                onChange={handleOriginChange}
-                onSelect={handleOriginSelect}
-                placeholder={t("step2.originPlaceholder")}
-              />
-              <p className="mt-1 text-xs text-muted-foreground">{t("step2.originHint")}</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="step2-fields-grid">
+              <div>
+                <Label htmlFor="destination">{t("step2.title")}</Label>
+                <DestinationAutocomplete
+                  value={destination}
+                  onChange={handleDestinationChange}
+                  onSelect={handleDestinationSelect}
+                  placeholder={t("step2.placeholder")}
+                />
+              </div>
+              <div>
+                <Label htmlFor="origin">{t("step2.origin")}</Label>
+                <DestinationAutocomplete
+                  value={origin}
+                  onChange={handleOriginChange}
+                  onSelect={handleOriginSelect}
+                  placeholder={t("step2.originPlaceholder")}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">{t("step2.originHint")}</p>
+              </div>
             </div>
             {tripType && (
               <div className="flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm text-accent-foreground">

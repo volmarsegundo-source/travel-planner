@@ -155,23 +155,18 @@ describe("PreferencesSection", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders 5 category cards on page 1 (paginated)", () => {
+  it("renders 4 category cards on page 1 (paginated)", () => {
     render(<PreferencesSection initialPreferences={{}} />);
 
-    // Page 1 shows first 5 categories
-    const categoryButtons = screen.getAllByRole("button", { expanded: false });
-    // 5 category buttons + 2 pagination buttons (prev/next) = 7
-    expect(categoryButtons.length).toBeGreaterThanOrEqual(5);
-
-    // Should see the first 5 category titles
+    // Page 1 shows first 4 categories (CATEGORIES_PER_PAGE = 4)
     expect(screen.getByText("preferences.categories.travelPace.title")).toBeInTheDocument();
-    expect(screen.getByText("preferences.categories.foodPreferences.title")).toBeInTheDocument();
-    expect(screen.getByText("preferences.categories.interests.title")).toBeInTheDocument();
     expect(screen.getByText("preferences.categories.budgetStyle.title")).toBeInTheDocument();
     expect(screen.getByText("preferences.categories.socialPreference.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.accommodationStyle.title")).toBeInTheDocument();
 
     // Should NOT see page 2 categories
-    expect(screen.queryByText("preferences.categories.accommodationStyle.title")).not.toBeInTheDocument();
+    expect(screen.queryByText("preferences.categories.interests.title")).not.toBeInTheDocument();
+    expect(screen.queryByText("preferences.categories.foodPreferences.title")).not.toBeInTheDocument();
   });
 
   it("shows page 2 categories after clicking Next", () => {
@@ -180,15 +175,14 @@ describe("PreferencesSection", () => {
     // Click Next
     fireEvent.click(screen.getByTestId("preferences-next-btn"));
 
-    // Should see page 2 categories
-    expect(screen.getByText("preferences.categories.accommodationStyle.title")).toBeInTheDocument();
+    // Should see page 2 categories (interests, foodPreferences, fitnessLevel)
+    expect(screen.getByText("preferences.categories.interests.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.foodPreferences.title")).toBeInTheDocument();
     expect(screen.getByText("preferences.categories.fitnessLevel.title")).toBeInTheDocument();
-    expect(screen.getByText("preferences.categories.photographyInterest.title")).toBeInTheDocument();
-    expect(screen.getByText("preferences.categories.wakePreference.title")).toBeInTheDocument();
-    expect(screen.getByText("preferences.categories.connectivityNeeds.title")).toBeInTheDocument();
 
     // Should NOT see page 1 categories
     expect(screen.queryByText("preferences.categories.travelPace.title")).not.toBeInTheDocument();
+    expect(screen.queryByText("preferences.categories.budgetStyle.title")).not.toBeInTheDocument();
   });
 
   it("navigates back with Previous button", () => {
@@ -214,6 +208,11 @@ describe("PreferencesSection", () => {
 
     // Go to page 2
     fireEvent.click(screen.getByTestId("preferences-next-btn"));
+    // Page 2 is not the last (there's page 3), so Next should still be enabled
+    expect(screen.getByTestId("preferences-next-btn")).not.toBeDisabled();
+
+    // Go to page 3 (last page)
+    fireEvent.click(screen.getByTestId("preferences-next-btn"));
     expect(screen.getByTestId("preferences-next-btn")).toBeDisabled();
   });
 
@@ -224,18 +223,20 @@ describe("PreferencesSection", () => {
     expect(indicator).toHaveTextContent("preferences.pageIndicator");
   });
 
-  it("shows single page with no pagination when <=5 categories after exclusion", () => {
-    // Exclude 5 categories so only 5 remain
+  it("shows single page with no pagination when <=4 categories after exclusion", () => {
+    // Exclude 6 categories so only 4 remain (fits in one page with CATEGORIES_PER_PAGE=4)
     render(
       <PreferencesSection
         initialPreferences={{}}
-        excludeCategories={["accommodationStyle", "fitnessLevel", "photographyInterest", "wakePreference", "connectivityNeeds"]}
+        excludeCategories={["interests", "foodPreferences", "fitnessLevel", "photographyInterest", "wakePreference", "connectivityNeeds"]}
       />
     );
 
-    // All 5 remaining should be visible
+    // All 4 remaining should be visible
     expect(screen.getByText("preferences.categories.travelPace.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.budgetStyle.title")).toBeInTheDocument();
     expect(screen.getByText("preferences.categories.socialPreference.title")).toBeInTheDocument();
+    expect(screen.getByText("preferences.categories.accommodationStyle.title")).toBeInTheDocument();
 
     // No pagination controls
     expect(screen.queryByTestId("preferences-next-btn")).not.toBeInTheDocument();
@@ -325,6 +326,9 @@ describe("PreferencesSection", () => {
 
   it("handles multi-select categories correctly", () => {
     render(<PreferencesSection initialPreferences={{}} />);
+
+    // Navigate to page 2 where interests is located
+    fireEvent.click(screen.getByTestId("preferences-next-btn"));
 
     // Expand Interests
     fireEvent.click(screen.getByText("preferences.categories.interests.title"));
