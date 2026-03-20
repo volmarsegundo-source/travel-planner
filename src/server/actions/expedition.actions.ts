@@ -235,11 +235,41 @@ export async function completePhase2Action(
   }
 
   try {
-    const result = await ExpeditionService.completePhase2(
-      tripId,
-      session.user.id,
-      parsed.data
-    );
+    let result: PhaseCompletionResult;
+    try {
+      result = await ExpeditionService.completePhase2(
+        tripId,
+        session.user.id,
+        parsed.data
+      );
+    } catch (phaseError) {
+      // Graceful handling: if phase is already completed or order has advanced,
+      // treat as success — the phase work is already done, just navigate forward.
+      if (
+        phaseError instanceof AppError &&
+        (phaseError.code === "PHASE_ORDER_VIOLATION" ||
+         phaseError.code === "PHASE_ALREADY_COMPLETED")
+      ) {
+        logger.info("expedition.completePhase2.alreadyAdvanced", {
+          tripId,
+          userIdHash: hashUserId(session.user.id),
+          code: phaseError.code,
+        });
+        revalidatePath("/expeditions");
+        revalidatePath(`/expedition/${tripId}`);
+        return {
+          success: true,
+          data: {
+            phaseNumber: 2,
+            pointsEarned: 0,
+            badgeAwarded: null,
+            newRank: null,
+            nextPhaseUnlocked: 3,
+          } as PhaseCompletionResult,
+        };
+      }
+      throw phaseError;
+    }
 
     // Persist preference fields to UserProfile (like Phase 1 does for profile fields)
     const profileFields: Record<string, string | undefined> = {};
@@ -387,7 +417,36 @@ export async function completePhase3Action(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
-    const result = await PhaseEngine.completePhase(tripId, session.user.id, 3);
+    let result: PhaseCompletionResult;
+    try {
+      result = await PhaseEngine.completePhase(tripId, session.user.id, 3);
+    } catch (phaseError) {
+      if (
+        phaseError instanceof AppError &&
+        (phaseError.code === "PHASE_ORDER_VIOLATION" ||
+         phaseError.code === "PHASE_ALREADY_COMPLETED")
+      ) {
+        logger.info("expedition.completePhase3.alreadyAdvanced", {
+          tripId,
+          userIdHash: hashUserId(session.user.id),
+          code: phaseError.code,
+        });
+        revalidatePath("/expeditions");
+        revalidatePath(`/expedition/${tripId}`);
+        return {
+          success: true,
+          data: {
+            phaseNumber: 3,
+            pointsEarned: 0,
+            badgeAwarded: null,
+            newRank: null,
+            nextPhaseUnlocked: 4,
+          } as PhaseCompletionResult,
+        };
+      }
+      throw phaseError;
+    }
+
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
 
@@ -442,7 +501,36 @@ export async function completePhase4Action(
       });
     }
 
-    const result = await PhaseEngine.completePhase(tripId, session.user.id, 4);
+    let result: PhaseCompletionResult;
+    try {
+      result = await PhaseEngine.completePhase(tripId, session.user.id, 4);
+    } catch (phaseError) {
+      if (
+        phaseError instanceof AppError &&
+        (phaseError.code === "PHASE_ORDER_VIOLATION" ||
+         phaseError.code === "PHASE_ALREADY_COMPLETED")
+      ) {
+        logger.info("expedition.completePhase4.alreadyAdvanced", {
+          tripId,
+          userIdHash: hashUserId(session.user.id),
+          code: phaseError.code,
+        });
+        revalidatePath("/expeditions");
+        revalidatePath(`/expedition/${tripId}`);
+        return {
+          success: true,
+          data: {
+            phaseNumber: 4,
+            pointsEarned: 0,
+            badgeAwarded: null,
+            newRank: null,
+            nextPhaseUnlocked: 5,
+          } as PhaseCompletionResult,
+        };
+      }
+      throw phaseError;
+    }
+
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
 
@@ -470,7 +558,39 @@ export async function completePhase5Action(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
-    const result = await PhaseEngine.completePhase(tripId, session.user.id, 5);
+    let result: PhaseCompletionResult;
+    try {
+      result = await PhaseEngine.completePhase(tripId, session.user.id, 5);
+    } catch (phaseError) {
+      // Graceful handling: if phase is already completed or order has advanced,
+      // treat as success — the phase work is already done.
+      if (
+        phaseError instanceof AppError &&
+        (phaseError.code === "PHASE_ORDER_VIOLATION" ||
+         phaseError.code === "PHASE_ALREADY_COMPLETED")
+      ) {
+        logger.info("expedition.completePhase5.alreadyAdvanced", {
+          tripId,
+          userIdHash: hashUserId(session.user.id),
+          code: phaseError.code,
+        });
+        revalidatePath("/");
+        revalidatePath("/expeditions");
+        revalidatePath(`/expedition/${tripId}`);
+        return {
+          success: true,
+          data: {
+            phaseNumber: 5,
+            pointsEarned: 0,
+            badgeAwarded: null,
+            newRank: null,
+            nextPhaseUnlocked: 6,
+          } as PhaseCompletionResult,
+        };
+      }
+      throw phaseError;
+    }
+
     revalidatePath("/");
     revalidatePath("/expeditions");
     revalidatePath(`/expedition/${tripId}`);
@@ -817,6 +937,12 @@ export async function advanceFromPhaseAction(
         });
       }
     }
+
+    // Sync phase completion status in DB based on actual data
+    // This ensures Phase 4 status reflects transport/accommodation presence
+    await PhaseCompletionService.syncPhaseStatus(tripId, session.user.id, phaseNumber).catch((err) => {
+      logger.warn("phase.sync.pre-advance.failed", { tripId, phaseNumber, error: (err as Error).message });
+    });
 
     // Check if prerequisites are met
     let prerequisitesMet = false;

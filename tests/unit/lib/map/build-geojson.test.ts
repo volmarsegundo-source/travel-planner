@@ -6,12 +6,16 @@ describe("derivePinStatus", () => {
     expect(derivePinStatus({ status: "COMPLETED", currentPhase: 6 })).toBe("COMPLETED");
   });
 
-  it("returns IN_PROGRESS when currentPhase > 1", () => {
-    expect(derivePinStatus({ status: "PLANNING", currentPhase: 3 })).toBe("IN_PROGRESS");
+  it("returns IN_PROGRESS when currentPhase > 3", () => {
+    expect(derivePinStatus({ status: "PLANNING", currentPhase: 4 })).toBe("IN_PROGRESS");
+    expect(derivePinStatus({ status: "PLANNING", currentPhase: 5 })).toBe("IN_PROGRESS");
+    expect(derivePinStatus({ status: "PLANNING", currentPhase: 6 })).toBe("IN_PROGRESS");
   });
 
-  it("returns PLANNING when currentPhase is 1", () => {
+  it("returns PLANNING when currentPhase is 1-3 (planning phases)", () => {
     expect(derivePinStatus({ status: "PLANNING", currentPhase: 1 })).toBe("PLANNING");
+    expect(derivePinStatus({ status: "PLANNING", currentPhase: 2 })).toBe("PLANNING");
+    expect(derivePinStatus({ status: "PLANNING", currentPhase: 3 })).toBe("PLANNING");
   });
 
   it("returns COMPLETED even if currentPhase is low (status takes priority)", () => {

@@ -1,6 +1,8 @@
 import { db } from "@/server/db";
+import { auth } from "@/lib/auth";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { Phase2Wizard } from "@/components/features/expedition/Phase2Wizard";
+import { parsePreferences } from "@/lib/validations/preferences.schema";
 
 interface Phase2PageProps {
   params: Promise<{ locale: string; tripId: string }>;
@@ -24,6 +26,19 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
   const savedPhase2Data = phase2?.status === "completed" && phase2?.metadata
     ? phase2.metadata as Record<string, unknown>
     : null;
+
+  // Load saved user preferences for Phase 2 revisit
+  const session = await auth();
+  let savedPreferences: ReturnType<typeof parsePreferences> | undefined;
+  if (session?.user?.id) {
+    const profile = await db.userProfile.findUnique({
+      where: { userId: session.user.id },
+      select: { preferences: true },
+    });
+    if (profile?.preferences) {
+      savedPreferences = parsePreferences(profile.preferences);
+    }
+  }
 
   const savedPassengers = (trip.passengers != null && typeof trip.passengers === "object")
     ? trip.passengers as Record<string, unknown>
@@ -73,6 +88,7 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
         seniors: (savedPassengers.seniors as number) ?? 0,
         infants: (savedPassengers.infants as number) ?? 0,
       } : undefined}
+      savedPreferences={savedPreferences}
       accessMode={accessMode}
       tripCurrentPhase={trip.currentPhase}
       completedPhases={completedPhases}

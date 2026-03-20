@@ -56,10 +56,12 @@ function countryCodeToFlag(code: string | null): string | null {
   );
 }
 
-/** Format selected value for input display: "City, Country" (compact, no emoji) */
+/** Format selected value for input display: "City, State, Country" (compact, no emoji) */
 function formatSelectedValue(result: DestinationResult): string {
   const city = result.city;
+  const state = result.state;
   const country = result.country;
+  if (city && state && country) return `${city}, ${state}, ${country}`;
   if (city && country) return `${city}, ${country}`;
   if (city) return city;
   return result.shortName ?? result.displayName;

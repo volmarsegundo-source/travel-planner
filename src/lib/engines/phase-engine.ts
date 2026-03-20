@@ -4,6 +4,7 @@ import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { PointsEngine } from "./points-engine";
 import { getPhaseDefinition, TOTAL_PHASES } from "./phase-config";
+import { TOTAL_ACTIVE_PHASES } from "./phase-navigation.engine";
 import type {
   PhaseCompletionResult,
   PhaseNumber,
@@ -269,7 +270,8 @@ export class PhaseEngine {
       }
 
       // f. Update trip currentPhase (use Math.max to avoid regressing for non-blocking phases)
-      const newCurrentPhase = Math.min(phaseNumber + 1, TOTAL_PHASES);
+      // Cap at TOTAL_ACTIVE_PHASES (6) — phases 7-8 are "coming soon"
+      const newCurrentPhase = Math.min(phaseNumber + 1, TOTAL_ACTIVE_PHASES);
       await tx.trip.update({
         where: { id: tripId },
         data: { currentPhase: Math.max(newCurrentPhase, trip.currentPhase) },
@@ -355,7 +357,8 @@ export class PhaseEngine {
     }
 
     // 4. Transaction: unlock next phase + update trip.currentPhase
-    const nextPhase = (phaseNumber + 1) as PhaseNumber;
+    // Cap at TOTAL_ACTIVE_PHASES (6) — phases 7-8 are "coming soon"
+    const nextPhase = Math.min(phaseNumber + 1, TOTAL_ACTIVE_PHASES) as PhaseNumber;
     await db.$transaction(async (tx: Tx) => {
       // Unlock next phase (idempotent)
       await tx.expeditionPhase.update({
