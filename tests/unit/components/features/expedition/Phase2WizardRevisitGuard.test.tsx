@@ -1,11 +1,12 @@
 /**
- * Unit tests for Phase2Wizard revisit guard (TASK-S32-002).
+ * Unit tests for Phase2Wizard revisit guard (TASK-S32-002, FIX-07).
  *
  * When accessMode === "revisit" and phase 2 is already completed,
- * handleSubmit should navigate directly without calling completePhase2Action.
+ * handleSubmit should save changes via updatePhase2Action then navigate
+ * without calling completePhase2Action.
  */
 import { describe, it, expect, vi, beforeEach, beforeAll } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 // ─── Global polyfills ────────────────────────────────────────────────────────
 
@@ -43,8 +44,10 @@ vi.mock("@/i18n/navigation", () => ({
 vi.mock("server-only", () => ({}));
 
 const mockCompletePhase2 = vi.fn();
+const mockUpdatePhase2 = vi.fn().mockResolvedValue({ success: true, data: { tripId: "trip-guard-1" } });
 vi.mock("@/server/actions/expedition.actions", () => ({
   completePhase2Action: (...args: unknown[]) => mockCompletePhase2(...args),
+  updatePhase2Action: (...args: unknown[]) => mockUpdatePhase2(...args),
 }));
 
 vi.mock("@/server/actions/profile.actions", () => ({
@@ -116,7 +119,7 @@ describe("Phase2Wizard — revisit guard (TASK-S32-002)", () => {
     vi.clearAllMocks();
   });
 
-  it("navigates directly without calling completePhase2Action when revisiting completed phase", async () => {
+  it("saves data via updatePhase2Action then navigates without calling completePhase2Action (FIX-07)", async () => {
     render(
       <Phase2Wizard
         tripId="trip-guard-1"
@@ -140,9 +143,13 @@ describe("Phase2Wizard — revisit guard (TASK-S32-002)", () => {
     // Step 6: confirmation -- click submit (primary button)
     fireEvent.click(screen.getByTestId("wizard-primary"));
 
-    // Should navigate directly
+    // Should call updatePhase2Action to save changes before navigating
+    await waitFor(() => {
+      expect(mockUpdatePhase2).toHaveBeenCalledWith("trip-guard-1", expect.any(Object));
+    });
+    // Should navigate after save
     expect(mockPush).toHaveBeenCalledWith("/expedition/trip-guard-1/phase-3");
-    // Should NOT call the server action
+    // Should NOT call completePhase2Action (no re-completion)
     expect(mockCompletePhase2).not.toHaveBeenCalled();
   });
 

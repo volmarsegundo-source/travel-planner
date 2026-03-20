@@ -41,13 +41,13 @@ beforeEach(() => {
 });
 
 describe("DashboardPhaseProgressBar", () => {
-  it("renders 8 segments", () => {
+  it("renders 6 segments (only active phases, not coming-soon 7-8)", () => {
     render(
       <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
     const container = screen.getByTestId("dashboard-phase-progress-bar");
-    expect(container.children).toHaveLength(8);
+    expect(container.children).toHaveLength(6);
   });
 
   // ─── Non-interactive (no tripId) ──────────────────────────────────────
@@ -67,7 +67,7 @@ describe("DashboardPhaseProgressBar", () => {
       <DashboardPhaseProgressBar currentPhase={4} completedPhases={[1, 2, 3]} />
     );
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
       const seg = screen.getByTestId(`phase-segment-${i}`);
       expect(seg.tagName).toBe("DIV");
     }
@@ -78,7 +78,7 @@ describe("DashboardPhaseProgressBar", () => {
       <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
       const seg = screen.getByTestId(`phase-segment-${i}`);
       expect(seg.className).not.toContain("cursor-pointer");
     }
@@ -96,8 +96,8 @@ describe("DashboardPhaseProgressBar", () => {
       const seg = screen.getByTestId(`phase-segment-${i}`);
       expect(seg.tagName).toBe("BUTTON");
     }
-    // Phases 5-8 not navigable = DIV
-    for (let i = 5; i <= 8; i++) {
+    // Phases 5-6 not navigable = DIV (phases 7-8 no longer rendered)
+    for (let i = 5; i <= 6; i++) {
       const seg = screen.getByTestId(`phase-segment-${i}`);
       expect(seg.tagName).toBe("DIV");
     }
@@ -178,21 +178,21 @@ describe("DashboardPhaseProgressBar", () => {
     }
   });
 
-  it("coming-soon phases (7-8) have dashed border and 50% opacity", () => {
+  it("phases 7-8 are not rendered (filtered out)", () => {
     render(
       <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    expect(screen.getByTestId("phase-segment-7")).toHaveClass("border-dashed", "opacity-50");
-    expect(screen.getByTestId("phase-segment-8")).toHaveClass("border-dashed", "opacity-50");
+    expect(screen.queryByTestId("phase-segment-7")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("phase-segment-8")).not.toBeInTheDocument();
   });
 
-  it("all completed when completedPhases includes all 8 phases", () => {
+  it("all completed when completedPhases includes all 6 active phases", () => {
     render(
-      <DashboardPhaseProgressBar currentPhase={8} completedPhases={[1, 2, 3, 4, 5, 6, 7, 8]} />
+      <DashboardPhaseProgressBar currentPhase={6} completedPhases={[1, 2, 3, 4, 5, 6]} />
     );
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
       expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-green-500");
     }
   });
@@ -243,9 +243,9 @@ describe("DashboardPhaseProgressBar", () => {
     const currentSegment = screen.getByLabelText(/phases\.thePreparation.*stateCurrent/);
     expect(currentSegment).toBeInTheDocument();
 
-    // Coming soon phase
-    const comingSoonSegment = screen.getByLabelText(/phases\.theExpedition.*stateComingSoon/);
-    expect(comingSoonSegment).toBeInTheDocument();
+    // Upcoming phase should say "upcoming" (phases 7-8 no longer rendered)
+    const upcomingSegment = screen.getByLabelText(/phases\.theDestinationGuide.*stateUpcoming/);
+    expect(upcomingSegment).toBeInTheDocument();
   });
 
   it("has group role with progress label", () => {
@@ -267,11 +267,14 @@ describe("DashboardPhaseProgressBar", () => {
       <DashboardPhaseProgressBar currentPhase={3} completedPhases={[1, 2]} />
     );
 
-    for (let i = 1; i <= 8; i++) {
+    for (let i = 1; i <= 6; i++) {
       const label = screen.getByTestId(`phase-name-${i}`);
       expect(label).toBeInTheDocument();
       expect(label).toHaveAttribute("aria-hidden", "true");
     }
+    // Phases 7-8 are not rendered
+    expect(screen.queryByTestId("phase-name-7")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("phase-name-8")).not.toBeInTheDocument();
   });
 
   // ─── Completed phases have checkmark indicators ──────────────────────────

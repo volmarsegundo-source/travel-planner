@@ -6,7 +6,7 @@ import { Check } from "lucide-react";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 
 // Import canonical route map from navigation engine (single source of truth)
-import { PHASE_ROUTE_MAP } from "@/lib/engines/phase-navigation.engine";
+import { PHASE_ROUTE_MAP, TOTAL_ACTIVE_PHASES, canNavigateToPhase } from "@/lib/engines/phase-navigation.engine";
 
 // Use engine's PHASE_ROUTE_MAP — fixes Phase 1 route from "" to "/phase-1"
 const PHASE_ROUTES = PHASE_ROUTE_MAP;
@@ -27,21 +27,26 @@ export function DashboardPhaseProgressBar({
   const t = useTranslations("gamification");
   const router = useRouter();
 
+  // Only render implemented phases (1-6); phases 7-8 are "coming soon" and hidden
+  const activePhases = PHASE_DEFINITIONS.filter(
+    (p) => p.phaseNumber <= TOTAL_ACTIVE_PHASES
+  );
+
   return (
     <div
       className="group/bar relative mt-3 flex gap-0.5"
       role="group"
       aria-label={t("phases.progressLabel", {
         completed: completedPhases.length,
-        total: PHASE_DEFINITIONS.length,
+        total: TOTAL_ACTIVE_PHASES,
       })}
       data-testid="dashboard-phase-progress-bar"
     >
-      {PHASE_DEFINITIONS.map((phase) => {
+      {activePhases.map((phase) => {
         const phaseNum = phase.phaseNumber;
         const isCompleted = completedPhases.includes(phaseNum);
         const isCurrent = phaseNum === currentPhase;
-        const isComingSoon = phaseNum >= 7;
+        const isComingSoon = false; // Filtered out above
 
         // Determine segment style — 4-state color system (SPEC-UX-026)
         let segmentClasses = "relative h-2 flex-1 rounded-sm transition-all";
@@ -75,7 +80,7 @@ export function DashboardPhaseProgressBar({
               ? t("phases.stateComingSoon")
               : t("phases.stateUpcoming");
 
-        const isNavigable = (isCompleted || isCurrent) && tripId && PHASE_ROUTES[phaseNum] !== undefined;
+        const isNavigable = tripId && canNavigateToPhase(currentPhase, phaseNum, completedPhases);
 
         const phaseLabel = (
           <span

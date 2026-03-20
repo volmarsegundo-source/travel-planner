@@ -98,11 +98,20 @@ export function resolveAccess(
   // Phase is behind the current frontier but not completed
   // (edge case: phase was skipped via non-blocking advance)
   if (requestedPhase < tripCurrentPhase) {
+    // Differentiate completed (revisit) vs skipped (first_visit)
+    if (completedSet.has(requestedPhase)) {
+      return {
+        allowed: true,
+        mode: "revisit",
+        redirectTo: null,
+        reason: `Phase ${requestedPhase} is completed — revisit allowed`,
+      };
+    }
     return {
       allowed: true,
-      mode: "revisit",
+      mode: "first_visit",
       redirectTo: null,
-      reason: `Phase ${requestedPhase} is behind current phase ${tripCurrentPhase} — access allowed`,
+      reason: `Phase ${requestedPhase} was skipped — first visit allowed`,
     };
   }
 

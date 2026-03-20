@@ -89,6 +89,9 @@ export function Phase3Wizard({
         setItemPoints({ key: itemKey, points: result.data!.pointsAwarded });
         setTimeout(() => setItemPoints(null), 2000);
       }
+
+      // Refresh server components so PhaseShell progress bar updates in real-time
+      router.refresh();
     } catch {
       setErrorMessage("errors.generic");
     } finally {

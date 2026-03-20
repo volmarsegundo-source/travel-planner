@@ -4,6 +4,7 @@ import { AppError, ForbiddenError, NotFoundError } from "@/lib/errors";
 import { MAX_TRIPS_PER_USER, DEFAULT_PAGE_SIZE } from "@/lib/constants";
 import type { TripCreateInput, TripUpdateInput } from "@/lib/validations/trip.schema";
 import type { PaginatedResult, Trip } from "@/types/trip.types";
+import { TOTAL_ACTIVE_PHASES } from "@/lib/engines/phase-navigation.engine";
 
 // ─── Explicit select — never expose full row ──────────────────────────────────
 
@@ -245,7 +246,7 @@ export class TripService {
         completedPhases: trip.phases
           .filter((p) => p.status === "completed")
           .map((p) => p.phaseNumber),
-        totalPhases: trip.phases.length,
+        totalPhases: TOTAL_ACTIVE_PHASES,
         checklistRequired: requiredItems.length,
         checklistRequiredDone: requiredItems.filter((i) => i.completed).length,
         checklistRecommendedPending: recommendedItems.filter((i) => !i.completed).length,

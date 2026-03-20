@@ -21,15 +21,15 @@ interface TripForGeoJSON {
  * Derive the pin status from trip data.
  *
  * - COMPLETED: trip.status === "COMPLETED"
- * - IN_PROGRESS: trip.currentPhase > 1 (user has progressed beyond creation)
- * - PLANNING: default
+ * - IN_PROGRESS: trip.currentPhase > 3 (logistics/guide/itinerary phases)
+ * - PLANNING: phases 1-3 (discovery, profile, checklist) — shown as yellow/gold pin
  */
 export function derivePinStatus(trip: {
   status: string;
   currentPhase: number;
 }): TripPinStatus {
   if (trip.status === "COMPLETED") return "COMPLETED";
-  if (trip.currentPhase > 1) return "IN_PROGRESS";
+  if (trip.currentPhase > 3) return "IN_PROGRESS";
   return "PLANNING";
 }
 

@@ -122,9 +122,15 @@ describe("resolveAccess", () => {
   });
 
   describe("backward navigation (behind current, not completed)", () => {
-    it("allows accessing a phase behind current even if not in completedPhases", () => {
-      // Edge case: phase was skipped (non-blocking advance)
+    it("allows accessing a skipped phase as first_visit", () => {
+      // Edge case: phase was skipped (non-blocking advance) — not completed, so first_visit
       const result = resolveAccess(2, 4, [1]);
+      expect(result.allowed).toBe(true);
+      expect(result.mode).toBe("first_visit");
+    });
+
+    it("allows accessing a completed phase behind current as revisit", () => {
+      const result = resolveAccess(2, 4, [1, 2]);
       expect(result.allowed).toBe(true);
       expect(result.mode).toBe("revisit");
     });

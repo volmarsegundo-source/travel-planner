@@ -199,10 +199,11 @@ export function Phase6Wizard({
             if (data === "[DONE]") {
               stopProgressTimer();
               // Fire-and-forget: sync Phase 6 completion after itinerary persisted
+              // Do NOT call router.refresh() here — it causes server re-render
+              // that flips accessMode from "first_visit" to "revisit" mid-session
               syncPhase6CompletionAction(tripId).catch(() => {
                 // Non-blocking -- completion sync failure is not user-visible
               });
-              router.refresh();
               setIsGenerating(false);
               return;
             }
@@ -233,7 +234,6 @@ export function Phase6Wizard({
       }
 
       stopProgressTimer();
-      router.refresh();
     } catch (err) {
       stopProgressTimer();
       if (err instanceof DOMException && err.name === "AbortError") {
@@ -248,7 +248,7 @@ export function Phase6Wizard({
   }, [
     tripId, destination, effectiveStartDate, effectiveEndDate,
     travelStyle, budgetTotal, budgetCurrency, travelers,
-    language, travelNotes, t, router, totalDays,
+    language, travelNotes, t, totalDays,
     startProgressTimer, stopProgressTimer,
   ]);
 

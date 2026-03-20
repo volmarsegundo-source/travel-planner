@@ -255,7 +255,7 @@ describe("Phase6Wizard", () => {
       expect(screen.getByTestId("progress-bar")).toBeInTheDocument();
     });
 
-    it("refreshes router on successful stream completion", async () => {
+    it("does NOT call router.refresh() on successful stream completion (FIX-06)", async () => {
       vi.useRealTimers();
       globalThis.fetch = mockFetchOk([
         "data: chunk1\n\n",
@@ -267,7 +267,7 @@ describe("Phase6Wizard", () => {
       });
 
       await waitFor(() => {
-        expect(mockRefresh).toHaveBeenCalled();
+        expect(mockRefresh).not.toHaveBeenCalled();
       });
     });
   });
@@ -643,7 +643,7 @@ describe("Phase6Wizard", () => {
       });
     });
 
-    it("refreshes router on successful stream completion", async () => {
+    it("does NOT call router.refresh() after stream completes (FIX-06)", async () => {
       vi.useRealTimers();
       globalThis.fetch = mockFetchOk([
         "data: chunk1\n\n",
@@ -655,7 +655,7 @@ describe("Phase6Wizard", () => {
       });
 
       await waitFor(() => {
-        expect(mockRefresh).toHaveBeenCalled();
+        expect(mockRefresh).not.toHaveBeenCalled();
       });
     });
   });

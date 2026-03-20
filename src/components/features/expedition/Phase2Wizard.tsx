@@ -10,7 +10,7 @@ import { PhaseShell } from "./PhaseShell";
 import { VisualCardSelector } from "./VisualCardSelector";
 import { PassengersStep } from "./PassengersStep";
 import { PreferencesSection } from "@/components/features/profile/PreferencesSection";
-import { completePhase2Action } from "@/server/actions/expedition.actions";
+import { completePhase2Action, updatePhase2Action } from "@/server/actions/expedition.actions";
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 import type { UserPreferences } from "@/lib/validations/preferences.schema";
@@ -44,6 +44,8 @@ interface Phase2WizardProps {
   savedData?: SavedPhase2Data;
   /** Previously saved passengers breakdown */
   savedPassengers?: SavedPassengers;
+  /** Previously saved user preferences for revisit pre-population */
+  savedPreferences?: UserPreferences;
   /** Access mode from navigation engine */
   accessMode?: PhaseAccessMode;
   /** Trip's current phase from DB */
@@ -60,6 +62,7 @@ export function Phase2Wizard({
   tripContext,
   savedData,
   savedPassengers,
+  savedPreferences,
   accessMode = "first_visit",
   tripCurrentPhase = 2,
   completedPhases = [],
@@ -88,7 +91,9 @@ export function Phase2Wizard({
   const [travelPace, setTravelPace] = useState(savedData?.travelPace ?? 5);
   const [budget, setBudget] = useState(savedData?.budget ?? 1000);
   const [currency, setCurrency] = useState(() => savedData?.currency ?? getDefaultCurrency(locale));
-  const [selectedPreferences, setSelectedPreferences] = useState<UserPreferences>({} as UserPreferences);
+  const [selectedPreferences, setSelectedPreferences] = useState<UserPreferences>(
+    () => savedPreferences ?? ({} as UserPreferences)
+  );
 
   // Categories already collected in earlier wizard steps
   const excludedPreferenceCategories = ["travelPace", "budgetStyle", "socialPreference"] as const;
@@ -152,8 +157,29 @@ export function Phase2Wizard({
   async function handleSubmit() {
     if (!travelerType || !accommodationStyle) return;
 
-    // Revisit guard: if revisiting a completed phase, just navigate without re-completing
+    // Revisit guard: save changes before navigating without re-completing
     if (accessMode === "revisit" && completedPhases.includes(2)) {
+      const needsPassengers = travelerType === "family" || travelerType === "group";
+      try {
+        await updatePhase2Action(tripId, {
+          travelerType: travelerType as "solo" | "couple" | "family" | "group" | "business" | "student",
+          accommodationStyle: accommodationStyle as "budget" | "comfort" | "luxury" | "adventure",
+          travelPace,
+          budget,
+          currency: currency as "USD" | "EUR" | "BRL",
+          travelers: needsPassengers ? totalPassengers : undefined,
+          passengers: needsPassengers
+            ? {
+                adults,
+                children: { count: childrenCount, ages: childrenAges },
+                seniors,
+                infants,
+              }
+            : undefined,
+        });
+      } catch {
+        // Ignore save errors on revisit -- navigate anyway
+      }
       router.push(`/expedition/${tripId}/phase-3`);
       return;
     }

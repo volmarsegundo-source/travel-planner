@@ -450,7 +450,7 @@ describe("DestinationAutocomplete", () => {
 
     fireEvent.click(screen.getByTestId("destination-option"));
 
-    expect(onChange).toHaveBeenCalledWith("Paris, France");
+    expect(onChange).toHaveBeenCalledWith("Paris, Ile-de-France, France");
   });
 
   it("calls onSelect when clicking a result", async () => {
@@ -555,7 +555,7 @@ describe("DestinationAutocomplete", () => {
     expect(onSelect).toHaveBeenCalledWith(
       expect.objectContaining({ city: "Paris" })
     );
-    expect(onChange).toHaveBeenCalledWith("Paris, France");
+    expect(onChange).toHaveBeenCalledWith("Paris, Ile-de-France, France");
   });
 
   it("closes dropdown on Escape", async () => {
