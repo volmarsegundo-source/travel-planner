@@ -9,15 +9,36 @@
  * lives in src/lib/auth.ts and is spread on top of this base config.
  */
 import Google from "next-auth/providers/google";
+import Apple from "next-auth/providers/apple";
 import Credentials from "next-auth/providers/credentials";
 import type { NextAuthConfig } from "next-auth";
 
-export default {
-  providers: [
+// Build OAuth providers list conditionally based on env var presence.
+// This prevents Auth.js from registering a provider that has no credentials,
+// which would cause runtime errors on OAuth callback.
+const oauthProviders: NextAuthConfig["providers"] = [];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  oauthProviders.push(
     Google({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
+    })
+  );
+}
+
+if (process.env.APPLE_ID && process.env.APPLE_SECRET) {
+  oauthProviders.push(
+    Apple({
+      clientId: process.env.APPLE_ID,
+      clientSecret: process.env.APPLE_SECRET,
+    })
+  );
+}
+
+export default {
+  providers: [
+    ...oauthProviders,
     // authorize() is intentionally omitted here — defined in auth.ts (Node.js only).
     Credentials({}),
   ],

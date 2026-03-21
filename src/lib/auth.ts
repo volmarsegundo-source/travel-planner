@@ -9,13 +9,36 @@
  * instead to keep the Edge bundle free of Prisma and ioredis.
  */
 import NextAuth from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import Google from "next-auth/providers/google";
+import Apple from "next-auth/providers/apple";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { db } from "@/server/db";
 import { UserSignInSchema } from "@/lib/validations/user.schema";
 import authConfig from "./auth.config";
+
+// Build OAuth providers list conditionally based on env var presence.
+const oauthProviders: NextAuthConfig["providers"] = [];
+
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+  oauthProviders.push(
+    Google({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+    })
+  );
+}
+
+if (process.env.APPLE_ID && process.env.APPLE_SECRET) {
+  oauthProviders.push(
+    Apple({
+      clientId: process.env.APPLE_ID,
+      clientSecret: process.env.APPLE_SECRET,
+    })
+  );
+}
 
 export const {
   handlers,
@@ -30,10 +53,7 @@ export const {
   // in middleware, while user/account data is still persisted via PrismaAdapter.
   session: { strategy: "jwt" },
   providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
+    ...oauthProviders,
     Credentials({
       async authorize(credentials) {
         try {

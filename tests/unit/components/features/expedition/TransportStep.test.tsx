@@ -1,8 +1,7 @@
 /**
- * Unit tests for TransportStep component (T-S21-002).
- *
- * Tests cover: empty state rendering, add segment, remove segment,
- * max 10 cap, type selection, save callback, saving state.
+ * Unit tests for TransportStep component.
+ * T-S21-002: Base transport step tests.
+ * T-S34-003: Ida/Volta toggle, undecided checkbox, required asterisks.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -199,43 +198,6 @@ describe("TransportStep", () => {
     expect(flightButton).toHaveAttribute("aria-checked", "false");
   });
 
-  it("calls onSave with current segments when save is clicked", async () => {
-    const onSave = vi.fn().mockResolvedValue(undefined);
-    render(<TransportStep {...defaultProps} onSave={onSave} />);
-
-    fireEvent.click(
-      screen.getByText("expedition.phase4.transport.save")
-    );
-
-    await waitFor(() => {
-      expect(onSave).toHaveBeenCalledTimes(1);
-    });
-
-    // Should be called with an array of segments
-    const savedSegments = onSave.mock.calls[0][0];
-    expect(Array.isArray(savedSegments)).toBe(true);
-    expect(savedSegments[0].transportType).toBe("flight");
-  });
-
-  it("shows saving state when saving prop is true", () => {
-    render(<TransportStep {...defaultProps} saving={true} />);
-
-    expect(
-      screen.getByText("expedition.phase4.transport.saving")
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByText("expedition.phase4.transport.save")
-    ).not.toBeInTheDocument();
-  });
-
-  it("renders isReturn checkbox", () => {
-    render(<TransportStep {...defaultProps} />);
-
-    expect(
-      screen.getByText("expedition.phase4.transport.isReturn")
-    ).toBeInTheDocument();
-  });
-
   // ─── T-S25-006: Pre-fill with trip data ───────────────────────────────
 
   it("pre-fills first segment with origin, destination, and startDate", () => {
@@ -248,22 +210,13 @@ describe("TransportStep", () => {
       />
     );
 
-    // Departure place should be pre-filled with origin
-    const departureInput = screen.getByLabelText(
-      "expedition.phase4.transport.departurePlace"
-    );
+    const departureInput = screen.getByLabelText(/expedition\.phase4\.transport\.departurePlace/);
     expect(departureInput).toHaveValue("São Paulo, Brazil");
 
-    // Arrival place should be pre-filled with destination
-    const arrivalInput = screen.getByLabelText(
-      "expedition.phase4.transport.arrivalPlace"
-    );
+    const arrivalInput = screen.getByLabelText(/expedition\.phase4\.transport\.arrivalPlace/);
     expect(arrivalInput).toHaveValue("Paris, France");
 
-    // Departure datetime should be pre-filled
-    const departureAtInput = screen.getByLabelText(
-      "expedition.phase4.transport.departureAt"
-    );
+    const departureAtInput = screen.getByLabelText(/expedition\.phase4\.transport\.departureAt/);
     expect(departureAtInput).toHaveValue("2026-06-15T00:00");
   });
 
@@ -278,10 +231,7 @@ describe("TransportStep", () => {
       />
     );
 
-    // Departure should NOT be pre-filled because initialSegments were provided
-    const departureInput = screen.getByLabelText(
-      "expedition.phase4.transport.departurePlace"
-    );
+    const departureInput = screen.getByLabelText(/expedition\.phase4\.transport\.departurePlace/);
     expect(departureInput).toHaveValue("");
   });
 
@@ -295,41 +245,118 @@ describe("TransportStep", () => {
       />
     );
 
-    // Fields should be empty
-    const departureInput = screen.getByLabelText(
-      "expedition.phase4.transport.departurePlace"
-    );
+    const departureInput = screen.getByLabelText(/expedition\.phase4\.transport\.departurePlace/);
     expect(departureInput).toHaveValue("");
 
-    const arrivalInput = screen.getByLabelText(
-      "expedition.phase4.transport.arrivalPlace"
-    );
+    const arrivalInput = screen.getByLabelText(/expedition\.phase4\.transport\.arrivalPlace/);
     expect(arrivalInput).toHaveValue("");
   });
 
-  it("includes pre-filled data when saving", async () => {
-    const onSave = vi.fn().mockResolvedValue(undefined);
-    render(
-      <TransportStep
-        {...defaultProps}
-        onSave={onSave}
-        prefillOrigin="São Paulo, Brazil"
-        prefillDestination="Paris, France"
-        prefillStartDate="2026-06-15T00:00:00Z"
-      />
-    );
+  // ─── T-S34: Ida/Volta toggle ──────────────────────────────────────────
 
-    fireEvent.click(
-      screen.getByText("expedition.phase4.transport.save")
-    );
+  it("renders round-trip toggle with round-trip selected by default", () => {
+    render(<TransportStep {...defaultProps} />);
 
-    await waitFor(() => {
-      expect(onSave).toHaveBeenCalledTimes(1);
-    });
+    const roundTripOption = screen.getByTestId("round-trip-option");
+    const oneWayOption = screen.getByTestId("one-way-option");
 
-    const savedSegments = onSave.mock.calls[0][0];
-    expect(savedSegments[0].departurePlace).toBe("São Paulo, Brazil");
-    expect(savedSegments[0].arrivalPlace).toBe("Paris, France");
-    expect(savedSegments[0].departureAt).toEqual(new Date("2026-06-15T00:00:00Z"));
+    expect(roundTripOption).toHaveAttribute("aria-checked", "true");
+    expect(oneWayOption).toHaveAttribute("aria-checked", "false");
+  });
+
+  it("shows return date field in round-trip mode", () => {
+    render(<TransportStep {...defaultProps} />);
+
+    expect(screen.getByLabelText(/expedition\.phase4\.transport\.arrivalAt/)).toBeInTheDocument();
+  });
+
+  it("hides return date field when one-way is selected", () => {
+    render(<TransportStep {...defaultProps} />);
+
+    fireEvent.click(screen.getByTestId("one-way-option"));
+
+    expect(screen.queryByLabelText(/expedition\.phase4\.transport\.arrivalAt/)).not.toBeInTheDocument();
+  });
+
+  it("toggles between one-way and round-trip", () => {
+    render(<TransportStep {...defaultProps} />);
+
+    // Switch to one-way
+    fireEvent.click(screen.getByTestId("one-way-option"));
+    expect(screen.getByTestId("one-way-option")).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByTestId("round-trip-option")).toHaveAttribute("aria-checked", "false");
+
+    // Switch back to round-trip
+    fireEvent.click(screen.getByTestId("round-trip-option"));
+    expect(screen.getByTestId("round-trip-option")).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByTestId("one-way-option")).toHaveAttribute("aria-checked", "false");
+
+    // Return date field should reappear
+    expect(screen.getByLabelText(/expedition\.phase4\.transport\.arrivalAt/)).toBeInTheDocument();
+  });
+
+  // ─── T-S34: Undecided checkbox ────────────────────────────────────────
+
+  it("renders undecided checkbox", () => {
+    render(<TransportStep {...defaultProps} />);
+
+    expect(screen.getByTestId("transport-undecided")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.undecided")).toBeInTheDocument();
+  });
+
+  it("applies opacity-50 when undecided is checked", () => {
+    render(<TransportStep {...defaultProps} />);
+
+    const checkbox = screen.getByTestId("transport-undecided").querySelector("input")!;
+    fireEvent.click(checkbox);
+
+    // The segments container and toggle should have opacity-50
+    const roundTripToggle = screen.getByTestId("round-trip-toggle");
+    expect(roundTripToggle.className).toContain("opacity-50");
+  });
+
+  it("calls onUndecidedChange when checkbox is toggled", () => {
+    const onUndecidedChange = vi.fn();
+    render(<TransportStep {...defaultProps} onUndecidedChange={onUndecidedChange} />);
+
+    const checkbox = screen.getByTestId("transport-undecided").querySelector("input")!;
+    fireEvent.click(checkbox);
+
+    expect(onUndecidedChange).toHaveBeenCalledWith(true);
+  });
+
+  // ─── T-S34: Required asterisks ────────────────────────────────────────
+
+  it("shows required asterisks on mandatory fields when not undecided", () => {
+    const { container } = render(<TransportStep {...defaultProps} />);
+
+    // All asterisks should be present
+    const asterisks = container.querySelectorAll(".text-destructive");
+    expect(asterisks.length).toBeGreaterThan(0);
+  });
+
+  it("hides required asterisks when undecided is checked", () => {
+    const { container } = render(<TransportStep {...defaultProps} />);
+
+    const checkbox = screen.getByTestId("transport-undecided").querySelector("input")!;
+    fireEvent.click(checkbox);
+
+    // Asterisks should be gone (undecided removes required indicators)
+    const asterisks = container.querySelectorAll(".text-destructive");
+    expect(asterisks.length).toBe(0);
+  });
+
+  // ─── No step-level save button (removed per T-S34-001d) ──────────────
+
+  it("does not render a step-level save button", () => {
+    render(<TransportStep {...defaultProps} />);
+
+    // The old "Save Transport" button should not exist
+    expect(
+      screen.queryByText("expedition.phase4.transport.save")
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("expedition.phase4.transport.saving")
+    ).not.toBeInTheDocument();
   });
 });

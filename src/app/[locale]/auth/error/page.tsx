@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/navigation";
 
 interface AuthErrorPageProps {
@@ -10,30 +11,39 @@ export default async function AuthErrorPage({
   searchParams,
 }: AuthErrorPageProps) {
   const { error } = await searchParams;
+  const t = await getTranslations("auth");
 
-  const errorMessages: Record<string, string> = {
-    Configuration: "There is a problem with the server configuration.",
-    AccessDenied: "You do not have permission to sign in.",
-    Verification: "The verification link has expired or has already been used.",
-    Default: "An unexpected authentication error occurred.",
+  const errorMessageKeys: Record<string, string> = {
+    Configuration: "errors.oauthConfiguration",
+    AccessDenied: "errors.oauthAccessDenied",
+    Verification: "errors.oauthVerification",
+    OAuthSignin: "errors.oauthError",
+    OAuthCallback: "errors.oauthError",
+    OAuthCreateAccount: "errors.oauthError",
+    OAuthAccountNotLinked: "errors.oauthAccountNotLinked",
+    Default: "errors.oauthError",
   };
 
-  const message =
-    (error && errorMessages[error]) ?? errorMessages["Default"];
+  const messageKey =
+    (error && errorMessageKeys[error]) ?? errorMessageKeys["Default"];
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="w-full max-w-md rounded-lg border border-red-200 bg-red-50 p-6 text-center">
-        <h1 className="text-2xl font-bold text-red-700">Authentication Error</h1>
-        <p className="mt-4 text-gray-700">{message}</p>
+      <div className="w-full max-w-md rounded-lg border border-destructive/30 bg-destructive/5 p-6 text-center">
+        <h1 className="text-2xl font-bold text-destructive">
+          {t("errors.oauthTitle")}
+        </h1>
+        <p className="mt-4 text-foreground">{t(messageKey)}</p>
         {process.env.NODE_ENV === "development" && error && (
-          <p className="mt-2 text-sm text-gray-400">Error code: {error}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Error code: {error}
+          </p>
         )}
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="mt-6 inline-block rounded-md bg-primary px-4 py-2 text-primary-foreground hover:bg-primary/90"
         >
-          Back to login
+          {t("errors.backToLogin")}
         </Link>
       </div>
     </main>

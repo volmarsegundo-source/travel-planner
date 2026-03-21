@@ -35,6 +35,12 @@ interface TransportStepProps {
   prefillDestination?: string | null;
   /** Pre-fill the first segment's departure date when no data is loaded */
   prefillStartDate?: string | null;
+  /** Callback when undecided state changes */
+  onUndecidedChange?: (undecided: boolean) => void;
+  /** Initial undecided state */
+  initialUndecided?: boolean;
+  /** Callback when segments change (for parent state sync) */
+  onChange?: (segments: TransportSegmentInput[]) => void;
 }
 
 // ─── Default segment factory ────────────────────────────────────────────────
@@ -56,19 +62,32 @@ function createEmptySegment(segmentOrder: number): TransportSegmentInput {
   };
 }
 
+// ─── Required field asterisk ────────────────────────────────────────────────
+
+function RequiredAsterisk() {
+  return <span className="text-destructive" aria-hidden="true">*</span>;
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function TransportStep({
   tripId,
   initialSegments = [],
-  onSave,
-  saving = false,
+  onSave: _onSave,
+  saving: _saving = false,
   prefillOrigin,
   prefillDestination,
   prefillStartDate,
+  onUndecidedChange,
+  initialUndecided = false,
+  onChange,
 }: TransportStepProps) {
   const t = useTranslations("expedition.phase4.transport");
+  const tPhase4 = useTranslations("expedition.phase4");
   const baseId = useId();
+
+  const [undecided, setUndecided] = useState(initialUndecided);
+  const [isRoundTrip, setIsRoundTrip] = useState(true);
   const [segments, setSegments] = useState<TransportSegmentInput[]>(() => {
     if (initialSegments.length > 0) return initialSegments;
 
@@ -86,17 +105,38 @@ export function TransportStep({
     return [first];
   });
 
+  function handleUndecidedChange(checked: boolean) {
+    setUndecided(checked);
+    onUndecidedChange?.(checked);
+  }
+
+  function handleRoundTripChange(roundTrip: boolean) {
+    setIsRoundTrip(roundTrip);
+    if (!roundTrip) {
+      // Clear return dates and isReturn flag on all segments
+      setSegments((prev) =>
+        prev.map((seg) => ({ ...seg, isReturn: false, arrivalAt: null }))
+      );
+    }
+  }
+
   function handleAddSegment() {
     if (segments.length >= MAX_TRANSPORT_SEGMENTS) return;
-    setSegments((prev) => [...prev, createEmptySegment(prev.length)]);
+    setSegments((prev) => {
+      const next = [...prev, createEmptySegment(prev.length)];
+      onChange?.(next);
+      return next;
+    });
   }
 
   function handleRemoveSegment(index: number) {
-    setSegments((prev) =>
-      prev
+    setSegments((prev) => {
+      const next = prev
         .filter((_, i) => i !== index)
-        .map((seg, i) => ({ ...seg, segmentOrder: i }))
-    );
+        .map((seg, i) => ({ ...seg, segmentOrder: i }));
+      onChange?.(next);
+      return next;
+    });
   }
 
   function updateSegment(
@@ -104,22 +144,21 @@ export function TransportStep({
     field: keyof TransportSegmentInput,
     value: unknown
   ) {
-    setSegments((prev) =>
-      prev.map((seg, i) =>
+    setSegments((prev) => {
+      const next = prev.map((seg, i) =>
         i === index ? { ...seg, [field]: value } : seg
-      )
-    );
+      );
+      onChange?.(next);
+      return next;
+    });
   }
 
   function handleTypeSelect(index: number, type: string) {
     updateSegment(index, "transportType", type as TransportSegmentInput["transportType"]);
   }
 
-  async function handleSave() {
-    await onSave(segments);
-  }
-
   const isMaxReached = segments.length >= MAX_TRANSPORT_SEGMENTS;
+  const fadedClass = undecided ? "opacity-50" : "";
 
   return (
     <section aria-labelledby={`transport-title-${tripId}`}>
@@ -131,7 +170,52 @@ export function TransportStep({
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
-      <div className="mt-4 space-y-6">
+      {/* Undecided checkbox */}
+      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm" data-testid="transport-undecided">
+        <input
+          type="checkbox"
+          checked={undecided}
+          onChange={(e) => handleUndecidedChange(e.target.checked)}
+          className="rounded border-border"
+        />
+        {tPhase4("undecided")}
+      </label>
+
+      {/* Round trip toggle */}
+      <div className={`mt-4 flex gap-3 ${fadedClass}`} role="radiogroup" aria-label={t("roundTrip")} data-testid="round-trip-toggle">
+        <button
+          type="button"
+          role="radio"
+          aria-checked={!isRoundTrip}
+          onClick={() => handleRoundTripChange(false)}
+          className={[
+            "rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors",
+            !isRoundTrip
+              ? "border-atlas-gold bg-atlas-gold/10"
+              : "border-border hover:border-atlas-gold/40",
+          ].join(" ")}
+          data-testid="one-way-option"
+        >
+          {t("oneWay")}
+        </button>
+        <button
+          type="button"
+          role="radio"
+          aria-checked={isRoundTrip}
+          onClick={() => handleRoundTripChange(true)}
+          className={[
+            "rounded-lg border-2 px-4 py-2 text-sm font-medium transition-colors",
+            isRoundTrip
+              ? "border-atlas-gold bg-atlas-gold/10"
+              : "border-border hover:border-atlas-gold/40",
+          ].join(" ")}
+          data-testid="round-trip-option"
+        >
+          {t("roundTrip")}
+        </button>
+      </div>
+
+      <div className={`mt-4 space-y-6 ${fadedClass}`}>
         {segments.map((segment, index) => {
           const segId = `${baseId}-seg-${index}`;
           return (
@@ -162,7 +246,7 @@ export function TransportStep({
               {/* Transport type selector */}
               <div className="mb-4">
                 <Label className="mb-2 block text-sm font-medium">
-                  {t("transportType")}
+                  {t("transportType")} {!undecided && <RequiredAsterisk />}
                 </Label>
                 <div
                   className="grid grid-cols-3 gap-2 sm:grid-cols-6"
@@ -200,7 +284,7 @@ export function TransportStep({
                 {/* Departure place */}
                 <div>
                   <Label htmlFor={`${segId}-departure`}>
-                    {t("departurePlace")}
+                    {t("departurePlace")} {!undecided && <RequiredAsterisk />}
                   </Label>
                   <Input
                     id={`${segId}-departure`}
@@ -215,7 +299,7 @@ export function TransportStep({
                 {/* Arrival place */}
                 <div>
                   <Label htmlFor={`${segId}-arrival`}>
-                    {t("arrivalPlace")}
+                    {t("arrivalPlace")} {!undecided && <RequiredAsterisk />}
                   </Label>
                   <Input
                     id={`${segId}-arrival`}
@@ -230,7 +314,7 @@ export function TransportStep({
                 {/* Departure datetime */}
                 <div>
                   <Label htmlFor={`${segId}-departureAt`}>
-                    {t("departureAt")}
+                    {t("departureAt")} {!undecided && <RequiredAsterisk />}
                   </Label>
                   <Input
                     id={`${segId}-departureAt`}
@@ -250,28 +334,30 @@ export function TransportStep({
                   />
                 </div>
 
-                {/* Arrival datetime */}
-                <div>
-                  <Label htmlFor={`${segId}-arrivalAt`}>
-                    {t("arrivalAt")}
-                  </Label>
-                  <Input
-                    id={`${segId}-arrivalAt`}
-                    type="datetime-local"
-                    value={
-                      segment.arrivalAt
-                        ? new Date(segment.arrivalAt).toISOString().slice(0, 16)
-                        : ""
-                    }
-                    onChange={(e) =>
-                      updateSegment(
-                        index,
-                        "arrivalAt",
-                        e.target.value ? new Date(e.target.value) : null
-                      )
-                    }
-                  />
-                </div>
+                {/* Arrival datetime — only shown for round trip */}
+                {isRoundTrip && (
+                  <div>
+                    <Label htmlFor={`${segId}-arrivalAt`}>
+                      {t("arrivalAt")} {!undecided && <RequiredAsterisk />}
+                    </Label>
+                    <Input
+                      id={`${segId}-arrivalAt`}
+                      type="datetime-local"
+                      value={
+                        segment.arrivalAt
+                          ? new Date(segment.arrivalAt).toISOString().slice(0, 16)
+                          : ""
+                      }
+                      onChange={(e) =>
+                        updateSegment(
+                          index,
+                          "arrivalAt",
+                          e.target.value ? new Date(e.target.value) : null
+                        )
+                      }
+                    />
+                  </div>
+                )}
 
                 {/* Provider */}
                 <div>
@@ -362,26 +448,13 @@ export function TransportStep({
                   }
                 />
               </div>
-
-              {/* isReturn toggle */}
-              <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm">
-                <input
-                  type="checkbox"
-                  checked={segment.isReturn ?? false}
-                  onChange={(e) =>
-                    updateSegment(index, "isReturn", e.target.checked)
-                  }
-                  className="rounded border-border"
-                />
-                {t("isReturn")}
-              </label>
             </div>
           );
         })}
       </div>
 
-      {/* Add + Save buttons */}
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Add segment button */}
+      <div className={`mt-4 ${fadedClass}`}>
         <Button
           type="button"
           variant="outline"
@@ -392,14 +465,6 @@ export function TransportStep({
           {isMaxReached
             ? t("maxReached", { max: MAX_TRANSPORT_SEGMENTS })
             : t("addSegment")}
-        </Button>
-
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full sm:w-auto"
-        >
-          {saving ? t("saving") : t("save")}
         </Button>
       </div>
     </section>

@@ -1,8 +1,9 @@
 /**
  * Behavior tests for LoginForm.
  *
- * Tests cover: rendering, credential submission, Google OAuth trigger,
- * error display, loading state, and navigation on success.
+ * Tests cover: rendering, credential submission, Google/Apple OAuth trigger,
+ * error display, loading state, navigation on success, conditional OAuth
+ * button rendering, and OAuth error handling from URL params.
  *
  * All external dependencies are mocked at the module level.
  */
@@ -62,6 +63,8 @@ import { LoginForm } from "@/components/features/auth/LoginForm";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+const ALL_PROVIDERS = ["google", "apple"] as const;
+
 /** Submits the login form by clicking the submit button. */
 async function submitLoginForm() {
   const submitButton = screen.getByRole("button", { name: "auth.signIn" });
@@ -77,27 +80,27 @@ describe("LoginForm", () => {
   });
 
   it("renders email field with accessible label", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByLabelText("auth.email")).toBeInTheDocument();
   });
 
   it("renders password field with accessible label", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByLabelText("auth.password")).toBeInTheDocument();
   });
 
   it("renders sign-in submit button", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(
       screen.getByRole("button", { name: "auth.signIn" })
     ).toBeInTheDocument();
   });
 
-  it("renders Google sign-in button", () => {
-    render(<LoginForm />);
+  it("renders Google sign-in button when google provider is available", () => {
+    render(<LoginForm availableProviders={["google"]} />);
 
     expect(
       screen.getByRole("button", { name: "auth.continueWithGoogle" })
@@ -105,7 +108,7 @@ describe("LoginForm", () => {
   });
 
   it("renders link to register page", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     const registerLink = screen.getByRole("link", { name: "auth.signUp" });
     expect(registerLink).toBeInTheDocument();
@@ -113,7 +116,7 @@ describe("LoginForm", () => {
   });
 
   it("renders forgot password link", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     const forgotLink = screen.getByRole("link", {
       name: "auth.forgotPassword",
@@ -121,10 +124,10 @@ describe("LoginForm", () => {
     expect(forgotLink).toHaveAttribute("href", "/auth/forgot-password");
   });
 
-  it("calls signIn with credentials and redirects to /trips on success", async () => {
+  it("calls signIn with credentials and redirects to /expeditions on success", async () => {
     mockSignIn.mockResolvedValueOnce({ ok: true, error: null });
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await userEvent.type(screen.getByLabelText("auth.email"), "test@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "password123");
@@ -143,7 +146,7 @@ describe("LoginForm", () => {
   it("shows error alert when credentials are invalid", async () => {
     mockSignIn.mockResolvedValueOnce({ ok: false, error: "CredentialsSignin" });
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await userEvent.type(screen.getByLabelText("auth.email"), "bad@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "wrongpass");
@@ -161,7 +164,7 @@ describe("LoginForm", () => {
     // signIn never resolves — keeps the component in loading state
     mockSignIn.mockImplementation(() => new Promise(() => {}));
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await userEvent.type(screen.getByLabelText("auth.email"), "test@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "password123");
@@ -178,7 +181,7 @@ describe("LoginForm", () => {
   it("shows error alert when signIn throws an exception", async () => {
     mockSignIn.mockRejectedValueOnce(new Error("CredentialsSignin"));
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await userEvent.type(screen.getByLabelText("auth.email"), "bad@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "wrongpass");
@@ -195,7 +198,7 @@ describe("LoginForm", () => {
   it("clears error on re-submit", async () => {
     mockSignIn.mockResolvedValueOnce({ ok: false, error: "CredentialsSignin" });
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await userEvent.type(screen.getByLabelText("auth.email"), "bad@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "wrongpass");
@@ -217,7 +220,7 @@ describe("LoginForm", () => {
   it("calls signIn('google') with callbackUrl when Google button is clicked", async () => {
     mockSignIn.mockResolvedValue(undefined);
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={["google"]} />);
 
     const googleButton = screen.getByRole("button", {
       name: "auth.continueWithGoogle",
@@ -232,7 +235,7 @@ describe("LoginForm", () => {
   it("shows registration success banner when ?registered=true", () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("registered=true"));
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByRole("status")).toHaveTextContent("auth.registrationSuccess");
   });
@@ -241,7 +244,7 @@ describe("LoginForm", () => {
     mockUseSearchParams.mockReturnValue(new URLSearchParams("registered=true"));
     mockSignIn.mockResolvedValueOnce({ ok: false, error: "CredentialsSignin" });
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     // Banner should be visible initially
     expect(screen.getByRole("status")).toBeInTheDocument();
@@ -259,38 +262,107 @@ describe("LoginForm", () => {
   });
 
   it("does not show success banner without registered query param", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.queryByRole("status")).not.toBeInTheDocument();
   });
 
   it("renders TrustSignals component", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     // TrustSignals renders text with trustSignals.badge key
     expect(screen.getByText("trustSignals.badge")).toBeInTheDocument();
   });
 
   it("renders delete account link from TrustSignals", () => {
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByText("trustSignals.deleteAccount")).toBeInTheDocument();
   });
 
+  // ─── TASK-S34-006: Conditional OAuth button rendering ──────────────────────
+
+  describe("conditional OAuth rendering", () => {
+    it("hides Google button when google is not in availableProviders", () => {
+      render(<LoginForm availableProviders={["apple"]} />);
+
+      expect(screen.queryByTestId("google-signin")).not.toBeInTheDocument();
+    });
+
+    it("hides Apple button when apple is not in availableProviders", () => {
+      render(<LoginForm availableProviders={["google"]} />);
+
+      expect(screen.queryByTestId("apple-signin")).not.toBeInTheDocument();
+    });
+
+    it("hides all social buttons and divider when no providers are available", () => {
+      render(<LoginForm availableProviders={[]} />);
+
+      expect(screen.queryByTestId("google-signin")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("apple-signin")).not.toBeInTheDocument();
+      expect(screen.queryByText("auth.orContinueWith")).not.toBeInTheDocument();
+    });
+
+    it("renders only credentials form when availableProviders is empty", () => {
+      render(<LoginForm availableProviders={[]} />);
+
+      // Credentials form should still work
+      expect(screen.getByLabelText("auth.email")).toBeInTheDocument();
+      expect(screen.getByLabelText("auth.password")).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "auth.signIn" })).toBeInTheDocument();
+    });
+
+    it("renders both social buttons when both providers are available", () => {
+      render(<LoginForm availableProviders={["google", "apple"]} />);
+
+      expect(screen.getByTestId("google-signin")).toBeInTheDocument();
+      expect(screen.getByTestId("apple-signin")).toBeInTheDocument();
+      expect(screen.getByText("auth.orContinueWith")).toBeInTheDocument();
+    });
+
+    it("defaults to empty providers when prop is omitted", () => {
+      render(<LoginForm />);
+
+      expect(screen.queryByTestId("google-signin")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("apple-signin")).not.toBeInTheDocument();
+    });
+  });
+
+  // ─── TASK-S34-006: OAuth error handling ─────────────────────────────────────
+
+  describe("OAuth error handling", () => {
+    it("shows error banner when ?error=OAuthError is in URL", () => {
+      mockUseSearchParams.mockReturnValue(new URLSearchParams("error=OAuthSignin"));
+
+      render(<LoginForm availableProviders={["google"]} />);
+
+      const alert = screen.getByRole("alert");
+      expect(alert).toBeInTheDocument();
+    });
+
+    it("shows error banner for any error query param value", () => {
+      mockUseSearchParams.mockReturnValue(new URLSearchParams("error=AccessDenied"));
+
+      render(<LoginForm availableProviders={["google"]} />);
+
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+    });
+  });
+
   // ─── TASK-S33-013/014/015: Social login buttons ───────────────────────────
 
-  it("renders Apple sign-in button (TASK-S33-014)", () => {
-    render(<LoginForm />);
+  it("renders Apple sign-in button when apple provider is available", () => {
+    render(<LoginForm availableProviders={["apple"]} />);
 
     const appleButton = screen.getByTestId("apple-signin");
     expect(appleButton).toBeInTheDocument();
     expect(appleButton).toHaveTextContent("auth.continueWithApple");
   });
 
-  it("calls signIn('apple') when Apple button is clicked (TASK-S33-014)", async () => {
+  it("calls signIn('apple') when Apple button is clicked", async () => {
     mockSignIn.mockResolvedValue(undefined);
 
-    render(<LoginForm />);
+    render(<LoginForm availableProviders={["apple"]} />);
 
     const appleButton = screen.getByTestId("apple-signin");
     fireEvent.click(appleButton);
@@ -302,8 +374,8 @@ describe("LoginForm", () => {
     });
   });
 
-  it("renders social buttons before credentials form (TASK-S33-013)", () => {
-    const { container } = render(<LoginForm />);
+  it("renders social buttons before credentials form when both are available", () => {
+    const { container } = render(<LoginForm availableProviders={["google", "apple"]} />);
 
     const googleBtn = screen.getByTestId("google-signin");
     const appleBtn = screen.getByTestId("apple-signin");
@@ -315,15 +387,6 @@ describe("LoginForm", () => {
     expect(form).toBeInTheDocument();
 
     // Social buttons should appear before the form in DOM order
-    const allElements = container.querySelectorAll("[data-testid], form");
-    const positions = Array.from(allElements).map((el) =>
-      el.getAttribute("data-testid") ?? "form"
-    );
-    const googleIdx = positions.indexOf("google-signin");
-    const appleIdx = positions.indexOf("apple-signin");
-    const formIdx = positions.indexOf("form");
-
-    // form is not a direct match via data-testid; use compareDocumentPosition
     expect(
       googleBtn.compareDocumentPosition(form!)
         & Node.DOCUMENT_POSITION_FOLLOWING

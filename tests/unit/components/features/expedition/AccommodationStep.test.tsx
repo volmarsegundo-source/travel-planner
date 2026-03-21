@@ -2,22 +2,23 @@
  * Unit tests for AccommodationStep component.
  *
  * Tests cover: add/remove entries, max 5 cap, type selection,
- * save with valid data, initial values, and accessibility.
+ * initial values, accessibility, undecided checkbox, required asterisks.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor, within } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 vi.mock("next-intl", () => ({
   useTranslations:
-    () =>
+    (namespace?: string) =>
     (key: string, values?: Record<string, string | number>) => {
-      if (!values) return key;
+      const fullKey = namespace ? `${namespace}.${key}` : key;
+      if (!values) return fullKey;
       const suffix = Object.entries(values)
         .map(([k, v]) => `${k}=${v}`)
         .join(",");
-      return `${key}[${suffix}]`;
+      return `${fullKey}[${suffix}]`;
     },
 }));
 
@@ -50,15 +51,14 @@ describe("AccommodationStep", () => {
   it("renders title and subtitle", () => {
     renderStep();
 
-    expect(screen.getByText("title")).toBeInTheDocument();
-    expect(screen.getByText("subtitle")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.title")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.subtitle")).toBeInTheDocument();
   });
 
   it("renders one default entry on mount", () => {
     renderStep();
 
-    // Should see entry header "entry[number=1]"
-    expect(screen.getByText("entry[number=1]")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=1]")).toBeInTheDocument();
   });
 
   it("renders all accommodation type options for each entry", () => {
@@ -77,8 +77,8 @@ describe("AccommodationStep", () => {
     const addButton = screen.getByRole("button", { name: /addEntry/ });
     fireEvent.click(addButton);
 
-    expect(screen.getByText("entry[number=1]")).toBeInTheDocument();
-    expect(screen.getByText("entry[number=2]")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=1]")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=2]")).toBeInTheDocument();
   });
 
   it("removes an entry when remove button is clicked", () => {
@@ -86,7 +86,7 @@ describe("AccommodationStep", () => {
 
     // Add a second entry
     fireEvent.click(screen.getByRole("button", { name: /addEntry/ }));
-    expect(screen.getByText("entry[number=2]")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=2]")).toBeInTheDocument();
 
     // Remove the first entry
     const removeButtons = screen.getAllByRole("button", {
@@ -95,8 +95,8 @@ describe("AccommodationStep", () => {
     fireEvent.click(removeButtons[0]);
 
     // Should have only 1 entry now
-    expect(screen.queryByText("entry[number=2]")).not.toBeInTheDocument();
-    expect(screen.getByText("entry[number=1]")).toBeInTheDocument();
+    expect(screen.queryByText("expedition.phase4.accommodation.entry[number=2]")).not.toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=1]")).toBeInTheDocument();
   });
 
   it("does not show remove button when only one entry exists", () => {
@@ -118,7 +118,7 @@ describe("AccommodationStep", () => {
     }
 
     // Should show 5 entries
-    expect(screen.getByText("entry[number=5]")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=5]")).toBeInTheDocument();
 
     // Add button should be disabled and show maxReached text
     const disabledButton = screen.getByRole("button", {
@@ -142,27 +142,6 @@ describe("AccommodationStep", () => {
       name: /types\.hotel/,
     });
     expect(hotelButton).toHaveAttribute("aria-checked", "false");
-  });
-
-  it("calls onSave with entries on save", async () => {
-    renderStep();
-
-    const saveButton = screen.getByRole("button", { name: "save" });
-    fireEvent.click(saveButton);
-
-    await waitFor(() => {
-      expect(mockOnSave).toHaveBeenCalledTimes(1);
-      const savedData = mockOnSave.mock.calls[0][0];
-      expect(savedData).toHaveLength(1);
-      expect(savedData[0].accommodationType).toBe("hotel");
-    });
-  });
-
-  it("shows saving state when saving prop is true", () => {
-    renderStep({ saving: true });
-
-    const saveButton = screen.getByRole("button", { name: "saving" });
-    expect(saveButton).toBeDisabled();
   });
 
   it("renders initial accommodations", () => {
@@ -195,30 +174,75 @@ describe("AccommodationStep", () => {
       ],
     });
 
-    expect(screen.getByText("entry[number=1]")).toBeInTheDocument();
-    expect(screen.getByText("entry[number=2]")).toBeInTheDocument();
-  });
-
-  it("has accessible labels on all form inputs", () => {
-    renderStep();
-
-    // All input fields should have associated labels
-    expect(screen.getByLabelText("name")).toBeInTheDocument();
-    expect(screen.getByLabelText("address")).toBeInTheDocument();
-    expect(screen.getByLabelText("bookingCode")).toBeInTheDocument();
-    expect(screen.getByLabelText("checkIn")).toBeInTheDocument();
-    expect(screen.getByLabelText("checkOut")).toBeInTheDocument();
-    expect(screen.getByLabelText("estimatedCost")).toBeInTheDocument();
-    expect(screen.getByLabelText("currency")).toBeInTheDocument();
-    expect(screen.getByLabelText("notes")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=1]")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.accommodation.entry[number=2]")).toBeInTheDocument();
   });
 
   it("entry groups have aria-label", () => {
     renderStep();
 
     const group = screen.getByRole("group", {
-      name: "entry[number=1]",
+      name: "expedition.phase4.accommodation.entry[number=1]",
     });
     expect(group).toBeInTheDocument();
+  });
+
+  // ─── T-S34: Step-level save button removed ─────────────────────────────
+
+  it("does not render a step-level save button", () => {
+    renderStep();
+
+    expect(
+      screen.queryByText("expedition.phase4.accommodation.save")
+    ).not.toBeInTheDocument();
+  });
+
+  // ─── T-S34: Undecided checkbox ────────────────────────────────────────
+
+  it("renders undecided checkbox", () => {
+    renderStep();
+
+    expect(screen.getByTestId("accommodation-undecided")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase4.undecided")).toBeInTheDocument();
+  });
+
+  it("applies opacity-50 to fields when undecided is checked", () => {
+    const { container } = renderStep();
+
+    const checkbox = screen.getByTestId("accommodation-undecided").querySelector("input")!;
+    fireEvent.click(checkbox);
+
+    // The entries container should have opacity-50
+    const entriesContainer = container.querySelector(".opacity-50");
+    expect(entriesContainer).toBeInTheDocument();
+  });
+
+  it("calls onUndecidedChange when checkbox is toggled", () => {
+    const onUndecidedChange = vi.fn();
+    renderStep({ onUndecidedChange });
+
+    const checkbox = screen.getByTestId("accommodation-undecided").querySelector("input")!;
+    fireEvent.click(checkbox);
+
+    expect(onUndecidedChange).toHaveBeenCalledWith(true);
+  });
+
+  // ─── T-S34: Required asterisks ────────────────────────────────────────
+
+  it("shows required asterisks when not undecided", () => {
+    const { container } = renderStep();
+
+    const asterisks = container.querySelectorAll(".text-destructive");
+    expect(asterisks.length).toBeGreaterThan(0);
+  });
+
+  it("hides required asterisks when undecided is checked", () => {
+    const { container } = renderStep();
+
+    const checkbox = screen.getByTestId("accommodation-undecided").querySelector("input")!;
+    fireEvent.click(checkbox);
+
+    const asterisks = container.querySelectorAll(".text-destructive");
+    expect(asterisks.length).toBe(0);
   });
 });

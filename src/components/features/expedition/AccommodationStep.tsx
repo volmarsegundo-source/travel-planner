@@ -29,6 +29,12 @@ interface AccommodationStepProps {
   initialAccommodations?: AccommodationInput[];
   onSave: (accommodations: AccommodationInput[]) => Promise<void>;
   saving?: boolean;
+  /** Callback when undecided state changes */
+  onUndecidedChange?: (undecided: boolean) => void;
+  /** Initial undecided state */
+  initialUndecided?: boolean;
+  /** Callback when entries change (for parent state sync) */
+  onChange?: (accommodations: AccommodationInput[]) => void;
 }
 
 // ─── Default entry factory ──────────────────────────────────────────────────
@@ -48,52 +54,74 @@ function createEmptyEntry(orderIndex: number): AccommodationInput {
   };
 }
 
+// ─── Required field asterisk ────────────────────────────────────────────────
+
+function RequiredAsterisk() {
+  return <span className="text-destructive" aria-hidden="true">*</span>;
+}
+
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function AccommodationStep({
   tripId,
   initialAccommodations = [],
-  onSave,
-  saving = false,
+  onSave: _onSave,
+  saving: _saving = false,
+  onUndecidedChange,
+  initialUndecided = false,
+  onChange,
 }: AccommodationStepProps) {
   const t = useTranslations("expedition.phase4.accommodation");
+  const tPhase4 = useTranslations("expedition.phase4");
   const baseId = useId();
+
+  const [undecided, setUndecided] = useState(initialUndecided);
   const [entries, setEntries] = useState<AccommodationInput[]>(
     initialAccommodations.length > 0
       ? initialAccommodations
       : [createEmptyEntry(0)]
   );
 
+  function handleUndecidedChange(checked: boolean) {
+    setUndecided(checked);
+    onUndecidedChange?.(checked);
+  }
+
   function handleAddEntry() {
     if (entries.length >= MAX_ACCOMMODATIONS) return;
-    setEntries((prev) => [...prev, createEmptyEntry(prev.length)]);
+    setEntries((prev) => {
+      const next = [...prev, createEmptyEntry(prev.length)];
+      onChange?.(next);
+      return next;
+    });
   }
 
   function handleRemoveEntry(index: number) {
-    setEntries((prev) =>
-      prev
+    setEntries((prev) => {
+      const next = prev
         .filter((_, i) => i !== index)
-        .map((entry, i) => ({ ...entry, orderIndex: i }))
-    );
+        .map((entry, i) => ({ ...entry, orderIndex: i }));
+      onChange?.(next);
+      return next;
+    });
   }
 
   function updateEntry(index: number, field: keyof AccommodationInput, value: unknown) {
-    setEntries((prev) =>
-      prev.map((entry, i) =>
+    setEntries((prev) => {
+      const next = prev.map((entry, i) =>
         i === index ? { ...entry, [field]: value } : entry
-      )
-    );
+      );
+      onChange?.(next);
+      return next;
+    });
   }
 
   function handleTypeSelect(index: number, type: string) {
     updateEntry(index, "accommodationType", type as AccommodationInput["accommodationType"]);
   }
 
-  async function handleSave() {
-    await onSave(entries);
-  }
-
   const isMaxReached = entries.length >= MAX_ACCOMMODATIONS;
+  const fadedClass = undecided ? "opacity-50" : "";
 
   return (
     <section aria-labelledby={`accommodation-title-${tripId}`}>
@@ -105,7 +133,18 @@ export function AccommodationStep({
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
-      <div className="mt-4 space-y-6">
+      {/* Undecided checkbox */}
+      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm" data-testid="accommodation-undecided">
+        <input
+          type="checkbox"
+          checked={undecided}
+          onChange={(e) => handleUndecidedChange(e.target.checked)}
+          className="rounded border-border"
+        />
+        {tPhase4("undecided")}
+      </label>
+
+      <div className={`mt-4 space-y-6 ${fadedClass}`}>
         {entries.map((entry, index) => {
           const entryId = `${baseId}-entry-${index}`;
           return (
@@ -136,7 +175,7 @@ export function AccommodationStep({
               {/* Accommodation type selector */}
               <div className="mb-4">
                 <Label className="mb-2 block text-sm font-medium">
-                  {t("accommodationType")}
+                  {t("accommodationType")} {!undecided && <RequiredAsterisk />}
                 </Label>
                 <div
                   className="grid grid-cols-3 gap-2 sm:grid-cols-6"
@@ -213,7 +252,9 @@ export function AccommodationStep({
 
                 {/* Check-in */}
                 <div>
-                  <Label htmlFor={`${entryId}-checkIn`}>{t("checkIn")}</Label>
+                  <Label htmlFor={`${entryId}-checkIn`}>
+                    {t("checkIn")} {!undecided && <RequiredAsterisk />}
+                  </Label>
                   <Input
                     id={`${entryId}-checkIn`}
                     type="date"
@@ -234,7 +275,9 @@ export function AccommodationStep({
 
                 {/* Check-out */}
                 <div>
-                  <Label htmlFor={`${entryId}-checkOut`}>{t("checkOut")}</Label>
+                  <Label htmlFor={`${entryId}-checkOut`}>
+                    {t("checkOut")} {!undecided && <RequiredAsterisk />}
+                  </Label>
                   <Input
                     id={`${entryId}-checkOut`}
                     type="date"
@@ -314,8 +357,8 @@ export function AccommodationStep({
         })}
       </div>
 
-      {/* Add + Save buttons */}
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      {/* Add entry button */}
+      <div className={`mt-4 ${fadedClass}`}>
         <Button
           type="button"
           variant="outline"
@@ -326,14 +369,6 @@ export function AccommodationStep({
           {isMaxReached
             ? t("maxReached", { max: MAX_ACCOMMODATIONS })
             : t("addEntry")}
-        </Button>
-
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full sm:w-auto"
-        >
-          {saving ? t("saving") : t("save")}
         </Button>
       </div>
     </section>

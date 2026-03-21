@@ -1,6 +1,7 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { RegisterForm } from "@/components/features/auth/RegisterForm";
+import { getAvailableOAuthProviders } from "@/lib/auth-providers";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth");
@@ -10,5 +11,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function RegisterPage() {
-  return <RegisterForm />;
+  const availableProviders = getAvailableOAuthProviders();
+  return <RegisterForm availableProviders={availableProviders} />;
 }

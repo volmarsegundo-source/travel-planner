@@ -14,6 +14,7 @@ import {
   updatePhase1Action,
 } from "@/server/actions/expedition.actions";
 import { classifyTrip, type TripType } from "@/lib/travel/trip-classifier";
+import { formatBrazilianPhone, isValidBrazilianPhone } from "@/lib/utils/phone";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 const TOTAL_STEPS = 4;
@@ -98,6 +99,7 @@ export function Phase1Wizard({
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [phoneInvalid, setPhoneInvalid] = useState(false);
 
   // Profile persistence: show summary card when profile is complete
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -515,11 +517,32 @@ export function Phase1Wizard({
                     <Input
                       id="profile-phone"
                       type="tel"
+                      inputMode="numeric"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      maxLength={20}
+                      onChange={(e) => {
+                        const formatted = formatBrazilianPhone(e.target.value);
+                        setPhone(formatted);
+                        if (phoneInvalid && isValidBrazilianPhone(formatted)) {
+                          setPhoneInvalid(false);
+                        }
+                      }}
+                      onBlur={() => {
+                        setPhoneInvalid(!isValidBrazilianPhone(phone));
+                      }}
+                      maxLength={15}
                       placeholder={t("step1.phonePlaceholder")}
+                      aria-describedby={phoneInvalid ? "phone-error" : "phone-hint"}
+                      aria-invalid={phoneInvalid || undefined}
                     />
+                    {phoneInvalid ? (
+                      <p id="phone-error" role="alert" className="text-xs text-destructive">
+                        {t("step1.phoneInvalid")}
+                      </p>
+                    ) : (
+                      <p id="phone-hint" className="text-xs text-muted-foreground/70">
+                        {t("step1.phoneHint")}
+                      </p>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-3">

@@ -1,5 +1,6 @@
 "use server";
 import "server-only";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { TransportService } from "@/server/services/transport.service";
@@ -45,6 +46,7 @@ export async function saveTransportSegmentsAction(
       tripIdParsed.data,
       parsed.data
     );
+    revalidatePath(`/expedition/${tripIdParsed.data}`);
     return { success: true, data: { count: result.length } };
   } catch (error) {
     logger.error("transport.save.error", error, {
@@ -107,6 +109,7 @@ export async function saveAccommodationsAction(
       tripIdParsed.data,
       parsed.data
     );
+    revalidatePath(`/expedition/${tripIdParsed.data}`);
     return { success: true, data: { count: result.length } };
   } catch (error) {
     logger.error("accommodation.save.error", error, {
@@ -191,6 +194,7 @@ export async function saveLocalMobilityAction(
       },
     });
 
+    revalidatePath(`/expedition/${tripIdParsed.data}`);
     return { success: true, data: { saved: true } };
   } catch (error) {
     logger.error("mobility.save.error", error, {

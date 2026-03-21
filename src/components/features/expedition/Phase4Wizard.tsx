@@ -76,6 +76,14 @@ export function Phase4Wizard({
   const [mobility, setMobility] = useState<string[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
+  // Undecided states per step
+  const [transportUndecided, setTransportUndecided] = useState(false);
+  const [accommodationUndecided, setAccommodationUndecided] = useState(false);
+  const [mobilityUndecided, setMobilityUndecided] = useState(false);
+
+  // Dirty tracking per step
+  const [isDirty, setIsDirty] = useState(false);
+
   // Save states
   const [savingTransport, setSavingTransport] = useState(false);
   const [savingAccommodation, setSavingAccommodation] = useState(false);
@@ -99,17 +107,31 @@ export function Phase4Wizard({
     (needsCarRental === true && !needsCinh) ||
     (needsCarRental === true && needsCinh && cnhConfirmed);
 
+  // Reset dirty when step changes
+  useEffect(() => {
+    setIsDirty(false);
+  }, [currentStep]);
+
+  // ─── onChange handlers — sync child state to parent + mark dirty ────────
+
+  const handleTransportChange = useCallback((segments: TransportSegmentInput[]) => {
+    setTransportSegments(segments);
+    if (!loadingData) setIsDirty(true);
+  }, [loadingData]);
+
+  const handleAccommodationChange = useCallback((accs: AccommodationInput[]) => {
+    setAccommodations(accs);
+    if (!loadingData) setIsDirty(true);
+  }, [loadingData]);
+
+  const handleMobilityChange = useCallback((selected: string[]) => {
+    setMobility(selected);
+    if (!loadingData) setIsDirty(true);
+  }, [loadingData]);
+
   // ─── Step navigation ─────────────────────────────────────────────────────
 
   function goToStep(step: number) {
-    // Auto-save current step data before advancing
-    if (currentStep === 1 && transportSegments.length > 0) {
-      handleSaveTransport(transportSegments);
-    } else if (currentStep === 2 && accommodations.length > 0) {
-      handleSaveAccommodation(accommodations);
-    } else if (currentStep === 3 && mobility.length > 0) {
-      handleSaveMobility(mobility);
-    }
     setCurrentStep(step);
     setErrorMessage(null);
   }
@@ -160,6 +182,7 @@ export function Phase4Wizard({
         setErrorMessage(result.error);
       } else {
         setSaveSuccess("transport");
+        setIsDirty(false);
         setTimeout(() => setSaveSuccess(null), SAVE_SUCCESS_TIMEOUT_MS);
       }
     } catch {
@@ -178,6 +201,7 @@ export function Phase4Wizard({
         setErrorMessage(result.error);
       } else {
         setSaveSuccess("accommodation");
+        setIsDirty(false);
         setTimeout(() => setSaveSuccess(null), SAVE_SUCCESS_TIMEOUT_MS);
       }
     } catch {
@@ -197,6 +221,7 @@ export function Phase4Wizard({
         setErrorMessage(result.error);
       } else {
         setSaveSuccess("mobility");
+        setIsDirty(false);
         setTimeout(() => setSaveSuccess(null), SAVE_SUCCESS_TIMEOUT_MS);
       }
     } catch {
@@ -206,30 +231,48 @@ export function Phase4Wizard({
     }
   }
 
+  // ─── Generic save for current step (used by WizardFooter) ─────────────
+
+  async function handleSaveCurrentStep() {
+    if (currentStep === 1) {
+      await handleSaveTransport(transportSegments);
+    } else if (currentStep === 2) {
+      await handleSaveAccommodation(accommodations);
+    } else if (currentStep === 3) {
+      await handleSaveMobility(mobility);
+    }
+  }
+
   // ─── Validation ──────────────────────────────────────────────────────────
 
   function validatePhase4(): string[] {
     const errors: string[] = [];
 
-    // Transport: at least one segment with required fields
-    const hasValidTransport = transportSegments.some(
-      (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
-    );
-    if (!hasValidTransport) {
-      errors.push(tValidation("transportRequired"));
+    // Transport: skip validation if undecided
+    if (!transportUndecided) {
+      const hasValidTransport = transportSegments.some(
+        (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
+      );
+      if (!hasValidTransport) {
+        errors.push(tValidation("transportRequired"));
+      }
     }
 
-    // Accommodation: at least one with required fields
-    const hasValidAccommodation = accommodations.some(
-      (a) => a.accommodationType && a.checkIn && a.checkOut,
-    );
-    if (!hasValidAccommodation) {
-      errors.push(tValidation("accommodationRequired"));
+    // Accommodation: skip validation if undecided
+    if (!accommodationUndecided) {
+      const hasValidAccommodation = accommodations.some(
+        (a) => a.accommodationType && a.checkIn && a.checkOut,
+      );
+      if (!hasValidAccommodation) {
+        errors.push(tValidation("accommodationRequired"));
+      }
     }
 
-    // Mobility: at least one option selected
-    if (mobility.length === 0) {
-      errors.push(tValidation("mobilityRequired"));
+    // Mobility: skip validation if undecided
+    if (!mobilityUndecided) {
+      if (mobility.length === 0) {
+        errors.push(tValidation("mobilityRequired"));
+      }
     }
 
     return errors;
@@ -240,13 +283,19 @@ export function Phase4Wizard({
     accommodations.length === 0 &&
     mobility.length === 0;
 
+  const allUndecided = transportUndecided && accommodationUndecided && mobilityUndecided;
+
   // ─── Advance handler ─────────────────────────────────────────────────────
 
   async function handleAdvance() {
-    // Run validation first
-    const errors = validatePhase4();
-    setValidationErrors(errors);
-    if (errors.length > 0) return;
+    // Run validation first (skip if all undecided)
+    if (!allUndecided) {
+      const errors = validatePhase4();
+      setValidationErrors(errors);
+      if (errors.length > 0) return;
+    } else {
+      setValidationErrors([]);
+    }
 
     setIsCompleting(true);
     setErrorMessage(null);
@@ -270,6 +319,8 @@ export function Phase4Wizard({
       setIsCompleting(false);
     }
   }
+
+  const isSaving = savingTransport || savingAccommodation || savingMobility;
 
   return (
     <PhaseShell
@@ -340,6 +391,9 @@ export function Phase4Wizard({
                 prefillOrigin={origin}
                 prefillDestination={destination}
                 prefillStartDate={startDate}
+                onUndecidedChange={setTransportUndecided}
+                initialUndecided={transportUndecided}
+                onChange={handleTransportChange}
               />
 
               {/* Navigation */}
@@ -347,6 +401,10 @@ export function Phase4Wizard({
                 onBack={() => router.push(`/expedition/${tripId}/phase-3`)}
                 onPrimary={() => goToStep(2)}
                 primaryLabel={tCommon("next")}
+                onSave={handleSaveCurrentStep}
+                isDirty={isDirty}
+                saveSuccess={!!saveSuccess}
+                isLoading={isSaving}
               />
             </div>
           )}
@@ -359,6 +417,9 @@ export function Phase4Wizard({
                 initialAccommodations={accommodations}
                 onSave={handleSaveAccommodation}
                 saving={savingAccommodation}
+                onUndecidedChange={setAccommodationUndecided}
+                initialUndecided={accommodationUndecided}
+                onChange={handleAccommodationChange}
               />
 
               {/* Navigation */}
@@ -366,6 +427,10 @@ export function Phase4Wizard({
                 onBack={() => goToStep(1)}
                 onPrimary={() => goToStep(3)}
                 primaryLabel={tCommon("next")}
+                onSave={handleSaveCurrentStep}
+                isDirty={isDirty}
+                saveSuccess={!!saveSuccess}
+                isLoading={isSaving}
               />
             </div>
           )}
@@ -378,6 +443,9 @@ export function Phase4Wizard({
                 initialMobility={mobility}
                 onSave={handleSaveMobility}
                 saving={savingMobility}
+                onUndecidedChange={setMobilityUndecided}
+                initialUndecided={mobilityUndecided}
+                onChange={handleMobilityChange}
               />
 
               {/* Car rental prerequisites — only shown when car_rental is selected */}
@@ -538,7 +606,10 @@ export function Phase4Wizard({
                 }
                 primaryLabel={tExpedition("cta.advance")}
                 isLoading={isCompleting}
-                isDisabled={isCompleting || allSectionsEmpty}
+                isDisabled={isCompleting || (allSectionsEmpty && !allUndecided)}
+                onSave={handleSaveCurrentStep}
+                isDirty={isDirty}
+                saveSuccess={!!saveSuccess}
               />
             </div>
           )}
