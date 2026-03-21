@@ -18,16 +18,18 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-19, Sprint 32 planning)
-- Product version: v0.26.0 (Sprint 31 complete) / v0.27.0 in planning
-- Sprints 1-31 complete (assumed)
+### Backlog State (as of 2026-03-20, Sprint 33 planning)
+- Product version: v0.27.0 (Sprint 32 complete assumed) / v0.28.0 in planning
+- Sprints 1-32 complete (assumed)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-029
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-035
 - Sprint 30 backlog: `docs/specs/sprint-30/SPRINT-30-PRIORITIES.md`
 - Sprint 31 backlog: `docs/specs/sprint-31/SPRINT-31-PRIORITIES.md`
 - Sprint 32 backlog: `docs/specs/sprint-32/SPRINT-32-PRIORITIES.md`
+- Sprint 33 backlog: `docs/specs/sprint-33/SPRINT-33-PRIORITIES.md`
 - Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
 - Sprint 32 product specs: SPEC-PROD-025, SPEC-PROD-026, SPEC-PROD-027, SPEC-PROD-028
+- Sprint 33 product specs: SPEC-PROD-029, SPEC-PROD-030, SPEC-PROD-031, SPEC-PROD-032, SPEC-PROD-033, SPEC-PROD-034
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -135,12 +137,12 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated 2026-03-19, Sprint 32 planning)
-- Sprints 22-31: DONE (v0.26.0)
-- Sprint 32: "Stabilization" -- SPEC-PROD-025 (phase transition fixes P0) + SPEC-PROD-026 (completion engine fixes P0) + SPEC-PROD-027 (report i18n P1) + SPEC-PROD-028 (UX improvements P1/P2). v0.26.0 pass rate ~78%, target >= 90% (v0.27.0)
-- Sprint 33+: US-122 Premium chat + payment gateway + v1.0 GA
-- Note: Beta launch slipped further due to v0.26.0 test results (78% pass rate, P0 bugs in critical path)
-- v0.26.0 test results: ~78% pass rate. P0 bugs: P0-001 (Phase 2->3 error), P0-002 (state not reverting), P0-003 (Phase 4 premature completion), P0-006 (2->3 after back nav), P0-007 (auto-completion not triggering). P1 bugs: P1-004 (enum values raw in report), P1-005 (missing data in report)
+### MVP Roadmap (updated 2026-03-20, Sprint 33 planning)
+- Sprints 22-32: DONE (v0.27.0 assumed complete)
+- Sprint 32: "Stabilization" -- SPEC-PROD-025/026/027/028 resolved P0 bugs, target >= 90% pass rate (v0.27.0)
+- Sprint 33: "Qualidade de Dados, Personalizacao e Crescimento" -- 6 specs (IMP-001 a IMP-006). Product version target: v0.28.0
+- Sprint 34+: US-122 Premium chat + payment gateway + v1.0 GA
+- Next available Spec ID: SPEC-PROD-035
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)

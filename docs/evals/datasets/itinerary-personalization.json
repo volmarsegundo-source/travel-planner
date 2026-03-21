@@ -1,0 +1,387 @@
+{
+  "dataset_id": "itinerary-personalization",
+  "version": "1.0.0",
+  "sprint": 33,
+  "spec_ref": "SPEC-AI-004",
+  "description": "Eval cases for itinerary personalization via prompt enrichment. Verifies that enriched expedition context from phases 1-5 is reflected in generated itinerary quality, activity selection, and traveler-awareness.",
+  "grader": "llm-judge",
+  "created": "2026-03-20",
+  "owner": "qa-engineer",
+  "tags": ["ai", "itinerary", "personalization", "enrichment", "prompt"],
+  "pass_threshold": 0.80,
+  "cases": [
+    {
+      "id": "IP-001",
+      "description": "Family with children: itinerary reflects kid-friendly activities near accommodation",
+      "input": {
+        "destination": "Paris, France",
+        "startDate": "2026-07-15",
+        "endDate": "2026-07-19",
+        "days": 5,
+        "travelStyle": "moderate",
+        "budgetTotal": 3000,
+        "budgetCurrency": "EUR",
+        "travelers": 4,
+        "language": "pt-BR",
+        "enrichedContext": {
+          "origin": "Sao Paulo, Brazil",
+          "passengers": "2 adults, 1 child (8yo), 1 child (12yo)",
+          "preferences": "cultural, gastronomic, family-friendly",
+          "accommodation": "Hotel Montmartre, Montmartre district",
+          "transport": "Flight GRU->CDG Jul 15",
+          "mobility": "metro, walking",
+          "guideHighlights": "Montmartre is walkable. Metro Line 12 connects to center."
+        }
+      },
+      "expected": {
+        "kid_friendly_activities": true,
+        "activities_near_montmartre": true,
+        "uses_metro_for_transport": true,
+        "no_adult_only_venues": true,
+        "first_day_considers_jet_lag": true,
+        "budget_respected": true,
+        "language_correct": "pt-BR"
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-002",
+      "description": "Solo backpacker: itinerary reflects budget constraints and adventure preferences",
+      "input": {
+        "destination": "Bangkok, Thailand",
+        "startDate": "2026-12-01",
+        "endDate": "2026-12-07",
+        "days": 7,
+        "travelStyle": "budget",
+        "budgetTotal": 600,
+        "budgetCurrency": "USD",
+        "travelers": 1,
+        "language": "en",
+        "enrichedContext": {
+          "origin": "Berlin, Germany",
+          "passengers": "1 adult",
+          "preferences": "adventure, street-food, nightlife, temples",
+          "accommodation": "Hostel Khao San Road area",
+          "transport": "Flight BER->BKK Dec 1",
+          "mobility": "tuk-tuk, walking, public-bus",
+          "guideHighlights": "Street food in Chinatown. Grand Palace. Full Moon Party on nearby islands."
+        }
+      },
+      "expected": {
+        "budget_friendly_activities": true,
+        "includes_street_food": true,
+        "includes_temples": true,
+        "activities_near_khao_san": true,
+        "uses_local_transport": true,
+        "solo_appropriate": true,
+        "first_day_considers_long_haul": true
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-003",
+      "description": "Honeymoon couple: romantic activities and luxury experiences",
+      "input": {
+        "destination": "Santorini, Greece",
+        "startDate": "2026-09-10",
+        "endDate": "2026-09-15",
+        "days": 6,
+        "travelStyle": "luxury",
+        "budgetTotal": 8000,
+        "budgetCurrency": "EUR",
+        "travelers": 2,
+        "language": "en",
+        "enrichedContext": {
+          "origin": "New York, USA",
+          "passengers": "2 adults",
+          "preferences": "romantic, gastronomic, sunset-views, wine-tasting",
+          "accommodation": "Cave hotel in Oia with caldera view",
+          "transport": "Flight JFK->ATH Sep 10, Ferry ATH->Santorini Sep 10",
+          "mobility": "rental-car, walking",
+          "guideHighlights": "Oia sunset is world-famous. Book restaurants in advance. Rent ATV for island exploration."
+        }
+      },
+      "expected": {
+        "romantic_activities": true,
+        "sunset_experiences": true,
+        "wine_tasting_included": true,
+        "activities_near_oia": true,
+        "uses_rental_car": true,
+        "luxury_dining": true,
+        "couple_appropriate": true
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-004",
+      "description": "Business trip with evening free time: professional by day, exploration by night",
+      "input": {
+        "destination": "London, UK",
+        "startDate": "2026-10-05",
+        "endDate": "2026-10-07",
+        "days": 3,
+        "travelStyle": "moderate",
+        "budgetTotal": 2000,
+        "budgetCurrency": "GBP",
+        "travelers": 1,
+        "language": "en",
+        "enrichedContext": {
+          "origin": "Sao Paulo, Brazil",
+          "passengers": "1 adult",
+          "preferences": "cultural, pubs, history, theater",
+          "accommodation": "Hotel near Liverpool Street Station",
+          "transport": "Flight GRU->LHR Oct 5",
+          "mobility": "tube, walking",
+          "guideHighlights": "West End theaters. Historic pubs in the City. Tube is fastest transport.",
+          "checklistAlerts": "Visa: not required for Brazilians (up to 6 months)"
+        }
+      },
+      "expected": {
+        "evening_activities_focus": true,
+        "cultural_activities": true,
+        "theater_or_pub_suggestions": true,
+        "activities_near_liverpool_street": true,
+        "uses_tube": true,
+        "respects_business_context": true
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-005",
+      "description": "Enrichment with minimal context (only Phase 1 data): graceful degradation",
+      "input": {
+        "destination": "Tokyo, Japan",
+        "startDate": "2026-04-01",
+        "endDate": "2026-04-05",
+        "days": 5,
+        "travelStyle": "moderate",
+        "budgetTotal": 3000,
+        "budgetCurrency": "USD",
+        "travelers": 2,
+        "language": "pt-BR",
+        "enrichedContext": {
+          "origin": "Sao Paulo, Brazil",
+          "passengers": "2 adults"
+        }
+      },
+      "expected": {
+        "valid_itinerary": true,
+        "has_day_structure": true,
+        "activities_per_day": [3, 5],
+        "budget_respected": true,
+        "no_hallucinated_preferences": true,
+        "note": "Without preferences/logistics, itinerary should be generic but valid — not hallucinate user interests"
+      },
+      "grading": {
+        "personalization": 0.20,
+        "context_usage": 0.30,
+        "coherence": 0.25,
+        "locale_awareness": 0.25
+      }
+    },
+    {
+      "id": "IP-006",
+      "description": "Elderly travelers: pace-appropriate activities and accessibility considerations",
+      "input": {
+        "destination": "Rome, Italy",
+        "startDate": "2026-05-10",
+        "endDate": "2026-05-16",
+        "days": 7,
+        "travelStyle": "moderate",
+        "budgetTotal": 5000,
+        "budgetCurrency": "EUR",
+        "travelers": 2,
+        "language": "pt-BR",
+        "enrichedContext": {
+          "origin": "Lisboa, Portugal",
+          "passengers": "2 adults",
+          "preferences": "history, art, gastronomic, relaxed-pace",
+          "accommodation": "Hotel near Vatican, ground floor",
+          "transport": "Flight LIS->FCO May 10",
+          "mobility": "taxi, walking-limited",
+          "guideHighlights": "Vatican museums are huge — plan half day. Trastevere best for food. Many cobblestone streets."
+        }
+      },
+      "expected": {
+        "relaxed_pace_activities": true,
+        "no_strenuous_activities": true,
+        "activities_near_vatican": true,
+        "uses_taxi_not_long_walks": true,
+        "includes_history_and_art": true,
+        "considers_cobblestone_warning": true
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-007",
+      "description": "Multi-modal transport: itinerary respects transport schedule constraints",
+      "input": {
+        "destination": "Barcelona, Spain",
+        "startDate": "2026-08-01",
+        "endDate": "2026-08-05",
+        "days": 5,
+        "travelStyle": "moderate",
+        "budgetTotal": 2500,
+        "budgetCurrency": "EUR",
+        "travelers": 2,
+        "language": "en",
+        "enrichedContext": {
+          "origin": "Paris, France",
+          "passengers": "2 adults",
+          "preferences": "architecture, beach, gastronomic",
+          "accommodation": "Apartment in El Born neighborhood",
+          "transport": "Train Paris->Barcelona Aug 1 dep 10:00 arr 16:30, Flight BCN->CDG Aug 5 dep 20:00",
+          "mobility": "metro, walking, bicycle",
+          "guideHighlights": "Sagrada Familia requires advance tickets. La Boqueria market opens early. Beach is 15min from El Born."
+        }
+      },
+      "expected": {
+        "first_day_starts_after_train_arrival": true,
+        "last_day_ends_before_flight": true,
+        "activities_near_el_born": true,
+        "includes_architecture": true,
+        "includes_beach": true,
+        "uses_bicycle_or_metro": true,
+        "sagrada_familia_planned": true
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-008",
+      "description": "Checklist alert impacts itinerary: pending visa changes trip planning",
+      "input": {
+        "destination": "New Delhi, India",
+        "startDate": "2026-11-01",
+        "endDate": "2026-11-07",
+        "days": 7,
+        "travelStyle": "budget",
+        "budgetTotal": 1500,
+        "budgetCurrency": "USD",
+        "travelers": 1,
+        "language": "pt-BR",
+        "enrichedContext": {
+          "origin": "Sao Paulo, Brazil",
+          "passengers": "1 adult",
+          "preferences": "cultural, spiritual, street-food, photography",
+          "accommodation": "Hostel in Paharganj near New Delhi Railway Station",
+          "transport": "Flight GRU->DEL Nov 1 (via Dubai)",
+          "mobility": "metro, auto-rickshaw, walking",
+          "guideHighlights": "Taj Mahal is 3h by train from Delhi. Old Delhi street food tour. Jama Masjid area.",
+          "checklistAlerts": "Visa: REQUIRED (e-Visa). Travel insurance: PENDING. Vaccination: Yellow fever recommended."
+        }
+      },
+      "expected": {
+        "valid_itinerary": true,
+        "cultural_activities": true,
+        "street_food_included": true,
+        "budget_friendly": true,
+        "uses_local_transport": true,
+        "considers_connection_flight_fatigue": true,
+        "note": "Checklist alerts inform the model about practical constraints but should not block itinerary generation"
+      },
+      "grading": {
+        "personalization": 0.40,
+        "context_usage": 0.30,
+        "coherence": 0.15,
+        "locale_awareness": 0.15
+      }
+    },
+    {
+      "id": "IP-009",
+      "description": "No enrichment context (backward compatibility): standard itinerary generated",
+      "input": {
+        "destination": "Cancun, Mexico",
+        "startDate": "2026-06-15",
+        "endDate": "2026-06-19",
+        "days": 5,
+        "travelStyle": "moderate",
+        "budgetTotal": 2500,
+        "budgetCurrency": "USD",
+        "travelers": 2,
+        "language": "en",
+        "enrichedContext": null
+      },
+      "expected": {
+        "valid_itinerary": true,
+        "has_day_structure": true,
+        "total_days": 5,
+        "activities_per_day": [3, 5],
+        "budget_respected": true,
+        "has_tips": true,
+        "note": "Without enrichment, itinerary should be identical in quality to v1.0.0 — no regression"
+      },
+      "grading": {
+        "personalization": 0.10,
+        "context_usage": 0.10,
+        "coherence": 0.40,
+        "locale_awareness": 0.40
+      }
+    },
+    {
+      "id": "IP-010",
+      "description": "PII never appears in generated itinerary even if accidentally passed",
+      "input": {
+        "destination": "Berlin, Germany",
+        "startDate": "2026-09-01",
+        "endDate": "2026-09-05",
+        "days": 5,
+        "travelStyle": "budget",
+        "budgetTotal": 1200,
+        "budgetCurrency": "EUR",
+        "travelers": 1,
+        "language": "en",
+        "enrichedContext": {
+          "origin": "Sao Paulo, Brazil",
+          "passengers": "1 adult",
+          "preferences": "history, nightlife, art"
+        },
+        "piiGuardrailTest": true,
+        "note": "This test verifies the prompt construction layer filters PII. Even if raw data is available, birthDate/email/bookingCode must never reach the LLM."
+      },
+      "expected": {
+        "valid_itinerary": true,
+        "no_pii_in_output": true,
+        "no_birthdate": true,
+        "no_email": true,
+        "no_booking_code": true,
+        "no_phone_number": true,
+        "note": "Grader checks output for any PII patterns — dates that look like birthdays, email patterns, booking code patterns"
+      },
+      "grading": {
+        "pii_safety": 0.60,
+        "coherence": 0.20,
+        "locale_awareness": 0.20
+      }
+    }
+  ]
+}

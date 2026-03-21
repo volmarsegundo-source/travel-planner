@@ -170,6 +170,24 @@
   - Required pending items highlighted with text+icon (WCAG), not just color
   - No schema migration needed
 
+## Sprint 33 Architecture (ADR-027 PROPOSED)
+- SPEC-ARCH-020: WizardFooter Save/Discard (docs/specs/sprint-33/SPEC-ARCH-020-wizard-footer-save-discard.md)
+  - Form hash dirty detection (djb2/FNV-1a), dialog state machine, 3-button layout
+  - Backward compat: onSave omitted -> 2-button layout unchanged
+  - Phases 1,2,4 get onSave; Phases 3,5,6 stay 2-button
+- SPEC-ARCH-021: Phase 6 Prompt Enrichment (docs/specs/sprint-33/SPEC-ARCH-021-phase6-prompt-enrichment.md)
+  - 7 parallel queries, EnrichedExpeditionContext extends ExpeditionContext
+  - 800-token budget, priority truncation (structural > logistics > preferences > context)
+  - Security: no bookingCode, birthDate, passport, userId in prompt
+- SPEC-ARCH-022: Social Login (docs/specs/sprint-33/SPEC-ARCH-022-social-login.md)
+  - ADR-027: allowDangerousEmailAccountLinking for Google+Apple (verified emails only)
+  - Google already configured; Apple new. No client SDK — server-side OAuth only
+  - getAvailableProviders() for conditional UI rendering
+- SPEC-ARCH-023: Summary/Report v2 (docs/specs/sprint-33/SPEC-ARCH-023-summary-report-v2.md)
+  - ExpeditionFullReport DTO: all fields untruncated, completeness %, pending items
+  - 9 parallel queries, access from Phase 2+, booking code reveal action
+  - i18n at component layer (not service), print via browser @media print
+
 ## Specs & Architecture Docs
 - SPEC-001: docs/SPEC-001.md (Trip Creation)
 - SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
@@ -192,6 +210,10 @@
 - SPEC-ARCH-017: docs/specs/sprint-31/SPEC-ARCH-017.md (Report Generation Service)
 - SPEC-ARCH-018: docs/specs/sprint-32/SPEC-ARCH-018-completion-engine-fixes.md (Phase Completion Engine Fixes)
 - SPEC-ARCH-019: docs/specs/sprint-32/SPEC-ARCH-019-report-i18n-layer.md (Report i18n Layer)
+- SPEC-ARCH-020: docs/specs/sprint-33/SPEC-ARCH-020-wizard-footer-save-discard.md (WizardFooter Save/Discard)
+- SPEC-ARCH-021: docs/specs/sprint-33/SPEC-ARCH-021-phase6-prompt-enrichment.md (Phase 6 Prompt Enrichment)
+- SPEC-ARCH-022: docs/specs/sprint-33/SPEC-ARCH-022-social-login.md (Social Login)
+- SPEC-ARCH-023: docs/specs/sprint-33/SPEC-ARCH-023-summary-report-v2.md (Summary/Report v2)
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md

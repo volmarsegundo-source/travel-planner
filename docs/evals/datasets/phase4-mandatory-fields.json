@@ -1,0 +1,201 @@
+{
+  "dataset_id": "phase4-mandatory-fields",
+  "version": "1.0.0",
+  "sprint": 33,
+  "spec_ref": "SPEC-QA-010",
+  "description": "Eval cases for Phase 4 mandatory field validation. Verifies server-side Zod schema enforcement, minimum data requirements for phase completion, and mass assignment protection.",
+  "grader": "programmatic",
+  "created": "2026-03-20",
+  "owner": "qa-engineer",
+  "tags": ["phase4", "validation", "mandatory", "zod", "server-side"],
+  "pass_threshold": 1.0,
+  "cases": [
+    {
+      "id": "PH4-001",
+      "description": "Complete transport segment passes server validation",
+      "input": {
+        "action": "saveTransportAction",
+        "payload": {
+          "tripId": "trip-123",
+          "segment": {
+            "type": "flight",
+            "from": "GRU",
+            "to": "CDG",
+            "departureDate": "2026-07-15",
+            "departureTime": "08:30"
+          }
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "validationPassed": true,
+        "saved": true,
+        "errorMessage": null
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-002",
+      "description": "Transport segment missing 'type' fails server validation",
+      "input": {
+        "action": "saveTransportAction",
+        "payload": {
+          "tripId": "trip-123",
+          "segment": {
+            "from": "GRU",
+            "to": "CDG",
+            "departureDate": "2026-07-15"
+          }
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "validationPassed": false,
+        "saved": false,
+        "errorField": "type",
+        "errorType": "required"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-003",
+      "description": "Transport segment with empty 'from' string fails .min(1) validation",
+      "input": {
+        "action": "saveTransportAction",
+        "payload": {
+          "tripId": "trip-123",
+          "segment": {
+            "type": "flight",
+            "from": "",
+            "to": "CDG",
+            "departureDate": "2026-07-15"
+          }
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "validationPassed": false,
+        "saved": false,
+        "errorField": "from",
+        "errorType": "too_small",
+        "note": "Empty string rejected by .min(1) — not just required check"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-004",
+      "description": "completePhase4Action rejects with zero transport AND zero accommodation",
+      "input": {
+        "action": "completePhase4Action",
+        "tripId": "trip-123",
+        "dbState": {
+          "transportSegments": [],
+          "accommodations": []
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "completionAllowed": false,
+        "errorMessage": "At least 1 transport or accommodation required",
+        "phaseStatus": "pending",
+        "note": "Phase 4 cannot be completed without any logistics data"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-005",
+      "description": "completePhase4Action succeeds with 1 transport, 0 accommodation",
+      "input": {
+        "action": "completePhase4Action",
+        "tripId": "trip-123",
+        "dbState": {
+          "transportSegments": [{ "type": "flight", "from": "GRU", "to": "CDG" }],
+          "accommodations": []
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "completionAllowed": true,
+        "phaseStatus": "completed",
+        "note": "1 transport segment is sufficient to complete Phase 4"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-006",
+      "description": "completePhase4Action succeeds with 0 transport, 1 accommodation",
+      "input": {
+        "action": "completePhase4Action",
+        "tripId": "trip-123",
+        "dbState": {
+          "transportSegments": [],
+          "accommodations": [{ "name": "Hotel Paris", "checkIn": "2026-07-15", "checkOut": "2026-07-20" }]
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "completionAllowed": true,
+        "phaseStatus": "completed",
+        "note": "1 accommodation is sufficient to complete Phase 4"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-007",
+      "description": "Mass assignment: userId in payload stripped, session userId used",
+      "input": {
+        "action": "saveTransportAction",
+        "payload": {
+          "tripId": "trip-123",
+          "userId": "attacker-user-id",
+          "segment": {
+            "type": "bus",
+            "from": "Paris",
+            "to": "Lyon"
+          }
+        },
+        "sessionUserId": "user-abc"
+      },
+      "expected": {
+        "validationPassed": true,
+        "userIdUsed": "user-abc",
+        "userIdFromPayloadIgnored": true,
+        "note": "Zod .strict()/.strip() removes extra fields; userId always from session"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "PH4-008",
+      "description": "BOLA: server action rejects tripId owned by different user",
+      "input": {
+        "action": "saveTransportAction",
+        "payload": {
+          "tripId": "trip-owned-by-user-xyz",
+          "segment": {
+            "type": "train",
+            "from": "Madrid",
+            "to": "Barcelona"
+          }
+        },
+        "sessionUserId": "user-abc",
+        "tripOwner": "user-xyz"
+      },
+      "expected": {
+        "validationPassed": true,
+        "saved": false,
+        "bolaCheckFailed": true,
+        "errorType": "forbidden_or_not_found",
+        "note": "Server returns 404 (not 403) to avoid existence leakage"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    }
+  ]
+}

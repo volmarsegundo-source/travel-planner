@@ -1,0 +1,315 @@
+{
+  "dataset_id": "report-completeness-v2",
+  "version": "1.0.0",
+  "sprint": 33,
+  "spec_ref": "SPEC-QA-010",
+  "description": "Eval cases for expedition report completeness v2 — extends v1 with Phase 3-5 fields, PII guardrails, booking code masking, age range calculation, and empty state handling for new sections.",
+  "grader": "programmatic",
+  "created": "2026-03-20",
+  "owner": "qa-engineer",
+  "tags": ["report", "completeness", "pii", "masking", "i18n", "phases-3-5"],
+  "pass_threshold": 0.95,
+  "cases": [
+    {
+      "id": "RCv2-001",
+      "description": "Phase 3 section shows checklist completion ratio",
+      "input": {
+        "phaseNumber": 3,
+        "locale": "pt-BR",
+        "tripData": {
+          "checklist_items": 10,
+          "checklist_completed": 7,
+          "checklist_categories": ["documents", "health", "packing", "currency"]
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "showsCompletionRatio": true,
+        "completionRatioFormat": "7/10",
+        "showsCategories": true,
+        "categoriesTranslated": true,
+        "note": "Categories must be translated: 'documents' -> 'Documentos', not raw DB keys"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-002",
+      "description": "Phase 4 transport section shows segments with masked booking codes",
+      "input": {
+        "phaseNumber": 4,
+        "locale": "en",
+        "tripData": {
+          "transportSegments": [
+            {
+              "type": "flight",
+              "from": "GRU",
+              "to": "CDG",
+              "departureDate": "2026-07-15",
+              "bookingCode_encrypted": "aes256gcm:iv:ciphertext:tag",
+              "maskedBookingCode": "****AB12"
+            },
+            {
+              "type": "flight",
+              "from": "CDG",
+              "to": "GRU",
+              "departureDate": "2026-07-20",
+              "bookingCode_encrypted": "aes256gcm:iv:ciphertext:tag2",
+              "maskedBookingCode": "****XY99"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "segmentCount": 2,
+        "showsBookingCodeMasked": true,
+        "maskedFormat": ["****AB12", "****XY99"],
+        "noEncryptedBlobVisible": true,
+        "showsSegmentType": true,
+        "showsFromTo": true,
+        "showsDepartureDate": true
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-003",
+      "description": "Phase 4 accommodation section shows entries with masked booking codes",
+      "input": {
+        "phaseNumber": 4,
+        "locale": "pt-BR",
+        "tripData": {
+          "accommodations": [
+            {
+              "name": "Hotel Montmartre",
+              "checkIn": "2026-07-15",
+              "checkOut": "2026-07-20",
+              "bookingCode_encrypted": "aes256gcm:iv:ciphertext:tag",
+              "maskedBookingCode": "****HM01"
+            }
+          ]
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "accommodationCount": 1,
+        "showsBookingCodeMasked": true,
+        "maskedFormat": ["****HM01"],
+        "noEncryptedBlobVisible": true,
+        "showsName": true,
+        "showsCheckInOut": true,
+        "datesFormattedForLocale": true
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-004",
+      "description": "Phase 4 mobility section shows selected modes",
+      "input": {
+        "phaseNumber": 4,
+        "locale": "en",
+        "tripData": {
+          "mobility": ["metro", "walking", "taxi"]
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "mobilityCount": 3,
+        "mobilityTranslated": true,
+        "note": "Mobility modes should be displayed as human-readable labels"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-005",
+      "description": "Phase 5 guide section shows highlights when guide generated",
+      "input": {
+        "phaseNumber": 5,
+        "locale": "pt-BR",
+        "tripData": {
+          "guideGenerated": true,
+          "guideSections": ["timezone", "currency", "safety", "cultural_tips", "transport_overview"],
+          "guideSummaries": {
+            "timezone": "UTC+1 (CET)",
+            "currency": "Euro (EUR)",
+            "safety": "Paris e segura, mas cuidado com batedores de carteira",
+            "cultural_tips": "Diga 'Bonjour' ao entrar em lojas",
+            "transport_overview": "Metro e a forma mais eficiente de se locomover"
+          }
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "showsGuideSummaries": true,
+        "summaryCount": 5,
+        "guideInCorrectLocale": true
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-006",
+      "description": "Report shows age range, NOT birthDate",
+      "input": {
+        "locale": "pt-BR",
+        "userData": {
+          "birthDate": "1995-05-15",
+          "currentDate": "2026-03-20"
+        }
+      },
+      "expected": {
+        "ageRangeVisible": true,
+        "ageRangeValue": "25-34",
+        "birthDateVisible": false,
+        "exactAgeVisible": false,
+        "note": "Only age range shown. birthDate and exact age must never appear in report output"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-007",
+      "description": "Report DTO does not contain PII fields",
+      "input": {
+        "action": "generateTripReport",
+        "tripId": "trip-123",
+        "userId": "user-abc",
+        "fullUserData": {
+          "birthDate": "1990-01-01",
+          "email": "user@example.com",
+          "passwordHash": "$2b$10$abc",
+          "phone": "+5511999999999"
+        }
+      },
+      "expected": {
+        "dtoFields": {
+          "birthDate": "absent",
+          "email": "absent",
+          "passwordHash": "absent",
+          "phone": "absent",
+          "bookingCode_encrypted": "absent"
+        },
+        "ageRange": "present",
+        "maskedBookingCode": "present",
+        "note": "PII must never appear in report DTO — only derived/masked values"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-008",
+      "description": "Empty Phase 3 shows appropriate empty state",
+      "input": {
+        "phaseNumber": 3,
+        "locale": "pt-BR",
+        "tripData": {
+          "checklist_items": 0,
+          "checklist_completed": 0,
+          "checklist_categories": []
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "emptyStateShown": true,
+        "emptyStateMessage": "Nenhum item de checklist",
+        "noBlankSection": true
+      },
+      "grader": "programmatic",
+      "threshold": "fuzzy_match"
+    },
+    {
+      "id": "RCv2-009",
+      "description": "Empty Phase 4 shows appropriate empty state",
+      "input": {
+        "phaseNumber": 4,
+        "locale": "en",
+        "tripData": {
+          "transportSegments": [],
+          "accommodations": [],
+          "mobility": []
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "emptyStateShown": true,
+        "emptyStateMessage": "No logistics data",
+        "noBlankSection": true
+      },
+      "grader": "programmatic",
+      "threshold": "fuzzy_match"
+    },
+    {
+      "id": "RCv2-010",
+      "description": "Empty Phase 5 shows appropriate empty state",
+      "input": {
+        "phaseNumber": 5,
+        "locale": "pt-BR",
+        "tripData": {
+          "guideGenerated": false,
+          "guideSections": []
+        }
+      },
+      "expected": {
+        "sectionVisible": true,
+        "emptyStateShown": true,
+        "emptyStateMessage": "Guia nao gerado",
+        "noBlankSection": true
+      },
+      "grader": "programmatic",
+      "threshold": "fuzzy_match"
+    },
+    {
+      "id": "RCv2-011",
+      "description": "Enum values translated in pt-BR for new Phase 4 fields",
+      "input": {
+        "locale": "pt-BR",
+        "enumValues": {
+          "transportType": "flight",
+          "mobilityMode": "metro",
+          "checklistCategory": "documents"
+        }
+      },
+      "expected": {
+        "renderedValues": {
+          "transportType": "Voo",
+          "mobilityMode": "Metro",
+          "checklistCategory": "Documentos"
+        },
+        "noRawDbKeysVisible": true,
+        "note": "All enum values must be translated, never shown as raw DB keys"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "RCv2-012",
+      "description": "Passengers section shows count by type, not individual data",
+      "input": {
+        "locale": "en",
+        "tripData": {
+          "passengers": {
+            "adults": 2,
+            "children": 1,
+            "infants": 1,
+            "total": 4
+          }
+        }
+      },
+      "expected": {
+        "showsAdultCount": true,
+        "showsChildrenCount": true,
+        "showsInfantCount": true,
+        "showsTotal": true,
+        "noIndividualPassengerData": true,
+        "noNames": true,
+        "noDocumentNumbers": true,
+        "note": "Only aggregate counts, never individual passenger PII"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "dataset_id": "footer-save-behavior",
+  "version": "1.0.0",
+  "sprint": 33,
+  "spec_ref": "SPEC-QA-010",
+  "description": "Eval cases for footer save/discard dialog behavior. Verifies dirty state detection, dialog display, action outcomes (save/discard/continue), and beforeunload integration.",
+  "grader": "programmatic",
+  "created": "2026-03-20",
+  "owner": "qa-engineer",
+  "tags": ["footer", "save", "discard", "dialog", "data-loss-prevention"],
+  "pass_threshold": 1.0,
+  "cases": [
+    {
+      "id": "FSB-001",
+      "description": "Form change sets dirty state to true",
+      "input": {
+        "phaseNumber": 2,
+        "initialValues": { "destination": "Paris, France" },
+        "userAction": "change_field",
+        "fieldChanged": "destination",
+        "newValue": "Tokyo, Japan"
+      },
+      "expected": {
+        "isDirty": true,
+        "dialogVisible": false,
+        "formValues": { "destination": "Tokyo, Japan" }
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-002",
+      "description": "Navigation attempt on dirty form shows dialog",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": true,
+        "userAction": "navigate_via_progress_bar",
+        "targetPhase": 1
+      },
+      "expected": {
+        "dialogVisible": true,
+        "dialogActions": ["save_and_exit", "discard", "continue_editing"],
+        "navigationBlocked": true,
+        "currentPhase": 2
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-003",
+      "description": "Navigation attempt on clean form proceeds without dialog",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": false,
+        "userAction": "navigate_via_progress_bar",
+        "targetPhase": 3
+      },
+      "expected": {
+        "dialogVisible": false,
+        "navigationBlocked": false,
+        "currentPhase": 3
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-004",
+      "description": "Save and Exit action saves data then navigates",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": true,
+        "dialogVisible": true,
+        "userAction": "click_save_and_exit",
+        "targetPhase": 1,
+        "formValues": { "destination": "Tokyo, Japan" }
+      },
+      "expected": {
+        "serverActionCalled": true,
+        "actionType": "save",
+        "savedValues": { "destination": "Tokyo, Japan" },
+        "navigationOccurred": true,
+        "currentPhase": 1,
+        "isDirty": false,
+        "dialogVisible": false
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-005",
+      "description": "Discard action resets form and navigates without saving",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": true,
+        "dialogVisible": true,
+        "userAction": "click_discard",
+        "targetPhase": 1,
+        "originalValues": { "destination": "Paris, France" },
+        "modifiedValues": { "destination": "Tokyo, Japan" }
+      },
+      "expected": {
+        "serverActionCalled": false,
+        "navigationOccurred": true,
+        "currentPhase": 1,
+        "isDirty": false,
+        "dialogVisible": false,
+        "note": "Original values preserved in DB, modified values discarded"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-006",
+      "description": "Continue Editing closes dialog and stays on page",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": true,
+        "dialogVisible": true,
+        "userAction": "click_continue_editing",
+        "formValues": { "destination": "Tokyo, Japan" }
+      },
+      "expected": {
+        "serverActionCalled": false,
+        "navigationOccurred": false,
+        "currentPhase": 2,
+        "isDirty": true,
+        "dialogVisible": false,
+        "formValues": { "destination": "Tokyo, Japan" },
+        "note": "User stays on page, all changes preserved in form state"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-007",
+      "description": "beforeunload event fires when form is dirty",
+      "input": {
+        "phaseNumber": 4,
+        "isDirty": true,
+        "userAction": "browser_close_tab"
+      },
+      "expected": {
+        "beforeunloadFired": true,
+        "browserPromptShown": true,
+        "note": "Browser shows native confirmation dialog"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-008",
+      "description": "beforeunload does NOT fire when form is clean",
+      "input": {
+        "phaseNumber": 4,
+        "isDirty": false,
+        "userAction": "browser_close_tab"
+      },
+      "expected": {
+        "beforeunloadFired": false,
+        "browserPromptShown": false,
+        "note": "Tab closes without prompt"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-009",
+      "description": "Dirty state resets after successful form submission (normal save)",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": true,
+        "userAction": "submit_form_normally",
+        "formValues": { "destination": "Tokyo, Japan" }
+      },
+      "expected": {
+        "serverActionCalled": true,
+        "isDirty": false,
+        "formValues": { "destination": "Tokyo, Japan" },
+        "note": "After normal submit (not via dialog), dirty state clears"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    },
+    {
+      "id": "FSB-010",
+      "description": "Dialog accessible via keyboard (focus trap, Escape to close)",
+      "input": {
+        "phaseNumber": 2,
+        "isDirty": true,
+        "dialogVisible": true,
+        "userAction": "keyboard_escape"
+      },
+      "expected": {
+        "dialogVisible": false,
+        "navigationOccurred": false,
+        "isDirty": true,
+        "currentPhase": 2,
+        "note": "Escape key closes dialog (same as Continue Editing), focus returns to trigger"
+      },
+      "grader": "programmatic",
+      "threshold": "exact_match"
+    }
+  ]
+}

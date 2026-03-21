@@ -6,6 +6,7 @@ import { db } from "@/server/db";
 import {
   resolveAccess,
   getPhaseUrl,
+  TOTAL_ACTIVE_PHASES,
   type PhaseAccessMode,
 } from "@/lib/engines/phase-navigation.engine";
 
@@ -67,13 +68,16 @@ export async function guardPhaseAccess(
     throw new Error("unreachable");
   }
 
-  // Defensive: coerce currentPhase to a valid number (default 1)
-  // Prisma schema has @default(1), but guard against edge cases from
-  // legacy data or migration gaps.
-  const safeCurrentPhase: number =
+  // Defensive: coerce currentPhase to a valid number (default 1) and
+  // clamp to TOTAL_ACTIVE_PHASES. Before FIX-02 (Sprint 32), completing
+  // Phase 6 could set currentPhase to 7. Legacy DB records may still
+  // have values > 6. Clamping here ensures the guard and navigation
+  // engine always operate within the valid range.
+  const rawPhase =
     typeof trip.currentPhase === "number" && trip.currentPhase >= 1
       ? trip.currentPhase
       : 1;
+  const safeCurrentPhase: number = Math.min(rawPhase, TOTAL_ACTIVE_PHASES);
 
   // Fetch completed phases from ExpeditionPhase table
   const phases = await db.expeditionPhase.findMany({

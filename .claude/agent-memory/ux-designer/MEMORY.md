@@ -175,24 +175,15 @@
 - Key decisions: preferences reduced from 10 to 7 visible categories; phase name labels use darker green for WCAG on small text; warning dialog is modal (not inline banner) despite SPEC-PROD saying "inline" — justified by need for conscious decision
 - Open: PO confirmation on 3 excluded preference categories
 
+## Sprint 33 UX Specs (2026-03-20)
+- SPEC-UX-033: Standardized Footer — 3 buttons (Voltar/Salvar/Avancar), dirty state detection, save/discard dialog, inline save feedback (3s auto-dismiss), sticky bottom bar. Extends WizardFooter. Open: CTA color (orange vs teal), dirty state visual indicator.
+- SPEC-UX-034: Phase 4 Mandatory Fields — required field markers (asterisk), inline validation on-blur, advance blocking banner with per-section pendencies, scroll to first invalid. "Avancar" stays enabled (validates on click, not pre-disabled). Open: PO confirm enabled vs disabled button.
+- SPEC-UX-035: Summary/Report Redesign — full-page report accessible from Phase 2+, hero with gradient+countdown, completion bar (%), pendencies panel (orange, not red), 6 phase section cards (left border status), accordion on mobile, @media print A4, PDF export, booking code masking with 10s reveal. Open: PDF generation approach (server vs print dialog).
+- SPEC-UX-036: Social Login — Google+Apple buttons above email form on login+register, "ou" divider, account linking screen (password confirmation), photo import dialog. Apple button: black filled per guidelines. Google button: outline per guidelines. LoginForm already has Google partially. Open: Apple email relay handling, LGPD consent format.
+- All specs saved to: docs/specs/sprint-33/SPEC-UX-{033-036}.md
+- Key decisions: "Avancar" button stays enabled (not disabled); pendencies use orange (not red) — orientation not error; report accessible from Phase 2; social buttons above form (not below)
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)
-- Top 5: Phase 4 tabs->wizard, 3 animation systems, progress bar mobile, autocomplete, no save feedback
-- Critical: Phase 4 needs 3-step wizard redesign (transport->accommodation->mobility+confirm)
-- Critical: prefers-reduced-motion NOT respected anywhere (WCAG violation)
-- Major: Phase 1-2 lack ExpeditionProgressBar, Phase 6 has none at all
-- Major: PointsAnimation auto-dismiss 2.5s too fast, no focus trap
-- Major: PhaseTransition auto-advance 2s, should require explicit tap
-- Major: Back buttons use arrow char with no aria-label
-- Major: No save confirmation on Phase 4 transport/accommodation save
-- Major: ExpeditionProgressBar click targets 24x8px (below 44x44 minimum)
-- Extract shared: Spinner, PhaseHeader, WizardNavButtons, SaveIndicator
-- Motion tokens needed: fast(150ms), normal(300ms), slow(500ms), celebration(3s)
-- Phase 4 max-w-2xl breaks consistency (others use max-w-md)
-- Major: Phase 4 tab panels aria-labelledby reference non-existent IDs (broken ARIA)
-- Major: Phase 2 confirmation "categories" hardcoded English (not i18n)
-- Major: RegisterForm "(opcional)" hardcoded Portuguese (not i18n)
-- i18n: ThemeToggle, DashboardPhaseProgressBar state labels also hardcoded English
-- All phase pages have Breadcrumbs (Home > Expedition), but depth is shallow
-- Phase 3 checklist has good ARIA: role="checkbox", aria-checked, aria-label per item
+- Key issues: Phase 4 tabs->wizard, 3 animation systems, progress bar mobile, autocomplete, no save feedback, prefers-reduced-motion not respected, broken ARIA in Phase 4 tabs, i18n hardcoded strings

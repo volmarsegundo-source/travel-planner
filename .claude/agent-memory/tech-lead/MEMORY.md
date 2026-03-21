@@ -12,9 +12,12 @@
   - See: [project_sprint30_plan.md](project_sprint30_plan.md)
 - Sprint 31 COMPLETE: v0.26.0 (Atlas map, completion engine, quick-access, header cleanup)
   - See: [project_sprint31_plan.md](project_sprint31_plan.md)
-- Sprint 32: PLANNED -- stabilization sprint, 9 tasks, v0.27.0
+- Sprint 32 COMPLETE: v0.27.0 + v0.27.1 hotfix (stabilization, phase transitions, completion engine)
   - See: [project_sprint32_plan.md](project_sprint32_plan.md)
   - Plan: docs/specs/sprint-32/SPRINT-32-PLAN.md
+- Sprint 33: PLANNED -- data integrity + UX foundation + social login, 15 tasks, v0.28.0
+  - See: [project_sprint33_plan.md](project_sprint33_plan.md)
+  - Plan: docs/specs/sprint-33/SPRINT-33-PLAN.md
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
