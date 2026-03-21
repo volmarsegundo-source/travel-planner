@@ -1,0 +1,62 @@
+[
+  {
+    "id": "P4C-001",
+    "description": "Somente Ida: no return segments, advance with outbound only",
+    "input": { "isRoundTrip": false, "segments": [{ "transportType": "flight", "departurePlace": "GRU", "arrivalPlace": "CDG", "isReturn": false }] },
+    "expected": { "returnSegmentCount": 0, "validationPasses": true }
+  },
+  {
+    "id": "P4C-002",
+    "description": "Ida e Volta: auto-creates return segment with inverted places",
+    "input": { "isRoundTrip": true, "segments": [{ "transportType": "flight", "departurePlace": "GRU", "arrivalPlace": "CDG", "isReturn": false }] },
+    "expected": { "returnSegmentCreated": true, "returnDeparture": "CDG", "returnArrival": "GRU", "returnIsReturn": true }
+  },
+  {
+    "id": "P4C-003",
+    "description": "Switch from Ida e Volta to Somente Ida removes return segments",
+    "input": { "initialIsRoundTrip": true, "newIsRoundTrip": false, "segmentsBeforeSwitch": 3, "returnSegments": 1 },
+    "expected": { "segmentsAfterSwitch": 2, "returnSegmentsRemoved": true }
+  },
+  {
+    "id": "P4C-004",
+    "description": "Transport step: Ainda nao decidi checked, advance allowed without data",
+    "input": { "undecidedSteps": { "transport": true, "accommodation": false, "mobility": false }, "transportSegments": [], "accommodations": [{ "valid": true }], "mobility": ["walking"] },
+    "expected": { "validationErrors": [], "advanceAllowed": true }
+  },
+  {
+    "id": "P4C-005",
+    "description": "Accommodation step: Ainda nao decidi checked, advance allowed",
+    "input": { "undecidedSteps": { "transport": false, "accommodation": true, "mobility": false }, "transportSegments": [{ "valid": true }], "accommodations": [], "mobility": ["walking"] },
+    "expected": { "validationErrors": [], "advanceAllowed": true }
+  },
+  {
+    "id": "P4C-006",
+    "description": "Mobility step: Ainda nao decidi checked, advance allowed",
+    "input": { "undecidedSteps": { "transport": false, "accommodation": false, "mobility": true }, "transportSegments": [{ "valid": true }], "accommodations": [{ "valid": true }], "mobility": [] },
+    "expected": { "validationErrors": [], "advanceAllowed": true }
+  },
+  {
+    "id": "P4C-007",
+    "description": "All steps undecided: advance allowed with empty data",
+    "input": { "undecidedSteps": { "transport": true, "accommodation": true, "mobility": true }, "transportSegments": [], "accommodations": [], "mobility": [] },
+    "expected": { "validationErrors": [], "advanceAllowed": true }
+  },
+  {
+    "id": "P4C-008",
+    "description": "No undecided, missing transport: validation error",
+    "input": { "undecidedSteps": { "transport": false, "accommodation": false, "mobility": false }, "transportSegments": [], "accommodations": [{ "valid": true }], "mobility": ["walking"] },
+    "expected": { "validationErrors": ["transportRequired"], "advanceAllowed": false }
+  },
+  {
+    "id": "P4C-009",
+    "description": "Mandatory asterisks shown when not undecided",
+    "input": { "isUndecided": false },
+    "expected": { "asterisksVisible": true, "ariaRequired": true }
+  },
+  {
+    "id": "P4C-010",
+    "description": "Mandatory asterisks hidden when undecided",
+    "input": { "isUndecided": true },
+    "expected": { "asterisksVisible": false, "formOpacity": 0.5 }
+  }
+]

@@ -18,18 +18,20 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-20, Sprint 33 planning)
-- Product version: v0.27.0 (Sprint 32 complete assumed) / v0.28.0 in planning
-- Sprints 1-32 complete (assumed)
+### Backlog State (as of 2026-03-21, Sprint 34 planning)
+- Product version: v0.28.0 (Sprint 33 complete assumed) / v0.29.0 in planning
+- Sprints 1-33 complete (assumed)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-035
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-039
 - Sprint 30 backlog: `docs/specs/sprint-30/SPRINT-30-PRIORITIES.md`
 - Sprint 31 backlog: `docs/specs/sprint-31/SPRINT-31-PRIORITIES.md`
 - Sprint 32 backlog: `docs/specs/sprint-32/SPRINT-32-PRIORITIES.md`
 - Sprint 33 backlog: `docs/specs/sprint-33/SPRINT-33-PRIORITIES.md`
+- Sprint 34 backlog: `docs/specs/sprint-34/SPRINT-34-PRIORITIES.md`
 - Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
 - Sprint 32 product specs: SPEC-PROD-025, SPEC-PROD-026, SPEC-PROD-027, SPEC-PROD-028
 - Sprint 33 product specs: SPEC-PROD-029, SPEC-PROD-030, SPEC-PROD-031, SPEC-PROD-032, SPEC-PROD-033, SPEC-PROD-034
+- Sprint 34 product specs: SPEC-PROD-035, SPEC-PROD-036, SPEC-PROD-037, SPEC-PROD-038
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -137,12 +139,13 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated 2026-03-20, Sprint 33 planning)
-- Sprints 22-32: DONE (v0.27.0 assumed complete)
+### MVP Roadmap (updated 2026-03-21, Sprint 34 planning)
+- Sprints 22-33: DONE (v0.28.0 assumed complete)
 - Sprint 32: "Stabilization" -- SPEC-PROD-025/026/027/028 resolved P0 bugs, target >= 90% pass rate (v0.27.0)
-- Sprint 33: "Qualidade de Dados, Personalizacao e Crescimento" -- 6 specs (IMP-001 a IMP-006). Product version target: v0.28.0
-- Sprint 34+: US-122 Premium chat + payment gateway + v1.0 GA
-- Next available Spec ID: SPEC-PROD-035
+- Sprint 33: "Qualidade de Dados, Personalizacao e Crescimento" -- 6 specs (IMP-001 a IMP-006). Product version: v0.28.0
+- Sprint 34: "Fechamento de Lacunas -- Rodape, Fase 3, Fase 4 e Acesso" -- 4 specs (SPEC-PROD-035..038). Target: v0.29.0
+- Sprint 35+: US-122 Premium chat + payment gateway + v1.0 GA
+- Next available Spec ID: SPEC-PROD-039
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
@@ -161,6 +164,18 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Analytics platform: PostHog self-hosted is candidate (GDPR)
 - Payment gateway: not chosen yet (needed for Premium upgrade in Sprint 10+)
 - Google AI free tier privacy disclosure: must be added to terms of use
+
+### Sprint 34 Planning (2026-03-21)
+- Theme: "Fechamento de Lacunas -- Rodape, Fase 3, Fase 4 e Acesso"
+- Budget: 28-40h (enxuto -- foco em correcoes, nao expansao)
+- P0: SPEC-PROD-035 (Rodape revisao, 8-12h) -- dialogos confirmacao + remocao botoes especificos; todas as 6 fases
+- P0: SPEC-PROD-036 (Fase 3 respec, 4-6h) -- semantica correta 3 estados; itens opcionais nao bloqueiam
+- P0: SPEC-PROD-037 (Fase 4 melhorias, 10-14h) -- toggle ida/volta, asteriscos, bug critico acomodacao, "Ainda nao decidi"
+- P1: SPEC-PROD-038 (Login + Fase 1, 6-8h) -- OAuth funcional em staging + validacao telefone BR
+- Sacrifice order: SPEC-PROD-038 telefone > SPEC-PROD-037 REQ-PHASE4-004 > SPEC-PROD-037 REQ-PHASE4-002
+- Non-negotiable: dialogos confirmacao em 6 fases, bug persistencia acomodacao corrigido, OAuth funcional em staging
+- Specs files in: `docs/specs/sprint-34/`
+- Beta GO criteria: 0 fases sem dialogos, 0 registros acomodacao perdidos, OAuth >= 99% sucesso, pass rate >= 95%
 
 ### Sprint 32 Planning (2026-03-19)
 - Theme: "Stabilization -- Phase Transitions, Completion Engine, Report & UX Polish"

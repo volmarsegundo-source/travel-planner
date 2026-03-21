@@ -1,0 +1,50 @@
+[
+  {
+    "id": "OAUTH-001",
+    "description": "Google login success: new user created, redirected to dashboard",
+    "input": { "provider": "google", "email": "newuser@gmail.com", "emailVerified": true },
+    "expected": { "userCreated": true, "sessionActive": true, "redirectTo": "/expeditions" }
+  },
+  {
+    "id": "OAUTH-002",
+    "description": "Apple login success: new user created with relay email",
+    "input": { "provider": "apple", "email": "abc123@privaterelay.appleid.com", "emailVerified": true },
+    "expected": { "userCreated": true, "sessionActive": true, "relayEmailAccepted": true }
+  },
+  {
+    "id": "OAUTH-003",
+    "description": "Google login: existing email with credentials, linking enabled",
+    "input": { "provider": "google", "email": "existing@email.com", "existingProvider": "credentials", "allowDangerousEmailAccountLinking": true },
+    "expected": { "accountLinked": true, "sessionActive": true, "error": null }
+  },
+  {
+    "id": "OAUTH-004",
+    "description": "Google login: existing email, linking disabled -> OAuthAccountNotLinked error",
+    "input": { "provider": "google", "email": "existing@email.com", "existingProvider": "credentials", "allowDangerousEmailAccountLinking": false },
+    "expected": { "accountLinked": false, "error": "OAuthAccountNotLinked", "errorBannerShown": true }
+  },
+  {
+    "id": "OAUTH-005",
+    "description": "User cancels Google consent -> AccessDenied error",
+    "input": { "provider": "google", "callbackError": "AccessDenied" },
+    "expected": { "error": "AccessDenied", "errorBannerShown": true, "retryButtonShown": true }
+  },
+  {
+    "id": "OAUTH-006",
+    "description": "OAuth callback error -> generic error banner with retry",
+    "input": { "provider": "google", "callbackError": "OAuthCallbackError" },
+    "expected": { "error": "OAuthCallbackError", "errorBannerShown": true, "retryButtonShown": true }
+  },
+  {
+    "id": "OAUTH-007",
+    "description": "Loading state shown during redirect, timeout after 10s",
+    "input": { "provider": "apple", "redirectDelay": 15000 },
+    "expected": { "loadingSpinnerShown": true, "timeoutMessageShown": true, "timeoutThreshold": 10000 }
+  },
+  {
+    "id": "OAUTH-008",
+    "description": "Returning Google user: session created, no new account",
+    "input": { "provider": "google", "email": "returning@gmail.com", "existingProvider": "google" },
+    "expected": { "userCreated": false, "sessionActive": true, "redirectTo": "/expeditions" }
+  }
+]

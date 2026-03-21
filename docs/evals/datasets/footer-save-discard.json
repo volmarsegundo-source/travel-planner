@@ -1,0 +1,74 @@
+[
+  {
+    "id": "FSD-001",
+    "description": "Clean state: clicking Voltar navigates immediately without dialog",
+    "input": { "isDirty": false, "action": "back" },
+    "expected": { "dialogShown": false, "navigated": true, "direction": "back" }
+  },
+  {
+    "id": "FSD-002",
+    "description": "Clean state: clicking Avancar navigates immediately without dialog",
+    "input": { "isDirty": false, "action": "advance" },
+    "expected": { "dialogShown": false, "navigated": true, "direction": "advance" }
+  },
+  {
+    "id": "FSD-003",
+    "description": "Dirty state: clicking Voltar opens confirmation dialog",
+    "input": { "isDirty": true, "action": "back" },
+    "expected": { "dialogShown": true, "dialogIntent": "back", "navigated": false }
+  },
+  {
+    "id": "FSD-004",
+    "description": "Dirty state: clicking Avancar opens confirmation dialog",
+    "input": { "isDirty": true, "action": "advance" },
+    "expected": { "dialogShown": true, "dialogIntent": "advance", "navigated": false }
+  },
+  {
+    "id": "FSD-005",
+    "description": "Dialog: Descartar discards changes and navigates back",
+    "input": { "isDirty": true, "action": "back", "dialogChoice": "discard" },
+    "expected": { "dataSaved": false, "navigated": true, "direction": "back" }
+  },
+  {
+    "id": "FSD-006",
+    "description": "Dialog: Salvar e Continuar saves and navigates forward",
+    "input": { "isDirty": true, "action": "advance", "dialogChoice": "save" },
+    "expected": { "dataSaved": true, "navigated": true, "direction": "advance", "toastShown": true }
+  },
+  {
+    "id": "FSD-007",
+    "description": "Dialog: Cancelar closes dialog without navigation",
+    "input": { "isDirty": true, "action": "back", "dialogChoice": "cancel" },
+    "expected": { "dialogShown": false, "navigated": false, "dataSaved": false }
+  },
+  {
+    "id": "FSD-008",
+    "description": "Dialog: Escape key closes dialog",
+    "input": { "isDirty": true, "action": "back", "dialogChoice": "escape" },
+    "expected": { "dialogShown": false, "navigated": false }
+  },
+  {
+    "id": "FSD-009",
+    "description": "Toast auto-dismisses after 3 seconds",
+    "input": { "action": "save_direct", "saveResult": "success" },
+    "expected": { "toastShown": true, "toastDuration": 3000, "toastText": "Dados salvos" }
+  },
+  {
+    "id": "FSD-010",
+    "description": "Salvar button disabled when form is clean",
+    "input": { "isDirty": false },
+    "expected": { "saveButtonDisabled": true }
+  },
+  {
+    "id": "FSD-011",
+    "description": "All buttons disabled during saving state",
+    "input": { "isLoading": true },
+    "expected": { "backButtonDisabled": true, "saveButtonDisabled": true, "advanceButtonDisabled": true }
+  },
+  {
+    "id": "FSD-012",
+    "description": "Save failure shows error, dialog remains open for retry",
+    "input": { "isDirty": true, "action": "advance", "dialogChoice": "save", "saveResult": "error" },
+    "expected": { "dataSaved": false, "navigated": false, "dialogShown": true, "errorShown": true }
+  }
+]

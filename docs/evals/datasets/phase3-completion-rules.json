@@ -1,0 +1,62 @@
+[
+  {
+    "id": "P3C-001",
+    "description": "All mandatory items completed -> status completed",
+    "input": { "totalRequired": 5, "completedRequired": 5, "hasAnyItems": true },
+    "expected": { "status": "completed" }
+  },
+  {
+    "id": "P3C-002",
+    "description": "Some mandatory items completed -> status in_progress",
+    "input": { "totalRequired": 5, "completedRequired": 3, "hasAnyItems": true },
+    "expected": { "status": "in_progress" }
+  },
+  {
+    "id": "P3C-003",
+    "description": "No mandatory items completed, has items -> in_progress",
+    "input": { "totalRequired": 5, "completedRequired": 0, "hasAnyItems": true },
+    "expected": { "status": "in_progress" }
+  },
+  {
+    "id": "P3C-004",
+    "description": "No items at all -> status pending",
+    "input": { "totalRequired": 0, "completedRequired": 0, "hasAnyItems": false },
+    "expected": { "status": "pending" }
+  },
+  {
+    "id": "P3C-005",
+    "description": "1 mandatory, 1 completed -> completed",
+    "input": { "totalRequired": 1, "completedRequired": 1, "hasAnyItems": true },
+    "expected": { "status": "completed" }
+  },
+  {
+    "id": "P3C-006",
+    "description": "10 mandatory, 9 completed -> in_progress",
+    "input": { "totalRequired": 10, "completedRequired": 9, "hasAnyItems": true },
+    "expected": { "status": "in_progress" }
+  },
+  {
+    "id": "P3C-007",
+    "description": "Zero mandatory items, has optional items -> completed (edge case fix)",
+    "input": { "totalRequired": 0, "completedRequired": 0, "hasAnyItems": true },
+    "expected": { "status": "completed", "note": "Requires fix: totalRequired === 0 should be treated as all done" }
+  },
+  {
+    "id": "P3C-008",
+    "description": "All mandatory done, optional items exist but unchecked -> completed",
+    "input": { "totalRequired": 3, "completedRequired": 3, "hasAnyItems": true, "optionalCount": 5, "optionalCompleted": 2 },
+    "expected": { "status": "completed" }
+  },
+  {
+    "id": "P3C-009",
+    "description": "Single toggle from 4/5 to 5/5 -> transitions to completed",
+    "input": { "before": { "totalRequired": 5, "completedRequired": 4 }, "after": { "totalRequired": 5, "completedRequired": 5 } },
+    "expected": { "beforeStatus": "in_progress", "afterStatus": "completed", "syncPhaseStatusCalled": true }
+  },
+  {
+    "id": "P3C-010",
+    "description": "Single toggle from 5/5 to 4/5 -> transitions to in_progress",
+    "input": { "before": { "totalRequired": 5, "completedRequired": 5 }, "after": { "totalRequired": 5, "completedRequired": 4 } },
+    "expected": { "beforeStatus": "completed", "afterStatus": "in_progress", "syncPhaseStatusCalled": true }
+  }
+]
