@@ -21,7 +21,6 @@ export const SpendPointsSchema = z.object({
     "ai_itinerary",
     "ai_route",
     "ai_accommodation",
-    "ai_regenerate",
   ]),
   description: z.string().max(255, "description must be at most 255 characters"),
 });

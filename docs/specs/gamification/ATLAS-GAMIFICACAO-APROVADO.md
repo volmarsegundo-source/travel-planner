@@ -34,7 +34,7 @@ Pontos Atlas (PA) e a moeda virtual do Atlas Travel Planner. PA representa o pro
 | `AI_COSTS.ai_itinerary` (Fase 6 — O Roteiro) | 80 PA |
 | `AI_COSTS.ai_route` (Fase 3 — Checklist) | 30 PA |
 | `AI_COSTS.ai_accommodation` (Fase 5 — Guia do Destino) | 50 PA |
-| `AI_COSTS.ai_regenerate` | 0 PA (regeneracao custa o mesmo que geracao original) |
+| Regeneracao | Mesmo custo da geracao original (30/50/80 PA) — sem constante separada |
 | `EARNING_AMOUNTS.daily_login` | 10 PA |
 | `EARNING_AMOUNTS.checklist` | 20 PA |
 | `EARNING_AMOUNTS.review` | 500 PA |

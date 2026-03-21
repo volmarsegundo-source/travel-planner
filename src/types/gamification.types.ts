@@ -62,8 +62,7 @@ export type ConnectivityOption = "chip_local" | "esim" | "roaming" | "wifi_only"
 export type AiSpendType =
   | "ai_itinerary"
   | "ai_route"
-  | "ai_accommodation"
-  | "ai_regenerate";
+  | "ai_accommodation";
 
 export interface PhaseDefinition {
   phaseNumber: PhaseNumber;
@@ -101,7 +100,6 @@ export const AI_COSTS: Record<AiSpendType, number> = {
   ai_itinerary: 80,
   ai_route: 30,
   ai_accommodation: 50,
-  ai_regenerate: 0,
 };
 
 export const WELCOME_BONUS = 180;

@@ -184,7 +184,6 @@ describe("SpendPointsSchema", () => {
     "ai_itinerary",
     "ai_route",
     "ai_accommodation",
-    "ai_regenerate",
   ] as const)("accepts valid spend type: %s", (type) => {
     const result = SpendPointsSchema.safeParse({
       amount: 80,
