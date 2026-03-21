@@ -512,13 +512,24 @@ test.describe("Persistence -- phase 4 mobility selection", () => {
         const backBtn = page.locator('[data-testid="wizard-back"]');
         if (await backBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
           await backBtn.click();
+
+          // Handle unsaved changes dialog if it appears (Sprint 34 WizardFooter)
+          const discardBtn = page.getByRole("button", { name: /discard|descartar/i });
+          if (await discardBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+            await discardBtn.click();
+          }
           await page.waitForTimeout(500);
 
           // Come back to mobility
           if (
             await nextBtn.isVisible({ timeout: 3_000 }).catch(() => false)
           ) {
+            // Handle unsaved dialog on advance too if it appears
             await nextBtn.click();
+            const advanceAnywayBtn = page.getByRole("button", { name: /advance without|avancar sem/i });
+            if (await advanceAnywayBtn.isVisible({ timeout: 2_000 }).catch(() => false)) {
+              await advanceAnywayBtn.click();
+            }
             await page.waitForTimeout(500);
 
             // Mobility step should still be rendered
