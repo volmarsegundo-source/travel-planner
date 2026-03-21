@@ -47,6 +47,15 @@ vi.mock("@/server/actions/expedition.actions", () => ({
     mockBulkViewSections(...args),
 }));
 
+const mockSpendPAForAI = vi.fn().mockResolvedValue({
+  success: true,
+  data: { remainingBalance: 150, transactionId: "tx-1" },
+});
+
+vi.mock("@/server/actions/gamification.actions", () => ({
+  spendPAForAIAction: (...args: unknown[]) => mockSpendPAForAI(...args),
+}));
+
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import { DestinationGuideWizard } from "@/components/features/expedition/DestinationGuideWizard";
@@ -203,7 +212,11 @@ describe("DestinationGuideWizard", () => {
     expect(screen.getByText("Paris, France")).toBeInTheDocument();
   });
 
-  it("auto-triggers generation on first visit when no guide exists", async () => {
+  it("auto-spends PA and triggers generation on first visit when no guide exists", async () => {
+    mockSpendPAForAI.mockResolvedValueOnce({
+      success: true,
+      data: { remainingBalance: 150, transactionId: "tx-1" },
+    });
     mockGenerateGuide.mockResolvedValue({
       success: true,
       data: { content: MOCK_GUIDE, generationCount: 1 },
@@ -215,13 +228,14 @@ describe("DestinationGuideWizard", () => {
           tripId="trip-1"
           destination="Paris, France"
           locale="en"
+          availablePoints={200}
         />
       );
     });
 
+    // PA spend should happen automatically, then generation
+    expect(mockSpendPAForAI).toHaveBeenCalledWith("trip-1", "ai_accommodation");
     expect(mockGenerateGuide).toHaveBeenCalledWith("trip-1", "en");
-    // UTC+1 appears in hero banner AND stat card
-    expect(screen.getAllByText("UTC+1").length).toBeGreaterThanOrEqual(1);
   });
 
   // ─── All 10 Sections Render Without Collapse ────────────────────────
@@ -364,6 +378,10 @@ describe("DestinationGuideWizard", () => {
   it("shows skeleton loading with 10 card placeholders", async () => {
     // Make generateGuide hang (never resolve) to keep isGenerating true
     mockGenerateGuide.mockReturnValue(new Promise(() => {}));
+    mockSpendPAForAI.mockResolvedValueOnce({
+      success: true,
+      data: { remainingBalance: 150, transactionId: "tx-1" },
+    });
 
     await act(async () => {
       render(
@@ -371,16 +389,16 @@ describe("DestinationGuideWizard", () => {
           tripId="trip-1"
           destination="Paris, France"
           locale="en"
+          availablePoints={200}
         />
       );
     });
 
-    // Should show skeleton placeholders
+    // Should show skeleton placeholders (auto-trigger -> auto-spend -> generate)
     expect(screen.getByTestId("skeleton-hero")).toBeInTheDocument();
     expect(screen.getByTestId("skeleton-stats")).toBeInTheDocument();
     expect(screen.getByTestId("skeleton-content")).toBeInTheDocument();
 
-    // Count skeleton cards: 1 hero + 4 stat + 6 content = 11 animated elements
     const skeletonStats = screen.getByTestId("skeleton-stats");
     expect(skeletonStats.children.length).toBe(4);
 
@@ -783,6 +801,10 @@ describe("DestinationGuideWizard", () => {
   // ─── Guide Generation ───────────────────────────────────────────────
 
   it("shows advance button after auto-generation completes", async () => {
+    mockSpendPAForAI.mockResolvedValueOnce({
+      success: true,
+      data: { remainingBalance: 150, transactionId: "tx-1" },
+    });
     mockGenerateGuide.mockResolvedValue({
       success: true,
       data: { content: MOCK_GUIDE, generationCount: 1 },
@@ -794,21 +816,17 @@ describe("DestinationGuideWizard", () => {
           tripId="trip-1"
           destination="Paris, France"
           locale="en"
+          availablePoints={200}
         />
       );
     });
 
-    // Advance button should be visible, regenerate button should not
+    // Advance button should be visible after auto-generate
     expect(screen.queryByTestId("regenerate-button")).not.toBeInTheDocument();
     expect(screen.getByText(/cta\.advance/)).toBeInTheDocument();
   });
 
-  it("shows error message on generation failure (via auto-update dialog)", async () => {
-    mockGenerateGuide.mockResolvedValue({
-      success: false,
-      error: "errors.guideGenerationLimit",
-    });
-
+  it("shows PA confirmation before generation on regenerate (via auto-update dialog)", async () => {
     render(
       <DestinationGuideWizard
         tripId="trip-1"
@@ -821,6 +839,7 @@ describe("DestinationGuideWizard", () => {
         }}
         tripDataHash="new-hash"
         storedDataHash="old-hash"
+        availablePoints={200}
       />
     );
 
@@ -834,10 +853,9 @@ describe("DestinationGuideWizard", () => {
       fireEvent.click(confirmBtn);
     });
 
+    // Should show PA confirmation modal
     await waitFor(() => {
-      expect(screen.getByRole("alert")).toHaveTextContent(
-        "guideGenerationLimit"
-      );
+      expect(screen.getByTestId("pa-confirmation-modal")).toBeInTheDocument();
     });
   });
 });

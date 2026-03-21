@@ -7,11 +7,14 @@ import { Button } from "@/components/ui/button";
 import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
+import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
   generateDestinationGuideAction,
   completePhase5Action,
   bulkViewGuideSectionsAction,
 } from "@/server/actions/expedition.actions";
+import { spendPAForAIAction } from "@/server/actions/gamification.actions";
+import { AI_COSTS } from "@/types/gamification.types";
 import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
@@ -32,6 +35,8 @@ interface DestinationGuideWizardProps {
   tripCurrentPhase?: number;
   /** Completed phase numbers from DB */
   completedPhases?: number[];
+  /** User's available PA balance for cost gate */
+  availablePoints?: number;
 }
 
 const STAT_SECTIONS: GuideSectionKey[] = [
@@ -70,6 +75,7 @@ export function DestinationGuideWizard({
   accessMode = "first_visit",
   tripCurrentPhase = 5,
   completedPhases = [],
+  availablePoints = 0,
 }: DestinationGuideWizardProps) {
   const t = useTranslations("expedition.phase5");
   const tExpedition = useTranslations("expedition");
@@ -86,13 +92,30 @@ export function DestinationGuideWizard({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
   const [bulkPointsAwarded, setBulkPointsAwarded] = useState(false);
+  const [showPAConfirm, setShowPAConfirm] = useState(false);
+  const [paBalance, setPABalance] = useState(availablePoints);
+  const [isSpending, setIsSpending] = useState(false);
 
-  // Auto-generate guide on first visit when no guide exists
+  const guideCost = AI_COSTS.ai_accommodation; // 50 PA for guide
+
+  // Auto-generate: on first visit when no guide, auto-spend PA then generate
+  // (no modal on auto-trigger -- the user navigated here intentionally)
   const hasTriggeredRef = useRef(false);
   useEffect(() => {
     if (!initialGuide && !isGenerating && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
-      handleGenerate();
+      spendPAForAIAction(tripId, "ai_accommodation")
+        .then((result) => {
+          if (result.success && result.data && "remainingBalance" in result.data) {
+            setPABalance(result.data.remainingBalance);
+          }
+        })
+        .catch(() => {
+          // Non-blocking: proceed with generation
+        })
+        .finally(() => {
+          handleGenerate();
+        });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -121,6 +144,35 @@ export function DestinationGuideWizard({
       });
     }
   }, [guide, bulkPointsAwarded, tripId]);
+
+  function handleRequestGenerate() {
+    setShowPAConfirm(true);
+  }
+
+  async function handlePAConfirmAndGenerate() {
+    setIsSpending(true);
+    setErrorMessage(null);
+
+    try {
+      const spendResult = await spendPAForAIAction(tripId, "ai_accommodation");
+      if (!spendResult.success) {
+        setErrorMessage(spendResult.error);
+        setIsSpending(false);
+        return;
+      }
+
+      if (spendResult.data && "remainingBalance" in spendResult.data) {
+        setPABalance(spendResult.data.remainingBalance);
+      }
+
+      setShowPAConfirm(false);
+      setIsSpending(false);
+      await handleGenerate();
+    } catch {
+      setErrorMessage("errors.generic");
+      setIsSpending(false);
+    }
+  }
 
   async function handleGenerate() {
     setIsGenerating(true);
@@ -256,7 +308,10 @@ export function DestinationGuideWizard({
             <Button
               size="sm"
               variant="destructive"
-              onClick={handleGenerate}
+              onClick={() => {
+                setShowRegenerateConfirm(false);
+                handleRequestGenerate();
+              }}
             >
               {t("regenerateConfirmYes")}
             </Button>
@@ -271,6 +326,17 @@ export function DestinationGuideWizard({
         </div>
       )}
 
+      {/* PA Confirmation Modal */}
+      <PAConfirmationModal
+        isOpen={showPAConfirm}
+        onClose={() => setShowPAConfirm(false)}
+        onConfirm={handlePAConfirmAndGenerate}
+        featureName={t("title")}
+        paCost={guideCost}
+        currentBalance={paBalance}
+        isLoading={isSpending}
+      />
+
       {/* Generate button + back (when no guide) */}
       {!guide && (
         <>
@@ -281,7 +347,7 @@ export function DestinationGuideWizard({
           </div>
           <WizardFooter
             onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
-            onPrimary={handleGenerate}
+            onPrimary={handleRequestGenerate}
             primaryLabel={t("generateCta")}
             isLoading={isGenerating}
             isDisabled={isGenerating}

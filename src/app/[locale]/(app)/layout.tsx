@@ -29,7 +29,13 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     ?? t("traveler");
 
   // Fetch gamification data for header badge
-  let gamification: { totalPoints: number; currentLevel: number; phaseName: string } | undefined;
+  let gamification: {
+    totalPoints: number;
+    availablePoints: number;
+    currentLevel: number;
+    phaseName: string;
+    rank: "novato" | "desbravador" | "navegador" | "capitao" | "aventureiro" | "lendario";
+  } | undefined;
   try {
     const progress = await PointsEngine.getBalance(user.id!);
     const currentLevel = Math.min(
@@ -39,8 +45,10 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     const phaseDef = PHASE_DEFINITIONS[currentLevel - 1];
     gamification = {
       totalPoints: progress.totalPoints,
+      availablePoints: progress.availablePoints,
       currentLevel,
       phaseName: phaseDef?.name ?? `Phase ${currentLevel}`,
+      rank: progress.currentRank,
     };
   } catch {
     // Gamification data is non-critical — badge simply won't render

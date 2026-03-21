@@ -1060,7 +1060,83 @@
     "points": "pts",
     "badge": {
       "viewProfile": "View your Atlas profile",
-      "ariaLabel": "{points} points, level {rankName}"
+      "ariaLabel": "{points} PA, {rankName}",
+      "levelLabel": "Level: {rank}"
+    },
+    "confirmModal": {
+      "title": "Confirm AI Generation",
+      "costMessage": "Generating {feature} costs {cost} PA.",
+      "balanceAfter": "Balance after: {balance} PA",
+      "currentBalance": "Current balance: {balance} PA",
+      "generate": "Generate",
+      "cancel": "Cancel",
+      "insufficientTitle": "Insufficient Balance",
+      "insufficientMessage": "You need {cost} PA but have {balance} PA.",
+      "missing": "Missing {amount} PA",
+      "earnMore": "Earn more points",
+      "close": "Close"
+    },
+    "tutorial": {
+      "step1Title": "Earn Points",
+      "step1Description": "Earn points by completing phases of your expedition",
+      "step2Title": "Spend Points",
+      "step2Description": "Spend points to generate checklists, guides, and itineraries with AI",
+      "step3Title": "Level Up",
+      "step3Description": "Level up and unlock achievements",
+      "next": "Next",
+      "skip": "Skip",
+      "finish": "Got it!",
+      "stepIndicator": "Step {current} of {total}"
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "pageDescription": "Learn how Atlas Points work",
+      "section1Title": "What are Atlas Points?",
+      "section1Description": "Atlas Points (PA) are the currency of your travel planning journey. Earn them by completing expedition phases and spend them to unlock AI-powered features like checklists, destination guides, and personalized itineraries.",
+      "section2Title": "How to Earn PA",
+      "section2Description": "Complete activities during your expedition to earn points.",
+      "section3Title": "How to Spend PA",
+      "section3Description": "Use your points to access AI-powered travel tools.",
+      "section4Title": "Levels",
+      "section4Description": "Progress through ranks as you earn more points.",
+      "section5Title": "Frequently Asked Questions",
+      "earnTable": {
+        "activity": "Activity",
+        "points": "Points",
+        "welcomeBonus": "Welcome bonus",
+        "dailyLogin": "Daily login",
+        "phase1": "Complete Phase 1 — The Calling",
+        "phase2": "Complete Phase 2 — The Explorer",
+        "phase3": "Complete Phase 3 — The Preparation",
+        "phase4": "Complete Phase 4 — The Logistics",
+        "phase5": "Complete Phase 5 — Destination Guide",
+        "phase6": "Complete Phase 6 — The Itinerary",
+        "profileField": "Complete a profile field",
+        "checklistItem": "Complete a checklist item",
+        "tutorial": "Complete the tutorial"
+      },
+      "spendTable": {
+        "feature": "Feature",
+        "cost": "Cost",
+        "checklist": "AI Checklist (Phase 3)",
+        "guide": "AI Destination Guide (Phase 5)",
+        "itinerary": "AI Itinerary (Phase 6)"
+      },
+      "levelTable": {
+        "level": "Level",
+        "name": "Name",
+        "threshold": "Points Required"
+      },
+      "faq": {
+        "q1": "What happens if I don't have enough PA?",
+        "a1": "You can still advance through non-AI phases to earn more points. Complete profile fields and checklist items for additional PA.",
+        "q2": "Can I lose PA?",
+        "a2": "PA is only spent when you generate AI content. Phase completions and other activities always add to your balance.",
+        "q3": "Do points expire?",
+        "a3": "No, your Atlas Points never expire. Take your time planning your perfect trip.",
+        "q4": "How do I check my balance?",
+        "a4": "Your current PA balance is always visible in the header badge at the top of the page."
+      }
     }
   },
   "atlas": {
@@ -1189,7 +1265,9 @@
     "invalidPhase": "Invalid phase number.",
     "phaseNotSkippable": "This phase cannot be skipped — it must be completed.",
     "aiNotAvailable": "AI is not available for this phase.",
-    "aiAgeRestricted": "You must be 18 or older to use AI features."
+    "aiAgeRestricted": "You must be 18 or older to use AI features.",
+    "insufficientBalance": "Insufficient PA balance for this action.",
+    "invalidAiType": "Invalid AI feature type."
   },
   "legal": {
     "terms": {

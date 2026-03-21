@@ -75,8 +75,10 @@ const propsWithGamification = {
   ...defaultProps,
   gamification: {
     totalPoints: 720,
+    availablePoints: 520,
     currentLevel: 3,
     phaseName: "Explorador",
+    rank: "navegador" as const,
   },
 };
 
@@ -288,10 +290,10 @@ describe("AuthenticatedNavbar", () => {
       expect(badge).toHaveAttribute("role", "status");
     });
 
-    it("gamification badge displays points and phase name", () => {
+    it("gamification badge displays available points and phase name", () => {
       render(<AuthenticatedNavbar {...propsWithGamification} />);
 
-      expect(screen.getByTestId("badge-points")).toHaveTextContent("720");
+      expect(screen.getByTestId("badge-points")).toHaveTextContent("520");
       expect(screen.getByTestId("badge-phase")).toHaveTextContent("Explorador");
     });
 

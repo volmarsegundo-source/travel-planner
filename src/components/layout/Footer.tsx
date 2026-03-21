@@ -42,6 +42,12 @@ export function Footer({ variant = "public" }: FooterProps) {
               >
                 {t("landing.footer.support")}
               </Link>
+              <Link
+                href="/como-funciona"
+                className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {t("gamification.howItWorks.title")}
+              </Link>
             </>
           ) : (
             <>
