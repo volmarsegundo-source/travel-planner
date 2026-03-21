@@ -2,7 +2,7 @@
 
 > **Autor**: finops-engineer
 > **Data**: 2026-03-21
-> **Versao**: 1.0.0
+> **Versao**: 1.1.0
 > **Status**: Draft
 > **Fontes**: `src/types/gamification.types.ts`, `src/lib/engines/phase-config.ts`, `src/lib/engines/points-engine.ts`
 
@@ -12,12 +12,13 @@
 
 | Parametro | Valor | Fonte |
 |---|---|---|
-| Welcome Bonus | 500 PA | `WELCOME_BONUS` em `gamification.types.ts` |
+| Welcome Bonus | 180 PA | `WELCOME_BONUS` em `gamification.types.ts` |
 | Cambio BRL/USD | R$ 5,20 / $1,00 | Estimativa mercado |
 | Custo checklist (Haiku) | $0,005 / chamada | Prompt-engineer estimate |
 | Custo guide (Haiku) | $0,015 / chamada | Prompt-engineer estimate |
 | Custo itinerary (Sonnet) | $0,060 / chamada | Prompt-engineer estimate |
-| Custo total por expedicao completa | $0,08 USD | Soma dos 3 acima |
+| Custo total por expedicao completa (AI) | $0,08 USD | Soma dos 3 acima |
+| PA total por expedicao (AI) | 160 PA | 30 + 50 + 80 (Phases 3, 5, 6) |
 | Custos fixos mensais | ~$50/mes | Vercel + Neon + Redis |
 
 ### Custos de AI por Fase (do codigo-fonte)
@@ -26,27 +27,26 @@
 |---|---|---|---|---|
 | 1 | O Chamado | 0 | 100 | $0,000 |
 | 2 | O Explorador | 0 | 150 | $0,000 |
-| 3 | O Preparo | 100 | 75 | $0,005 |
-| 4 | A Logistica | 100 | 50 | $0,005 |
-| 5 | Guia do Destino | 150 | 40 | $0,015 |
-| 6 | O Roteiro | 0 | 250 | $0,060 |
+| 3 | O Preparo | 30 | 75 | $0,005 |
+| 4 | A Logistica | 0 | 50 | $0,000 |
+| 5 | Guia do Destino | 50 | 40 | $0,015 |
+| 6 | O Roteiro | 80 | 250 | $0,060 |
 | 7 | A Expedicao | 0 | 400 | $0,000 |
 | 8 | O Legado | 0 | 500 | $0,000 |
-| **Total** | | **350** | **1.565** | **$0,085** |
+| **Total** | | **160** | **1.565** | **$0,080** |
 
-> **Nota**: A Fase 6 (O Roteiro) tem `aiCost: 0` no codigo mas e a fase de itinerario que
-> consome Sonnet ($0,060). O custo de AI esta nos `AI_COSTS` globais (`ai_itinerary: 150`,
-> `ai_route: 100`, `ai_accommodation: 100`), nao no `aiCost` da fase. Na pratica, o usuario
-> gasta PA via `AI_COSTS` quando aciona features de AI, independente da fase.
+> **Nota**: Os custos de AI estao definidos tanto em `phase-config.ts` (campo `aiCost`) quanto
+> em `AI_COSTS` globais em `gamification.types.ts` (`ai_route: 30`, `ai_accommodation: 50`,
+> `ai_itinerary: 80`, `ai_regenerate: 0`). Regeneracao custa o mesmo que a geracao original.
 
 ### Custos de AI Features (do codigo-fonte: `AI_COSTS`)
 
 | Feature | PA Cost | USD Infra Cost |
 |---|---|---|
-| `ai_itinerary` | 150 PA | $0,060 |
-| `ai_route` | 100 PA | $0,015 |
-| `ai_accommodation` | 100 PA | $0,005 |
-| `ai_regenerate` | 80 PA | $0,005 |
+| `ai_itinerary` (Roteiro, Phase 6) | 80 PA | $0,060 |
+| `ai_route` (Checklist, Phase 3) | 30 PA | $0,005 |
+| `ai_accommodation` (Guia, Phase 5) | 50 PA | $0,015 |
+| `ai_regenerate` | 0 PA (custo = geracao original) | variavel |
 
 ---
 
@@ -58,21 +58,21 @@ Uma expedicao tipica consome as seguintes features de AI:
 
 | Feature | PA | USD |
 |---|---|---|
-| Checklist (ai_accommodation proxy) | 100 PA | $0,005 |
-| Guide (ai_route) | 100 PA | $0,015 |
-| Itinerary (ai_itinerary) | 150 PA | $0,060 |
-| **Total** | **350 PA** | **$0,080** |
+| Checklist (ai_route, Phase 3) | 30 PA | $0,005 |
+| Guide (ai_accommodation, Phase 5) | 50 PA | $0,015 |
+| Itinerary (ai_itinerary, Phase 6) | 80 PA | $0,060 |
+| **Total** | **160 PA** | **$0,080** |
 
 ### Taxa de conversao
 
 ```
-1 PA = $0,080 / 350 = $0,000229 USD
+1 PA = $0,080 / 160 = $0,000500 USD
 ```
 
 Ou equivalentemente:
 
 ```
-1.000 PA = $0,229 USD em custo de infraestrutura
+1.000 PA = $0,500 USD em custo de infraestrutura
 ```
 
 ---
@@ -81,23 +81,23 @@ Ou equivalentemente:
 
 | Metrica | Valor |
 |---|---|
-| Welcome Bonus | 500 PA |
-| Custo infra do gift | 500 x $0,000229 = **$0,114 USD** |
-| Custo em BRL | $0,114 x R$5,20 = **R$0,59** |
-| Expeditions possiveis | 500 / 350 = **1,43 expedicoes** |
+| Welcome Bonus | 180 PA |
+| Custo infra do gift | 180 x $0,000500 = **$0,090 USD** |
+| Custo em BRL | $0,090 x R$5,20 = **R$0,47** |
+| Expeditions possiveis | 180 / 160 = **1,13 expedicoes** |
 
 ### Analise
 
-O welcome bonus de 500 PA cobre **1 expedicao completa com AI** e sobram 150 PA (suficiente
-para 1 regeneracao de 80 PA + sobra de 70 PA).
+O welcome bonus de 180 PA cobre **1 expedicao completa com AI** (160 PA) e sobram 20 PA.
+O bonus de 180 PA se decompoe em: 50 PA (criacao de conta) + 100 PA (tutorial) + 30 PA (primeiro campo de perfil).
 
-**Custo de aquisicao de cliente (CAC) via gift: $0,114 USD (R$0,59)**
+**Custo de aquisicao de cliente (CAC) via gift: $0,090 USD (R$0,47)**
 
 Este e um CAC extremamente baixo. Para contexto:
 - CAC medio de apps de viagem: $3-8 USD
-- Nosso CAC de gift: $0,114 USD (98,5% menor que a media)
+- Nosso CAC de gift: $0,090 USD (98,8% menor que a media)
 
-**Conclusao**: O gift de 500 PA e altamente sustentavel. O custo real para nos e quase
+**Conclusao**: O gift de 180 PA e altamente sustentavel. O custo real para nos e quase
 insignificante porque pagamos apenas quando o usuario de fato consome features de AI.
 
 ---
@@ -106,39 +106,39 @@ insignificante porque pagamos apenas quando o usuario de fato consome features d
 
 ### Tabela de Pacotes
 
-| Pacote | PA | Preco BRL | Preco USD | Custo Infra (PA x $0,000229) | Lucro Bruto | Margem Bruta |
+| Pacote | PA | Preco BRL | Preco USD | Custo Infra (PA x $0,000500) | Lucro Bruto | Margem Bruta |
 |---|---|---|---|---|---|---|
-| Starter | 500 PA | R$ 14,90 | $2,87 | $0,114 | $2,75 | **96,0%** |
-| Explorer | 1.200 PA | R$ 29,90 | $5,75 | $0,274 | $5,48 | **95,2%** |
-| Navigator | 2.800 PA | R$ 59,90 | $11,52 | $0,641 | $10,88 | **94,4%** |
-| Cartographer | 6.000 PA | R$ 119,90 | $23,06 | $1,374 | $21,69 | **94,0%** |
+| Explorador | 500 PA | R$ 14,90 | $2,87 | $0,250 | $2,62 | **91,3%** |
+| Navegador | 1.200 PA | R$ 29,90 | $5,75 | $0,600 | $5,15 | **89,6%** |
+| Capitao | 2.800 PA | R$ 59,90 | $11,52 | $1,400 | $10,12 | **87,8%** |
+| Lendario | 6.000 PA | R$ 119,90 | $23,06 | $3,000 | $20,06 | **87,0%** |
 
 ### Detalhamento por Pacote
 
-#### Starter (R$ 14,90 → 500 PA)
-- Expedicoes possiveis: 1,43
+#### Explorador (R$ 14,90 → 500 PA)
+- Expedicoes possiveis: 3,13
 - Custo por PA vendido: R$ 14,90 / 500 = **R$ 0,0298/PA**
-- Custo infra por PA: $0,000229 x R$5,20 = **R$ 0,00119/PA**
-- **Markup**: 25x sobre custo de infra
+- Custo infra por PA: $0,000500 x R$5,20 = **R$ 0,00260/PA**
+- **Markup**: 11,5x sobre custo de infra
 
-#### Explorer (R$ 29,90 → 1.200 PA)
-- Expedicoes possiveis: 3,43
-- Custo por PA vendido: R$ 29,90 / 1.200 = **R$ 0,0249/PA** (16% desconto vs Starter)
-- **Markup**: 21x sobre custo de infra
+#### Navegador (R$ 29,90 → 1.200 PA)
+- Expedicoes possiveis: 7,50
+- Custo por PA vendido: R$ 29,90 / 1.200 = **R$ 0,0249/PA** (16% desconto vs Explorador)
+- **Markup**: 9,6x sobre custo de infra
 
-#### Navigator (R$ 59,90 → 2.800 PA)
-- Expedicoes possiveis: 8,00
-- Custo por PA vendido: R$ 59,90 / 2.800 = **R$ 0,0214/PA** (28% desconto vs Starter)
-- **Markup**: 18x sobre custo de infra
+#### Capitao (R$ 59,90 → 2.800 PA)
+- Expedicoes possiveis: 17,50
+- Custo por PA vendido: R$ 59,90 / 2.800 = **R$ 0,0214/PA** (28% desconto vs Explorador)
+- **Markup**: 8,2x sobre custo de infra
 
-#### Cartographer (R$ 119,90 → 6.000 PA)
-- Expedicoes possiveis: 17,14
-- Custo por PA vendido: R$ 119,90 / 6.000 = **R$ 0,0200/PA** (33% desconto vs Starter)
-- **Markup**: 15x sobre custo de infra
+#### Lendario (R$ 119,90 → 6.000 PA)
+- Expedicoes possiveis: 37,50
+- Custo por PA vendido: R$ 119,90 / 6.000 = **R$ 0,0200/PA** (33% desconto vs Explorador)
+- **Markup**: 7,7x sobre custo de infra
 
 ### Analise de Margem
 
-Todos os pacotes tem margem bruta **acima de 94%**, muito acima do target de 100% (que
+Todos os pacotes tem margem bruta **acima de 87%**, muito acima do target de 100% (que
 corresponderia a 50% de margem). A economia de PA virtual e extremamente favoravel porque:
 
 1. **O custo marginal de AI e muito baixo** (~$0,08 por expedicao completa)
@@ -154,19 +154,20 @@ corresponderia a 50% de margem). A economia de PA virtual e extremamente favorav
 
 | Metrica | Mes 1 | Mes 2 | Mes 3 | Mes 12 |
 |---|---|---|---|---|
-| PA Inicio | 500 | 180 | 210 | 450 |
-| Welcome Bonus | 500 | — | — | — |
+| PA Inicio | 180 | 285 | 315 | 455 |
+| Welcome Bonus | 180 | — | — | — |
 | Daily Login (10 PA x ~20 dias) | +200 | +200 | +200 | +200 |
 | Checklist earn (20 PA x ~2) | +40 | +40 | +40 | +40 |
 | Phase Rewards | +265 | +90 | +250 | — |
-| AI Spend (1 expedicao) | -350 | 0 | -350 | 0 |
-| PA Fim | ~655 | ~510 | ~350 | ~690 |
+| AI Spend (1 expedicao) | -160 | 0 | -160 | 0 |
+| PA Fim | ~525 | ~615 | ~645 | ~695 |
 | Expedicoes | 1 | 0 | 1 | 0 |
 | Revenue | $0 | $0 | $0 | $0 |
 | Custo Infra | $0,08 | $0 | $0,08 | $0 |
 
 **Resumo anual Free User**: ~6 expedicoes, $0,48 custo infra, $0 revenue.
-Free users sao sustentaveis porque geram volume e potencial de conversao.
+Free users sao sustentaveis porque geram volume e potencial de conversao. Com 180 PA de bonus
+e 160 PA de custo por expedicao, o free user pode fazer 1 expedicao imediata.
 
 ### Cenario B: Casual (1 pacote Starter/trimestre)
 
@@ -293,12 +294,12 @@ Se o objetivo fosse **exatamente 100% markup** (50% margem), os precos seriam:
 
 | Pacote | PA | Preco Atual | Preco para 50% margem |
 |---|---|---|---|
-| Starter | 500 | R$ 14,90 | R$ 1,19 |
-| Explorer | 1.200 | R$ 29,90 | R$ 2,85 |
-| Navigator | 2.800 | R$ 59,90 | R$ 6,66 |
-| Cartographer | 6.000 | R$ 119,90 | R$ 14,29 |
+| Explorador | 500 | R$ 14,90 | R$ 2,60 |
+| Navegador | 1.200 | R$ 29,90 | R$ 6,24 |
+| Capitao | 2.800 | R$ 59,90 | R$ 14,56 |
+| Lendario | 6.000 | R$ 119,90 | R$ 31,20 |
 
-**Conclusao**: Os precos atuais estao ~12,5x acima do minimo para 100% markup. Isto e
+**Conclusao**: Os precos atuais estao ~5,7x acima do minimo para 100% markup. Isto e
 **intencional e correto** porque:
 
 1. Custos fixos precisam ser cobertos
@@ -306,7 +307,7 @@ Se o objetivo fosse **exatamente 100% markup** (50% margem), os precos seriam:
 3. Valor percebido da experiencia gamificada (nao apenas custo de API)
 4. Reserva para flutuacoes de custo de AI
 
-**Recomendacao: Manter precos atuais.** A margem bruta de 94-96% e saudavel para um SaaS
+**Recomendacao: Manter precos atuais.** A margem bruta de 87-91% e saudavel para um SaaS
 B2C em fase de crescimento. Considerar promocoes pontuais para aquisicao.
 
 ---
@@ -344,12 +345,12 @@ B2C em fase de crescimento. Considerar promocoes pontuais para aquisicao.
 
 | KPI | Valor |
 |---|---|
-| **1 PA** | $0,000229 USD em custo de infra |
-| **1 expedicao completa** | 350 PA / $0,08 USD |
-| **Welcome gift (500 PA)** | $0,114 USD — cobre 1,4 expedicoes |
-| **Margem bruta media** | **94,9%** |
+| **1 PA** | $0,000500 USD em custo de infra |
+| **1 expedicao completa** | 160 PA / $0,08 USD |
+| **Welcome gift (180 PA)** | $0,090 USD — cobre 1,13 expedicoes |
+| **Margem bruta media** | **88,9%** |
 | **Break-even (mix realista)** | **~74 usuarios** (15 casual + 7 power) |
-| **CAC via gift** | $0,114 USD (vs $3-8 industria) |
+| **CAC via gift** | $0,090 USD (vs $3-8 industria) |
 | **LTV Casual (12 meses)** | $11,52 USD |
 | **LTV Power (12 meses)** | $69,00 USD |
 | **LTV/CAC ratio Casual** | 101x |
@@ -357,7 +358,7 @@ B2C em fase de crescimento. Considerar promocoes pontuais para aquisicao.
 
 ### Veredito
 
-A economia de PA e **altamente sustentavel e lucrativa**. As margens brutas de 94-96%
+A economia de PA e **altamente sustentavel e lucrativa**. As margens brutas de 87-91%
 oferecem ampla protecao contra flutuacao de custos de AI e cambio. O modelo de monetizacao
 via moeda virtual (PA) desacopla efetivamente o preco ao consumidor do custo de
 infraestrutura, criando um buffer estrategico saudavel.
@@ -371,3 +372,12 @@ infraestrutura, criando um buffer estrategico saudavel.
 ---
 
 *Documento gerado pelo finops-engineer. Proxima revisao: Sprint 33.*
+
+---
+
+## Historico de Revisoes
+
+| Versao | Data | Autor | Descricao |
+|---|---|---|---|
+| 1.0.0 | 2026-03-21 | finops-engineer | Projecao inicial com AI costs 350 PA/expedicao |
+| 1.1.0 | 2026-03-21 | dev-fullstack-1 | Recalculo com AI costs corrigidos: 160 PA/expedicao, welcome bonus 180 PA, taxa $0.000500/PA, margens 87-91%, nomes de pacotes alinhados com ranks RPG |

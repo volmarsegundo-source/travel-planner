@@ -28,15 +28,23 @@ export function PointsAnimation({ points, badge, rank, onDismiss }: PointsAnimat
   }, []);
 
   const badgeNameMap: Record<BadgeKey, string> = {
-    first_step: "firstStep",
-    navigator: "navigator",
-    host: "host",
-    logistics_master: "logisticsMaster",
-    identity_explorer: "identityExplorer",
-    cartographer: "cartographer",
-    treasurer: "treasurer",
-    pathfinder: "pathfinder",
-    ambassador: "ambassador",
+    primeira_viagem: "primeiraViagem",
+    viajante_frequente: "viajanteFrequente",
+    globetrotter: "globetrotter",
+    marco_polo: "marcoPolo",
+    detalhista: "detalhista",
+    planejador_nato: "planejadorNato",
+    zero_pendencias: "zeroPendencias",
+    revisor: "revisor",
+    sem_fronteiras: "semFronteiras",
+    em_familia: "emFamilia",
+    solo_explorer: "soloExplorer",
+    poliglota: "poliglota",
+    multicontinental: "multicontinental",
+    fiel: "fiel",
+    maratonista: "maratonista",
+    fundador: "fundador",
+    aniversario: "aniversario",
   };
 
   return (

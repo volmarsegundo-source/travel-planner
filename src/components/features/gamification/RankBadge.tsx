@@ -4,21 +4,21 @@ import { useTranslations } from "next-intl";
 import type { Rank } from "@/types/gamification.types";
 
 const RANK_COLORS: Record<Rank, string> = {
-  traveler: "bg-muted text-muted-foreground",
-  explorer: "bg-accent text-accent-foreground",
-  navigator: "bg-atlas-teal/15 text-atlas-teal-light",
-  cartographer: "bg-atlas-gold/10 text-atlas-gold",
-  pathfinder: "bg-atlas-gold/15 text-atlas-gold-light",
-  ambassador: "bg-atlas-gold/20 text-atlas-gold-light border border-atlas-gold/40",
+  novato: "bg-muted text-muted-foreground",
+  desbravador: "bg-accent text-accent-foreground",
+  navegador: "bg-atlas-teal/15 text-atlas-teal-light",
+  capitao: "bg-atlas-gold/10 text-atlas-gold",
+  aventureiro: "bg-atlas-gold/15 text-atlas-gold-light",
+  lendario: "bg-atlas-gold/20 text-atlas-gold-light border border-atlas-gold/40",
 };
 
 const RANK_EMOJIS: Record<Rank, string> = {
-  traveler: "🧳",
-  explorer: "🧭",
-  navigator: "🗺️",
-  cartographer: "📍",
-  pathfinder: "⛰️",
-  ambassador: "🌟",
+  novato: "🧳",
+  desbravador: "🧭",
+  navegador: "🗺️",
+  capitao: "📍",
+  aventureiro: "⛰️",
+  lendario: "🌟",
 };
 
 interface RankBadgeProps {

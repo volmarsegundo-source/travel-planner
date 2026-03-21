@@ -83,7 +83,7 @@ describe("ExpeditionService", () => {
       expect(result.tripId).toBe("trip-new");
       expect(result.phaseResult.phaseNumber).toBe(1);
       expect(result.phaseResult.pointsEarned).toBe(100);
-      expect(result.phaseResult.badgeAwarded).toBe("first_step");
+      expect(result.phaseResult.badgeAwarded).toBe("primeira_viagem");
       expect(result.phaseResult.nextPhaseUnlocked).toBe(2);
     });
 
@@ -133,7 +133,7 @@ describe("ExpeditionService", () => {
 
       expect(PointsEngine.awardBadge).toHaveBeenCalledWith(
         "user-1",
-        "first_step",
+        "primeira_viagem",
         expect.anything()
       );
     });
@@ -260,7 +260,7 @@ describe("ExpeditionService", () => {
         phaseNumber: 2 as const,
         pointsEarned: 150,
         badgeAwarded: null,
-        newRank: "explorer" as const,
+        newRank: "desbravador" as const,
         nextPhaseUnlocked: 3 as const,
       };
 
@@ -285,7 +285,7 @@ describe("ExpeditionService", () => {
         }
       );
       expect(result.pointsEarned).toBe(150);
-      expect(result.newRank).toBe("explorer");
+      expect(result.newRank).toBe("desbravador");
     });
 
     it("propagates errors from PhaseEngine", async () => {

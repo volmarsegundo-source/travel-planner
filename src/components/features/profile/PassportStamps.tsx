@@ -4,13 +4,27 @@ import { useTranslations } from "next-intl";
 import type { BadgeKey } from "@/types/gamification.types";
 
 const ALL_BADGES: { key: BadgeKey; emoji: string; nameKey: string }[] = [
-  { key: "first_step", emoji: "👣", nameKey: "firstStep" },
-  { key: "navigator", emoji: "🗺️", nameKey: "navigator" },
-  { key: "host", emoji: "🏠", nameKey: "host" },
-  { key: "cartographer", emoji: "📍", nameKey: "cartographer" },
-  { key: "treasurer", emoji: "💎", nameKey: "treasurer" },
-  { key: "pathfinder", emoji: "⛰️", nameKey: "pathfinder" },
-  { key: "ambassador", emoji: "🌟", nameKey: "ambassador" },
+  // Explorador
+  { key: "primeira_viagem", emoji: "👣", nameKey: "primeiraViagem" },
+  { key: "viajante_frequente", emoji: "🧳", nameKey: "viajanteFrequente" },
+  { key: "globetrotter", emoji: "🌍", nameKey: "globetrotter" },
+  { key: "marco_polo", emoji: "🏆", nameKey: "marcoPolo" },
+  // Perfeccionista
+  { key: "detalhista", emoji: "🔍", nameKey: "detalhista" },
+  { key: "planejador_nato", emoji: "📋", nameKey: "planejadorNato" },
+  { key: "zero_pendencias", emoji: "✅", nameKey: "zeroPendencias" },
+  { key: "revisor", emoji: "🔄", nameKey: "revisor" },
+  // Aventureiro
+  { key: "sem_fronteiras", emoji: "✈️", nameKey: "semFronteiras" },
+  { key: "em_familia", emoji: "👨‍👩‍👧‍👦", nameKey: "emFamilia" },
+  { key: "solo_explorer", emoji: "🧭", nameKey: "soloExplorer" },
+  { key: "poliglota", emoji: "🗣️", nameKey: "poliglota" },
+  { key: "multicontinental", emoji: "🗺️", nameKey: "multicontinental" },
+  // Veterano
+  { key: "fiel", emoji: "💎", nameKey: "fiel" },
+  { key: "maratonista", emoji: "⚡", nameKey: "maratonista" },
+  { key: "fundador", emoji: "🌟", nameKey: "fundador" },
+  { key: "aniversario", emoji: "🎂", nameKey: "aniversario" },
 ];
 
 interface PassportStampsProps {

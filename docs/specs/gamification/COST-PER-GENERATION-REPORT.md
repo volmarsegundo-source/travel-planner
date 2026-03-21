@@ -2,7 +2,7 @@
 
 > **Autor**: prompt-engineer
 > **Data**: 2026-03-21
-> **Versao**: 1.0.0
+> **Versao**: 1.1.0
 > **Base**: Codigo-fonte real (`ai.service.ts`, `claude.provider.ts`, `cost-calculator.ts`, prompts `v1.x`)
 
 ---
@@ -36,6 +36,18 @@
 - Output tipico (7 dias, 4 atividades/dia): ~14000 chars = ~3500 tokens
 - `maxTokens`: dinamico via `calculatePlanTokenBudget()` = `days * 600 + 1100`, min 2048, max 16000
 - Retry com dobro de budget se truncado (max 2 tentativas)
+
+### PA Cost Mapping (fonte: `gamification.types.ts` AI_COSTS)
+
+| Feature | PA Cost | USD Infra Cost | PA/USD Rate |
+|---------|--------:|---------------:|------------:|
+| Checklist (Phase 3, `ai_route`) | 30 PA | $0.005 | $0.000167/PA |
+| Guide (Phase 5, `ai_accommodation`) | 50 PA | $0.015 | $0.000300/PA |
+| Itinerary (Phase 6, `ai_itinerary`) | 80 PA | $0.060 | $0.000750/PA |
+| Regenerar | mesmo custo da geracao original | mesmo custo | — |
+| **Total por expedicao** | **160 PA** | **$0.080** | **$0.000500/PA** |
+
+> **Nota**: A taxa media ponderada e $0.000500/PA. Itinerarios subsidiam checklist/guide via taxa fixa.
 
 ---
 

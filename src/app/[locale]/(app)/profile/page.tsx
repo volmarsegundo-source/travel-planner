@@ -26,7 +26,7 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
   let progress: Awaited<ReturnType<typeof PointsEngine.getProgressSummary>> = {
     totalPoints: 0,
     availablePoints: 0,
-    currentRank: "traveler" as Rank,
+    currentRank: "novato" as Rank,
     streakDays: 0,
     lastLoginDate: null,
     badges: [],

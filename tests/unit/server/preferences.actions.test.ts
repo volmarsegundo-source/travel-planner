@@ -184,7 +184,7 @@ describe("savePreferencesAction", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(mockAwardBadge).toHaveBeenCalledWith(USER_ID, "identity_explorer");
+    expect(mockAwardBadge).toHaveBeenCalledWith(USER_ID, "detalhista");
     // 5 categories x 5 + 25 badge bonus = 50
     expect(result.data?.pointsAwarded).toBe(50);
   });
@@ -207,7 +207,7 @@ describe("savePreferencesAction", () => {
     });
 
     expect(result.success).toBe(true);
-    expect(mockAwardBadge).toHaveBeenCalledWith(USER_ID, "identity_explorer");
+    expect(mockAwardBadge).toHaveBeenCalledWith(USER_ID, "detalhista");
     // Only 5 points for new category, no badge bonus (already owned)
     expect(result.data?.pointsAwarded).toBe(5);
   });

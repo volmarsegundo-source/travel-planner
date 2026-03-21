@@ -1,23 +1,35 @@
 // ─── Atlas Gamification Types ───────────────────────────────────────────────
 
 export type Rank =
-  | "traveler"
-  | "explorer"
-  | "navigator"
-  | "cartographer"
-  | "pathfinder"
-  | "ambassador";
+  | "novato"
+  | "desbravador"
+  | "navegador"
+  | "capitao"
+  | "aventureiro"
+  | "lendario";
 
 export type BadgeKey =
-  | "first_step"
-  | "navigator"
-  | "host"
-  | "logistics_master"
-  | "cartographer"
-  | "treasurer"
-  | "pathfinder"
-  | "ambassador"
-  | "identity_explorer";
+  // Explorador (4)
+  | "primeira_viagem"
+  | "viajante_frequente"
+  | "globetrotter"
+  | "marco_polo"
+  // Perfeccionista (4)
+  | "detalhista"
+  | "planejador_nato"
+  | "zero_pendencias"
+  | "revisor"
+  // Aventureiro (5)
+  | "sem_fronteiras"
+  | "em_familia"
+  | "solo_explorer"
+  | "poliglota"
+  | "multicontinental"
+  // Veterano (4)
+  | "fiel"
+  | "maratonista"
+  | "fundador"
+  | "aniversario";
 
 export type PhaseStatus = "locked" | "active" | "completed";
 export type PhaseNumber = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
@@ -86,13 +98,13 @@ export interface SpendResult {
 }
 
 export const AI_COSTS: Record<AiSpendType, number> = {
-  ai_itinerary: 150,
-  ai_route: 100,
-  ai_accommodation: 100,
-  ai_regenerate: 80,
+  ai_itinerary: 80,
+  ai_route: 30,
+  ai_accommodation: 50,
+  ai_regenerate: 0,
 };
 
-export const WELCOME_BONUS = 500;
+export const WELCOME_BONUS = 180;
 
 export const EARNING_AMOUNTS = {
   daily_login: 10,

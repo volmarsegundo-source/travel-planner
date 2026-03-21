@@ -77,9 +77,9 @@ function makeProgress(overrides: Record<string, unknown> = {}) {
   return {
     id: "progress-1",
     userId: USER_ID,
-    totalPoints: 500,
-    availablePoints: 500,
-    currentRank: "traveler",
+    totalPoints: WELCOME_BONUS,
+    availablePoints: WELCOME_BONUS,
+    currentRank: "novato",
     streakDays: 0,
     lastLoginDate: null as Date | null,
     createdAt: new Date("2026-01-01"),
@@ -92,7 +92,7 @@ function makeTransaction(overrides: Record<string, unknown> = {}) {
   return {
     id: "tx-1",
     userId: USER_ID,
-    amount: 500,
+    amount: WELCOME_BONUS,
     type: "purchase",
     description: "Welcome bonus",
     tripId: null as string | null,
@@ -105,7 +105,7 @@ function makeBadge(overrides: Record<string, unknown> = {}) {
   return {
     id: "badge-1",
     userId: USER_ID,
-    badgeKey: "first_step",
+    badgeKey: "primeira_viagem",
     earnedAt: new Date("2026-01-15"),
     ...overrides,
   };
@@ -120,7 +120,7 @@ beforeEach(() => {
 // ─── initializeProgress ─────────────────────────────────────────────────────
 
 describe("PointsEngine.initializeProgress", () => {
-  it("creates UserProgress with 500 welcome bonus when no existing progress", async () => {
+  it("creates UserProgress with welcome bonus when no existing progress", async () => {
     prismaMock.userProgress.findUnique.mockResolvedValue(null);
     prismaMock.userProgress.create.mockResolvedValue(makeProgress() as never);
     prismaMock.pointTransaction.create.mockResolvedValue(makeTransaction() as never);
@@ -132,7 +132,7 @@ describe("PointsEngine.initializeProgress", () => {
         userId: USER_ID,
         totalPoints: WELCOME_BONUS,
         availablePoints: WELCOME_BONUS,
-        currentRank: "traveler",
+        currentRank: "novato",
       },
     });
   });
@@ -194,7 +194,7 @@ describe("PointsEngine.initializeProgress", () => {
 describe("PointsEngine.getBalance", () => {
   it("returns correct balance when progress exists", async () => {
     prismaMock.userProgress.findUnique.mockResolvedValue(
-      makeProgress({ totalPoints: 1200, availablePoints: 800, currentRank: "explorer" }) as never
+      makeProgress({ totalPoints: 1200, availablePoints: 800, currentRank: "desbravador" }) as never
     );
 
     const result = await PointsEngine.getBalance(USER_ID);
@@ -202,7 +202,7 @@ describe("PointsEngine.getBalance", () => {
     expect(result).toEqual({
       totalPoints: 1200,
       availablePoints: 800,
-      currentRank: "explorer",
+      currentRank: "desbravador",
     });
   });
 
@@ -214,18 +214,18 @@ describe("PointsEngine.getBalance", () => {
     expect(result).toEqual({
       totalPoints: 0,
       availablePoints: 0,
-      currentRank: "traveler",
+      currentRank: "novato",
     });
   });
 
   it("returns currentRank from database", async () => {
     prismaMock.userProgress.findUnique.mockResolvedValue(
-      makeProgress({ currentRank: "cartographer" }) as never
+      makeProgress({ currentRank: "navegador" }) as never
     );
 
     const result = await PointsEngine.getBalance(USER_ID);
 
-    expect(result.currentRank).toBe("cartographer");
+    expect(result.currentRank).toBe("navegador");
   });
 });
 
@@ -238,13 +238,13 @@ describe("PointsEngine.getProgressSummary", () => {
       makeProgress({
         totalPoints: 900,
         availablePoints: 650,
-        currentRank: "navigator",
+        currentRank: "navegador",
         streakDays: 5,
         lastLoginDate: new Date("2026-03-05"),
       }) as never
     );
     prismaMock.userBadge.findMany.mockResolvedValue([
-      makeBadge({ badgeKey: "first_step", earnedAt }),
+      makeBadge({ badgeKey: "primeira_viagem", earnedAt }),
     ] as never);
 
     const result = await PointsEngine.getProgressSummary(USER_ID);
@@ -252,10 +252,10 @@ describe("PointsEngine.getProgressSummary", () => {
     expect(result).toEqual({
       totalPoints: 900,
       availablePoints: 650,
-      currentRank: "navigator",
+      currentRank: "navegador",
       streakDays: 5,
       lastLoginDate: new Date("2026-03-05"),
-      badges: [{ badgeKey: "first_step", earnedAt }],
+      badges: [{ badgeKey: "primeira_viagem", earnedAt }],
     });
   });
 
@@ -268,7 +268,7 @@ describe("PointsEngine.getProgressSummary", () => {
     expect(result).toEqual({
       totalPoints: 0,
       availablePoints: 0,
-      currentRank: "traveler",
+      currentRank: "novato",
       streakDays: 0,
       lastLoginDate: null,
       badges: [],
@@ -289,15 +289,15 @@ describe("PointsEngine.getProgressSummary", () => {
     const earnedAt2 = new Date("2026-02-20");
     prismaMock.userProgress.findUnique.mockResolvedValue(makeProgress() as never);
     prismaMock.userBadge.findMany.mockResolvedValue([
-      makeBadge({ badgeKey: "navigator", earnedAt: earnedAt2 }),
-      makeBadge({ id: "badge-2", badgeKey: "first_step", earnedAt: earnedAt1 }),
+      makeBadge({ badgeKey: "navegador", earnedAt: earnedAt2 }),
+      makeBadge({ id: "badge-2", badgeKey: "primeira_viagem", earnedAt: earnedAt1 }),
     ] as never);
 
     const result = await PointsEngine.getProgressSummary(USER_ID);
 
     expect(result.badges).toEqual([
-      { badgeKey: "navigator", earnedAt: earnedAt2 },
-      { badgeKey: "first_step", earnedAt: earnedAt1 },
+      { badgeKey: "navegador", earnedAt: earnedAt2 },
+      { badgeKey: "primeira_viagem", earnedAt: earnedAt1 },
     ]);
   });
 });
@@ -634,14 +634,14 @@ describe("PointsEngine.recordDailyLogin", () => {
 describe("PointsEngine.updateRank", () => {
   it("updates currentRank in database", async () => {
     prismaMock.userProgress.update.mockResolvedValue(
-      makeProgress({ currentRank: "explorer" }) as never
+      makeProgress({ currentRank: "desbravador" }) as never
     );
 
-    await PointsEngine.updateRank(USER_ID, "explorer");
+    await PointsEngine.updateRank(USER_ID, "desbravador");
 
     expect(prismaMock.userProgress.update).toHaveBeenCalledWith({
       where: { userId: USER_ID },
-      data: { currentRank: "explorer" },
+      data: { currentRank: "desbravador" },
     });
   });
 
@@ -650,13 +650,13 @@ describe("PointsEngine.updateRank", () => {
     txClient.userProgress.update.mockResolvedValue(makeProgress() as never);
 
     await PointsEngine.updateRank(
-      USER_ID, "navigator",
+      USER_ID, "navegador",
       txClient as unknown as Parameters<Parameters<typeof db.$transaction>[0]>[0]
     );
 
     expect(txClient.userProgress.update).toHaveBeenCalledWith({
       where: { userId: USER_ID },
-      data: { currentRank: "navigator" },
+      data: { currentRank: "navegador" },
     });
     expect(prismaMock.userProgress.update).not.toHaveBeenCalled();
   });
@@ -664,11 +664,11 @@ describe("PointsEngine.updateRank", () => {
   it("logs gamification.rankUpdated", async () => {
     prismaMock.userProgress.update.mockResolvedValue(makeProgress() as never);
 
-    await PointsEngine.updateRank(USER_ID, "pathfinder");
+    await PointsEngine.updateRank(USER_ID, "aventureiro");
 
     expect(logger.info).toHaveBeenCalledWith("gamification.rankUpdated", {
       userIdHash: hashUserId(USER_ID),
-      newRank: "pathfinder",
+      newRank: "aventureiro",
     });
   });
 });
@@ -680,18 +680,18 @@ describe("PointsEngine.awardBadge", () => {
     prismaMock.userBadge.findUnique.mockResolvedValue(null);
     prismaMock.userBadge.create.mockResolvedValue(makeBadge() as never);
 
-    const result = await PointsEngine.awardBadge(USER_ID, "first_step");
+    const result = await PointsEngine.awardBadge(USER_ID, "primeira_viagem");
 
     expect(result).toBe(true);
     expect(prismaMock.userBadge.create).toHaveBeenCalledWith({
-      data: { userId: USER_ID, badgeKey: "first_step" },
+      data: { userId: USER_ID, badgeKey: "primeira_viagem" },
     });
   });
 
   it("returns false when badge already exists (idempotent)", async () => {
     prismaMock.userBadge.findUnique.mockResolvedValue(makeBadge() as never);
 
-    const result = await PointsEngine.awardBadge(USER_ID, "first_step");
+    const result = await PointsEngine.awardBadge(USER_ID, "primeira_viagem");
 
     expect(result).toBe(false);
     expect(prismaMock.userBadge.create).not.toHaveBeenCalled();
@@ -703,7 +703,7 @@ describe("PointsEngine.awardBadge", () => {
     txClient.userBadge.create.mockResolvedValue(makeBadge() as never);
 
     const result = await PointsEngine.awardBadge(
-      USER_ID, "navigator",
+      USER_ID, "navegador",
       txClient as unknown as Parameters<Parameters<typeof db.$transaction>[0]>[0]
     );
 
@@ -715,13 +715,13 @@ describe("PointsEngine.awardBadge", () => {
 
   it("logs gamification.badgeAwarded on new badge", async () => {
     prismaMock.userBadge.findUnique.mockResolvedValue(null);
-    prismaMock.userBadge.create.mockResolvedValue(makeBadge({ badgeKey: "treasurer" }) as never);
+    prismaMock.userBadge.create.mockResolvedValue(makeBadge({ badgeKey: "detalhista" }) as never);
 
-    await PointsEngine.awardBadge(USER_ID, "treasurer");
+    await PointsEngine.awardBadge(USER_ID, "detalhista");
 
     expect(logger.info).toHaveBeenCalledWith("gamification.badgeAwarded", {
       userIdHash: hashUserId(USER_ID),
-      badgeKey: "treasurer",
+      badgeKey: "detalhista",
     });
   });
 });

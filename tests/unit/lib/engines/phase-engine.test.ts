@@ -366,7 +366,7 @@ describe("PhaseEngine.completePhase", () => {
     expect(result).toEqual({
       phaseNumber: 1,
       pointsEarned: 100,
-      badgeAwarded: "first_step",
+      badgeAwarded: null,
       newRank: null,
       nextPhaseUnlocked: 2,
     });
@@ -396,7 +396,7 @@ describe("PhaseEngine.completePhase", () => {
     );
   });
 
-  it("awards badge when phase definition has badgeKey", async () => {
+  it("does not award badge when phase definition has no badgeKey (phase 1)", async () => {
     const trip = createMockTrip({ currentPhase: 1 });
     const phase = createMockPhase(1, "active");
     setupTransactionMock();
@@ -410,12 +410,8 @@ describe("PhaseEngine.completePhase", () => {
       1
     );
 
-    expect(PointsEngine.awardBadge).toHaveBeenCalledWith(
-      TEST_USER_ID,
-      "first_step",
-      expect.anything() // tx
-    );
-    expect(result.badgeAwarded).toBe("first_step");
+    expect(PointsEngine.awardBadge).not.toHaveBeenCalled();
+    expect(result.badgeAwarded).toBeNull();
   });
 
   it("does not award badge when phase definition has no badgeKey (phase 2)", async () => {
@@ -436,7 +432,7 @@ describe("PhaseEngine.completePhase", () => {
     expect(result.badgeAwarded).toBeNull();
   });
 
-  it("updates rank when phase definition has rankPromotion (phase 2 -> explorer)", async () => {
+  it("updates rank when phase definition has rankPromotion (phase 2 -> desbravador)", async () => {
     const trip = createMockTrip({ currentPhase: 2 });
     const phase = createMockPhase(2, "active");
     setupTransactionMock();
@@ -452,10 +448,10 @@ describe("PhaseEngine.completePhase", () => {
 
     expect(PointsEngine.updateRank).toHaveBeenCalledWith(
       TEST_USER_ID,
-      "explorer",
+      "desbravador",
       expect.anything() // tx
     );
-    expect(result.newRank).toBe("explorer");
+    expect(result.newRank).toBe("desbravador");
   });
 
   it("does not update rank when phase definition has no rankPromotion (phase 1)", async () => {
@@ -519,7 +515,7 @@ describe("PhaseEngine.completePhase", () => {
 
     expect(result.nextPhaseUnlocked).toBeNull();
     expect(result.pointsEarned).toBe(500);
-    expect(result.badgeAwarded).toBe("ambassador");
+    expect(result.badgeAwarded).toBeNull();
 
     // The update calls: 1 for marking completed. No second update for next phase.
     // Trip update still happens via mockTx.trip.update.
@@ -879,7 +875,7 @@ describe("PhaseEngine.resetExpedition", () => {
 // ─── useAiInPhase ─────────────────────────────────────────────────────────────
 
 describe("PhaseEngine.useAiInPhase", () => {
-  it("spends points for a phase with AI cost (phase 3, cost=100)", async () => {
+  it("spends points for a phase with AI cost (phase 3, cost=30)", async () => {
     const trip = createMockTrip();
     const activePhase = createMockPhase(3, "active");
 
@@ -896,7 +892,7 @@ describe("PhaseEngine.useAiInPhase", () => {
 
     expect(PointsEngine.spendPoints).toHaveBeenCalledWith(
       TEST_USER_ID,
-      100, // Phase 3 aiCost
+      30, // Phase 3 aiCost
       "ai_usage",
       "AI usage in phase 3: O Preparo (ai_route)",
       TEST_TRIP_ID
@@ -952,27 +948,22 @@ describe("PhaseEngine.useAiInPhase", () => {
     ).rejects.toThrow(ForbiddenError);
   });
 
-  it("spends correct AI cost for phase 4 (cost=100, ai_accommodation)", async () => {
+  it("throws AI_NOT_AVAILABLE for phase 4 (no AI cost)", async () => {
     const trip = createMockTrip();
-    const activePhase = createMockPhase(4, "active");
-
     prismaMock.trip.findFirst.mockResolvedValue(trip as never);
-    prismaMock.expeditionPhase.findUnique.mockResolvedValue(
-      activePhase as never
-    );
 
-    await PhaseEngine.useAiInPhase(TEST_TRIP_ID, TEST_USER_ID, 4);
+    await expect(
+      PhaseEngine.useAiInPhase(TEST_TRIP_ID, TEST_USER_ID, 4)
+    ).rejects.toThrow(AppError);
 
-    expect(PointsEngine.spendPoints).toHaveBeenCalledWith(
-      TEST_USER_ID,
-      100,
-      "ai_usage",
-      "AI usage in phase 4: A Logística (ai_accommodation)",
-      TEST_TRIP_ID
-    );
+    try {
+      await PhaseEngine.useAiInPhase(TEST_TRIP_ID, TEST_USER_ID, 4);
+    } catch (err) {
+      expect((err as AppError).code).toBe("AI_NOT_AVAILABLE");
+    }
   });
 
-  it("spends correct AI cost for phase 5 (cost=150, ai_itinerary)", async () => {
+  it("spends correct AI cost for phase 5 (cost=50, ai_accommodation)", async () => {
     const trip = createMockTrip();
     const activePhase = createMockPhase(5, "active");
 
@@ -985,9 +976,29 @@ describe("PhaseEngine.useAiInPhase", () => {
 
     expect(PointsEngine.spendPoints).toHaveBeenCalledWith(
       TEST_USER_ID,
-      150,
+      50,
       "ai_usage",
-      "AI usage in phase 5: Guia do Destino (ai_itinerary)",
+      "AI usage in phase 5: Guia do Destino (ai_accommodation)",
+      TEST_TRIP_ID
+    );
+  });
+
+  it("spends correct AI cost for phase 6 (cost=80, ai_itinerary)", async () => {
+    const trip = createMockTrip();
+    const activePhase = createMockPhase(6, "active");
+
+    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
+    prismaMock.expeditionPhase.findUnique.mockResolvedValue(
+      activePhase as never
+    );
+
+    await PhaseEngine.useAiInPhase(TEST_TRIP_ID, TEST_USER_ID, 6);
+
+    expect(PointsEngine.spendPoints).toHaveBeenCalledWith(
+      TEST_USER_ID,
+      80,
+      "ai_usage",
+      "AI usage in phase 6: O Roteiro (ai_itinerary)",
       TEST_TRIP_ID
     );
   });
@@ -1032,7 +1043,7 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
 
     expect(result.phaseNumber).toBe(3);
     expect(result.pointsEarned).toBe(75);
-    expect(result.badgeAwarded).toBe("navigator");
+    expect(result.badgeAwarded).toBeNull();
   });
 
   it("throws PHASE_PREREQUISITES_NOT_MET for phase 4 when CINH unresolved for international", async () => {
@@ -1160,7 +1171,7 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
 
     expect(result.phaseNumber).toBe(5);
     expect(result.pointsEarned).toBe(40);
-    expect(result.newRank).toBe("cartographer");
+    expect(result.newRank).toBe("capitao");
   });
 });
 
@@ -1340,7 +1351,7 @@ describe("PhaseEngine.completePhase — non-blocking retroactive completion", ()
 
     expect(result.phaseNumber).toBe(3);
     expect(result.pointsEarned).toBe(75);
-    expect(result.badgeAwarded).toBe("navigator");
+    expect(result.badgeAwarded).toBeNull();
   });
 
   it("uses Math.max to avoid regressing currentPhase", async () => {

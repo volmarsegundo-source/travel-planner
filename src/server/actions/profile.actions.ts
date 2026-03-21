@@ -287,15 +287,15 @@ export async function savePreferencesAction(
       (cat) => isCategoryFilled(newPrefs, cat)
     ).length;
 
-    // Award identity_explorer badge when >= 5 categories filled
+    // Award detalhista badge when >= 5 categories filled
     if (totalFilled >= IDENTITY_EXPLORER_THRESHOLD) {
-      const badgeAwarded = await PointsEngine.awardBadge(userId, "identity_explorer");
+      const badgeAwarded = await PointsEngine.awardBadge(userId, "detalhista");
       if (badgeAwarded) {
         await PointsEngine.earnPoints(
           userId,
           IDENTITY_EXPLORER_BONUS,
           "preference_fill",
-          "Badge: identity_explorer"
+          "Badge: detalhista"
         );
         pointsAwarded += IDENTITY_EXPLORER_BONUS;
       }

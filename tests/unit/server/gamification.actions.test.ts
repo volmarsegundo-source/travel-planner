@@ -63,10 +63,10 @@ describe("gamification actions", () => {
       const summary = {
         totalPoints: 600,
         availablePoints: 500,
-        currentRank: "explorer",
+        currentRank: "desbravador",
         streakDays: 3,
         lastLoginDate: null,
-        badges: [{ badgeKey: "first_step", earnedAt: new Date() }],
+        badges: [{ badgeKey: "primeira_viagem", earnedAt: new Date() }],
       };
       mockGetProgressSummary.mockResolvedValue(summary);
 
@@ -75,7 +75,7 @@ describe("gamification actions", () => {
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data?.totalPoints).toBe(600);
-        expect(result.data?.currentRank).toBe("explorer");
+        expect(result.data?.currentRank).toBe("desbravador");
       }
     });
 

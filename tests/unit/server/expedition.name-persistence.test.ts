@@ -126,7 +126,7 @@ const MOCK_PHASE_RESULT = {
   phaseResult: {
     phaseNumber: 1,
     pointsEarned: 100,
-    badgeAwarded: "first_step",
+    badgeAwarded: "primeira_viagem",
     newRank: null,
     nextPhaseUnlocked: 2,
   },

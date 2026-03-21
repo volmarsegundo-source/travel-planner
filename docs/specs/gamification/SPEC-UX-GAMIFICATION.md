@@ -1,6 +1,6 @@
 # SPEC-UX-041: Sistema de Gamificacao — Pontos Atlas (PA) — UX Specification
 
-**Version**: 1.0.0
+**Version**: 1.1.0
 **Status**: Draft
 **Author**: ux-designer
 **Reviewers**: product-owner, tech-lead, architect
@@ -21,20 +21,20 @@ O viajante deve compreender o sistema PA em menos de 60 segundos. Nenhum custo o
 
 | Categoria | Detalhes |
 |---|---|
-| Bonus de boas-vindas | 500 PA |
+| Bonus de boas-vindas | 180 PA |
 | Login diario | 10 PA/dia |
 | Completar checklist | 20 PA |
 | Review de viagem | 500 PA |
 | Indicacao (referral) | 300 PA |
 | Perfil (11 campos) | 25 PA/campo (max 275 PA) |
 | Fases 1-8 rewards | 100, 150, 75, 50, 40, 250, 400, 500 PA (total 1.565/expedicao) |
-| Custo IA: Roteiro (Phase 6) | 150 PA |
-| Custo IA: Rota | 100 PA |
-| Custo IA: Acomodacao | 100 PA |
-| Custo IA: Regenerar | 80 PA |
-| Custo IA total/expedicao | ~350 PA (Phases 3+4+5) |
-| Ranks | Viajante, Explorador, Navegador, Cartografo, Desbravador, Embaixador |
-| Badges | 9 tipos (first_step, navigator, host, logistics_master, cartographer, treasurer, pathfinder, ambassador, identity_explorer) |
+| Custo IA: Checklist (Phase 3) | 30 PA |
+| Custo IA: Guia do Destino (Phase 5) | 50 PA |
+| Custo IA: O Roteiro (Phase 6) | 80 PA |
+| Custo IA: Regenerar | mesmo custo da geracao original |
+| Custo IA total/expedicao | 160 PA (Phases 3+5+6) |
+| Ranks | Novato (0), Desbravador (300), Navegador (700), Capitao (1500), Aventureiro (3500), Lendario (7000) |
+| Badges | 16 tipos em 4 categorias: Explorador (primeira_viagem, viajante_frequente, globetrotter, marco_polo), Perfeccionista (detalhista, planejador_nato, zero_pendencias, revisor), Aventureiro (sem_fronteiras, em_familia, solo_explorer, poliglota, multicontinental), Veterano (fiel, maratonista, fundador, aniversario) |
 
 ---
 
@@ -63,7 +63,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
     |
     v
 [Onboarding Modal — Step 1/3]
-"Bem-vindo ao Atlas! Voce ganhou 500 PA de presente."
+"Bem-vindo ao Atlas! Voce ganhou 180 PA de presente."
     |
     v
 [Onboarding Modal — Step 2/3]
@@ -89,16 +89,16 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
     |
     v
 [Antes do botao "Gerar", exibe cost indicator]
-"Gerar guia custa 150 PA. Voce tem 420 PA."
+"Gerar guia custa 50 PA. Voce tem 420 PA."
     |
     v
 [Usuario clica "Gerar guia"]
     |
     v
 [Modal de Confirmacao de Gasto]
-"Gerar Guia do Destino custara 150 PA."
+"Gerar Guia do Destino custara 50 PA."
 "Saldo atual: 420 PA"
-"Saldo apos: 270 PA"
+"Saldo apos: 370 PA"
 [Botoes: "Gerar" (primary) | "Cancelar" (secondary)]
     |
     +-- [Saldo suficiente] --> [IA processa] --> [Conteudo gerado + toast sucesso]
@@ -117,7 +117,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
     v
 [Modal Empatico — NAO punitivo]
 "Voce nao tem PA suficientes para esta acao."
-"Custo: 150 PA | Seu saldo: 80 PA | Faltam: 70 PA"
+"Custo: 50 PA | Seu saldo: 30 PA | Faltam: 20 PA"
     |
     +-- CTA Primario: "Comprar PA" --> [Pagina de compra]
     |
@@ -188,7 +188,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
   - "Faca login diariamente" — 10 PA/dia
   - "Indique amigos" — 300 PA por indicacao
   - "Escreva reviews" — 500 PA por review
-- Destaque: "Ao se cadastrar, voce ganha 500 PA de presente!"
+- Destaque: "Ao se cadastrar, voce ganha 180 PA de presente!"
 
 **Conteudo — Secao "Use PA"**:
 - Icone: varinha/sparkle
@@ -197,13 +197,13 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 
 | Feature de IA | Custo | Fase |
 |---|---|---|
-| Gerar checklist de viagem | 100 PA | Fase 3 |
-| Gerar recomendacoes de logistica | 100 PA | Fase 4 |
-| Gerar guia do destino | 150 PA | Fase 5 |
-| Regenerar qualquer conteudo | 80 PA | Qualquer |
+| Gerar checklist de viagem | 30 PA | Fase 3 |
+| Gerar guia do destino | 50 PA | Fase 5 |
+| Gerar roteiro completo | 80 PA | Fase 6 |
+| Regenerar qualquer conteudo | mesmo custo da geracao original | Qualquer |
 
-- Nota: "Uma expedicao completa usa aproximadamente 350 PA em IA"
-- Nota: "Completar a mesma expedicao rende 1.565 PA — voce sempre ganha mais do que gasta"
+- Nota: "Uma expedicao completa usa 160 PA em IA"
+- Nota: "Completar a mesma expedicao rende 1.565 PA — voce ganha muito mais do que gasta (160 PA)"
 
 **Conteudo — Secao "Compre PA"**:
 - Icone: sacola/carteira
@@ -215,7 +215,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 **Conteudo — FAQ**:
 - "PA expiram?" — "Nao. Seus Pontos Atlas nunca expiram."
 - "Posso usar o app sem PA?" — "Sim! Todas as funcoes manuais sao gratuitas. PA so sao necessarios para gerar conteudo com IA."
-- "Quanto PA ganho por expedicao?" — "Ate 1.565 PA completando todas as 8 fases."
+- "Quanto PA ganho por expedicao?" — "Ate 1.565 PA completando todas as 8 fases. O custo total de IA e 160 PA — voce sempre ganha mais do que gasta."
 - "Posso transferir PA?" — "Nao. PA sao pessoais e intransferiveis."
 - "Onde vejo meu saldo?" — "Seu saldo aparece no topo de cada pagina, ao lado do seu rank."
 
@@ -236,7 +236,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 
 ### 4.2 Tooltips Contextuais nos Pontos de Gasto de IA
 
-**Proposito**: Antes de cada botao "Gerar" nas fases 3, 5 e 6, informar o custo exato e o saldo atual.
+**Proposito**: Antes de cada botao "Gerar" nas fases 3 (30 PA), 5 (50 PA) e 6 (80 PA), informar o custo exato e o saldo atual.
 
 **Layout**:
 - Inline, imediatamente acima ou ao lado do botao "Gerar"
@@ -247,7 +247,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 
 **Interacao**:
 - Icone de info: hover/focus revela tooltip com detalhes expandidos
-- Tooltip conteudo: "Apos gerar, seu saldo sera Y-X PA. Voce tambem pode regenerar por 80 PA."
+- Tooltip conteudo: "Apos gerar, seu saldo sera Y-X PA. Regenerar custara o mesmo valor."
 - Tooltip fecha: ao mover mouse/desfocalizar, apos 300ms delay (evita flicker)
 - Mobile: tap no icone abre tooltip, tap fora fecha
 
@@ -272,10 +272,10 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 **Calculo**:
 - Soma os `aiCost` das fases que o usuario AINDA NAO completou
 - Se todas as fases com custo de IA ja foram completadas: nao exibir (ou "IA concluida")
-- Exemplo: usuario completou fases 1-3 (custo IA de fase 3 ja pago). Fases 4 (100 PA) e 5 (150 PA) pendentes. Exibe: "~250 PA para features de IA restantes"
+- Exemplo: usuario completou fases 1-3 (custo IA de fase 3 ja pago). Fases 5 (50 PA) e 6 (80 PA) pendentes. Exibe: "~130 PA para features de IA restantes"
 
 **Edge cases**:
-- Nova expedicao (nenhuma fase completa): "~350 PA para features de IA"
+- Nova expedicao (nenhuma fase completa): "~160 PA para features de IA"
 - Expedicao completa: nao exibir indicador
 - Saldo insuficiente para o total: adicionar nota sutil "(voce tem Y PA)"
 
@@ -370,19 +370,19 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 **Step 1: "Bem-vindo ao Atlas!"**
 - Ilustracao: moeda dourada com brilho (inline SVG, nao externo)
 - Titulo: "Bem-vindo ao Atlas!"
-- Subtitulo: "Voce ganhou 500 Pontos Atlas de presente para comecar sua jornada."
-- Exibe saldo: "500 PA" em destaque (fonte grande, cor dourada)
+- Subtitulo: "Voce ganhou 180 Pontos Atlas de presente para comecar sua jornada."
+- Exibe saldo: "180 PA" em destaque (fonte grande, cor dourada)
 - CTA: "Proximo" (primary)
 
 **Step 2: "Use PA em Features de IA"**
 - Ilustracao: varinha com sparkles
 - Titulo: "Crie conteudo com Inteligencia Artificial"
 - Mini-tabela simplificada:
-  - Checklist: 100 PA
-  - Guia: 150 PA
-  - Roteiro: 150 PA
-  - Regenerar: 80 PA
-- Texto: "Uma expedicao completa usa ~350 PA em IA"
+  - Checklist: 30 PA
+  - Guia: 50 PA
+  - Roteiro: 80 PA
+  - Regenerar: mesmo custo da geracao original
+- Texto: "Uma expedicao completa usa 160 PA em IA"
 - CTA: "Proximo" (primary)
 
 **Step 3: "Ganhe mais PA!"**
@@ -596,7 +596,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 - Reduced motion: instant appear/disappear
 
 ### Feedback de sucesso apos gasto de PA
-- Toast: "Guia gerado com sucesso! -150 PA" (auto-dismiss 4s)
+- Toast: "Guia gerado com sucesso! -50 PA" (auto-dismiss 4s)
 - Header badge atualiza saldo imediatamente
 
 ### Feedback de ganho de PA
@@ -692,7 +692,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 | `pa.badges.locked` | Complete {requirement} para desbloquear | Complete {requirement} to unlock |
 | `pa.badges.earnedOn` | Conquistado em {date} | Earned on {date} |
 | `pa.onboarding.step1.title` | Bem-vindo ao Atlas! | Welcome to Atlas! |
-| `pa.onboarding.step1.body` | Voce ganhou 500 Pontos Atlas de presente para comecar sua jornada. | You've received 500 Atlas Points as a welcome gift to start your journey. |
+| `pa.onboarding.step1.body` | Voce ganhou 180 Pontos Atlas de presente para comecar sua jornada. | You've received 180 Atlas Points as a welcome gift to start your journey. |
 | `pa.onboarding.step2.title` | Crie conteudo com Inteligencia Artificial | Create content with Artificial Intelligence |
 | `pa.onboarding.step3.title` | Complete fases e ganhe mais PA! | Complete phases and earn more PA! |
 | `pa.onboarding.skip` | Pular | Skip |
@@ -790,7 +790,7 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 ### Transparencia e Compreensao
 
 - [ ] **AC-01**: A pagina /como-funciona exibe as 3 secoes (Ganhe, Use, Compre) com tabela de custos de IA, e um usuario de teste consegue descrever o sistema PA corretamente em menos de 60 segundos apos ler a pagina.
-- [ ] **AC-02**: Antes de cada botao "Gerar" nas fases 3, 4 e 5, o custo em PA e exibido inline junto ao saldo atual do usuario.
+- [ ] **AC-02**: Antes de cada botao "Gerar" nas fases 3, 5 e 6, o custo em PA e exibido inline junto ao saldo atual do usuario.
 - [ ] **AC-03**: A pagina /como-funciona e acessivel sem login (pagina publica).
 
 ### Gasto de PA
@@ -808,12 +808,12 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 
 ### Onboarding e Celebracao
 
-- [ ] **AC-11**: O tutorial de 3 steps e exibido na primeira visita ao dashboard apos registro, com opcao de pular a qualquer momento. Nao e exibido novamente apos conclusao ou skip.
+- [ ] **AC-11**: O tutorial de 3 steps (incluindo bonus de 180 PA) e exibido na primeira visita ao dashboard apos registro, com opcao de pular a qualquer momento. Nao e exibido novamente apos conclusao ou skip.
 - [ ] **AC-12**: Ao subir de rank, um toast de celebracao e exibido por 5 segundos com animacao de confetti (que respeita `prefers-reduced-motion`).
 
 ### Badges
 
-- [ ] **AC-13**: A grid de badges em /atlas exibe badges desbloqueados (coloridos, com data) e bloqueados (cinza, com icone de cadeado e descricao de como desbloquear).
+- [ ] **AC-13**: A grid de badges em /atlas exibe todos os 16 badges em 4 categorias, com badges desbloqueados (coloridos, com data) e bloqueados (cinza, com icone de cadeado e descricao de como desbloquear).
 - [ ] **AC-14**: Clicar em um badge desbloqueado abre modal de detalhes com nome, descricao e data de conquista.
 
 ### Acessibilidade
@@ -841,3 +841,4 @@ Compreender o sistema de Pontos Atlas — como ganhar, como gastar, quanto custa
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-03-21 | ux-designer | Draft inicial — 11 componentes/telas, 21 criterios de aceite, sistema PA completo |
+| 1.1.0 | 2026-03-21 | dev-fullstack-1 | Correcao valores: AI costs (30/50/80 PA), welcome bonus 180 PA, 16 badges em 4 categorias, ranks RPG, regeneracao = custo original, fases AI = 3/5/6 |

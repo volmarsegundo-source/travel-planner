@@ -33,7 +33,7 @@ export class PointsEngine {
         userId,
         totalPoints: WELCOME_BONUS,
         availablePoints: WELCOME_BONUS,
-        currentRank: "traveler",
+        currentRank: "novato",
       },
     });
 
@@ -61,7 +61,7 @@ export class PointsEngine {
       return {
         totalPoints: 0,
         availablePoints: 0,
-        currentRank: "traveler" as Rank,
+        currentRank: "novato" as Rank,
       };
     }
 
@@ -87,7 +87,7 @@ export class PointsEngine {
     return {
       totalPoints: progress?.totalPoints ?? 0,
       availablePoints: progress?.availablePoints ?? 0,
-      currentRank: (progress?.currentRank ?? "traveler") as Rank,
+      currentRank: (progress?.currentRank ?? "novato") as Rank,
       streakDays: progress?.streakDays ?? 0,
       lastLoginDate: progress?.lastLoginDate ?? null,
       badges: badges.map((b) => ({

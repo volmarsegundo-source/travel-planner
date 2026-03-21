@@ -459,15 +459,23 @@
     "badges": {
       "title": "Carimbos do Passaporte",
       "locked": "Bloqueado",
-      "firstStep": "Primeiro Passo",
-      "navigator": "Navegador",
-      "host": "Anfitrião",
-      "logisticsMaster": "Mestre da Logística",
-      "identityExplorer": "Explorador de Identidade",
-      "cartographer": "Cartógrafo",
-      "treasurer": "Tesoureiro",
-      "pathfinder": "Desbravador",
-      "ambassador": "Embaixador"
+      "primeiraViagem": "Primeira Viagem",
+      "viajanteFrequente": "Viajante Frequente",
+      "globetrotter": "Globetrotter",
+      "marcoPolo": "Marco Polo",
+      "detalhista": "Detalhista",
+      "planejadorNato": "Planejador Nato",
+      "zeroPendencias": "Zero Pendências",
+      "revisor": "Revisor",
+      "semFronteiras": "Sem Fronteiras",
+      "emFamilia": "Em Família",
+      "soloExplorer": "Solo Explorer",
+      "poliglota": "Poliglota",
+      "multicontinental": "Multicontinental",
+      "fiel": "Fiel",
+      "maratonista": "Maratonista",
+      "fundador": "Fundador",
+      "aniversario": "Aniversário"
     },
     "stats": {
       "expeditions": "Expedições",
@@ -1023,12 +1031,12 @@
   },
   "gamification": {
     "ranks": {
-      "traveler": "Viajante",
-      "explorer": "Explorador",
-      "navigator": "Navegador",
-      "cartographer": "Cartógrafo",
-      "pathfinder": "Desbravador",
-      "ambassador": "Embaixador"
+      "novato": "Novato",
+      "desbravador": "Desbravador",
+      "navegador": "Navegador",
+      "capitao": "Capitão",
+      "aventureiro": "Aventureiro",
+      "lendario": "Lendário"
     },
     "phases": {
       "theCalling": "O Chamado",

@@ -1,7 +1,7 @@
 # SPEC-PROD-GAMIFICATION — Sistema de Gamificacao Atlas PA
 
 **ID**: SPEC-PROD-GAMIFICATION
-**Versao**: 1.0.0
+**Versao**: 1.1.0
 **Data**: 2026-03-21
 **Autor**: product-owner
 **Status**: APROVADO
@@ -20,7 +20,7 @@ Esta spec define os requisitos de produto para expor o sistema PA ao usuario fin
 
 1. O backend (PointsEngine, PhaseEngine) esta implementado e funcionando.
 2. Os valores de PA (custos, ganhos) estao fixados em `gamification.types.ts` e `phase-config.ts`.
-3. O WELCOME_BONUS atual e 500 PA (verificado em codigo).
+3. O WELCOME_BONUS atual e 180 PA (verificado em codigo).
 4. Fases 7 e 8 nao estao ativas no MVP e nao devem aparecer no fluxo principal.
 
 ---
@@ -97,11 +97,10 @@ Antes de qualquer debito de PA, o usuario deve confirmar explicitamente a acao. 
 
 #### Features de IA que requerem confirmacao (Wave 1)
 
-- Gerar checklist de documentos (Fase 3) — 100 PA
-- Gerar sugestoes de logistica (Fase 4) — 100 PA
-- Gerar guia de destino (Fase 5) — 150 PA
-- Gerar roteiro completo (Fase 6) — 150 PA
-- Regenerar qualquer output de IA — 80 PA
+- Gerar checklist de documentos (Fase 3) — 30 PA
+- Gerar guia de destino (Fase 5) — 50 PA
+- Gerar roteiro completo (Fase 6) — 80 PA
+- Regenerar qualquer output de IA — mesmo custo da geracao original
 
 #### Fora de Escopo — REQ-GAMI-002
 
@@ -153,8 +152,8 @@ Um modal de 3 passos exibido uma unica vez no primeiro login apos o registro, ap
 #### Criterios de Aceite — REQ-GAMI-005
 
 - [ ] **AC-024**: Dado que o usuario completou o registro e faz o primeiro login, quando acessa a aplicacao pela primeira vez, entao o modal de boas-vindas PA e exibido automaticamente.
-- [ ] **AC-025**: Dado que o modal de boas-vindas e exibido, quando o usuario o visualiza, entao o modal tem 3 passos: (1) apresentacao do Atlas, (2) bonus de 500 PA recebido, (3) formas de ganhar mais PA.
-- [ ] **AC-026**: Dado que o usuario esta no passo 2 do tutorial, quando o visualiza, entao o saldo de 500 PA e exibido de forma proeminente com mensagem celebratoria.
+- [ ] **AC-025**: Dado que o modal de boas-vindas e exibido, quando o usuario o visualiza, entao o modal tem 3 passos: (1) apresentacao do Atlas, (2) bonus de 180 PA recebido, (3) formas de ganhar mais PA.
+- [ ] **AC-026**: Dado que o usuario esta no passo 2 do tutorial, quando o visualiza, entao o saldo de 180 PA e exibido de forma proeminente com mensagem celebratoria.
 - [ ] **AC-027**: Dado que o usuario completa o passo 3, quando clica em "Comecar minha expedicao", entao o modal e fechado e o usuario e direcionado para criar sua primeira expedicao.
 - [ ] **AC-028**: Dado que o modal foi exibido e dispensado, quando o usuario faz logout e login novamente, entao o modal NAO e reexibido.
 - [ ] **AC-029**: Dado que o usuario esta no modal, quando pressiona Escape ou clica fora, entao o modal NAO e fechado (o tutorial deve ser completado pelo menos ate o passo 3 para ser marcado como visto).
@@ -172,10 +171,10 @@ Exibicao visual de todos os badges conquistados e nao conquistados, com progress
 
 #### Criterios de Aceite — REQ-GAMI-006
 
-- [ ] **AC-030**: Dado que o usuario acessa "Meu Atlas", quando visualiza a secao de badges, entao todos os 9 badges definidos em `BadgeKey` sao exibidos (exceto `host` que e legado e nao deve aparecer na UI).
+- [ ] **AC-030**: Dado que o usuario acessa "Meu Atlas", quando visualiza a secao de badges, entao todos os 16 badges definidos em `BadgeKey` sao exibidos em 4 categorias (Explorador, Perfeccionista, Aventureiro, Veterano).
 - [ ] **AC-031**: Dado que um badge foi conquistado, quando exibido na grade, entao e mostrado com visual "desbloqueado" (imagem colorida + data de conquista).
 - [ ] **AC-032**: Dado que um badge nao foi conquistado, quando exibido na grade, entao e mostrado com visual "bloqueado" (imagem em escala de cinza) e uma descricao do que e necessario para desbloquear.
-- [ ] **AC-033**: Dado que o usuario tem o badge `identity_explorer` disponivel mas nao conquistado, quando o visualiza, entao o badge mostra progresso atual (ex: "3 de 5 categorias preenchidas").
+- [ ] **AC-033**: Dado que o usuario tem o badge `detalhista` disponivel mas nao conquistado, quando o visualiza, entao o badge mostra progresso atual (ex: "3 de 5 categorias preenchidas").
 
 ---
 
@@ -350,7 +349,7 @@ Wave 3 (Sprint 37+) — Prerequisitos:
 | Usuarios que usam pelo menos 1 feature de IA | >= 60% | 30 dias apos Wave 1 |
 | Abandono no modal de confirmacao de PA | <= 20% | 30 dias apos Wave 1 |
 | Conversao de saldo insuficiente -> compra de PA | >= 5% | 30 dias apos Wave 3 |
-| Usuarios que chegam ao rank Explorer | >= 40% | 60 dias apos Wave 1 |
+| Usuarios que chegam ao rank Desbravador | >= 40% | 60 dias apos Wave 1 |
 | NPS relacionado a transparencia do sistema PA | >= 7/10 | 60 dias apos Wave 1 |
 
 ---
@@ -360,3 +359,4 @@ Wave 3 (Sprint 37+) — Prerequisitos:
 | Versao | Data | Autor | Descricao |
 |---|---|---|---|
 | 1.0.0 | 2026-03-21 | product-owner | Spec inicial — 3 waves, 57 ACs |
+| 1.1.0 | 2026-03-21 | dev-fullstack-1 | Correcao valores: AI costs (30/50/80 PA), welcome bonus 180 PA, 16 badges, ranks RPG, regeneracao = custo original |

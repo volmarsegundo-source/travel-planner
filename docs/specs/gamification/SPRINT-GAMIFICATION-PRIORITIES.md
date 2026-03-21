@@ -1,6 +1,6 @@
 # Gamificacao Atlas PA — Prioridades e Plano de Waves
 
-**Versao**: 1.0.0
+**Versao**: 1.1.0
 **Data**: 2026-03-21
 **Autor**: product-owner
 **Status**: APROVADO PARA PLANEJAMENTO
@@ -25,7 +25,7 @@ O plano e entregar a gamificacao em 3 waves progressivas: MVP visivel (Sprint 35
 |---|---|---|
 | PointsEngine (earn/spend/balance/history) | Completo | `src/lib/engines/points-engine.ts` |
 | PhaseEngine (phase completion + rank + badge) | Completo | `src/lib/engines/phase-engine.ts` |
-| WELCOME_BONUS (500 PA) | Implementado | `src/types/gamification.types.ts` |
+| WELCOME_BONUS (180 PA) | Implementado | `src/types/gamification.types.ts` |
 | AI_COSTS (4 tipos) | Implementado | `src/types/gamification.types.ts` |
 | EARNING_AMOUNTS (login, checklist, referral, review) | Implementado | `src/types/gamification.types.ts` |
 | PROFILE_FIELD_POINTS (25 PA por campo) | Implementado | `src/types/gamification.types.ts` |
@@ -59,7 +59,7 @@ Apos a Wave 1, qualquer usuario que abrir o Atlas deve:
 
 | Item | Spec | Esforco | Razao |
 |---|---|---|---|
-| Saldo PA no header | REQ-GAMI-001 | 6h | Sem isso, o sistema PA e invisivel — usuario nao sabe que tem 500 PA |
+| Saldo PA no header | REQ-GAMI-001 | 6h | Sem isso, o sistema PA e invisivel — usuario nao sabe que tem 180 PA |
 | Modal de confirmacao antes do gasto | REQ-GAMI-002 | 8h | Sem isso, PA e debitado silenciosamente — viola o principio de consentimento |
 | Fluxo de saldo insuficiente | REQ-GAMI-003 | 6h | Sem isso, o usuario ve um erro enigmatico quando a IA falha por falta de PA |
 
@@ -67,7 +67,7 @@ Apos a Wave 1, qualquer usuario que abrir o Atlas deve:
 
 | Item | Spec | Esforco | Razao |
 |---|---|---|---|
-| Tutorial de boas-vindas (3 passos) | REQ-GAMI-005 | 6h | Sem onboarding, usuarios novos nao entendem o que e PA nem que tem 500 |
+| Tutorial de boas-vindas (3 passos) | REQ-GAMI-005 | 6h | Sem onboarding, usuarios novos nao entendem o que e PA nem que tem 180 |
 | Pagina "Como Funciona o PA" | REQ-GAMI-004 | 4h | Transparencia legal e de produto — referenciada em todos os outros flows |
 
 #### P2 — Desejavel na Wave 1
@@ -139,8 +139,8 @@ Apos a Wave 2, o usuario deve:
 
 ### Criterios de GO/NO-GO para Wave 2
 
-- [ ] Grade de badges exibindo todos os 8 badges ativos (excluindo `host` legado)
-- [ ] Badge `identity_explorer` com progresso numerico correto
+- [ ] Grade de badges exibindo todos os 16 badges em 4 categorias (Explorador, Perfeccionista, Aventureiro, Veterano)
+- [ ] Badge `detalhista` com progresso numerico correto
 - [ ] Toast de conquista exibido em <= 500ms apos o evento
 - [ ] Historico paginado com descricoes legivel em linguagem natural
 - [ ] Animacoes respeitam `prefers-reduced-motion`
@@ -267,14 +267,14 @@ Apos a Wave 2, o usuario deve:
 |---|---|---|
 | % de usuarios que acessaram "Meu Atlas" badges | >= 40% dos ativos | Analytics |
 | % de usuarios com pelo menos 1 badge | >= 70% dos ativos | DB query |
-| Usuarios que atingiram rank Explorer | >= 40% apos 30 dias | DB query |
+| Usuarios que atingiram rank Desbravador | >= 40% apos 30 dias | DB query |
 
 ### Wave 3 — Metricas de Monetizacao
 
 | Metrica | Target | Ferramenta |
 |---|---|---|
 | Conversao insuficiente -> compra | >= 5% | Analytics |
-| Ticket medio por compra | >= R$ 29,90 (pacote Navegador) | Payment analytics |
+| Ticket medio por compra | >= R$ 29,90 (pacote Navegador — 1.200 PA) | Payment analytics |
 | Churn de usuarios pagantes | <= 20% mensal | Analytics |
 
 ---
@@ -283,7 +283,7 @@ Apos a Wave 2, o usuario deve:
 
 | Risco | Probabilidade | Impacto | Mitigacao |
 |---|---|---|---|
-| WELCOME_BONUS de 500 PA e muito generoso — usuario nunca compra PA | Media | Alto | Monitorar taxa de conversao apos Wave 3. Se > 90% dos usuarios nunca ficam com saldo negativo, revisar o bonus (com aviso previo de 30 dias). |
+| WELCOME_BONUS de 180 PA e suficiente para 1 expedicao mas nao sobra muito — incentiva compra | Baixa | Baixo | Monitorar se usuarios free completam pelo menos 1 expedicao. Se taxa < 50%, considerar aumentar bonus. |
 | Modal de confirmacao gera friccao e reduz uso de IA | Media | Medio | A/B test na Wave 2: testar "nao mostrar novamente por 7 dias" para usuarios com historico de confirmacao. |
 | Anti-fraude do referral e mais complexo que estimado | Alta | Medio | Mover referral para Sprint 38 se necessario. A economia PA funciona sem referral. |
 | Gateway de pagamento nao escolhido antes do Sprint 37 | Media | Alto | Se nao escolhido ate Sprint 36 inicio, adiar Wave 3 para Sprint 38. Nao iniciar integracao sem contrato assinado. |
@@ -295,7 +295,7 @@ Apos a Wave 2, o usuario deve:
 
 Antes de iniciar o Sprint 35, o tech-lead deve:
 
-1. Confirmar que o backend de gamificacao esta 100% funcional em staging (PointsEngine, PhaseEngine, WELCOME_BONUS credito no registro).
+1. Confirmar que o backend de gamificacao esta 100% funcional em staging (PointsEngine, PhaseEngine, WELCOME_BONUS 180 PA credito no registro).
 2. Verificar se o modal system atual (Sprint 34) suporta os modais de confirmacao PA ou se precisa ser extendido.
 3. Consultar o finops-engineer sobre custo do cache de saldo PA no Redis.
 4. Criar tarefas no backlog de desenvolvimento referenciando REQ-GAMI-001 a REQ-GAMI-005.
@@ -307,3 +307,4 @@ Antes de iniciar o Sprint 35, o tech-lead deve:
 | Versao | Data | Autor | Descricao |
 |---|---|---|---|
 | 1.0.0 | 2026-03-21 | product-owner | Documento inicial — 3 waves definidas |
+| 1.1.0 | 2026-03-21 | dev-fullstack-1 | Correcao valores: welcome bonus 180 PA, 16 badges, ranks RPG (Desbravador, etc.), badge detalhista |

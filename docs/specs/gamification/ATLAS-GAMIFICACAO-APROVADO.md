@@ -1,6 +1,6 @@
 # Atlas Gamificacao — Documento Aprovado
 
-**Versao**: 1.0.0
+**Versao**: 1.1.0
 **Data de aprovacao**: 2026-03-21
 **Autor**: product-owner
 **Status**: APROVADO — fonte da verdade para a economia de PA
@@ -30,11 +30,11 @@ Pontos Atlas (PA) e a moeda virtual do Atlas Travel Planner. PA representa o pro
 
 | Constante | Valor |
 |---|---|
-| `WELCOME_BONUS` | 500 PA |
-| `AI_COSTS.ai_itinerary` | 150 PA |
-| `AI_COSTS.ai_route` | 100 PA |
-| `AI_COSTS.ai_accommodation` | 100 PA |
-| `AI_COSTS.ai_regenerate` | 80 PA |
+| `WELCOME_BONUS` | 180 PA |
+| `AI_COSTS.ai_itinerary` (Fase 6 — O Roteiro) | 80 PA |
+| `AI_COSTS.ai_route` (Fase 3 — Checklist) | 30 PA |
+| `AI_COSTS.ai_accommodation` (Fase 5 — Guia do Destino) | 50 PA |
+| `AI_COSTS.ai_regenerate` | 0 PA (regeneracao custa o mesmo que geracao original) |
 | `EARNING_AMOUNTS.daily_login` | 10 PA |
 | `EARNING_AMOUNTS.checklist` | 20 PA |
 | `EARNING_AMOUNTS.review` | 500 PA |
@@ -51,7 +51,7 @@ Pontos Atlas (PA) e a moeda virtual do Atlas Travel Planner. PA representa o pro
 
 | Evento | PA | Tipo de Transacao | Frequencia | Idempotente? |
 |---|---|---|---|---|
-| Bonus de boas-vindas (registro) | 500 | `purchase` | Unico | Sim |
+| Bonus de boas-vindas (registro) | 180 | `purchase` | Unico | Sim |
 | Completar Fase 1 — O Chamado | 100 | `phase_complete` | Por expedicao | Sim (por trip) |
 | Completar Fase 2 — O Explorador | 150 | `phase_complete` | Por expedicao | Sim (por trip) |
 | Completar Fase 3 — O Preparo | 75 | `phase_checklist` | Por expedicao | Sim (por trip) |
@@ -72,14 +72,14 @@ Pontos Atlas (PA) e a moeda virtual do Atlas Travel Planner. PA representa o pro
 
 | Fonte | PA |
 |---|---|
-| Bonus de boas-vindas (unico) | 500 |
+| Bonus de boas-vindas (unico) | 180 |
 | Fases 1-6 completas | 665 |
 | Perfil 100% preenchido (11 campos) | 275 |
 | Preferencias (8 categorias) | 80 |
 | Avaliacao da expedicao | 500 |
-| **Total potencial (primeira expedicao)** | **2020** |
+| **Total potencial (primeira expedicao)** | **1700** |
 
-> Nota sobre o bonus de boas-vindas: os 500 PA de boas-vindas cobrem confortavelmente uma expedicao completa incluindo checklist de documentos (100 PA), guia de logistica (100 PA) e guia de destino (150 PA), totalizando 350 PA de gasto de IA maximo nas fases 1-6.
+> Nota sobre o bonus de boas-vindas: os 180 PA de boas-vindas (50 PA criacao de conta + 100 PA tutorial + 30 PA perfil preenchido) cobrem uma expedicao completa incluindo Checklist (30 PA), Guia do Destino (50 PA) e O Roteiro (80 PA), totalizando 160 PA de gasto de IA maximo nas fases 1-6. Sobram 20 PA.
 
 ### 2.2 Gastar PA
 
@@ -89,17 +89,19 @@ PA e gasto exclusivamente em funcionalidades de IA. Cada gasto requer confirmaca
 
 | Funcionalidade de IA | PA | Tipo de Transacao | Fase |
 |---|---|---|---|
-| Gerar roteiro completo (ai_itinerary) | 150 | `ai_usage` | Fase 6 — O Roteiro |
-| Gerar guia de destino / rotas (ai_route) | 100 | `ai_usage` | Fase 3 — O Preparo (checklist AI) |
-| Gerar sugestoes de acomodacao (ai_accommodation) | 100 | `ai_usage` | Fase 4 — A Logistica |
-| Regenerar qualquer output de IA (ai_regenerate) | 80 | `ai_usage` | Qualquer fase com IA |
+| Gerar Checklist (ai_route) | 30 | `ai_usage` | Fase 3 — O Preparo |
+| Gerar Guia do Destino (ai_accommodation) | 50 | `ai_usage` | Fase 5 — Guia do Destino |
+| Gerar O Roteiro (ai_itinerary) | 80 | `ai_usage` | Fase 6 — O Roteiro |
+| **Total por expedicao** | **160** | | |
+
+> Regeneracao custa o mesmo que a geracao original (30/50/80 PA). Nao existe custo flat separado.
 
 #### Regras de Gasto
 
 1. **Confirmacao obrigatoria**: Modal de confirmacao exibido antes de qualquer debito. O usuario ve o custo e seu saldo atual antes de confirmar.
 2. **Atomicidade**: O debito e a chamada de IA sao atomicos — se a IA falhar, o PA e estornado automaticamente.
 3. **Saldo insuficiente**: Se o usuario nao tem PA suficiente, o botao de IA e desabilitado e um fluxo de saldo insuficiente e exibido (ver Secao 6).
-4. **Sem cobranca dupla**: Regenerar custa 80 PA (nao o custo original da feature). O usuario nao paga o preco cheio para tentar novamente.
+4. **Regeneracao**: Regenerar custa o MESMO que a geracao original (30/50/80 PA conforme a feature). Nao ha desconto nem sobretaxa.
 
 ### 2.3 Comprar PA
 
@@ -132,14 +134,14 @@ O rank e calculado com base no `totalPoints` acumulado (pontos ganhos por ativid
 
 ### 3.1 Tabela de Ranks
 
-| Rank | ID | Threshold (totalPoints) | Promocao Gatilho | Badge Associado |
-|---|---|---|---|---|
-| Viajante | `traveler` | 0 | Registro | — |
-| Explorador | `explorer` | 500 | Conclusao da Fase 2 | — |
-| Navegador | `navigator` | 1.500 | Conclusao da Fase 3 | `navigator` |
-| Cartografo | `cartographer` | 3.000 | Conclusao da Fase 5 | `cartographer` |
-| Desbravador | `pathfinder` | 6.000 | Conclusao da Fase 7 (*) | `pathfinder` |
-| Embaixador | `ambassador` | 10.000 | Conclusao da Fase 8 (*) | `ambassador` |
+| Rank | ID | Threshold (totalPoints) | Promocao Gatilho |
+|---|---|---|---|
+| Novato | `novato` | 0 | Registro |
+| Desbravador | `desbravador` | 300 | Conclusao da Fase 2 |
+| Navegador | `navegador` | 700 | — |
+| Capitao | `capitao` | 1.500 | Conclusao da Fase 5 |
+| Aventureiro | `aventureiro` | 3.500 | Conclusao da Fase 7 (*) |
+| Lendario | `lendario` | 7.000 | — |
 
 (*) Fases 7 e 8 nao ativas no MVP.
 
@@ -153,39 +155,58 @@ O rank e calculado com base no `totalPoints` acumulado (pontos ganhos por ativid
 
 ### 3.3 Ranks vs. Badges
 
-Ranks sao cumulativos e representam a jornada total do usuario. Badges sao conquistas especificas, atreladas a eventos discretos. Um usuario pode ter o rank `navigator` e ainda nao ter o badge `logistics_master` se nao completou a Fase 4.
+Ranks sao cumulativos e representam a jornada total do usuario. Badges sao conquistas especificas, atreladas a eventos discretos. Um usuario pode ter o rank `navegador` e ainda nao ter o badge `detalhista` se nao preencheu todos os campos da Fase 4.
 
 ---
 
 ## 4. Sistema de Badges
 
-### 4.1 Tabela de Badges
+### 4.1 Tabela de Badges (16 badges em 4 categorias)
 
-| BadgeKey | Nome | Gatilho | Fase |
-|---|---|---|---|
-| `first_step` | Primeiro Passo | Completar Fase 1 — O Chamado | Fase 1 |
-| `navigator` | Navegador | Completar Fase 3 — O Preparo | Fase 3 |
-| `host` | Anfitriao | (legado, revisar — badge `host` foi renomeado para `logistics_master`) | — |
-| `logistics_master` | Mestre da Logistica | Completar Fase 4 — A Logistica | Fase 4 |
-| `cartographer` | Cartografo | Atingir rank Cartografo (Fase 5) | Fase 5 |
-| `treasurer` | Tesoureiro | Completar Fase 6 — O Roteiro | Fase 6 |
-| `pathfinder` | Desbravador | Completar Fase 7 — A Expedicao (*) | Fase 7 |
-| `ambassador` | Embaixador | Completar Fase 8 — O Legado (*) | Fase 8 |
-| `identity_explorer` | Explorador de Identidade | Preencher >= 5 categorias de preferencias | Perfil |
+**Explorador (4)**
 
-(*) Fases 7 e 8 nao ativas no MVP.
+| BadgeKey | Nome | Gatilho |
+|---|---|---|
+| `primeira_viagem` | Primeira Viagem | Completar a primeira expedicao |
+| `viajante_frequente` | Viajante Frequente | Completar 3 expedicoes |
+| `globetrotter` | Globetrotter | Completar 5 expedicoes |
+| `marco_polo` | Marco Polo | Completar 10 expedicoes |
+
+**Perfeccionista (4)**
+
+| BadgeKey | Nome | Gatilho |
+|---|---|---|
+| `detalhista` | Detalhista | Preencher todos os campos da Fase 4 em 1 expedicao |
+| `planejador_nato` | Planejador Nato | Completar todas as 6 fases com 100% de dados |
+| `zero_pendencias` | Zero Pendencias | Nenhum item pendente no relatorio de resumo |
+| `revisor` | Revisor | Revisitar e atualizar uma fase ja concluida |
+
+**Aventureiro (5)**
+
+| BadgeKey | Nome | Gatilho |
+|---|---|---|
+| `sem_fronteiras` | Sem Fronteiras | Planejar uma viagem internacional |
+| `em_familia` | Em Familia | Planejar uma viagem em familia com criancas |
+| `solo_explorer` | Solo Explorer | Planejar uma viagem solo |
+| `poliglota` | Poliglota | Usar o app em 2+ idiomas |
+| `multicontinental` | Multicontinental | Planejar viagens para 3+ continentes |
+
+**Veterano (4)**
+
+| BadgeKey | Nome | Gatilho |
+|---|---|---|
+| `fiel` | Fiel | 10+ logins diarios |
+| `maratonista` | Maratonista | Completar 3 expedicoes em 30 dias |
+| `fundador` | Fundador | Registrado durante o periodo beta |
+| `aniversario` | Aniversario | 1 ano desde o registro |
 
 ### 4.2 Regras de Badge
 
-1. Badges sao idempontentes: um badge so pode ser concedido uma vez por usuario.
+1. Badges sao idempotentes: um badge so pode ser concedido uma vez por usuario.
 2. Badges nao expiram.
 3. Badges nao sao transferiveis entre usuarios.
-4. O badge `identity_explorer` e o unico nao vinculado a uma fase especifica — e concedido ao atingir >= 5 categorias de preferencias preenchidas.
+4. Badges sao event-driven (nao vinculados diretamente a fases no phase-config).
 5. Na UI, badges nao conquistados sao exibidos com estado "bloqueado" e indicam o progresso necessario para desbloqueio.
-
-### 4.3 Nota sobre o Badge `host`
-
-O badge `host` existe no enum `BadgeKey` por razoes de compatibilidade com dados historicos. Ele foi renomeado para `logistics_master` na Fase 4 (ADR aplicado no Sprint 21). Novo codigo deve usar `logistics_master`. O badge `host` nao deve ser exibido na UI de conquistas.
 
 ---
 
@@ -200,10 +221,10 @@ Exibido uma unica vez no primeiro login apos o registro. Nao pode ser dispensado
 - Conteudo: Explicacao do conceito de expedicao e fases.
 - CTA: "Proximo"
 
-**Passo 2 — Voce ganhou 500 PA**
+**Passo 2 — Voce ganhou 180 PA**
 - Titulo: "Seu bonus de boas-vindas chegou!"
-- Conteudo: "Voce recebeu 500 Pontos Atlas (PA). Com eles voce pode usar a IA para gerar seu checklist de documentos, guia de destino e roteiro completo — tudo incluso."
-- Visual: exibir saldo 500 PA de forma proeminente.
+- Conteudo: "Voce recebeu 180 Pontos Atlas (PA). Com eles voce pode usar a IA para gerar seu checklist de documentos, guia de destino e roteiro completo — tudo incluso."
+- Visual: exibir saldo 180 PA de forma proeminente.
 - CTA: "Proximo"
 
 **Passo 3 — Como ganhar mais PA**
@@ -213,11 +234,11 @@ Exibido uma unica vez no primeiro login apos o registro. Nao pode ser dispensado
 
 ### 5.2 Primeiro Acesso sem Expedicao
 
-Apos o tutorial, o usuario e direcionado para criar sua primeira expedicao. O saldo PA (500) deve estar visivelmente presente no header desde o primeiro acesso.
+Apos o tutorial, o usuario e direcionado para criar sua primeira expedicao. O saldo PA (180) deve estar visivelmente presente no header desde o primeiro acesso.
 
 ### 5.3 Tooltip de Custo In-Line
 
-Em qualquer botao que gaste PA, exibir um tooltip (ou texto auxiliar) com o custo antes do clique. Exemplo: "Gerar roteiro — 150 PA". Isso evita surpresas no modal de confirmacao.
+Em qualquer botao que gaste PA, exibir um tooltip (ou texto auxiliar) com o custo antes do clique. Exemplo: "Gerar roteiro — 80 PA". Isso evita surpresas no modal de confirmacao.
 
 ---
 
@@ -310,3 +331,4 @@ O saldo e historico de PA sao dados pessoais do usuario. Devem ser incluidos no 
 | Versao | Data | Autor | Descricao |
 |---|---|---|---|
 | 1.0.0 | 2026-03-21 | product-owner | Documento inicial aprovado |
+| 1.1.0 | 2026-03-21 | product-owner | Correcoes PO: welcome bonus 500->180 PA, AI costs 350->160 PA (30/50/80), ranks RPG (novato/desbravador/navegador/capitao/aventureiro/lendario), 16 badges em 4 categorias, regeneracao = custo original |

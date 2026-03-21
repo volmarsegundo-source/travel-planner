@@ -102,7 +102,7 @@ export class ExpeditionService {
         tx
       );
 
-      await PointsEngine.awardBadge(userId, "first_step", tx);
+      await PointsEngine.awardBadge(userId, "primeira_viagem", tx);
 
       // Unlock phase 2
       await tx.expeditionPhase.update({
@@ -123,7 +123,7 @@ export class ExpeditionService {
         phaseResult: {
           phaseNumber: 1 as const,
           pointsEarned: 100,
-          badgeAwarded: "first_step" as const,
+          badgeAwarded: "primeira_viagem" as const,
           newRank: null,
           nextPhaseUnlocked: 2 as const,
         },

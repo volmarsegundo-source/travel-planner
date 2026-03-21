@@ -43,29 +43,23 @@ describe("PHASE_DEFINITIONS", () => {
     expect(paidPhases.map((p) => p.phaseNumber)).toEqual([6, 7, 8]);
   });
 
-  it("assigns AI costs only to phases 3 (100), 4 (100), and 5 (150)", () => {
+  it("assigns AI costs only to phases 3 (30), 5 (50), and 6 (80)", () => {
     const phasesWithAiCost = PHASE_DEFINITIONS.filter((p) => p.aiCost > 0);
 
     expect(phasesWithAiCost).toHaveLength(3);
     expect(phasesWithAiCost.map((p) => ({ phase: p.phaseNumber, cost: p.aiCost }))).toEqual([
-      { phase: 3, cost: 100 },
-      { phase: 4, cost: 100 },
-      { phase: 5, cost: 150 },
+      { phase: 3, cost: 30 },
+      { phase: 5, cost: 50 },
+      { phase: 6, cost: 80 },
     ]);
   });
 
-  it("assigns badge keys to the correct phases", () => {
+  it("assigns no badge keys to any phase (badges are event-driven)", () => {
     const badgeMap = PHASE_DEFINITIONS
       .filter((p) => p.badgeKey !== null)
       .map((p) => ({ phase: p.phaseNumber, badge: p.badgeKey }));
 
-    expect(badgeMap).toEqual([
-      { phase: 1, badge: "first_step" },
-      { phase: 3, badge: "navigator" },
-      { phase: 4, badge: "logistics_master" },
-      { phase: 6, badge: "treasurer" },
-      { phase: 8, badge: "ambassador" },
-    ]);
+    expect(badgeMap).toEqual([]);
   });
 
   it("assigns rank promotions to the correct phases", () => {
@@ -74,9 +68,9 @@ describe("PHASE_DEFINITIONS", () => {
       .map((p) => ({ phase: p.phaseNumber, rank: p.rankPromotion }));
 
     expect(rankMap).toEqual([
-      { phase: 2, rank: "explorer" },
-      { phase: 5, rank: "cartographer" },
-      { phase: 7, rank: "pathfinder" },
+      { phase: 2, rank: "desbravador" },
+      { phase: 5, rank: "capitao" },
+      { phase: 7, rank: "aventureiro" },
     ]);
   });
 });

@@ -576,8 +576,8 @@ export class PhaseEngine {
     // Map phase to AI spend type
     const aiTypeMap: Record<number, AiSpendType> = {
       3: "ai_route",
-      4: "ai_accommodation",
-      5: "ai_itinerary",
+      5: "ai_accommodation",
+      6: "ai_itinerary",
     };
     const aiType = aiTypeMap[phaseNumber] ?? "ai_itinerary";
 

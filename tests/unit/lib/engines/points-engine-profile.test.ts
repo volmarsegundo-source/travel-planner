@@ -53,7 +53,7 @@ function makeProgress(overrides: Record<string, unknown> = {}) {
     userId: USER_ID,
     totalPoints: 500,
     availablePoints: 500,
-    currentRank: "traveler",
+    currentRank: "novato",
     streakDays: 0,
     lastLoginDate: null as Date | null,
     createdAt: new Date("2026-01-01"),

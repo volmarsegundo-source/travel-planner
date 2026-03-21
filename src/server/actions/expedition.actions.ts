@@ -1084,11 +1084,11 @@ export async function completeExpeditionAction(
       tripId
     );
 
-    // Award treasurer badge (expedition completion badge)
+    // Award primeira_viagem badge (first expedition completion)
     let badgeAwarded: string | null = null;
     try {
-      await PointsEngine.awardBadge(session.user.id, "treasurer");
-      badgeAwarded = "treasurer";
+      await PointsEngine.awardBadge(session.user.id, "primeira_viagem");
+      badgeAwarded = "primeira_viagem";
     } catch {
       // Badge may already exist — non-blocking
     }

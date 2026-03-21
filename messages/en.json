@@ -459,15 +459,23 @@
     "badges": {
       "title": "Passport Stamps",
       "locked": "Locked",
-      "firstStep": "First Step",
-      "navigator": "Navigator",
-      "host": "Host",
-      "logisticsMaster": "Logistics Master",
-      "identityExplorer": "Identity Explorer",
-      "cartographer": "Cartographer",
-      "treasurer": "Treasurer",
-      "pathfinder": "Pathfinder",
-      "ambassador": "Ambassador"
+      "primeiraViagem": "First Trip",
+      "viajanteFrequente": "Frequent Traveler",
+      "globetrotter": "Globetrotter",
+      "marcoPolo": "Marco Polo",
+      "detalhista": "Detail-Oriented",
+      "planejadorNato": "Born Planner",
+      "zeroPendencias": "Zero Pending",
+      "revisor": "Reviewer",
+      "semFronteiras": "No Borders",
+      "emFamilia": "Family Trip",
+      "soloExplorer": "Solo Explorer",
+      "poliglota": "Polyglot",
+      "multicontinental": "Multicontinental",
+      "fiel": "Loyal",
+      "maratonista": "Marathoner",
+      "fundador": "Founder",
+      "aniversario": "Anniversary"
     },
     "stats": {
       "expeditions": "Expeditions",
@@ -1023,12 +1031,12 @@
   },
   "gamification": {
     "ranks": {
-      "traveler": "Traveler",
-      "explorer": "Explorer",
-      "navigator": "Navigator",
-      "cartographer": "Cartographer",
-      "pathfinder": "Pathfinder",
-      "ambassador": "Ambassador"
+      "novato": "Novice",
+      "desbravador": "Trailblazer",
+      "navegador": "Navigator",
+      "capitao": "Captain",
+      "aventureiro": "Adventurer",
+      "lendario": "Legendary"
     },
     "phases": {
       "theCalling": "The Calling",
