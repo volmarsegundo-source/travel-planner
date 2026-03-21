@@ -81,7 +81,14 @@
       "emailNotVerified": "Please verify your email before signing in.",
       "tokenExpired": "This link has expired. Please request a new one.",
       "generic": "Something went wrong. Please try again.",
-      "rateLimitExceeded": "Too many requests. Please try again later."
+      "rateLimitExceeded": "Too many requests. Please try again later.",
+      "oauthError": "Could not authenticate. Please try again.",
+      "oauthTitle": "Authentication Error",
+      "oauthConfiguration": "There is a problem with the server configuration.",
+      "oauthAccessDenied": "You do not have permission to sign in.",
+      "oauthVerification": "The verification link has expired or has already been used.",
+      "oauthAccountNotLinked": "This email is already associated with another sign-in method.",
+      "backToLogin": "Back to login"
     }
   },
   "trustSignals": {
@@ -218,8 +225,14 @@
         "save": "Save",
         "saveAndExit": "Save & exit",
         "discard": "Discard",
+        "cancel": "Cancel",
         "unsavedChangesTitle": "Unsaved changes",
-        "unsavedChangesMessage": "You have unsaved changes."
+        "unsavedChangesMessage": "You have unsaved changes.",
+        "saveBeforeBack": "Save changes before going back?",
+        "saveAndBack": "Save & go back",
+        "saveAndAdvance": "Save & advance",
+        "advanceWithoutSaving": "Advance without saving",
+        "dataSaved": "Data saved"
       }
     }
   },
@@ -475,7 +488,9 @@
         "namePlaceholder": "Your full name",
         "birthDate": "Date of birth",
         "phone": "Phone number",
-        "phonePlaceholder": "+55 11 99999-9999",
+        "phonePlaceholder": "+55 (11) 99999-9999",
+        "phoneHint": "Brazilian format: (XX) XXXXX-XXXX",
+        "phoneInvalid": "Phone number must have 10 or 11 digits",
         "country": "Country",
         "city": "City",
         "bio": "Short bio",
@@ -723,6 +738,7 @@
     "phase4": {
       "title": "The Logistics",
       "subtitle": "Plan how to get there and move around at your destination",
+      "undecided": "I haven't decided yet, I'll define this later.",
       "carRentalQuestion": "Will you need a rental car?",
       "carRentalHint": "This determines if you need any special driving documentation.",
       "carRentalYes": "Yes, I will",
@@ -798,6 +814,8 @@
         "currency": "Currency",
         "notes": "Notes",
         "isReturn": "Return segment",
+        "oneWay": "One way",
+        "roundTrip": "Round trip",
         "save": "Save Transport",
         "saving": "Saving...",
         "saved": "Transport saved!",

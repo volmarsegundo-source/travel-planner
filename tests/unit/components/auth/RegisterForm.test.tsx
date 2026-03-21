@@ -2,8 +2,8 @@
  * Behavior tests for RegisterForm.
  *
  * Tests cover: field rendering, validation errors, successful submission,
- * server-side error display, Google OAuth, optional name field toggle,
- * and link to login page.
+ * server-side error display, Google/Apple OAuth, conditional provider rendering,
+ * optional name field toggle, and link to login page.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
@@ -65,6 +65,8 @@ import { RegisterForm } from "@/components/features/auth/RegisterForm";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+const ALL_PROVIDERS = ["google", "apple"] as const;
+
 /** Fills in form fields and submits the form via fireEvent.submit. */
 async function fillAndSubmitForm(email: string, password: string, confirmPassword?: string) {
   await userEvent.type(screen.getByLabelText("auth.email"), email);
@@ -86,27 +88,27 @@ describe("RegisterForm", () => {
   });
 
   it("renders email field with accessible label", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByLabelText("auth.email")).toBeInTheDocument();
   });
 
   it("renders password field with accessible label", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByLabelText("auth.password")).toBeInTheDocument();
   });
 
   it("renders create account submit button", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(
       screen.getByRole("button", { name: "auth.signUp" })
     ).toBeInTheDocument();
   });
 
-  it("renders Google sign-in button", () => {
-    render(<RegisterForm />);
+  it("renders Google sign-in button when google provider is available", () => {
+    render(<RegisterForm availableProviders={["google"]} />);
 
     expect(
       screen.getByRole("button", { name: "auth.continueWithGoogle" })
@@ -114,7 +116,7 @@ describe("RegisterForm", () => {
   });
 
   it("renders link to login page", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     const loginLink = screen.getByRole("link", { name: "auth.signIn" });
     expect(loginLink).toBeInTheDocument();
@@ -122,19 +124,19 @@ describe("RegisterForm", () => {
   });
 
   it("renders trust signals section with badge text", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByText("trustSignals.badge")).toBeInTheDocument();
   });
 
   it("hides name input section initially", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(document.getElementById("register-name-section")).toBeNull();
   });
 
   it("reveals optional name field when toggle is clicked", async () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     // The toggle is a button with aria-expanded and aria-controls
     const toggleButton = screen.getByRole("button", { expanded: false });
@@ -146,7 +148,7 @@ describe("RegisterForm", () => {
   });
 
   it("renders confirm password field with accessible label", () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     expect(screen.getByLabelText("auth.confirmPassword")).toBeInTheDocument();
   });
@@ -157,7 +159,7 @@ describe("RegisterForm", () => {
       data: { userId: "user-123" },
     });
 
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await fillAndSubmitForm("new@example.com", "SecurePass1!");
 
@@ -171,7 +173,7 @@ describe("RegisterForm", () => {
   });
 
   it("shows validation error when passwords do not match", async () => {
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await fillAndSubmitForm("new@example.com", "SecurePass1!", "DifferentPass!");
 
@@ -189,7 +191,7 @@ describe("RegisterForm", () => {
       error: "auth.errors.emailAlreadyExists",
     });
 
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await fillAndSubmitForm("taken@example.com", "SecurePass1!");
 
@@ -204,7 +206,7 @@ describe("RegisterForm", () => {
   it("calls signIn('google') with /expeditions callbackUrl when Google button is clicked", async () => {
     mockSignIn.mockResolvedValue(undefined);
 
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={["google"]} />);
 
     await userEvent.click(
       screen.getByRole("button", { name: "auth.continueWithGoogle" })
@@ -215,20 +217,51 @@ describe("RegisterForm", () => {
     });
   });
 
-  // ─── TASK-S33-013/014/015: Social login buttons ───────────────────────────
+  // ─── Conditional OAuth rendering ──────────────────────────────────────────
 
-  it("renders Apple sign-in button (TASK-S33-014)", () => {
-    render(<RegisterForm />);
+  describe("conditional OAuth rendering", () => {
+    it("hides Google button when google is not in availableProviders", () => {
+      render(<RegisterForm availableProviders={["apple"]} />);
+
+      expect(screen.queryByTestId("google-signin")).not.toBeInTheDocument();
+    });
+
+    it("hides Apple button when apple is not in availableProviders", () => {
+      render(<RegisterForm availableProviders={["google"]} />);
+
+      expect(screen.queryByTestId("apple-signin")).not.toBeInTheDocument();
+    });
+
+    it("hides all social buttons and divider when no providers are available", () => {
+      render(<RegisterForm availableProviders={[]} />);
+
+      expect(screen.queryByTestId("google-signin")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("apple-signin")).not.toBeInTheDocument();
+      expect(screen.queryByText("auth.orContinueWith")).not.toBeInTheDocument();
+    });
+
+    it("defaults to empty providers when prop is omitted", () => {
+      render(<RegisterForm />);
+
+      expect(screen.queryByTestId("google-signin")).not.toBeInTheDocument();
+      expect(screen.queryByTestId("apple-signin")).not.toBeInTheDocument();
+    });
+  });
+
+  // ─── Social login buttons ────────────────────────────────────────────────
+
+  it("renders Apple sign-in button when apple provider is available", () => {
+    render(<RegisterForm availableProviders={["apple"]} />);
 
     const appleButton = screen.getByTestId("apple-signin");
     expect(appleButton).toBeInTheDocument();
     expect(appleButton).toHaveTextContent("auth.continueWithApple");
   });
 
-  it("calls signIn('apple') when Apple button is clicked (TASK-S33-014)", async () => {
+  it("calls signIn('apple') when Apple button is clicked", async () => {
     mockSignIn.mockResolvedValue(undefined);
 
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={["apple"]} />);
 
     const appleButton = screen.getByTestId("apple-signin");
     fireEvent.click(appleButton);
@@ -240,8 +273,8 @@ describe("RegisterForm", () => {
     });
   });
 
-  it("renders social buttons before credentials form (TASK-S33-013)", () => {
-    const { container } = render(<RegisterForm />);
+  it("renders social buttons before credentials form when both are available", () => {
+    const { container } = render(<RegisterForm availableProviders={["google", "apple"]} />);
 
     const googleBtn = screen.getByTestId("google-signin");
     const appleBtn = screen.getByTestId("apple-signin");
@@ -265,7 +298,7 @@ describe("RegisterForm", () => {
   it("disables submit button while server action is in progress", async () => {
     mockRegisterAction.mockImplementation(() => new Promise(() => {}));
 
-    render(<RegisterForm />);
+    render(<RegisterForm availableProviders={[...ALL_PROVIDERS]} />);
 
     await userEvent.type(screen.getByLabelText("auth.email"), "new@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "SecurePass1!");

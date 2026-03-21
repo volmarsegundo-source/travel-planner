@@ -79,19 +79,33 @@ function AppleIcon() {
   );
 }
 
-export function LoginForm() {
+import type { OAuthProviderKey } from "@/lib/auth-providers";
+
+interface LoginFormProps {
+  /** OAuth providers with configured credentials (passed from server component) */
+  availableProviders?: OAuthProviderKey[];
+}
+
+export function LoginForm({ availableProviders = [] }: LoginFormProps) {
   const t = useTranslations("auth");
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const justRegistered = searchParams.get("registered") === "true";
+  const oauthError = searchParams.get("error");
+
+  const hasGoogle = availableProviders.includes("google");
+  const hasApple = availableProviders.includes("apple");
+  const hasSocialProviders = hasGoogle || hasApple;
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [isAppleLoading, setIsAppleLoading] = useState(false);
-  const [errorKey, setErrorKey] = useState<string | null>(null);
+  const [errorKey, setErrorKey] = useState<string | null>(
+    oauthError ? "errors.oauthError" : null
+  );
 
   const isSocialLoading = isGoogleLoading || isAppleLoading;
   const errorId = "login-error";
@@ -187,40 +201,48 @@ export function LoginForm() {
         </div>
       )}
 
-      {/* Social sign-in buttons */}
-      <div className="flex flex-col gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleGoogleSignIn}
-          disabled={isSubmitting || isSocialLoading}
-          aria-busy={isGoogleLoading}
-          data-testid="google-signin"
-        >
-          {isGoogleLoading ? <Spinner /> : <GoogleIcon />}
-          {t("continueWithGoogle")}
-        </Button>
+      {/* Social sign-in buttons — only rendered when providers are configured */}
+      {hasSocialProviders && (
+        <>
+          <div className="flex flex-col gap-3">
+            {hasGoogle && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleSignIn}
+                disabled={isSubmitting || isSocialLoading}
+                aria-busy={isGoogleLoading}
+                data-testid="google-signin"
+              >
+                {isGoogleLoading ? <Spinner /> : <GoogleIcon />}
+                {t("continueWithGoogle")}
+              </Button>
+            )}
 
-        <Button
-          type="button"
-          className="w-full bg-black text-white hover:bg-black/90"
-          onClick={handleAppleSignIn}
-          disabled={isSubmitting || isSocialLoading}
-          aria-busy={isAppleLoading}
-          data-testid="apple-signin"
-        >
-          {isAppleLoading ? <Spinner /> : <AppleIcon />}
-          {t("continueWithApple")}
-        </Button>
-      </div>
+            {hasApple && (
+              <Button
+                type="button"
+                className="w-full bg-black text-white hover:bg-black/90"
+                onClick={handleAppleSignIn}
+                disabled={isSubmitting || isSocialLoading}
+                aria-busy={isAppleLoading}
+                data-testid="apple-signin"
+              >
+                {isAppleLoading ? <Spinner /> : <AppleIcon />}
+                {t("continueWithApple")}
+              </Button>
+            )}
+          </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
-        <Separator className="flex-1" />
-      </div>
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
+            <Separator className="flex-1" />
+          </div>
+        </>
+      )}
 
       {/* Credentials form */}
       <form

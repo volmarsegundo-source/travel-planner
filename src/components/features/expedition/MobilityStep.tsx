@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { LOCAL_MOBILITY_OPTIONS } from "@/lib/validations/transport.schema";
 
 // ─── Icon mapping for mobility options ──────────────────────────────────────
@@ -24,6 +23,18 @@ interface MobilityStepProps {
   initialMobility?: string[];
   onSave: (mobility: string[]) => Promise<void>;
   saving?: boolean;
+  /** Callback when undecided state changes */
+  onUndecidedChange?: (undecided: boolean) => void;
+  /** Initial undecided state */
+  initialUndecided?: boolean;
+  /** Callback when selection changes (for parent state sync) */
+  onChange?: (mobility: string[]) => void;
+}
+
+// ─── Required field asterisk ────────────────────────────────────────────────
+
+function RequiredAsterisk() {
+  return <span className="text-destructive" aria-hidden="true">*</span>;
 }
 
 // ─── Component ──────────────────────────────────────────────────────────────
@@ -31,23 +42,33 @@ interface MobilityStepProps {
 export function MobilityStep({
   tripId,
   initialMobility = [],
-  onSave,
-  saving = false,
+  onSave: _onSave,
+  saving: _saving = false,
+  onUndecidedChange,
+  initialUndecided = false,
+  onChange,
 }: MobilityStepProps) {
   const t = useTranslations("expedition.phase4.mobility");
+  const tPhase4 = useTranslations("expedition.phase4");
   const [selected, setSelected] = useState<string[]>(initialMobility);
+  const [undecided, setUndecided] = useState(initialUndecided);
+
+  function handleUndecidedChange(checked: boolean) {
+    setUndecided(checked);
+    onUndecidedChange?.(checked);
+  }
 
   function handleToggle(option: string) {
-    setSelected((prev) =>
-      prev.includes(option)
+    setSelected((prev) => {
+      const next = prev.includes(option)
         ? prev.filter((item) => item !== option)
-        : [...prev, option]
-    );
+        : [...prev, option];
+      onChange?.(next);
+      return next;
+    });
   }
 
-  async function handleSave() {
-    await onSave(selected);
-  }
+  const fadedClass = undecided ? "opacity-50" : "";
 
   return (
     <section aria-labelledby={`mobility-title-${tripId}`}>
@@ -58,10 +79,24 @@ export function MobilityStep({
         {t("title")}
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
-      <p className="mt-2 text-xs text-muted-foreground">{t("hint")}</p>
+
+      {/* Undecided checkbox */}
+      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm" data-testid="mobility-undecided">
+        <input
+          type="checkbox"
+          checked={undecided}
+          onChange={(e) => handleUndecidedChange(e.target.checked)}
+          className="rounded border-border"
+        />
+        {tPhase4("undecided")}
+      </label>
+
+      <p className="mt-2 text-xs text-muted-foreground">
+        {t("hint")} {!undecided && <RequiredAsterisk />}
+      </p>
 
       <div
-        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
+        className={`mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 ${fadedClass}`}
         role="group"
         aria-label={t("title")}
       >
@@ -90,16 +125,6 @@ export function MobilityStep({
             </button>
           );
         })}
-      </div>
-
-      <div className="mt-6">
-        <Button
-          onClick={handleSave}
-          disabled={saving}
-          className="w-full sm:w-auto"
-        >
-          {saving ? t("saving") : t("save")}
-        </Button>
       </div>
     </section>
   );

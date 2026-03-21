@@ -450,7 +450,8 @@ describe("Phase1Wizard", () => {
 
       // Both should be visible
       expect(screen.getByText("expedition.phase1.step4.profileSummary")).toBeInTheDocument();
-      expect(screen.getByText("+5511999999999")).toBeInTheDocument();
+      // Phone is auto-formatted by formatBrazilianPhone
+      expect(screen.getByText("(11) 99999-9999")).toBeInTheDocument();
       expect(screen.getByText("Travel enthusiast")).toBeInTheDocument();
     });
 

@@ -128,10 +128,21 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
   "Name is required": "errors.nameRequired",
 };
 
-export function RegisterForm() {
+import type { OAuthProviderKey } from "@/lib/auth-providers";
+
+interface RegisterFormProps {
+  /** OAuth providers with configured credentials (passed from server component) */
+  availableProviders?: OAuthProviderKey[];
+}
+
+export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
   const t = useTranslations("auth");
   const tCommon = useTranslations("common");
   const router = useRouter();
+
+  const hasGoogle = availableProviders.includes("google");
+  const hasApple = availableProviders.includes("apple");
+  const hasSocialProviders = hasGoogle || hasApple;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -257,40 +268,48 @@ export function RegisterForm() {
         </div>
       )}
 
-      {/* Social sign-in buttons */}
-      <div className="flex flex-col gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full"
-          onClick={handleGoogleSignIn}
-          disabled={isSubmitting || isSocialLoading}
-          aria-busy={isGoogleLoading}
-          data-testid="google-signin"
-        >
-          {isGoogleLoading ? <Spinner /> : <GoogleIcon />}
-          {t("continueWithGoogle")}
-        </Button>
+      {/* Social sign-in buttons — only rendered when providers are configured */}
+      {hasSocialProviders && (
+        <>
+          <div className="flex flex-col gap-3">
+            {hasGoogle && (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleSignIn}
+                disabled={isSubmitting || isSocialLoading}
+                aria-busy={isGoogleLoading}
+                data-testid="google-signin"
+              >
+                {isGoogleLoading ? <Spinner /> : <GoogleIcon />}
+                {t("continueWithGoogle")}
+              </Button>
+            )}
 
-        <Button
-          type="button"
-          className="w-full bg-black text-white hover:bg-black/90"
-          onClick={handleAppleSignIn}
-          disabled={isSubmitting || isSocialLoading}
-          aria-busy={isAppleLoading}
-          data-testid="apple-signin"
-        >
-          {isAppleLoading ? <Spinner /> : <AppleIcon />}
-          {t("continueWithApple")}
-        </Button>
-      </div>
+            {hasApple && (
+              <Button
+                type="button"
+                className="w-full bg-black text-white hover:bg-black/90"
+                onClick={handleAppleSignIn}
+                disabled={isSubmitting || isSocialLoading}
+                aria-busy={isAppleLoading}
+                data-testid="apple-signin"
+              >
+                {isAppleLoading ? <Spinner /> : <AppleIcon />}
+                {t("continueWithApple")}
+              </Button>
+            )}
+          </div>
 
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
-        <Separator className="flex-1" />
-      </div>
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <Separator className="flex-1" />
+            <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
+            <Separator className="flex-1" />
+          </div>
+        </>
+      )}
 
       <Form {...form}>
         <form

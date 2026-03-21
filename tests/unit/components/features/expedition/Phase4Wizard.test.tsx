@@ -90,22 +90,27 @@ function goToStep3() {
   fireEvent.click(screen.getByRole("button", { name: "common.next" }));
 }
 
-/** Select car_rental in MobilityStep and save to make car rental section visible */
+/** Select car_rental in MobilityStep — onChange syncs to parent immediately */
 async function selectCarRentalInMobility() {
   // Find and click the car_rental option in MobilityStep
   const carRentalOption = screen.getByText(
     "expedition.phase4.mobility.options.car_rental",
   );
   fireEvent.click(carRentalOption);
-  // Click save to update parent mobility state
-  const saveButton = screen.getByText("expedition.phase4.mobility.save");
-  fireEvent.click(saveButton);
-  // Wait for save to complete (mockSaveMobility resolves immediately)
+  // onChange syncs to parent state, car rental question should appear
   await waitFor(() => {
     expect(
       screen.getByText("expedition.phase4.carRentalQuestion"),
     ).toBeInTheDocument();
   });
+}
+
+/** Dismiss the unsaved changes dialog if it appears by clicking "advance without saving" */
+function dismissDirtyDialogIfPresent() {
+  const advanceWithoutSaving = screen.queryByTestId("dialog-advance-without-saving");
+  if (advanceWithoutSaving) {
+    fireEvent.click(advanceWithoutSaving);
+  }
 }
 
 /** Pre-load valid data into all three sections so validation passes. */
@@ -633,6 +638,9 @@ describe("Phase4Wizard", () => {
     });
     fireEvent.click(advanceButton);
 
+    // Dirty dialog may appear — dismiss it
+    dismissDirtyDialogIfPresent();
+
     await waitFor(() => {
       expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
         needsCarRental: false,
@@ -668,6 +676,9 @@ describe("Phase4Wizard", () => {
     });
     fireEvent.click(advanceButton);
 
+    // Dirty dialog may appear — dismiss it
+    dismissDirtyDialogIfPresent();
+
     await waitFor(() => {
       expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
         needsCarRental: true,
@@ -696,6 +707,9 @@ describe("Phase4Wizard", () => {
       name: /expedition\.cta\.advance/,
     });
     fireEvent.click(advanceButton);
+
+    // Dirty dialog may appear — dismiss it
+    dismissDirtyDialogIfPresent();
 
     await waitFor(() => {
       expect(mockAdvanceAction).toHaveBeenCalledWith("trip-001", 4, {
@@ -757,6 +771,9 @@ describe("Phase4Wizard", () => {
     });
     fireEvent.click(advanceButton);
 
+    // Dirty dialog may appear — dismiss it
+    dismissDirtyDialogIfPresent();
+
     await waitFor(() => {
       expect(screen.getByRole("alert")).toBeInTheDocument();
     });
@@ -815,7 +832,7 @@ describe("Phase4Wizard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("shows save success feedback after successful transport save on step 1", async () => {
+  it("shows save success feedback after successful transport save via WizardFooter on step 1", async () => {
     renderWizard();
 
     await waitFor(() => {
@@ -824,10 +841,8 @@ describe("Phase4Wizard", () => {
       ).toBeInTheDocument();
     });
 
-    // Find and click the transport save button
-    const saveButton = screen.getByRole("button", {
-      name: /expedition\.phase4\.transport\.save/,
-    });
+    // Find and click the WizardFooter save button
+    const saveButton = screen.getByTestId("wizard-save");
     fireEvent.click(saveButton);
 
     await waitFor(() => {

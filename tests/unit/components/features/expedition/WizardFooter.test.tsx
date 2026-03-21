@@ -2,9 +2,10 @@
  * Unit tests for WizardFooter component.
  * SPEC-UX-014: Standardized CTA pattern.
  * TASK-S33-005: 3-button layout, dirty state, unsaved changes dialog.
+ * TASK-S34-001: Dual dialog intents (back/advance), cancel button, save success.
  */
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 
 vi.mock("next-intl", () => ({
   useTranslations:
@@ -45,7 +46,7 @@ describe("WizardFooter", () => {
     expect(screen.queryByTestId("wizard-back")).not.toBeInTheDocument();
   });
 
-  it("calls onBack when back clicked", () => {
+  it("calls onBack when back clicked and not dirty", () => {
     render(<WizardFooter onPrimary={onPrimary} primaryLabel="Next" onBack={onBack} />);
     fireEvent.click(screen.getByTestId("wizard-back"));
     expect(onBack).toHaveBeenCalledOnce();
@@ -94,7 +95,7 @@ describe("WizardFooter", () => {
     expect(spinner).toBeInTheDocument();
   });
 
-  // ─── TASK-S33-005: 3-button layout + dirty state dialog ──────────────────
+  // ─── 3-button layout + save ───────────────────────────────────────────────
 
   it("renders save button when onSave is provided", () => {
     render(
@@ -133,7 +134,23 @@ describe("WizardFooter", () => {
     expect(screen.getByTestId("wizard-primary")).toBeInTheDocument();
   });
 
-  it("shows unsaved changes dialog when isDirty and back is clicked", () => {
+  it("shows save success indicator when saveSuccess is true", () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        onSave={onSave}
+        saveSuccess
+      />
+    );
+    expect(screen.getByTestId("save-success-indicator")).toHaveTextContent(
+      "itinerary.wizard.footer.dataSaved"
+    );
+  });
+
+  // ─── Back dialog (dialogIntent = "back") ──────────────────────────────────
+
+  it("shows back dialog when isDirty and onSave and back is clicked", () => {
     render(
       <WizardFooter
         onPrimary={onPrimary}
@@ -145,9 +162,9 @@ describe("WizardFooter", () => {
     );
     fireEvent.click(screen.getByTestId("wizard-back"));
 
-    // Dialog should appear
+    // Dialog should appear with back-specific title
     expect(screen.getByRole("dialog")).toBeInTheDocument();
-    expect(screen.getByText("itinerary.wizard.footer.unsavedChangesTitle")).toBeInTheDocument();
+    expect(screen.getByText("itinerary.wizard.footer.saveBeforeBack")).toBeInTheDocument();
     expect(screen.getByText("itinerary.wizard.footer.unsavedChangesMessage")).toBeInTheDocument();
 
     // onBack should NOT have been called yet
@@ -170,7 +187,7 @@ describe("WizardFooter", () => {
     expect(onBack).toHaveBeenCalledOnce();
   });
 
-  it("calls onBack (discard) when discard button is clicked in dialog", () => {
+  it("calls onBack (discard) when discard button is clicked in back dialog", () => {
     render(
       <WizardFooter
         onPrimary={onPrimary}
@@ -184,10 +201,11 @@ describe("WizardFooter", () => {
     fireEvent.click(screen.getByTestId("dialog-discard"));
 
     expect(onBack).toHaveBeenCalledOnce();
+    expect(onSave).not.toHaveBeenCalled();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 
-  it("calls onSave and onBack when save-and-exit is clicked in dialog", () => {
+  it("calls onSave and onBack when save-and-back is clicked", async () => {
     render(
       <WizardFooter
         onPrimary={onPrimary}
@@ -198,12 +216,127 @@ describe("WizardFooter", () => {
       />
     );
     fireEvent.click(screen.getByTestId("wizard-back"));
-    fireEvent.click(screen.getByTestId("dialog-save-exit"));
+    fireEvent.click(screen.getByTestId("dialog-save-back"));
 
     expect(onSave).toHaveBeenCalledOnce();
-    expect(onBack).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(onBack).toHaveBeenCalledOnce();
+    });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+
+  it("closes back dialog when cancel is clicked", () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        onBack={onBack}
+        onSave={onSave}
+        isDirty
+      />
+    );
+    fireEvent.click(screen.getByTestId("wizard-back"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("dialog-cancel"));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(onBack).not.toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  // ─── Advance dialog (dialogIntent = "advance") ───────────────────────────
+
+  it("shows advance dialog when isDirty and onSave and primary is clicked", () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        onSave={onSave}
+        isDirty
+      />
+    );
+    fireEvent.click(screen.getByTestId("wizard-primary"));
+
+    // Dialog should appear with advance-specific title
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+    expect(screen.getByText("itinerary.wizard.footer.unsavedChangesTitle")).toBeInTheDocument();
+
+    // onPrimary should NOT have been called yet
+    expect(onPrimary).not.toHaveBeenCalled();
+  });
+
+  it("calls onSave and onPrimary when save-and-advance is clicked", async () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        onSave={onSave}
+        isDirty
+      />
+    );
+    fireEvent.click(screen.getByTestId("wizard-primary"));
+    fireEvent.click(screen.getByTestId("dialog-save-advance"));
+
+    expect(onSave).toHaveBeenCalledOnce();
+    await waitFor(() => {
+      expect(onPrimary).toHaveBeenCalledOnce();
+    });
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("calls only onPrimary when advance-without-saving is clicked", () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        onSave={onSave}
+        isDirty
+      />
+    );
+    fireEvent.click(screen.getByTestId("wizard-primary"));
+    fireEvent.click(screen.getByTestId("dialog-advance-without-saving"));
+
+    expect(onPrimary).toHaveBeenCalledOnce();
+    expect(onSave).not.toHaveBeenCalled();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  it("closes advance dialog when cancel is clicked", () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        onSave={onSave}
+        isDirty
+      />
+    );
+    fireEvent.click(screen.getByTestId("wizard-primary"));
+    expect(screen.getByRole("dialog")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTestId("dialog-cancel"));
+
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(onPrimary).not.toHaveBeenCalled();
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  it("does not show advance dialog when isDirty but no onSave", () => {
+    render(
+      <WizardFooter
+        onPrimary={onPrimary}
+        primaryLabel="Next"
+        isDirty
+      />
+    );
+    fireEvent.click(screen.getByTestId("wizard-primary"));
+
+    // No dialog — direct advance
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(onPrimary).toHaveBeenCalledOnce();
+  });
+
+  // ─── Overlay and ARIA ─────────────────────────────────────────────────────
 
   it("closes dialog when clicking overlay", () => {
     render(
@@ -218,7 +351,6 @@ describe("WizardFooter", () => {
     fireEvent.click(screen.getByTestId("wizard-back"));
     expect(screen.getByRole("dialog")).toBeInTheDocument();
 
-    // Click the overlay (parent of dialog)
     fireEvent.click(screen.getByTestId("unsaved-dialog-overlay"));
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
