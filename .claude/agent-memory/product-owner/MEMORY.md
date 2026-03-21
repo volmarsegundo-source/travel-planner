@@ -144,8 +144,24 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Sprint 32: "Stabilization" -- SPEC-PROD-025/026/027/028 resolved P0 bugs, target >= 90% pass rate (v0.27.0)
 - Sprint 33: "Qualidade de Dados, Personalizacao e Crescimento" -- 6 specs (IMP-001 a IMP-006). Product version: v0.28.0
 - Sprint 34: "Fechamento de Lacunas -- Rodape, Fase 3, Fase 4 e Acesso" -- 4 specs (SPEC-PROD-035..038). Target: v0.29.0
-- Sprint 35+: US-122 Premium chat + payment gateway + v1.0 GA
+- Sprint 35: "Gamification Wave 1 -- PA Visivel" -- REQ-GAMI-001..005. Target: v0.30.0
+- Sprint 36: "Gamification Wave 2 -- Full Gamification" -- REQ-GAMI-006..010. Target: v0.31.0
+- Sprint 37+: "Gamification Wave 3 -- Monetizacao" -- REQ-GAMI-011..013 + payment gateway
 - Next available Spec ID: SPEC-PROD-039
+
+### Gamification PA System (approved 2026-03-21)
+- Economy doc: `docs/specs/gamification/ATLAS-GAMIFICACAO-APROVADO.md`
+- Product spec: `docs/specs/gamification/SPEC-PROD-GAMIFICATION.md`
+- Sprint priorities: `docs/specs/gamification/SPRINT-GAMIFICATION-PRIORITIES.md`
+- WELCOME_BONUS = 500 PA (verified from gamification.types.ts -- task prompt said 180, CODE is authoritative)
+- AI_COSTS: ai_itinerary=150, ai_route=100, ai_accommodation=100, ai_regenerate=80
+- EARNING_AMOUNTS: daily_login=10, checklist=20, review=500, referral=300
+- PROFILE_FIELD_POINTS: 25 PA per field, 11 fields = max 275 PA
+- Rank thresholds: traveler=0, explorer=500, navigator=1500, cartographer=3000, pathfinder=6000, ambassador=10000
+- PA purchase packages: R$14.90 (500PA), R$29.90 (1200PA), R$59.90 (2800PA), R$119.90 (6000PA)
+- Badge `host` is LEGACY -- do NOT display in UI, use `logistics_master` instead
+- PA purchased increments availablePoints only, NOT totalPoints (rank is based on earned points, not purchased)
+- Wave 1 blockers: none (backend complete). Wave 3 blocker: payment gateway not chosen yet
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)

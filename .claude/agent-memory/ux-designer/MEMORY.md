@@ -183,6 +183,17 @@
 - All specs saved to: docs/specs/sprint-33/SPEC-UX-{033-036}.md
 - Key decisions: "Avancar" button stays enabled (not disabled); pendencies use orange (not red) — orientation not error; report accessible from Phase 2; social buttons above form (not below)
 
+## Gamification PA System UX Spec (2026-03-21)
+- SPEC-UX-041: Full gamification PA system — 11 screens/components, 21 acceptance criteria
+- Saved to: docs/specs/gamification/SPEC-UX-GAMIFICATION.md
+- Key data: WELCOME_BONUS=500PA, AI costs 80-150PA, phase rewards 40-500PA (1565/expedition total), AI cost/expedition ~350PA
+- 11 components: /como-funciona page, contextual PA tooltips, predictive cost on expedition card, transaction history, insufficient balance flow, onboarding modal (3 steps), header dropdown (evolves GamificationBadge), level-up toast with confetti, badge grid, AI spend confirmation modal, admin dashboard
+- Key decision: GamificationBadge re-activated as button with dropdown (reverses SPEC-UX-027 display-only decision — justified by PA system needing quick-access entry point)
+- Gastos displayed in muted gray (not red) — spending is normal, not error
+- Insufficient balance: empathetic modal, never punitive, always offers path forward
+- 9 new patterns: PATooltip, PAConfirmModal, PAInsufficientModal, OnboardingStepModal, BadgeCard, CelebrationToast, TransactionList, CostInfoSection, HeaderDropdown
+- 8 open questions blocking implementation (packages/pricing, badge reactivation, onboarding flag storage, predictive cost anxiety, admin priority, confetti performance, low balance threshold, toast position)
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)
