@@ -31,6 +31,30 @@ export interface ExpeditionContext {
   budget?: number;
   currency?: string;
   destinationGuideContext?: string;
+  /** TASK-S33-011: Full traveler context for Phase 6 prompt enrichment */
+  personal?: {
+    name?: string;
+    ageRange?: string;
+    origin?: string;
+  };
+  trip?: {
+    destination?: string;
+    dates?: string;
+    type?: string;
+    travelers?: string;
+  };
+  preferences?: {
+    pace?: string;
+    budget?: string;
+    food?: string;
+    interests?: string;
+    accommodation?: string;
+  };
+  logistics?: {
+    transport?: string[];
+    accommodation?: string[];
+    mobility?: string[];
+  };
 }
 
 export interface GeneratePlanParams {

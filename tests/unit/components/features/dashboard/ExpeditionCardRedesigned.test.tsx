@@ -260,9 +260,16 @@ describe("ExpeditionCardRedesigned", () => {
 
   // ─── Quick-access links ───────────────────────────────────────────
 
-  it("shows no quick-access row when all flags are false", () => {
-    renderCard({ hasChecklist: false, hasGuide: false, hasLogistics: false, hasItineraryPlan: false });
+  it("shows no quick-access row when all flags are false and phase < 2", () => {
+    renderCard({ hasChecklist: false, hasGuide: false, hasLogistics: false, hasItineraryPlan: false, currentPhase: 1, completedPhases: [] });
     expect(screen.queryByTestId("quick-access-row")).not.toBeInTheDocument();
+  });
+
+  it("shows summary quick-access link when currentPhase >= 2", () => {
+    renderCard({ hasChecklist: false, hasGuide: false, hasLogistics: false, hasItineraryPlan: false, currentPhase: 2 });
+    expect(screen.getByTestId("quick-access-summary")).toBeInTheDocument();
+    const link = screen.getByTestId("quick-access-summary") as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe("/expedition/trip-1/summary");
   });
 
   it("shows checklist quick-access link when hasChecklist is true", () => {

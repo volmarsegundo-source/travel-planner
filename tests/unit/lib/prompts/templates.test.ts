@@ -45,7 +45,7 @@ const BASE_GUIDE_PARAMS: GuideParams = {
 
 describe("travelPlanPrompt", () => {
   it("has correct metadata", () => {
-    expect(travelPlanPrompt.version).toBe("1.0.0");
+    expect(travelPlanPrompt.version).toBe("1.1.0");
     expect(travelPlanPrompt.model).toBe("plan");
     expect(travelPlanPrompt.cacheControl).toBe(true);
   });

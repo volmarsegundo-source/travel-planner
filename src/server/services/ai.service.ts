@@ -31,7 +31,9 @@ import type {
 // MIN_PLAN_TOKENS reduced from 4096 to 2048 per OPT-005 — short trips (1-3 days)
 // don't need 4K tokens; the retry mechanism doubles budget if truncated.
 const TOKENS_PER_DAY = 600;
-const TOKENS_OVERHEAD = 500;
+// Overhead increased from 500 to 1100 to account for ~600 tokens of
+// enriched traveler context added by SPEC-AI-004 (TASK-S33-012).
+const TOKENS_OVERHEAD = 1100;
 const MIN_PLAN_TOKENS = 2048;
 const MAX_PLAN_TOKENS = 16000;
 

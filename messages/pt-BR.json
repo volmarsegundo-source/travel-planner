@@ -59,6 +59,7 @@
     "resetPassword": "Redefinir senha",
     "sendResetLink": "Enviar link de redefinição",
     "continueWithGoogle": "Continuar com Google",
+    "continueWithApple": "Continuar com Apple",
     "orContinueWith": "ou continue com",
     "alreadyHaveAccount": "Já tem uma conta?",
     "dontHaveAccount": "Não tem uma conta?",
@@ -212,7 +213,14 @@
       "errorTimeout": "A geração demorou mais que o esperado. Tente novamente.",
       "errorAuth": "Erro de configuração da IA. Verifique a chave da API.",
       "errorRateLimit": "Muitas solicitações. Aguarde alguns minutos e tente novamente.",
-      "step": "Passo {current} de {total}"
+      "step": "Passo {current} de {total}",
+      "footer": {
+        "save": "Salvar",
+        "saveAndExit": "Salvar e sair",
+        "discard": "Descartar",
+        "unsavedChangesTitle": "Alteracoes nao salvas",
+        "unsavedChangesMessage": "Voce tem alteracoes nao salvas."
+      }
     }
   },
   "checklist": {
@@ -258,10 +266,22 @@
     "features": {
       "sectionTag": "O Que Oferecemos",
       "sectionTitle": "Tudo Que Você Precisa Para Explorar",
-      "phases": { "title": "8 Fases de Planejamento", "description": "Da Faísca ao Legado — cada expedição passa por 8 fases guiadas que transformam um sonho em realidade" },
-      "coordinates": { "title": "Sistema de Coordenadas", "description": "Ganhe pontos, suba de rank e colecione badges enquanto planeja. De Viajante a Embaixador" },
-      "intelligence": { "title": "Inteligência de Viagem", "description": "IA generativa para roteiros + checklists automáticos adaptados ao seu tipo de rota" },
-      "routes": { "title": "4 Tipos de Rota", "description": "Nacional, Mercosul, Internacional ou Schengen — cada tipo com documentação e regras específicas" }
+      "phases": {
+        "title": "8 Fases de Planejamento",
+        "description": "Da Faísca ao Legado — cada expedição passa por 8 fases guiadas que transformam um sonho em realidade"
+      },
+      "coordinates": {
+        "title": "Sistema de Coordenadas",
+        "description": "Ganhe pontos, suba de rank e colecione badges enquanto planeja. De Viajante a Embaixador"
+      },
+      "intelligence": {
+        "title": "Inteligência de Viagem",
+        "description": "IA generativa para roteiros + checklists automáticos adaptados ao seu tipo de rota"
+      },
+      "routes": {
+        "title": "4 Tipos de Rota",
+        "description": "Nacional, Mercosul, Internacional ou Schengen — cada tipo com documentação e regras específicas"
+      }
     },
     "footer": {
       "copyright": "© 2026 Travel Planner. Todos os direitos reservados.",
@@ -316,10 +336,10 @@
     "phaseProgress": "{completed} de {total} fases",
     "currentPhase": "Fase {number}",
     "viewExpedition": "Continuar",
-    "phasesCompleted": "Fase {current} de {total} \u00b7 {completed} concluidas",
+    "phasesCompleted": "Fase {current} de {total} · {completed} concluidas",
     "completed": "Concluida",
     "progressLabel": "Progresso: {completed} de {total} fases concluidas",
-    "travelDates": "{start} \u2013 {end}",
+    "travelDates": "{start} – {end}",
     "checklist": {
       "items": "{done}/{total} itens",
       "tooltip": "{required} obrigatórios · {recommended} recomendados pendentes",
@@ -373,7 +393,8 @@
       "quickAccessGuide": "Guia",
       "quickAccessItinerary": "Roteiro",
       "quickAccessReport": "Relatorio",
-      "quickAccessLabel": "Acesso rapido \u2014 {destination}"
+      "quickAccessLabel": "Acesso rapido — {destination}",
+      "quickAccessSummary": "Resumo"
     }
   },
   "profile": {
@@ -747,6 +768,12 @@
           "saved": "Preferências de mobilidade salvas!"
         }
       },
+      "validation": {
+        "banner": "Complete o seguinte antes de avancar:",
+        "transportRequired": "Pelo menos um trecho de transporte com tipo, local de partida, local de chegada, data de partida e data de chegada",
+        "accommodationRequired": "Pelo menos uma hospedagem com tipo, check-in e check-out",
+        "mobilityRequired": "Pelo menos uma opcao de mobilidade local selecionada"
+      },
       "transport": {
         "title": "Transporte",
         "subtitle": "Como você vai chegar ao destino?",
@@ -946,7 +973,14 @@
       "readinessLabel": "{percent}% pronto",
       "phasesOverview": "Visão Geral das Fases",
       "continuePhase": "Continuar",
-      "startPhase": "Iniciar"
+      "startPhase": "Iniciar",
+      "completion": "Conclusao",
+      "completionLabel": "{percent}% concluido",
+      "pendingItemsTitle": "Itens Pendentes",
+      "pendingRequired": "Acoes obrigatorias",
+      "pendingRecommended": "Acoes recomendadas",
+      "pendingPhaseItem": "Fase {phase}: {item}",
+      "phaseNotStarted": "Fase nao iniciada"
     },
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}",

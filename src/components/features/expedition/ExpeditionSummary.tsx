@@ -14,7 +14,7 @@ import { Link } from "@/i18n/navigation";
 
 // ─── Phase Icons ─────────────────────────────────────────────────────────────
 
-const PHASE_ICONS = ["🧭", "🔍", "📋", "🚗", "🗺️", "💎"];
+const PHASE_ICONS = ["\uD83E\uDDED", "\uD83D\uDD0D", "\uD83D\uDCCB", "\uD83D\uDE97", "\uD83D\uDDFA\uFE0F", "\uD83D\uDC8E"];
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -90,7 +90,6 @@ export function ExpeditionSummary({
   }
 
   function getPhaseUrlLocal(phaseNum: number): string {
-    // Use navigation engine's canonical route map — phase 1 is /phase-1
     return `/expedition/${tripId}/phase-${phaseNum}`;
   }
 
@@ -104,10 +103,14 @@ export function ExpeditionSummary({
   ];
 
   const readinessPercent = readiness?.readinessPercent ?? 0;
+  const completionPercentage = summary.completionPercentage;
+  const pendingItems = summary.pendingItems;
+  const pendingRequired = pendingItems.filter((p) => p.severity === "required");
+  const pendingRecommended = pendingItems.filter((p) => p.severity === "recommended");
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8">
-      {/* Hero: Title + Countdown + Readiness */}
+      {/* Hero: Title + Countdown + Completion */}
       <div className="text-center" data-testid="summary-hero">
         <h1 className="text-2xl font-bold text-foreground">{t("title")}</h1>
         {summary.phase1?.destination && (
@@ -122,6 +125,29 @@ export function ExpeditionSummary({
             startDate={startDate ? new Date(startDate) : null}
             endDate={endDate ? new Date(endDate) : null}
           />
+        </div>
+
+        {/* Completion Percentage (TASK-S33-010) */}
+        <div className="mt-4" data-testid="completion-indicator">
+          <div className="mx-auto max-w-xs">
+            <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+              <span>{t("completion")}</span>
+              <span className="font-bold text-foreground" data-testid="completion-percentage">{completionPercentage}%</span>
+            </div>
+            <div
+              className="h-3 w-full rounded-full bg-muted overflow-hidden"
+              role="progressbar"
+              aria-valuenow={completionPercentage}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label={t("completionLabel", { percent: completionPercentage })}
+            >
+              <div
+                className="h-full rounded-full bg-atlas-teal transition-all duration-500"
+                style={{ width: `${completionPercentage}%` }}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Readiness Bar */}
@@ -148,6 +174,59 @@ export function ExpeditionSummary({
         </div>
       </div>
 
+      {/* Pending Items (TASK-S33-010) */}
+      {pendingItems.length > 0 && (
+        <section className="mt-8" data-testid="pending-items-section">
+          <h2 className="text-lg font-semibold text-foreground mb-3">
+            {t("pendingItemsTitle")}
+          </h2>
+
+          {pendingRequired.length > 0 && (
+            <div
+              className="mb-3 rounded-lg border border-orange-200 bg-[#FFF7ED] p-4 dark:border-orange-800/40 dark:bg-orange-950/20"
+              data-testid="pending-required"
+            >
+              <p className="text-sm font-medium text-[#92400E] dark:text-orange-300 mb-2">
+                {t("pendingRequired")}
+              </p>
+              <ul className="space-y-1" role="list">
+                {pendingRequired.map((item) => (
+                  <li
+                    key={`${item.phase}-${item.key}`}
+                    className="flex items-center gap-2 text-sm text-[#92400E] dark:text-orange-300"
+                  >
+                    <span aria-hidden="true">!</span>
+                    <span>{t("pendingPhaseItem", { phase: item.phase, item: item.key })}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {pendingRecommended.length > 0 && (
+            <div
+              className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/40 dark:bg-amber-950/20"
+              data-testid="pending-recommended"
+            >
+              <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-2">
+                {t("pendingRecommended")}
+              </p>
+              <ul className="space-y-1" role="list">
+                {pendingRecommended.map((item) => (
+                  <li
+                    key={`${item.phase}-${item.key}`}
+                    className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300"
+                  >
+                    <span aria-hidden="true">~</span>
+                    <span>{t("pendingPhaseItem", { phase: item.phase, item: item.key })}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </section>
+      )}
+
       {/* Next Steps */}
       {nextSteps && nextSteps.length > 0 && readinessPercent < 100 && (
         <section className="mt-8" data-testid="next-steps-section">
@@ -162,7 +241,7 @@ export function ExpeditionSummary({
                 className="flex items-center gap-3 rounded-lg border bg-card p-4 transition-colors hover:border-atlas-teal/50 hover:bg-accent"
                 data-testid={`next-step-${i}`}
               >
-                <span className="text-xl" aria-hidden="true">→</span>
+                <span className="text-xl" aria-hidden="true">{"\u2192"}</span>
                 <span className="text-sm font-medium">
                   {tNextSteps(step.labelKey.replace("expedition.nextSteps.", ""), step.labelValues)}
                 </span>
@@ -187,7 +266,11 @@ export function ExpeditionSummary({
               <div
                 key={phaseNum}
                 className={`rounded-lg border bg-card p-4 ${
-                  status === "complete" ? "border-atlas-teal/40" : ""
+                  status === "complete"
+                    ? "border-atlas-teal/40"
+                    : status === "not_started"
+                      ? "border-border/50 bg-muted/30"
+                      : ""
                 }`}
                 data-testid={`phase-card-${phaseNum}`}
               >
@@ -214,13 +297,24 @@ export function ExpeditionSummary({
                   </Link>
                 </div>
 
-                {/* Phase data summary */}
-                <PhaseDataSummary
-                  phaseNum={phaseNum}
-                  summary={summary}
-                  formatDate={formatDate}
-                  t={t}
-                />
+                {/* Phase data summary or placeholder */}
+                {status === "not_started" ? (
+                  <div
+                    className="mt-2 rounded bg-muted/50 px-3 py-2"
+                    data-testid={`phase-placeholder-${phaseNum}`}
+                  >
+                    <p className="text-xs italic text-muted-foreground">
+                      {t("phaseNotStarted")}
+                    </p>
+                  </div>
+                ) : (
+                  <PhaseDataSummary
+                    phaseNum={phaseNum}
+                    summary={summary}
+                    formatDate={formatDate}
+                    t={t}
+                  />
+                )}
               </div>
             );
           })}
@@ -304,7 +398,7 @@ function PhaseDataSummary({
         <div className="mt-2 text-xs text-muted-foreground">
           <p>
             {t("transportSegments", { count: summary.phase4.transportSegments.length })}
-            {" · "}
+            {" \u00B7 "}
             {t("accommodations", { count: summary.phase4.accommodations.length })}
           </p>
         </div>

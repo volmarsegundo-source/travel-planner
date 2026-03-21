@@ -276,4 +276,61 @@ describe("LoginForm", () => {
 
     expect(screen.getByText("trustSignals.deleteAccount")).toBeInTheDocument();
   });
+
+  // ─── TASK-S33-013/014/015: Social login buttons ───────────────────────────
+
+  it("renders Apple sign-in button (TASK-S33-014)", () => {
+    render(<LoginForm />);
+
+    const appleButton = screen.getByTestId("apple-signin");
+    expect(appleButton).toBeInTheDocument();
+    expect(appleButton).toHaveTextContent("auth.continueWithApple");
+  });
+
+  it("calls signIn('apple') when Apple button is clicked (TASK-S33-014)", async () => {
+    mockSignIn.mockResolvedValue(undefined);
+
+    render(<LoginForm />);
+
+    const appleButton = screen.getByTestId("apple-signin");
+    fireEvent.click(appleButton);
+
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith("apple", {
+        callbackUrl: "/expeditions",
+      });
+    });
+  });
+
+  it("renders social buttons before credentials form (TASK-S33-013)", () => {
+    const { container } = render(<LoginForm />);
+
+    const googleBtn = screen.getByTestId("google-signin");
+    const appleBtn = screen.getByTestId("apple-signin");
+    const form = container.querySelector("form");
+
+    // Both social buttons should exist and form should exist
+    expect(googleBtn).toBeInTheDocument();
+    expect(appleBtn).toBeInTheDocument();
+    expect(form).toBeInTheDocument();
+
+    // Social buttons should appear before the form in DOM order
+    const allElements = container.querySelectorAll("[data-testid], form");
+    const positions = Array.from(allElements).map((el) =>
+      el.getAttribute("data-testid") ?? "form"
+    );
+    const googleIdx = positions.indexOf("google-signin");
+    const appleIdx = positions.indexOf("apple-signin");
+    const formIdx = positions.indexOf("form");
+
+    // form is not a direct match via data-testid; use compareDocumentPosition
+    expect(
+      googleBtn.compareDocumentPosition(form!)
+        & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      appleBtn.compareDocumentPosition(form!)
+        & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+  });
 });

@@ -59,6 +59,7 @@
     "resetPassword": "Reset password",
     "sendResetLink": "Send reset link",
     "continueWithGoogle": "Continue with Google",
+    "continueWithApple": "Continue with Apple",
     "orContinueWith": "or continue with",
     "alreadyHaveAccount": "Already have an account?",
     "dontHaveAccount": "Don't have an account?",
@@ -212,7 +213,14 @@
       "errorTimeout": "Generation took longer than expected. Please try again.",
       "errorAuth": "AI configuration error. Please check the API key.",
       "errorRateLimit": "Too many requests. Please wait a few minutes and try again.",
-      "step": "Step {current} of {total}"
+      "step": "Step {current} of {total}",
+      "footer": {
+        "save": "Save",
+        "saveAndExit": "Save & exit",
+        "discard": "Discard",
+        "unsavedChangesTitle": "Unsaved changes",
+        "unsavedChangesMessage": "You have unsaved changes."
+      }
     }
   },
   "checklist": {
@@ -258,10 +266,22 @@
     "features": {
       "sectionTag": "What We Offer",
       "sectionTitle": "Everything You Need to Explore",
-      "phases": { "title": "8 Planning Phases", "description": "From the Spark to the Legacy — each expedition follows 8 guided phases that turn a dream into reality" },
-      "coordinates": { "title": "Coordinate System", "description": "Earn points, rank up and collect badges as you plan. From Traveler to Ambassador" },
-      "intelligence": { "title": "Travel Intelligence", "description": "Generative AI for itineraries + automatic checklists tailored to your route type" },
-      "routes": { "title": "4 Route Types", "description": "Domestic, Mercosur, International or Schengen — each with specific documentation and rules" }
+      "phases": {
+        "title": "8 Planning Phases",
+        "description": "From the Spark to the Legacy — each expedition follows 8 guided phases that turn a dream into reality"
+      },
+      "coordinates": {
+        "title": "Coordinate System",
+        "description": "Earn points, rank up and collect badges as you plan. From Traveler to Ambassador"
+      },
+      "intelligence": {
+        "title": "Travel Intelligence",
+        "description": "Generative AI for itineraries + automatic checklists tailored to your route type"
+      },
+      "routes": {
+        "title": "4 Route Types",
+        "description": "Domestic, Mercosur, International or Schengen — each with specific documentation and rules"
+      }
     },
     "footer": {
       "copyright": "© 2026 Travel Planner. All rights reserved.",
@@ -316,10 +336,10 @@
     "phaseProgress": "{completed} of {total} phases",
     "currentPhase": "Phase {number}",
     "viewExpedition": "Continue",
-    "phasesCompleted": "Phase {current} of {total} \u00b7 {completed} completed",
+    "phasesCompleted": "Phase {current} of {total} · {completed} completed",
     "completed": "Completed",
     "progressLabel": "Progress: {completed} of {total} phases completed",
-    "travelDates": "{start} \u2013 {end}",
+    "travelDates": "{start} – {end}",
     "checklist": {
       "items": "{done}/{total} items",
       "tooltip": "{required} required · {recommended} recommended pending",
@@ -373,7 +393,8 @@
       "quickAccessGuide": "Guide",
       "quickAccessItinerary": "Itinerary",
       "quickAccessReport": "Report",
-      "quickAccessLabel": "Quick access \u2014 {destination}"
+      "quickAccessLabel": "Quick access — {destination}",
+      "quickAccessSummary": "Summary"
     }
   },
   "profile": {
@@ -747,6 +768,12 @@
           "saved": "Mobility preferences saved!"
         }
       },
+      "validation": {
+        "banner": "Please complete the following before advancing:",
+        "transportRequired": "At least one transport segment with type, departure place, arrival place, departure date, and arrival date",
+        "accommodationRequired": "At least one accommodation with type, check-in, and check-out dates",
+        "mobilityRequired": "At least one local mobility option selected"
+      },
       "transport": {
         "title": "Transport",
         "subtitle": "How are you getting to your destination?",
@@ -946,7 +973,14 @@
       "readinessLabel": "{percent}% ready",
       "phasesOverview": "Phases Overview",
       "continuePhase": "Continue",
-      "startPhase": "Start"
+      "startPhase": "Start",
+      "completion": "Completion",
+      "completionLabel": "{percent}% complete",
+      "pendingItemsTitle": "Pending Items",
+      "pendingRequired": "Required actions",
+      "pendingRecommended": "Recommended actions",
+      "pendingPhaseItem": "Phase {phase}: {item}",
+      "phaseNotStarted": "Phase not started"
     },
     "progress": "Step {current} of {total}",
     "phaseProgress": "Phase {current} of {total}",

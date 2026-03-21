@@ -51,6 +51,7 @@ export const GeneratePlanParamsSchema = z.object({
     .string()
     .max(MAX_TRAVEL_NOTES_LENGTH, "errors.validation")
     .optional(),
+  expeditionContext: z.record(z.unknown()).optional(),
 });
 
 export type GeneratePlanParamsInput = z.infer<typeof GeneratePlanParamsSchema>;

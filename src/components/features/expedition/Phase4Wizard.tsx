@@ -59,6 +59,7 @@ export function Phase4Wizard({
   const t = useTranslations("expedition.phase4");
   const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
+  const tValidation = useTranslations("expedition.phase4.validation");
   const tErrors = useTranslations("errors");
   const router = useRouter();
 
@@ -84,6 +85,7 @@ export function Phase4Wizard({
   // Completion flow states
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
 
   const isRevisiting = accessMode === "revisit" || (currentPhase !== undefined && currentPhase > 4);
   const needsCinh = tripType === "international" || tripType === "schengen";
@@ -204,9 +206,48 @@ export function Phase4Wizard({
     }
   }
 
+  // ─── Validation ──────────────────────────────────────────────────────────
+
+  function validatePhase4(): string[] {
+    const errors: string[] = [];
+
+    // Transport: at least one segment with required fields
+    const hasValidTransport = transportSegments.some(
+      (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
+    );
+    if (!hasValidTransport) {
+      errors.push(tValidation("transportRequired"));
+    }
+
+    // Accommodation: at least one with required fields
+    const hasValidAccommodation = accommodations.some(
+      (a) => a.accommodationType && a.checkIn && a.checkOut,
+    );
+    if (!hasValidAccommodation) {
+      errors.push(tValidation("accommodationRequired"));
+    }
+
+    // Mobility: at least one option selected
+    if (mobility.length === 0) {
+      errors.push(tValidation("mobilityRequired"));
+    }
+
+    return errors;
+  }
+
+  const allSectionsEmpty =
+    transportSegments.length === 0 &&
+    accommodations.length === 0 &&
+    mobility.length === 0;
+
   // ─── Advance handler ─────────────────────────────────────────────────────
 
   async function handleAdvance() {
+    // Run validation first
+    const errors = validatePhase4();
+    setValidationErrors(errors);
+    if (errors.length > 0) return;
+
     setIsCompleting(true);
     setErrorMessage(null);
 
@@ -262,6 +303,21 @@ export function Phase4Wizard({
       {saveSuccess && (
         <div className="mt-2 rounded-md bg-atlas-teal/10 px-3 py-2 text-sm text-atlas-teal border border-atlas-teal/30">
           {t(`steps.${saveSuccess}.saved`)}
+        </div>
+      )}
+
+      {validationErrors.length > 0 && (
+        <div
+          data-testid="phase4-validation-banner"
+          role="alert"
+          className="mt-4 rounded-md border border-atlas-rust/30 bg-atlas-rust/5 px-4 py-3 text-sm text-foreground"
+        >
+          <p className="font-medium">{tValidation("banner")}</p>
+          <ul className="mt-2 list-inside list-disc text-muted-foreground">
+            {validationErrors.map((err) => (
+              <li key={err}>{err}</li>
+            ))}
+          </ul>
         </div>
       )}
 
@@ -482,7 +538,7 @@ export function Phase4Wizard({
                 }
                 primaryLabel={tExpedition("cta.advance")}
                 isLoading={isCompleting}
-                isDisabled={isCompleting}
+                isDisabled={isCompleting || allSectionsEmpty}
               />
             </div>
           )}

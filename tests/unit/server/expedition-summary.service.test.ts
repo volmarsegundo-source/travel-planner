@@ -2,9 +2,10 @@
  * Unit tests for ExpeditionSummaryService.
  *
  * Tests cover: aggregation from all 6 phases, BOLA check,
- * booking code masking, missing phase data returns null.
+ * booking code masking, missing phase data returns null,
+ * pendingItems, completionPercentage, expanded field data.
  *
- * [SPEC-PROD-005]
+ * [SPEC-PROD-005, TASK-S33-009, TASK-S33-010]
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mockDeep, type DeepMockProxy } from "vitest-mock-extended";
@@ -44,16 +45,32 @@ import { decrypt } from "@/lib/crypto";
 import {
   ExpeditionSummaryService,
   maskBookingCode,
+  deriveAgeRange,
+  calculateCompletionPercentage,
+  collectPendingItems,
 } from "@/server/services/expedition-summary.service";
 
 const mockedDecrypt = vi.mocked(decrypt);
 
 const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
 
+// ─── Helper: setup default profile/user mocks ────────────────────────────────
+
+function setupDefaultProfileMocks() {
+  prismaMock.userProfile.findUnique.mockResolvedValue({
+    birthDate: new Date("1990-05-15"),
+    preferences: { travelPace: "moderate", interests: ["history_museums"] },
+  } as never);
+  prismaMock.user.findUnique.mockResolvedValue({
+    name: "Test User",
+  } as never);
+}
+
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
 beforeEach(() => {
   vi.clearAllMocks();
+  setupDefaultProfileMocks();
 });
 
 describe("maskBookingCode", () => {
@@ -76,6 +93,125 @@ describe("maskBookingCode", () => {
   });
 });
 
+describe("deriveAgeRange", () => {
+  it("returns null for null birthDate", () => {
+    expect(deriveAgeRange(null)).toBeNull();
+  });
+
+  it("returns correct age range for 30-year-old", () => {
+    const birthDate = new Date();
+    birthDate.setFullYear(birthDate.getFullYear() - 30);
+    expect(deriveAgeRange(birthDate)).toBe("25-34");
+  });
+
+  it("returns 65+ for elderly", () => {
+    const birthDate = new Date();
+    birthDate.setFullYear(birthDate.getFullYear() - 70);
+    expect(deriveAgeRange(birthDate)).toBe("65+");
+  });
+
+  it("returns 18-24 for young adult", () => {
+    const birthDate = new Date();
+    birthDate.setFullYear(birthDate.getFullYear() - 20);
+    expect(deriveAgeRange(birthDate)).toBe("18-24");
+  });
+});
+
+describe("calculateCompletionPercentage", () => {
+  it("returns 0 when no phase data exists", () => {
+    const result = calculateCompletionPercentage(null, null, null, null, null, null);
+    expect(result).toBe(0);
+  });
+
+  it("returns 100 when all phases are fully completed", () => {
+    const result = calculateCompletionPercentage(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 5, total: 5, items: [] },
+      { transportSegments: [{ type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", departureAt: null, arrivalAt: null, provider: null, maskedBookingCode: null }], accommodations: [{ type: "hotel", name: "H", checkIn: null, checkOut: null, maskedBookingCode: null }], mobility: ["metro"] },
+      { generatedAt: "2026-05-01", highlights: [] },
+      { dayCount: 3, totalActivities: 10 },
+    );
+    expect(result).toBe(100);
+  });
+
+  it("returns partial when phase 3 checklist is incomplete", () => {
+    const result = calculateCompletionPercentage(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 2, total: 4, items: [] },
+      null,
+      null,
+      null,
+    );
+    // Phase 1: ~16.67 (all 4 fields filled), Phase 2: ~16.67, Phase 3: 50% of ~16.67 = ~8.33
+    expect(result).toBeGreaterThan(30);
+    expect(result).toBeLessThan(50);
+  });
+});
+
+describe("collectPendingItems", () => {
+  it("returns empty array when all phases are complete", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 3, total: 3, items: [{ itemKey: "passport", completed: true, required: true }, { itemKey: "visa", completed: true, required: true }, { itemKey: "insurance", completed: true, required: false }] },
+      { transportSegments: [{ type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", departureAt: null, arrivalAt: null, provider: null, maskedBookingCode: null }], accommodations: [{ type: "hotel", name: "H", checkIn: null, checkOut: null, maskedBookingCode: null }], mobility: ["metro"] },
+      { generatedAt: "2026-05-01", highlights: [] },
+      { dayCount: 3, totalActivities: 10 },
+    );
+    expect(result).toEqual([]);
+  });
+
+  it("flags missing dates in phase 1 as required", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: null, startDate: null, endDate: null, tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      null,
+      null,
+      null,
+      null,
+      null,
+    );
+    const dateItems = result.filter((p) => p.phase === 1 && p.severity === "required");
+    expect(dateItems.length).toBe(2); // startDate, endDate
+    const originItem = result.find((p) => p.phase === 1 && p.key === "origin");
+    expect(originItem?.severity).toBe("recommended");
+  });
+
+  it("flags incomplete required checklist items", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 1, total: 3, items: [
+        { itemKey: "passport", completed: true, required: true },
+        { itemKey: "visa", completed: false, required: true },
+        { itemKey: "sunscreen", completed: false, required: false },
+      ] },
+      null,
+      null,
+      null,
+    );
+    const checklistRequired = result.filter((p) => p.phase === 3 && p.severity === "required");
+    expect(checklistRequired).toHaveLength(1);
+    expect(checklistRequired[0]!.key).toBe("visa");
+  });
+
+  it("flags missing transport and accommodation as recommended", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 3, total: 3, items: [] },
+      null,
+      null,
+      null,
+    );
+    const transportItem = result.find((p) => p.phase === 4 && p.key === "transport");
+    expect(transportItem?.severity).toBe("recommended");
+    const accommodationItem = result.find((p) => p.phase === 4 && p.key === "accommodation");
+    expect(accommodationItem?.severity).toBe("recommended");
+  });
+});
+
 describe("ExpeditionSummaryService", () => {
   describe("getExpeditionSummary", () => {
     it("throws error when trip not found (BOLA check)", async () => {
@@ -86,7 +222,7 @@ describe("ExpeditionSummaryService", () => {
       ).rejects.toThrow("errors.tripNotFound");
     });
 
-    it("aggregates data from all 6 phases", async () => {
+    it("aggregates data from all 6 phases with expanded fields", async () => {
       // Setup trip
       prismaMock.trip.findFirst.mockResolvedValue({
         id: "trip-1",
@@ -95,6 +231,7 @@ describe("ExpeditionSummaryService", () => {
         startDate: new Date("2026-06-01"),
         endDate: new Date("2026-06-10"),
         tripType: "international",
+        currentPhase: 6,
         passengers: {
           adults: 2,
           children: { count: 1, ages: [5] },
@@ -106,7 +243,7 @@ describe("ExpeditionSummaryService", () => {
 
       // Phases
       prismaMock.expeditionPhase.findMany.mockResolvedValue([
-        { phaseNumber: 1, status: "completed", metadata: {} },
+        { phaseNumber: 1, status: "completed", metadata: { flexibleDates: false } },
         {
           phaseNumber: 2,
           status: "completed",
@@ -123,9 +260,9 @@ describe("ExpeditionSummaryService", () => {
 
       // Checklist
       prismaMock.phaseChecklistItem.findMany.mockResolvedValue([
-        { completed: true },
-        { completed: true },
-        { completed: false },
+        { itemKey: "passport", completed: true, required: true },
+        { itemKey: "visa", completed: true, required: true },
+        { itemKey: "insurance", completed: false, required: false },
       ] as never);
 
       // Transport
@@ -134,6 +271,9 @@ describe("ExpeditionSummaryService", () => {
           transportType: "flight",
           departurePlace: "GRU",
           arrivalPlace: "CDG",
+          departureAt: new Date("2026-06-01T10:00:00Z"),
+          arrivalAt: new Date("2026-06-01T22:00:00Z"),
+          provider: "LATAM",
           bookingCodeEnc: "enc-ABC123",
         },
       ] as never);
@@ -143,6 +283,8 @@ describe("ExpeditionSummaryService", () => {
         {
           accommodationType: "hotel",
           name: "Hotel Paris",
+          checkIn: new Date("2026-06-01"),
+          checkOut: new Date("2026-06-10"),
           bookingCodeEnc: null,
         },
       ] as never);
@@ -169,17 +311,20 @@ describe("ExpeditionSummaryService", () => {
         "user-1"
       );
 
-      // Phase 1
-      expect(result.phase1).toEqual({
+      // Phase 1 — expanded fields
+      expect(result.phase1).toMatchObject({
         destination: "Paris, France",
         origin: "Sao Paulo, Brazil",
         startDate: "2026-06-01",
         endDate: "2026-06-10",
         tripType: "international",
+        flexibleDates: false,
+        name: "Test User",
       });
+      expect(result.phase1!.ageRange).toBeTruthy();
 
-      // Phase 2
-      expect(result.phase2).toEqual({
+      // Phase 2 — expanded fields
+      expect(result.phase2).toMatchObject({
         travelerType: "family",
         accommodationStyle: "comfort",
         travelPace: 50,
@@ -192,23 +337,26 @@ describe("ExpeditionSummaryService", () => {
           seniors: 0,
         },
       });
+      expect(result.phase2!.preferences).not.toBeNull();
 
-      // Phase 3
-      expect(result.phase3).toEqual({
+      // Phase 3 — expanded with items
+      expect(result.phase3).toMatchObject({
         done: 2,
         total: 3,
       });
+      expect(result.phase3!.items).toHaveLength(3);
+      expect(result.phase3!.items[0]).toMatchObject({
+        itemKey: "passport",
+        completed: true,
+        required: true,
+      });
 
-      // Phase 4
+      // Phase 4 — expanded with dates and provider
       expect(result.phase4).not.toBeNull();
-      expect(result.phase4!.transportSegments).toHaveLength(1);
-      expect(result.phase4!.transportSegments[0]!.type).toBe("flight");
-      expect(result.phase4!.transportSegments[0]!.maskedBookingCode).toBe(
-        "BOOK-****-123"
-      );
-      expect(result.phase4!.accommodations).toHaveLength(1);
-      expect(result.phase4!.accommodations[0]!.maskedBookingCode).toBeNull();
-      expect(result.phase4!.mobility).toEqual(["public_transit", "walking"]);
+      expect(result.phase4!.transportSegments[0]!.departureAt).toContain("2026-06-01");
+      expect(result.phase4!.transportSegments[0]!.provider).toBe("LATAM");
+      expect(result.phase4!.accommodations[0]!.checkIn).toBe("2026-06-01");
+      expect(result.phase4!.accommodations[0]!.checkOut).toBe("2026-06-10");
 
       // Phase 5
       expect(result.phase5).not.toBeNull();
@@ -220,9 +368,15 @@ describe("ExpeditionSummaryService", () => {
         dayCount: 3,
         totalActivities: 12,
       });
+
+      // New fields
+      expect(result.currentPhase).toBe(6);
+      expect(typeof result.completionPercentage).toBe("number");
+      expect(result.completionPercentage).toBeGreaterThan(0);
+      expect(Array.isArray(result.pendingItems)).toBe(true);
     });
 
-    it("returns null for missing phase data", async () => {
+    it("returns null for missing phase data with pendingItems", async () => {
       prismaMock.trip.findFirst.mockResolvedValue({
         id: "trip-1",
         destination: "Berlin",
@@ -230,6 +384,7 @@ describe("ExpeditionSummaryService", () => {
         startDate: null,
         endDate: null,
         tripType: "international",
+        currentPhase: 1,
         passengers: null,
         localMobility: [],
       } as never);
@@ -261,6 +416,14 @@ describe("ExpeditionSummaryService", () => {
       expect(result.phase4).toBeNull();
       expect(result.phase5).toBeNull();
       expect(result.phase6).toBeNull();
+
+      // Pending items should be populated
+      expect(result.pendingItems.length).toBeGreaterThan(0);
+      // Missing dates should be flagged
+      const dateItems = result.pendingItems.filter((p) => p.phase === 1 && p.key === "startDate");
+      expect(dateItems).toHaveLength(1);
+      // Completion should be low
+      expect(result.completionPercentage).toBeLessThan(20);
     });
 
     it("masks booking codes in transport segments", async () => {
@@ -271,6 +434,7 @@ describe("ExpeditionSummaryService", () => {
         startDate: null,
         endDate: null,
         tripType: "international",
+        currentPhase: 4,
         passengers: null,
         localMobility: [],
       } as never);
@@ -282,6 +446,9 @@ describe("ExpeditionSummaryService", () => {
           transportType: "flight",
           departurePlace: "GRU",
           arrivalPlace: "NRT",
+          departureAt: null,
+          arrivalAt: null,
+          provider: null,
           bookingCodeEnc: "enc-ABC123",
         },
       ] as never);

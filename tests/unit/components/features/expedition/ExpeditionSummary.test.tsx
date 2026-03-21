@@ -53,6 +53,7 @@ import type { NextStep } from "@/lib/engines/next-steps-engine";
 
 const FULL_SUMMARY: ExpeditionSummaryData = {
   tripId: "trip-1",
+  currentPhase: 6,
   phase1: {
     destination: "Paris, France",
     origin: "Sao Paulo, Brazil",
@@ -61,6 +62,9 @@ const FULL_SUMMARY: ExpeditionSummaryData = {
     startDate: "2026-06-01",
     endDate: "2026-06-10",
     tripType: "international",
+    flexibleDates: false,
+    name: "Test User",
+    ageRange: "25-34",
   },
   phase2: {
     travelerType: "family",
@@ -69,19 +73,34 @@ const FULL_SUMMARY: ExpeditionSummaryData = {
     budget: 5000,
     currency: "USD",
     passengers: { adults: 2, children: 1, infants: 0, seniors: 0 },
+    budgetRange: null,
+    preferences: null,
   },
-  phase3: { done: 5, total: 8 },
+  phase3: { done: 5, total: 8, items: [
+    { itemKey: "passport", completed: true, required: true },
+    { itemKey: "visa", completed: true, required: true },
+    { itemKey: "insurance", completed: true, required: false },
+    { itemKey: "vaccinations", completed: true, required: true },
+    { itemKey: "currency", completed: true, required: false },
+    { itemKey: "packing", completed: false, required: false },
+    { itemKey: "documents", completed: false, required: true },
+    { itemKey: "contacts", completed: false, required: false },
+  ] },
   phase4: {
     transportSegments: [
-      { type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", maskedBookingCode: "BOOK-****-123" },
+      { type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", departureAt: null, arrivalAt: null, provider: null, maskedBookingCode: "BOOK-****-123" },
     ],
     accommodations: [
-      { type: "hotel", name: "Hotel Paris", maskedBookingCode: "BOOK-****-456" },
+      { type: "hotel", name: "Hotel Paris", checkIn: null, checkOut: null, maskedBookingCode: "BOOK-****-456" },
     ],
     mobility: ["public_transit", "walking"],
   },
   phase5: { generatedAt: "2026-05-15", highlights: ["UTC+1", "EUR", "French"] },
   phase6: { dayCount: 10, totalActivities: 35 },
+  pendingItems: [
+    { phase: 3, key: "documents", severity: "required" },
+  ],
+  completionPercentage: 85,
 };
 
 const FULL_READINESS: TripReadinessResult = {
@@ -92,7 +111,7 @@ const FULL_READINESS: TripReadinessResult = {
     { phase: 3, name: "The Preparation", status: "partial", dataSnapshot: { done: 5, total: 8 } },
     { phase: 4, name: "The Logistics", status: "complete", dataSnapshot: {} },
     { phase: 5, name: "The Day Map", status: "complete", dataSnapshot: {} },
-    { phase: 6, name: "The Treasure", status: "not_started", dataSnapshot: {} },
+    { phase: 6, name: "The Treasure", status: "complete", dataSnapshot: {} },
   ],
 };
 
@@ -103,8 +122,11 @@ const NEXT_STEPS: NextStep[] = [
 
 const EMPTY_SUMMARY: ExpeditionSummaryData = {
   tripId: "trip-2",
-  phase1: { destination: "Berlin", origin: null, destinationLat: null, destinationLon: null, startDate: null, endDate: null, tripType: "international" },
+  currentPhase: 1,
+  phase1: { destination: "Berlin", origin: null, destinationLat: null, destinationLon: null, startDate: null, endDate: null, tripType: "international", flexibleDates: false, name: null, ageRange: null },
   phase2: null, phase3: null, phase4: null, phase5: null, phase6: null,
+  pendingItems: [],
+  completionPercentage: 4,
 };
 
 // ─── Setup ────────────────────────────────────────────────────────────────────
@@ -143,12 +165,18 @@ describe("ExpeditionSummary", () => {
     render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
     const indicator = screen.getByTestId("readiness-indicator");
     expect(indicator).toBeInTheDocument();
-    expect(screen.getByText("85%")).toBeInTheDocument();
+    // Both completion and readiness are 85%, so scope within readiness-indicator
+    // eslint-disable-next-line testing-library/no-node-access
+    const percentText = indicator.querySelector(".font-bold");
+    expect(percentText).toHaveTextContent("85%");
   });
 
   it("renders readiness progress bar with correct ARIA", () => {
     render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
-    const progressbar = screen.getByRole("progressbar");
+    const indicator = screen.getByTestId("readiness-indicator");
+    // Two progressbars exist (completion + readiness); scope within readiness-indicator
+    // eslint-disable-next-line testing-library/no-node-access
+    const progressbar = indicator.querySelector("[role='progressbar']") as HTMLElement;
     expect(progressbar).toHaveAttribute("aria-valuenow", "85");
   });
 
@@ -202,7 +230,15 @@ describe("ExpeditionSummary", () => {
   });
 
   it("shows edit/continue/start CTAs based on phase status", () => {
-    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={FULL_READINESS} />);
+    // Use a readiness fixture where phase 6 is not_started to test all 3 CTA variants
+    const readinessWithPhase6NotStarted: TripReadinessResult = {
+      readinessPercent: 85,
+      phases: [
+        ...FULL_READINESS.phases.slice(0, 5),
+        { phase: 6, name: "The Treasure", status: "not_started", dataSnapshot: {} },
+      ],
+    };
+    render(<ExpeditionSummary tripId="trip-1" summary={FULL_SUMMARY} readiness={readinessWithPhase6NotStarted} />);
     // Phase 1 is complete → Edit
     expect(screen.getByTestId("edit-phase-1")).toHaveTextContent("expedition.summary.editPhase");
     // Phase 3 is partial → Continue

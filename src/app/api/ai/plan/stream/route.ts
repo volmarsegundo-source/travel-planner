@@ -29,7 +29,9 @@ export const maxDuration = 120;
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const TOKENS_PER_DAY = 600;
-const TOKENS_OVERHEAD = 500;
+// Overhead increased from 500 to 1100 to account for ~600 tokens of
+// enriched traveler context added by SPEC-AI-004 (TASK-S33-012).
+const TOKENS_OVERHEAD = 1100;
 const MIN_PLAN_TOKENS = 2048;
 const MAX_PLAN_TOKENS = 16000;
 
@@ -79,7 +81,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Validation failed" }, { status: 400 });
   }
 
-  const { tripId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes } = parsed.data;
+  const { tripId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext } = parsed.data;
 
   // Validate tripId format
   const tripIdResult = TripIdSchema.safeParse(tripId);
@@ -169,6 +171,7 @@ export async function POST(request: NextRequest) {
     language,
     tokenBudget,
     travelNotes: sanitizedTravelNotes,
+    expeditionContext: expeditionContext as import("@/types/ai.types").ExpeditionContext | undefined,
   });
 
   // Start streaming
