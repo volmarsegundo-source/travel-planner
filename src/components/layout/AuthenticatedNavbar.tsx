@@ -14,8 +14,10 @@ interface AuthenticatedNavbarProps {
   userEmail: string;
   gamification?: {
     totalPoints: number;
+    availablePoints: number;
     currentLevel: number;
     phaseName: string;
+    rank: "novato" | "desbravador" | "navegador" | "capitao" | "aventureiro" | "lendario";
   };
 }
 
@@ -90,8 +92,10 @@ export function AuthenticatedNavbar({
           {gamification && (
             <GamificationBadge
               totalPoints={gamification.totalPoints}
+              availablePoints={gamification.availablePoints}
               currentLevel={gamification.currentLevel}
               phaseName={gamification.phaseName}
+              rank={gamification.rank}
             />
           )}
           <UserMenu
@@ -149,8 +153,10 @@ export function AuthenticatedNavbar({
               <div className="border-t border-border/40 pt-2">
                 <GamificationBadge
                   totalPoints={gamification.totalPoints}
+                  availablePoints={gamification.availablePoints}
                   currentLevel={gamification.currentLevel}
                   phaseName={gamification.phaseName}
+                  rank={gamification.rank}
                 />
               </div>
             )}

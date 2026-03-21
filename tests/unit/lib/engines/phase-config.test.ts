@@ -35,6 +35,24 @@ describe("PHASE_DEFINITIONS", () => {
     expect(totalReward).toBe(1565);
   });
 
+  it("assigns correct per-phase pointsReward values", () => {
+    const rewardMap = PHASE_DEFINITIONS.map((p) => ({
+      phase: p.phaseNumber,
+      reward: p.pointsReward,
+    }));
+
+    expect(rewardMap).toEqual([
+      { phase: 1, reward: 100 },
+      { phase: 2, reward: 150 },
+      { phase: 3, reward: 75 },
+      { phase: 4, reward: 50 },
+      { phase: 5, reward: 40 },
+      { phase: 6, reward: 250 },
+      { phase: 7, reward: 400 },
+      { phase: 8, reward: 500 },
+    ]);
+  });
+
   it("marks phases 1-5 as free and phases 6-8 as not free", () => {
     const freePhases = PHASE_DEFINITIONS.filter((p) => p.isFree);
     const paidPhases = PHASE_DEFINITIONS.filter((p) => !p.isFree);

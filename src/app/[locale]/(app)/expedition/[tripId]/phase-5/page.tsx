@@ -1,8 +1,10 @@
 // Allow AI generation requests up to 120s (Anthropic SDK timeout is 90s)
 export const maxDuration = 120;
 
+import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
+import { PointsEngine } from "@/lib/engines/points-engine";
 import { DestinationGuideWizard } from "@/components/features/expedition/DestinationGuideWizard";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
@@ -32,6 +34,18 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
       }
     : null;
 
+  // Fetch PA balance for cost gate
+  const session = await auth();
+  let availablePoints = 0;
+  try {
+    if (session?.user?.id) {
+      const balance = await PointsEngine.getBalance(session.user.id);
+      availablePoints = balance.availablePoints;
+    }
+  } catch {
+    // Non-critical — defaults to 0
+  }
+
   return (
     <DestinationGuideWizard
       tripId={tripId}
@@ -41,6 +55,7 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
       accessMode={accessMode}
       tripCurrentPhase={trip.currentPhase}
       completedPhases={completedPhases}
+      availablePoints={availablePoints}
     />
   );
 }

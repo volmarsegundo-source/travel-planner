@@ -8,6 +8,7 @@ import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor
 import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
+import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
   getProgressPhase,
   getProgressMessageKey,
@@ -17,6 +18,8 @@ import {
 } from "@/lib/utils/stream-progress";
 // completeExpeditionAction removed -- expedition completion is now automatic (SPEC-PROD-023)
 import { syncPhase6CompletionAction } from "@/server/actions/expedition.actions";
+import { spendPAForAIAction } from "@/server/actions/gamification.actions";
+import { AI_COSTS } from "@/types/gamification.types";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
@@ -43,6 +46,8 @@ interface Phase6WizardProps {
   tripCurrentPhase?: number;
   /** Completed phase numbers from DB */
   completedPhases?: number[];
+  /** User's available PA balance for cost gate */
+  availablePoints?: number;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -81,6 +86,7 @@ export function Phase6Wizard({
   accessMode = "first_visit",
   tripCurrentPhase = 6,
   completedPhases = [],
+  availablePoints = 0,
 }: Phase6WizardProps) {
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
@@ -101,6 +107,11 @@ export function Phase6Wizard({
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   // Accumulated text kept for persistence tracking but NOT displayed to user
   const accumulatedRef = useRef("");
+  const [showPAConfirm, setShowPAConfirm] = useState(false);
+  const [paBalance, setPABalance] = useState(availablePoints);
+  const [isSpending, setIsSpending] = useState(false);
+
+  const itineraryCost = AI_COSTS.ai_itinerary; // 80 PA
 
   const hasItinerary = days.length > 0;
   const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
@@ -256,13 +267,55 @@ export function Phase6Wizard({
     startProgressTimer, stopProgressTimer,
   ]);
 
-  // Auto-trigger generation on first visit when no itinerary exists
+  // Auto-trigger: on first visit when no itinerary, auto-spend PA then generate
+  // (no modal on auto-trigger -- the user navigated here intentionally)
   useEffect(() => {
     if (initialDays.length === 0 && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
-      handleGenerate();
+      spendPAForAIAction(tripId, "ai_itinerary")
+        .then((result) => {
+          if (result.success && result.data && "remainingBalance" in result.data) {
+            setPABalance(result.data.remainingBalance);
+          }
+        })
+        .catch(() => {
+          // Non-blocking: proceed with generation
+        })
+        .finally(() => {
+          handleGenerate();
+        });
     }
-  }, [initialDays.length, handleGenerate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDays.length]);
+
+  function handleRequestGenerate() {
+    setShowPAConfirm(true);
+  }
+
+  async function handlePAConfirmAndGenerate() {
+    setIsSpending(true);
+    setError(null);
+
+    try {
+      const spendResult = await spendPAForAIAction(tripId, "ai_itinerary");
+      if (!spendResult.success) {
+        setError(spendResult.error ?? t("errorGenerate"));
+        setIsSpending(false);
+        return;
+      }
+
+      if (spendResult.data && "remainingBalance" in spendResult.data) {
+        setPABalance(spendResult.data.remainingBalance);
+      }
+
+      setShowPAConfirm(false);
+      setIsSpending(false);
+      handleGenerate();
+    } catch {
+      setError(t("errorGenerate"));
+      setIsSpending(false);
+    }
+  }
 
   function handleCancel() {
     abortControllerRef.current?.abort();
@@ -276,13 +329,13 @@ export function Phase6Wizard({
     if (hasItinerary) {
       setShowRegenerateConfirm(true);
     } else {
-      handleGenerate();
+      handleRequestGenerate();
     }
   }
 
   function handleRegenerateConfirm() {
     setShowRegenerateConfirm(false);
-    handleGenerate();
+    handleRequestGenerate();
   }
 
   function handleRegenerateCancel() {
@@ -399,9 +452,19 @@ export function Phase6Wizard({
             </p>
           )}
 
+          <PAConfirmationModal
+            isOpen={showPAConfirm}
+            onClose={() => setShowPAConfirm(false)}
+            onConfirm={handlePAConfirmAndGenerate}
+            featureName={t("title")}
+            paCost={itineraryCost}
+            currentBalance={paBalance}
+            isLoading={isSpending}
+          />
+
           <WizardFooter
             onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
-            onPrimary={handleGenerate}
+            onPrimary={handleRequestGenerate}
             primaryLabel={t("generateCta")}
           />
         </div>
@@ -473,6 +536,16 @@ export function Phase6Wizard({
           </div>
         </div>
       )}
+
+      <PAConfirmationModal
+        isOpen={showPAConfirm}
+        onClose={() => setShowPAConfirm(false)}
+        onConfirm={handlePAConfirmAndGenerate}
+        featureName={t("title")}
+        paCost={itineraryCost}
+        currentBalance={paBalance}
+        isLoading={isSpending}
+      />
 
       <div className="mt-8">
         <WizardFooter

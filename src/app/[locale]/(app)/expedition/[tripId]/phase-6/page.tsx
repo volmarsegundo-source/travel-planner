@@ -4,6 +4,7 @@ export const maxDuration = 120;
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
+import { PointsEngine } from "@/lib/engines/points-engine";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { Phase6Wizard } from "@/components/features/expedition/Phase6Wizard";
 import { deriveAgeRange } from "@/server/services/expedition-summary.service";
@@ -225,6 +226,15 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
     if (totalTravelers === 0) totalTravelers = 1;
   }
 
+  // Fetch PA balance for cost gate
+  let availablePoints = 0;
+  try {
+    const balance = await PointsEngine.getBalance(userId);
+    availablePoints = balance.availablePoints;
+  } catch {
+    // Non-critical — defaults to 0
+  }
+
   return (
     <Phase6Wizard
       key={`phase6-${itineraryDays.length}`}
@@ -252,6 +262,7 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
       accessMode={accessMode}
       tripCurrentPhase={trip.currentPhase}
       completedPhases={completedPhases}
+      availablePoints={availablePoints}
     />
   );
 }

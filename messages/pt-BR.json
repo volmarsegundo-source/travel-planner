@@ -1060,7 +1060,83 @@
     "points": "pts",
     "badge": {
       "viewProfile": "Ver seu perfil Atlas",
-      "ariaLabel": "{points} pontos, nivel {rankName}"
+      "ariaLabel": "{points} PA, {rankName}",
+      "levelLabel": "Nivel: {rank}"
+    },
+    "confirmModal": {
+      "title": "Confirmar Geracao com IA",
+      "costMessage": "Gerar {feature} custa {cost} PA.",
+      "balanceAfter": "Saldo apos: {balance} PA",
+      "currentBalance": "Saldo atual: {balance} PA",
+      "generate": "Gerar",
+      "cancel": "Cancelar",
+      "insufficientTitle": "Saldo Insuficiente",
+      "insufficientMessage": "Voce precisa de {cost} PA mas tem {balance} PA.",
+      "missing": "Faltam {amount} PA",
+      "earnMore": "Ganhar mais pontos",
+      "close": "Fechar"
+    },
+    "tutorial": {
+      "step1Title": "Ganhe Pontos",
+      "step1Description": "Ganhe pontos completando fases da sua expedicao",
+      "step2Title": "Gaste Pontos",
+      "step2Description": "Gaste pontos para gerar checklists, guias e roteiros com IA",
+      "step3Title": "Suba de Nivel",
+      "step3Description": "Suba de nivel e desbloqueie conquistas",
+      "next": "Proximo",
+      "skip": "Pular",
+      "finish": "Entendi!",
+      "stepIndicator": "Passo {current} de {total}"
+    },
+    "howItWorks": {
+      "title": "Como Funciona",
+      "pageDescription": "Saiba como funcionam os Pontos Atlas",
+      "section1Title": "O que sao Pontos Atlas?",
+      "section1Description": "Pontos Atlas (PA) sao a moeda da sua jornada de planejamento de viagem. Ganhe-os completando fases da expedicao e gaste-os para desbloquear recursos com IA como checklists, guias de destino e roteiros personalizados.",
+      "section2Title": "Como ganhar PA",
+      "section2Description": "Complete atividades durante sua expedicao para ganhar pontos.",
+      "section3Title": "Como gastar PA",
+      "section3Description": "Use seus pontos para acessar ferramentas de viagem com IA.",
+      "section4Title": "Niveis",
+      "section4Description": "Avance pelos niveis conforme ganha mais pontos.",
+      "section5Title": "Perguntas Frequentes",
+      "earnTable": {
+        "activity": "Atividade",
+        "points": "Pontos",
+        "welcomeBonus": "Bonus de boas-vindas",
+        "dailyLogin": "Login diario",
+        "phase1": "Completar Fase 1 — O Chamado",
+        "phase2": "Completar Fase 2 — O Explorador",
+        "phase3": "Completar Fase 3 — O Preparo",
+        "phase4": "Completar Fase 4 — A Logistica",
+        "phase5": "Completar Fase 5 — Guia do Destino",
+        "phase6": "Completar Fase 6 — O Roteiro",
+        "profileField": "Completar campo do perfil",
+        "checklistItem": "Completar item do checklist",
+        "tutorial": "Completar o tutorial"
+      },
+      "spendTable": {
+        "feature": "Recurso",
+        "cost": "Custo",
+        "checklist": "Checklist IA (Fase 3)",
+        "guide": "Guia do Destino IA (Fase 5)",
+        "itinerary": "Roteiro IA (Fase 6)"
+      },
+      "levelTable": {
+        "level": "Nivel",
+        "name": "Nome",
+        "threshold": "Pontos Necessarios"
+      },
+      "faq": {
+        "q1": "O que acontece se eu nao tiver PA suficientes?",
+        "a1": "Voce ainda pode avancar pelas fases sem IA para ganhar mais pontos. Complete campos do perfil e itens do checklist para PA adicional.",
+        "q2": "Posso perder PA?",
+        "a2": "PA so e gasto quando voce gera conteudo com IA. Completar fases e outras atividades sempre adicionam ao seu saldo.",
+        "q3": "Os pontos expiram?",
+        "a3": "Nao, seus Pontos Atlas nunca expiram. Tome seu tempo planejando a viagem perfeita.",
+        "q4": "Como verifico meu saldo?",
+        "a4": "Seu saldo de PA atual esta sempre visivel no badge do cabecalho no topo da pagina."
+      }
     }
   },
   "atlas": {
@@ -1189,7 +1265,9 @@
     "invalidPhase": "Número de fase inválido.",
     "phaseNotSkippable": "Esta fase não pode ser pulada — deve ser concluída.",
     "aiNotAvailable": "IA não disponível para esta fase.",
-    "aiAgeRestricted": "Você precisa ter 18 anos ou mais para usar recursos de IA."
+    "aiAgeRestricted": "Você precisa ter 18 anos ou mais para usar recursos de IA.",
+    "insufficientBalance": "Saldo de PA insuficiente para esta acao.",
+    "invalidAiType": "Tipo de recurso IA invalido."
   },
   "legal": {
     "terms": {

@@ -32,6 +32,13 @@ vi.mock("@/server/actions/expedition.actions", () => ({
   }),
 }));
 
+vi.mock("@/server/actions/gamification.actions", () => ({
+  spendPAForAIAction: vi.fn().mockResolvedValue({
+    success: true,
+    data: { remainingBalance: 100, transactionId: "tx-1" },
+  }),
+}));
+
 vi.mock("next-intl", () => ({
   useTranslations: () => (key: string, params?: Record<string, unknown>) => {
     if (params && "count" in params) return `${key}:${params.count}`;
@@ -341,12 +348,15 @@ describe("Phase6Wizard", () => {
       expect(screen.getByText("regenerateConfirmMessage")).toBeInTheDocument();
     });
 
-    it("triggers generation on confirm", async () => {
+    it("routes through PA spend before fetching on confirm", async () => {
+      const { spendPAForAIAction: mockSpend } = await import(
+        "@/server/actions/gamification.actions"
+      );
       const fetchMock = mockFetchHang();
       globalThis.fetch = fetchMock;
 
       render(
-        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} />
+        <Phase6Wizard {...BASE_PROPS} initialDays={DAYS_WITH_ACTIVITIES} availablePoints={200} />
       );
 
       // Click regenerate
@@ -356,14 +366,22 @@ describe("Phase6Wizard", () => {
         );
       });
 
-      // Confirm
+      // Before confirm, fetch should not have been called
+      expect(fetchMock).not.toHaveBeenCalled();
+
+      // Confirm regenerate dialog — this now routes through PA modal
       await act(async () => {
         fireEvent.click(
           screen.getByRole("button", { name: "regenerateConfirmYes" })
         );
       });
 
-      expect(fetchMock).toHaveBeenCalled();
+      // Fetch should still not have been called (waiting for PA modal confirm)
+      expect(fetchMock).not.toHaveBeenCalled();
+
+      // But the PA modal state is now active — verify by checking that
+      // the original regenerate dialog is dismissed
+      expect(screen.queryByText("regenerateConfirmTitle")).not.toBeInTheDocument();
     });
 
     it("dismisses dialog on cancel", async () => {
