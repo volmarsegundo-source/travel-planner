@@ -18,7 +18,7 @@ import {
 // completeExpeditionAction removed -- expedition completion is now automatic (SPEC-PROD-023)
 import { syncPhase6CompletionAction } from "@/server/actions/expedition.actions";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
-import type { TravelStyle } from "@/types/ai.types";
+import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -35,6 +35,8 @@ interface Phase6WizardProps {
   budgetCurrency?: string;
   travelers?: number;
   travelNotes?: string;
+  /** Enriched expedition context from phases 1-5 (TASK-S33-011) */
+  expeditionContext?: ExpeditionContext;
   /** Access mode from navigation engine */
   accessMode?: PhaseAccessMode;
   /** Trip's current phase from DB */
@@ -75,6 +77,7 @@ export function Phase6Wizard({
   budgetCurrency = "USD",
   travelers = 1,
   travelNotes,
+  expeditionContext,
   accessMode = "first_visit",
   tripCurrentPhase = 6,
   completedPhases = [],
@@ -166,6 +169,7 @@ export function Phase6Wizard({
           travelers,
           language,
           travelNotes,
+          expeditionContext,
         }),
         signal: abortController.signal,
       });

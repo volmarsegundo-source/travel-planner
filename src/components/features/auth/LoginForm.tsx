@@ -65,6 +65,20 @@ function GoogleIcon() {
   );
 }
 
+// Inline SVG Apple logo
+function AppleIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="size-4"
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
+      <path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+    </svg>
+  );
+}
+
 export function LoginForm() {
   const t = useTranslations("auth");
   const router = useRouter();
@@ -76,8 +90,10 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isAppleLoading, setIsAppleLoading] = useState(false);
   const [errorKey, setErrorKey] = useState<string | null>(null);
 
+  const isSocialLoading = isGoogleLoading || isAppleLoading;
   const errorId = "login-error";
 
   async function handleCredentialsSubmit(
@@ -117,6 +133,15 @@ export function LoginForm() {
       // signIn with redirect does not return here in normal flow;
       // reset loading only on error path
       setIsGoogleLoading(false);
+    }
+  }
+
+  async function handleAppleSignIn() {
+    setIsAppleLoading(true);
+    try {
+      await signIn("apple", { callbackUrl: "/expeditions" });
+    } finally {
+      setIsAppleLoading(false);
     }
   }
 
@@ -161,6 +186,41 @@ export function LoginForm() {
           {resolveError(errorKey)}
         </div>
       )}
+
+      {/* Social sign-in buttons */}
+      <div className="flex flex-col gap-3">
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full"
+          onClick={handleGoogleSignIn}
+          disabled={isSubmitting || isSocialLoading}
+          aria-busy={isGoogleLoading}
+          data-testid="google-signin"
+        >
+          {isGoogleLoading ? <Spinner /> : <GoogleIcon />}
+          {t("continueWithGoogle")}
+        </Button>
+
+        <Button
+          type="button"
+          className="w-full bg-black text-white hover:bg-black/90"
+          onClick={handleAppleSignIn}
+          disabled={isSubmitting || isSocialLoading}
+          aria-busy={isAppleLoading}
+          data-testid="apple-signin"
+        >
+          {isAppleLoading ? <Spinner /> : <AppleIcon />}
+          {t("continueWithApple")}
+        </Button>
+      </div>
+
+      {/* Divider */}
+      <div className="flex items-center gap-3">
+        <Separator className="flex-1" />
+        <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
+        <Separator className="flex-1" />
+      </div>
 
       {/* Credentials form */}
       <form
@@ -212,33 +272,13 @@ export function LoginForm() {
         <Button
           type="submit"
           className="w-full"
-          disabled={isSubmitting || isGoogleLoading}
+          disabled={isSubmitting || isSocialLoading}
           aria-busy={isSubmitting}
         >
           {isSubmitting ? <Spinner /> : null}
           {t("signIn")}
         </Button>
       </form>
-
-      {/* Divider */}
-      <div className="flex items-center gap-3">
-        <Separator className="flex-1" />
-        <span className="text-sm text-muted-foreground">{t("orContinueWith")}</span>
-        <Separator className="flex-1" />
-      </div>
-
-      {/* Google sign in */}
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={handleGoogleSignIn}
-        disabled={isSubmitting || isGoogleLoading}
-        aria-busy={isGoogleLoading}
-      >
-        {isGoogleLoading ? <Spinner /> : <GoogleIcon />}
-        {t("continueWithGoogle")}
-      </Button>
 
       {/* Register link */}
       <p className="text-center text-sm text-muted-foreground">

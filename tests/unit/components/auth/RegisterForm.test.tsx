@@ -201,7 +201,7 @@ describe("RegisterForm", () => {
     expect(mockRouterPush).not.toHaveBeenCalled();
   });
 
-  it("calls signIn('google') when Google button is clicked", async () => {
+  it("calls signIn('google') with /expeditions callbackUrl when Google button is clicked", async () => {
     mockSignIn.mockResolvedValue(undefined);
 
     render(<RegisterForm />);
@@ -211,8 +211,55 @@ describe("RegisterForm", () => {
     );
 
     expect(mockSignIn).toHaveBeenCalledWith("google", {
-      callbackUrl: "/trips",
+      callbackUrl: "/expeditions",
     });
+  });
+
+  // ─── TASK-S33-013/014/015: Social login buttons ───────────────────────────
+
+  it("renders Apple sign-in button (TASK-S33-014)", () => {
+    render(<RegisterForm />);
+
+    const appleButton = screen.getByTestId("apple-signin");
+    expect(appleButton).toBeInTheDocument();
+    expect(appleButton).toHaveTextContent("auth.continueWithApple");
+  });
+
+  it("calls signIn('apple') when Apple button is clicked (TASK-S33-014)", async () => {
+    mockSignIn.mockResolvedValue(undefined);
+
+    render(<RegisterForm />);
+
+    const appleButton = screen.getByTestId("apple-signin");
+    fireEvent.click(appleButton);
+
+    await waitFor(() => {
+      expect(mockSignIn).toHaveBeenCalledWith("apple", {
+        callbackUrl: "/expeditions",
+      });
+    });
+  });
+
+  it("renders social buttons before credentials form (TASK-S33-013)", () => {
+    const { container } = render(<RegisterForm />);
+
+    const googleBtn = screen.getByTestId("google-signin");
+    const appleBtn = screen.getByTestId("apple-signin");
+    const form = container.querySelector("form");
+
+    expect(googleBtn).toBeInTheDocument();
+    expect(appleBtn).toBeInTheDocument();
+    expect(form).toBeInTheDocument();
+
+    // Social buttons should appear before the form in DOM order
+    expect(
+      googleBtn.compareDocumentPosition(form!)
+        & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
+    expect(
+      appleBtn.compareDocumentPosition(form!)
+        & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
   });
 
   it("disables submit button while server action is in progress", async () => {

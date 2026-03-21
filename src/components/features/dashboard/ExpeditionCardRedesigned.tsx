@@ -254,5 +254,15 @@ function buildQuickAccessLinks(
     });
   }
 
+  // Summary link: available from Phase 2 onward (TASK-S33-008)
+  if (exp.currentPhase >= 2) {
+    links.push({
+      key: "summary",
+      label: t("quickAccessSummary"),
+      href: `/expedition/${exp.id}/summary`,
+      icon: "\uD83D\uDCC4",
+    });
+  }
+
   return links;
 }
