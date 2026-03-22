@@ -4,6 +4,7 @@ import { useRef, useState, useMemo, useEffect, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useFormDirty } from "@/hooks/useFormDirty";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -138,6 +139,54 @@ export function Phase1Wizard({
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>(_tripId ?? "");
   const locale = useLocale();
+
+  // ─── Dirty tracking ─────────────────────────────────────────────────────
+  const formValues = useMemo(() => ({
+    destination, origin, startDate, endDate, flexibleDates: String(flexibleDates),
+    birthDate, phone, country, city, bio, name,
+  }), [destination, origin, startDate, endDate, flexibleDates, birthDate, phone, country, city, bio, name]);
+
+  const { isDirty: formDirty, markClean } = useFormDirty(formValues);
+
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  /** Save current form data (edit mode only). */
+  async function handleSave() {
+    if (!isEditMode || !_tripId) return;
+    const profileFields: Record<string, string | undefined> = {};
+    if (birthDate) profileFields.birthDate = birthDate;
+    if (phone) profileFields.phone = phone;
+    if (country) profileFields.country = country;
+    if (city) profileFields.city = city;
+    if (bio) profileFields.bio = bio;
+    if (name) profileFields.name = name;
+
+    const payload = {
+      destination: destination.trim(),
+      origin: origin.trim() || undefined,
+      destinationCountryCode: destinationCountryCode ?? undefined,
+      originCountryCode: originCountryCode ?? undefined,
+      destinationLat,
+      destinationLon,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      flexibleDates,
+      profileFields: Object.keys(profileFields).length > 0 ? profileFields : undefined,
+    };
+
+    try {
+      const result = await updatePhase1Action(_tripId, payload);
+      if (result.success) {
+        markClean();
+        setSaveSuccess(true);
+        setTimeout(() => setSaveSuccess(false), 2000);
+      } else {
+        setErrorMessage(result.error);
+      }
+    } catch {
+      setErrorMessage("errors.generic");
+    }
+  }
 
   // Auto-resolve origin country code when pre-populated from profile
   const resolveCountryCode = useCallback(async (query: string, setter: (code: string | null) => void) => {
@@ -352,8 +401,13 @@ export function Phase1Wizard({
     }
   }
 
-  // Determine the footer action for step 4 based on the current step
+  // Determine the footer action based on the current step
   const getFooterProps = () => {
+    // Dirty-state props (only meaningful in edit mode with existing trip)
+    const dirtyProps = isEditMode && _tripId
+      ? { onSave: handleSave, isDirty: formDirty, saveSuccess }
+      : {};
+
     if (currentStep === 1) {
       return undefined; // Step 1 uses inline buttons
     }
@@ -362,6 +416,7 @@ export function Phase1Wizard({
         onBack: () => goToStep(1),
         onPrimary: handleStep2Next,
         primaryLabel: tCommon("next"),
+        ...dirtyProps,
       };
     }
     if (currentStep === 3) {
@@ -369,6 +424,7 @@ export function Phase1Wizard({
         onBack: () => goToStep(2),
         onPrimary: handleStep3Next,
         primaryLabel: tCommon("next"),
+        ...dirtyProps,
       };
     }
     // Step 4: confirmation
@@ -380,6 +436,7 @@ export function Phase1Wizard({
         : tExpedition("cta.advance"),
       isLoading: isSubmitting,
       isDisabled: isSubmitting,
+      ...dirtyProps,
     };
   };
 

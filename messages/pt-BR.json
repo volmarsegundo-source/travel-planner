@@ -1137,6 +1137,139 @@
         "q4": "Como verifico meu saldo?",
         "a4": "Seu saldo de PA atual esta sempre visivel no badge do cabecalho no topo da pagina."
       }
+    },
+    "badges": {
+      "primeira_viagem": {
+        "name": "Primeira Viagem",
+        "description": "Complete sua primeira expedicao"
+      },
+      "viajante_frequente": {
+        "name": "Viajante Frequente",
+        "description": "Complete 3 expedicoes"
+      },
+      "globetrotter": {
+        "name": "Globetrotter",
+        "description": "Complete 5 expedicoes"
+      },
+      "marco_polo": {
+        "name": "Marco Polo",
+        "description": "Complete 10 expedicoes"
+      },
+      "detalhista": {
+        "name": "Detalhista",
+        "description": "Preencha todos os campos de logistica em uma expedicao"
+      },
+      "planejador_nato": {
+        "name": "Planejador Nato",
+        "description": "Complete todas as 6 fases de uma expedicao"
+      },
+      "zero_pendencias": {
+        "name": "Zero Pendencias",
+        "description": "Complete todos os itens obrigatorios do checklist"
+      },
+      "revisor": {
+        "name": "Revisor",
+        "description": "Revisite uma fase ja concluida"
+      },
+      "sem_fronteiras": {
+        "name": "Sem Fronteiras",
+        "description": "Planeje uma viagem internacional"
+      },
+      "em_familia": {
+        "name": "Em Familia",
+        "description": "Planeje uma viagem com criancas"
+      },
+      "solo_explorer": {
+        "name": "Solo Explorer",
+        "description": "Planeje uma viagem solo"
+      },
+      "poliglota": {
+        "name": "Poliglota",
+        "description": "Use o app em 2 ou mais idiomas"
+      },
+      "multicontinental": {
+        "name": "Multicontinental",
+        "description": "Visite 3 ou mais destinos diferentes"
+      },
+      "fiel": {
+        "name": "Fiel",
+        "description": "Faca login 10 ou mais vezes"
+      },
+      "maratonista": {
+        "name": "Maratonista",
+        "description": "Complete 3 expedicoes em 30 dias"
+      },
+      "fundador": {
+        "name": "Fundador",
+        "description": "Seja um testador beta"
+      },
+      "aniversario": {
+        "name": "Aniversario",
+        "description": "Seja membro por 1 ano"
+      }
+    },
+    "packages": {
+      "explorador": "Explorador",
+      "navegador": "Navegador",
+      "cartografo": "Cartografo",
+      "embaixador": "Embaixador"
+    },
+    "purchase": {
+      "title": "Comprar Pontos Atlas",
+      "subtitle": "Escolha um pacote para potencializar seu planejamento de viagem com IA",
+      "currentBalance": "Saldo atual",
+      "mostPopular": "Mais popular",
+      "buy": "Comprar",
+      "buyPackage": "Comprar pacote {name} com {pa} PA",
+      "confirmPurchase": "Confirmar compra",
+      "cancel": "Cancelar",
+      "processing": "Processando pagamento...",
+      "successTitle": "Compra realizada!",
+      "successMessage": "Seu novo saldo e {balance} PA",
+      "backToExpeditions": "Voltar para expedicoes",
+      "errorTitle": "Pagamento falhou",
+      "error": "Algo deu errado. Tente novamente.",
+      "paymentFailed": "O pagamento nao pode ser processado. Tente novamente.",
+      "invalidPackage": "Pacote selecionado invalido.",
+      "tryAgain": "Tentar novamente"
+    },
+    "badgeShowcase": {
+      "title": "Colecao de Badges",
+      "categoryExplorador": "Explorador",
+      "categoryPerfeccionista": "Perfeccionista",
+      "categoryAventureiro": "Aventureiro",
+      "categoryVeterano": "Veterano",
+      "locked": "Bloqueado",
+      "unlocked": "Desbloqueado",
+      "earnedOn": "Conquistado em {date}",
+      "progress": "{current} de {target}",
+      "newBadge": "Novo badge desbloqueado!",
+      "closeToast": "Fechar notificacao"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Painel Administrativo",
+      "subtitle": "Receita, usuarios e metricas da plataforma",
+      "kpisTitle": "Indicadores-chave de Desempenho",
+      "totalRevenue": "Receita Total",
+      "estimatedAiCost": "Custo Estimado de IA",
+      "margin": "Margem",
+      "activeUsers": "Usuarios Ativos (30d)",
+      "paInCirculation": "PA em Circulacao",
+      "totalPurchases": "Total de Compras",
+      "revenueChart": "Receita (ultimos 30 dias)",
+      "revenueChartLabel": "Grafico de barras de receita dos ultimos 30 dias",
+      "noRevenueData": "Nenhum dado de receita disponivel ainda.",
+      "userTable": "Usuarios",
+      "columnUser": "Usuario",
+      "columnEmail": "Email",
+      "columnPoints": "Pontos",
+      "columnRevenue": "Receita",
+      "columnTrips": "Viagens",
+      "columnRank": "Rank",
+      "noUsers": "Nenhum usuario encontrado.",
+      "pageInfo": "Pagina {page} de {totalPages}"
     }
   },
   "atlas": {

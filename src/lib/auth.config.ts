@@ -69,11 +69,17 @@ export default {
     jwt({ token, user, trigger, session }) {
       if (user) {
         token.sub = user.id;
+        // Carry role into JWT for Edge middleware admin guard.
+        // The role is set from the User model during sign-in.
+        token.role = (user as { role?: string }).role ?? "user";
       }
       // When unstable_update({ user: { name } }) is called from a server action,
       // the JWT callback re-fires with trigger="update" and the new data in session.
       if (trigger === "update" && session?.user?.name !== undefined) {
         token.name = session.user.name;
+      }
+      if (trigger === "update" && session?.user?.role !== undefined) {
+        token.role = session.user.role;
       }
       return token;
     },
@@ -85,6 +91,10 @@ export default {
       // Keep name in sync with the JWT token (refreshed via unstable_update)
       if (session.user && token?.name) {
         session.user.name = token.name as string;
+      }
+      // Expose role on session for server components and client
+      if (session.user && token?.role) {
+        (session.user as { role?: string }).role = token.role as string;
       }
       return session;
     },

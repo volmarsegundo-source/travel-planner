@@ -1,0 +1,121 @@
+{
+  "dataset_id": "EVAL-GAM-S36-001",
+  "name": "Badge Unlock Criteria",
+  "version": "1.0.0",
+  "sprint": 36,
+  "spec_refs": ["SPEC-PROD-040", "SPEC-ARCH-029", "ATLAS-GAMIFICACAO-APROVADO.md"],
+  "scenarios": [
+    {
+      "id": "BDG-001",
+      "description": "primeira_viagem: unlocks on first completed expedition",
+      "input": { "event": "trip_complete", "user_state": { "completed_trips": 1 } },
+      "expected": { "badge_unlocked": "primeira_viagem", "idempotent": true },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-002",
+      "description": "viajante_frequente: unlocks at 3 completed expeditions",
+      "input": { "event": "trip_complete", "user_state": { "completed_trips": 3 } },
+      "expected": { "badge_unlocked": "viajante_frequente" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-003",
+      "description": "globetrotter: unlocks at 5 completed expeditions",
+      "input": { "event": "trip_complete", "user_state": { "completed_trips": 5 } },
+      "expected": { "badge_unlocked": "globetrotter" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-004",
+      "description": "marco_polo: unlocks at 10 completed expeditions",
+      "input": { "event": "trip_complete", "user_state": { "completed_trips": 10 } },
+      "expected": { "badge_unlocked": "marco_polo" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-005",
+      "description": "detalhista: all Phase 4 fields filled in one expedition",
+      "input": { "event": "phase_complete", "phase": 4, "user_state": { "phase4_complete": true, "all_fields_filled": true } },
+      "expected": { "badge_unlocked": "detalhista" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-006",
+      "description": "planejador_nato: 100% data in all 6 phases of one expedition",
+      "input": { "event": "trip_complete", "user_state": { "all_phases_100pct": true } },
+      "expected": { "badge_unlocked": "planejador_nato" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-007",
+      "description": "zero_pendencias: no pending items in summary report",
+      "input": { "event": "trip_complete", "user_state": { "pending_items": 0 } },
+      "expected": { "badge_unlocked": "zero_pendencias" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-008",
+      "description": "revisor: revisit and update a completed phase",
+      "input": { "event": "phase_complete", "user_state": { "phase_revisited": true, "phase_was_completed": true } },
+      "expected": { "badge_unlocked": "revisor" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-009",
+      "description": "sem_fronteiras: plan an international trip",
+      "input": { "event": "trip_complete", "user_state": { "trip_type": "international" } },
+      "expected": { "badge_unlocked": "sem_fronteiras" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-010",
+      "description": "em_familia: plan a family trip with children",
+      "input": { "event": "trip_complete", "user_state": { "passengers": { "children": 2 } } },
+      "expected": { "badge_unlocked": "em_familia" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-011",
+      "description": "solo_explorer: plan a solo trip (1 adult, 0 children)",
+      "input": { "event": "trip_complete", "user_state": { "passengers": { "adults": 1, "children": 0, "infants": 0 } } },
+      "expected": { "badge_unlocked": "solo_explorer" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-012",
+      "description": "poliglota: use app in 2+ languages",
+      "input": { "event": "language_change", "user_state": { "languages_used": ["pt-BR", "en"] } },
+      "expected": { "badge_unlocked": "poliglota" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-013",
+      "description": "multicontinental: trips to 3+ continents",
+      "input": { "event": "trip_complete", "user_state": { "continents_visited": ["South America", "Europe", "Asia"] } },
+      "expected": { "badge_unlocked": "multicontinental" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-014",
+      "description": "fiel: 10+ daily logins",
+      "input": { "event": "daily_login", "user_state": { "daily_login_count": 10 } },
+      "expected": { "badge_unlocked": "fiel" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-015",
+      "description": "maratonista: 3 expeditions completed in 30 days",
+      "input": { "event": "trip_complete", "user_state": { "trips_last_30_days": 3 } },
+      "expected": { "badge_unlocked": "maratonista" },
+      "grader": "code"
+    },
+    {
+      "id": "BDG-016",
+      "description": "fundador: registered during beta period",
+      "input": { "event": "daily_login", "user_state": { "registered_at": "2026-01-15", "beta_end_date": "2026-06-30" } },
+      "expected": { "badge_unlocked": "fundador" },
+      "grader": "code"
+    }
+  ]
+}

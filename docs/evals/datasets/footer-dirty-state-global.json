@@ -1,0 +1,114 @@
+{
+  "dataset_id": "EVAL-UX-S36-001",
+  "name": "Footer Dirty-State Global",
+  "version": "1.0.0",
+  "sprint": 36,
+  "spec_refs": ["SPEC-PROD-039", "SPEC-ARCH-028", "SPEC-UX-041"],
+  "scenarios": [
+    {
+      "id": "FDS-001",
+      "description": "Phase 1: edit destination field, click Voltar, dialog appears",
+      "input": { "phase": 1, "step": "destination", "action": "edit_field", "navigate": "back" },
+      "expected": { "dialog_shown": true, "intent": "back", "buttons": ["Salvar e Voltar", "Descartar e Voltar", "Cancelar"] },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-002",
+      "description": "Phase 1: edit dates, click Avançar, dialog appears with advance intent",
+      "input": { "phase": 1, "step": "dates", "action": "edit_field", "navigate": "advance" },
+      "expected": { "dialog_shown": true, "intent": "advance", "buttons": ["Salvar e Continuar", "Descartar", "Cancelar"] },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-003",
+      "description": "Phase 2: edit preferences, save via dialog, toast shown",
+      "input": { "phase": 2, "action": "edit_preferences", "navigate": "advance", "dialog_choice": "save" },
+      "expected": { "save_called": true, "toast_shown": true, "toast_message": "Alterações salvas com sucesso", "navigated": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-004",
+      "description": "Phase 3: check items, click Voltar, discard changes",
+      "input": { "phase": 3, "action": "check_items", "navigate": "back", "dialog_choice": "discard" },
+      "expected": { "save_called": false, "navigated": true, "changes_lost": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-005",
+      "description": "Phase 4: existing dirty-state behavior preserved after refactor",
+      "input": { "phase": 4, "step": "transport", "action": "edit_field", "navigate": "advance" },
+      "expected": { "dialog_shown": true, "behavior_matches_v030": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-006",
+      "description": "Phase 5: read-only, no save button, Voltar + Avançar only",
+      "input": { "phase": 5, "navigate": "any" },
+      "expected": { "save_button_visible": false, "dialog_shown": false, "footer_buttons": ["Voltar", "Avançar"] },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-007",
+      "description": "Phase 6: read-only, Voltar + Ver Expedições",
+      "input": { "phase": 6, "navigate": "any" },
+      "expected": { "save_button_visible": false, "dialog_shown": false, "footer_buttons": ["Voltar", "Ver Expedições"] },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-008",
+      "description": "ESC key dismisses SaveDiscardDialog",
+      "input": { "phase": 1, "action": "edit_field", "navigate": "back", "key_press": "Escape" },
+      "expected": { "dialog_shown": false, "navigated": false, "stayed_on_page": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-009",
+      "description": "Save success shows toast notification",
+      "input": { "phase": 2, "action": "edit_preferences", "dialog_choice": "save", "save_result": "success" },
+      "expected": { "toast_shown": true, "toast_type": "success" },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-010",
+      "description": "Multiple steps dirty in Phase 1, single dialog",
+      "input": { "phase": 1, "steps_edited": ["personal", "destination"], "navigate": "back" },
+      "expected": { "dialog_count": 1, "dialog_shown": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-011",
+      "description": "Clean form (no edits), no dialog on navigation",
+      "input": { "phase": 1, "action": "none", "navigate": "advance" },
+      "expected": { "dialog_shown": false, "navigated": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-012",
+      "description": "Save failure shows error, stays on page",
+      "input": { "phase": 3, "action": "check_items", "dialog_choice": "save", "save_result": "error" },
+      "expected": { "toast_shown": true, "toast_type": "error", "navigated": false },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-013",
+      "description": "Mobile: footer buttons stack vertically",
+      "input": { "phase": 1, "viewport": "mobile", "action": "edit_field" },
+      "expected": { "button_layout": "stacked", "all_buttons_visible": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-014",
+      "description": "Keyboard: Tab cycles through dialog buttons, Enter confirms",
+      "input": { "phase": 2, "dialog_shown": true, "key_sequence": ["Tab", "Tab", "Enter"] },
+      "expected": { "focus_trap_active": true, "focus_cycles_within_dialog": true },
+      "grader": "code"
+    },
+    {
+      "id": "FDS-015",
+      "description": "Reduced motion: dialog appears without animation",
+      "input": { "phase": 1, "prefers_reduced_motion": true, "action": "edit_field", "navigate": "back" },
+      "expected": { "dialog_shown": true, "animation": "none" },
+      "grader": "code"
+    }
+  ]
+}

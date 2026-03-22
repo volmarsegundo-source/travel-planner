@@ -3,6 +3,7 @@
 import { useRef, useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useFormDirty } from "@/hooks/useFormDirty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -97,6 +98,54 @@ export function Phase2Wizard({
 
   // Categories already collected in earlier wizard steps
   const excludedPreferenceCategories = ["travelPace", "budgetStyle", "socialPreference"] as const;
+
+  // ─── Dirty tracking ─────────────────────────────────────────────────────
+  const formValues = useMemo(() => ({
+    travelerType: travelerType ?? "",
+    accommodationStyle: accommodationStyle ?? "",
+    travelPace: String(travelPace),
+    budget: String(budget),
+    currency,
+    adults: String(adults),
+    childrenCount: String(childrenCount),
+    childrenAges: JSON.stringify(childrenAges),
+    seniors: String(seniors),
+    infants: String(infants),
+    preferences: JSON.stringify(selectedPreferences),
+  }), [travelerType, accommodationStyle, travelPace, budget, currency, adults, childrenCount, childrenAges, seniors, infants, selectedPreferences]);
+
+  const { isDirty: formDirty, markClean } = useFormDirty(formValues);
+  const [saveSuccess, setSaveSuccess] = useState(false);
+
+  /** Save current form data (edit mode only). */
+  async function handleSavePhase2() {
+    if (!isEditMode) return;
+    if (!travelerType || !accommodationStyle) return;
+    const needsPassengers = travelerType === "family" || travelerType === "group";
+    try {
+      await updatePhase2Action(tripId, {
+        travelerType: travelerType as "solo" | "couple" | "family" | "group" | "business" | "student",
+        accommodationStyle: accommodationStyle as "budget" | "comfort" | "luxury" | "adventure",
+        travelPace,
+        budget,
+        currency: currency as "USD" | "EUR" | "BRL",
+        travelers: needsPassengers ? totalPassengers : undefined,
+        passengers: needsPassengers
+          ? {
+              adults,
+              children: { count: childrenCount, ages: childrenAges },
+              seniors,
+              infants,
+            }
+          : undefined,
+      });
+      markClean();
+      setSaveSuccess(true);
+      setTimeout(() => setSaveSuccess(false), 2000);
+    } catch {
+      setErrorMessage("errors.generic");
+    }
+  }
 
   const stepContentRef = useRef<HTMLDivElement>(null);
 
@@ -239,6 +288,10 @@ export function Phase2Wizard({
 
   // Determine footer props based on current step
   const getFooterProps = () => {
+    const dirtyProps = isEditMode
+      ? { onSave: handleSavePhase2, isDirty: formDirty, saveSuccess }
+      : {};
+
     if (currentStep === "confirmation") {
       return {
         onBack: handleBack,
@@ -248,6 +301,7 @@ export function Phase2Wizard({
           : tExpedition("cta.advance"),
         isLoading: isSubmitting,
         isDisabled: isSubmitting,
+        ...dirtyProps,
       };
     }
     return {
@@ -256,6 +310,7 @@ export function Phase2Wizard({
         : () => router.push(`/expedition/${tripId}/phase-1`),
       onPrimary: handleNext,
       primaryLabel: tCommon("next"),
+      ...dirtyProps,
     };
   };
 

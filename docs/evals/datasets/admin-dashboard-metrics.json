@@ -1,0 +1,65 @@
+{
+  "dataset_id": "EVAL-ADMIN-S36-001",
+  "name": "Admin Dashboard Metrics",
+  "version": "1.0.0",
+  "sprint": 36,
+  "spec_refs": ["SPEC-PROD-042", "SPEC-ARCH-031", "SPEC-SEC-006"],
+  "scenarios": [
+    {
+      "id": "ADM-001",
+      "description": "KPI accuracy: total revenue matches sum of completed purchases",
+      "input": { "purchases": [{ "amount": 1490, "status": "completed" }, { "amount": 2990, "status": "completed" }, { "amount": 1490, "status": "refunded" }] },
+      "expected": { "total_revenue_cents": 4480, "total_purchases": 2 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-002",
+      "description": "Revenue daily aggregation groups by date correctly",
+      "input": { "purchases": [{ "amount": 1490, "date": "2026-03-20" }, { "amount": 2990, "date": "2026-03-20" }, { "amount": 5990, "date": "2026-03-21" }], "period": "daily" },
+      "expected": { "data_points": [{ "date": "2026-03-20", "revenue": 4480 }, { "date": "2026-03-21", "revenue": 5990 }] },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-003",
+      "description": "Revenue monthly aggregation",
+      "input": { "purchases": [{ "amount": 1490, "date": "2026-02-15" }, { "amount": 2990, "date": "2026-03-10" }], "period": "monthly" },
+      "expected": { "data_points": [{ "date": "2026-02", "revenue": 1490 }, { "date": "2026-03", "revenue": 2990 }] },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-004",
+      "description": "Per-user margin calculation: revenue minus AI cost estimate",
+      "input": { "user": { "purchased_cents": 2990, "ai_pa_spent": 160 }, "cost_per_pa": 0.004 },
+      "expected": { "revenue_brl": 29.90, "ai_cost_brl": 0.64, "margin_brl": 29.26, "margin_pct": 97.9 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-005",
+      "description": "Empty state: no purchases, all KPIs are zero",
+      "input": { "purchases": [], "users": [] },
+      "expected": { "total_revenue": 0, "total_ai_cost": 0, "net_margin": 0, "active_users": 0, "pa_in_circulation": 0 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-006",
+      "description": "High volume: 1000+ transactions aggregated correctly",
+      "input": { "purchase_count": 1000, "amount_each": 2990 },
+      "expected": { "total_revenue_cents": 2990000, "query_time_under": "2000ms" },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-007",
+      "description": "Search filter: find user by email",
+      "input": { "search": "test@travel.dev", "users": [{ "email": "test@travel.dev" }, { "email": "other@travel.dev" }] },
+      "expected": { "results_count": 1, "result_email": "test@travel.dev" },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-008",
+      "description": "Non-admin access denied with 403",
+      "input": { "user_role": "user", "route": "/admin/dashboard" },
+      "expected": { "status_code": 403, "redirect_to": "/expeditions", "dashboard_data": null },
+      "grader": "code"
+    }
+  ]
+}

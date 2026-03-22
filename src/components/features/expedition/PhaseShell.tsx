@@ -36,6 +36,12 @@ interface PhaseShellProps {
     isLoading?: boolean;
     isDisabled?: boolean;
     secondaryActions?: Array<{ label: string; onClick: () => void }>;
+    /** Save handler — enables the save/discard dialog in WizardFooter */
+    onSave?: () => void | Promise<void>;
+    /** Whether the form has unsaved changes */
+    isDirty?: boolean;
+    /** Whether the last save succeeded */
+    saveSuccess?: boolean;
   };
   /** Phase content */
   children: React.ReactNode;
