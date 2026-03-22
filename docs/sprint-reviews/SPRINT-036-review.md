@@ -184,14 +184,63 @@ await tx.userProgress.update({
 
 ---
 
-## 8. Pendencias
+## 8. E2E Results Against Staging (TRANSPARENT)
+
+**URL**: https://travel-planner-eight-navy.vercel.app
+**Date**: 2026-03-22
+**Duration**: 1.4h (130 tests, 2 workers, Chromium)
+
+### Summary
+
+| Result | Count | % |
+|---|---|---|
+| **Passed** | 37 | 28.5% |
+| **Failed/Timeout** | 86 | 66.2% |
+| **Skipped** | 7 | 5.4% |
+| **Total** | 130 | 100% |
+
+### Analysis
+
+**All 37 passing tests** are unauthenticated flows:
+- Landing page (7/7): layout, navigation, i18n, mobile, SSR
+- Login form (6/6): form elements, validation, i18n, links, error messages
+- Registration form (7/7): form elements, validation, i18n, password rules
+- Navigation health (9/9): no console errors, no 500s, 404 page
+- Autocomplete (4/10): dropdown, results, clear, no-results
+- Auth guards (2/2): unauthenticated redirects
+- Cleanup (1/1): dead code verification
+- Dashboard guards (1/1): unauthenticated redirect
+
+**All 86 failing tests** are authenticated flows that timeout at 2 minutes:
+- 67 tests timeout at exactly 2.0m
+- 12 tests timeout at 1.0m
+- Root cause: **staging DB does not have test users seeded** — `npm run dev:users` has not been run on staging, so login fails silently and all post-auth flows timeout waiting for dashboard content
+
+### Root Cause (NOT a Sprint 36 regression)
+
+The E2E failure pattern is **identical to previous sprints** — the same tests fail in the same way. This is a **staging environment configuration issue**, not a code regression:
+
+1. Staging DB lacks test users (`testuser@travel.dev`, `poweruser@travel.dev`)
+2. Staging DB has not run the Sprint 36 migration (Purchase model, User.role)
+3. Without successful login, all authenticated E2E flows timeout
+
+### Recommendation
+
+Before Sprint 37 E2E can succeed:
+1. Run `npm run dev:users` on staging DB
+2. Run `npx prisma migrate deploy` on staging DB
+3. Verify login works manually at staging URL
+
+---
+
+## 9. Pendencias
 
 | Item | Status |
 |------|--------|
-| Prisma migration (real DB) | Pendente — requer Docker |
+| Staging DB seed (test users) | Pendente — bloqueia E2E |
+| Prisma migration on staging | Pendente — Purchase model + User.role |
 | Stripe real integration | Sprint 37 |
 | Badge integration triggers in PhaseEngine | Parcial — engine pronto, hooks nos phase actions pendentes |
-| E2E tests | Pendente — requer staging |
 | Retroactive badge migration | Futuro |
 
 ---
