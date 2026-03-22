@@ -68,6 +68,7 @@ export const {
               name: true,
               image: true,
               passwordHash: true,
+              role: true,
             },
           });
 
@@ -88,6 +89,7 @@ export const {
             email: user.email,
             name: user.name,
             image: user.image,
+            role: user.role,
           };
         } catch {
           return null;

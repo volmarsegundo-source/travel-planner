@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useFormDirty } from "@/hooks/useFormDirty";
 import { PhaseShell } from "./PhaseShell";
 import {
   togglePhase3ItemAction,
@@ -60,9 +61,25 @@ export function Phase3Wizard({
     points: number;
   } | null>(null);
 
+  // ─── Dirty tracking ─────────────────────────────────────────────────────
+  const checklistValues = useMemo(() => {
+    const completed: Record<string, unknown> = {};
+    for (const item of items) {
+      completed[item.itemKey] = item.completed;
+    }
+    return completed;
+  }, [items]);
+
+  const { isDirty: formDirty, markClean } = useFormDirty(checklistValues);
+
   const requiredItems = items.filter((i) => i.required);
   const recommendedItems = items.filter((i) => !i.required);
   const requiredCompleted = requiredItems.filter((i) => i.completed).length;
+
+  /** Save handler — checklist toggles auto-save, so this just resets dirty baseline. */
+  function handleSaveChecklist() {
+    markClean();
+  }
 
   async function handleToggle(itemKey: string) {
     setTogglingKey(itemKey);
@@ -152,6 +169,8 @@ export function Phase3Wizard({
         primaryLabel: tExpedition("cta.advance"),
         isLoading: isCompleting,
         isDisabled: isCompleting,
+        onSave: handleSaveChecklist,
+        isDirty: formDirty,
       }}
     >
       {/* Trip context */}

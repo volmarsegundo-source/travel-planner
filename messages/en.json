@@ -1137,6 +1137,139 @@
         "q4": "How do I check my balance?",
         "a4": "Your current PA balance is always visible in the header badge at the top of the page."
       }
+    },
+    "badges": {
+      "primeira_viagem": {
+        "name": "First Trip",
+        "description": "Complete your first expedition"
+      },
+      "viajante_frequente": {
+        "name": "Frequent Traveler",
+        "description": "Complete 3 expeditions"
+      },
+      "globetrotter": {
+        "name": "Globetrotter",
+        "description": "Complete 5 expeditions"
+      },
+      "marco_polo": {
+        "name": "Marco Polo",
+        "description": "Complete 10 expeditions"
+      },
+      "detalhista": {
+        "name": "Detail-oriented",
+        "description": "Fill all logistics fields in an expedition"
+      },
+      "planejador_nato": {
+        "name": "Born Planner",
+        "description": "Complete all 6 phases of an expedition"
+      },
+      "zero_pendencias": {
+        "name": "Zero Pending",
+        "description": "Complete all required checklist items"
+      },
+      "revisor": {
+        "name": "Reviewer",
+        "description": "Revisit a completed phase"
+      },
+      "sem_fronteiras": {
+        "name": "No Borders",
+        "description": "Plan an international trip"
+      },
+      "em_familia": {
+        "name": "Family Trip",
+        "description": "Plan a trip with children"
+      },
+      "solo_explorer": {
+        "name": "Solo Explorer",
+        "description": "Plan a solo trip"
+      },
+      "poliglota": {
+        "name": "Polyglot",
+        "description": "Use the app in 2 or more languages"
+      },
+      "multicontinental": {
+        "name": "Multicontinental",
+        "description": "Visit 3 or more different destinations"
+      },
+      "fiel": {
+        "name": "Loyal",
+        "description": "Log in 10 or more times"
+      },
+      "maratonista": {
+        "name": "Marathon Runner",
+        "description": "Complete 3 expeditions in 30 days"
+      },
+      "fundador": {
+        "name": "Founder",
+        "description": "Be a beta tester"
+      },
+      "aniversario": {
+        "name": "Anniversary",
+        "description": "Be a member for 1 year"
+      }
+    },
+    "packages": {
+      "explorador": "Explorer",
+      "navegador": "Navigator",
+      "cartografo": "Cartographer",
+      "embaixador": "Ambassador"
+    },
+    "purchase": {
+      "title": "Buy Atlas Points",
+      "subtitle": "Choose a package to power your travel planning with AI",
+      "currentBalance": "Current balance",
+      "mostPopular": "Most popular",
+      "buy": "Buy",
+      "buyPackage": "Buy {name} package with {pa} PA",
+      "confirmPurchase": "Confirm purchase",
+      "cancel": "Cancel",
+      "processing": "Processing payment...",
+      "successTitle": "Purchase complete!",
+      "successMessage": "Your new balance is {balance} PA",
+      "backToExpeditions": "Back to expeditions",
+      "errorTitle": "Payment failed",
+      "error": "Something went wrong. Please try again.",
+      "paymentFailed": "Payment could not be processed. Please try again.",
+      "invalidPackage": "Invalid package selected.",
+      "tryAgain": "Try again"
+    },
+    "badgeShowcase": {
+      "title": "Badge Collection",
+      "categoryExplorador": "Explorer",
+      "categoryPerfeccionista": "Perfectionist",
+      "categoryAventureiro": "Adventurer",
+      "categoryVeterano": "Veteran",
+      "locked": "Locked",
+      "unlocked": "Unlocked",
+      "earnedOn": "Earned on {date}",
+      "progress": "{current} of {target}",
+      "newBadge": "New badge unlocked!",
+      "closeToast": "Close notification"
+    }
+  },
+  "admin": {
+    "dashboard": {
+      "title": "Admin Dashboard",
+      "subtitle": "Revenue, users, and platform metrics",
+      "kpisTitle": "Key Performance Indicators",
+      "totalRevenue": "Total Revenue",
+      "estimatedAiCost": "Estimated AI Cost",
+      "margin": "Margin",
+      "activeUsers": "Active Users (30d)",
+      "paInCirculation": "PA in Circulation",
+      "totalPurchases": "Total Purchases",
+      "revenueChart": "Revenue (last 30 days)",
+      "revenueChartLabel": "Revenue bar chart for the last 30 days",
+      "noRevenueData": "No revenue data available yet.",
+      "userTable": "Users",
+      "columnUser": "User",
+      "columnEmail": "Email",
+      "columnPoints": "Points",
+      "columnRevenue": "Revenue",
+      "columnTrips": "Trips",
+      "columnRank": "Rank",
+      "noUsers": "No users found.",
+      "pageInfo": "Page {page} of {totalPages}"
     }
   },
   "atlas": {

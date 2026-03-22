@@ -1,0 +1,79 @@
+{
+  "dataset_id": "EVAL-GAM-S36-002",
+  "name": "PA Purchase Flow",
+  "version": "1.0.0",
+  "sprint": 36,
+  "spec_refs": ["SPEC-PROD-041", "SPEC-ARCH-030", "SPEC-SEC-006"],
+  "scenarios": [
+    {
+      "id": "PAP-001",
+      "description": "Select Explorador package (500 PA / R$14.90)",
+      "input": { "packageId": "explorador", "user_balance": 20 },
+      "expected": { "pa_displayed": 500, "price_displayed": "R$ 14,90", "confirm_button": true },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-002",
+      "description": "Select Embaixador package (6000 PA / R$119.90)",
+      "input": { "packageId": "embaixador", "user_balance": 0 },
+      "expected": { "pa_displayed": 6000, "price_displayed": "R$ 119,90" },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-003",
+      "description": "Mock payment succeeds, PA credited",
+      "input": { "packageId": "explorador", "payment_result": "success", "user_balance_before": 20 },
+      "expected": { "user_balance_after": 520, "available_points_delta": 500, "total_points_delta": 0, "purchase_status": "completed" },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-004",
+      "description": "Mock payment timeout handled gracefully",
+      "input": { "packageId": "test-timeout", "payment_result": "timeout" },
+      "expected": { "error_shown": true, "user_balance_unchanged": true, "purchase_status": "pending" },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-005",
+      "description": "PA credit verification: availablePoints up, totalPoints unchanged",
+      "input": { "packageId": "navegador", "user_state_before": { "availablePoints": 100, "totalPoints": 500 } },
+      "expected": { "availablePoints_after": 1300, "totalPoints_after": 500 },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-006",
+      "description": "Purchase history entry created with correct data",
+      "input": { "packageId": "cartografo", "payment_result": "success" },
+      "expected": { "history_entry": { "packageId": "cartografo", "pa": 2800, "amount": "R$ 59,90", "status": "completed" } },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-007",
+      "description": "Refund eligible: purchased 500 PA, none spent, within 7 days",
+      "input": { "purchase_pa": 500, "pa_spent_since": 0, "days_since_purchase": 3 },
+      "expected": { "refund_eligible": true, "refund_amount": 500 },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-008",
+      "description": "Refund ineligible: PA partially spent",
+      "input": { "purchase_pa": 500, "pa_spent_since": 80, "available_points": 420 },
+      "expected": { "refund_eligible": false, "reason": "PA parcialmente gasto" },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-009",
+      "description": "Insufficient balance redirects to purchase page",
+      "input": { "user_balance": 10, "ai_cost": 80, "action": "generate_itinerary" },
+      "expected": { "insufficient_modal": true, "buy_pa_link": true, "redirect_to": "/meu-atlas/comprar-pa" },
+      "grader": "code"
+    },
+    {
+      "id": "PAP-010",
+      "description": "Double purchase with same paymentRef is idempotent",
+      "input": { "packageId": "explorador", "paymentRef": "mock_ref_123", "attempt": 2 },
+      "expected": { "pa_credited_once": true, "total_credit": 500, "duplicate_ignored": true },
+      "grader": "code"
+    }
+  ]
+}

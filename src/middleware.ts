@@ -22,7 +22,7 @@ const { auth } = NextAuth(authConfig);
 const intlMiddleware = createMiddleware(routing);
 
 // Routes that require an authenticated session.
-const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard", "/expedition", "/atlas"] as const;
+const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard", "/expedition", "/atlas", "/meu-atlas", "/admin"] as const;
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -69,6 +69,17 @@ export default auth((req) => {
     const loginUrl = new URL("/auth/login", req.url);
     loginUrl.searchParams.set("callbackUrl", pathname);
     return Response.redirect(loginUrl);
+  }
+
+  // Admin routes: require role === "admin" in JWT token.
+  // Non-admin users are redirected to /expeditions.
+  if (pathname.includes("/admin") && req.auth) {
+    const session = req.auth as { user?: { role?: string } };
+    const role = session?.user?.role ?? "user";
+    if (role !== "admin") {
+      const expeditionsUrl = new URL("/expeditions", req.url);
+      return Response.redirect(expeditionsUrl);
+    }
   }
 
   // Run the intl middleware — its response carries rewrites/redirects for

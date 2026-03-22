@@ -76,6 +76,7 @@ model User {
   image           String?
   passwordHash    String?
   preferredLocale String?   @default("pt-BR") @db.VarChar(10)
+  role            String    @default("user") @db.VarChar(20)
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
@@ -88,6 +89,7 @@ model User {
   badges            UserBadge[]
   pointTransactions PointTransaction[]
   profile           UserProfile?
+  purchases         Purchase[]
 
   @@index([email])
   @@index([deletedAt])
@@ -434,4 +436,26 @@ model Accommodation {
 
   @@index([tripId, orderIndex])
   @@map("accommodations")
+}
+
+// ─── Purchase (PA Packages) ────────────────────────────────────────────────
+
+model Purchase {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId   String    @db.VarChar(50)
+  paAmount    Int
+  amountCents Int
+  currency    String    @default("BRL") @db.VarChar(10)
+  status      String    @default("pending") @db.VarChar(20)
+  paymentRef  String?   @unique
+  refundedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("purchases")
 }

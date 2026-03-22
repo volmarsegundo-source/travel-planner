@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { useFormDirty } from "@/hooks/useFormDirty";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PhaseShell } from "./PhaseShell";
 import { WizardFooter } from "./WizardFooter";
@@ -81,8 +82,21 @@ export function Phase4Wizard({
   const [accommodationUndecided, setAccommodationUndecided] = useState(false);
   const [mobilityUndecided, setMobilityUndecided] = useState(false);
 
-  // Dirty tracking per step
-  const [isDirty, setIsDirty] = useState(false);
+  // Dirty tracking via hash comparison
+  const stepFormValues = useMemo(() => {
+    if (currentStep === 1) {
+      return { transportSegments: JSON.stringify(transportSegments), transportUndecided };
+    }
+    if (currentStep === 2) {
+      return { accommodations: JSON.stringify(accommodations), accommodationUndecided };
+    }
+    return { mobility: JSON.stringify(mobility), mobilityUndecided };
+  }, [currentStep, transportSegments, accommodations, mobility, transportUndecided, accommodationUndecided, mobilityUndecided]);
+
+  const { isDirty: rawDirty, markClean } = useFormDirty(stepFormValues);
+  // User-interaction guard: dirty is only true after explicit user edits, not server-loaded data.
+  const [userEdited, setUserEdited] = useState(false);
+  const isDirty = userEdited && rawDirty;
 
   // Save states
   const [savingTransport, setSavingTransport] = useState(false);
@@ -107,26 +121,27 @@ export function Phase4Wizard({
     (needsCarRental === true && !needsCinh) ||
     (needsCarRental === true && needsCinh && cnhConfirmed);
 
-  // Reset dirty when step changes
+  // Reset dirty baseline and user-edited flag when step changes or data finishes loading.
   useEffect(() => {
-    setIsDirty(false);
-  }, [currentStep]);
+    markClean();
+    setUserEdited(false);
+  }, [currentStep, loadingData, markClean]);
 
-  // ─── onChange handlers — sync child state to parent + mark dirty ────────
+  // ─── onChange handlers — sync child state to parent + mark as user-edited ──
 
   const handleTransportChange = useCallback((segments: TransportSegmentInput[]) => {
     setTransportSegments(segments);
-    if (!loadingData) setIsDirty(true);
+    if (!loadingData) setUserEdited(true);
   }, [loadingData]);
 
   const handleAccommodationChange = useCallback((accs: AccommodationInput[]) => {
     setAccommodations(accs);
-    if (!loadingData) setIsDirty(true);
+    if (!loadingData) setUserEdited(true);
   }, [loadingData]);
 
   const handleMobilityChange = useCallback((selected: string[]) => {
     setMobility(selected);
-    if (!loadingData) setIsDirty(true);
+    if (!loadingData) setUserEdited(true);
   }, [loadingData]);
 
   // ─── Step navigation ─────────────────────────────────────────────────────
@@ -182,7 +197,8 @@ export function Phase4Wizard({
         setErrorMessage(result.error);
       } else {
         setSaveSuccess("transport");
-        setIsDirty(false);
+        markClean();
+        setUserEdited(false);
         setTimeout(() => setSaveSuccess(null), SAVE_SUCCESS_TIMEOUT_MS);
       }
     } catch {
@@ -201,7 +217,8 @@ export function Phase4Wizard({
         setErrorMessage(result.error);
       } else {
         setSaveSuccess("accommodation");
-        setIsDirty(false);
+        markClean();
+        setUserEdited(false);
         setTimeout(() => setSaveSuccess(null), SAVE_SUCCESS_TIMEOUT_MS);
       }
     } catch {
@@ -221,7 +238,8 @@ export function Phase4Wizard({
         setErrorMessage(result.error);
       } else {
         setSaveSuccess("mobility");
-        setIsDirty(false);
+        markClean();
+        setUserEdited(false);
         setTimeout(() => setSaveSuccess(null), SAVE_SUCCESS_TIMEOUT_MS);
       }
     } catch {
