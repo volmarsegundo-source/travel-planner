@@ -18,14 +18,15 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-23, Sprint 38 planning)
-- Product version: v0.32.0 (Sprint 37 complete -- Gamification Wave 3 / Stripe) / v0.33.0 in planning
-- Sprints 1-37 complete
+### Backlog State (as of 2026-03-23, Sprint 39 planning)
+- Product version: v0.33.0 (Sprint 38 complete -- Design System Foundation) / v0.34.0 in planning
+- Sprints 1-38 complete
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-048
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-051
 - Sprint 36 backlog: `docs/specs/sprint-36/SPRINT-36-PRIORITIES.md`
 - Sprint 37 backlog: `docs/specs/sprint-37/SPRINT-37-PRIORITIES.md`
 - Sprint 38 backlog: `docs/specs/sprint-38/SPRINT-38-PRIORITIES.md`
+- Sprint 39 backlog: `docs/specs/sprint-39/SPRINT-39-PRIORITIES.md`
 - Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
 - Sprint 32 product specs: SPEC-PROD-025, SPEC-PROD-026, SPEC-PROD-027, SPEC-PROD-028
 - Sprint 33 product specs: SPEC-PROD-029, SPEC-PROD-030, SPEC-PROD-031, SPEC-PROD-032, SPEC-PROD-033, SPEC-PROD-034
@@ -33,6 +34,7 @@
 - Sprint 36 product specs: SPEC-PROD-039, SPEC-PROD-040, SPEC-PROD-041, SPEC-PROD-042
 - Sprint 37 product specs: SPEC-PROD-043, SPEC-PROD-044, SPEC-PROD-045
 - Sprint 38 product specs: SPEC-PROD-046 (Design System Foundation), SPEC-PROD-047 (Component Library v1)
+- Sprint 39 product specs: SPEC-PROD-048 (Landing Page V2), SPEC-PROD-049 (Login Page V2), SPEC-PROD-050 (Sprint 38 Carryover Fixes)
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -148,11 +150,12 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Sprint 35: "Gamification Wave 1 -- PA Visivel" -- REQ-GAMI-001..005. v0.30.0 (COMPLETE)
 - Sprint 36: "Gamification Wave 2 -- Full Gamification" -- SPEC-PROD-039..042. v0.31.0 (COMPLETE)
 - Sprint 37: "Gamification Wave 3 -- Monetizacao" -- SPEC-PROD-043..045. Target: v0.32.0
-- Sprint 38: "Fundacao do Design System" -- SPEC-PROD-046/047. Target: v0.33.0 (IN PLANNING)
-- Sprint 39: Visual migration -- Landing Page + Dashboard (applies design system to existing pages)
+- Sprint 38: "Fundacao do Design System" -- SPEC-PROD-046/047. v0.33.0 (COMPLETE)
+- Sprint 39: "Landing Page + Login V2" -- SPEC-PROD-048/049/050. Target: v0.34.0 (IN PLANNING)
 - Sprint 40: Visual migration -- Wizard Phases 1-3
 - Sprint 41: Visual migration -- Wizard Phases 4-6 + Summary
-- Next available Spec ID: SPEC-PROD-048
+- Sprint 42: Visual migration -- Dashboard V2
+- Next available Spec ID: SPEC-PROD-051
 
 ### Gamification PA System (approved 2026-03-21)
 - Economy doc: `docs/specs/gamification/ATLAS-GAMIFICACAO-APROVADO.md`
@@ -178,17 +181,19 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - SPEC-PROD-045: upgraded package cards (PA/BRL ratio, AI feature equivalencies, "Mais popular"/"Melhor custo" tags); modal with Stripe redirect communication; success page with balance polling; return context from insufficient-balance modal; proactive "Comprar PA" button in Meu Atlas
 
 ### Design System (Sprint 38+)
-- Design source: `docs/design/DESIGN.md` (tokens: colors, typography, spacing, radius, shadows)
-- Screen exports: `docs/design/SCREEN-INDEX.md` (5 official screens from Google Stitch)
-- Official screens: Landing Page, Dashboard, Phase 1, Phase 3 (O Preparo), Roteiro/Itinerary
-- Pending screens (not yet in Stitch): Login, Phase 2, Phase 4, Phase 5, Phase 6, Summary
-- Primary font: Outfit (headings, Bold 700, tracking -0.02em)
-- Body font: DM Sans (body, Regular 400 / Medium 500, line-height 1.6)
-- Key colors: navy-900=#1a2332 (brand/trust), amber-500=#f59e0b (CTA/adventure), teal-600=#0d9488 (success/AI)
-- Feature flag: NEXT_PUBLIC_DESIGN_V2 (default: false, must remain false in staging/prod until Sprint 39)
-- Component library: 7 components in src/components/ui/ (Button, Input, Card, Chip, Badge, PhaseProgress, StepperInput)
+- Design source: `docs/design/DESIGN.md` (STALE -- UX Parecer is authoritative)
+- Token source of truth: `docs/specs/sprint-38/UX-PARECER-DESIGN-SYSTEM.md` (overrides DESIGN.md)
+- Screen exports: `docs/design/SCREEN-INDEX.md` (6 official screens: Landing, Login, Dashboard, Phase 1, Phase 3, Roteiro)
+- Official screens: Landing Page, Login (Stitch export available), Dashboard, Phase 1, Phase 3 (O Preparo), Roteiro/Itinerary
+- Pending screens (no Stitch export yet): Phase 2, Phase 4, Phase 5, Phase 6, Summary
+- Primary font: Plus Jakarta Sans (headings, ExtraBold 800) -- NOT Outfit (DESIGN.md was wrong)
+- Body font: Work Sans (body Regular 400 / Medium 500) -- NOT DM Sans (DESIGN.md was wrong)
+- Key colors: use atlas-* tokens (M3 palette). atlas-primary=#040d1b, atlas-secondary-container=#fe932c (CTA), atlas-on-tertiary-container=#1c9a8e (teal/AI)
+- CTA button: text atlas-primary (#040d1b navy) OVER atlas-secondary-container (#fe932c orange) -- NEVER white over orange (WCAG fail)
+- Feature flag: NEXT_PUBLIC_DESIGN_V2 (default: false, must remain false in staging/prod until rollout decision)
+- Component library: 7 components in src/components/ui/ (AtlasButton, AtlasInput, AtlasCard, AtlasChip, AtlasBadge, AtlasPhaseProgress, AtlasStepperInput)
 - Visual regression: Playwright screenshots baseline in e2e/visual-regression/baseline/
-- Migration plan: Sprint 38 (infrastructure only) -> Sprint 39 (Landing + Dashboard) -> Sprint 40 (Phases 1-3) -> Sprint 41 (Phases 4-6 + Summary)
+- Migration plan: Sprint 38 (infrastructure) -> Sprint 39 (Landing + Login) -> Sprint 40 (Phases 1-3) -> Sprint 41 (Phases 4-6 + Summary) -> Sprint 42 (Dashboard)
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
