@@ -148,3 +148,26 @@ import { LABELS } from '@/constants/ui';
 - Skip accessibility — it is always in scope
 - Use `any` in TypeScript
 - Hardcode user-visible strings, credentials, or environment-specific values
+- Use raw Tailwind color/font classes (slate-*, amber-*, Inter) — use `atlas-*` tokens only
+- Use `focus:ring-0` — always use `focus-visible:ring-2 ring-atlas-focus-ring`
+- Create interactive elements smaller than 44px touch target
+- Skip `prefers-reduced-motion` for any animation
+- Use color alone to convey information (always pair with icon/text)
+
+---
+
+## 🎨 Atlas Design System Rules (Sprint 38+)
+
+**Source of truth**: `docs/specs/sprint-38/UX-PARECER-DESIGN-SYSTEM.md`
+
+### Mandatory for ALL UI work:
+1. **Tokens only**: Use `atlas-*` prefixed classes. Never raw Tailwind colors (bg-red-500, text-blue-600)
+2. **Fonts**: Plus Jakarta Sans (headlines, `font-atlas-headline`) + Work Sans (body, `font-atlas-body`)
+3. **CTA buttons**: Navy text (`atlas-primary`) on orange (`atlas-secondary-container`) — NEVER white on orange
+4. **Focus**: `focus-visible:ring-2 ring-atlas-focus-ring` on ALL interactive elements
+5. **Touch targets**: Minimum 44px on mobile for all clickable/tappable elements
+6. **Reduced motion**: Gate ALL animations with `motion-reduce:` prefix
+7. **Accessibility**: WCAG 2.1 AA — never color-only info, always icon+text
+8. **Feature flag**: New design components gated behind `NEXT_PUBLIC_DESIGN_V2`
+9. **Component imports**: Use barrel export `import { AtlasButton } from "@/components/ui"`
+10. **UX sign-off**: No component PR merges without UX Designer approval
