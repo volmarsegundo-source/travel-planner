@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { ThemeProvider } from "next-themes";
 import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
-import { cormorantGaramond, dmSans, spaceMono } from "@/lib/fonts";
+import { cormorantGaramond, dmSans, spaceMono, plusJakartaSans, workSans } from "@/lib/fonts";
 import "../globals.css";
 
 export const metadata: Metadata = {
@@ -34,7 +34,7 @@ export default async function LocaleLayout({
   return (
     <html
       lang={locale}
-      className={`${cormorantGaramond.variable} ${dmSans.variable} ${spaceMono.variable}`}
+      className={`${cormorantGaramond.variable} ${dmSans.variable} ${spaceMono.variable} ${plusJakartaSans.variable} ${workSans.variable}`}
       suppressHydrationWarning
     >
       <body>

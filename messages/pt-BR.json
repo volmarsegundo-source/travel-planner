@@ -1742,5 +1742,30 @@
     "overlayTitle": "Escolha o destino",
     "rateLimited": "Muitas buscas. Aguarde alguns segundos.",
     "poweredBy": "Powered by Mapbox"
+  },
+  "designSystem": {
+    "stepper": {
+      "increase": "Aumentar",
+      "decrease": "Diminuir"
+    },
+    "input": {
+      "showPassword": "Mostrar senha",
+      "hidePassword": "Ocultar senha"
+    },
+    "badge": {
+      "newNotification": "Nova notificacao",
+      "notificationCount": "{count} notificacoes"
+    },
+    "phaseProgress": {
+      "progressLabel": "Progresso das fases: {completed} de {total} concluidas",
+      "goToPhase": "Ir para fase {phase}: {label}",
+      "completed": "concluida",
+      "current": "atual",
+      "pending": "pendente",
+      "locked": "bloqueada"
+    },
+    "chip": {
+      "remove": "Remover"
+    }
   }
 }
