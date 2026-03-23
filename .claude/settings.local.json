@@ -125,7 +125,11 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\(''''auth'''',{}\\), indent=2\\)\\)\")",
       "Bash(SKIP_ENV_VALIDATION=true npm run build)",
       "Bash(npx eslint:*)",
-      "Bash(ls /c/travel-planner/src/app/[locale]/\\\\\\(app\\\\\\)/como-funciona/)"
+      "Bash(ls /c/travel-planner/src/app/[locale]/\\\\\\(app\\\\\\)/como-funciona/)",
+      "Bash(ls src/app/[locale]/\\\\\\(app\\\\\\)/admin/ -R)",
+      "Bash(ls src/app/[locale]/\\\\\\(app\\\\\\)/meu-atlas/ -R)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_16HjwCoKspGB@ep-lively-smoke-ac5tvs2g-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npm run dev:users 2>&1)",
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_16HjwCoKspGB@ep-lively-smoke-ac5tvs2g-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npx prisma migrate dev --name sprint36_purchase_and_role --create-only 2>&1)"
     ]
   }
 }

@@ -8,7 +8,13 @@ import { getPackage } from "@/lib/gamification/pa-packages";
 import { getPaymentProvider } from "@/server/services/payment";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
+import { checkRateLimit } from "@/lib/rate-limit";
 import type { ActionResult } from "@/types/trip.types";
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const PURCHASE_RATE_LIMIT = 5;
+const PURCHASE_RATE_WINDOW_SECONDS = 3600; // 1 hour
 
 // ─── purchasePAAction ───────────────────────────────────────────────────────
 
@@ -21,9 +27,7 @@ export interface PurchaseResult {
 /**
  * Purchase a PA package.
  *
- * CRITICAL: PA purchased increments availablePoints ONLY, NOT totalPoints.
- * totalPoints represents lifetime earned points (organic activity).
- * Purchased PA is spendable but does not affect rank progression.
+ * PA purchased increments BOTH availablePoints AND totalPoints per PO decision (levels up).
  */
 export async function purchasePAAction(
   packageId: string
@@ -31,6 +35,16 @@ export async function purchasePAAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
   const userId = session.user.id;
+
+  // Rate limit: 5 purchases per user per hour
+  const rateLimit = await checkRateLimit(
+    `purchase:${userId}`,
+    PURCHASE_RATE_LIMIT,
+    PURCHASE_RATE_WINDOW_SECONDS
+  );
+  if (!rateLimit.allowed) {
+    return { success: false, error: "gamification.purchase.rateLimited" };
+  }
 
   // Validate package
   const pkg = getPackage(packageId);
@@ -52,7 +66,7 @@ export async function purchasePAAction(
       return { success: false, error: "gamification.purchase.paymentFailed" };
     }
 
-    // Atomic: create Purchase record + credit availablePoints (NOT totalPoints)
+    // Atomic: create Purchase record + credit PA (both available and total per PO decision)
     const result = await db.$transaction(async (tx) => {
       const purchase = await tx.purchase.create({
         data: {
@@ -66,11 +80,12 @@ export async function purchasePAAction(
         },
       });
 
-      // CRITICAL: Only increment availablePoints, NOT totalPoints
+      // PA purchased increments BOTH availablePoints AND totalPoints per PO decision (levels up)
       const progress = await tx.userProgress.update({
         where: { userId },
         data: {
           availablePoints: { increment: pkg.pa },
+          totalPoints: { increment: pkg.pa },
         },
       });
 

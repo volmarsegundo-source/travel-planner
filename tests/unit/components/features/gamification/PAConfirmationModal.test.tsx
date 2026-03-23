@@ -114,10 +114,13 @@ describe("PAConfirmationModal", () => {
       expect(modal.textContent).toContain("amount=30"); // 50 - 20 = 30
     });
 
-    it("shows Earn More and Close buttons (not Generate)", () => {
+    it("shows Earn More, Buy PA, and Close buttons (not Generate)", () => {
       render(<PAConfirmationModal {...insufficientProps} />);
       expect(
         screen.getByText("gamification.confirmModal.earnMore")
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("gamification.confirmModal.buyPA")
       ).toBeInTheDocument();
       expect(
         screen.getByText("gamification.confirmModal.close")
@@ -131,6 +134,15 @@ describe("PAConfirmationModal", () => {
       render(<PAConfirmationModal {...insufficientProps} />);
       const earnMoreLink = screen.getByText("gamification.confirmModal.earnMore").closest("a");
       expect(earnMoreLink).toHaveAttribute("href", "/como-funciona");
+    });
+
+    it("Buy PA links to purchase page with needed and feature params", () => {
+      render(<PAConfirmationModal {...insufficientProps} />);
+      const buyLink = screen.getByText("gamification.confirmModal.buyPA").closest("a");
+      expect(buyLink).toHaveAttribute(
+        "href",
+        `/meu-atlas/comprar-pa?needed=50&feature=${encodeURIComponent("Destination Guide")}`
+      );
     });
 
     it("calls onClose when Close is clicked", () => {

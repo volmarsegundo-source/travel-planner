@@ -1,17 +1,18 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { purchasePAAction } from "@/server/actions/purchase.actions";
 
 // ─── Package Data (client-safe subset) ──────────────────────────────────────
 
 const PACKAGES = [
-  { id: "explorador", pa: 500, amountCents: 1490, popular: false },
-  { id: "navegador", pa: 1200, amountCents: 2990, popular: true },
-  { id: "cartografo", pa: 2800, amountCents: 5990, popular: false },
-  { id: "embaixador", pa: 6000, amountCents: 11990, popular: false },
+  { id: "explorador", pa: 500, amountCents: 1490, popular: false, bestValue: false },
+  { id: "navegador", pa: 1200, amountCents: 2990, popular: true, bestValue: false },
+  { id: "cartografo", pa: 2800, amountCents: 5990, popular: false, bestValue: false },
+  { id: "embaixador", pa: 6000, amountCents: 11990, popular: false, bestValue: true },
 ] as const;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -31,6 +32,7 @@ export function PurchasePageClient({
   const t = useTranslations("gamification.purchase");
   const tPkg = useTranslations("gamification.packages");
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [state, setState] = useState<PurchaseState>("idle");
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
@@ -38,6 +40,24 @@ export function PurchasePageClient({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const selectedPkg = PACKAGES.find((p) => p.id === selectedPackage);
+
+  // Parse contextual query params from insufficient balance redirect
+  const neededPA = searchParams.get("needed")
+    ? parseInt(searchParams.get("needed")!, 10)
+    : null;
+  const featureContext = searchParams.get("feature");
+
+  // Find cheapest package that covers the needed PA
+  const recommendedPackageId = useMemo(() => {
+    if (!neededPA || isNaN(neededPA) || neededPA <= 0) return null;
+    const deficit = neededPA - currentBalance;
+    if (deficit <= 0) return null;
+    const covering = PACKAGES.filter((p) => p.pa >= deficit);
+    if (covering.length === 0) return PACKAGES[PACKAGES.length - 1].id;
+    return covering.reduce((cheapest, pkg) =>
+      pkg.amountCents < cheapest.amountCents ? pkg : cheapest
+    ).id;
+  }, [neededPA, currentBalance]);
 
   const handleSelectPackage = useCallback((pkgId: string) => {
     setSelectedPackage(pkgId);
@@ -54,17 +74,22 @@ export function PurchasePageClient({
       if (result.success && result.data) {
         setNewBalance(result.data.newBalance);
         setState("success");
+        // Refresh server data so header PA badge updates
+        router.refresh();
       } else {
-        setErrorMessage(
-          !result.success ? t("paymentFailed") : t("error")
-        );
+        const errorKey = !result.success ? result.error : undefined;
+        if (errorKey === "gamification.purchase.rateLimited") {
+          setErrorMessage(t("rateLimited"));
+        } else {
+          setErrorMessage(t("paymentFailed"));
+        }
         setState("error");
       }
     } catch {
       setErrorMessage(t("error"));
       setState("error");
     }
-  }, [selectedPackage, t]);
+  }, [selectedPackage, t, router]);
 
   const handleClose = useCallback(() => {
     setState("idle");
@@ -92,56 +117,89 @@ export function PurchasePageClient({
       {/* Current balance */}
       <div className="mb-6 rounded-lg border bg-muted/30 p-4">
         <p className="text-sm text-muted-foreground">{t("currentBalance")}</p>
-        <p className="text-2xl font-bold">
+        <p className="text-2xl font-bold" data-testid="current-balance">
           {currentBalance.toLocaleString()} PA
         </p>
       </div>
 
+      {/* Contextual banner when redirected from insufficient balance */}
+      {neededPA && neededPA > 0 && (
+        <div
+          className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30"
+          data-testid="needed-context-banner"
+        >
+          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+            {featureContext
+              ? t("neededForFeature", { amount: neededPA, feature: featureContext })
+              : t("neededGeneric", { amount: neededPA })}
+          </p>
+        </div>
+      )}
+
       {/* Package grid */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {PACKAGES.map((pkg) => (
-          <div
-            key={pkg.id}
-            className={`relative flex flex-col rounded-xl border p-5 transition-all ${
-              pkg.popular
-                ? "border-atlas-gold ring-2 ring-atlas-gold/20"
-                : "border-border"
-            }`}
-          >
-            {pkg.popular && (
-              <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-atlas-gold px-3 py-0.5 text-xs font-bold text-white">
-                {t("mostPopular")}
-              </span>
-            )}
-
-            <h3 className="text-lg font-bold">{tPkg(pkg.id)}</h3>
-            <p className="mt-1 text-3xl font-extrabold">
-              {pkg.pa.toLocaleString()}
-              <span className="ml-1 text-base font-normal text-muted-foreground">
-                PA
-              </span>
-            </p>
-            <p className="mt-1 text-xl font-semibold text-foreground">
-              {formatPrice(pkg.amountCents)}
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              {getRatio(pkg.pa, pkg.amountCents)} PA/R$
-            </p>
-
-            <button
-              onClick={() => handleSelectPackage(pkg.id)}
-              disabled={state === "processing"}
-              className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                pkg.popular
-                  ? "bg-atlas-gold text-white hover:bg-atlas-gold/90"
-                  : "bg-primary text-primary-foreground hover:bg-primary/90"
-              } disabled:cursor-not-allowed disabled:opacity-50`}
-              aria-label={t("buyPackage", { name: tPkg(pkg.id), pa: pkg.pa })}
+        {PACKAGES.map((pkg) => {
+          const isRecommended = pkg.id === recommendedPackageId;
+          return (
+            <div
+              key={pkg.id}
+              data-testid={`package-card-${pkg.id}`}
+              className={`relative flex flex-col rounded-xl border p-5 transition-all ${
+                isRecommended
+                  ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                  : pkg.popular
+                    ? "border-atlas-gold ring-2 ring-atlas-gold/20"
+                    : "border-border"
+              }`}
             >
-              {t("buy")}
-            </button>
-          </div>
-        ))}
+              {/* Badges */}
+              {isRecommended && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-3 py-0.5 text-xs font-bold text-white">
+                  {t("recommended")}
+                </span>
+              )}
+              {!isRecommended && pkg.popular && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-atlas-gold px-3 py-0.5 text-xs font-bold text-white">
+                  {t("mostPopular")}
+                </span>
+              )}
+              {!isRecommended && pkg.bestValue && (
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-3 py-0.5 text-xs font-bold text-white">
+                  {t("bestValue")}
+                </span>
+              )}
+
+              <h3 className="text-lg font-bold">{tPkg(pkg.id)}</h3>
+              <p className="mt-1 text-3xl font-extrabold">
+                {pkg.pa.toLocaleString()}
+                <span className="ml-1 text-base font-normal text-muted-foreground">
+                  PA
+                </span>
+              </p>
+              <p className="mt-1 text-xl font-semibold text-foreground">
+                {formatPrice(pkg.amountCents)}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {getRatio(pkg.pa, pkg.amountCents)} PA/R$
+              </p>
+
+              <button
+                onClick={() => handleSelectPackage(pkg.id)}
+                disabled={state === "processing"}
+                className={`mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  isRecommended
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                    : pkg.popular
+                      ? "bg-atlas-gold text-white hover:bg-atlas-gold/90"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
+                } disabled:cursor-not-allowed disabled:opacity-50`}
+                aria-label={t("buyPackage", { name: tPkg(pkg.id), pa: pkg.pa })}
+              >
+                {t("buy")}
+              </button>
+            </div>
+          );
+        })}
       </div>
 
       {/* Confirmation Modal */}
@@ -176,7 +234,7 @@ export function PurchasePageClient({
         <ModalOverlay>
           <div className="w-80 max-w-[calc(100vw-3rem)] rounded-xl bg-background p-6 text-center shadow-xl">
             <span className="mb-2 inline-block text-4xl" aria-hidden="true">
-              {"\u{1F389}"}
+              {"\u{2705}"}
             </span>
             <h3 className="text-lg font-bold">{t("successTitle")}</h3>
             <p className="mt-2 text-muted-foreground">

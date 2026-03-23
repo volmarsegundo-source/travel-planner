@@ -1074,6 +1074,7 @@
       "insufficientMessage": "Voce precisa de {cost} PA mas tem {balance} PA.",
       "missing": "Faltam {amount} PA",
       "earnMore": "Ganhar mais pontos",
+      "buyPA": "Comprar PA",
       "close": "Fechar"
     },
     "tutorial": {
@@ -1231,7 +1232,28 @@
       "error": "Algo deu errado. Tente novamente.",
       "paymentFailed": "O pagamento nao pode ser processado. Tente novamente.",
       "invalidPackage": "Pacote selecionado invalido.",
-      "tryAgain": "Tentar novamente"
+      "rateLimited": "Muitas compras realizadas. Aguarde antes de tentar novamente.",
+      "tryAgain": "Tentar novamente",
+      "bestValue": "Melhor custo-beneficio",
+      "recommended": "Recomendado",
+      "neededForFeature": "Voce precisa de {amount} PA para {feature}",
+      "neededGeneric": "Voce precisa de {amount} PA"
+    },
+    "purchaseHistory": {
+      "title": "Historico de Compras",
+      "empty": "Nenhuma compra realizada",
+      "loading": "Carregando historico de compras...",
+      "loadError": "Erro ao carregar historico de compras.",
+      "date": "Data",
+      "package": "Pacote",
+      "paAmount": "PA",
+      "price": "Preco",
+      "status": "Status",
+      "statuses": {
+        "confirmed": "Confirmado",
+        "pending": "Pendente",
+        "failed": "Falhou"
+      }
     },
     "badgeShowcase": {
       "title": "Colecao de Badges",
@@ -1269,7 +1291,58 @@
       "columnTrips": "Viagens",
       "columnRank": "Rank",
       "noUsers": "Nenhum usuario encontrado.",
-      "pageInfo": "Pagina {page} de {totalPages}"
+      "pageInfo": "Pagina {page} de {totalPages}",
+      "kpi": {
+        "userKpis": "Metricas de Usuarios",
+        "financialKpis": "Metricas Financeiras",
+        "payingUsers": "pagantes",
+        "freeUsers": "gratuitos",
+        "totalUsers": "Total de Usuarios",
+        "arpu": "ARPU",
+        "conversionRate": "Taxa de Conversao",
+        "grossMargin": "Margem Bruta",
+        "paEmitted": "PA Emitidos",
+        "paConsumed": "PA Consumidos"
+      },
+      "charts": {
+        "aiCalls": "Chamadas de IA",
+        "aiCallsLabel": "Grafico de barras de chamadas de IA por funcionalidade",
+        "checklist": "Checklist",
+        "guide": "Guia",
+        "itinerary": "Roteiro",
+        "levelDistribution": "Distribuicao de Niveis",
+        "topDestinations": "Destinos Mais Populares",
+        "noData": "Nenhum dado disponivel."
+      },
+      "alerts": {
+        "marginWarning": "Atencao: Margem bruta em {percent}% — abaixo do target de 80%",
+        "marginCritical": "ALERTA: Margem bruta critica em {percent}%"
+      },
+      "export": {
+        "exportCsv": "Exportar CSV",
+        "exporting": "Exportando...",
+        "exported": "Exportado com sucesso"
+      },
+      "period": {
+        "label": "Filtro de periodo",
+        "7d": "7 dias",
+        "30d": "30 dias",
+        "90d": "90 dias",
+        "1y": "1 ano",
+        "custom": "Personalizado"
+      },
+      "table": {
+        "profit": "Lucro",
+        "aiCost": "Custo IA",
+        "revenue": "Receita",
+        "balance": "Saldo",
+        "search": "Buscar por email ou nome...",
+        "noResults": "Nenhum usuario encontrado.",
+        "prev": "Anterior",
+        "next": "Proximo",
+        "prevPage": "Ir para pagina anterior",
+        "nextPage": "Ir para proxima pagina"
+      }
     }
   },
   "atlas": {
