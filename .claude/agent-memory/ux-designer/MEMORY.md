@@ -211,9 +211,15 @@
 - New patterns: InlineReviewPanel, StripeRedirectOverlay, PaymentResultPage, KPICard (extended to 7), MarginAlertBanner, PeriodFilter, SortableDataTable, ChartCard
 - Open questions: PIX/Boleto async payments, email receipt (Stripe vs custom), chart library, USD/BRL rate source, per-user AI cost attribution, CSV row limit
 
-## Sprint 38 UX Specs (2026-03-23) — Design System Foundation
-- SPEC-UX-047: 7 component specs (Button, Input, Card, Chip, Badge, PhaseProgress, StepperInput). All tokens from DESIGN.md (V2). Amber-500 CTA, navy-900 brand, teal-600 success, Plus Jakarta Sans. Saved to docs/specs/sprint-38/SPEC-UX-047-design-system-components.md
-- SPEC-UX-048: Token mapping — all DESIGN.md tokens to Tailwind under atlas-* namespace. V1/V2 coexistence via prefix isolation. Contrast matrix verified. Saved to docs/specs/sprint-38/SPEC-UX-048-design-token-mapping.md
-- Key decisions: atlas-* prefix for all V2 tokens (zero V1 collision); amber-500 is both CTA and warning (risk noted, separate tokens); sm primary button contrast borderline (open question); teal-600 on gray-50 = 4.4:1 (recommend teal-700 on gray backgrounds)
-- Feature flag: NEXT_PUBLIC_DESIGN_V2=false (off by default, no visual changes until enabled)
-- Open: sm button contrast (OQ-047-01), font loading strategy (OQ-047-02), dashboard progress clickability (OQ-047-03)
+## Sprint 38 — Design System Foundation (2026-03-23)
+- UX Parecer (full audit): docs/specs/sprint-38/UX-PARECER-DESIGN-SYSTEM.md — SINGLE SOURCE OF TRUTH
+- Supersedes SPEC-UX-047 and SPEC-UX-048 (parecer is more comprehensive)
+- 40+ M3 color tokens + 9 UX-added semantic tokens (warning/success/info/disabled/focus)
+- Fonts: Plus Jakarta Sans (headlines) + Work Sans (body) — replaces Inter from legacy ux-patterns.md
+- CTA primary: text #040d1b (navy) on #fe932c (orange). NEVER white on orange (2.3:1 FAILS AA)
+- 3 critical contrast failures identified and corrected (A1-A3 in parecer)
+- 5 touch target failures identified (steppers, chips, icon buttons, avatar)
+- Focus indicator: exports use focus:ring-0 (violation!) — corrected to focus-visible:ring-2
+- Progress bar: standardize to 2 components (not 3 divergent exports)
+- Feature flag: NEXT_PUBLIC_DESIGN_V2
+- 10 components audited: Button, Input, Card, Chip, Badge, PhaseProgress, Stepper, Dialog, Toast, Nav

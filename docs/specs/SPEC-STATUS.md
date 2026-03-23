@@ -1,7 +1,7 @@
 # Spec Status Tracker
 
 > Maintained by: tech-lead
-> Last updated: 2026-03-17 (Sprint 31 planning)
+> Last updated: 2026-03-23 (Sprint 38 planning)
 > SDD effective from: Sprint 25
 
 ## Status Definitions
@@ -176,6 +176,10 @@
 | SPEC-INFRA-007 | Stripe Infrastructure | devops-engineer | Draft | 1.0.0 | 37 | tech-lead, architect |
 | SPEC-RELEASE-007 | v0.32.0 Release Plan | release-manager | Draft | 1.0.0 | 37 | tech-lead |
 | SPEC-COST-007 | Stripe Fees + Margin Impact | finops-engineer | Draft | 1.0.0 | 37 | tech-lead, architect |
+| SPEC-PROD-046 | Design System Foundation | product-owner | Draft | 1.0.0 | 38 | tech-lead, ux-designer, architect |
+| SPEC-PROD-047 | Component Library v1 | product-owner | Draft | 1.0.0 | 38 | tech-lead, ux-designer, architect |
+| SPEC-UX-047 | UX Parecer: Design System Audit | ux-designer | In Review | 1.0.0 | 38 | product-owner, tech-lead, architect |
+| SPEC-UX-048 | Component Library UX Approval | ux-designer | In Review | 1.0.0 | 38 | product-owner, tech-lead, architect |
 
 ---
 

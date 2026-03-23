@@ -1,6 +1,6 @@
 # Tech Lead Memory -- Travel Planner
 
-## Project State (as of 2026-03-17)
+## Project State (as of 2026-03-23)
 - Sprints 1-24 complete (legacy, pre-SDD)
 - Sprint 25 COMPLETE: v0.18.0, 1612 tests
 - Sprint 26 COMPLETE: v0.19.0, 1655 tests
@@ -18,6 +18,9 @@
 - Sprint 33: PLANNED -- data integrity + UX foundation + social login, 15 tasks, v0.28.0
   - See: [project_sprint33_plan.md](project_sprint33_plan.md)
   - Plan: docs/specs/sprint-33/SPRINT-33-PLAN.md
+- Sprint 38: PLANNED -- Design System Foundation, 18 tasks, v0.33.0
+  - See: [project_sprint38_plan.md](project_sprint38_plan.md)
+  - Plan: docs/specs/sprint-38/SPRINT-38-EXECUTION-PLAN.md
 - Sprint 37: PLANNED -- Gamification Wave 3 (Stripe + Admin), 27 tasks, v0.32.0
   - See: [project_sprint37_plan.md](project_sprint37_plan.md)
   - Plan: docs/specs/sprint-37/SPRINT-37-PLAN.md
