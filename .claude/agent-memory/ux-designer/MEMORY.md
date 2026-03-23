@@ -211,7 +211,9 @@
 - New patterns: InlineReviewPanel, StripeRedirectOverlay, PaymentResultPage, KPICard (extended to 7), MarginAlertBanner, PeriodFilter, SortableDataTable, ChartCard
 - Open questions: PIX/Boleto async payments, email receipt (Stripe vs custom), chart library, USD/BRL rate source, per-user AI cost attribution, CSV row limit
 
-## End-to-End UX Audit (2026-03-10)
-- Full audit: docs/ux/END-TO-END-UX-REVIEW.md
-- Grade: C+ (Functional but Inconsistent)
-- Key issues: Phase 4 tabs->wizard, 3 animation systems, progress bar mobile, autocomplete, no save feedback, prefers-reduced-motion not respected, broken ARIA in Phase 4 tabs, i18n hardcoded strings
+## Sprint 38 UX Specs (2026-03-23) — Design System Foundation
+- SPEC-UX-047: 7 component specs (Button, Input, Card, Chip, Badge, PhaseProgress, StepperInput). All tokens from DESIGN.md (V2). Amber-500 CTA, navy-900 brand, teal-600 success, Plus Jakarta Sans. Saved to docs/specs/sprint-38/SPEC-UX-047-design-system-components.md
+- SPEC-UX-048: Token mapping — all DESIGN.md tokens to Tailwind under atlas-* namespace. V1/V2 coexistence via prefix isolation. Contrast matrix verified. Saved to docs/specs/sprint-38/SPEC-UX-048-design-token-mapping.md
+- Key decisions: atlas-* prefix for all V2 tokens (zero V1 collision); amber-500 is both CTA and warning (risk noted, separate tokens); sm primary button contrast borderline (open question); teal-600 on gray-50 = 4.4:1 (recommend teal-700 on gray backgrounds)
+- Feature flag: NEXT_PUBLIC_DESIGN_V2=false (off by default, no visual changes until enabled)
+- Open: sm button contrast (OQ-047-01), font loading strategy (OQ-047-02), dashboard progress clickability (OQ-047-03)
