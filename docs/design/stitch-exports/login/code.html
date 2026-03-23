@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas - Login</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=Work+Sans:ital,wght@0,100..900;1,100..900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary-container": "#1a2332",
+                "surface-container-low": "#f3f3f3",
+                "on-error-container": "#93000a",
+                "inverse-on-surface": "#f0f1f1",
+                "tertiary-fixed": "#89f5e7",
+                "primary": "#040d1b",
+                "on-secondary": "#ffffff",
+                "surface": "#f9f9f9",
+                "surface-bright": "#f9f9f9",
+                "on-tertiary-fixed": "#00201d",
+                "on-tertiary": "#ffffff",
+                "tertiary-container": "#002824",
+                "on-surface-variant": "#45474c",
+                "secondary": "#904d00",
+                "surface-tint": "#565f70",
+                "on-background": "#1a1c1c",
+                "surface-container": "#eeeeee",
+                "outline-variant": "#c5c6cc",
+                "outline": "#75777d",
+                "on-primary-fixed-variant": "#3e4758",
+                "on-tertiary-container": "#1c9a8e",
+                "error": "#ba1a1a",
+                "on-error": "#ffffff",
+                "surface-dim": "#dadada",
+                "surface-variant": "#e2e2e2",
+                "primary-fixed-dim": "#bec7db",
+                "on-surface": "#1a1c1c",
+                "secondary-fixed": "#ffdcc3",
+                "primary-fixed": "#dae3f7",
+                "on-primary-fixed": "#131c2a",
+                "error-container": "#ffdad6",
+                "secondary-fixed-dim": "#ffb77d",
+                "secondary-container": "#fe932c",
+                "surface-container-highest": "#e2e2e2",
+                "on-primary": "#ffffff",
+                "background": "#f9f9f9",
+                "on-secondary-container": "#663500",
+                "tertiary": "#00100d",
+                "inverse-surface": "#2f3131",
+                "inverse-primary": "#bec7db",
+                "surface-container-lowest": "#ffffff",
+                "on-secondary-fixed": "#2f1500",
+                "surface-container-high": "#e8e8e8",
+                "on-primary-container": "#818a9d",
+                "tertiary-fixed-dim": "#6bd8cb",
+                "on-tertiary-fixed-variant": "#005049",
+                "on-secondary-fixed-variant": "#6e3900"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Work Sans"],
+                "label": ["Work Sans"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .topo-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 86c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm76-26c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM42 16c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm44 46c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM10 54c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm66 2c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-4-48c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-44-10c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm84 70c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-30 20c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-40-40c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zm-20-40c.552 0 1-.448 1-1s-.448-1-1-1-1 .448-1 1 .448 1 1 1zM10 10c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm80 80c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM30 50c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm50-40c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM40 80c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm40-20c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM10 30c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm80 40c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM50 10c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM10 80c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm80-60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM30 10c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm50 80c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM10 50c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm80-40c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM50 90c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zM90 50c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4z' fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+    </style>
+</head>
+<body class="bg-surface font-body overflow-hidden">
+<main class="flex min-h-screen">
+<!-- LEFT SIDE (60%) -->
+<section class="hidden lg:flex w-[60%] bg-primary relative flex-col items-center justify-center p-12 overflow-hidden">
+<!-- Topographic Pattern Watermark -->
+<div class="absolute inset-0 topo-pattern opacity-40"></div>
+<!-- Ambient Glow -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#1c9a8e] blur-[140px] opacity-20 rounded-full"></div>
+<!-- Logo & Brand Content -->
+<div class="relative z-10 flex flex-col items-center">
+<div class="flex items-center gap-4 mb-6">
+<div class="w-16 h-16 bg-gradient-to-br from-secondary-container to-orange-400 rounded-xl flex items-center justify-center shadow-lg shadow-primary/50">
+<span class="material-symbols-outlined text-primary text-4xl" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+</div>
+<h1 class="font-headline text-6xl font-black text-white tracking-tighter">Atlas</h1>
+</div>
+<p class="font-headline text-xl text-on-primary-container max-w-xs text-center leading-relaxed">
+                    Do sonho ao destino, com inteligência.
+                </p>
+</div>
+<!-- Floating Card -->
+<div class="absolute bottom-32 left-1/2 -translate-x-1/2 translate-y-12 rotate-[-4deg] z-20">
+<div class="bg-primary-container/80 backdrop-blur-xl border border-white/10 p-5 rounded-xl shadow-2xl w-72">
+<div class="flex justify-between items-start mb-4">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-primary-container uppercase tracking-widest font-bold">Próxima Viagem</span>
+<span class="text-white font-headline font-semibold text-sm">Rio de Janeiro → Lisboa</span>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary-container text-lg" data-icon="flight_takeoff">flight_takeoff</span>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between text-[11px] text-on-primary-container">
+<span>12 dias restantes</span>
+<span>85% pronto</span>
+</div>
+<div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container w-[85%] rounded-full shadow-[0_0_10px_rgba(254,147,44,0.5)]"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Image Background Elements (Abstract) -->
+<div class="absolute top-10 right-10 opacity-20 grayscale">
+<img class="w-48 h-48 rounded-2xl object-cover -rotate-12 border border-white/20" data-alt="dramatic mountain peaks with lens flare and moody cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHw3BzZC5fvPUZwCn3wG6Js1vrHHlmPwBKOgOykysTRPAa3Z5S5UQcghN-rPAOCVPYwomFIkGMT69c4iEbEBW6aAmGiJT1_tP3s7jDLLQ2Upd4wS6sqY81GM2aYPDpMWPwtiepUkXHXy7vaGJ4PkT1C1ocS6tUtHlr4iVF8hNqufPYtFC-oVz31jqBFidW4wnQpxtbz3_lf0nd0domy8091lXtRNXZzLS1HnTTWNVeLQyxNcDq4fjZPeH6ffKCb92g4iK0SqS9HS78"/>
+</div>
+</section>
+<!-- RIGHT SIDE (40%) -->
+<section class="w-full lg:w-[40%] bg-white flex flex-col px-8 md:px-20 py-12 justify-center relative overflow-y-auto">
+<div class="max-w-md w-full mx-auto">
+<!-- Mobile Header Only -->
+<div class="lg:hidden flex items-center gap-2 mb-12">
+<span class="material-symbols-outlined text-secondary-container text-3xl" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<h1 class="font-headline text-2xl font-black text-primary">Atlas</h1>
+</div>
+<div class="mb-10">
+<h2 class="font-headline text-[28px] font-bold text-primary mb-2">Bem-vindo de volta</h2>
+<p class="text-on-surface-variant text-base">Entre na sua conta para continuar sua expedição</p>
+</div>
+<form class="space-y-6">
+<!-- Email Field -->
+<div class="space-y-2">
+<label class="text-sm font-semibold text-primary font-headline" for="email">E-mail</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-outline group-focus-within:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="mail">mail</span>
+</div>
+<input class="w-full pl-11 pr-4 py-3 bg-surface border-transparent border-2 rounded-lg focus:border-on-tertiary-container focus:bg-white focus:ring-0 text-primary transition-all placeholder:text-outline/50" id="email" placeholder="seu@email.com" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-2">
+<div class="flex justify-between items-center">
+<label class="text-sm font-semibold text-primary font-headline" for="password">Senha</label>
+<a class="text-sm font-semibold text-on-tertiary-container hover:underline" href="#">Esqueceu a senha?</a>
+</div>
+<div class="relative group">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-outline group-focus-within:text-on-tertiary-container transition-colors">
+<span class="material-symbols-outlined text-xl" data-icon="lock">lock</span>
+</div>
+<input class="w-full pl-11 pr-12 py-3 bg-surface border-transparent border-2 rounded-lg focus:border-on-tertiary-container focus:bg-white focus:ring-0 text-primary transition-all placeholder:text-outline/50" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-outline hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined text-xl" data-icon="visibility">visibility</span>
+</button>
+</div>
+</div>
+<!-- Remember Me -->
+<div class="flex items-center">
+<input class="w-5 h-5 rounded border-outline-variant text-secondary-container focus:ring-secondary-container transition-all" id="remember" type="checkbox"/>
+<label class="ml-3 text-sm text-on-surface-variant select-none" for="remember">Lembrar de mim</label>
+</div>
+<!-- CTA -->
+<button class="w-full h-12 bg-secondary-container hover:bg-orange-600 text-primary font-headline font-bold rounded-lg shadow-lg shadow-orange-500/10 transition-all active:scale-[0.98] flex items-center justify-center gap-2" type="submit">
+                        Entrar
+                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</form>
+<!-- Divider -->
+<div class="relative my-10">
+<div class="absolute inset-0 flex items-center">
+<div class="w-full border-t border-outline-variant/30"></div>
+</div>
+<div class="relative flex justify-center text-sm">
+<span class="px-4 bg-white text-outline font-medium">ou</span>
+</div>
+</div>
+<!-- Social Login -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant hover:border-primary rounded-lg transition-colors font-semibold text-primary text-sm">
+<img alt="Google" class="w-5 h-5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlWj7iBA5Ey06UxnfojvqRm9UTH9BqAWMttD5P3K2SjrWZIe3XTqhOZG6eQL_cuDNmKz7skEmXxXAx9BjJAR84iF-TYpMi_OYjM4QlyI5Fkdje0oJF0jkXDN2vYVHEV8Y1BgAqkixBKQ5_rja7F9QJfSxq1sKaBt07MTbifraaspilrkXP2UqYuQTR9S7Hz3tNUQnpHJncGIOaS1-3XzRfk3UXPGDQsn_AbmQY4ScCD77e4B817vRtLBXi6pIotFn4f_JftWYuz9OF"/>
+                        Google
+                    </button>
+<button class="flex items-center justify-center gap-2 py-3 px-4 border border-outline-variant hover:border-primary rounded-lg transition-colors font-semibold text-primary text-sm">
+<svg aria-hidden="true" class="w-5 h-5 fill-primary" viewbox="0 0 24 24"><path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.008.069-.008 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path></svg>
+                        GitHub
+                    </button>
+</div>
+<!-- Footer Links -->
+<p class="mt-10 text-center text-sm text-on-surface-variant">
+                    Não tem uma conta? 
+                    <a class="text-on-tertiary-container font-bold hover:underline ml-1" href="#">Criar conta grátis</a>
+</p>
+<!-- Legal -->
+<div class="mt-16 text-center">
+<p class="text-[11px] text-outline leading-relaxed max-w-xs mx-auto">
+                        Ao continuar, você concorda com nossos 
+                        <a class="text-on-tertiary-container font-medium hover:underline" href="#">Termos de Uso</a> 
+                        e nossa 
+                        <a class="text-on-tertiary-container font-medium hover:underline" href="#">Política de Privacidade</a>.
+                    </p>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer - Shell Matching Component Style but suppressed for login flow as per prompt shell rules, but including text for completeness -->
+<div class="fixed bottom-0 right-0 w-[40%] flex justify-between items-center px-10 py-4 font-plus-jakarta text-xs opacity-80 z-50 pointer-events-none">
+<span class="text-outline">© 2024 Atlas Viagens. Todos os direitos reservados.</span>
+</div>
+</body></html>

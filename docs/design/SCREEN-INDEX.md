@@ -6,34 +6,34 @@
 
 ## Telas Oficiais (implementar estas)
 
-| Tela               | Pasta de Referência                        | Status       |
-|--------------------|--------------------------------------------|--------------|
-| Landing Page       | `stitch-exports/atlas_landing_page_a_inspira_o/`   | ✅ Exportada |
-| Dashboard          | `stitch-exports/atlas_user_dashboard_o_perfil_1/`  | ✅ Exportada |
-| Phase 1 - Wizard   | `stitch-exports/phase_1_a_inspira_o_wizard_1/`     | ✅ Exportada |
-| Phase 3 - O Preparo| `stitch-exports/trip_planning_hub_o_preparo/`       | ✅ Exportada |
-| Roteiro / Itinerário| `stitch-exports/ai_powered_itinerary_roteiro/`     | ✅ Exportada |
-| Login              | —                                          | ⏳ Pendente  |
-| Phase 2 - O Perfil | —                                          | ⏳ Pendente  |
-| Phase 4 - A Logística | —                                       | ⏳ Pendente  |
-| Phase 5 - Guia do Destino | —                                  | ⏳ Pendente  |
-| Phase 6 - Roteiro (detalhado) | —                              | ⏳ Pendente  |
-| Sumário da Expedição | —                                       | ⏳ Pendente  |
+|Tela|Pasta de Referência|Status|
+|-|-|-|
+|Landing Page|`stitch-exports/atlas\_landing\_page\_a\_inspira\_o/`|✅ Exportada|
+|Dashboard|`stitch-exports/atlas\_user\_dashboard\_o\_perfil\_1/`|✅ Exportada|
+|Phase 1 - Wizard|`stitch-exports/phase\_1\_a\_inspira\_o\_wizard\_1/`|✅ Exportada|
+|Phase 3 - O Preparo|`stitch-exports/trip\_planning\_hub\_o\_preparo/`|✅ Exportada|
+|Roteiro / Itinerário|`stitch-exports/ai\_powered\_itinerary\_roteiro/`|✅ Exportada|
+|Login|`stitch-exports/login/`|✅ Exportada|
+|Phase 2 - O Perfil|—|⏳ Pendente|
+|Phase 4 - A Logística|—|⏳ Pendente|
+|Phase 5 - Guia do Destino|—|⏳ Pendente|
+|Phase 6 - Roteiro (detalhado)|—|⏳ Pendente|
+|Sumário da Expedição|—|⏳ Pendente|
 
 ## Variantes Alternativas (apenas referência)
 
-| Variante                                  | Motivo da não-seleção         |
-|-------------------------------------------|-------------------------------|
-| `atlas_landing_page_premium_v2_1/`        | Alternativa de Landing        |
-| `atlas_landing_page_premium_v2_2/`        | Alternativa de Landing        |
-| `atlas_landing_page_tropical_variant/`    | Alternativa de Landing        |
-| `atlas_user_dashboard_o_perfil_2/`        | Alternativa de Dashboard      |
-| `phase_1_a_inspira_o_wizard_2/`           | Alternativa de Phase 1        |
+|Variante|Motivo da não-seleção|
+|-|-|
+|`atlas\_landing\_page\_premium\_v2\_1/`|Alternativa de Landing|
+|`atlas\_landing\_page\_premium\_v2\_2/`|Alternativa de Landing|
+|`atlas\_landing\_page\_tropical\_variant/`|Alternativa de Landing|
+|`atlas\_user\_dashboard\_o\_perfil\_2/`|Alternativa de Dashboard|
+|`phase\_1\_a\_inspira\_o\_wizard\_2/`|Alternativa de Phase 1|
 
 ## Cada pasta contém
 
-- `code.html` — HTML/CSS exportado do Stitch (referência de implementação)
-- `screen.png` — Screenshot da tela (referência visual)
+* `code.html` — HTML/CSS exportado do Stitch (referência de implementação)
+* `screen.png` — Screenshot da tela (referência visual)
 
 ## Regras para Agentes
 
@@ -42,3 +42,4 @@
 3. Use `code.html` como referência de estrutura e `screen.png` como referência visual
 4. Todos componentes devem vir de `src/components/ui/` — consulte `DESIGN.md`
 5. Telas pendentes serão geradas no Stitch e adicionadas antes do Sprint 35
+
