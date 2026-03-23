@@ -213,13 +213,16 @@
 
 ## Sprint 38 — Design System Foundation (2026-03-23)
 - UX Parecer (full audit): docs/specs/sprint-38/UX-PARECER-DESIGN-SYSTEM.md — SINGLE SOURCE OF TRUTH
-- Supersedes SPEC-UX-047 and SPEC-UX-048 (parecer is more comprehensive)
-- 40+ M3 color tokens + 9 UX-added semantic tokens (warning/success/info/disabled/focus)
-- Fonts: Plus Jakarta Sans (headlines) + Work Sans (body) — replaces Inter from legacy ux-patterns.md
-- CTA primary: text #040d1b (navy) on #fe932c (orange). NEVER white on orange (2.3:1 FAILS AA)
-- 3 critical contrast failures identified and corrected (A1-A3 in parecer)
-- 5 touch target failures identified (steppers, chips, icon buttons, avatar)
-- Focus indicator: exports use focus:ring-0 (violation!) — corrected to focus-visible:ring-2
-- Progress bar: standardize to 2 components (not 3 divergent exports)
+- Validation: docs/specs/sprint-38/UX-VALIDACAO-FINAL-SPRINT-38.md — APPROVED WITH 4 LOW-SEVERITY ITEMS
+- 59 tokens (40+ M3 colors + 9 semantic), 7 components, 2 fonts, ESLint rule
+- CTA primary: navy (#040d1b) on orange (#fe932c). NEVER white on orange.
 - Feature flag: NEXT_PUBLIC_DESIGN_V2
-- 10 components audited: Button, Input, Card, Chip, Badge, PhaseProgress, Stepper, Dialog, Toast, Nav
+- 4 carryover fixes: aria-pressed, 40px circle, glow token, cn/cva ESLint gap
+
+## Sprint 39 — Landing Page + Login V2 (2026-03-23)
+- [sprint39_landing_login.md](sprint39_landing_login.md) — Full UX spec details and key decisions
+- UX Spec: docs/specs/sprint-39/UX-SPEC-LANDING-LOGIN-V2.md
+- Landing: 6 sections (nav, hero, 8 phases, AI, gamification, destinations, footer)
+- Login: split-screen (60/40 brand+form), teal border focus, amber ring focus
+- 0 new library components, 5 page compositions, 4 inline patterns
+- 5 open questions (icon lib, hero image, AI mockup, loading text, copyright entity)
