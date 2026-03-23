@@ -194,6 +194,23 @@
 - 9 new patterns: PATooltip, PAConfirmModal, PAInsufficientModal, OnboardingStepModal, BadgeCard, CelebrationToast, TransactionList, CostInfoSection, HeaderDropdown
 - 8 open questions blocking implementation (packages/pricing, badge reactivation, onboarding flag storage, predictive cost anxiety, admin priority, confetti performance, low balance threshold, toast position)
 
+## Sprint 36 UX Specs (2026-03-22)
+- SPEC-UX-041: SaveDiscardDialog + WizardFooter Global — reusable modal for save/discard on dirty navigation, sticky 3-button footer (phases 1-4) / 2-button (phases 5-6), beforeunload guard. Saved to docs/specs/sprint-36/SPEC-UX-041-save-discard-dialog.md
+- SPEC-UX-042: Badge Showcase + Unlock Animation — 16 badges in 4 categories (Explorador/Perfeccionista/Aventureiro/Veterano), 3 states (locked/unlocked/in-progress), detail modal, confetti unlock toast, grayscale-to-color transition. Saved to docs/specs/sprint-36/SPEC-UX-042-badge-showcase.md
+- SPEC-UX-043: PA Purchase Page — /meu-atlas/comprar-pa, 4 packages (500/1200/2800/6000 PA), radio card selection, confirmation modal, mock payment v1, contextual ?needed= banner from insufficient modal, purchase history, refund policy. Saved to docs/specs/sprint-36/SPEC-UX-043-pa-purchase-page.md
+- SPEC-UX-044: Admin Dashboard — /admin/dashboard, 5 KPI cards (revenue/AI cost/margin/active users/PA circulation), 3 charts (revenue line, top users bar, PA economy donut), sortable user table with search+pagination, date range filter, desktop-optimized. Saved to docs/specs/sprint-36/SPEC-UX-044-admin-dashboard.md
+- Key decisions: SaveDiscardDialog is alertdialog (not simple dialog); badge categories always expanded (not collapsible); PA purchase mock payment in v1; admin dashboard desktop-optimized with mobile notice; package economy % calculated against Explorador base rate
+- New patterns: SaveDiscardDialog, DirtyStateIndicator, BadgeShowcaseGrid, BadgeDetailModal, BadgeUnlockTransition, PackageCard, PurchaseConfirmModal, ContextualNeedBanner, KPICard, DateRangeFilter, DataChart, SortableTable, MobileNoticeBar
+- Open questions: CTA color (orange vs teal), payment gateway (v2), chart library, AI cost tracking, confetti performance
+
+## Sprint 37 UX Specs (2026-03-23)
+- SPEC-UX-045: Stripe Purchase Flow — upgrades mock payment to Stripe Checkout hosted redirect. Review panel replaces confirmation modal (inline, not overlay). Success/pending/timeout/cancel pages. Trust badge row. Payment method icons. Polling for webhook confirmation (3s intervals, 30s max). Supersedes SPEC-UX-043.
+- SPEC-UX-046: Enhanced Admin Dashboard — upgrades skeleton to full metrics. 7 KPI cards (users, paying, revenue, AI cost BRL, margin%, ARPU, conversion). Margin alert banners (yellow <80%, red <50%). 4 charts (revenue line, AI calls multi-line, level pie, destinations bar). Sortable/searchable user table with profit column (green/red). CSV export. Period filter (7d/30d/90d/1y/custom). Supersedes SPEC-UX-GAMIFICATION 4.11.
+- All specs saved to: docs/specs/sprint-37/SPEC-UX-{045-046}.md
+- Key decisions: Stripe Checkout hosted (not embedded Elements) for PCI simplicity; inline review panel instead of modal (user leaves our site); cancel page neutral gray icon (not red); margin card color-coded but supplemented by banner; chart sr-only data tables for accessibility; admin dashboard read-only (no user CRUD)
+- New patterns: InlineReviewPanel, StripeRedirectOverlay, PaymentResultPage, KPICard (extended to 7), MarginAlertBanner, PeriodFilter, SortableDataTable, ChartCard
+- Open questions: PIX/Boleto async payments, email receipt (Stripe vs custom), chart library, USD/BRL rate source, per-user AI cost attribution, CSV row limit
+
 ## End-to-End UX Audit (2026-03-10)
 - Full audit: docs/ux/END-TO-END-UX-REVIEW.md
 - Grade: C+ (Functional but Inconsistent)

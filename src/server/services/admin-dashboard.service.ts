@@ -6,6 +6,14 @@ import "server-only";
 
 import { db } from "@/server/db";
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+/** Rough estimate: 1 PA of AI cost ~ R$ 0.01 (1 cent) */
+export const AI_COST_PER_PA_CENTS = 1;
+
+/** Maximum rows for CSV export */
+const CSV_MAX_ROWS = 10_000;
+
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 export interface DashboardKPIs {
@@ -18,10 +26,69 @@ export interface DashboardKPIs {
   totalPurchases: number;
 }
 
+export interface EnhancedKPIs extends DashboardKPIs {
+  payingUsers: number;
+  freeUsers: number;
+  arpu: number;
+  conversionRate: number;
+  paEmitted: number;
+  paConsumed: number;
+  grossMarginPercent: number;
+}
+
 export interface RevenueDataPoint {
   date: string;
   revenueCents: number;
   purchaseCount: number;
+}
+
+export interface AiCallDataPoint {
+  date: string;
+  checklist: number;
+  guide: number;
+  itinerary: number;
+  total: number;
+}
+
+export interface LevelDistributionRow {
+  rank: string;
+  count: number;
+}
+
+export interface TopDestinationRow {
+  destination: string;
+  count: number;
+}
+
+export interface PerUserProfitRow {
+  id: string;
+  name: string | null;
+  email: string;
+  role: string;
+  totalPoints: number;
+  availablePoints: number;
+  currentRank: string;
+  badgeCount: number;
+  tripCount: number;
+  expeditionCount: number;
+  totalPurchasedCents: number;
+  aiSpendPA: number;
+  estimatedAiCostCents: number;
+  profitCents: number;
+}
+
+export interface PaginatedPerUserProfit {
+  users: PerUserProfitRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+}
+
+export interface MarginAlert {
+  level: "yellow" | "red" | "none";
+  message: string;
+  marginPercent: number;
 }
 
 export interface UserMetricRow {
@@ -85,13 +152,11 @@ export class AdminDashboardService {
     ]);
 
     // Estimate AI cost based on token usage
-    // Each AI spend of X PA ~ X/80 * $0.02 estimated cost
     const totalAiPaSpent = aiTransactions.reduce(
       (sum, t) => sum + Math.abs(t.amount),
       0
     );
-    // Rough estimate: 1 PA of AI cost ~ R$ 0.01
-    const estimatedAiCostCents = totalAiPaSpent;
+    const estimatedAiCostCents = totalAiPaSpent * AI_COST_PER_PA_CENTS;
 
     const totalRevenueCents = revenueResult._sum.amountCents ?? 0;
     const marginCents = totalRevenueCents - estimatedAiCostCents;
@@ -105,6 +170,367 @@ export class AdminDashboardService {
       paInCirculation: paResult._sum.availablePoints ?? 0,
       totalPurchases,
     };
+  }
+
+  /**
+   * Get enhanced KPIs including paying/free users, ARPU, conversion, PA flows, and margin.
+   */
+  static async getEnhancedKPIs(periodDays?: number): Promise<EnhancedKPIs> {
+    const dateFilter = periodDays
+      ? { createdAt: { gte: new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000) } }
+      : {};
+
+    const [
+      baseKPIs,
+      payingUsersResult,
+      paEmittedResult,
+      paConsumedResult,
+    ] = await Promise.all([
+      AdminDashboardService.getKPIs(),
+      db.purchase.findMany({
+        where: { status: "confirmed", ...dateFilter },
+        select: { userId: true },
+        distinct: ["userId"],
+      }),
+      db.pointTransaction.aggregate({
+        where: { amount: { gt: 0 }, ...dateFilter },
+        _sum: { amount: true },
+      }),
+      db.pointTransaction.aggregate({
+        where: { amount: { lt: 0 }, ...dateFilter },
+        _sum: { amount: true },
+      }),
+    ]);
+
+    const payingUsers = payingUsersResult.length;
+    const freeUsers = baseKPIs.totalUsers - payingUsers;
+    const arpu = payingUsers > 0
+      ? Math.round(baseKPIs.totalRevenueCents / payingUsers)
+      : 0;
+    const conversionRate = baseKPIs.totalUsers > 0
+      ? Math.round((payingUsers / baseKPIs.totalUsers) * 10000) / 100
+      : 0;
+    const paEmitted = paEmittedResult._sum.amount ?? 0;
+    const paConsumed = Math.abs(paConsumedResult._sum.amount ?? 0);
+    const grossMarginPercent = baseKPIs.totalRevenueCents > 0
+      ? Math.round(
+          ((baseKPIs.totalRevenueCents - baseKPIs.estimatedAiCostCents) /
+            baseKPIs.totalRevenueCents) *
+            10000
+        ) / 100
+      : 0;
+
+    return {
+      ...baseKPIs,
+      payingUsers,
+      freeUsers,
+      arpu,
+      conversionRate,
+      paEmitted,
+      paConsumed,
+      grossMarginPercent,
+    };
+  }
+
+  /**
+   * Get AI calls time series grouped by period.
+   * Parses PointTransaction description to categorize by AI feature.
+   */
+  static async getAiCallsPerPeriod(
+    periodDays: number,
+    groupBy: "day" | "week" | "month"
+  ): Promise<AiCallDataPoint[]> {
+    const since = new Date(Date.now() - periodDays * 24 * 60 * 60 * 1000);
+
+    const transactions = await db.pointTransaction.findMany({
+      where: {
+        type: "ai_usage",
+        createdAt: { gte: since },
+      },
+      select: { description: true, createdAt: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    const periodMap: "daily" | "weekly" | "monthly" =
+      groupBy === "day" ? "daily" : groupBy === "week" ? "weekly" : "monthly";
+
+    const grouped = new Map<string, { checklist: number; guide: number; itinerary: number }>();
+
+    for (const t of transactions) {
+      const dateKey = getDateKey(t.createdAt, periodMap);
+      const existing = grouped.get(dateKey) ?? { checklist: 0, guide: 0, itinerary: 0 };
+
+      const desc = t.description.toLowerCase();
+      if (desc.includes("checklist")) {
+        existing.checklist += 1;
+      } else if (desc.includes("guide") || desc.includes("guia")) {
+        existing.guide += 1;
+      } else if (desc.includes("itinerary") || desc.includes("itinerario") || desc.includes("roteiro")) {
+        existing.itinerary += 1;
+      } else {
+        // Default to checklist for uncategorized
+        existing.checklist += 1;
+      }
+
+      grouped.set(dateKey, existing);
+    }
+
+    return Array.from(grouped.entries()).map(([date, data]) => ({
+      date,
+      checklist: data.checklist,
+      guide: data.guide,
+      itinerary: data.itinerary,
+      total: data.checklist + data.guide + data.itinerary,
+    }));
+  }
+
+  /**
+   * Get distribution of users across gamification ranks.
+   */
+  static async getUserLevelDistribution(): Promise<LevelDistributionRow[]> {
+    const results = await db.userProgress.groupBy({
+      by: ["currentRank"],
+      _count: { currentRank: true },
+      orderBy: { _count: { currentRank: "desc" } },
+    });
+
+    return results.map((r) => ({
+      rank: r.currentRank,
+      count: r._count.currentRank,
+    }));
+  }
+
+  /**
+   * Get top destinations by trip count.
+   */
+  static async getTopDestinations(limit = 10): Promise<TopDestinationRow[]> {
+    const results = await db.trip.groupBy({
+      by: ["destination"],
+      where: { deletedAt: null },
+      _count: { destination: true },
+      orderBy: { _count: { destination: "desc" } },
+      take: limit,
+    });
+
+    return results.map((r) => ({
+      destination: r.destination,
+      count: r._count.destination,
+    }));
+  }
+
+  /**
+   * Get per-user profit data with pagination, search, and sorting.
+   */
+  static async getPerUserProfit(
+    page = 1,
+    pageSize = 25,
+    search?: string,
+    sort: "revenue" | "aiCost" | "profit" | "rank" = "revenue"
+  ): Promise<PaginatedPerUserProfit> {
+    pageSize = Math.min(Math.max(1, pageSize), 100);
+
+    const where = {
+      deletedAt: null,
+      ...(search
+        ? {
+            OR: [
+              { email: { contains: search, mode: "insensitive" as const } },
+              { name: { contains: search, mode: "insensitive" as const } },
+            ],
+          }
+        : {}),
+    };
+
+    const orderBy =
+      sort === "rank"
+        ? { progress: { currentRank: "asc" as const } }
+        : { createdAt: "desc" as const };
+
+    const [users, total] = await Promise.all([
+      db.user.findMany({
+        where,
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          progress: {
+            select: {
+              totalPoints: true,
+              availablePoints: true,
+              currentRank: true,
+            },
+          },
+          purchases: {
+            where: { status: "confirmed" },
+            select: { amountCents: true },
+          },
+          pointTransactions: {
+            where: { type: "ai_usage", amount: { lt: 0 } },
+            select: { amount: true },
+          },
+          _count: {
+            select: { trips: true, badges: true },
+          },
+        },
+        orderBy,
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+      db.user.count({ where }),
+    ]);
+
+    const mapped: PerUserProfitRow[] = users.map((u) => {
+      const totalPurchasedCents = u.purchases.reduce(
+        (sum, p) => sum + p.amountCents,
+        0
+      );
+      const aiSpendPA = u.pointTransactions.reduce(
+        (sum, t) => sum + Math.abs(t.amount),
+        0
+      );
+      const estimatedAiCostCents = aiSpendPA * AI_COST_PER_PA_CENTS;
+
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        role: u.role,
+        totalPoints: u.progress?.totalPoints ?? 0,
+        availablePoints: u.progress?.availablePoints ?? 0,
+        currentRank: u.progress?.currentRank ?? "novato",
+        badgeCount: u._count.badges,
+        tripCount: u._count.trips,
+        expeditionCount: u._count.trips,
+        totalPurchasedCents,
+        aiSpendPA,
+        estimatedAiCostCents,
+        profitCents: totalPurchasedCents - estimatedAiCostCents,
+      };
+    });
+
+    // Client-side sort for computed fields (revenue, aiCost, profit)
+    if (sort === "revenue") {
+      mapped.sort((a, b) => b.totalPurchasedCents - a.totalPurchasedCents);
+    } else if (sort === "aiCost") {
+      mapped.sort((a, b) => b.estimatedAiCostCents - a.estimatedAiCostCents);
+    } else if (sort === "profit") {
+      mapped.sort((a, b) => b.profitCents - a.profitCents);
+    }
+
+    return {
+      users: mapped,
+      total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(total / pageSize),
+    };
+  }
+
+  /**
+   * Get margin alert level based on gross margin percentage.
+   */
+  static async getMarginAlerts(): Promise<MarginAlert> {
+    const kpis = await AdminDashboardService.getEnhancedKPIs();
+    const marginPercent = kpis.grossMarginPercent;
+
+    if (marginPercent < 50 && kpis.totalRevenueCents > 0) {
+      return {
+        level: "red",
+        message: `ALERTA: Margem bruta critica em ${marginPercent}%`,
+        marginPercent,
+      };
+    }
+    if (marginPercent < 80 && kpis.totalRevenueCents > 0) {
+      return {
+        level: "yellow",
+        message: `Atencao: Margem bruta em ${marginPercent}% — abaixo do target de 80%`,
+        marginPercent,
+      };
+    }
+
+    return {
+      level: "none",
+      message: "",
+      marginPercent,
+    };
+  }
+
+  /**
+   * Export user metrics as CSV string with UTF-8 BOM for Excel compatibility.
+   */
+  static async exportUsersCsv(
+    search?: string,
+    sort: "revenue" | "aiCost" | "profit" | "rank" = "revenue"
+  ): Promise<string> {
+    // Fetch all users (up to CSV_MAX_ROWS) using getPerUserProfit with max pageSize
+    const batchSize = 100;
+    const allUsers: PerUserProfitRow[] = [];
+    let page = 1;
+    let hasMore = true;
+
+    while (hasMore && allUsers.length < CSV_MAX_ROWS) {
+      const batch = await AdminDashboardService.getPerUserProfit(
+        page,
+        batchSize,
+        search,
+        sort
+      );
+      allUsers.push(...batch.users);
+      hasMore = page < batch.totalPages;
+      page++;
+    }
+
+    const rows = allUsers.slice(0, CSV_MAX_ROWS);
+
+    const headers = [
+      "Name",
+      "Email",
+      "Role",
+      "Lifetime PA",
+      "Balance",
+      "Rank",
+      "Badges",
+      "Trips",
+      "Revenue (BRL)",
+      "AI Cost (BRL)",
+      "Profit (BRL)",
+      "Margin %",
+    ];
+
+    const csvLines = [headers.join(",")];
+
+    for (const u of rows) {
+      const marginPct =
+        u.totalPurchasedCents > 0
+          ? Math.round(
+              ((u.totalPurchasedCents - u.estimatedAiCostCents) /
+                u.totalPurchasedCents) *
+                10000
+            ) / 100
+          : 0;
+
+      const line = [
+        escapeCsvField(u.name ?? ""),
+        escapeCsvField(u.email),
+        u.role,
+        u.totalPoints,
+        u.availablePoints,
+        u.currentRank,
+        u.badgeCount,
+        u.tripCount,
+        (u.totalPurchasedCents / 100).toFixed(2),
+        (u.estimatedAiCostCents / 100).toFixed(2),
+        (u.profitCents / 100).toFixed(2),
+        marginPct.toFixed(2),
+      ].join(",");
+
+      csvLines.push(line);
+    }
+
+    // UTF-8 BOM for Excel
+    const BOM = "\uFEFF";
+    return BOM + csvLines.join("\n");
   }
 
   /**
@@ -235,4 +661,11 @@ function getDateKey(
     d.setDate(diff);
   }
   return d.toISOString().slice(0, 10);
+}
+
+function escapeCsvField(value: string): string {
+  if (value.includes(",") || value.includes('"') || value.includes("\n")) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
 }

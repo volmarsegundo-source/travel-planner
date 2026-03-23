@@ -1,0 +1,79 @@
+{
+  "dataset_id": "EVAL-ADMIN-S37-001",
+  "name": "Admin Dashboard Enhanced",
+  "version": "1.0.0",
+  "sprint": 37,
+  "spec_refs": ["SPEC-ARCH-031 v2", "SPEC-PROD-042 v2", "SPEC-SEC-006 v2"],
+  "scenarios": [
+    {
+      "id": "ADM-E01",
+      "description": "KPI accuracy: revenue excludes refunded purchases",
+      "input": { "purchases": [{ "amountCents": 1490, "status": "completed" }, { "amountCents": 5990, "status": "completed" }, { "amountCents": 2990, "status": "refunded" }] },
+      "expected": { "totalRevenueCents": 7480, "totalPurchases": 2, "refunded_excluded": true },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E02",
+      "description": "AI cost calculated from PA spend at configured rate",
+      "input": { "total_ai_pa_spent": 5000, "cost_per_pa_brl": 0.004 },
+      "expected": { "totalAICostBRL": 20.00 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E03",
+      "description": "Net margin = revenue - AI cost",
+      "input": { "totalRevenueCents": 7480, "totalAICostCents": 2000 },
+      "expected": { "netMarginCents": 5480, "netMarginPct": 73.3 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E04",
+      "description": "ARPU = total revenue / active users (30d)",
+      "input": { "totalRevenueCents": 29900, "activeUsers30d": 10 },
+      "expected": { "arpuCents": 2990, "arpuBRL": 29.90 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E05",
+      "description": "Conversion rate = paying users / total registered",
+      "input": { "totalRegistered": 100, "payingUsers": 8 },
+      "expected": { "conversionPct": 8.0 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E06",
+      "description": "Per-user profit: revenue minus AI cost for individual user",
+      "input": { "user": { "purchasedCents": 11980, "aiPASpent": 320, "costPerPA": 0.004 } },
+      "expected": { "revenueBRL": 119.80, "aiCostBRL": 1.28, "marginBRL": 118.52, "marginPct": 98.9 },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E07",
+      "description": "Margin alert: yellow when margin < 80%",
+      "input": { "marginPct": 75.0 },
+      "expected": { "alertLevel": "yellow", "alertMessage": "Margem abaixo de 80%" },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E08",
+      "description": "Margin alert: red when margin < 50%",
+      "input": { "marginPct": 42.0 },
+      "expected": { "alertLevel": "red", "alertMessage": "Margem critica abaixo de 50%" },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E09",
+      "description": "Period filter 7d: only includes purchases from last 7 days",
+      "input": { "period": "7d", "today": "2026-03-23", "purchases": [{ "date": "2026-03-22", "amountCents": 1490 }, { "date": "2026-03-16", "amountCents": 2990 }, { "date": "2026-03-15", "amountCents": 5990 }] },
+      "expected": { "included_count": 2, "excluded_count": 1, "totalRevenueCents": 4480, "boundary_date": "2026-03-16" },
+      "grader": "code"
+    },
+    {
+      "id": "ADM-E10",
+      "description": "Non-admin access denied on all admin server actions",
+      "input": { "userRole": "user", "actions": ["getDashboardKPIs", "getUserMetrics", "exportUsersCSV"] },
+      "expected": { "all_denied": true, "error_type": "ForbiddenError", "http_status": 403, "data_returned": null },
+      "grader": "code"
+    }
+  ]
+}

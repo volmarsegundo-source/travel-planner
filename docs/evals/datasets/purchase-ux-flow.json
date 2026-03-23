@@ -1,0 +1,72 @@
+{
+  "dataset_id": "EVAL-UX-S37-001",
+  "name": "Purchase UX Flow",
+  "version": "1.0.0",
+  "sprint": 37,
+  "spec_refs": ["SPEC-UX-043 v2", "SPEC-PROD-041 v2"],
+  "scenarios": [
+    {
+      "id": "PUX-001",
+      "description": "Insufficient balance modal appears when AI action requires more PA than available",
+      "input": { "availablePoints": 10, "requiredPoints": 80, "action": "generate_itinerary" },
+      "expected": { "modal_shown": true, "modal_current_balance": 10, "modal_required": 80, "modal_deficit": 70, "buy_pa_button": true },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-002",
+      "description": "Clicking 'Comprar PA' in insufficient modal redirects to purchase page",
+      "input": { "modal_action": "buy_pa" },
+      "expected": { "redirect_to": "/meu-atlas/comprar-pa", "return_url_preserved": true },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-003",
+      "description": "Package card shows visual highlight on selection",
+      "input": { "selectedPackage": "explorador", "allPackages": ["explorador", "navegador", "cartografo", "embaixador"] },
+      "expected": { "explorador_highlighted": true, "others_not_highlighted": true, "confirm_button_enabled": true, "confirm_shows_price": "R$ 14,90" },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-004",
+      "description": "Full flow: insufficient balance -> purchase -> success -> balance updated",
+      "input": { "initial_balance": 10, "required": 80, "packageId": "explorador", "pa_amount": 500, "payment_result": "success" },
+      "expected": { "final_balance": 510, "can_now_afford_action": true, "success_page_shown": true, "purchase_history_updated": true },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-005",
+      "description": "Payment failure shows error message with retry option",
+      "input": { "packageId": "explorador", "payment_result": "card_declined" },
+      "expected": { "error_toast_shown": true, "error_message_i18n_key": "payment.error.declined", "retry_button": true, "balance_unchanged": true },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-006",
+      "description": "Balance in header updates after successful purchase without full page reload",
+      "input": { "balance_before": 200, "purchased_pa": 500, "page_reloaded": false },
+      "expected": { "header_balance_displayed": 700, "updated_via": "revalidation_or_state", "no_full_reload": true },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-007",
+      "description": "Package cards display correct PA amounts and BRL prices for all 4 packages",
+      "input": { "locale": "pt" },
+      "expected": {
+        "packages": [
+          { "id": "explorador", "pa": 500, "price": "R$ 14,90" },
+          { "id": "navegador", "pa": 1200, "price": "R$ 29,90" },
+          { "id": "cartografo", "pa": 2800, "price": "R$ 59,90" },
+          { "id": "embaixador", "pa": 6000, "price": "R$ 119,90" }
+        ]
+      },
+      "grader": "code"
+    },
+    {
+      "id": "PUX-008",
+      "description": "Insufficient balance modal is keyboard accessible and focus-trapped",
+      "input": { "trigger": "keyboard", "tab_sequence": ["close_button", "buy_pa_button", "close_button"] },
+      "expected": { "focus_trapped": true, "escape_closes": true, "initial_focus": "buy_pa_button", "aria_modal": true, "role": "dialog" },
+      "grader": "code"
+    }
+  ]
+}

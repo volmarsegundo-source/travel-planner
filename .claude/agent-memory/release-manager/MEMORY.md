@@ -2,10 +2,10 @@
 
 ## Project State
 
-- **Current version**: 0.17.0 in package.json (Sprint 24 complete)
+- **Current version**: 0.31.0 in package.json (Sprint 36 complete)
 - **Changelog**: individual changelogs at `C:\travel-planner\docs\changelogs\CHANGELOG-vX.Y.Z.md`
-- **Release risk register**: exists at `C:\travel-planner\docs\release-risk.md` -- CIA-001 closed, CIA-002 open, CIA-003 closed, CIA-004 closed, CIA-005 closed (Sprint 19), CIA-006 closed (Sprint 20)
-- **API contracts**: no public REST endpoints in MVP scope; `/api/v1/health` is the only live REST endpoint; `/api/ai/plan/stream` is internal SSE endpoint
+- **Release risk register**: exists at `C:\travel-planner\docs\release-risk.md` -- CIA-001 closed, CIA-002 open, CIA-003 closed, CIA-004 closed, CIA-005 closed (Sprint 19), CIA-006 closed (Sprint 20), CIA-007 open (Sprint 37)
+- **API contracts**: `/api/v1/health`, `/api/ai/plan/stream` (SSE), `/api/packages`, `/api/purchases`, `/api/webhooks/stripe` (Sprint 37), `/api/checkout/create-session` (Sprint 37)
 - **Production users**: zero -- system is in Bootstrap Phase (pre-deploy)
 - **Deploy status**: BLOCKED -- deploy.yml still placeholder (RISK-005)
 - **Release checklist template**: `docs/specs/templates/TEMPLATE-RELEASE-CHECKLIST.md`
@@ -15,7 +15,7 @@
 - Initial release is **0.1.0** (not 1.0.0 -- public API not yet stable; SemVer pre-1.0)
 - Pre-1.0 breaking change policy: even in 0.x.x, any breaking change to an existing Server Action signature or data migration of existing data requires a MINOR bump and a migration guide
 - 1.0.0 will be declared when the REST API is publicly stable
-- Version history: 0.1.0 -> 0.2.0 -> ... -> 0.14.0 (Sprint 20) -> 0.15.0 -> 0.16.0 (Sprint 23) -> 0.17.0 (Sprint 24)
+- Version history: 0.1.0 -> ... -> 0.17.0 (Sprint 24) -> ... -> 0.30.0 (Sprint 35) -> 0.31.0 (Sprint 36) -> 0.32.0 (Sprint 37, planned)
 
 ## Key Architectural Facts
 
@@ -42,7 +42,8 @@
 - CIA-004 covers Sprint 7 -- closed (non-breaking, MINOR)
 - CIA-005 covers Sprint 19 -- closed (non-breaking, MINOR, 0.12.0 -> 0.13.0)
 - CIA-006 covers Sprint 20 -- closed (non-breaking, MINOR, 0.13.0 -> 0.14.0)
-- Next ID: CIA-007
+- CIA-007 covers Sprint 37 -- OPEN (non-breaking, MINOR, 0.31.0 -> 0.32.0, Stripe payments + admin dashboard)
+- Next ID: CIA-008
 
 ## Open Risks (cross-sprint)
 

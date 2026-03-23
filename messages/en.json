@@ -1074,6 +1074,7 @@
       "insufficientMessage": "You need {cost} PA but have {balance} PA.",
       "missing": "Missing {amount} PA",
       "earnMore": "Earn more points",
+      "buyPA": "Buy PA",
       "close": "Close"
     },
     "tutorial": {
@@ -1231,7 +1232,28 @@
       "error": "Something went wrong. Please try again.",
       "paymentFailed": "Payment could not be processed. Please try again.",
       "invalidPackage": "Invalid package selected.",
-      "tryAgain": "Try again"
+      "rateLimited": "Too many purchases. Please wait before trying again.",
+      "tryAgain": "Try again",
+      "bestValue": "Best value",
+      "recommended": "Recommended",
+      "neededForFeature": "You need {amount} PA for {feature}",
+      "neededGeneric": "You need {amount} PA"
+    },
+    "purchaseHistory": {
+      "title": "Purchase History",
+      "empty": "No purchases made",
+      "loading": "Loading purchase history...",
+      "loadError": "Failed to load purchase history.",
+      "date": "Date",
+      "package": "Package",
+      "paAmount": "PA",
+      "price": "Price",
+      "status": "Status",
+      "statuses": {
+        "confirmed": "Confirmed",
+        "pending": "Pending",
+        "failed": "Failed"
+      }
     },
     "badgeShowcase": {
       "title": "Badge Collection",
@@ -1269,7 +1291,58 @@
       "columnTrips": "Trips",
       "columnRank": "Rank",
       "noUsers": "No users found.",
-      "pageInfo": "Page {page} of {totalPages}"
+      "pageInfo": "Page {page} of {totalPages}",
+      "kpi": {
+        "userKpis": "User Metrics",
+        "financialKpis": "Financial Metrics",
+        "payingUsers": "paying",
+        "freeUsers": "free",
+        "totalUsers": "Total Users",
+        "arpu": "ARPU",
+        "conversionRate": "Conversion Rate",
+        "grossMargin": "Gross Margin",
+        "paEmitted": "PA Emitted",
+        "paConsumed": "PA Consumed"
+      },
+      "charts": {
+        "aiCalls": "AI Calls",
+        "aiCallsLabel": "AI calls bar chart grouped by feature",
+        "checklist": "Checklist",
+        "guide": "Guide",
+        "itinerary": "Itinerary",
+        "levelDistribution": "User Level Distribution",
+        "topDestinations": "Top Destinations",
+        "noData": "No data available."
+      },
+      "alerts": {
+        "marginWarning": "Warning: Gross margin at {percent}% — below the 80% target",
+        "marginCritical": "ALERT: Critical gross margin at {percent}%"
+      },
+      "export": {
+        "exportCsv": "Export CSV",
+        "exporting": "Exporting...",
+        "exported": "Exported successfully"
+      },
+      "period": {
+        "label": "Period filter",
+        "7d": "7 days",
+        "30d": "30 days",
+        "90d": "90 days",
+        "1y": "1 year",
+        "custom": "Custom"
+      },
+      "table": {
+        "profit": "Profit",
+        "aiCost": "AI Cost",
+        "revenue": "Revenue",
+        "balance": "Balance",
+        "search": "Search by email or name...",
+        "noResults": "No users found.",
+        "prev": "Previous",
+        "next": "Next",
+        "prevPage": "Go to previous page",
+        "nextPage": "Go to next page"
+      }
     }
   },
   "atlas": {

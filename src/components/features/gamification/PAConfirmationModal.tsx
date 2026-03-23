@@ -66,9 +66,14 @@ export function PAConfirmationModal({
             <Button variant="outline" onClick={onClose}>
               {t("close")}
             </Button>
-            <Button asChild>
+            <Button asChild variant="outline">
               <Link href="/como-funciona">
                 {t("earnMore")}
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href={`/meu-atlas/comprar-pa?needed=${paCost}&feature=${encodeURIComponent(featureName)}`}>
+                {t("buyPA")}
               </Link>
             </Button>
           </DialogFooter>

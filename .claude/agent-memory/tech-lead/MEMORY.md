@@ -18,6 +18,9 @@
 - Sprint 33: PLANNED -- data integrity + UX foundation + social login, 15 tasks, v0.28.0
   - See: [project_sprint33_plan.md](project_sprint33_plan.md)
   - Plan: docs/specs/sprint-33/SPRINT-33-PLAN.md
+- Sprint 37: PLANNED -- Gamification Wave 3 (Stripe + Admin), 27 tasks, v0.32.0
+  - See: [project_sprint37_plan.md](project_sprint37_plan.md)
+  - Plan: docs/specs/sprint-37/SPRINT-37-PLAN.md
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)
