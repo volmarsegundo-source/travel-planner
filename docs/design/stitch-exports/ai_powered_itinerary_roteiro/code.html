@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas - Roteiro Fernando de Noronha</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-fixed": "#dae3f7",
+                        "on-primary-container": "#818a9d",
+                        "on-error": "#ffffff",
+                        "secondary-fixed-dim": "#ffb77d",
+                        "on-primary-fixed-variant": "#3e4758",
+                        "on-secondary-fixed": "#2f1500",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f9f9f9",
+                        "outline-variant": "#c5c6cc",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "surface-dim": "#dadada",
+                        "surface-container": "#eeeeee",
+                        "on-primary-fixed": "#131c2a",
+                        "tertiary-fixed-dim": "#6bd8cb",
+                        "on-secondary-fixed-variant": "#6e3900",
+                        "on-surface-variant": "#45474c",
+                        "outline": "#75777d",
+                        "on-primary": "#ffffff",
+                        "on-tertiary-fixed": "#00201d",
+                        "inverse-on-surface": "#f0f1f1",
+                        "primary": "#040d1b",
+                        "primary-fixed-dim": "#bec7db",
+                        "on-secondary": "#ffffff",
+                        "secondary-container": "#fe932c",
+                        "tertiary-container": "#002824",
+                        "on-tertiary-container": "#1c9a8e",
+                        "tertiary": "#00100d",
+                        "surface-container-low": "#f3f3f3",
+                        "on-error-container": "#93000a",
+                        "secondary": "#904d00",
+                        "surface-container-highest": "#e2e2e2",
+                        "background": "#f9f9f9",
+                        "surface-bright": "#f9f9f9",
+                        "on-surface": "#1a1c1c",
+                        "inverse-surface": "#2f3131",
+                        "surface-tint": "#565f70",
+                        "tertiary-fixed": "#89f5e7",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e2e2e2",
+                        "on-secondary-container": "#663500",
+                        "on-background": "#1a1c1c",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#bec7db",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-container": "#1a2332",
+                        "secondary-fixed": "#ffdcc3"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Work Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-fixed">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm">
+<div class="flex items-center justify-between px-6 h-16 max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Atlas</div>
+<nav class="hidden md:flex items-center gap-8 font-['Plus_Jakarta_Sans'] antialiased">
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" href="#">Explorar</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" href="#">Minhas Viagens</a>
+<a class="text-slate-900 dark:text-white font-semibold border-b-2 border-amber-500 pb-1" href="#">Planejador</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined">workspace_premium</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden ring-2 ring-white">
+<img alt="User profile" data-alt="Close-up portrait of a traveler with a friendly expression and adventure gear in soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDXJuVSXfGAB9zM1GvoNr_dh4h6DnghbRaUG0jtLWiSi1j1_NI9Exk3OI83EbDMqvyeD_RaLrYVLk7typNg422GDETcDXAqcVG3PLHaNlsi6yFJgAR4GFgHY5r69Tp3HLABop2F2P3Qj1Esgcqd_Mc5AaZ5JNJTS1_CwzG6Zi8g_QT2JsGrYZuli9FTx7kSgAdlpsVbhtVDY2uT9Uo5R0YXUphwl9pDY_g01E-R8o2JOBbMesswjHB37pHjbb1z8LNtaZwFS6oSyeoP"/>
+</div>
+</div>
+</div>
+</header>
+<div class="flex min-h-screen max-w-screen-2xl mx-auto">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col p-4 gap-2 h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 sticky top-16">
+<div class="px-3 py-4 mb-4">
+<h2 class="text-slate-900 dark:text-slate-50 font-semibold text-lg">Meu Planejamento</h2>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Viagem para Fernando de Noronha</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">hotel</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Hospedagem</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">flight_takeoff</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Vôos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">fact_check</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Checklist</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm rounded-lg font-medium hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">map</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Roteiro</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-slate-200/50">
+<button class="w-full flex items-center justify-center gap-2 py-3 px-4 bg-primary text-white rounded-xl text-sm font-semibold shadow-lg shadow-primary/10 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">device_thermostat</span>
+                    Atlas AI Assistant
+                </button>
+</div>
+<div class="mt-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Configurações</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-['Plus_Jakarta_Sans'] text-sm">Sair</span>
+</a>
+</div>
+</aside>
+<!-- Main Content (Roteiro) -->
+<main class="flex-1 bg-surface-container-low p-6 lg:p-12 overflow-y-auto">
+<header class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+<div>
+<span class="text-secondary font-semibold tracking-wider text-xs uppercase mb-2 block">Seu Próximo Destino</span>
+<h1 class="text-5xl font-extrabold tracking-tight text-primary leading-tight">Fernando de Noronha</h1>
+<p class="text-on-surface-variant mt-2 max-w-xl">5 dias explorando as águas cristalinas e a natureza intocada do arquipélago mais exclusivo do Brasil.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest text-primary text-sm font-medium rounded-lg shadow-sm border border-outline-variant/20 hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">ios_share</span> Compartilhar
+                    </button>
+<button class="flex items-center gap-2 px-4 py-2 bg-surface-container-lowest text-primary text-sm font-medium rounded-lg shadow-sm border border-outline-variant/20 hover:bg-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">download</span> Baixar PDF
+                    </button>
+<button class="flex items-center gap-2 px-5 py-2 bg-primary text-white text-sm font-medium rounded-lg shadow-md hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-[20px]">edit</span> Editar Roteiro
+                    </button>
+</div>
+</header>
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-12">
+<!-- Timeline Section -->
+<div class="xl:col-span-7 space-y-12 relative">
+<!-- Vertical Timeline Line -->
+<div class="absolute left-6 top-8 bottom-8 w-[2px] bg-outline-variant/30 hidden md:block"></div>
+<!-- Day 1 Card -->
+<div class="relative pl-0 md:pl-16">
+<div class="absolute left-0 top-6 w-12 h-12 bg-secondary-container text-white rounded-full flex items-center justify-center font-bold text-xl shadow-lg ring-4 ring-surface-container-low z-10 hidden md:flex">1</div>
+<div class="bg-surface-container-lowest rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow group">
+<h3 class="text-2xl font-bold text-primary mb-6">Dia 1: Chegada e Pôr do Sol no Forte</h3>
+<div class="space-y-6">
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined">flight_land</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Chegada no Aeroporto (FEN)</p>
+<p class="text-on-surface-variant text-sm mt-1">Transfer privativo para a pousada selecionada.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined">hotel</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-semibold text-primary">Check-in Pousada Maravilha</p>
+<p class="text-on-surface-variant text-sm mt-1">Conforto premium com vista para o Morro do Pico.</p>
+</div>
+<img alt="Hospedagem" class="w-20 h-20 rounded-xl object-cover" data-alt="Luxury boutique hotel suite with sustainable wood accents and wide balcony overlooking turquoise ocean waters" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNqwnBMJK6Ir1wQyieSdQHCViyVRy8AF2bvi92eNJ5ehJKoK0OXlsyVD1KPxidYnsJHHhndv4PbQf7R6SrHm2KjqFoosG2LzTP-6eNEBLzXjTFF9z4wvKSn-Dxlu-N61VmpWE9hkIHdpryDvZFA-Z3cCk9_vs8h3LdIwRHioqPkGF0M5XBF3om-Red9mtNfSNjJQhrYL-HwJPPkY9nVZIh1F957-WD3Ht4vJzcytD8y6-lvQEXx3iM0xtaEiPeGu664SItj7DXGt8Y"/>
+</div>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined">beach_access</span>
+</div>
+<div class="flex-1">
+<p class="font-semibold text-primary">Pôr do Sol no Forte do Boldró</p>
+<p class="text-on-surface-variant text-sm mt-1 mb-3">O ponto clássico para ver o sol se despedindo entre os Dois Irmãos.</p>
+<div class="grid grid-cols-2 gap-2 h-32">
+<img alt="Pôr do Sol" class="w-full h-full object-cover rounded-lg" data-alt="Dramatic silhouette of the Dois Irmãos rock formations at sunset with golden and purple skies reflected in the calm sea" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHtkTpmu2hX1zL9MJvIrm7HGrQ0MNKMBvA4LsrqD_UUy6ZvpQKxzXq278JZbpX5YI4Pkf_f7ecG2WoduvYuTl7zHT0jTKnlyYeMsbZcu3gN4p_nH8-Z5XJDDX0lNWln_xZTKeMyPU2LZuEvX3tFvA4KxFsZfqSBdJUAcW3Yl25NGjCT8aPiSaBzC-9eTo8nCaMyOSbiyjQsRLoKRlKBJwkabdsc5vthLQP6qHQjOFfvhuBJ_mPcVC_qjDcJZSv3lzD_YB-0eLQH0TQ"/>
+<img alt="Praia do Boldró" class="w-full h-full object-cover rounded-lg" data-alt="Golden sand beach with gentle waves under a warm twilight sky with scattered soft clouds" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUh3_QfNCIN9RuWo-7b55-73HomEDuqKnbQoR1Q71qP3miOaH_BfXXBGiV3SOvcrDpfpQgNHsa6-dIlvb--oXYhZJTtZGEXespV_Eb73QZfEskluV8SH7HyG9f2VoN95ddFZuNm74UAe2coJjaFM6pU6oP1GiasM7Wt0umSZOae2dSghDCK49Hxr4aIkZ378OlK8ru6ZyJlJa_aPS4cL36o-xzOCTv0Mbiw0NISbydvua-3pL0XUx2OpbEELB6xznS-gOHNHTXKNJp"/>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-8 p-5 bg-secondary-fixed/30 rounded-xl border-l-4 border-secondary flex gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<div>
+<p class="text-secondary font-bold text-sm tracking-tight">DICA DO ATLAS</p>
+<p class="text-on-secondary-container text-sm mt-1">Tente chegar ao Boldró pelo menos 40 minutos antes do pôr do sol para garantir o melhor ângulo. Há um bar rústico no local perfeito para uma primeira caipirinha.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Day 2 Card -->
+<div class="relative pl-0 md:pl-16">
+<div class="absolute left-0 top-6 w-12 h-12 bg-primary-fixed text-primary rounded-full flex items-center justify-center font-bold text-xl shadow-lg ring-4 ring-surface-container-low z-10 hidden md:flex">2</div>
+<div class="bg-surface-container-lowest rounded-2xl p-7 shadow-sm hover:shadow-md transition-shadow">
+<h3 class="text-2xl font-bold text-primary mb-6">Dia 2: Trilhas e Mergulho no Sancho</h3>
+<div class="space-y-6">
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined">hiking</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Trilha do Piquinho</p>
+<p class="text-on-surface-variant text-sm mt-1">Caminhada matinal leve para vista panorâmica da ilha.</p>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined">scuba_diving</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-semibold text-primary">Mergulho Livre na Baía do Sancho</p>
+<p class="text-on-surface-variant text-sm mt-1">Eleita diversas vezes a melhor praia do mundo.</p>
+</div>
+<img alt="Mergulho" class="w-20 h-20 rounded-xl object-cover" data-alt="Vibrant coral reef underwater with schools of tropical yellow fish swimming through clear blue water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASlXdcHgK8EI1CC3e1grgcbMh3m7SxnNFUeFHyxoWgiG7oEUMPnvL6CPfgCIB5sX15cg5deeQ2w50XltH5Nq4YOHSE-jM6yJ5VZd_UV7bDH0s-lEoipp2dYt2iHkXsW7_5v9UYdBRSLarQSexhOk9eEP3eaybdtWC7cPWALOuMjNVpAn_XgQMhZHMrF-5zoIYB5cYtddCPg6gOX3L-NLPjNQqYIeCTYHaR0bkbSXod5AE1NYGMAvAptxhAGwq5deFPFR20z8uaA5lR"/>
+</div>
+</div>
+</div>
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined">restaurant</span>
+</div>
+<div>
+<p class="font-semibold text-primary">Jantar no Restaurante Xica da Silva</p>
+<p class="text-on-surface-variant text-sm mt-1">Experimente o Peixe na Folha de Bananeira.</p>
+</div>
+</div>
+</div>
+<div class="mt-8 p-5 bg-secondary-fixed/30 rounded-xl border-l-4 border-secondary flex gap-4">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<div>
+<p class="text-secondary font-bold text-sm tracking-tight">DICA DO ATLAS</p>
+<p class="text-on-secondary-container text-sm mt-1">O acesso ao Sancho é por escadas em fendas na rocha. Evite carregar bolsas muito grandes. Reserve o Xica da Silva com pelo menos 24h de antecedência!</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Interactive Map & Stats -->
+<div class="xl:col-span-5 space-y-8">
+<div class="sticky top-24">
+<div class="bg-surface-container-lowest rounded-3xl overflow-hidden shadow-sm border border-outline-variant/10">
+<div class="p-6">
+<div class="flex items-center justify-between mb-4">
+<h4 class="font-bold text-primary">Mapa do Roteiro</h4>
+<span class="px-3 py-1 bg-secondary-container text-white text-[10px] font-bold rounded-full uppercase tracking-tighter">Live Map</span>
+</div>
+<div class="relative rounded-2xl overflow-hidden h-96 bg-slate-100">
+<img alt="Mapa" class="w-full h-full object-cover grayscale opacity-50" data-alt="Satellite and topographic view of Fernando de Noronha island with turquoise coastal lines and rugged green terrain" data-location="Fernando de Noronha" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhAzJy9BFLGFdO-wjqltEo24rmx-s-cGLo0JRA_JhUgHGXlMfrJHlSNGV3aaaaPvTo3mnat2QOWPlxKspOZZTTlC-qdZihMUYMiTqea94kbjSNj24vAo6JdX7BUfonfEj2DiY5DHCEEhu5xH3S-3KZrB1XosCi3P0SBKFTYAT8372x49-DrjG_qfGFvlSuyRVenmCS8icprPLMx_XfcMk_VtNjJHPp3EkTE-BAMZP3nCCmmd5O14ltrzcMz8_tLouq6NpJOqmz7lEL"/>
+<!-- Decorative Map Pins -->
+<div class="absolute top-[40%] left-[30%] animate-bounce">
+<span class="material-symbols-outlined text-secondary text-3xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div class="absolute top-[60%] left-[65%]">
+<span class="material-symbols-outlined text-primary/40 text-2xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<div class="absolute top-[20%] left-[50%]">
+<span class="material-symbols-outlined text-primary/40 text-2xl" style="font-variation-settings: 'FILL' 1;">location_on</span>
+</div>
+<!-- Floating Tooltip on Map -->
+<div class="absolute bottom-6 left-6 right-6 bg-white/90 backdrop-blur-md p-4 rounded-xl shadow-lg border border-white/20">
+<p class="text-xs font-bold text-secondary uppercase mb-1">Próxima Parada</p>
+<p class="text-sm font-semibold text-primary">Baía dos Golfinhos • 08:30 AM</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Weather & Quick Info -->
+<div class="mt-8 grid grid-cols-2 gap-4">
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-secondary mb-2">wb_sunny</span>
+<p class="text-2xl font-bold text-primary">28°C</p>
+<p class="text-xs text-on-surface-variant">Sol com nuvens esparsas</p>
+</div>
+<div class="bg-white p-6 rounded-2xl shadow-sm border border-outline-variant/10">
+<span class="material-symbols-outlined text-secondary mb-2">directions_walk</span>
+<p class="text-2xl font-bold text-primary">4.2km</p>
+<p class="text-xs text-on-surface-variant">Caminhada total hoje</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<!-- Footer -->
+<footer class="bg-slate-900 dark:bg-black text-white w-full pt-16 pb-8 border-t border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-screen-2xl mx-auto font-['Plus_Jakarta_Sans'] text-sm">
+<div class="col-span-1 md:col-span-1">
+<div class="text-xl font-black text-white mb-4">Atlas</div>
+<p class="text-slate-400 leading-relaxed">Sua jornada premium começa aqui. Tecnologia e curadoria para viajantes exigentes.</p>
+</div>
+<div>
+<h4 class="font-bold mb-6">Explorar</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity" href="#">Guias de Destino</a></li>
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity" href="#">Blog Editorial</a></li>
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity" href="#">Sobre Nós</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6">Suporte</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity" href="#">Seguro Viagem</a></li>
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity" href="#">Contato</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold mb-6">Novidades</h4>
+<div class="bg-white/5 p-4 rounded-xl border border-white/10">
+<p class="text-xs text-slate-400 mb-2">Receba dicas exclusivas de IA</p>
+<div class="flex">
+<input class="bg-transparent border-none text-white text-xs focus:ring-0 w-full" placeholder="Seu e-mail" type="email"/>
+<button class="material-symbols-outlined text-amber-400">arrow_forward</button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-16 px-8 max-w-screen-2xl mx-auto border-t border-white/5 pt-8 text-center md:text-left">
+<p class="text-slate-500 text-xs">© 2024 Atlas Travel Planner. Transformando sonhos em roteiros.</p>
+</div>
+</footer>
+</body></html>

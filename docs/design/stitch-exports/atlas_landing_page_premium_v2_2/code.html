@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary": "#ffffff",
+              "on-primary-fixed-variant": "#3e4758",
+              "on-background": "#1a1c1c",
+              "error-container": "#ffdad6",
+              "primary": "#040d1b",
+              "inverse-on-surface": "#f0f1f1",
+              "surface-tint": "#565f70",
+              "primary-fixed": "#dae3f7",
+              "on-secondary-fixed-variant": "#6e3900",
+              "on-error-container": "#93000a",
+              "surface-container-lowest": "#ffffff",
+              "secondary-container": "#fe932c",
+              "tertiary-fixed": "#89f5e7",
+              "on-primary-container": "#818a9d",
+              "tertiary-fixed-dim": "#6bd8cb",
+              "on-tertiary-container": "#1c9a8e",
+              "surface-dim": "#dadada",
+              "surface-container-low": "#f3f3f3",
+              "on-secondary-fixed": "#2f1500",
+              "surface-container-highest": "#e2e2e2",
+              "surface-bright": "#f9f9f9",
+              "surface-container": "#eeeeee",
+              "on-primary": "#ffffff",
+              "on-primary-fixed": "#131c2a",
+              "on-surface-variant": "#45474c",
+              "inverse-primary": "#bec7db",
+              "tertiary": "#00100d",
+              "secondary-fixed-dim": "#ffb77d",
+              "on-surface": "#1a1c1c",
+              "outline-variant": "#c5c6cc",
+              "on-secondary-container": "#663500",
+              "primary-fixed-dim": "#bec7db",
+              "outline": "#75777d",
+              "on-tertiary-fixed-variant": "#005049",
+              "surface": "#f9f9f9",
+              "secondary": "#904d00",
+              "on-tertiary": "#ffffff",
+              "surface-variant": "#e2e2e2",
+              "error": "#ba1a1a",
+              "inverse-surface": "#2f3131",
+              "background": "#f9f9f9",
+              "primary-container": "#1a2332",
+              "on-tertiary-fixed": "#00201d",
+              "on-error": "#ffffff",
+              "secondary-fixed": "#ffdcc3",
+              "tertiary-container": "#002824",
+              "surface-container-high": "#e8e8e8"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .bg-hero-pattern {
+        background-image: radial-gradient(circle at 2px 2px, rgba(4, 13, 27, 0.05) 1px, transparent 0);
+        background-size: 40px 40px;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-x-hidden">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-white/80 dark:bg-[#040d1b]/80 backdrop-blur-xl shadow-sm dark:shadow-none">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#040d1b] dark:text-white font-headline">Atlas</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-[#040d1b] dark:text-white font-semibold border-b-2 border-[#1a2332] font-headline text-sm tracking-tight" href="#">Funcionalidades</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1a2332] dark:hover:text-white transition-colors font-headline text-sm tracking-tight" href="#">Como Funciona</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1a2332] dark:hover:text-white transition-colors font-headline text-sm tracking-tight" href="#">Preços</a>
+<a class="text-slate-600 dark:text-slate-400 hover:text-[#1a2332] dark:hover:text-white transition-colors font-headline text-sm tracking-tight" href="#">Entrar</a>
+</div>
+<button class="bg-primary-container text-on-primary px-6 py-2.5 rounded-lg font-headline text-sm font-medium tracking-tight hover:opacity-80 transition-all duration-300 active:scale-95">
+                Começar Grátis
+            </button>
+</div>
+</nav>
+<main>
+<!-- SECTION 1: HERO -->
+<section class="relative pt-32 pb-20 md:pt-48 md:pb-32 px-6 bg-hero-pattern">
+<div class="max-w-7xl mx-auto text-center">
+<h1 class="font-headline text-5xl md:text-7xl font-extrabold tracking-tighter mb-6 bg-gradient-to-r from-primary via-[#0d9488] to-[#1a2332] bg-clip-text text-transparent leading-tight">
+                    Sua próxima aventura começa aqui
+                </h1>
+<p class="max-w-2xl mx-auto text-on-surface-variant text-lg md:text-xl mb-10 leading-relaxed">
+                    Planeje viagens inteligentes com IA. Roteiros personalizados, guias locais e logística completa em segundos, para que você foque apenas em viver o momento.
+                </p>
+<div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-16">
+<button class="w-full md:w-auto bg-secondary-container text-on-secondary-container px-8 py-4 rounded-xl font-headline font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 active:scale-95">
+                        Criar Minha Expedição
+                    </button>
+<button class="w-full md:w-auto border-2 border-primary/10 text-primary px-8 py-4 rounded-xl font-headline font-bold text-lg hover:bg-surface-container transition-all duration-300">
+                        Ver Como Funciona
+                    </button>
+</div>
+<!-- Floating Card -->
+<div class="relative inline-block mt-4">
+<div class="glass-card p-4 md:p-6 rounded-2xl shadow-2xl border border-white/40 flex items-center gap-4 animate-bounce-slow">
+<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">flight_takeoff</span>
+</div>
+<div class="text-left">
+<p class="font-headline font-bold text-primary text-sm md:text-base">Rio de Janeiro → Lisboa</p>
+<p class="text-on-surface-variant text-xs md:text-sm">12 dias • 2 viajantes • Econômica Premium</p>
+</div>
+<div class="hidden md:block ml-4 bg-tertiary-fixed text-on-tertiary-fixed-variant text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">
+                            Otimizado por IA
+                        </div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: SOCIAL PROOF -->
+<section class="bg-surface-container-low py-8 overflow-hidden">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-wrap justify-center md:justify-between items-center gap-8 md:gap-4 opacity-70">
+<div class="flex items-center gap-3">
+<span class="font-headline font-extrabold text-2xl text-primary">2.000+</span>
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Expedições</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-headline font-extrabold text-2xl text-primary">4.8 ★</span>
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Avaliação Média</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-headline font-extrabold text-2xl text-primary">45+</span>
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Países</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="font-headline font-extrabold text-2xl text-primary">150k</span>
+<span class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Usuários Ativos</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: HOW IT WORKS -->
+<section class="py-24 px-6 bg-surface">
+<div class="max-w-7xl mx-auto">
+<div class="text-center mb-16">
+<span class="text-secondary font-headline font-bold uppercase tracking-widest text-sm mb-4 block">Simplicidade</span>
+<h2 class="font-headline text-3xl md:text-5xl font-extrabold text-primary">Planeje em 3 passos simples</h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Step 1 -->
+<div class="glass-card p-8 rounded-3xl border border-white/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+<div class="w-16 h-16 bg-primary-container text-white rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">auto_awesome</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4 text-primary">1. Inspire-se</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                            Conte para nossa IA qual o seu estilo: relaxar em praias desertas ou explorar museus históricos. Nós cuidamos do resto.
+                        </p>
+</div>
+<!-- Step 2 -->
+<div class="glass-card p-8 rounded-3xl border border-white/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+<div class="w-16 h-16 bg-secondary-container text-on-secondary-container rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">tune</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4 text-primary">2. Personalize</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                            Ajuste orçamentos, mude horários e escolha acomodações com sliders inteligentes que recalculam tudo em tempo real.
+                        </p>
+</div>
+<!-- Step 3 -->
+<div class="glass-card p-8 rounded-3xl border border-white/20 transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl group">
+<div class="w-16 h-16 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl">map</span>
+</div>
+<h3 class="font-headline text-2xl font-bold mb-4 text-primary">3. Explore</h3>
+<p class="text-on-surface-variant leading-relaxed">
+                            Receba seu roteiro interativo com mapas offline, ingressos e reservas integradas em um só lugar.
+                        </p>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: FEATURE SHOWCASE (Bento Grid) -->
+<section class="py-24 px-6 bg-surface-container-low">
+<div class="max-w-7xl mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 md:grid-rows-2 gap-6 h-auto md:h-[800px]">
+<!-- Card 1: Roteiro Inteligente (Large) -->
+<div class="md:col-span-2 md:row-span-2 bg-primary-container text-white p-8 md:p-12 rounded-[2rem] flex flex-col justify-between overflow-hidden relative group">
+<div class="relative z-10">
+<div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-3 py-1 rounded-full text-xs font-bold mb-6">
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+                                Powered by IA
+                            </div>
+<h3 class="font-headline text-3xl md:text-5xl font-extrabold mb-6 leading-tight">Roteiro Inteligente</h3>
+<p class="text-on-primary-container text-lg max-w-sm mb-8">Nossa rede neural analisa milhões de dados para criar a rota perfeita para você.</p>
+</div>
+<div class="mt-auto relative z-10 bg-white/5 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
+<div class="flex items-center justify-between mb-4">
+<span class="font-headline font-bold">Dia 4: Alfama, Lisboa</span>
+<span class="text-secondary-fixed text-sm">94% Match</span>
+</div>
+<div class="h-40 w-full rounded-xl overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-700">
+<img alt="Lisbon map view" class="w-full h-full object-cover" data-alt="Mapa artístico de Lisboa com pontos turísticos marcados" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY5Ed4Z0dCII4vBpiy5gc4Io8lS9wvsCbkSXIs6uH7264Gme0g8GV7aXugUR_WKUfyTmtstemUu8ZKVwuAslfPBtZ4nJWqyhmrwpZUDWwLUeCHo86TJQeGA8lUjKFjV9ijzKByQtCAxO-2m0o3GhGdl4nnzULbt9ZB32WaJ89jh2ng4JUxmd0wUAUK0870HOEWTKhHRjCP0pMfaRG9dFKYOu8GN7z_TmROInMVDJIEtS6qItel5k26f6o03goHI-MWZmod7UXDtja9"/>
+</div>
+</div>
+</div>
+<!-- Card 2: Guia do Destino -->
+<div class="md:col-span-2 md:row-span-1 bg-white p-8 rounded-[2rem] border border-surface-container-highest flex items-center justify-between group overflow-hidden">
+<div class="max-w-[60%]">
+<div class="inline-flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full text-xs font-bold mb-4">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                Powered by IA
+                            </div>
+<h3 class="font-headline text-2xl font-bold text-primary mb-2">Guia do Destino</h3>
+<p class="text-on-surface-variant">Clima em tempo real, câmbio atualizado e dicas de etiqueta local.</p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-surface-container-low p-4 rounded-2xl text-center group-hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary">sunny</span>
+<p class="text-xs font-bold mt-1">24°C</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-2xl text-center group-hover:bg-secondary-fixed transition-colors">
+<span class="material-symbols-outlined text-primary">euro</span>
+<p class="text-xs font-bold mt-1">1€ = R$ 5,42</p>
+</div>
+</div>
+</div>
+<!-- Card 3: Checklist -->
+<div class="md:col-span-1 md:row-span-1 bg-white p-8 rounded-[2rem] border border-surface-container-highest flex flex-col justify-between group">
+<div>
+<div class="inline-flex items-center gap-2 bg-surface-container-high px-3 py-1 rounded-full text-xs font-bold mb-4">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                Powered by IA
+                            </div>
+<h3 class="font-headline text-xl font-bold text-primary mb-4">Checklist de Preparo</h3>
+</div>
+<div class="space-y-3">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-green-600 text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm line-through text-on-surface-variant">Seguro Viagem</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline-variant text-sm">radio_button_unchecked</span>
+<span class="text-sm">Passaporte (Válido)</span>
+</div>
+</div>
+</div>
+<!-- Card 4: Gamificação -->
+<div class="md:col-span-1 md:row-span-1 bg-[#fe932c] text-on-secondary-container p-8 rounded-[2rem] flex flex-col justify-between group overflow-hidden relative">
+<div class="relative z-10">
+<h3 class="font-headline text-xl font-bold mb-2">Gamificação</h3>
+<p class="text-sm opacity-80">Suba de nível explorando o mundo.</p>
+</div>
+<div class="mt-4 relative z-10">
+<div class="flex justify-between items-end mb-2">
+<span class="text-xs font-bold">Nível Aventureiro</span>
+<span class="text-xs font-bold">1200 XP</span>
+</div>
+<div class="w-full bg-black/10 h-2 rounded-full">
+<div class="bg-white h-full w-[65%] rounded-full"></div>
+</div>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-9xl opacity-10 rotate-12">military_tech</span>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: CTA BANNER -->
+<section class="py-24 px-6">
+<div class="max-w-7xl mx-auto">
+<div class="bg-gradient-to-r from-[#fe932c] to-[#904d00] rounded-[3rem] p-12 md:p-24 text-center relative overflow-hidden">
+<!-- Decor -->
+<div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
+<div class="absolute top-10 left-10 w-64 h-64 border-4 border-white rounded-full"></div>
+<div class="absolute bottom-10 right-10 w-96 h-96 border-4 border-white rounded-full"></div>
+</div>
+<div class="relative z-10">
+<h2 class="font-headline text-4xl md:text-6xl font-extrabold text-white mb-8 leading-tight">Pronto para explorar o mundo?</h2>
+<p class="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-12">Junte-se a milhares de viajantes que já transformaram seus sonhos em itinerários reais com o Atlas.</p>
+<button class="bg-white text-secondary font-headline font-bold px-12 py-5 rounded-2xl text-xl shadow-2xl hover:bg-surface-container transition-all active:scale-95">
+                            Começar Agora
+                        </button><p class="text-white/60 text-xs mt-6 max-w-md mx-auto">Ao continuar, você concorda com nossos <a class="underline hover:text-white" href="#">Termos de Uso</a> e <a class="underline hover:text-white" href="#">Política de Privacidade (LGPD)</a>.</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#040d1b] dark:bg-[#02060d] w-full pt-16 pb-8">
+<div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12">
+<div class="col-span-1">
+<span class="text-xl font-bold text-white mb-4 block font-headline">Atlas AI</span>
+<p class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 leading-relaxed">
+                    Sua inteligência de viagem definitiva. Do planejamento ao desembarque, cuidamos de cada detalhe da sua próxima grande aventura.
+                </p>
+</div>
+<div>
+<h4 class="text-white font-medium mb-6 font-headline">Produto</h4>
+<ul class="space-y-4">
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Funcionalidades</a></li>
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Como Funciona</a></li>
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Preços</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-medium mb-6 font-headline">Suporte</h4>
+<ul class="space-y-4">
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Contato</a></li>
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Blog</a></li>
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Carreiras</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-medium mb-6 font-headline">Legal</h4>
+<ul class="space-y-4">
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Termos de Uso</a></li>
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">Privacidade</a></li>
+<li><a class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 hover:text-amber-400 transition-colors" href="#">LGPD</a></li></ul>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5">
+<p class="font-['Plus_Jakarta_Sans'] text-sm text-slate-400 text-center">
+                © 2024 Atlas AI Travel Planner. Todos os direitos reservados.
+            </p>
+</div>
+</footer>
+</body></html>

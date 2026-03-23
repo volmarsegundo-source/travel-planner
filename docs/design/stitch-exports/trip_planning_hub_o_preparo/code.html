@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas - Planejamento Fernando de Noronha</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed": "#dae3f7",
+              "on-primary-container": "#818a9d",
+              "on-error": "#ffffff",
+              "secondary-fixed-dim": "#ffb77d",
+              "on-primary-fixed-variant": "#3e4758",
+              "on-secondary-fixed": "#2f1500",
+              "surface-container-lowest": "#ffffff",
+              "surface": "#f9f9f9",
+              "outline-variant": "#c5c6cc",
+              "on-tertiary-fixed-variant": "#005049",
+              "surface-dim": "#dadada",
+              "surface-container": "#eeeeee",
+              "on-primary-fixed": "#131c2a",
+              "tertiary-fixed-dim": "#6bd8cb",
+              "on-secondary-fixed-variant": "#6e3900",
+              "on-surface-variant": "#45474c",
+              "outline": "#75777d",
+              "on-primary": "#ffffff",
+              "on-tertiary-fixed": "#00201d",
+              "inverse-on-surface": "#f0f1f1",
+              "primary": "#040d1b",
+              "primary-fixed-dim": "#bec7db",
+              "on-secondary": "#ffffff",
+              "secondary-container": "#fe932c",
+              "tertiary-container": "#002824",
+              "on-tertiary-container": "#1c9a8e",
+              "tertiary": "#00100d",
+              "surface-container-low": "#f3f3f3",
+              "on-error-container": "#93000a",
+              "secondary": "#904d00",
+              "surface-container-highest": "#e2e2e2",
+              "background": "#f9f9f9",
+              "surface-bright": "#f9f9f9",
+              "on-surface": "#1a1c1c",
+              "inverse-surface": "#2f3131",
+              "surface-tint": "#565f70",
+              "tertiary-fixed": "#89f5e7",
+              "error": "#ba1a1a",
+              "error-container": "#ffdad6",
+              "surface-variant": "#e2e2e2",
+              "on-secondary-container": "#663500",
+              "on-background": "#1a1c1c",
+              "on-tertiary": "#ffffff",
+              "inverse-primary": "#bec7db",
+              "surface-container-high": "#e8e8e8",
+              "primary-container": "#1a2332",
+              "secondary-fixed": "#ffdcc3"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body { font-family: 'Work Sans', sans-serif; }
+      h1, h2, h3, h4 { font-family: 'Plus Jakarta Sans', sans-serif; }
+      .glass-nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+<!-- SideNavBar (Authority: JSON & Design System) -->
+<aside class="hidden md:flex flex-col p-4 gap-2 h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 font-['Plus_Jakarta_Sans'] text-sm fixed left-0 top-0">
+<div class="mb-8 px-2">
+<h2 class="text-slate-900 dark:text-slate-50 font-bold text-lg leading-tight">Meu Planejamento</h2>
+<p class="text-slate-500 dark:text-slate-400 text-xs">Viagem para Fernando de Noronha</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="hotel">hotel</span>
+<span>Hospedagem</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="flight_takeoff">flight_takeoff</span>
+<span>Vôos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 bg-white dark:bg-slate-900 text-slate-900 dark:text-white shadow-sm rounded-lg font-medium cursor-pointer">
+<span class="material-symbols-outlined" data-icon="fact_check">fact_check</span>
+<span>Checklist</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-transform cursor-pointer">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span>Roteiro</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1 border-t border-slate-200/50 pt-4">
+<div class="bg-primary-container text-on-primary-container p-3 rounded-xl mb-4 text-xs">
+<p class="font-semibold text-white mb-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-amber-400 text-sm" data-icon="auto_awesome">auto_awesome</span>
+                    Atlas AI Assistant
+                </p>
+<p class="opacity-80">Pronto para personalizar seu roteiro.</p>
+</div>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="settings">settings</span>
+<span>Configurações</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="logout">logout</span>
+<span>Sair</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-64 flex flex-col">
+<!-- TopAppBar (Authority: JSON) -->
+<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm h-16">
+<div class="flex items-center justify-between px-6 h-16 max-w-screen-2xl mx-auto font-['Plus_Jakarta_Sans'] antialiased">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Atlas</span>
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" href="#">Explorar</a>
+<a class="text-slate-900 dark:text-white font-semibold border-b-2 border-amber-500 pb-1" href="#">Minhas Viagens</a>
+<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors" href="#">Planejador</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-50 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-slate-700" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-50 transition-colors active:scale-95">
+<span class="material-symbols-outlined text-slate-700" data-icon="workspace_premium">workspace_premium</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100">
+<img alt="Profile" data-alt="close-up portrait of a friendly man with a slight smile and neat hair in a professional studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAoxKo2RmAnmlLKFrnZGyG2IMeWp9DiWrOGvqZwGVNVXpCVmruCe9IwpM-ItDzt9rO8v7Om9VH_w6tmPD4yPvONCZ7QMu36zCP3eiMFalu_4Zg1cdWCemIPUs9S0N1vcjr9a5lsAEOt-fay6mG41-d_my8Z-OWUIlebUH3VqrMEPHhGd33hKGW9GQxQUkjnsRaAFXquk0lJHvJeOlL-gxVc4Fpg-L86H54sDYH69g8o7mBY5KjNSR068bTpUsIfxT2WXJtldhZLYeWR"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="p-6 lg:p-10 max-w-6xl mx-auto w-full">
+<!-- Progress Stepper (Custom Component) -->
+<div class="mb-12">
+<div class="flex items-center justify-between max-w-3xl mx-auto relative">
+<div class="absolute top-1/2 left-0 w-full h-0.5 bg-surface-container-highest -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-0 w-1/2 h-0.5 bg-secondary-container -translate-y-1/2 z-0 transition-all"></div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-white flex items-center justify-center shadow-md">
+<span class="material-symbols-outlined text-sm" data-icon="check" style="font-variation-settings: 'wght' 700;">check</span>
+</div>
+<span class="text-xs font-semibold text-primary">Inspiração</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center shadow-lg outline outline-offset-2 outline-secondary-container">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+</div>
+<span class="text-xs font-bold text-primary">O Preparo</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="map">map</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant">Roteiro</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest text-on-surface-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-sm" data-icon="celebration">celebration</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant">Partida</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+<!-- AI Interaction Hub (Left/Center) -->
+<div class="lg:col-span-8 flex flex-col gap-8">
+<section>
+<h1 class="text-4xl lg:text-5xl font-extrabold text-primary tracking-tight mb-4 leading-tight">
+                            Vamos moldar sua jornada <span class="text-secondary-container italic">Noronha 2024</span>.
+                        </h1>
+<p class="text-lg text-on-surface-variant leading-relaxed max-w-2xl">
+                            Para criar o roteiro perfeito, preciso entender o ritmo que você deseja imprimir nessa viagem.
+                        </p>
+</section>
+<!-- Chat/Form Feed -->
+<div class="flex flex-col gap-6">
+<!-- AI Message 1 -->
+<div class="flex gap-4 items-start">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex-shrink-0 flex items-center justify-center text-secondary-container shadow-sm">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/15 flex-1">
+<p class="text-on-surface mb-6 font-medium leading-relaxed">Quais são seus interesses principais para esta viagem?</p>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<button class="flex flex-col items-center gap-3 p-4 rounded-xl border border-outline-variant/30 hover:bg-surface-container-low transition-all group active:scale-95">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed text-on-tertiary-fixed flex items-center justify-center group-hover:bg-tertiary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" data-icon="forest">forest</span>
+</div>
+<span class="text-sm font-semibold">Natureza</span>
+</button>
+<button class="flex flex-col items-center gap-3 p-4 rounded-xl border border-secondary-container bg-secondary-fixed/30 shadow-sm transition-all group active:scale-95">
+<div class="w-12 h-12 rounded-full bg-secondary-container text-white flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="restaurant">restaurant</span>
+</div>
+<span class="text-sm font-semibold">Gastronomia</span>
+</button>
+<button class="flex flex-col items-center gap-3 p-4 rounded-xl border border-outline-variant/30 hover:bg-surface-container-low transition-all group active:scale-95">
+<div class="w-12 h-12 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center group-hover:bg-primary-fixed-dim transition-colors">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+</div>
+<span class="text-sm font-semibold">Aventura</span>
+</button>
+</div>
+</div>
+</div>
+<!-- AI Message 2 (Pending) -->
+<div class="flex gap-4 items-start opacity-90">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex-shrink-0 flex items-center justify-center text-secondary-container shadow-sm">
+<span class="material-symbols-outlined" data-icon="smart_toy">smart_toy</span>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/15 flex-1">
+<p class="text-on-surface mb-6 font-medium">Qual o seu orçamento aproximado para esta experiência?</p>
+<div class="flex flex-wrap gap-3">
+<button class="px-6 py-3 rounded-full bg-surface-container-high text-on-surface text-sm font-semibold hover:bg-surface-container-highest transition-colors active:scale-95">
+                                        Econômico
+                                    </button>
+<button class="px-6 py-3 rounded-full bg-surface-container-high text-on-surface text-sm font-semibold hover:bg-surface-container-highest transition-colors active:scale-95">
+                                        Conforto
+                                    </button>
+<button class="px-6 py-3 rounded-full bg-surface-container-high text-on-surface text-sm font-semibold hover:bg-surface-container-highest transition-colors active:scale-95">
+                                        Premium
+                                    </button>
+</div>
+</div>
+</div>
+<!-- Interaction Input Area -->
+<div class="mt-4 relative">
+<textarea class="w-full bg-surface-container-lowest border-none rounded-2xl p-4 pr-16 shadow-md focus:ring-2 focus:ring-secondary-container/50 text-sm placeholder:text-on-surface-variant min-h-[100px] resize-none" placeholder="Conte mais sobre suas expectativas ou faça uma pergunta ao Atlas..."></textarea>
+<button class="absolute bottom-4 right-4 bg-primary text-white w-10 h-10 rounded-xl flex items-center justify-center shadow-lg hover:bg-primary-container active:scale-95 transition-all">
+<span class="material-symbols-outlined" data-icon="send">send</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Sidebar Itens do Planejamento (Right) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<div class="bg-white rounded-3xl p-8 shadow-sm border border-outline-variant/10">
+<h3 class="text-xl font-bold text-primary mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-container" data-icon="assignment">assignment</span>
+                            Itens do Planejamento
+                        </h3>
+<div class="space-y-6">
+<!-- Category -->
+<div>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-4 opacity-60">Essenciais</p>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-green-600 bg-green-50 rounded-lg p-1" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm text-on-surface font-medium">Taxa de Preservação (TPA)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-green-600 bg-green-50 rounded-lg p-1" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm text-on-surface font-medium">Ingresso Parque Nacional</span>
+</div>
+</div>
+</div>
+<!-- Category -->
+<div>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-4 opacity-60">Logística</p>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-sm text-on-surface-variant">Reserva de Pousada</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-sm text-on-surface-variant">Vôos de Conexão (Recife)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-sm text-on-surface-variant">Aluguel de Buggy</span>
+</div>
+</div>
+</div>
+<!-- Category -->
+<div>
+<p class="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-4 opacity-60">Experiências</p>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-sm text-on-surface-variant">Trilha do Atalaia</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="radio_button_unchecked">radio_button_unchecked</span>
+<span class="text-sm text-on-surface-variant">Mergulho de Cilindro</span>
+</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-8 py-4 bg-surface-container text-primary font-bold rounded-2xl hover:bg-surface-container-high transition-colors text-sm">
+                            Adicionar Novo Item
+                        </button>
+</div>
+<!-- Insight Card -->
+<div class="relative overflow-hidden rounded-3xl aspect-square lg:aspect-auto lg:h-64 shadow-xl group">
+<img alt="Noronha" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="dramatic aerial view of Morro do Pico in Fernando de Noronha with turquoise water and lush tropical vegetation in vibrant sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCy1rrhk7HaQT0In5uhopx9E0qEEMdkG3tPvZKdWxAgpSMVBgoYNgEPeZhe0QtK2Egj3SK_cElc0aUGIxK4pPhcXwsBrY2pa1sPVQBoV3-O7TbI6pES_fnTiYXCbcO1woNzUl8mHDKseOiI0TubQ4kpiV91mZUXNwPr5YvBY98FuU_K3PQ2eGCr6OthzhSqLWIkDR01azgF4iquasOlfUNHcfW4VNY3aSQ4qetUxB6nt890LQjlRgId03rtoQakAEdqxEK75ix7Qk82"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-primary/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-6 text-white">
+<p class="text-xs font-bold text-amber-400 uppercase tracking-widest mb-2">Dica do Atlas</p>
+<h4 class="text-lg font-bold leading-tight">Melhores meses para Mergulho: Setembro e Outubro.</h4>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer (Authority: JSON) -->
+<footer class="w-full pt-16 pb-8 bg-slate-900 dark:bg-black text-white font-['Plus_Jakarta_Sans'] text-sm mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-screen-2xl mx-auto">
+<div class="md:col-span-1">
+<span class="text-xl font-black text-white">Atlas</span>
+<p class="mt-4 text-slate-400 leading-relaxed">© 2024 Atlas Travel Planner. Transformando sonhos em roteiros.</p>
+</div>
+<div>
+<h5 class="font-bold mb-6 text-white uppercase text-xs tracking-widest">Descubra</h5>
+<ul class="flex flex-col gap-3">
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity hover:opacity-80" href="#">Guias de Destino</a></li>
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity hover:opacity-80" href="#">Seguro Viagem</a></li>
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity hover:opacity-80" href="#">Blog Editorial</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6 text-white uppercase text-xs tracking-widest">Empresa</h5>
+<ul class="flex flex-col gap-3">
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity hover:opacity-80" href="#">Sobre Nós</a></li>
+<li><a class="text-slate-400 hover:text-white underline underline-offset-4 transition-opacity hover:opacity-80" href="#">Contato</a></li>
+</ul>
+</div>
+<div>
+<h5 class="font-bold mb-6 text-white uppercase text-xs tracking-widest">Siga-nos</h5>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 cursor-pointer transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 cursor-pointer transition-all">
+<span class="material-symbols-outlined text-lg" data-icon="public">public</span>
+</div>
+</div>
+</div>
+</div>
+</footer>
+</main>
+<!-- FAB (Suppressed based on context: It's a planning detail page, focus is on AI chat) -->
+</body></html>

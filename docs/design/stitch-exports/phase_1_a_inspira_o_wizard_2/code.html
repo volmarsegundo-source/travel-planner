@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas - Planejador de Viagens</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-dim": "#dadada",
+              "secondary": "#904d00",
+              "primary-container": "#1a2332",
+              "on-tertiary-container": "#1c9a8e",
+              "on-surface-variant": "#45474c",
+              "secondary-fixed": "#ffdcc3",
+              "on-primary-fixed-variant": "#3e4758",
+              "on-primary-fixed": "#131c2a",
+              "secondary-fixed-dim": "#ffb77d",
+              "tertiary-fixed": "#89f5e7",
+              "on-secondary-container": "#663500",
+              "surface-container-lowest": "#ffffff",
+              "inverse-on-surface": "#f0f1f1",
+              "background": "#f9f9f9",
+              "surface-bright": "#f9f9f9",
+              "on-primary": "#ffffff",
+              "inverse-surface": "#2f3131",
+              "surface-container": "#eeeeee",
+              "on-tertiary-fixed": "#00201d",
+              "on-error": "#ffffff",
+              "surface-container-high": "#e8e8e8",
+              "surface-tint": "#565f70",
+              "tertiary": "#00100d",
+              "error-container": "#ffdad6",
+              "error": "#ba1a1a",
+              "primary-fixed": "#dae3f7",
+              "secondary-container": "#fe932c",
+              "on-primary-container": "#818a9d",
+              "on-tertiary-fixed-variant": "#005049",
+              "primary": "#040d1b",
+              "on-background": "#1a1c1c",
+              "surface-variant": "#e2e2e2",
+              "on-surface": "#1a1c1c",
+              "tertiary-container": "#002824",
+              "surface-container-low": "#f3f3f3",
+              "outline-variant": "#c5c6cc",
+              "outline": "#75777d",
+              "inverse-primary": "#bec7db",
+              "on-secondary-fixed": "#2f1500",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#6bd8cb",
+              "surface-container-highest": "#e2e2e2",
+              "on-secondary": "#ffffff",
+              "surface": "#f9f9f9",
+              "primary-fixed-dim": "#bec7db",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed-variant": "#6e3900"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Work Sans', sans-serif; background-color: #f9f9f9; }
+        .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .active-step { filter: drop-shadow(0 0 8px rgba(254, 147, 44, 0.4)); }
+    </style>
+</head>
+<body class="text-on-surface selection:bg-secondary-container/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/80 backdrop-blur-xl shadow-sm">
+<div class="flex justify-between items-center px-6 py-4 w-full max-w-7xl mx-auto">
+<div class="flex items-center gap-6">
+<span class="text-xl font-bold text-slate-900 tracking-tight font-headline">Atlas</span>
+<nav class="hidden md:flex items-center gap-2 text-sm font-medium">
+<span class="text-slate-500">Minhas Expedições</span>
+<span class="material-symbols-outlined text-xs text-slate-400">chevron_right</span>
+<span class="text-slate-500">Nova Expedição</span>
+<span class="material-symbols-outlined text-xs text-slate-400">chevron_right</span>
+<span class="text-slate-900 font-semibold border-b-2 border-slate-900 pb-1">A Inspiração</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-surface-container-low px-3 py-1.5 rounded-full border border-outline-variant/10">
+<span class="material-symbols-outlined text-secondary text-lg" data-weight="fill">database</span>
+<span class="text-sm font-bold text-primary">180 PA</span>
+</div>
+<button class="p-2 hover:bg-slate-100/50 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-slate-600">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-white shadow-sm ring-1 ring-slate-200">
+<img alt="User profile" data-alt="Close-up portrait of a young woman with a friendly expression in a modern office setting, soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmw6qiAtJegcScx-ZSGyDilM418t0w5PzCw4zlksD2PHf9j6d4F4XR0-mSMaXJKYvckXhl42xKXTOSXFahPI_a063HUwOL4b5oiQ3dWd9qnM8OgmvsC6DzvrkbFZe6GwKp-gxHOOaL5gyoqtJuSfc0_rS9ehc3gx68sE0Ch7RlK-SDmLg2mMD-QsX9iP0B_y9T2--MKbKQz-zvvz3KM7qi7IsULTKyJnNywlj1_Yvj2K8Ivqir2c57aVJG0xkSAgZjwkDsLIqUia3d"/>
+</div>
+</div>
+</div>
+<div class="h-1 bg-gradient-to-b from-slate-200/50 to-transparent"></div>
+</header>
+<main class="pt-28 pb-20 max-w-7xl mx-auto px-6 grid grid-cols-12 gap-8">
+<!-- Progress Indicator -->
+<section class="col-span-12 mb-12">
+<div class="flex flex-col gap-4 max-w-4xl mx-auto">
+<div class="flex items-center justify-between relative px-2">
+<!-- Progress Line Background -->
+<div class="absolute top-1/2 left-0 w-full h-0.5 bg-surface-container-highest -z-10 -translate-y-1/2"></div>
+<!-- Steps -->
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-secondary-container text-white flex items-center justify-center font-bold active-step ring-4 ring-white">1</div>
+<span class="text-xs font-semibold text-primary">A Inspiração</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-outline-variant text-slate-400 flex items-center justify-center font-bold">2</div>
+<span class="text-xs font-medium text-slate-400">O Perfil</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-outline-variant text-slate-400 flex items-center justify-center font-bold">3</div>
+<span class="text-xs font-medium text-slate-400">O Preparo</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-outline-variant text-slate-400 flex items-center justify-center font-bold">4</div>
+<span class="text-xs font-medium text-slate-400">A Logística</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-outline-variant text-slate-400 flex items-center justify-center font-bold">5</div>
+<span class="text-xs font-medium text-slate-400">Guia do Destino</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-white border-2 border-outline-variant text-slate-400 flex items-center justify-center font-bold">6</div>
+<span class="text-xs font-medium text-slate-400">Roteiro</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-low text-slate-300 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">lock</span>
+</div>
+<span class="text-xs font-medium text-slate-300">Resumo</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-low text-slate-300 flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">lock</span>
+</div>
+<span class="text-xs font-medium text-slate-300">Concluir</span>
+</div>
+</div>
+<p class="text-center text-secondary font-bold text-sm tracking-widest uppercase">Fase 1 de 8</p>
+</div>
+</section>
+<!-- Main Content Area -->
+<div class="col-span-12 lg:col-span-8 lg:col-start-2 max-w-3xl">
+<header class="mb-10">
+<h1 class="text-4xl md:text-5xl font-extrabold text-primary font-headline tracking-tight mb-3">De onde vem sua inspiração?</h1>
+<p class="text-lg text-on-surface-variant font-body leading-relaxed">Conte-nos sobre sua viagem dos sonhos. A IA vai cuidar do resto.</p>
+</header>
+<div class="bg-surface-container-lowest rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-8 md:p-10 border border-outline-variant/20">
+<form class="space-y-8">
+<!-- Origin -->
+<div class="space-y-3">
+<div class="flex justify-between items-end">
+<label class="block text-sm font-bold text-primary tracking-wide">De onde você parte?</label>
+<button class="text-on-tertiary-container text-sm font-semibold hover:underline decoration-2 underline-offset-4" type="button">Usar localização do perfil</button>
+</div>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-secondary transition-colors">map</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-transparent rounded-lg focus:ring-0 focus:bg-white focus:border-secondary-container transition-all placeholder:text-slate-400" placeholder="Cidade ou aeroporto de origem" type="text"/>
+</div>
+</div>
+<!-- Destination -->
+<div class="space-y-4">
+<label class="block text-sm font-bold text-primary tracking-wide">Para onde você quer ir?</label>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-secondary transition-colors">flight_takeoff</span>
+<input class="w-full pl-12 pr-4 py-4 bg-surface-container-low border-transparent rounded-lg focus:ring-0 focus:bg-white focus:border-secondary-container transition-all placeholder:text-slate-400" placeholder="Seu destino dos sonhos" type="text"/>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 rounded-full bg-surface-container-high text-xs font-semibold text-slate-600 hover:bg-secondary-container hover:text-white transition-all" type="button">🇵🇹 Lisboa</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container-high text-xs font-semibold text-slate-600 hover:bg-secondary-container hover:text-white transition-all" type="button">🇮🇹 Roma</button>
+<button class="px-3 py-1.5 rounded-full bg-secondary-container text-white text-xs font-semibold shadow-sm shadow-secondary-container/30" type="button">🇯🇵 Tóquio</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container-high text-xs font-semibold text-slate-600 hover:bg-secondary-container hover:text-white transition-all" type="button">🇦🇷 Buenos Aires</button>
+<button class="px-3 py-1.5 rounded-full bg-surface-container-high text-xs font-semibold text-slate-600 hover:bg-secondary-container hover:text-white transition-all" type="button">🇬🇷 Santorini</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<!-- Dates -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="block text-sm font-bold text-primary tracking-wide">Quando você quer viajar?</label>
+<span class="bg-primary-container text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">12 dias</span>
+</div>
+<div class="grid grid-cols-2 gap-2">
+<div class="relative">
+<input class="w-full p-3 bg-surface-container-low border-transparent rounded-lg text-sm focus:ring-0 focus:bg-white focus:border-secondary-container transition-all" placeholder="Ida" type="text"/>
+</div>
+<div class="relative">
+<input class="w-full p-3 bg-surface-container-low border-transparent rounded-lg text-sm focus:ring-0 focus:bg-white focus:border-secondary-container transition-all" placeholder="Volta" type="text"/>
+</div>
+</div>
+<label class="flex items-center gap-3 cursor-pointer mt-2">
+<input class="w-4 h-4 rounded text-secondary border-outline-variant focus:ring-secondary/20" type="checkbox"/>
+<span class="text-xs font-medium text-slate-500">Datas flexíveis?</span>
+</label>
+</div>
+<!-- Passengers -->
+<div class="space-y-3">
+<div class="flex justify-between items-center">
+<label class="block text-sm font-bold text-primary tracking-wide">Quem vai nessa aventura?</label>
+<span class="bg-secondary-fixed text-on-secondary-fixed-variant text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">2 viajantes</span>
+</div>
+<div class="flex items-center justify-between p-3 bg-surface-container-low rounded-lg">
+<span class="text-sm font-medium text-slate-600">Total de pessoas</span>
+<div class="flex items-center gap-4">
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-white text-primary border border-outline-variant/30 hover:border-secondary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">remove</span>
+</button>
+<span class="text-sm font-bold">02</span>
+<button class="w-8 h-8 flex items-center justify-center rounded-full bg-white text-primary border border-outline-variant/30 hover:border-secondary transition-colors" type="button">
+<span class="material-symbols-outlined text-sm">add</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="h-px bg-gradient-to-r from-transparent via-outline-variant/30 to-transparent"></div>
+<!-- Trip Types -->
+<div class="space-y-4">
+<label class="block text-sm font-bold text-primary tracking-wide">Que tipo de viagem você imagina? <span class="text-slate-400 font-normal">(opcional)</span></label>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+<label class="cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border-2 border-transparent peer-checked:border-secondary-container peer-checked:bg-secondary-fixed/30 transition-all hover:bg-surface-container-high">
+<span class="text-2xl">🏖️</span>
+<span class="text-sm font-semibold text-slate-700">Praia &amp; Relax</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border-2 border-transparent peer-checked:border-secondary-container peer-checked:bg-secondary-fixed/30 transition-all hover:bg-surface-container-high">
+<span class="text-2xl">🏛️</span>
+<span class="text-sm font-semibold text-slate-700">Cultura &amp; Hist.</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border-2 border-transparent peer-checked:border-secondary-container peer-checked:bg-secondary-fixed/30 transition-all hover:bg-surface-container-high">
+<span class="text-2xl">🍕</span>
+<span class="text-sm font-semibold text-slate-700">Gastronomia</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border-2 border-transparent peer-checked:border-secondary-container peer-checked:bg-secondary-fixed/30 transition-all hover:bg-surface-container-high">
+<span class="text-2xl">🌿</span>
+<span class="text-sm font-semibold text-slate-700">Aventura</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border-2 border-transparent peer-checked:border-secondary-container peer-checked:bg-secondary-fixed/30 transition-all hover:bg-surface-container-high">
+<span class="text-2xl">🛍️</span>
+<span class="text-sm font-semibold text-slate-700">Compras</span>
+</div>
+</label>
+<label class="cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="flex items-center gap-3 p-4 bg-surface-container-low rounded-xl border-2 border-transparent peer-checked:border-secondary-container peer-checked:bg-secondary-fixed/30 transition-all hover:bg-surface-container-high">
+<span class="text-2xl">💑</span>
+<span class="text-sm font-semibold text-slate-700">Romântica</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Footer Actions -->
+<div class="pt-4 border-t border-outline-variant/30">
+<label class="flex items-start gap-3 cursor-pointer group">
+<div class="mt-1 relative flex items-center">
+<input class="w-5 h-5 rounded border-outline-variant text-secondary focus:ring-secondary/20 transition-all cursor-pointer" required="" type="checkbox"/>
+</div>
+<span class="text-sm text-slate-600 leading-relaxed font-medium group-hover:text-primary transition-colors">
+            Estou de acordo com o processamento dos meus dados para a criação do roteiro personalizado via IA
+        </span>
+</label>
+</div><div class="pt-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+<button class="text-slate-500 font-bold text-sm hover:text-primary transition-colors px-4 py-2" type="button">Salvar rascunho</button>
+<button class="bg-secondary-container hover:bg-secondary-container/90 text-primary font-bold px-12 py-4 rounded-xl shadow-lg shadow-secondary-container/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2" type="submit">
+                            Avançar
+                            <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div><div class="mt-6 text-center">
+<p class="text-[11px] text-slate-400 font-medium leading-relaxed max-w-md mx-auto">
+        As sugestões de viagem são geradas por IA. Verifique informações críticas de logística antes de sua partida.
+    </p>
+</div>
+</form>
+</div>
+</div>
+<!-- Sidebar Tip Card -->
+<aside class="hidden lg:block lg:col-span-3">
+<div class="sticky top-32 space-y-6">
+<div class="bg-amber-50 rounded-2xl p-6 border border-amber-200/50 shadow-sm relative overflow-hidden group">
+<div class="absolute -right-4 -top-4 w-20 h-20 bg-amber-100/50 rounded-full blur-2xl group-hover:bg-amber-200 transition-colors"></div>
+<div class="relative z-10 flex flex-col gap-4">
+<div class="w-10 h-10 bg-amber-200 rounded-xl flex items-center justify-center text-amber-700">
+<span class="material-symbols-outlined" data-weight="fill">lightbulb</span>
+</div>
+<h4 class="font-bold text-amber-900">Dica do Atlas</h4>
+<p class="text-sm text-amber-800 leading-relaxed font-medium">Quanto mais detalhes você fornecer, melhor será o plano gerado pela nossa IA!</p>
+<hr class="border-amber-200/50"/>
+<p class="text-xs text-amber-600">Isso ajuda a personalizar hotéis, rotas e experiências exclusivas para o seu perfil.</p>
+</div>
+</div>
+<!-- Preview Image -->
+<div class="rounded-2xl overflow-hidden aspect-[3/4] shadow-md relative">
+<img alt="Kyoto Japan" class="w-full h-full object-cover" data-alt="Dreamy landscape of Kyoto, Japan with a traditional pagoda surrounded by vibrant autumn maple leaves in shades of orange and red, cinematic soft focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJVUEjdeajiA8RXLUHszAonHXnHv9Z7t-P6uriAmJ1jfhFtZLhtIk4cKlijWyqH6jrAnQYxNEtHuY9daaxatEa5UhwmEGc3GkvfCfB5bOgVMK2VA1lJQbNkPVfhK1UNDxsgEHz8y6_g1ugQ4uBBXdsdzX-AV-6DrrT6VnPEmXiXl0H0gX5lSbAIfY8OwGg95oyp_NXnchyhBjY37R0mp4mqQYt3PtMEcJdGOOYQUtx1pYUfXqvbVkfgF1bc89ycmGXZPRCVj5iAW5b"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
+<div class="text-white">
+<p class="text-xs font-bold uppercase tracking-widest text-secondary-fixed mb-1">Inspirando-se em</p>
+<h5 class="text-xl font-headline font-extrabold tracking-tight">Kyoto, Japão</h5>
+</div>
+</div>
+</div>
+</div>
+</aside>
+</main>
+<!-- Map Context (Hidden Location context) -->
+<div class="hidden" data-location="Lisbon, Portugal" style=""></div>
+</body></html>

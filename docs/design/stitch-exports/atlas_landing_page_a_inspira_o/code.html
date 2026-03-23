@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas | Planejamento de Viagem Inteligente</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "primary-fixed": "#dae3f7",
+                "on-primary-container": "#818a9d",
+                "on-error": "#ffffff",
+                "secondary-fixed-dim": "#ffb77d",
+                "on-primary-fixed-variant": "#3e4758",
+                "on-secondary-fixed": "#2f1500",
+                "surface-container-lowest": "#ffffff",
+                "surface": "#f9f9f9",
+                "outline-variant": "#c5c6cc",
+                "on-tertiary-fixed-variant": "#005049",
+                "surface-dim": "#dadada",
+                "surface-container": "#eeeeee",
+                "on-primary-fixed": "#131c2a",
+                "tertiary-fixed-dim": "#6bd8cb",
+                "on-secondary-fixed-variant": "#6e3900",
+                "on-surface-variant": "#45474c",
+                "outline": "#75777d",
+                "on-primary": "#ffffff",
+                "on-tertiary-fixed": "#00201d",
+                "inverse-on-surface": "#f0f1f1",
+                "primary": "#040d1b",
+                "primary-fixed-dim": "#bec7db",
+                "on-secondary": "#ffffff",
+                "secondary-container": "#fe932c",
+                "tertiary-container": "#002824",
+                "on-tertiary-container": "#1c9a8e",
+                "tertiary": "#00100d",
+                "surface-container-low": "#f3f3f3",
+                "on-error-container": "#93000a",
+                "secondary": "#904d00",
+                "surface-container-highest": "#e2e2e2",
+                "background": "#f9f9f9",
+                "surface-bright": "#f9f9f9",
+                "on-surface": "#1a1c1c",
+                "inverse-surface": "#2f3131",
+                "surface-tint": "#565f70",
+                "tertiary-fixed": "#89f5e7",
+                "error": "#ba1a1a",
+                "error-container": "#ffdad6",
+                "surface-variant": "#e2e2e2",
+                "on-secondary-container": "#663500",
+                "on-background": "#1a1c1c",
+                "on-tertiary": "#ffffff",
+                "inverse-primary": "#bec7db",
+                "surface-container-high": "#e8e8e8",
+                "primary-container": "#1a2332",
+                "secondary-fixed": "#ffdcc3"
+              },
+              fontFamily: {
+                "headline": ["Plus Jakarta Sans"],
+                "body": ["Work Sans"],
+                "label": ["Work Sans"]
+              },
+              borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            },
+          },
+        }
+    </script>
+<style>
+        body { font-family: 'Work Sans', sans-serif; background-color: #f9f9f9; }
+        h1, h2, h3, h4, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .glass-nav { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+        .asymmetric-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; }
+    </style>
+</head>
+<body class="text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation Bar -->
+<header class="sticky top-0 w-full z-50 bg-white/80 backdrop-blur-xl shadow-sm">
+<nav class="flex items-center justify-between px-6 h-16 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold tracking-tight text-slate-900">Atlas</span>
+<div class="hidden md:flex items-center gap-6">
+<a class="text-slate-900 font-semibold border-b-2 border-amber-500 pb-1" href="#">Explorar</a>
+<a class="text-slate-500 hover:text-slate-700 transition-colors" href="#">Minhas Viagens</a>
+<a class="text-slate-500 hover:text-slate-700 transition-colors" href="#">Planejador</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-slate-500 hover:bg-slate-50 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-50 transition-colors rounded-full active:scale-95 duration-200">
+<span class="material-symbols-outlined" data-icon="workspace_premium">workspace_premium</span>
+</button>
+<div class="h-8 w-8 rounded-full bg-surface-container overflow-hidden border border-outline-variant/20">
+<img alt="Profile" data-alt="User profile photo with professional look and soft warm studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5-wMOdBnuYbsePygTy9dzAa8KbtAlb4c6aYPVhvayX-zC8jxukW7dVqW6NBvhcvUEQa3RqOj2EdZp6k7pllKmrBgJrPc0eNn1K3q4X12ea8qDlxUz8kIL-Z5CPp8ZoIPxNIEh8o3ZiaedWJQvjV3tsVKvtIZRDkjTFSVGJa-YrvA9E9cP8qPS0mqb9dI4TqAxzf41-YHBgxCmaJ5Ui5zUhz1hkbZpAZBm7H9QuyCAtbDv2XJUm83ukBb0BbTJyezO17COPYWkknzi"/>
+</div>
+</div>
+</nav>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center overflow-hidden">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover" data-alt="Breathtaking aerial view of Morro do Pai Inacio in Chapada Diamantina at sunset with dramatic orange and purple sky and layered mountains" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTH_EpMon_AUyHct4EIqc49JFKbgbdYOAALQIQw7dMHo0fs0qS2RgPB4ikdDc6CsZxMuTPJ-OjYYcs3jt9d-4aIIvcpdTevF2q7mSsKIrsEcVQzEts9lUR8pqUkmwtw2KSp_UHjUDn7O9eFzq7Mg28ueCSEKdGYH7CdZAYTM9FVZg3Clzf5tpyLK2wZ5MsysYqnut_xGfNaFStohNvcpS9diiW1hMULacsHKwPsxy1Qf99eTb9rt0zgM0_N9GXu1081MmdcGXGNdeJ"/>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/80 via-primary/40 to-transparent"></div>
+</div>
+<div class="relative z-10 max-w-screen-2xl mx-auto px-6 md:px-12 w-full py-20">
+<div class="max-w-3xl space-y-8">
+<span class="inline-block py-1 px-3 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold uppercase tracking-widest">A Nova Era do Planejamento</span>
+<h1 class="text-5xl md:text-7xl font-extrabold text-white leading-[1.1] tracking-tight">
+                        A única plataforma que acompanha sua viagem do início ao fim
+                    </h1>
+<p class="text-lg md:text-xl text-white/80 font-body max-w-2xl leading-relaxed">
+                        Atlas is the seasoned travel companion that guides you from inspiration to your final itinerary using AI-powered recommendations tailored for the adventurous Brazilian traveler.
+                    </p>
+<div class="pt-4 flex flex-wrap gap-4">
+<button class="px-8 py-4 bg-secondary-container hover:bg-secondary-container/90 text-on-secondary-container font-bold rounded-lg shadow-lg active:scale-95 transition-all flex items-center gap-2">
+                            Comece Sua Viagem Agora
+                            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="px-8 py-4 bg-white/10 backdrop-blur-md hover:bg-white/20 text-white font-semibold rounded-lg border border-white/30 transition-all">
+                            Como Funciona
+                        </button>
+</div>
+</div>
+</div>
+</section>
+<!-- The 8 Phases Section -->
+<section class="py-24 bg-surface">
+<div class="max-w-screen-2xl mx-auto px-6">
+<div class="text-center max-w-3xl mx-auto mb-20">
+<h2 class="text-4xl font-bold text-primary mb-6">As 8 Fases da Sua Jornada</h2>
+<p class="text-on-surface-variant leading-relaxed">Nossa metodologia proprietária garante que nada seja esquecido, transformando cada etapa em uma experiência fluida.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Phase cards -->
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="auto_awesome">auto_awesome</span>
+<h3 class="text-xl font-bold text-primary mb-3">A Inspiração</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Curadoria de destinos baseada em seus desejos e tendências globais.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="person_pin">person_pin</span>
+<h3 class="text-xl font-bold text-primary mb-3">O Perfil</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Definição do seu estilo de viajante: do luxo ao mochilão.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="task_alt">task_alt</span>
+<h3 class="text-xl font-bold text-primary mb-3">O Preparo</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Documentação, vacinas e checklists inteligentes personalizados.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="map">map</span>
+<h3 class="text-xl font-bold text-primary mb-3">A Logística</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Conexões, transferências e hospedagem no melhor custo-benefício.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="explore">explore</span>
+<h3 class="text-xl font-bold text-primary mb-3">Guia do Destino</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Informações essenciais sobre cultura, moeda e clima local.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="calendar_today">calendar_today</span>
+<h3 class="text-xl font-bold text-primary mb-3">Roteiro</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Cronograma diário otimizado para evitar fadiga e filas.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="support_agent">support_agent</span>
+<h3 class="text-xl font-bold text-primary mb-3">Assistência</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Monitoramento em tempo real e suporte para imprevistos.</p>
+</div>
+<div class="p-8 bg-surface-container-lowest rounded-xl shadow-sm hover:translate-y-[-4px] transition-transform duration-300">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="photo_library">photo_library</span>
+<h3 class="text-xl font-bold text-primary mb-3">Memórias</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Diário digital e organização automática dos melhores momentos.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- AI Assistant Section -->
+<section class="py-24 bg-primary-container relative overflow-hidden">
+<div class="max-w-screen-2xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-16">
+<div class="flex-1 space-y-8">
+<h2 class="text-4xl md:text-5xl font-bold text-white leading-tight">Viaje com o Seu Assistente Atlas AI</h2>
+<p class="text-primary-fixed-dim text-lg leading-relaxed max-w-xl">
+                        Esqueça as planilhas complexas. Nosso assistente processa milhares de dados para criar roteiros que se adaptam ao seu ritmo. Teve um atraso no voo? O Atlas reorganiza suas reservas automaticamente.
+                    </p>
+<ul class="space-y-4 text-white/90">
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+                            Curadoria algorítmica de gastronomia local
+                        </li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+                            Otimização de rotas para pedestres
+                        </li>
+<li class="flex items-center gap-3">
+<span class="material-symbols-outlined text-secondary" data-icon="check_circle">check_circle</span>
+                            Alertas de clima e eventos em tempo real
+                        </li>
+</ul>
+<button class="text-secondary-fixed-dim font-bold flex items-center gap-2 hover:gap-4 transition-all">
+                        Explorar tecnologia AI <span class="material-symbols-outlined" data-icon="trending_flat">trending_flat</span>
+</button>
+</div>
+<div class="flex-1 relative">
+<div class="bg-white/5 backdrop-blur-2xl p-4 rounded-3xl border border-white/10 shadow-2xl">
+<img class="rounded-2xl shadow-inner" data-alt="Modern smartphone interface showing a sleek AI travel assistant app with dark mode aesthetic and maps" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWFKbFoIt3G1ezxGG5zH4OvXknMWVia7n_HuzhuuTVyVSyfcgfwhEP1nMN6Tg1Qg8VXxoy7fEi0W7J59uvi3vbGNwF_dYPzJhrGW3Y3hhozOcfxwg9O7UF_MUw2tryaAdqiYpc-OHa87HQUOg6GFv3XVDYDRNQ1dgrDQ0dOGTiKIqLxBq5xdbxBaONrb_mI7DaWAm28ppFuMi5YSDFbbaxyghoH-Z9ErGTFhK3mMSyPp1wdOUfJQAfY8ULqtd7cPNS151xQKb3pwCc"/>
+<div class="absolute -bottom-6 -left-6 bg-secondary-container p-6 rounded-2xl shadow-xl max-w-[200px]">
+<p class="text-primary font-bold text-sm">"Atlas, sugira um jantar romântico em Noronha."</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Gamification Section -->
+<section class="py-24 bg-surface">
+<div class="max-w-screen-2xl mx-auto px-6">
+<div class="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+<div class="max-w-2xl">
+<h2 class="text-4xl font-bold text-primary mb-4">Suba de Nível Como Viajante</h2>
+<p class="text-on-surface-variant">Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie benefícios exclusivos em hotéis parceiros.</p>
+</div>
+<div class="bg-surface-container-high px-6 py-3 rounded-full flex items-center gap-4">
+<span class="text-primary font-bold">Seu Nível Atual:</span>
+<span class="bg-primary text-white px-3 py-1 rounded-full text-sm font-bold">Nível 12 - Explorador Nato</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Badges -->
+<div class="group bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/10 flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-6 relative">
+<div class="absolute inset-0 bg-amber-500/20 rounded-full blur-xl group-hover:bg-amber-500/40 transition-colors"></div>
+<div class="relative w-full h-full bg-primary-container rounded-full flex items-center justify-center border-2 border-secondary">
+<span class="material-symbols-outlined text-secondary text-5xl" data-icon="workspace_premium" data-weight="fill">workspace_premium</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2">Explorador Nato</h3>
+<p class="text-sm text-on-surface-variant">Conquistado ao visitar 3 biomas brasileiros diferentes.</p>
+</div>
+<div class="group bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/10 flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-6 relative">
+<div class="absolute inset-0 bg-blue-500/20 rounded-full blur-xl group-hover:bg-blue-500/40 transition-colors"></div>
+<div class="relative w-full h-full bg-primary-container rounded-full flex items-center justify-center border-2 border-blue-400">
+<span class="material-symbols-outlined text-blue-400 text-5xl" data-icon="military_tech" data-weight="fill">military_tech</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2">Lendário</h3>
+<p class="text-sm text-on-surface-variant">O status máximo para quem completou 10 roteiros épicos.</p>
+</div>
+<div class="group bg-white p-8 rounded-2xl shadow-sm border border-outline-variant/10 flex flex-col items-center text-center">
+<div class="w-24 h-24 mb-6 relative">
+<div class="absolute inset-0 bg-emerald-500/20 rounded-full blur-xl group-hover:bg-emerald-500/40 transition-colors"></div>
+<div class="relative w-full h-full bg-primary-container rounded-full flex items-center justify-center border-2 border-emerald-400">
+<span class="material-symbols-outlined text-emerald-400 text-5xl" data-icon="verified" data-weight="fill">verified</span>
+</div>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2">Guardião da Natureza</h3>
+<p class="text-sm text-on-surface-variant">Recompensa por seguir práticas de turismo sustentável.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Destinations -->
+<section class="py-24 bg-white">
+<div class="max-w-screen-2xl mx-auto px-6">
+<div class="flex justify-between items-center mb-16">
+<h2 class="text-4xl font-bold text-primary">Destinos em Destaque</h2>
+<a class="text-secondary font-bold hover:underline underline-offset-4" href="#">Ver Todos os Destinos</a>
+</div>
+<div class="asymmetric-grid">
+<!-- Large featured card -->
+<div class="col-span-12 lg:col-span-7 relative h-[500px] rounded-3xl overflow-hidden group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Classic aerial view of Christ the Redeemer statue over Rio de Janeiro with sugarloaf mountain in background at dawn" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCpdSM8aIydFAPgItm90Ek9RuaoIVBH1tcXCQfrOWAr-eV0-9TLhoUBCNnASbQVKxsQQ9rYI9nLshDZgtvWPIrV7whdfecHg4fznRtt46X18vNdpR_uoLVS8XzVL6sS3yfbXqzcmiPtwXUnxlRlGlLUeSz-tUPXyrwAu6jGSI6LpI8YO7YARnWljtyq70GqO_pPZtto__OPTYlN_lhj5NIRx6RX0kVky2y3dE1htjMA4yqkz3KfF0DM0bMumkxHtTvPFEdS6xbgYqUt"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-transparent opacity-80"></div>
+<div class="absolute bottom-0 left-0 p-10">
+<span class="bg-secondary-container text-on-secondary-container text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block">CULTURA &amp; PRAIA</span>
+<h3 class="text-4xl font-bold text-white mb-2">Rio de Janeiro</h3>
+<p class="text-white/70 max-w-md">Descubra os segredos da Cidade Maravilhosa além do óbvio.</p>
+</div>
+</div>
+<!-- Side card 1 -->
+<div class="col-span-12 md:col-span-6 lg:col-span-5 relative h-[500px] rounded-3xl overflow-hidden group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="Crystal clear turquoise water of the Rio da Prata in Bonito MS Brazil with vibrant green forest reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFn_eK0bBWYzVgXsOx-OLmXsyR43DxPngbPOXE-ZTVIgaxntG_LbBfeHOeIxkoMkUR8Mc8LB-18bZG5WHYy99LxERN8r_Be-kC09_mv94QJf0eg0YVxuh5Y4L_5gmxrZePam97JSDJTIhMJf9uLYIs00AmEgliUPMX815rKnACHhpNr1CSd7p56djziv1WcCcGrtSpOvP0ZmhqYZHvJAhN0Bg2Eqmu7VWntyD85bHKmet_-7b61avj_sCDBUfTVpVc1GfrciXBTj0Q"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8">
+<span class="bg-secondary-container text-on-secondary-container text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block">ECOTURISMO</span>
+<h3 class="text-3xl font-bold text-white mb-2">Bonito</h3>
+<p class="text-white/70">Flutuações em águas cristalinas e grutas inexploradas.</p>
+</div>
+</div>
+<!-- Bottom card -->
+<div class="col-span-12 relative h-[400px] rounded-3xl overflow-hidden group">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Wide panoramic view of the Pantanal wetlands with a sunset reflecting on the water and silhouetted trees" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnjPHC1MFAKHfC1sPh8IEaCvh-_TQ5sLBVCLhYHBDYFNNVlAsXme2y_gKu_JqFgrz78yTS9g6D7Zq2c1_IC6FXylStwwu3nUzQ1kf-b5Ngu6Ex8JSrn8tgVi3OYfAM6fL7LKI0nXLoysxiWkisXg0WUaBf1KwIv3pNxF--6yyDgEN04Wr2D0wV1duxcxutm6MJ7K_KUFIMoPeG77CN9gbIibLsdnwk1Y-VeovRqMI9yeIv2ooEPaqru6wJmS_9tO0ff0J9ebUKIYNQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-primary/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-10 w-full flex justify-between items-end">
+<div class="max-w-xl">
+<span class="bg-secondary-container text-on-secondary-container text-xs font-bold px-3 py-1 rounded-full mb-4 inline-block">FAUNA SILVESTRE</span>
+<h3 class="text-4xl font-bold text-white mb-2">Pantanal</h3>
+<p class="text-white/70">O maior santuário de vida selvagem do Brasil esperando por você.</p>
+</div>
+<button class="bg-white text-primary p-4 rounded-full shadow-xl hover:bg-secondary-container hover:text-on-secondary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="north_east">north_east</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-slate-900 w-full pt-16 pb-8 border-t border-slate-800">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-screen-2xl mx-auto">
+<div class="space-y-6">
+<span class="text-xl font-black text-white">Atlas</span>
+<p class="text-slate-400 text-sm leading-relaxed">Transformando a maneira como os brasileiros exploram o mundo através da tecnologia e curadoria editorial.</p>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Explorar</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-400 hover:text-white transition-colors underline-offset-4 hover:underline" href="#">Guias de Destino</a></li>
+<li><a class="text-slate-400 hover:text-white transition-colors underline-offset-4 hover:underline" href="#">Seguro Viagem</a></li>
+<li><a class="text-slate-400 hover:text-white transition-colors underline-offset-4 hover:underline" href="#">Blog Editorial</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Empresa</h4>
+<ul class="space-y-4">
+<li><a class="text-slate-400 hover:text-white transition-colors underline-offset-4 hover:underline" href="#">Sobre Nós</a></li>
+<li><a class="text-slate-400 hover:text-white transition-colors underline-offset-4 hover:underline" href="#">Contato</a></li>
+<li><a class="text-slate-400 hover:text-white transition-colors underline-offset-4 hover:underline" href="#">Privacidade</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Novidades</h4>
+<p class="text-slate-400 text-sm mb-4">Inscreva-se para roteiros exclusivos.</p>
+<div class="flex gap-2">
+<input class="bg-white/10 border-none rounded-lg text-white px-4 py-2 w-full focus:ring-2 focus:ring-amber-500" placeholder="Seu email" type="email"/>
+<button class="bg-amber-500 text-white p-2 rounded-lg"><span class="material-symbols-outlined" data-icon="send">send</span></button>
+</div>
+</div>
+</div>
+<div class="max-w-screen-2xl mx-auto px-8 mt-16 pt-8 border-t border-slate-800 text-center">
+<p class="text-slate-500 text-sm">© 2024 Atlas Travel Planner. Transformando sonhos em roteiros.</p>
+</div>
+</footer>
+</body></html>
