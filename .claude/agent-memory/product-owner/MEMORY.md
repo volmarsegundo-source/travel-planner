@@ -18,20 +18,24 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-21, Sprint 34 planning)
-- Product version: v0.28.0 (Sprint 33 complete assumed) / v0.29.0 in planning
-- Sprints 1-33 complete (assumed)
+### Backlog State (as of 2026-03-22, Sprint 36 planning)
+- Product version: v0.30.0 (Sprint 35 complete -- Gamification Wave 1 MVP) / v0.31.0 in planning
+- Sprints 1-35 complete (assumed)
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-039
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-043
 - Sprint 30 backlog: `docs/specs/sprint-30/SPRINT-30-PRIORITIES.md`
 - Sprint 31 backlog: `docs/specs/sprint-31/SPRINT-31-PRIORITIES.md`
 - Sprint 32 backlog: `docs/specs/sprint-32/SPRINT-32-PRIORITIES.md`
 - Sprint 33 backlog: `docs/specs/sprint-33/SPRINT-33-PRIORITIES.md`
 - Sprint 34 backlog: `docs/specs/sprint-34/SPRINT-34-PRIORITIES.md`
+- Sprint 35 backlog: `docs/specs/gamification/SPRINT-GAMIFICATION-PRIORITIES.md` (Wave 1)
+- Sprint 36 backlog: `docs/specs/sprint-36/SPRINT-36-PRIORITIES.md`
 - Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
 - Sprint 32 product specs: SPEC-PROD-025, SPEC-PROD-026, SPEC-PROD-027, SPEC-PROD-028
 - Sprint 33 product specs: SPEC-PROD-029, SPEC-PROD-030, SPEC-PROD-031, SPEC-PROD-032, SPEC-PROD-033, SPEC-PROD-034
 - Sprint 34 product specs: SPEC-PROD-035, SPEC-PROD-036, SPEC-PROD-037, SPEC-PROD-038
+- Sprint 36 product specs: SPEC-PROD-039, SPEC-PROD-040, SPEC-PROD-041, SPEC-PROD-042
+- Sprint 37 product specs: SPEC-PROD-043, SPEC-PROD-044, SPEC-PROD-045
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -139,29 +143,40 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - @business-traveler: secondary for US-001, US-107; primary for Premium tier
 - Other personas (@bleisure, @group-organizer, @travel-agent) relevant for future features
 
-### MVP Roadmap (updated 2026-03-21, Sprint 34 planning)
-- Sprints 22-33: DONE (v0.28.0 assumed complete)
-- Sprint 32: "Stabilization" -- SPEC-PROD-025/026/027/028 resolved P0 bugs, target >= 90% pass rate (v0.27.0)
-- Sprint 33: "Qualidade de Dados, Personalizacao e Crescimento" -- 6 specs (IMP-001 a IMP-006). Product version: v0.28.0
-- Sprint 34: "Fechamento de Lacunas -- Rodape, Fase 3, Fase 4 e Acesso" -- 4 specs (SPEC-PROD-035..038). Target: v0.29.0
-- Sprint 35: "Gamification Wave 1 -- PA Visivel" -- REQ-GAMI-001..005. Target: v0.30.0
-- Sprint 36: "Gamification Wave 2 -- Full Gamification" -- REQ-GAMI-006..010. Target: v0.31.0
-- Sprint 37+: "Gamification Wave 3 -- Monetizacao" -- REQ-GAMI-011..013 + payment gateway
-- Next available Spec ID: SPEC-PROD-039
+### MVP Roadmap (updated 2026-03-22, Sprint 36 planning)
+- Sprints 22-35: DONE (v0.30.0 -- Gamification Wave 1 complete)
+- Sprint 32: "Stabilization" -- SPEC-PROD-025/026/027/028. v0.27.0
+- Sprint 33: "Qualidade de Dados, Personalizacao e Crescimento" -- SPEC-PROD-029..034. v0.28.0
+- Sprint 34: "Fechamento de Lacunas -- Rodape, Fase 3, Fase 4 e Acesso" -- SPEC-PROD-035..038. v0.29.0
+- Sprint 35: "Gamification Wave 1 -- PA Visivel" -- REQ-GAMI-001..005. v0.30.0 (COMPLETE)
+- Sprint 36: "Gamification Wave 2 -- Full Gamification" -- SPEC-PROD-039..042. v0.31.0 (COMPLETE)
+- Sprint 37: "Gamification Wave 3 -- Monetizacao" -- SPEC-PROD-043..045. Target: v0.32.0
+- Sprint 38: Admin Dashboard completo + controles de PA + alertas automaticos + reembolso automatizado
+- Sprint 39: Tier Premium + upgrade flow
+- Next available Spec ID: SPEC-PROD-046
 
 ### Gamification PA System (approved 2026-03-21)
 - Economy doc: `docs/specs/gamification/ATLAS-GAMIFICACAO-APROVADO.md`
 - Product spec: `docs/specs/gamification/SPEC-PROD-GAMIFICATION.md`
 - Sprint priorities: `docs/specs/gamification/SPRINT-GAMIFICATION-PRIORITIES.md`
-- WELCOME_BONUS = 500 PA (verified from gamification.types.ts -- task prompt said 180, CODE is authoritative)
-- AI_COSTS: ai_itinerary=150, ai_route=100, ai_accommodation=100, ai_regenerate=80
-- EARNING_AMOUNTS: daily_login=10, checklist=20, review=500, referral=300
+- WELCOME_BONUS = 180 PA (authoritative value from ATLAS-GAMIFICACAO-APROVADO.md v1.1.0; earlier memory entry was wrong)
+- AI_COSTS: ai_itinerary=80 PA, ai_route=30 PA, ai_accommodation=50 PA, regeneration = same as generation (no separate constant)
+- Total AI cost per full expedition (Phases 1-6): 160 PA
+- EARNING_AMOUNTS: daily_login=10, checklist=20 (Phase 3), review=500, referral=300
+- Phase earnings: Phase1=100, Phase2=150, Phase3=75, Phase4=50, Phase5=40, Phase6=250
 - PROFILE_FIELD_POINTS: 25 PA per field, 11 fields = max 275 PA
-- Rank thresholds: traveler=0, explorer=500, navigator=1500, cartographer=3000, pathfinder=6000, ambassador=10000
-- PA purchase packages: R$14.90 (500PA), R$29.90 (1200PA), R$59.90 (2800PA), R$119.90 (6000PA)
+- Rank thresholds (RPG names): novato=0, desbravador=300, navegador=700, capitao=1500, aventureiro=3500, lendario=7000
+- PA purchase packages: pkg_explorador=500PA/R$14.90, pkg_navegador=1200PA/R$29.90, pkg_cartografo=2800PA/R$59.90, pkg_embaixador=6000PA/R$119.90
 - Badge `host` is LEGACY -- do NOT display in UI, use `logistics_master` instead
 - PA purchased increments availablePoints only, NOT totalPoints (rank is based on earned points, not purchased)
-- Wave 1 blockers: none (backend complete). Wave 3 blocker: payment gateway not chosen yet
+- 16 badges in 4 categories: Explorador(4), Perfeccionista(4), Aventureiro(5), Veterano(4) -- see ATLAS-GAMIFICACAO-APROVADO.md Sec 4
+- Wave 1 (Sprint 35): COMPLETE -- PA balance visible, tutorial, AI cost confirmation, transaction history
+- Wave 2 (Sprint 36): SPEC-PROD-039 (WizardFooter hook), SPEC-PROD-040 (badges), SPEC-PROD-041 (PA packages mock), SPEC-PROD-042 (admin dashboard) -- COMPLETE
+- Wave 3 (Sprint 37): SPEC-PROD-043 (Stripe integration), SPEC-PROD-044 (enhanced admin dashboard), SPEC-PROD-045 (purchase flow UX)
+- Stripe chosen as payment gateway (PIX + credit card Brazil, SAQ A PCI-DSS scope via Checkout Session redirect)
+- SPEC-PROD-043: StripeProvider replaces MockPaymentProvider; webhook /api/webhooks/stripe with signature verification + idempotency; purchase flow success/cancel pages; Purchase model extended with stripeSessionId, stripePaymentIntentId, paymentMethod, receiptUrl, processedAt
+- SPEC-PROD-044: admin dashboard upgraded with per-user revenue/AI-cost/profit columns; 4 charts (revenue over time, AI calls, rank distribution, top destinations); margin alerts (yellow <80%, red <50%); CSV export; custom period filter
+- SPEC-PROD-045: upgraded package cards (PA/BRL ratio, AI feature equivalencies, "Mais popular"/"Melhor custo" tags); modal with Stripe redirect communication; success page with balance polling; return context from insufficient-balance modal; proactive "Comprar PA" button in Meu Atlas
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)

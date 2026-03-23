@@ -1,0 +1,93 @@
+{
+  "dataset_id": "EVAL-STRIPE-S37-001",
+  "name": "Stripe Payment Flow",
+  "version": "1.0.0",
+  "sprint": 37,
+  "spec_refs": ["SPEC-ARCH-030 v2", "SPEC-SEC-006 v2", "SPEC-PROD-041 v2"],
+  "scenarios": [
+    {
+      "id": "STR-001",
+      "description": "Create checkout session for valid Explorador package",
+      "input": { "packageId": "explorador", "userId": "test-user-a-cuid00000001", "locale": "pt" },
+      "expected": { "stripe_session_created": true, "purchase_status": "pending", "amount_cents": 1490, "currency": "brl", "locale_forwarded": "pt" },
+      "grader": "code"
+    },
+    {
+      "id": "STR-002",
+      "description": "Reject checkout for non-existent package ID",
+      "input": { "packageId": "nonexistent-pkg", "userId": "test-user-a-cuid00000001" },
+      "expected": { "error": true, "error_type": "validation", "stripe_session_created": false, "purchase_record_created": false },
+      "grader": "code"
+    },
+    {
+      "id": "STR-003",
+      "description": "Rate limit: 6th checkout request within 1 minute is rejected",
+      "input": { "userId": "test-user-a-cuid00000001", "requests_in_window": 6, "window_seconds": 60 },
+      "expected": { "first_5_accepted": true, "6th_status": 429, "6th_error": "rate_limit_exceeded" },
+      "grader": "code"
+    },
+    {
+      "id": "STR-004",
+      "description": "Stripe redirect success: user lands on success page after payment",
+      "input": { "stripe_checkout_result": "success", "session_id": "cs_test_abc123", "packageId": "explorador" },
+      "expected": { "redirect_url_contains": "/comprar-pa/sucesso", "session_id_in_query": true },
+      "grader": "code"
+    },
+    {
+      "id": "STR-005",
+      "description": "Stripe redirect cancel: user returns to purchase page, no credit",
+      "input": { "stripe_checkout_result": "cancel", "session_id": "cs_test_abc123" },
+      "expected": { "redirect_url_contains": "/comprar-pa", "pa_credited": false, "purchase_status": "pending" },
+      "grader": "code"
+    },
+    {
+      "id": "STR-006",
+      "description": "Webhook with valid signature processes checkout.session.completed",
+      "input": { "event_type": "checkout.session.completed", "signature": "valid", "session_id": "cs_test_abc123", "packageId": "explorador" },
+      "expected": { "http_status": 200, "purchase_status": "completed", "pa_credited": 500, "point_transaction_type": "purchase" },
+      "grader": "code"
+    },
+    {
+      "id": "STR-007",
+      "description": "Webhook with invalid signature is rejected",
+      "input": { "event_type": "checkout.session.completed", "signature": "invalid_tampered", "session_id": "cs_test_abc123" },
+      "expected": { "http_status": 400, "pa_credited": false, "purchase_status_unchanged": true, "security_event_logged": true },
+      "grader": "code"
+    },
+    {
+      "id": "STR-008",
+      "description": "Duplicate webhook (same event ID) does not double-credit PA",
+      "input": { "event_id": "evt_test_dedup001", "event_type": "checkout.session.completed", "signature": "valid", "delivery_attempt": 2 },
+      "expected": { "http_status": 200, "total_pa_credited": 500, "purchase_records": 1, "idempotent": true },
+      "grader": "code"
+    },
+    {
+      "id": "STR-009",
+      "description": "Expired Stripe session webhook does not credit PA",
+      "input": { "event_type": "checkout.session.expired", "signature": "valid", "session_id": "cs_test_expired001" },
+      "expected": { "http_status": 200, "purchase_status": "expired", "pa_credited": false },
+      "grader": "code"
+    },
+    {
+      "id": "STR-010",
+      "description": "PA credit updates availablePoints ONLY, not totalPoints",
+      "input": { "user_state_before": { "availablePoints": 200, "totalPoints": 1500 }, "packageId": "navegador", "pa_amount": 1200 },
+      "expected": { "availablePoints_after": 1400, "totalPoints_after": 1500 },
+      "grader": "code"
+    },
+    {
+      "id": "STR-011",
+      "description": "Purchase record contains correct Stripe reference and package data",
+      "input": { "packageId": "cartografo", "stripe_payment_intent": "pi_test_xyz789", "stripe_session": "cs_test_xyz789" },
+      "expected": { "purchase_record": { "packageId": "cartografo", "pa": 2800, "amountCents": 5990, "stripeSessionId": "cs_test_xyz789", "stripePaymentIntent": "pi_test_xyz789", "status": "completed" } },
+      "grader": "code"
+    },
+    {
+      "id": "STR-012",
+      "description": "Server-side price lookup: client-sent price is ignored",
+      "input": { "packageId": "explorador", "client_sent_price": 1, "client_sent_pa": 999999 },
+      "expected": { "actual_amount_cents": 1490, "actual_pa": 500, "client_values_ignored": true },
+      "grader": "code"
+    }
+  ]
+}

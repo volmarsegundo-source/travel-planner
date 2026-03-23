@@ -188,32 +188,30 @@
   - 9 parallel queries, access from Phase 2+, booking code reveal action
   - i18n at component layer (not service), print via browser @media print
 
-## Specs & Architecture Docs
-- SPEC-001: docs/SPEC-001.md (Trip Creation)
-- SPEC-005: docs/specs/SPEC-005-authenticated-navigation.md
-- Sprint 20 Architecture: docs/architecture/SPRINT-20-ARCHITECTURE.md
-- SPEC-ARCH-010: docs/architecture/PHASE-NAVIGATION-REDESIGN.md (Phase Navigation Redesign)
-- SPEC-ARCH-001: docs/specs/sprint-26/SPEC-ARCH-001.md (DnD Time Adjustment)
-- SPEC-ARCH-002: docs/specs/sprint-27/SPEC-ARCH-002.md (Navigation Restructure)
-- SPEC-ARCH-003: docs/specs/sprint-27/SPEC-ARCH-003.md (Autocomplete Alternative)
-- ARCH-RCA-S27: docs/specs/sprint-27/ARCH-ROOT-CAUSE-ANALYSIS.md
-- SPEC-ARCH-005: docs/specs/sprint-28/SPEC-ARCH-005.md (Journey Summary Data Aggregation)
-- SPEC-ARCH-007: docs/specs/sprint-29/SPEC-ARCH-007.md (Summary Page Integration)
-- SPEC-ARCH-008: docs/specs/sprint-29/SPEC-ARCH-008.md (Phase Data Pre-population)
-- SPEC-ARCH-009: docs/specs/sprint-29/SPEC-ARCH-009.md (Map Coordinates & Destination Pin)
-- SPEC-ARCH-011: docs/specs/sprint-30/SPEC-ARCH-011.md (Autocomplete Architecture Rewrite)
-- SPEC-ARCH-012: docs/specs/sprint-30/SPEC-ARCH-012.md (Map Architecture Rewrite)
-- SPEC-ARCH-013: docs/specs/sprint-30/SPEC-ARCH-013.md (Dashboard Architecture Rewrite)
-- SPEC-ARCH-014: docs/specs/sprint-30/SPEC-ARCH-014.md (Summary/Report Architecture Rewrite)
-- SPEC-ARCH-015: docs/specs/sprint-31/SPEC-ARCH-015.md (Meu Atlas with Leaflet/OSM)
-- SPEC-ARCH-016: docs/specs/sprint-31/SPEC-ARCH-016.md (Phase Completion Engine)
-- SPEC-ARCH-017: docs/specs/sprint-31/SPEC-ARCH-017.md (Report Generation Service)
-- SPEC-ARCH-018: docs/specs/sprint-32/SPEC-ARCH-018-completion-engine-fixes.md (Phase Completion Engine Fixes)
-- SPEC-ARCH-019: docs/specs/sprint-32/SPEC-ARCH-019-report-i18n-layer.md (Report i18n Layer)
-- SPEC-ARCH-020: docs/specs/sprint-33/SPEC-ARCH-020-wizard-footer-save-discard.md (WizardFooter Save/Discard)
-- SPEC-ARCH-021: docs/specs/sprint-33/SPEC-ARCH-021-phase6-prompt-enrichment.md (Phase 6 Prompt Enrichment)
-- SPEC-ARCH-022: docs/specs/sprint-33/SPEC-ARCH-022-social-login.md (Social Login)
-- SPEC-ARCH-023: docs/specs/sprint-33/SPEC-ARCH-023-summary-report-v2.md (Summary/Report v2)
+## Sprint 37 Architecture (SPEC-ARCH-032, SPEC-ARCH-033 DRAFT)
+- SPEC-ARCH-032: Stripe Payment Integration (docs/specs/sprint-37/SPEC-ARCH-032-stripe-payment-integration.md)
+  - StripePaymentProvider implements PaymentProvider interface
+  - Stripe Checkout Session redirect flow (no Stripe.js on client)
+  - Webhook: POST /api/webhooks/stripe (signature verified, idempotent credit)
+  - New API: POST /api/checkout/create-session, GET /api/checkout/session-status
+  - Env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY (all optional)
+  - CRITICAL: availablePoints += pa, totalPoints UNCHANGED
+  - Rate limit: 5 checkout sessions/hr/user
+  - Open: OQ-1 (replace or keep mock purchasePAAction flow)
+- SPEC-ARCH-033: Enhanced Admin Data Aggregation (docs/specs/sprint-37/SPEC-ARCH-033-enhanced-admin-data-aggregation.md)
+  - New metrics: ARPU, conversion rate, free vs paying, AI usage time series, rank distribution, top destinations
+  - Per-user profitability: revenue - AI cost per user
+  - Margin alerts: warning < 50%, critical < 20%
+  - CSV export (4 types, UTF-8 BOM, 10K row cap)
+  - Redis cache 15min TTL, invalidated on purchase/spend
+  - AdminCacheKeys added to cache/keys.ts
+  - AI cost constant: AI_COST_PER_PA_CENTS = 1 (refinable by FinOps)
+
+## Specs & Architecture Docs (index)
+- See individual sprint sections above for spec file paths
+- Sprint 26-33 specs: docs/specs/sprint-{26..33}/SPEC-ARCH-*.md
+- Sprint 36 specs: docs/specs/sprint-36/SPEC-ARCH-{028..031}.md
+- Sprint 37 specs: docs/specs/sprint-37/SPEC-ARCH-{032,033}.md
 
 ## Key File Locations
 - Architecture: docs/architecture.md | API: docs/api.md | Tasks: docs/tasks.md
