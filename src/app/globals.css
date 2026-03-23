@@ -47,7 +47,7 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    /* ── Atlas palette tokens ── */
+    /* ── Atlas palette tokens (legacy v1) ── */
     --color-atlas-gold: var(--atlas-gold);
     --color-atlas-gold-light: var(--atlas-gold-light);
     --color-atlas-gold-pale: var(--atlas-gold-pale);
@@ -60,13 +60,227 @@
     --color-atlas-fog: var(--atlas-fog);
     --color-atlas-line: var(--atlas-line);
 
+    /* ── Atlas Design System v2 — Primary (Brand) ── */
+    --color-atlas-primary: var(--atlas-v2-primary);
+    --color-atlas-primary-container: var(--atlas-v2-primary-container);
+    --color-atlas-primary-fixed: var(--atlas-v2-primary-fixed);
+    --color-atlas-primary-fixed-dim: var(--atlas-v2-primary-fixed-dim);
+    --color-atlas-on-primary: var(--atlas-v2-on-primary);
+    --color-atlas-on-primary-container: var(--atlas-v2-on-primary-container);
+    --color-atlas-on-primary-fixed: var(--atlas-v2-on-primary-fixed);
+    --color-atlas-on-primary-fixed-variant: var(--atlas-v2-on-primary-fixed-variant);
+    --color-atlas-inverse-primary: var(--atlas-v2-inverse-primary);
+
+    /* ── Atlas Design System v2 — Secondary (Accent/CTA) ── */
+    --color-atlas-secondary: var(--atlas-v2-secondary);
+    --color-atlas-secondary-container: var(--atlas-v2-secondary-container);
+    --color-atlas-secondary-fixed: var(--atlas-v2-secondary-fixed);
+    --color-atlas-secondary-fixed-dim: var(--atlas-v2-secondary-fixed-dim);
+    --color-atlas-on-secondary: var(--atlas-v2-on-secondary);
+    --color-atlas-on-secondary-container: var(--atlas-v2-on-secondary-container);
+    --color-atlas-on-secondary-fixed: var(--atlas-v2-on-secondary-fixed);
+    --color-atlas-on-secondary-fixed-variant: var(--atlas-v2-on-secondary-fixed-variant);
+
+    /* ── Atlas Design System v2 — Tertiary (Teal) ── */
+    --color-atlas-tertiary: var(--atlas-v2-tertiary);
+    --color-atlas-tertiary-container: var(--atlas-v2-tertiary-container);
+    --color-atlas-tertiary-fixed: var(--atlas-v2-tertiary-fixed);
+    --color-atlas-tertiary-fixed-dim: var(--atlas-v2-tertiary-fixed-dim);
+    --color-atlas-on-tertiary: var(--atlas-v2-on-tertiary);
+    --color-atlas-on-tertiary-container: var(--atlas-v2-on-tertiary-container);
+    --color-atlas-on-tertiary-fixed: var(--atlas-v2-on-tertiary-fixed);
+    --color-atlas-on-tertiary-fixed-variant: var(--atlas-v2-on-tertiary-fixed-variant);
+
+    /* ── Atlas Design System v2 — Surfaces ── */
+    --color-atlas-surface: var(--atlas-v2-surface);
+    --color-atlas-surface-dim: var(--atlas-v2-surface-dim);
+    --color-atlas-surface-bright: var(--atlas-v2-surface-bright);
+    --color-atlas-surface-variant: var(--atlas-v2-surface-variant);
+    --color-atlas-surface-tint: var(--atlas-v2-surface-tint);
+    --color-atlas-surface-container-lowest: var(--atlas-v2-surface-container-lowest);
+    --color-atlas-surface-container-low: var(--atlas-v2-surface-container-low);
+    --color-atlas-surface-container: var(--atlas-v2-surface-container);
+    --color-atlas-surface-container-high: var(--atlas-v2-surface-container-high);
+    --color-atlas-surface-container-highest: var(--atlas-v2-surface-container-highest);
+    --color-atlas-background: var(--atlas-v2-background);
+    --color-atlas-on-surface: var(--atlas-v2-on-surface);
+    --color-atlas-on-surface-variant: var(--atlas-v2-on-surface-variant);
+    --color-atlas-on-background: var(--atlas-v2-on-background);
+    --color-atlas-inverse-surface: var(--atlas-v2-inverse-surface);
+    --color-atlas-inverse-on-surface: var(--atlas-v2-inverse-on-surface);
+
+    /* ── Atlas Design System v2 — Outline ── */
+    --color-atlas-outline: var(--atlas-v2-outline);
+    --color-atlas-outline-variant: var(--atlas-v2-outline-variant);
+
+    /* ── Atlas Design System v2 — Error ── */
+    --color-atlas-error: var(--atlas-v2-error);
+    --color-atlas-error-container: var(--atlas-v2-error-container);
+    --color-atlas-on-error: var(--atlas-v2-on-error);
+    --color-atlas-on-error-container: var(--atlas-v2-on-error-container);
+
+    /* ── Atlas Design System v2 — Semantic Status ── */
+    --color-atlas-warning: var(--atlas-v2-warning);
+    --color-atlas-warning-container: var(--atlas-v2-warning-container);
+    --color-atlas-success: var(--atlas-v2-success);
+    --color-atlas-success-container: var(--atlas-v2-success-container);
+    --color-atlas-info: var(--atlas-v2-info);
+    --color-atlas-info-container: var(--atlas-v2-info-container);
+
+    /* ── Atlas Design System v2 — Interactive States ── */
+    --color-atlas-focus-ring: var(--atlas-v2-focus-ring);
+    --color-atlas-disabled: var(--atlas-v2-disabled);
+    --color-atlas-disabled-bg: var(--atlas-v2-disabled-bg);
+
+    /* ── Atlas Design System v2 — Border Radius ── */
+    --radius-atlas-sm: 4px;
+    --radius-atlas-md: 8px;
+    --radius-atlas-lg: 12px;
+    --radius-atlas-xl: 16px;
+    --radius-atlas-2xl: 24px;
+    --radius-atlas-full: 9999px;
+
+    /* ── Atlas Design System v2 — Shadows ── */
+    --shadow-atlas-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-atlas-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-atlas-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-atlas-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-atlas-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --shadow-atlas-2xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+    --shadow-atlas-glow-amber: 0 0 12px rgba(254, 147, 44, 0.4);
+    --shadow-atlas-glow-primary: 0 0 12px rgba(4, 13, 27, 0.2);
+
+    /* ── Atlas Design System v2 — Font Size ── */
+    --text-atlas-display: 72px;
+    --text-atlas-display--line-height: 1.1;
+    --text-atlas-display--letter-spacing: -0.02em;
+    --text-atlas-display--font-weight: 800;
+    --text-atlas-h1: 48px;
+    --text-atlas-h1--line-height: 1.1;
+    --text-atlas-h1--letter-spacing: -0.02em;
+    --text-atlas-h1--font-weight: 800;
+    --text-atlas-h2: 36px;
+    --text-atlas-h2--line-height: 1.2;
+    --text-atlas-h2--letter-spacing: -0.01em;
+    --text-atlas-h2--font-weight: 700;
+    --text-atlas-h3: 24px;
+    --text-atlas-h3--line-height: 1.3;
+    --text-atlas-h3--font-weight: 700;
+    --text-atlas-h4: 18px;
+    --text-atlas-h4--line-height: 1.4;
+    --text-atlas-h4--font-weight: 700;
+    --text-atlas-body: 16px;
+    --text-atlas-body--line-height: 1.6;
+    --text-atlas-body--font-weight: 400;
+    --text-atlas-body-medium: 16px;
+    --text-atlas-body-medium--line-height: 1.6;
+    --text-atlas-body-medium--font-weight: 500;
+    --text-atlas-small: 14px;
+    --text-atlas-small--line-height: 1.5;
+    --text-atlas-small--font-weight: 500;
+    --text-atlas-caption: 12px;
+    --text-atlas-caption--line-height: 1.4;
+    --text-atlas-caption--letter-spacing: 0.05em;
+    --text-atlas-caption--font-weight: 600;
+    --text-atlas-micro: 10px;
+    --text-atlas-micro--line-height: 1.4;
+    --text-atlas-micro--letter-spacing: 0.1em;
+    --text-atlas-micro--font-weight: 700;
+    --text-atlas-button: 14px;
+    --text-atlas-button--line-height: 1;
+    --text-atlas-button--font-weight: 700;
+
     /* ── Font families ── */
     --font-heading: var(--font-heading), Georgia, 'Times New Roman', serif;
     --font-body: var(--font-body), 'Segoe UI', Roboto, sans-serif;
     --font-mono: var(--font-mono), 'Courier New', monospace;
+    --font-atlas-headline: var(--font-atlas-headline), 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-atlas-body: var(--font-atlas-body), 'Work Sans', system-ui, -apple-system, sans-serif;
 }
 
-/* ── Light mode (parchment/sépia) ── */
+/* ── Atlas Design System v2 — Custom Properties ── */
+:root {
+    /* Primary (Brand) */
+    --atlas-v2-primary: #040d1b;
+    --atlas-v2-primary-container: #1a2332;
+    --atlas-v2-primary-fixed: #dae3f7;
+    --atlas-v2-primary-fixed-dim: #bec7db;
+    --atlas-v2-on-primary: #ffffff;
+    --atlas-v2-on-primary-container: #818a9d;
+    --atlas-v2-on-primary-fixed: #131c2a;
+    --atlas-v2-on-primary-fixed-variant: #3e4758;
+    --atlas-v2-inverse-primary: #bec7db;
+
+    /* Secondary (Accent/CTA — Amber/Orange) */
+    --atlas-v2-secondary: #904d00;
+    --atlas-v2-secondary-container: #fe932c;
+    --atlas-v2-secondary-fixed: #ffdcc3;
+    --atlas-v2-secondary-fixed-dim: #ffb77d;
+    --atlas-v2-on-secondary: #ffffff;
+    --atlas-v2-on-secondary-container: #663500;
+    --atlas-v2-on-secondary-fixed: #2f1500;
+    --atlas-v2-on-secondary-fixed-variant: #6e3900;
+
+    /* Tertiary (Teal) */
+    --atlas-v2-tertiary: #00100d;
+    --atlas-v2-tertiary-container: #002824;
+    --atlas-v2-tertiary-fixed: #89f5e7;
+    --atlas-v2-tertiary-fixed-dim: #6bd8cb;
+    --atlas-v2-on-tertiary: #ffffff;
+    --atlas-v2-on-tertiary-container: #1c9a8e;
+    --atlas-v2-on-tertiary-fixed: #00201d;
+    --atlas-v2-on-tertiary-fixed-variant: #005049;
+
+    /* Surfaces */
+    --atlas-v2-surface: #f9f9f9;
+    --atlas-v2-surface-dim: #dadada;
+    --atlas-v2-surface-bright: #f9f9f9;
+    --atlas-v2-surface-variant: #e2e2e2;
+    --atlas-v2-surface-tint: #565f70;
+    --atlas-v2-surface-container-lowest: #ffffff;
+    --atlas-v2-surface-container-low: #f3f3f3;
+    --atlas-v2-surface-container: #eeeeee;
+    --atlas-v2-surface-container-high: #e8e8e8;
+    --atlas-v2-surface-container-highest: #e2e2e2;
+    --atlas-v2-background: #f9f9f9;
+    --atlas-v2-on-surface: #1a1c1c;
+    --atlas-v2-on-surface-variant: #45474c;
+    --atlas-v2-on-background: #1a1c1c;
+    --atlas-v2-inverse-surface: #2f3131;
+    --atlas-v2-inverse-on-surface: #f0f1f1;
+
+    /* Outline */
+    --atlas-v2-outline: #75777d;
+    --atlas-v2-outline-variant: #c5c6cc;
+
+    /* Error */
+    --atlas-v2-error: #ba1a1a;
+    --atlas-v2-error-container: #ffdad6;
+    --atlas-v2-on-error: #ffffff;
+    --atlas-v2-on-error-container: #93000a;
+
+    /* Semantic Status */
+    --atlas-v2-warning: #f59e0b;
+    --atlas-v2-warning-container: #fffbeb;
+    --atlas-v2-success: #10b981;
+    --atlas-v2-success-container: #ecfdf5;
+    --atlas-v2-info: #3b82f6;
+    --atlas-v2-info-container: #eff6ff;
+
+    /* Interactive States */
+    --atlas-v2-focus-ring: #fe932c;
+    --atlas-v2-disabled: #9ca3af;
+    --atlas-v2-disabled-bg: #f3f4f6;
+
+    /* Transitions */
+    --atlas-transition-fast: 150ms ease;
+    --atlas-transition-base: 200ms ease;
+    --atlas-transition-slow: 300ms ease;
+    --atlas-transition-image: 700ms ease;
+    --atlas-transition-progress: 1000ms ease;
+}
+
+/* ── Light mode (parchment/sepia) — v1 legacy ── */
 :root {
     --radius: 0.625rem;
 
