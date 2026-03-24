@@ -57,7 +57,7 @@ export function FooterV2() {
           <ul className="space-y-4">
             <li>
               <a
-                href="#"
+                href="/como-funciona"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("destinationGuides")}
@@ -65,7 +65,7 @@ export function FooterV2() {
             </li>
             <li>
               <a
-                href="#"
+                href="/como-funciona"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("travelInsurance")}
@@ -73,7 +73,7 @@ export function FooterV2() {
             </li>
             <li>
               <a
-                href="#"
+                href="/como-funciona"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("blog")}
@@ -90,7 +90,7 @@ export function FooterV2() {
           <ul className="space-y-4">
             <li>
               <a
-                href="#"
+                href="/sobre"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("about")}
@@ -98,7 +98,7 @@ export function FooterV2() {
             </li>
             <li>
               <a
-                href="#"
+                href="/contato"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("contact")}
@@ -106,7 +106,7 @@ export function FooterV2() {
             </li>
             <li>
               <a
-                href="#"
+                href="/privacidade"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("privacy")}
