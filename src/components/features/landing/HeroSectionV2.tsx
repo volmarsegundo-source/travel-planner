@@ -22,10 +22,16 @@ export function HeroSectionV2({ isAuthenticated = false }: HeroSectionV2Props) {
 
   return (
     <section className="relative min-h-[70vh] md:min-h-[80vh] lg:min-h-[85vh] flex items-center overflow-hidden">
-      {/* Background with gradient placeholder (Unsplash in follow-up) */}
+      {/* Background: Unsplash aerial travel photo + dark overlay for text legibility */}
+      {/* Photo: aerial view of tropical island surrounded by mountains (j2bxM61qXQ4 by Peter Thomas) */}
+      {/* Fallback: navy gradient if image fails to load */}
       <div className="absolute inset-0 z-0" aria-hidden="true">
-        <div className="w-full h-full bg-gradient-to-br from-atlas-primary via-atlas-primary-container to-atlas-primary" />
-        <div className="absolute inset-0 bg-gradient-to-r from-atlas-primary/80 via-atlas-primary/40 to-transparent" />
+        <div
+          className="w-full h-full bg-cover bg-center bg-no-repeat bg-atlas-primary"
+          style={{
+            backgroundImage: `linear-gradient(rgba(4, 13, 27, 0.65), rgba(4, 13, 27, 0.80)), url('https://images.unsplash.com/photo-1633511089809-fbe0483ca103?w=1920&q=80&fit=crop&auto=format')`,
+          }}
+        />
       </div>
 
       {/* Content */}
