@@ -100,9 +100,20 @@ export function FooterV2() {
               </span>
             </li>
             <li>
-              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
-                {t("privacy")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">Em breve</span>
-              </span>
+              <Link
+                href="/privacidade"
+                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
+              >
+                {t("privacy")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/termos"
+                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
+              >
+                {t("terms")}
+              </Link>
             </li>
           </ul>
         </div>

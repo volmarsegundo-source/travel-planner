@@ -1808,7 +1808,7 @@
     "hero": {
       "badge": "The New Era of Planning",
       "title": "Your next adventure starts here",
-      "subtitle": "Smart travel planning — from dream to itinerary, powered by AI.",
+      "subtitle": "Plan amazing trips in minutes — easy, smart, and fun. AI handles the details, you enjoy the adventure.",
       "cta": "Start your expedition",
       "secondaryCta": "How It Works",
       "imageAlt": "Aerial view of Brazilian mountains at sunset with dramatic sky in orange and purple tones"
@@ -1929,7 +1929,8 @@
       "company": "Company",
       "about": "About Us",
       "contact": "Contact",
-      "privacy": "Privacy",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Use",
       "newsletter": "News",
       "newsletterDescription": "Subscribe for exclusive itineraries.",
       "emailPlaceholder": "Your email",

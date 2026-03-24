@@ -8,6 +8,8 @@ interface DestinationData {
   size: "large" | "medium" | "panoramic";
   gradientFrom: string;
   gradientTo: string;
+  /** Unsplash image URL (static, no API key needed) */
+  imageUrl?: string;
 }
 
 const DESTINATIONS: DestinationData[] = [
@@ -16,18 +18,21 @@ const DESTINATIONS: DestinationData[] = [
     size: "large",
     gradientFrom: "from-atlas-secondary-container/80",
     gradientTo: "to-atlas-primary/60",
+    imageUrl: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80&auto=format",
   },
   {
     i18nKey: "bonito",
     size: "medium",
     gradientFrom: "from-atlas-tertiary-container/80",
     gradientTo: "to-atlas-primary/60",
+    imageUrl: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80&auto=format",
   },
   {
     i18nKey: "pantanal",
     size: "panoramic",
     gradientFrom: "from-atlas-secondary/60",
     gradientTo: "to-atlas-primary/60",
+    imageUrl: "https://images.unsplash.com/photo-1598887142487-3c854d51eabb?w=800&q=80&auto=format",
   },
 ];
 
@@ -70,7 +75,7 @@ export function DestinationsSectionV2() {
 
         {/* Asymmetric grid */}
         <div className="grid grid-cols-12 gap-6">
-          {DESTINATIONS.map(({ i18nKey, size, gradientFrom, gradientTo }) => {
+          {DESTINATIONS.map(({ i18nKey, size, gradientFrom, gradientTo, imageUrl }) => {
             const config = SIZE_CONFIG[size];
 
             return (
@@ -78,12 +83,21 @@ export function DestinationsSectionV2() {
                 key={i18nKey}
                 className={`${config.colSpan} relative ${config.height} rounded-3xl overflow-hidden group cursor-pointer`}
               >
-                {/* Gradient placeholder for destination image */}
-                <div
-                  className={`w-full h-full bg-gradient-to-br ${gradientFrom} ${gradientTo} transition-transform duration-700 group-hover:scale-110 motion-reduce:group-hover:scale-100`}
-                  role="img"
-                  aria-label={t(`${i18nKey}.imageAlt`)}
-                />
+                {/* Destination image with gradient fallback */}
+                {imageUrl ? (
+                  <img
+                    src={imageUrl}
+                    alt={t(`${i18nKey}.imageAlt`)}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 motion-reduce:group-hover:scale-100"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className={`w-full h-full bg-gradient-to-br ${gradientFrom} ${gradientTo} transition-transform duration-700 group-hover:scale-110 motion-reduce:group-hover:scale-100`}
+                    role="img"
+                    aria-label={t(`${i18nKey}.imageAlt`)}
+                  />
+                )}
 
                 {/* Overlay — stronger gradient so text is readable on gradient placeholders */}
                 <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary via-atlas-primary/40 to-transparent opacity-90" />

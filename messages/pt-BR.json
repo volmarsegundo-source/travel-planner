@@ -1808,7 +1808,7 @@
     "hero": {
       "badge": "A Nova Era do Planejamento",
       "title": "Sua proxima aventura comeca aqui",
-      "subtitle": "Planejamento inteligente de viagem — do sonho ao roteiro, com IA.",
+      "subtitle": "Planeje viagens incriveis em minutos — facil, inteligente e divertido. A IA cuida dos detalhes, voce aproveita a aventura.",
       "cta": "Comece sua expedicao",
       "secondaryCta": "Como Funciona",
       "imageAlt": "Vista aerea de montanhas brasileiras ao por do sol com ceu dramatico em tons de laranja e roxo"
@@ -1929,7 +1929,8 @@
       "company": "Empresa",
       "about": "Sobre Nos",
       "contact": "Contato",
-      "privacy": "Privacidade",
+      "privacy": "Politica de Privacidade",
+      "terms": "Termos de Uso",
       "newsletter": "Novidades",
       "newsletterDescription": "Inscreva-se para roteiros exclusivos.",
       "emailPlaceholder": "Seu email",

@@ -139,7 +139,8 @@
       "Bash(NEXT_PUBLIC_DESIGN_V2=true PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test --reporter=list)",
       "Bash(NEXT_PUBLIC_DESIGN_V2=false PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test --reporter=list)",
       "Bash(git commit:*)",
-      "Bash(destination, powered by AI.\":*)"
+      "Bash(destination, powered by AI.\":*)",
+      "Bash(inteligente e divertido\":*)"
     ]
   }
 }
