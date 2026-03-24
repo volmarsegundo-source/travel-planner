@@ -126,7 +126,7 @@ const AtlasChip = React.forwardRef<HTMLButtonElement, AtlasChipProps>(
       onRemove?.();
     };
 
-    const handleKeyDown = (e: React.KeyboardEvent) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>) => {
       if (disabled) return;
       if (mode === "selectable" && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
@@ -144,7 +144,6 @@ const AtlasChip = React.forwardRef<HTMLButtonElement, AtlasChipProps>(
         data-selected={isSelected || undefined}
         role={mode === "selectable" ? "checkbox" : undefined}
         aria-checked={mode === "selectable" ? selected : undefined}
-        aria-pressed={mode === "selectable" ? selected : undefined}
         disabled={disabled}
         onClick={handleClick}
         onKeyDown={handleKeyDown}

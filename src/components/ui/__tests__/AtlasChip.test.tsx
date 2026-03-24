@@ -104,7 +104,8 @@ describe("AtlasChip", () => {
     render(<AtlasChip mode="selectable" selected>Aria</AtlasChip>);
     const chip = screen.getByRole("checkbox");
     expect(chip).toHaveAttribute("aria-checked", "true");
-    expect(chip).toHaveAttribute("aria-pressed", "true");
+    // aria-pressed removed per FIX-001: role="checkbox" uses aria-checked only
+    expect(chip).not.toHaveAttribute("aria-pressed");
   });
 
   // ─── Size variants ─────────────────────────────────────────────────────────

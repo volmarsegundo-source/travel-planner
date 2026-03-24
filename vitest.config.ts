@@ -8,7 +8,6 @@ export default defineConfig({
     environment: "jsdom",
     globals: true,
     setupFiles: ["./tests/setup.ts"],
-    exclude: ["node_modules/**", ".next/**", "tests/visual/**", "tests/e2e/**"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "json-summary", "html"],
@@ -36,7 +35,7 @@ export default defineConfig({
         "src/app/**",
       ],
     },
-    exclude: ["node_modules", ".next", ".claude", "tests/e2e/**", "**/e2e/**", "tests/evals/**", "travel-planner/**"],
+    exclude: ["node_modules", ".next", ".claude", "tests/e2e/**", "**/e2e/**", "tests/evals/**", "tests/visual/**", "travel-planner/**"],
   },
   resolve: {
     alias: {

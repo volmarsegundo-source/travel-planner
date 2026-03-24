@@ -91,6 +91,32 @@
       "backToLogin": "Voltar ao login"
     }
   },
+  "authV2": {
+    "welcomeBack": "Bem-vindo de volta",
+    "subtitle": "Entre na sua conta para continuar sua expedição",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "seu@email.com",
+    "passwordLabel": "Senha",
+    "passwordPlaceholder": "Digite sua senha",
+    "forgotPassword": "Esqueceu a senha?",
+    "rememberMe": "Lembrar de mim",
+    "submit": "Entrar",
+    "or": "ou",
+    "socialGoogle": "Google",
+    "socialGithub": "GitHub",
+    "noAccount": "Não tem uma conta?",
+    "createAccount": "Criar conta grátis",
+    "legalText": "Ao entrar, você concorda com nossos",
+    "termsOfUse": "Termos de Uso",
+    "and": "e",
+    "privacyPolicy": "Política de Privacidade",
+    "brandTagline": "Do sonho ao destino, com inteligência.",
+    "nextTrip": "PRÓXIMA VIAGEM",
+    "daysRemaining": "dias restantes",
+    "percentReady": "pronto",
+    "showPassword": "Mostrar senha",
+    "hidePassword": "Ocultar senha"
+  },
   "trustSignals": {
     "badge": "Seus dados estão protegidos",
     "privacy": "Não compartilhamos seus dados com terceiros. Você pode excluir sua conta a qualquer momento.",
@@ -1766,6 +1792,131 @@
     },
     "chip": {
       "remove": "Remover"
+    }
+  },
+  "landingV2": {
+    "nav": {
+      "logo": "Atlas",
+      "explore": "Explorar",
+      "myTrips": "Minhas Viagens",
+      "planner": "Planejador",
+      "login": "Entrar",
+      "getStarted": "Comece Agora",
+      "openMenu": "Abrir menu de navegacao",
+      "closeMenu": "Fechar menu de navegacao"
+    },
+    "hero": {
+      "badge": "A Nova Era do Planejamento",
+      "title": "Sua proxima aventura comeca aqui",
+      "subtitle": "O Atlas e o companheiro de viagem experiente que te guia da inspiracao ao roteiro final usando recomendacoes de IA feitas sob medida para o viajante brasileiro aventureiro.",
+      "cta": "Comece sua expedicao",
+      "secondaryCta": "Como Funciona",
+      "imageAlt": "Vista aerea de montanhas brasileiras ao por do sol com ceu dramatico em tons de laranja e roxo"
+    },
+    "phases": {
+      "title": "8 Fases da Expedicao",
+      "subtitle": "Nossa metodologia proprietaria garante que nada seja esquecido, transformando cada etapa em uma experiencia fluida.",
+      "comingSoon": "Em Breve",
+      "phase1": {
+        "name": "A Inspiracao",
+        "description": "Curadoria de destinos baseada em seus desejos e tendencias globais."
+      },
+      "phase2": {
+        "name": "O Perfil",
+        "description": "Definicao do seu estilo de viajante: do luxo ao mochilao."
+      },
+      "phase3": {
+        "name": "O Preparo",
+        "description": "Documentacao, vacinas e checklists inteligentes personalizados."
+      },
+      "phase4": {
+        "name": "A Logistica",
+        "description": "Conexoes, transferencias e hospedagem no melhor custo-beneficio."
+      },
+      "phase5": {
+        "name": "Guia do Destino",
+        "description": "Informacoes essenciais sobre cultura, moeda e clima local."
+      },
+      "phase6": {
+        "name": "O Roteiro",
+        "description": "Cronograma diario otimizado para evitar fadiga e filas."
+      },
+      "phase7": {
+        "name": "A Expedicao",
+        "description": "Monitoramento em tempo real e suporte para imprevistos."
+      },
+      "phase8": {
+        "name": "O Legado",
+        "description": "Diario digital e organizacao automatica dos melhores momentos."
+      }
+    },
+    "ai": {
+      "title": "IA que entende sua jornada",
+      "description": "Esqueca as planilhas complexas. Nosso assistente processa milhares de dados para criar roteiros que se adaptam ao seu ritmo.",
+      "feature1": "Curadoria algoritmica de gastronomia local",
+      "feature2": "Otimizacao de rotas para pedestres",
+      "feature3": "Alertas de clima e eventos em tempo real",
+      "cta": "Explorar tecnologia AI",
+      "promptExample": "Atlas, sugira um jantar romantico em Noronha.",
+      "mockupAlt": "Interface de assistente de viagem com IA mostrando mapa e recomendacoes"
+    },
+    "gamification": {
+      "title": "Ganhe pontos, suba de nivel",
+      "subtitle": "Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie beneficios exclusivos.",
+      "currentLevel": "Seu Nivel Atual",
+      "badge1": {
+        "name": "Explorador Nato",
+        "description": "Conquistado ao visitar 3 biomas brasileiros diferentes."
+      },
+      "badge2": {
+        "name": "Lendario",
+        "description": "O status maximo para quem completou 10 roteiros epicos."
+      },
+      "badge3": {
+        "name": "Guardiao da Natureza",
+        "description": "Recompensa por seguir praticas de turismo sustentavel."
+      }
+    },
+    "destinations": {
+      "title": "Destinos em Destaque",
+      "viewAll": "Ver Todos os Destinos",
+      "rio": {
+        "name": "Rio de Janeiro",
+        "category": "Cultura & Praia",
+        "description": "Descubra os segredos da Cidade Maravilhosa alem do obvio.",
+        "imageAlt": "Vista aerea do Cristo Redentor sobre o Rio de Janeiro com Pao de Acucar ao fundo ao amanhecer"
+      },
+      "bonito": {
+        "name": "Bonito",
+        "category": "Ecoturismo",
+        "description": "Flutuacoes em aguas cristalinas e grutas inexploradas.",
+        "imageAlt": "Aguas cristalinas turquesa do Rio da Prata em Bonito MS com reflexos de floresta verde"
+      },
+      "pantanal": {
+        "name": "Pantanal",
+        "category": "Fauna Silvestre",
+        "description": "O maior santuario de vida selvagem do Brasil esperando por voce.",
+        "imageAlt": "Vista panoramica do Pantanal ao por do sol com agua refletindo e arvores em silhueta"
+      }
+    },
+    "footer": {
+      "tagline": "Transformando a maneira como os brasileiros exploram o mundo atraves da tecnologia e curadoria editorial.",
+      "explore": "Explorar",
+      "destinationGuides": "Guias de Destino",
+      "travelInsurance": "Seguro Viagem",
+      "blog": "Blog Editorial",
+      "company": "Empresa",
+      "about": "Sobre Nos",
+      "contact": "Contato",
+      "privacy": "Privacidade",
+      "newsletter": "Novidades",
+      "newsletterDescription": "Inscreva-se para roteiros exclusivos.",
+      "emailPlaceholder": "Seu email",
+      "emailLabel": "Seu email para newsletter",
+      "send": "Enviar",
+      "copyright": "Atlas Travel Planner",
+      "lgpd": "Em conformidade com a LGPD. Seus dados estao protegidos.",
+      "newsletterSuccess": "Inscricao registrada! Em breve voce recebera novidades."
     }
   }
 }
