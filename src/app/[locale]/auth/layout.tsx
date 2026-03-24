@@ -1,34 +1,17 @@
 import type { ReactNode } from "react";
-import { getTranslations } from "next-intl/server";
-import { Header } from "@/components/layout/Header";
-import { Footer } from "@/components/layout/Footer";
 
 interface AuthLayoutProps {
   children: ReactNode;
 }
 
-export default async function AuthLayout({ children }: AuthLayoutProps) {
-  const t = await getTranslations("common");
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex flex-1 flex-col items-center justify-center bg-muted p-4">
-        <div className="w-full max-w-md">
-          {/* App logo / name */}
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-foreground">
-              {t("appName")} ✈️
-            </h1>
-          </div>
-
-          {/* Card wrapping the page content */}
-          <div className="rounded-xl border border-border bg-card p-8 shadow-sm">
-            {children}
-          </div>
-        </div>
-      </main>
-      <Footer />
-    </div>
-  );
+/**
+ * Auth layout — minimal wrapper for login/register pages.
+ *
+ * Sprint 40 V2: LoginFormV2 and RegisterForm are full-page components
+ * (split-screen 60/40) that handle their own layout including nav,
+ * branding, and footer. No V1 wrapper (Header, Footer, card container)
+ * should be applied here.
+ */
+export default function AuthLayout({ children }: AuthLayoutProps) {
+  return <>{children}</>;
 }
