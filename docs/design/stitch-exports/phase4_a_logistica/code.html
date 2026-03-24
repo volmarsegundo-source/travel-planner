@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#bdc7db",
+              "on-primary-container": "#663400",
+              "on-error": "#ffffff",
+              "primary-fixed": "#ffdcc3",
+              "outline-variant": "#dcc2b0",
+              "on-tertiary-fixed-variant": "#005049",
+              "on-primary-fixed-variant": "#6e3900",
+              "on-secondary-fixed": "#121c2a",
+              "surface-container-lowest": "#ffffff",
+              "surface": "#f9f9ff",
+              "surface-container": "#e7eeff",
+              "on-primary-fixed": "#2f1500",
+              "tertiary-fixed-dim": "#92d2c9",
+              "surface-dim": "#d1daef",
+              "primary-fixed-dim": "#ffb77e",
+              "on-secondary": "#ffffff",
+              "tertiary-container": "#7ab9b0",
+              "secondary-container": "#d6e0f4",
+              "on-tertiary-container": "#004a43",
+              "outline": "#887364",
+              "on-surface-variant": "#554336",
+              "on-secondary-fixed-variant": "#3e4757",
+              "on-primary": "#ffffff",
+              "on-tertiary-fixed": "#00201d",
+              "primary": "#914d00",
+              "inverse-on-surface": "#ebf1ff",
+              "tertiary": "#266861",
+              "surface-container-low": "#f0f3ff",
+              "on-error-container": "#93000a",
+              "surface-bright": "#f9f9ff",
+              "on-surface": "#121c2a",
+              "inverse-surface": "#273140",
+              "surface-container-highest": "#d9e3f7",
+              "secondary": "#555f70",
+              "background": "#f9f9ff",
+              "surface-variant": "#d9e3f7",
+              "error-container": "#ffdad6",
+              "error": "#ba1a1a",
+              "on-secondary-container": "#596374",
+              "on-background": "#121c2a",
+              "tertiary-fixed": "#aeefe5",
+              "surface-tint": "#914d00",
+              "inverse-primary": "#ffb77e",
+              "surface-container-high": "#dfe8fd",
+              "primary-container": "#fe932c",
+              "secondary-fixed": "#d9e3f7",
+              "on-tertiary": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Work Sans', sans-serif; }
+        h1, h2, h3 { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .spring-transition { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    </style>
+</head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-[#f9f9ff] dark:bg-[#040d1b]">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-black text-[#040d1b] dark:text-[#f9f9ff] tracking-tight">Atlas</span>
+<nav class="hidden md:flex items-center gap-4 text-sm font-medium">
+<span class="text-on-surface-variant">Minhas Expedições</span>
+<span class="material-symbols-outlined text-xs text-outline-variant">chevron_right</span>
+<span class="text-on-surface-variant">Viagem à Toscana</span>
+<span class="material-symbols-outlined text-xs text-outline-variant">chevron_right</span>
+<span class="text-[#005049] dark:text-[#fe932c] border-b-2 border-[#005049] dark:border-[#fe932c] pb-1">Logística</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 bg-secondary-container px-3 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<span class="text-xs font-bold text-on-secondary-container">180 PA</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">help_outline</button>
+<div class="w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary-container/20">
+<img alt="Foto de perfil do usuário" data-alt="close-up portrait of a friendly man with a slight smile, warm studio lighting, professional and modern look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnDwr5ndUmKXDk44s9JkFcqZe5ZLfnNJUrRKxTPnMKOIn5fQopeJkfCu5fy9_M_QtXJKiALqp2o6gOHioQu73rI6beesB3pD5ci5m1xpKGUB82ZWc8E_31oVImXIPAgITx7CScNQlUGkZbCk-CmPJv4A4oYf8JBVEoWVQLLVYc_blD0dMl9_1OvN_3lhs9MjaKRZdfphul1zkcL1JXK000viQiq9HSGzs6sbUbH_LM39-94HBBt0r3vMNDyX8sikVLcYjJGW3jMUPB"/>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-[#f0f3ff] dark:bg-[#121c2a] h-[1px] w-full"></div>
+</header>
+<main class="pt-24 pb-12 px-8 max-w-7xl mx-auto flex gap-12">
+<!-- SideNav (Phase Sidebar) -->
+<aside class="hidden lg:flex flex-col w-64 shrink-0 space-y-8">
+<div class="space-y-1">
+<h2 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60 px-4">Progresso da Expedição</h2>
+<div class="space-y-2 py-4">
+<!-- Phases 1-3 (Completed) -->
+<div class="flex items-center gap-4 px-4 py-2 group">
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xs">check</span>
+</div>
+<span class="text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Destino</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-2 group">
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xs">check</span>
+</div>
+<span class="text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Datas</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-2 group">
+<div class="w-6 h-6 rounded-full bg-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-xs">check</span>
+</div>
+<span class="text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">Acompanhantes</span>
+</div>
+<!-- Phase 4 (Active) -->
+<div class="flex items-center gap-4 px-4 py-3 bg-white dark:bg-[#121c2a] rounded-xl shadow-sm border-l-4 border-primary-container">
+<div class="w-6 h-6 rounded-full bg-primary-container flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-on-primary-container"></div>
+</div>
+<span class="text-sm font-bold text-on-surface">Logística</span>
+</div>
+<!-- Phases 5-8 (Locked) -->
+<div class="flex items-center gap-4 px-4 py-2 opacity-40">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center">
+<span class="text-[10px] font-bold">5</span>
+</div>
+<span class="text-sm font-medium">Atividades</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-2 opacity-40">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center">
+<span class="text-[10px] font-bold">6</span>
+</div>
+<span class="text-sm font-medium">Alimentação</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-2 opacity-40">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center">
+<span class="text-[10px] font-bold">7</span>
+</div>
+<span class="text-sm font-medium">Bagagem</span>
+</div>
+<div class="flex items-center gap-4 px-4 py-2 opacity-40">
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center">
+<span class="text-[10px] font-bold">8</span>
+</div>
+<span class="text-sm font-medium">Revisão Final</span>
+</div>
+</div>
+</div>
+<!-- Ad/Highlight Card -->
+<div class="p-6 rounded-2xl bg-gradient-to-br from-primary-container/10 to-primary/5 border border-primary-container/10">
+<span class="material-symbols-outlined text-primary mb-3">auto_awesome</span>
+<p class="text-xs font-semibold text-on-surface leading-relaxed">
+                    A IA do Atlas está analisando as melhores rotas para sua viagem à Toscana.
+                </p>
+</div>
+</aside>
+<!-- Main Wizard Content -->
+<section class="flex-1">
+<div class="max-w-[900px] mx-auto space-y-8">
+<!-- Internal Stepper -->
+<div class="flex items-center justify-center gap-8 py-2">
+<div class="flex items-center gap-2 group cursor-pointer">
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-primary-container text-on-primary-container text-xs font-bold">1</span>
+<span class="text-sm font-bold text-on-surface">Transporte</span>
+</div>
+<div class="h-[1px] w-12 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-bold">2</span>
+<span class="text-sm font-medium">Hospedagem</span>
+</div>
+<div class="h-[1px] w-12 bg-outline-variant/30"></div>
+<div class="flex items-center gap-2 group cursor-pointer opacity-50 hover:opacity-100 transition-opacity">
+<span class="w-7 h-7 flex items-center justify-center rounded-full bg-surface-container-highest text-on-surface-variant text-xs font-bold">3</span>
+<span class="text-sm font-medium">Seguro Viagem</span>
+</div>
+</div>
+<!-- Main Card -->
+<div class="bg-surface-container-lowest rounded-xl p-10 spring-transition">
+<div class="space-y-1 mb-10">
+<h1 class="text-3xl font-bold tracking-tight text-on-surface">Como você pretende se deslocar?</h1>
+<p class="text-on-surface-variant body-lg">A IA vai gerar estimativas de custo baseadas nas suas escolhas.</p>
+</div>
+<!-- Field 1: Main Transport -->
+<div class="space-y-4 mb-12">
+<label class="text-sm font-bold uppercase tracking-wider text-on-surface-variant/70">Transporte principal (ida e volta)</label>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+<button class="flex flex-col items-center justify-center gap-4 p-6 rounded-xl border-2 border-primary-container bg-primary-container/5 spring-transition">
+<span class="text-3xl">✈️</span>
+<span class="font-bold text-on-surface">Avião</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-4 p-6 rounded-xl border-2 border-transparent bg-surface-container-low hover:bg-surface-container spring-transition">
+<span class="text-3xl">🚌</span>
+<span class="font-bold text-on-surface">Ônibus</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-4 p-6 rounded-xl border-2 border-transparent bg-surface-container-low hover:bg-surface-container spring-transition">
+<span class="text-3xl">🚗</span>
+<span class="font-bold text-on-surface">Carro</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-4 p-6 rounded-xl border-2 border-transparent bg-surface-container-low hover:bg-surface-container spring-transition">
+<span class="text-3xl">🚂</span>
+<span class="font-bold text-on-surface">Trem</span>
+</button>
+</div>
+</div>
+<!-- Field 2: Local Transport -->
+<div class="space-y-4 mb-12">
+<label class="text-sm font-bold uppercase tracking-wider text-on-surface-variant/70">Transporte no destino</label>
+<div class="flex flex-wrap gap-3">
+<button class="px-6 py-2.5 rounded-full bg-primary text-white font-medium text-sm spring-transition">🚕 Táxi/Uber</button>
+<button class="px-6 py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-medium text-sm hover:bg-surface-container-highest spring-transition">🚇 Metrô</button>
+<button class="px-6 py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-medium text-sm hover:bg-surface-container-highest spring-transition">🚌 Ônibus Local</button>
+<button class="px-6 py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-medium text-sm hover:bg-surface-container-highest spring-transition">🚲 Bicicleta</button>
+<button class="px-6 py-2.5 rounded-full bg-secondary-container text-on-secondary-container font-medium text-sm hover:bg-surface-container-highest spring-transition">🚶 A pé</button>
+</div>
+</div>
+<!-- Field 3: AI Estimation -->
+<div class="bg-primary-container/10 border border-primary-container/20 rounded-xl p-6 flex gap-4">
+<div class="w-12 h-12 shrink-0 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">lightbulb</span>
+</div>
+<div class="space-y-1">
+<h4 class="font-bold text-on-surface">Estimativa da IA: R$ 1.200 - R$ 1.800 por pessoa</h4>
+<p class="text-sm text-on-surface-variant">Estimativa gerada por IA. Valores reais podem variar conforme a antecedência da reserva e classe escolhida.</p>
+</div>
+</div>
+</div>
+<!-- Bottom Action Bar -->
+<div class="flex items-center justify-between pt-4">
+<button class="flex items-center gap-2 px-6 py-3 text-tertiary font-bold hover:bg-tertiary/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined">arrow_back</span>
+                        Voltar
+                    </button>
+<div class="flex items-center gap-4">
+<span class="text-sm font-bold text-on-surface-variant">Etapa 1 de 3</span>
+<div class="w-24 h-1.5 bg-surface-container rounded-full overflow-hidden">
+<div class="w-1/3 h-full bg-primary-container"></div>
+</div>
+</div>
+<button class="flex items-center gap-2 px-8 py-3 bg-primary-container text-on-primary-container font-bold rounded-lg shadow-sm hover:brightness-105 active:scale-95 transition-all">
+                        Próximo Passo
+                        <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Map Decoration (Floating Background Elements) -->
+<div class="fixed bottom-0 right-0 -z-10 w-1/3 h-1/2 opacity-20 pointer-events-none">
+<img class="w-full h-full object-cover rounded-tl-[100px]" data-alt="faded artistic map of tuscany italy with soft focus and golden color palette" data-location="Tuscany" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwkIT74OJSDn2bSMjHmrdGenqvqn7EmVW0-Dcol54uywc2i4YXS-jfcsu5HH5tq8brKfgqdCw6A75kVxYUYfJiaWhmFyhLLaYspLwoyoJGW2T4RqzCb9A8rYeVwtYSWtDzlw5TsY4P4mEwSuLqfiNCfVCegg9Gnmbv_U8h-4ehfYEjOe2gIyogGSoA-1NJ8YPu0dqH_e3ApSbgGoAyHbuxHdzEraou-G5AZQmngS0k0dqwtUgUEOrHqDrIj2ZtXD_vegMzEZ2y9H63"/>
+</div>
+</body></html>

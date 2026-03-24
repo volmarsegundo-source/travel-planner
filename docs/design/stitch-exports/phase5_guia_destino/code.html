@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas Travel Planner - Guia de Destino: Lisboa</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "secondary-fixed-dim": "#bdc7db",
+              "on-secondary": "#ffffff",
+              "surface-dim": "#d1daef",
+              "on-tertiary-fixed": "#00201d",
+              "tertiary": "#266861",
+              "on-background": "#121c2a",
+              "background": "#f9f9ff",
+              "surface": "#f9f9ff",
+              "inverse-surface": "#273140",
+              "primary-container": "#fe932c",
+              "on-secondary-container": "#596374",
+              "secondary": "#555f70",
+              "on-primary": "#ffffff",
+              "tertiary-container": "#7ab9b0",
+              "on-error": "#ffffff",
+              "primary": "#914d00",
+              "outline": "#887364",
+              "surface-container": "#e7eeff",
+              "on-primary-fixed-variant": "#6e3900",
+              "inverse-primary": "#ffb77e",
+              "surface-container-highest": "#d9e3f7",
+              "outline-variant": "#dcc2b0",
+              "primary-fixed-dim": "#ffb77e",
+              "primary-fixed": "#ffdcc3",
+              "on-tertiary-fixed-variant": "#005049",
+              "surface-container-low": "#f0f3ff",
+              "error-container": "#ffdad6",
+              "on-secondary-fixed-variant": "#3e4757",
+              "on-secondary-fixed": "#121c2a",
+              "on-error-container": "#93000a",
+              "error": "#ba1a1a",
+              "surface-tint": "#914d00",
+              "tertiary-fixed-dim": "#92d2c9",
+              "inverse-on-surface": "#ebf1ff",
+              "secondary-container": "#d6e0f4",
+              "surface-bright": "#f9f9ff",
+              "on-surface": "#121c2a",
+              "secondary-fixed": "#d9e3f7",
+              "on-surface-variant": "#554336",
+              "tertiary-fixed": "#aeefe5",
+              "surface-variant": "#d9e3f7",
+              "on-primary-fixed": "#2f1500",
+              "surface-container-high": "#dfe8fd",
+              "on-tertiary": "#ffffff",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-container": "#004a43",
+              "on-primary-container": "#663400"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(12px);
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        height: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #f0f3ff;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #fe932c;
+        border-radius: 10px;
+      }
+    </style>
+</head>
+<body class="bg-background font-body text-on-surface selection:bg-primary-container/30">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#040d1b] dark:bg-[#040d1b]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold text-[#fe932c] uppercase tracking-tighter font-headline">Atlas Travel Planner</span>
+<nav class="hidden md:flex items-center gap-6 text-sm font-medium">
+<a class="text-white/70 hover:text-white transition-colors" href="#">Explorar</a>
+<a class="text-[#fe932c] border-b-2 border-[#fe932c] pb-1" href="#">Meus Planos</a>
+<a class="text-white/70 hover:text-white transition-colors" href="#">Comunidade</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-white/5 transition-all text-white/70">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 rounded-full hover:bg-white/5 transition-all text-white/70">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Navigation Stepper & Breadcrumb -->
+<section class="mt-[72px] bg-surface-container-low px-6 py-4">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="flex items-center gap-2 text-xs font-medium text-on-surface-variant">
+<span>Minhas Expedições</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span>Viagem à Lisboa</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">Guia do Destino</span>
+</div>
+<div class="flex items-center gap-1">
+<div class="flex items-center">
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="w-4 h-[2px] bg-tertiary-container"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="w-4 h-[2px] bg-tertiary-container"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="w-4 h-[2px] bg-tertiary-container"></div>
+<div class="w-6 h-6 rounded-full bg-tertiary-container text-on-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<div class="w-4 h-[2px] bg-primary-container"></div>
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm shadow-lg shadow-primary-container/20">5</div>
+</div>
+<span class="ml-2 text-xs font-bold text-on-surface">Fase 5: Guia</span>
+</div>
+</div>
+</section>
+<!-- SideNavBar (Desktop Only) -->
+<aside class="fixed left-0 h-full w-64 border-r-0 bg-[#f9f9ff] dark:bg-[#040d1b] hidden lg:flex flex-col gap-4 p-6 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] z-40 mt-[128px]">
+<div class="mb-6">
+<h3 class="text-lg font-bold text-[#040d1b] dark:text-white font-headline">Fase 5</h3>
+<p class="text-sm text-on-surface-variant">Guia de Destino</p>
+</div>
+<nav class="flex flex-col gap-2">
+<a class="flex items-center gap-3 px-4 py-3 text-[#554336] dark:text-white/60 hover:bg-[#e7eeff] dark:hover:bg-white/5 rounded-lg transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="font-['Work_Sans'] text-sm font-medium">Visão Geral</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#554336] dark:text-white/60 hover:bg-[#e7eeff] dark:hover:bg-white/5 rounded-lg transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="event_note">event_note</span>
+<span class="font-['Work_Sans'] text-sm font-medium">Itinerário</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#554336] dark:text-white/60 hover:bg-[#e7eeff] dark:hover:bg-white/5 rounded-lg transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-['Work_Sans'] text-sm font-medium">Gastos</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-[#fe932c] text-[#040d1b] font-bold rounded-lg shadow-sm transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="font-['Work_Sans'] text-sm font-medium">Segurança</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-[#554336] dark:text-white/60 hover:bg-[#e7eeff] dark:hover:bg-white/5 rounded-lg transition-all hover:translate-x-1" href="#">
+<span class="material-symbols-outlined" data-icon="photo_camera">photo_camera</span>
+<span class="font-['Work_Sans'] text-sm font-medium">Atrações</span>
+</a>
+</nav>
+<div class="mt-auto">
+<button class="w-full bg-[#fe932c] text-[#040d1b] py-3 rounded-lg font-bold text-sm shadow-md hover:brightness-110 transition-all">Finalizar Plano</button>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="lg:ml-64 p-6 md:p-10 pb-32">
+<header class="mb-10 max-w-5xl">
+<div class="flex items-center gap-3 mb-4">
+<span class="bg-primary-fixed text-on-primary-fixed-variant px-3 py-1 rounded-full text-xs font-bold tracking-wide flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                    🤖 Gerado por IA
+                </span>
+</div>
+<h1 class="text-4xl md:text-5xl font-bold font-headline text-on-surface tracking-tight mb-2">Guia do Destino: Lisboa</h1>
+<p class="text-lg text-on-surface-variant font-medium">Explore a alma de Portugal através das sete colinas, da história manuelina e da gastronomia inesquecível.</p>
+</header>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-10 gap-6 max-w-7xl">
+<!-- Card 1: Sobre o Destino (60%) -->
+<div class="md:col-span-6 bg-surface-container-lowest rounded-xl overflow-hidden flex flex-col shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15">
+<div class="h-64 relative">
+<img class="w-full h-full object-cover" data-alt="panoramic sunset view of Lisbon rooftops with the Tagus river in the background and warm golden light over the terracotta tiles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDBxnSsm0TLiRPnlTPIdhYyq4F70UPaoP_SgP5DUKMGQ0SgRQeESzRX_VzHKP865bNpuPfSNEpYgePwEBsgn8qtxCLqvrshZfm6rwJgaPp9pXIHYJ-5p7ngK1XuyvvEmImSf6LXfLhbHsaBw3nXX0by7QNPelo2u2iSSuxt91SmtnpWr1qK5qtuznzNxcZRkQyIBlqGnltTFhMIkXgt-OAlHYtrEp4Uf88rBOwWYtZaICpS-VNftLauoeCS1Hpfrr7xmsO9H_1qiMwF"/>
+<div class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent"></div>
+<span class="absolute bottom-4 left-6 text-white font-headline font-bold text-xl">A Cidade da Luz</span>
+</div>
+<div class="p-8">
+<h2 class="text-xl font-bold font-headline mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary-container">info</span>
+                        Sobre o Destino
+                    </h2>
+<p class="text-on-surface-variant leading-relaxed mb-4">
+                        Lisboa é uma das cidades mais carismáticas e vibrantes da Europa. Uma capital que combina sem esforço a herança tradicional, com o modernismo marcante e o pensamento progressista. 
+                    </p>
+<p class="text-on-surface-variant leading-relaxed">
+                        Como destino de viagem, Lisboa oferece uma história rica e variada, uma vida noturna agitada e um clima glorioso durante todo o ano. É famosa pela sua hospitalidade calorosa, pelos seus bairros históricos como Alfama e pelo inconfundível som do Fado ecoando pelas ruelas.
+                    </p>
+</div>
+</div>
+<!-- Card 2: Informações Rápidas (40%) -->
+<div class="md:col-span-4 bg-surface-container-low rounded-xl p-8 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15">
+<h2 class="text-xl font-bold font-headline mb-6">Informações Rápidas</h2>
+<div class="grid grid-cols-2 gap-y-8 gap-x-4">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">device_thermostat</span>
+<span class="text-xs font-bold uppercase tracking-wider">Clima</span>
+</div>
+<span class="text-lg font-bold text-on-surface">18-25°C</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-xs font-bold uppercase tracking-wider">Moeda</span>
+</div>
+<span class="text-lg font-bold text-on-surface">Euro (€)</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">translate</span>
+<span class="text-xs font-bold uppercase tracking-wider">Idioma</span>
+</div>
+<span class="text-lg font-bold text-on-surface">Português</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">schedule</span>
+<span class="text-xs font-bold uppercase tracking-wider">Fuso Horário</span>
+</div>
+<span class="text-lg font-bold text-on-surface">GMT+0</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">electrical_services</span>
+<span class="text-xs font-bold uppercase tracking-wider">Tomada</span>
+</div>
+<span class="text-lg font-bold text-on-surface">Tipo F (230V)</span>
+</div>
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined">phone_iphone</span>
+<span class="text-xs font-bold uppercase tracking-wider">DDI</span>
+</div>
+<span class="text-lg font-bold text-on-surface">+351</span>
+</div>
+</div>
+</div>
+<!-- Card 3: Dicas de Segurança (50%) -->
+<div class="md:col-span-5 bg-surface-container-lowest rounded-xl p-8 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-start mb-6">
+<h2 class="text-xl font-bold font-headline">Dicas de Segurança</h2>
+<div class="flex items-center gap-2 bg-tertiary/10 text-tertiary px-3 py-1 rounded-full text-xs font-bold">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+                            Seguro
+                        </div>
+</div>
+<ul class="space-y-4">
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-primary-container flex-shrink-0">verified</span>
+<p class="text-on-surface-variant text-sm">Atenção redobrada com carteiristas no Elétrico 28 e em áreas turísticas lotadas como a Baixa.</p>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-primary-container flex-shrink-0">verified</span>
+<p class="text-on-surface-variant text-sm">O calçamento português é belo, mas extremamente escorregadio. Use calçados com boa aderência.</p>
+</li>
+<li class="flex gap-3">
+<span class="material-symbols-outlined text-primary-container flex-shrink-0">verified</span>
+<p class="text-on-surface-variant text-sm">À noite, evite ruas muito desertas no bairro do Intendente e Martim Moniz se estiver sozinho.</p>
+</li>
+</ul>
+</div>
+</div>
+<!-- Card 4: Custos Médios (50%) -->
+<div class="md:col-span-5 bg-surface-container-lowest rounded-xl p-8 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15">
+<h2 class="text-xl font-bold font-headline mb-6">Custos Médios</h2>
+<div class="space-y-4">
+<div class="flex justify-between items-center py-2 border-b border-surface-container">
+<span class="text-on-surface-variant font-medium">Refeição (Econômica)</span>
+<span class="font-bold text-on-surface">€12.00 - €18.00</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-surface-container">
+<span class="text-on-surface-variant font-medium">Táxi / Uber (Trajeto Curto)</span>
+<span class="font-bold text-on-surface">€6.00 - €10.00</span>
+</div>
+<div class="flex justify-between items-center py-2 border-b border-surface-container">
+<span class="text-on-surface-variant font-medium">Café (Expresso)</span>
+<span class="font-bold text-on-surface">€0.80 - €1.20</span>
+</div>
+<div class="flex justify-between items-center py-2">
+<span class="text-on-surface-variant font-medium">Entrada em Atração</span>
+<span class="font-bold text-on-surface">€10.00 - €15.00</span>
+</div>
+</div>
+<div class="mt-6 p-4 bg-surface-container-low rounded-lg flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">lightbulb</span>
+<p class="text-xs text-on-secondary-fixed-variant">Dica: O Lisboa Card oferece transporte grátis e descontos em museus por 24h, 48h ou 72h.</p>
+</div>
+</div>
+<!-- Card 5: O que não perder (100%) -->
+<div class="md:col-span-10 bg-surface-container-lowest rounded-xl p-8 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15">
+<h2 class="text-xl font-bold font-headline mb-6">O que não perder</h2>
+<div class="flex gap-6 overflow-x-auto pb-6 custom-scrollbar">
+<!-- Attraction 1 -->
+<div class="min-w-[280px] bg-white rounded-xl overflow-hidden shadow-sm group">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="architectural close up of the Torre de Belem in Lisbon standing in the river water under a bright blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOdRFF1qlxek3NcFs79UCTA3lPPKHjhaYBU6HbvXy_Roi1pNrQaCwvjRcej78MD_qnu0xWG9Eee1z1KYXBElkshQK-kHFnoqnjhXZFcVpCk0gYagOrIkDvLIswTmtCxxP-LGswJxfXMR6EktK9UPsxBUTOwwvOKG9BojtKX0VXoKtxx9fTxMRHxIz6iOSNyAvapSzUaiD1PVnL1k7MYVp-8D3V16_cImbugZ6Z7EnHPTMfU4ByDzh1aMfKtjYM2nAXu-yZjFWa8SnK"/>
+</div>
+<div class="p-4">
+<h3 class="font-bold font-headline text-on-surface mb-1">Torre de Belém</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2">Ícone da arquitetura manuelina e símbolo das descobertas portuguesas.</p>
+</div>
+</div>
+<!-- Attraction 2 -->
+<div class="min-w-[280px] bg-white rounded-xl overflow-hidden shadow-sm group">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="grand gothic architecture of Mosteiro dos Jeronimos with intricate stone carvings and arched windows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXIE5bYibs9o8DHEf7ZnnVlDm9K1PbUoDgUE7zLt6mZS28l-05AP8XSIGLjq7eGxdFz2A7pYQ0f5Lf2DlRVajMcCyN66WTnxmj6ZcJ7rzl2To9H4cBYE-e8i97J472B1OKXvCL8IpYB9ONZw3M7Ic0colsNGLYxSRIiAixFe2AfokLfy6dnGu1OKPeQECIImjIzP6bSQyLhFS6Ef0vb6xTSXu4IRpOSD4H9mfvgbC4LJt-qJ_QpiksSMdLA7Hs4UgFl8Bs14MFgxtl"/>
+</div>
+<div class="p-4">
+<h3 class="font-bold font-headline text-on-surface mb-1">Mosteiro dos Jerónimos</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2">Um monumento magnífico que guarda os restos mortais de Vasco da Gama.</p>
+</div>
+</div>
+<!-- Attraction 3 -->
+<div class="min-w-[280px] bg-white rounded-xl overflow-hidden shadow-sm group">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="narrow cobblestone streets of Alfama district with laundry hanging from balconies and typical colorful tiles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDzv7G7axeKBB5G9riaF8OqaaFVn3iD-Ge8Qxw8uFEJOqE2tfxtYMEMrSBeXqeaH92bxWmhroBg-jdvHBhJ_nRetyIeqAZPrmPLARk5nwzQ8YnleTgeTRi55K9UTr086kFswofwCSdZFu1KDTwKldiGLLeOYoVvalGh5HBzw8STdqi-Znxoz5hiQdTGmI6T4JfPrOeIfwA3EsNzG0Qvp1Egj8Lghx09zfhJXzf9bDy_iI7LVth-QOCLHZiNCchDqde0XMA0Fq4Gid0"/>
+</div>
+<div class="p-4">
+<h3 class="font-bold font-headline text-on-surface mb-1">Alfama</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2">O bairro mais antigo, labiríntico e charmoso, berço do Fado lisboeta.</p>
+</div>
+</div>
+<!-- Attraction 4 -->
+<div class="min-w-[280px] bg-white rounded-xl overflow-hidden shadow-sm group">
+<div class="h-40 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" data-alt="close up of several golden brown Pasteis de Belem custard tarts with cinnamon sprinkled on top" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVhQBn7IAB6Q0GOH48Whs3Wh1bnYxDdU_iNnhReF51C_96s-dAsHE6CIlJzTtUXpD4UB6b1i219fiez3fjfTtSwv8qCLsEhNG1ycIeYTzN7UOx44ry8qgb5nEzLd0Zmm-1m14R1rdAmi3s6aLMwRKSpIzS9f7GES_c0KNA0CEJhCR2Lw7J39sN0FFbmLJKTgqx2yDVbXbjZMdvqgVzN98HENuH1W67PLHCbjR0L2-uXy47KCRxcUoWxJT_du60RfCoE1t3UFi3yIXL"/>
+</div>
+<div class="p-4">
+<h3 class="font-bold font-headline text-on-surface mb-1">Pastéis de Belém</h3>
+<p class="text-xs text-on-surface-variant line-clamp-2">A receita original e secreta de 1837 que é parada obrigatória em Lisboa.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Disclaimer -->
+<footer class="mt-12 mb-20 text-center max-w-2xl mx-auto">
+<p class="text-[10px] text-on-surface-variant/60 leading-relaxed italic">
+                Aviso: Os dados apresentados, incluindo custos e dicas, são gerados por inteligência artificial com base em padrões históricos e podem sofrer variações sazonais ou mudanças repentinas. Recomendamos a verificação de informações críticas antes da viagem.
+            </p>
+</footer>
+</main>
+<!-- Bottom Action Bar -->
+<nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-surface-container z-50 px-6 py-4 lg:ml-64">
+<div class="max-w-7xl mx-auto flex items-center justify-between">
+<button class="flex items-center gap-2 text-on-surface font-semibold hover:bg-surface-container-low px-4 py-2 rounded-lg transition-all active:scale-[0.98]">
+<span class="material-symbols-outlined">arrow_back</span>
+<span>Voltar</span>
+</button>
+<span class="text-sm font-bold text-on-surface-variant">Fase 5 de 8</span>
+<button class="flex items-center gap-2 bg-[#fe932c] text-[#040d1b] font-bold px-8 py-3 rounded-lg shadow-lg shadow-primary-container/20 hover:brightness-105 active:scale-[0.98] transition-all">
+<span>Avançar</span>
+<span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+</nav>
+</body></html>

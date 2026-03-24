@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas - Roteiro de Viagem</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-morphism {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .custom-spring {
+            transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary-container": "#fe932c",
+                        "on-surface": "#121c2a",
+                        "on-primary-fixed-variant": "#6e3900",
+                        "surface-container-high": "#dfe8fd",
+                        "inverse-surface": "#273140",
+                        "on-secondary-fixed": "#121c2a",
+                        "tertiary-fixed": "#aeefe5",
+                        "surface-container": "#e7eeff",
+                        "tertiary-container": "#7ab9b0",
+                        "surface-tint": "#914d00",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary-container": "#004a43",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#00201d",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "primary": "#914d00",
+                        "background": "#f9f9ff",
+                        "tertiary-fixed-dim": "#92d2c9",
+                        "on-secondary-fixed-variant": "#3e4757",
+                        "surface-dim": "#d1daef",
+                        "on-error-container": "#93000a",
+                        "primary-fixed": "#ffdcc3",
+                        "on-background": "#121c2a",
+                        "surface-variant": "#d9e3f7",
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#d9e3f7",
+                        "surface-container-low": "#f0f3ff",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "on-secondary-container": "#596374",
+                        "on-surface-variant": "#554336",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#dcc2b0",
+                        "surface-container-highest": "#d9e3f7",
+                        "secondary-fixed-dim": "#bdc7db",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary-fixed": "#2f1500",
+                        "inverse-on-surface": "#ebf1ff",
+                        "tertiary": "#266861",
+                        "secondary-container": "#d6e0f4",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f9f9ff",
+                        "primary-fixed-dim": "#ffb77e",
+                        "on-primary-container": "#663400",
+                        "inverse-primary": "#ffb77e",
+                        "outline": "#887364",
+                        "secondary": "#555f70"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Work Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+</head>
+<body class="bg-background font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Bar -->
+<header class="flex justify-between items-center w-full px-8 py-4 max-w-full sticky top-0 z-50 bg-[#f9f9ff] dark:bg-[#040d1b]">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-headline font-extrabold tracking-tight text-[#040d1b] dark:text-white">Atlas</span>
+<nav class="hidden md:flex items-center gap-2 text-sm font-medium">
+<span class="text-on-surface-variant">Minhas Expedições</span>
+<span class="material-symbols-outlined text-xs text-outline-variant">chevron_right</span>
+<span class="text-on-surface-variant">Viagem à Lisboa</span>
+<span class="material-symbols-outlined text-xs text-outline-variant">chevron_right</span>
+<span class="text-primary-container font-bold">Roteiro</span>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3 px-4 py-2 bg-secondary-container rounded-full">
+<span class="text-xs font-bold text-on-secondary-container">180 PA</span>
+<div class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></div>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined p-2 text-on-surface-variant hover:text-primary-container custom-spring transition-all" data-icon="notifications">notifications</button>
+<div class="flex items-center gap-3 pl-4 border-l border-surface-container-high">
+<img alt="User Profile" class="w-10 h-10 rounded-full object-cover border-2 border-surface-container-high" data-alt="Close up portrait of a smiling young man with a travel hat, warm outdoor natural lighting, professional photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9oW7cMENqEveHblU12XRxagdJEh3rjpQkula6AuMk20Gxi7YbbQlOUW5n95lIBmUAC34EYsRFVrO82D5IEeO7rOdo9OpW6ZaxDnWv-KBwKcm49VaocnHIdPlGgldMGay2B9vZETsCaOyf3StybM6i71Y-DaMkvb5qHXKBgY-1Lt8621HzsL_2GIu76BuZ7AA9IMsMrGdZNThSF3mBEZWCY7xarGJq5HEASZE4QPHAQYDbbKXomks1mg5OKQfA7qBZuOloIuklTf-p"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Phase Separator Line (No-Line Rule: tonal transition) -->
+<div class="h-[1px] w-full bg-surface-container-low"></div>
+<main class="max-w-[1440px] mx-auto min-h-screen">
+<!-- Progress Stepper Section -->
+<section class="px-8 py-10 bg-surface-container-low">
+<div class="flex flex-col gap-6">
+<div class="flex justify-between items-center">
+<div class="flex items-center gap-8 w-full max-w-5xl">
+<!-- Completed Phases 1-5 -->
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="check">check</span>
+</div>
+<div class="h-1 w-12 bg-tertiary-fixed-dim rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="check">check</span>
+</div>
+<div class="h-1 w-12 bg-tertiary-fixed-dim rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="check">check</span>
+</div>
+<div class="h-1 w-12 bg-tertiary-fixed-dim rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="check">check</span>
+</div>
+<div class="h-1 w-12 bg-tertiary-fixed-dim rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant">
+<span class="material-symbols-outlined text-sm font-bold" data-icon="check">check</span>
+</div>
+<div class="h-1 w-12 bg-primary-container rounded-full"></div>
+</div>
+<!-- Active Phase 6 -->
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary ring-4 ring-primary-fixed-dim">
+<span class="font-bold">6</span>
+</div>
+<div class="h-1 w-12 bg-surface-container-high rounded-full"></div>
+</div>
+<!-- Locked Phases 7-8 -->
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant opacity-50">
+<span class="material-symbols-outlined text-sm" data-icon="lock">lock</span>
+</div>
+<div class="h-1 w-12 bg-surface-container-high rounded-full"></div>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant opacity-50">
+<span class="material-symbols-outlined text-sm" data-icon="lock">lock</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<p class="text-sm font-medium text-on-surface-variant">Fase 6 de 8</p>
+<p class="text-lg font-headline font-bold text-on-surface">Roteiro Detalhado</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Content 60/40 Split -->
+<div class="flex flex-col md:flex-row min-h-screen">
+<!-- Left Column (60%) -->
+<section class="w-full md:w-3/5 px-8 py-12 bg-surface">
+<header class="flex flex-col gap-6 mb-12">
+<div class="flex justify-between items-start">
+<div>
+<h1 class="text-5xl font-headline font-extrabold tracking-tight text-on-surface mb-2">Seu Roteiro: Lisboa</h1>
+<p class="text-lg text-on-surface-variant font-medium">12 dias • 2 viajantes • Cultura &amp; Gastronomia</p>
+</div>
+<div class="flex gap-4">
+<button class="flex items-center gap-2 px-6 py-3 rounded-lg border-2 border-primary-container text-on-primary-container font-bold custom-spring hover:bg-primary-container/5 transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="refresh">refresh</span>
+                                Regenerar Roteiro (80 PA)
+                            </button>
+<button class="flex items-center gap-2 px-6 py-3 rounded-lg text-on-surface-variant font-bold hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-xl" data-icon="download">download</span>
+                                Exportar PDF
+                            </button>
+</div>
+</div>
+<!-- Day Selector Pills -->
+<div class="flex gap-3 overflow-x-auto hide-scrollbar py-2">
+<button class="flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl bg-primary-container text-on-primary-container shadow-lg custom-spring">
+<span class="text-sm font-bold">Dia 1</span>
+<span class="text-xs opacity-80">15 Mar</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="text-sm font-bold">Dia 2</span>
+<span class="text-xs">16 Mar</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="text-sm font-bold">Dia 3</span>
+<span class="text-xs">17 Mar</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="text-sm font-bold">Dia 4</span>
+<span class="text-xs">18 Mar</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="text-sm font-bold">Dia 5</span>
+<span class="text-xs">19 Mar</span>
+</button>
+<button class="flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl bg-surface-container-lowest text-on-surface-variant hover:bg-surface-container-low transition-all">
+<span class="text-sm font-bold">Dia 6</span>
+<span class="text-xs">20 Mar</span>
+</button>
+</div>
+</header>
+<!-- Timeline Container -->
+<div class="flex flex-col gap-8 relative">
+<h2 class="text-2xl font-headline font-bold text-on-surface border-l-4 border-primary-container pl-6 mb-4">Dia 1 — Chegada e Alfama</h2>
+<!-- Vertical Line (Implicit through layout spacing and circles) -->
+<div class="absolute left-[7px] top-24 bottom-0 w-0.5 bg-surface-container-high hidden md:block"></div>
+<!-- Entry 1 -->
+<div class="flex gap-8 group">
+<div class="relative z-10 pt-1">
+<div class="w-4 h-4 rounded-full bg-primary-container ring-4 ring-surface"></div>
+</div>
+<div class="flex-1 bg-surface-container-lowest p-6 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<span class="text-sm font-bold text-primary-container">09:00</span>
+<span class="bg-surface-container-low px-3 py-1 rounded-full text-xs font-medium text-on-surface-variant">Logística</span>
+</div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Check-in no hotel</h3>
+<p class="text-on-surface-variant mb-4">Hotel Lisboa Centro • Avenida da Liberdade</p>
+<div class="flex items-center gap-2 bg-primary-fixed text-on-primary-fixed-variant px-4 py-2 rounded-lg text-sm italic">
+<span class="material-symbols-outlined text-lg" data-icon="lightbulb">lightbulb</span>
+                                💡 Chegue cedo para deixar as malas e aproveitar a manhã.
+                            </div>
+</div>
+</div>
+<!-- Entry 2 -->
+<div class="flex gap-8 group">
+<div class="relative z-10 pt-1">
+<div class="w-4 h-4 rounded-full bg-tertiary ring-4 ring-surface"></div>
+</div>
+<div class="flex-1 bg-surface-container-lowest p-6 rounded-xl border-l-8 border-tertiary-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<span class="text-sm font-bold text-tertiary">10:00</span>
+<span class="bg-tertiary-fixed px-3 py-1 rounded-full text-xs font-bold text-on-tertiary-fixed-variant">🏛️ Cultura</span>
+</div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Explorar Alfama</h3>
+<p class="text-on-surface-variant mb-4 leading-relaxed">Caminhe pelas ruas medievais e becos estreitos do bairro mais antigo de Lisboa. Não perca a vista do Miradouro de Santa Luzia.</p>
+<div class="flex gap-4 text-xs font-bold text-on-surface-variant/70 uppercase tracking-wider">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span> 2h</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="payments">payments</span> Grátis</span>
+</div>
+</div>
+</div>
+<!-- Entry 3 -->
+<div class="flex gap-8 group">
+<div class="relative z-10 pt-1">
+<div class="w-4 h-4 rounded-full bg-orange-400 ring-4 ring-surface"></div>
+</div>
+<div class="flex-1 bg-surface-container-lowest p-6 rounded-xl border-l-8 border-primary-container shadow-sm hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-2">
+<span class="text-sm font-bold text-primary-container">12:30</span>
+<span class="bg-primary-fixed px-3 py-1 rounded-full text-xs font-bold text-on-primary-fixed-variant">🍕 Gastronomia</span>
+</div>
+<h3 class="text-xl font-bold text-on-surface mb-1">Almoço no Time Out Market</h3>
+<p class="text-on-surface-variant mb-4">Mercado da Ribeira • Uma seleção curada dos melhores chefs de Portugal em um só lugar.</p>
+<div class="flex gap-4 text-xs font-bold text-on-surface-variant/70 uppercase tracking-wider">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="schedule">schedule</span> 1.5h</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="payments">payments</span> R$ 80-120</span>
+</div>
+</div>
+</div>
+<!-- Summary Card -->
+<div class="mt-8 bg-surface-container p-8 rounded-xl flex items-center justify-between">
+<div class="flex items-center gap-6">
+<div class="p-4 bg-surface-container-lowest rounded-xl text-primary-container">
+<span class="material-symbols-outlined text-3xl" data-icon="analytics">analytics</span>
+</div>
+<div>
+<h4 class="text-xl font-headline font-bold text-on-surface">Resumo do Dia 1</h4>
+<p class="text-on-surface-variant">Lisboa: Coração e Alma</p>
+</div>
+</div>
+<div class="flex gap-10">
+<div class="text-center">
+<p class="text-2xl font-headline font-extrabold text-on-surface">4</p>
+<p class="text-xs uppercase font-bold text-on-surface-variant opacity-60">Atividades</p>
+</div>
+<div class="text-center">
+<p class="text-2xl font-headline font-extrabold text-on-surface">8h</p>
+<p class="text-xs uppercase font-bold text-on-surface-variant opacity-60">Duração</p>
+</div>
+<div class="text-center">
+<p class="text-2xl font-headline font-extrabold text-on-surface">R$ 250</p>
+<p class="text-xs uppercase font-bold text-on-surface-variant opacity-60">Custo Médio</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column (40%) -->
+<aside class="w-full md:w-2/5 h-screen sticky top-20 bg-surface-container-low p-8 hidden md:block">
+<div class="relative w-full h-full rounded-2xl overflow-hidden shadow-xl border border-white/20">
+<!-- Map Placeholder -->
+<div class="absolute inset-0 bg-[#dbe4f4]">
+<div class="w-full h-full opacity-40 mix-blend-multiply" data-alt="Detailed abstract top-down map of Lisbon streets with subtle vector lines and landmarks" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAu7D7SEoXtj5SORrhYXlY5mPRk-HNUlWew8xeKBvSlV-gL4GCx-KbqJ_fd6Ag85Bc2ETqoMRcKxDednthyYKJ2KVWYtMHKh9ZSje4bjTeVfoQJFJ6sXsQ6oG53CmvNTOk2IG9X86P6iKg3vFP-Eyok7C2s5O_-zf-CLhT8EoCbf6xiwlkIyumINTvTMiAxMH_5MkS_wVe9q1VtLPYI5XR-r2lFxVudow-2trO8ywAkJ_mHjnJGJHrN8XyaIjMWMpHytgrFZnoYF0Wl'); background-size: cover;">
+</div>
+<!-- Simulated Markers -->
+<div class="absolute top-1/4 left-1/3 w-8 h-8 bg-primary-container rounded-full border-4 border-white flex items-center justify-center text-on-primary-container shadow-lg">
+<span class="material-symbols-outlined text-sm" data-icon="hotel">hotel</span>
+</div>
+<div class="absolute top-1/2 left-1/2 w-8 h-8 bg-tertiary rounded-full border-4 border-white flex items-center justify-center text-white shadow-lg">
+<span class="material-symbols-outlined text-sm" data-icon="museum">museum</span>
+</div>
+<div class="absolute bottom-1/3 right-1/4 w-8 h-8 bg-primary-container rounded-full border-4 border-white flex items-center justify-center text-on-primary-container shadow-lg">
+<span class="material-symbols-outlined text-sm" data-icon="restaurant">restaurant</span>
+</div>
+<!-- Interactive Label Overlay -->
+<div class="absolute top-6 left-6 glass-morphism px-4 py-2 rounded-lg flex items-center gap-2 border border-white/40">
+<span class="material-symbols-outlined text-primary-container" data-icon="map">map</span>
+<span class="font-bold text-on-surface">Mapa interativo</span>
+</div>
+<!-- Map Controls -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 glass-morphism p-2 rounded-xl shadow-lg border border-white/40">
+<button class="p-3 bg-white rounded-lg hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface" data-icon="zoom_in">zoom_in</span>
+</button>
+<button class="p-3 bg-white rounded-lg hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface" data-icon="zoom_out">zoom_out</span>
+</button>
+<div class="w-[1px] h-8 bg-surface-container-high mx-1"></div>
+<button class="p-3 bg-white rounded-lg hover:bg-surface-container-low transition-all">
+<span class="material-symbols-outlined text-on-surface" data-icon="my_location">my_location</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<footer class="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-8px_24px_rgba(4,13,27,0.04)] z-50 px-8 py-4">
+<div class="max-w-[1440px] mx-auto flex justify-between items-center">
+<button class="flex items-center gap-2 text-on-surface-variant font-bold hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+                Voltar para Guia
+            </button>
+<div class="flex flex-col items-center">
+<span class="text-xs font-bold text-on-surface-variant/60 uppercase tracking-widest mb-1">Progresso Total</span>
+<div class="flex gap-1">
+<div class="w-6 h-1 bg-tertiary-fixed-dim rounded-full"></div>
+<div class="w-6 h-1 bg-tertiary-fixed-dim rounded-full"></div>
+<div class="w-6 h-1 bg-tertiary-fixed-dim rounded-full"></div>
+<div class="w-6 h-1 bg-tertiary-fixed-dim rounded-full"></div>
+<div class="w-6 h-1 bg-tertiary-fixed-dim rounded-full"></div>
+<div class="w-6 h-1 bg-primary-container rounded-full"></div>
+<div class="w-6 h-1 bg-surface-container-high rounded-full"></div>
+<div class="w-6 h-1 bg-surface-container-high rounded-full"></div>
+</div>
+</div>
+<button class="flex items-center gap-2 bg-on-surface text-white px-8 py-3 rounded-lg font-bold hover:bg-primary-container hover:text-on-primary-container custom-spring transition-all">
+                Ver Sumário
+                <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</footer>
+</body></html>

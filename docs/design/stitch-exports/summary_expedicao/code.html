@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sumário da Expedição | Modern Explorer</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#914d00",
+              "tertiary-fixed-dim": "#92d2c9",
+              "surface-bright": "#f9f9ff",
+              "inverse-on-surface": "#ebf1ff",
+              "on-tertiary-fixed": "#00201d",
+              "secondary-container": "#d6e0f4",
+              "tertiary-container": "#7ab9b0",
+              "surface-container-highest": "#d9e3f7",
+              "surface-dim": "#d1daef",
+              "on-error": "#ffffff",
+              "surface": "#f9f9ff",
+              "on-background": "#121c2a",
+              "tertiary": "#266861",
+              "on-surface": "#121c2a",
+              "error-container": "#ffdad6",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed": "#ffdcc3",
+              "on-secondary-fixed": "#121c2a",
+              "secondary-fixed": "#d9e3f7",
+              "on-tertiary": "#ffffff",
+              "primary-container": "#fe932c",
+              "on-primary-fixed-variant": "#6e3900",
+              "surface-container-high": "#dfe8fd",
+              "secondary": "#555f70",
+              "inverse-surface": "#273140",
+              "on-secondary-fixed-variant": "#3e4757",
+              "surface-tint": "#914d00",
+              "surface-container": "#e7eeff",
+              "on-tertiary-fixed-variant": "#005049",
+              "on-surface-variant": "#554336",
+              "error": "#ba1a1a",
+              "on-tertiary-container": "#004a43",
+              "on-primary": "#ffffff",
+              "background": "#f9f9ff",
+              "inverse-primary": "#ffb77e",
+              "outline": "#887364",
+              "primary-fixed-dim": "#ffb77e",
+              "outline-variant": "#dcc2b0",
+              "on-error-container": "#93000a",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed": "#2f1500",
+              "secondary-fixed-dim": "#bdc7db",
+              "surface-variant": "#d9e3f7",
+              "surface-container-low": "#f0f3ff",
+              "on-secondary-container": "#596374",
+              "tertiary-fixed": "#aeefe5",
+              "on-primary-container": "#663400"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-glass {
+            backdrop-filter: blur(12px);
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+        .spring-transition {
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- TopNavBar -->
+<header class="bg-[#f9f9ff] dark:bg-[#040d1b] flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto sticky top-0 z-50">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-bold text-[#040d1b] dark:text-[#f9f9ff] font-headline tracking-tight">Modern Explorer</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-[#040d1b] dark:text-[#f9f9ff] opacity-70 hover:text-[#fe932c] transition-colors duration-200 font-medium" href="#">Explorar</a>
+<a class="text-[#fe932c] border-b-2 border-[#fe932c] pb-1 font-medium" href="#">Minhas Viagens</a>
+<a class="text-[#040d1b] dark:text-[#f9f9ff] opacity-70 hover:text-[#fe932c] transition-colors duration-200 font-medium" href="#">Roteiros</a>
+<a class="text-[#040d1b] dark:text-[#f9f9ff] opacity-70 hover:text-[#fe932c] transition-colors duration-200 font-medium" href="#">Comunidade</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="material-symbols-outlined text-on-surface-variant p-2 spring-transition hover:bg-surface-container">notifications</button>
+<button class="material-symbols-outlined text-on-surface-variant p-2 spring-transition hover:bg-surface-container">redeem</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="Avatar do usuário" data-alt="close-up portrait of a smiling young man in a clean studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPsuug7LEyCn_eSHw68Ey8d8Qmx2TZq0Y4vPnRYvLOGmw6td7uSw03dUfZl_LINVcmNhzlSvnwMLf3-FZQEjJJe7mfsHw0gEIs0bt1YWyWI4p5LorU71be7nmQeci8zOOXBgytRa4OnlZlk5b8dizBf_wRJJp5bPM2eaXE1uSPtxBFZItTt4a4N8pH7ScL5RgHxtVhEjhUxmd_y-UZjjqrnSNE6sDZDU3Hd2zS1KmiQ-uzZwQc5YxKQwxOHJ_9Ke9pkoeJWRpGUkO8"/>
+</div>
+</div>
+</header>
+<main class="max-w-7xl mx-auto px-8 py-12 pb-24">
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 mb-8 text-sm text-on-surface-variant">
+<span class="hover:text-primary cursor-pointer">Minhas Expedições</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="hover:text-primary cursor-pointer">Lisboa 2026</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-primary font-semibold">Sumário</span>
+</nav>
+<!-- Header Section -->
+<section class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
+<div class="space-y-4">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary-container/20 text-on-tertiary-fixed-variant text-sm font-semibold">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    ✅ Planejamento Completo
+                </div>
+<h1 class="text-5xl font-bold font-headline text-on-surface tracking-tight leading-tight">Expedição Lisboa 2026</h1>
+<p class="text-xl text-on-surface-variant font-medium">
+                    São Paulo → Lisboa • 15-26 Mar 2026 • 12 dias • 2 viajantes
+                </p>
+</div>
+<div class="flex gap-3">
+<button class="px-6 py-3 rounded-lg border-2 border-outline-variant text-on-surface font-semibold flex items-center gap-2 spring-transition hover:bg-surface-container-low active:scale-95">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+                    Exportar PDF
+                </button>
+<button class="px-6 py-3 rounded-lg border-2 border-outline-variant text-on-surface font-semibold flex items-center gap-2 spring-transition hover:bg-surface-container-low active:scale-95">
+<span class="material-symbols-outlined">share</span>
+                    Compartilhar
+                </button>
+<button class="px-6 py-3 rounded-lg bg-primary-container text-on-background font-bold flex items-center gap-2 spring-transition hover:brightness-110 active:scale-95">
+<span class="material-symbols-outlined">edit</span>
+                    Editar
+                </button>
+</div>
+</section>
+<!-- Main Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+<!-- Orçamento Total (Donut Chart) -->
+<div class="md:col-span-4 bg-surface-container-lowest p-8 rounded-xl shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15 flex flex-col justify-between">
+<div>
+<h3 class="text-on-surface-variant font-semibold mb-2">Orçamento Total</h3>
+<div class="text-3xl font-bold font-headline text-on-surface">R$ 8.400</div>
+</div>
+<div class="relative w-48 h-48 mx-auto my-8 flex items-center justify-center">
+<!-- Simple SVG Donut Representation -->
+<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#e7eeff" stroke-width="12"></circle>
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#fe932c" stroke-dasharray="251" stroke-dashoffset="150" stroke-linecap="round" stroke-width="12"></circle>
+<circle cx="50" cy="50" fill="transparent" r="40" stroke="#266861" stroke-dasharray="251" stroke-dashoffset="200" stroke-linecap="round" stroke-width="12"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xs text-on-surface-variant font-medium">Saúde</span>
+<span class="text-lg font-bold">100%</span>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 text-xs font-medium">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary-container"></div>
+<span class="text-on-surface-variant">Transporte 35%</span>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary"></div>
+<span class="text-on-surface-variant">Hospedagem 40%</span>
+</div>
+</div>
+</div>
+<!-- Roteiro & Checklist Container -->
+<div class="md:col-span-4 flex flex-col gap-6">
+<!-- Roteiro -->
+<div class="bg-surface-container-lowest p-8 rounded-xl flex-1 border border-outline-variant/15">
+<h3 class="text-on-surface-variant font-semibold mb-4">Roteiro</h3>
+<div class="flex items-center gap-4 mb-6">
+<div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">calendar_month</span>
+</div>
+<div>
+<div class="text-xl font-bold">12 dias</div>
+<div class="text-sm text-on-surface-variant">38 atividades</div>
+</div>
+</div>
+<!-- Mini Calendar Visual -->
+<div class="grid grid-cols-7 gap-1">
+<div class="h-8 rounded bg-primary-container/20"></div>
+<div class="h-8 rounded bg-primary-container/20"></div>
+<div class="h-8 rounded bg-primary-container"></div>
+<div class="h-8 rounded bg-primary-container"></div>
+<div class="h-8 rounded bg-primary-container"></div>
+<div class="h-8 rounded bg-primary-container"></div>
+<div class="h-8 rounded bg-primary-container"></div>
+<!-- Day indicators... -->
+</div>
+</div>
+<!-- Checklist -->
+<div class="bg-surface-container-lowest p-8 rounded-xl flex-1 border border-outline-variant/15">
+<h3 class="text-on-surface-variant font-semibold mb-4">Checklist</h3>
+<div class="flex justify-between items-end mb-2">
+<span class="text-2xl font-bold">12/18 itens</span>
+<span class="text-sm font-bold text-tertiary">67%</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-2/3"></div>
+</div>
+<p class="mt-4 text-sm text-on-surface-variant">Faltam documentos e seguro.</p>
+</div>
+</div>
+<!-- Gamificação -->
+<div class="md:col-span-4 bg-[#040d1b] p-8 rounded-xl text-white relative overflow-hidden group border border-white/5">
+<div class="absolute -top-12 -right-12 w-48 h-48 bg-primary-container rounded-full opacity-10 group-hover:opacity-20 transition-opacity"></div>
+<h3 class="text-primary-container font-semibold mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+                    Status da Expedição
+                </h3>
+<div class="mb-8">
+<div class="text-sm opacity-60 mb-1">Rank Atual</div>
+<div class="text-3xl font-headline font-bold">Aventureiro</div>
+</div>
+<div class="flex items-center gap-3 mb-8">
+<div class="bg-white/10 px-4 py-2 rounded-lg font-bold text-primary-container">+180 PA</div>
+<div class="text-sm opacity-60">Próximo nível: Explorador</div>
+</div>
+<div class="flex gap-4">
+<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center" title="Explorador de Lisboa">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">castle</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center" title="Planejador Fiel">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
+</div>
+<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center" title="Veloz">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+</div>
+</div>
+<!-- Fases (Wide) -->
+<div class="md:col-span-12 bg-surface-container-low p-10 rounded-xl border border-outline-variant/15">
+<h3 class="text-on-surface-variant font-semibold mb-8">Fluxo de Preparação</h3>
+<div class="relative flex justify-between items-center">
+<div class="absolute top-1/2 left-0 w-full h-1 bg-surface-container-highest -translate-y-1/2 -z-0"></div>
+<div class="absolute top-1/2 left-0 w-3/4 h-1 bg-tertiary -translate-y-1/2 -z-0 transition-all duration-1000"></div>
+<!-- Phase Markers -->
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">1</div>
+<span class="text-xs font-bold">Destino</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">2</div>
+<span class="text-xs font-bold">Voos</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">3</div>
+<span class="text-xs font-bold">Estadia</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">4</div>
+<span class="text-xs font-bold">Roteiro</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">5</div>
+<span class="text-xs font-bold">Transporte</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">6</div>
+<span class="text-xs font-bold">Seguro</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center text-on-surface-variant text-xs font-bold">
+<span class="material-symbols-outlined text-sm">lock</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant">Check-in</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center text-on-surface-variant text-xs font-bold">
+<span class="material-symbols-outlined text-sm">lock</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant">Partida</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer / Disclaimer -->
+<div class="flex flex-col md:flex-row justify-between items-center gap-6 pt-12 border-t border-surface-container-high">
+<div class="flex flex-col gap-1 text-sm text-on-surface-variant opacity-70">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">smart_toy</span>
+                    🤖 Gerado com IA
+                </div>
+<div>Última atualização: 23 Mar 2026, 14:30</div>
+</div>
+<button class="px-8 py-3 rounded-lg border-2 border-outline text-on-surface font-bold spring-transition hover:bg-surface-container active:scale-95">
+                Voltar ao Dashboard
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-[#ffffff]/70 dark:bg-[#040d1b]/70 backdrop-blur-xl flex justify-around items-center px-6 py-3 pb-safe shadow-[0px_-4px_24px_rgba(4,13,27,0.06)] rounded-t-3xl">
+<button class="flex flex-col items-center justify-center text-[#554336] dark:text-[#d6e0f4] p-2">
+<span class="material-symbols-outlined">home</span>
+<span class="text-xs font-medium font-['Work_Sans'] mt-1">Início</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#040d1b] dark:text-[#040d1b] bg-[#fe932c] rounded-xl px-4 py-1 scale-110 transition-all">
+<span class="material-symbols-outlined">luggage</span>
+<span class="text-xs font-medium font-['Work_Sans'] mt-1">Viagens</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#554336] dark:text-[#d6e0f4] p-2">
+<span class="material-symbols-outlined">bookmark</span>
+<span class="text-xs font-medium font-['Work_Sans'] mt-1">Salvos</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#554336] dark:text-[#d6e0f4] p-2">
+<span class="material-symbols-outlined">person</span>
+<span class="text-xs font-medium font-['Work_Sans'] mt-1">Perfil</span>
+</button>
+</nav>
+<!-- Map Background Aesthetic Element (Subtle) -->
+<div class="fixed top-0 right-0 -z-10 w-1/3 h-full opacity-[0.03] pointer-events-none">
+<img class="w-full h-full object-cover" data-alt="minimalist white architectural map lines and topography patterns on a light background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5KMjuyGCPFo0DRWAIu4FOTtr9T1rIKOJ3YrBxrTJ14HvEejY3wkjAT3WJXDJYQZHrAiLzMveZPTGbez55vkXitWmCW-jdhvC2Px8BvK5xCy3NPhFjTmc8A24b2m-h0-L1ezjWuW89m4gY-5d81k1RxC4yeUa7Auaxag-htRp2yLolk2k4BeQHSayD7qsVVJK8-2GuX0hTiO0QnUMn1abY-f3v2Lps3f4tg8nBcXPbyDQvSQ6iPuEs0nZkNtLunwPe_IiZwZ8p_E3a"/>
+</div>
+</body></html>

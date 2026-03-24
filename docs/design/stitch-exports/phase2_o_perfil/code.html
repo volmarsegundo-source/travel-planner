@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Atlas - O Perfil (Fase 2)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-tertiary-fixed": "#00201d",
+                        "on-surface": "#121c2a",
+                        "on-secondary-fixed": "#121c2a",
+                        "surface-variant": "#d9e3f7",
+                        "secondary-fixed": "#d9e3f7",
+                        "on-background": "#121c2a",
+                        "tertiary-container": "#7ab9b0",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#004a43",
+                        "on-secondary-fixed-variant": "#3e4757",
+                        "on-tertiary-fixed-variant": "#005049",
+                        "outline-variant": "#dcc2b0",
+                        "surface-bright": "#f9f9ff",
+                        "on-tertiary": "#ffffff",
+                        "outline": "#887364",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-surface": "#273140",
+                        "primary-fixed-dim": "#ffb77e",
+                        "tertiary-fixed": "#aeefe5",
+                        "surface-container-low": "#f0f3ff",
+                        "surface": "#f9f9ff",
+                        "primary-fixed": "#ffdcc3",
+                        "surface-tint": "#914d00",
+                        "surface-dim": "#d1daef",
+                        "on-error-container": "#93000a",
+                        "surface-container": "#e7eeff",
+                        "inverse-on-surface": "#ebf1ff",
+                        "secondary-container": "#d6e0f4",
+                        "on-primary-fixed": "#2f1500",
+                        "background": "#f9f9ff",
+                        "on-primary-container": "#663400",
+                        "error": "#ba1a1a",
+                        "on-primary-fixed-variant": "#6e3900",
+                        "tertiary-fixed-dim": "#92d2c9",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#ffffff",
+                        "on-secondary-container": "#596374",
+                        "on-error": "#ffffff",
+                        "tertiary": "#266861",
+                        "on-surface-variant": "#554336",
+                        "secondary": "#555f70",
+                        "primary": "#914d00",
+                        "secondary-fixed-dim": "#bdc7db",
+                        "inverse-primary": "#ffb77e",
+                        "primary-container": "#fe932c",
+                        "surface-container-high": "#dfe8fd",
+                        "surface-container-highest": "#d9e3f7"
+                    },
+                    fontFamily: {
+                        "headline": ["Plus Jakarta Sans"],
+                        "body": ["Work Sans"],
+                        "label": ["Work Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .active-pulse {
+            box-shadow: 0 0 0 4px rgba(254, 147, 44, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen flex flex-col">
+<!-- Top Navigation Bar -->
+<header class="fixed top-0 w-full z-50 bg-[#f9f9ff] flex justify-between items-center px-6 h-20 w-full">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2">
+<span class="text-2xl font-bold text-[#040d1b] font-headline tracking-tight">Atlas</span>
+</div>
+<nav class="hidden md:flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="hover:text-on-surface cursor-pointer">Minhas Expedições</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="hover:text-on-surface cursor-pointer truncate max-w-[120px]">Viagem à Toscana</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="font-semibold text-on-surface">O Perfil</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-surface-container-low px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">toll</span>
+<span class="font-bold text-on-surface">180 PA</span>
+</div>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-colors relative">
+<span class="material-symbols-outlined text-on-surface">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full border-2 border-background"></span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-container">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="portrait of a smiling traveler with a warm sunlit background, professional photography style, high detail" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWQ8rOvlKFQ49sMaD55bjUWI0iVPrGRV1_hdcFtsnwZZ-1UjZy4SNsroTTczxoxnRCkaGjo6U1PnsGDScOW2iKNEQwULdsuSIeTSnSywQbdgd92DjkLtTGNb8-ILqtX_mo7YFjmZXluEdKd5DQR5de7VbHDhiC3l5mTR2xkx1XJWQlByl-2sw6UpM5G59Ie9wvvm2h0aKu1eQ-Hiwl6XhERI7suvZBqR9PzMt24BHMvBADJKGq0MANxudkaeEb9WBjcmQJkUElbwPj"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-grow pt-32 pb-24 px-6 max-w-5xl mx-auto w-full">
+<!-- Progress Stepper -->
+<div class="mb-12">
+<div class="flex items-center justify-between mb-4">
+<div class="flex gap-2 items-center">
+<span class="text-xs font-bold text-primary tracking-widest uppercase font-headline">Fase 2 de 8</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<!-- Completed -->
+<div class="h-2 w-full bg-tertiary-fixed rounded-full flex items-center justify-center relative">
+<div class="absolute -top-8 left-0 text-[10px] font-bold text-on-tertiary-fixed-variant">A Inspiração</div>
+</div>
+<!-- Active -->
+<div class="h-3 w-full bg-primary-container rounded-full active-pulse relative">
+<div class="absolute -top-8 left-0 text-[10px] font-bold text-on-primary-container">O Perfil</div>
+</div>
+<!-- Pending -->
+<div class="h-2 w-full bg-surface-container-high rounded-full opacity-50"></div>
+<div class="h-2 w-full bg-surface-container-high rounded-full opacity-50"></div>
+<div class="h-2 w-full bg-surface-container-high rounded-full opacity-50"></div>
+<div class="h-2 w-full bg-surface-container-high rounded-full opacity-50"></div>
+<!-- Locked -->
+<div class="h-2 w-full bg-surface-container-low border border-outline-variant/20 rounded-full flex items-center justify-center relative">
+<span class="material-symbols-outlined text-[10px] text-on-surface-variant/40">lock</span>
+</div>
+<div class="h-2 w-full bg-surface-container-low border border-outline-variant/20 rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-surface-variant/40">lock</span>
+</div>
+</div>
+</div>
+<!-- Header -->
+<div class="mb-10 text-center md:text-left">
+<h1 class="text-4xl md:text-5xl font-extrabold text-on-surface font-headline tracking-tight mb-3">Qual é o seu estilo de viagem?</h1>
+<p class="text-lg text-on-surface-variant">Personalize suas preferências para um roteiro sob medida.</p>
+</div>
+<!-- Wizard Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_24px_48px_rgba(4,13,27,0.06)] p-8 md:p-12 space-y-12">
+<!-- Section 1: Estilo de Viagem -->
+<section>
+<div class="flex justify-between items-end mb-6">
+<h2 class="text-xl font-bold text-on-surface flex items-center gap-2">
+                        Estilo de viagem
+                        <span class="text-sm font-normal text-on-surface-variant">(Selecione até 3)</span>
+</h2>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+<!-- Chip Active -->
+<button class="flex items-center justify-between px-6 py-4 bg-primary-container text-on-primary-fixed font-bold rounded-lg border-2 border-primary-container transition-all scale-95 duration-200">
+<span>Praia &amp; Relax</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Chips Inactive -->
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Cultura &amp; História</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-primary-container text-on-primary-fixed font-bold rounded-lg border-2 border-primary-container transition-all">
+<span>Gastronomia</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Natureza &amp; Aventura</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Compras</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Romântica</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Família</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Vida Noturna</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+<button class="flex items-center justify-between px-6 py-4 bg-surface-container-low hover:bg-surface-container text-on-surface-variant font-medium rounded-lg border-2 border-transparent transition-all hover:translate-y-[-2px]">
+<span>Fotografia</span>
+<span class="material-symbols-outlined text-on-surface-variant/20">add</span>
+</button>
+</div>
+</section>
+<!-- Section 2: Orçamento -->
+<section>
+<h2 class="text-xl font-bold text-on-surface mb-6">Faixa de orçamento por pessoa</h2>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Budget Inactive -->
+<button class="flex flex-col p-6 rounded-xl border-2 border-transparent bg-surface-container-low hover:bg-surface-container transition-all group text-left">
+<span class="text-sm font-bold text-on-surface-variant mb-1 group-hover:text-on-surface">Econômico</span>
+<span class="text-2xl font-extrabold text-on-surface mb-2">R$ 50-150<span class="text-sm font-normal text-on-surface-variant">/dia</span></span>
+<p class="text-xs text-on-surface-variant leading-relaxed">Prioriza hostels, transporte público e refeições locais simples.</p>
+</button>
+<!-- Budget Active -->
+<button class="flex flex-col p-6 rounded-xl border-2 border-primary-container bg-surface-container-lowest shadow-[0_0_20px_rgba(254,147,44,0.15)] ring-1 ring-primary-container transition-all text-left relative overflow-hidden">
+<div class="absolute top-0 right-0 p-2">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<span class="text-sm font-bold text-primary mb-1">Moderado</span>
+<span class="text-2xl font-extrabold text-on-surface mb-2">R$ 150-400<span class="text-sm font-normal text-on-surface-variant">/dia</span></span>
+<p class="text-xs text-on-surface-variant leading-relaxed">Hotéis boutique, mix de bistrôs e atrações turísticas principais.</p>
+</button>
+<!-- Budget Inactive -->
+<button class="flex flex-col p-6 rounded-xl border-2 border-transparent bg-surface-container-low hover:bg-surface-container transition-all group text-left">
+<span class="text-sm font-bold text-on-surface-variant mb-1 group-hover:text-on-surface">Premium</span>
+<span class="text-2xl font-extrabold text-on-surface mb-2">R$ 400+<span class="text-sm font-normal text-on-surface-variant">/dia</span></span>
+<p class="text-xs text-on-surface-variant leading-relaxed">Resorts 5 estrelas, gastronomia refinada e experiências exclusivas.</p>
+</button>
+</div>
+</section>
+<!-- Row: Hospedagem & Ritmo -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<!-- Section 3: Hospedagem -->
+<section>
+<h2 class="text-xl font-bold text-on-surface mb-6">Tipo de hospedagem preferida</h2>
+<div class="flex flex-wrap gap-2">
+<button class="px-5 py-2.5 rounded-full bg-primary-container text-on-primary-fixed font-bold text-sm">Hotel</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-medium text-sm transition-colors">Airbnb</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-medium text-sm transition-colors">Hostel</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-medium text-sm transition-colors">Camping</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-low text-on-surface-variant hover:bg-surface-container font-medium text-sm transition-colors">Resort</button>
+</div>
+</section>
+<!-- Section 4: Ritmo -->
+<section>
+<h2 class="text-xl font-bold text-on-surface mb-6">Ritmo de viagem</h2>
+<div class="inline-flex p-1.5 bg-surface-container-low rounded-full gap-1">
+<button class="flex items-center gap-2 px-8 py-2.5 rounded-full text-on-surface-variant font-medium text-sm hover:bg-surface-container transition-colors">
+<span>🐢</span> Tranquilo
+                        </button>
+<button class="flex items-center gap-2 px-8 py-2.5 rounded-full bg-primary-container text-on-primary-fixed font-bold text-sm shadow-sm">
+<span>🐆</span> Intenso
+                        </button>
+</div>
+</section>
+</div>
+<!-- Section 5: Restrições Alimentares -->
+<section>
+<h2 class="text-xl font-bold text-on-surface mb-6 flex items-center gap-2">
+                    Restrições alimentares
+                    <span class="text-sm font-normal text-on-surface-variant">(opcional)</span>
+</h2>
+<div class="flex flex-wrap gap-2">
+<button class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface-variant border border-outline-variant/10 hover:border-primary-container/30 transition-all text-xs font-semibold">Vegetariano</button>
+<button class="px-4 py-2 rounded-lg bg-primary-container/10 text-primary border border-primary-container/30 text-xs font-bold">Vegano</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface-variant border border-outline-variant/10 hover:border-primary-container/30 transition-all text-xs font-semibold">Sem Glúten</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface-variant border border-outline-variant/10 hover:border-primary-container/30 transition-all text-xs font-semibold">Sem Lactose</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface-variant border border-outline-variant/10 hover:border-primary-container/30 transition-all text-xs font-semibold">Halal</button>
+<button class="px-4 py-2 rounded-lg bg-surface-container-low text-on-surface-variant border border-outline-variant/10 hover:border-primary-container/30 transition-all text-xs font-semibold">Kosher</button>
+</div>
+</section>
+</div>
+</main>
+<!-- Bottom Navigation Bar -->
+<footer class="fixed bottom-0 w-full h-24 bg-surface-container-lowest z-50 flex items-center justify-between px-8 border-t border-outline-variant/10">
+<button class="flex items-center gap-2 text-on-tertiary-fixed-variant font-bold hover:gap-3 transition-all">
+<span class="material-symbols-outlined">west</span>
+            Voltar
+        </button>
+<div class="hidden md:block text-sm font-bold text-on-surface-variant tracking-widest uppercase opacity-60">
+            Fase 2 de 8
+        </div>
+<button class="flex items-center gap-3 px-10 h-12 bg-primary-container text-on-primary-fixed font-bold rounded-lg hover:shadow-lg hover:translate-y-[-2px] active:scale-95 transition-all duration-200 cubic-bezier(0.34, 1.56, 0.64, 1)">
+            Avançar
+            <span class="material-symbols-outlined">east</span>
+</button>
+</footer>
+<!-- Decorative Elements (The "Soul") -->
+<div class="fixed top-20 right-0 -z-10 w-1/3 h-1/2 opacity-20 pointer-events-none">
+<div class="w-full h-full bg-gradient-to-bl from-primary-container to-transparent blur-3xl"></div>
+</div>
+<div class="fixed bottom-0 left-0 -z-10 w-1/4 h-1/3 opacity-10 pointer-events-none">
+<div class="w-full h-full bg-gradient-to-tr from-tertiary-container to-transparent blur-3xl"></div>
+</div>
+</body></html>
