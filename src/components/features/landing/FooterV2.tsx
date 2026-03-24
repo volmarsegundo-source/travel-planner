@@ -90,28 +90,19 @@ export function FooterV2() {
           </h4>
           <ul className="space-y-4">
             <li>
-              <Link
-                href="/sobre"
-                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
-              >
-                {t("about")}
-              </Link>
+              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
+                {t("about")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">Em breve</span>
+              </span>
             </li>
             <li>
-              <Link
-                href="/contato"
-                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
-              >
-                {t("contact")}
-              </Link>
+              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
+                {t("contact")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">Em breve</span>
+              </span>
             </li>
             <li>
-              <Link
-                href="/privacidade"
-                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
-              >
-                {t("privacy")}
-              </Link>
+              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
+                {t("privacy")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">Em breve</span>
+              </span>
             </li>
           </ul>
         </div>

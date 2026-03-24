@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui";
 import { Menu, X } from "lucide-react";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 interface LandingNavProps {
   isAuthenticated?: boolean;
@@ -57,8 +58,9 @@ export function LandingNav({ isAuthenticated = false }: LandingNavProps) {
           </div>
         </div>
 
-        {/* Right side — CTA buttons */}
+        {/* Right side — Language + CTA buttons */}
         <div className="flex items-center gap-4">
+          <LanguageSwitcher />
           {!isAuthenticated ? (
             <>
               <Link href="/auth/login" className="hidden sm:block">

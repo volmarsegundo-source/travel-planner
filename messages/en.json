@@ -1801,14 +1801,14 @@
       "myTrips": "My Trips",
       "planner": "Planner",
       "login": "Sign In",
-      "getStarted": "Get Started",
+      "getStarted": "Create Account",
       "openMenu": "Open navigation menu",
       "closeMenu": "Close navigation menu"
     },
     "hero": {
       "badge": "The New Era of Planning",
       "title": "Your next adventure starts here",
-      "subtitle": "Atlas is the seasoned travel companion that guides you from inspiration to your final itinerary using AI-powered recommendations tailored for the adventurous Brazilian traveler.",
+      "subtitle": "Smart travel planning — from dream to itinerary, powered by AI.",
       "cta": "Start your expedition",
       "secondaryCta": "How It Works",
       "imageAlt": "Aerial view of Brazilian mountains at sunset with dramatic sky in orange and purple tones"
@@ -1851,30 +1851,51 @@
       }
     },
     "ai": {
-      "title": "AI that understands your journey",
-      "description": "Forget complex spreadsheets. Our assistant processes thousands of data points to create itineraries that adapt to your rhythm.",
-      "feature1": "Algorithmic curation of local gastronomy",
-      "feature2": "Route optimization for pedestrians",
-      "feature3": "Real-time weather and event alerts",
-      "cta": "Explore AI technology",
-      "promptExample": "Atlas, suggest a romantic dinner in Noronha.",
-      "mockupAlt": "AI travel assistant interface showing map and recommendations"
+      "title": "AI-powered planning tools",
+      "description": "Generate complete itineraries, document checklists, and destination guides — all personalized to your trip profile.",
+      "feature1": "Complete day-by-day itinerary generation",
+      "feature2": "Smart document and visa checklist",
+      "feature3": "Detailed destination guide with local tips",
+      "cta": "Learn how it works",
+      "promptExample": "Generate a 7-day itinerary for Lisbon.",
+      "mockupAlt": "AI-generated travel itinerary preview"
     },
     "gamification": {
       "title": "Earn points, level up",
       "subtitle": "Every passport stamp now generates rewards. Accumulate Atlas Points and unlock exclusive benefits.",
       "currentLevel": "Your Current Level",
+      "explanation": "Complete phases to earn Atlas Points. Use them to generate itineraries, checklists, and destination guides powered by AI.",
       "badge1": {
-        "name": "Born Explorer",
-        "description": "Earned by visiting 3 different Brazilian biomes."
+        "name": "First Trip",
+        "description": "Complete your first expedition."
       },
       "badge2": {
-        "name": "Legendary",
-        "description": "The highest status for those who completed 10 epic itineraries."
+        "name": "Globetrotter",
+        "description": "Plan trips to 5 different destinations."
       },
       "badge3": {
-        "name": "Nature Guardian",
-        "description": "Reward for following sustainable tourism practices."
+        "name": "Perfectionist",
+        "description": "Fill in 100% of all 6 phases."
+      },
+      "badge4": {
+        "name": "Frequent Traveler",
+        "description": "Complete 3 expeditions."
+      },
+      "badge5": {
+        "name": "Family Traveler",
+        "description": "Plan a family trip with children."
+      },
+      "badge6": {
+        "name": "No Borders",
+        "description": "Plan an international trip."
+      },
+      "badge7": {
+        "name": "Marathon Runner",
+        "description": "Complete 3 expeditions in 30 days."
+      },
+      "badge8": {
+        "name": "Loyal",
+        "description": "10+ daily logins."
       }
     },
     "destinations": {
@@ -1900,7 +1921,7 @@
       }
     },
     "footer": {
-      "tagline": "Transforming the way Brazilians explore the world through technology and editorial curation.",
+      "tagline": "Atlas — Smart travel planning. From dream to destination, powered by AI.",
       "explore": "Explore",
       "destinationGuides": "Destination Guides",
       "travelInsurance": "Travel Insurance",

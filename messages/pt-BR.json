@@ -1801,14 +1801,14 @@
       "myTrips": "Minhas Viagens",
       "planner": "Planejador",
       "login": "Entrar",
-      "getStarted": "Comece Agora",
+      "getStarted": "Criar Conta",
       "openMenu": "Abrir menu de navegacao",
       "closeMenu": "Fechar menu de navegacao"
     },
     "hero": {
       "badge": "A Nova Era do Planejamento",
       "title": "Sua proxima aventura comeca aqui",
-      "subtitle": "O Atlas e o companheiro de viagem experiente que te guia da inspiracao ao roteiro final usando recomendacoes de IA feitas sob medida para o viajante brasileiro aventureiro.",
+      "subtitle": "Planejamento inteligente de viagem — do sonho ao roteiro, com IA.",
       "cta": "Comece sua expedicao",
       "secondaryCta": "Como Funciona",
       "imageAlt": "Vista aerea de montanhas brasileiras ao por do sol com ceu dramatico em tons de laranja e roxo"
@@ -1851,30 +1851,51 @@
       }
     },
     "ai": {
-      "title": "IA que entende sua jornada",
-      "description": "Esqueca as planilhas complexas. Nosso assistente processa milhares de dados para criar roteiros que se adaptam ao seu ritmo.",
-      "feature1": "Curadoria algoritmica de gastronomia local",
-      "feature2": "Otimizacao de rotas para pedestres",
-      "feature3": "Alertas de clima e eventos em tempo real",
-      "cta": "Explorar tecnologia AI",
-      "promptExample": "Atlas, sugira um jantar romantico em Noronha.",
-      "mockupAlt": "Interface de assistente de viagem com IA mostrando mapa e recomendacoes"
+      "title": "Ferramentas de planejamento com IA",
+      "description": "Gere roteiros completos, checklists de documentos e guias de destino — tudo personalizado para o perfil da sua viagem.",
+      "feature1": "Geracao de roteiro dia a dia completo",
+      "feature2": "Checklist inteligente de documentos e vistos",
+      "feature3": "Guia detalhado do destino com dicas locais",
+      "cta": "Saiba como funciona",
+      "promptExample": "Gere um roteiro de 7 dias para Lisboa.",
+      "mockupAlt": "Preview de roteiro de viagem gerado por IA"
     },
     "gamification": {
       "title": "Ganhe pontos, suba de nivel",
       "subtitle": "Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie beneficios exclusivos.",
       "currentLevel": "Seu Nivel Atual",
+      "explanation": "Complete fases para ganhar Pontos Atlas. Use-os para gerar roteiros, checklists e guias de destino com IA.",
       "badge1": {
-        "name": "Explorador Nato",
-        "description": "Conquistado ao visitar 3 biomas brasileiros diferentes."
+        "name": "Primeira Viagem",
+        "description": "Complete sua primeira expedicao."
       },
       "badge2": {
-        "name": "Lendario",
-        "description": "O status maximo para quem completou 10 roteiros epicos."
+        "name": "Globetrotter",
+        "description": "Planeje viagens para 5 destinos diferentes."
       },
       "badge3": {
-        "name": "Guardiao da Natureza",
-        "description": "Recompensa por seguir praticas de turismo sustentavel."
+        "name": "Perfeccionista",
+        "description": "Preencha 100% de todas as 6 fases."
+      },
+      "badge4": {
+        "name": "Viajante Frequente",
+        "description": "Complete 3 expedicoes."
+      },
+      "badge5": {
+        "name": "Em Familia",
+        "description": "Planeje uma viagem em familia com criancas."
+      },
+      "badge6": {
+        "name": "Sem Fronteiras",
+        "description": "Planeje uma viagem internacional."
+      },
+      "badge7": {
+        "name": "Maratonista",
+        "description": "Complete 3 expedicoes em 30 dias."
+      },
+      "badge8": {
+        "name": "Fiel",
+        "description": "10+ logins diarios."
       }
     },
     "destinations": {
@@ -1900,7 +1921,7 @@
       }
     },
     "footer": {
-      "tagline": "Transformando a maneira como os brasileiros exploram o mundo atraves da tecnologia e curadoria editorial.",
+      "tagline": "Atlas — Planejamento inteligente de viagem. Do sonho ao destino, com IA.",
       "explore": "Explorar",
       "destinationGuides": "Guias de Destino",
       "travelInsurance": "Seguro Viagem",

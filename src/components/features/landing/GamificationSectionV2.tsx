@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { AtlasCard } from "@/components/ui";
-import { Award, Medal, ShieldCheck } from "lucide-react";
+import { Award, Medal, ShieldCheck, Globe, Compass, Star, Users, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface GamificationSectionV2Props {
@@ -20,24 +20,59 @@ interface BadgeShowcase {
 const BADGE_SHOWCASES: BadgeShowcase[] = [
   {
     i18nKey: "badge1",
-    Icon: Award,
+    Icon: Compass,
     glowColor: "bg-atlas-secondary-container/20 group-hover:bg-atlas-secondary-container/40",
     borderColor: "border-atlas-secondary",
     iconColor: "text-atlas-secondary",
   },
   {
     i18nKey: "badge2",
-    Icon: Medal,
+    Icon: Globe,
     glowColor: "bg-atlas-info/20 group-hover:bg-atlas-info/40",
     borderColor: "border-atlas-info",
     iconColor: "text-atlas-info",
   },
   {
     i18nKey: "badge3",
-    Icon: ShieldCheck,
+    Icon: Star,
     glowColor: "bg-atlas-success/20 group-hover:bg-atlas-success/40",
     borderColor: "border-atlas-success",
     iconColor: "text-atlas-success",
+  },
+  {
+    i18nKey: "badge4",
+    Icon: Award,
+    glowColor: "bg-atlas-warning/20 group-hover:bg-atlas-warning/40",
+    borderColor: "border-atlas-warning",
+    iconColor: "text-atlas-warning",
+  },
+  {
+    i18nKey: "badge5",
+    Icon: Users,
+    glowColor: "bg-atlas-info/20 group-hover:bg-atlas-info/40",
+    borderColor: "border-atlas-info",
+    iconColor: "text-atlas-info",
+  },
+  {
+    i18nKey: "badge6",
+    Icon: MapPin,
+    glowColor: "bg-atlas-secondary-container/20 group-hover:bg-atlas-secondary-container/40",
+    borderColor: "border-atlas-secondary",
+    iconColor: "text-atlas-secondary",
+  },
+  {
+    i18nKey: "badge7",
+    Icon: Medal,
+    glowColor: "bg-atlas-success/20 group-hover:bg-atlas-success/40",
+    borderColor: "border-atlas-success",
+    iconColor: "text-atlas-success",
+  },
+  {
+    i18nKey: "badge8",
+    Icon: ShieldCheck,
+    glowColor: "bg-atlas-warning/20 group-hover:bg-atlas-warning/40",
+    borderColor: "border-atlas-warning",
+    iconColor: "text-atlas-warning",
   },
 ];
 
@@ -73,8 +108,15 @@ export function GamificationSectionV2({
           )}
         </div>
 
-        {/* Badge showcase cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* Explanation text */}
+        <div className="bg-atlas-primary-container/5 border border-atlas-outline-variant/30 rounded-2xl p-8 mb-12 text-center">
+          <p className="text-atlas-on-surface font-atlas-body text-lg">
+            {t("explanation")}
+          </p>
+        </div>
+
+        {/* Badge showcase cards — centered */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 justify-items-center">
           {BADGE_SHOWCASES.map(({ i18nKey, Icon, glowColor, borderColor, iconColor }) => (
             <AtlasCard
               key={i18nKey}

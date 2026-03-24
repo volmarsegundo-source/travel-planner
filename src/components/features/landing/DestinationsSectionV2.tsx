@@ -85,8 +85,8 @@ export function DestinationsSectionV2() {
                   aria-label={t(`${i18nKey}.imageAlt`)}
                 />
 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary via-transparent to-transparent opacity-80" />
+                {/* Overlay — stronger gradient so text is readable on gradient placeholders */}
+                <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary via-atlas-primary/40 to-transparent opacity-90" />
 
                 {/* Content */}
                 <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full">
