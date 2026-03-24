@@ -29,12 +29,12 @@ test.describe("Login — form elements", () => {
     await expect(emailInput).toBeVisible();
 
     // Password field
-    const passwordInput = page.getByLabel(/password/i);
+    const passwordInput = page.locator('input[type="password"]');
     await expect(passwordInput).toBeVisible();
 
     // Submit button
     await expect(
-      page.getByRole("button", { name: /sign in/i })
+      page.getByRole("button", { name: /sign in|entrar/i })
     ).toBeVisible();
 
     expect(errors).toHaveLength(0);
@@ -58,7 +58,7 @@ test.describe("Login — valid credentials", () => {
 
     await page.goto("/en/auth/register");
     await page.getByLabel(/email/i).fill(email);
-    await page.getByLabel(/^password$/i).fill(password);
+    await page.locator('input[type="password"]').first().fill(password);
     await page.getByLabel(/confirm password/i).fill(password);
     await page
       .getByRole("button", { name: /create account/i })
@@ -75,8 +75,8 @@ test.describe("Login — valid credentials", () => {
 
       // Already on login page — fill credentials
       await page.getByLabel(/email/i).fill(email);
-      await page.getByLabel(/password/i).fill(password);
-      await page.getByRole("button", { name: /sign in/i }).click();
+      await page.locator('input[type="password"]').fill(password);
+      await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
       // Should redirect to expeditions
       await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
@@ -103,9 +103,9 @@ test.describe("Login — invalid credentials", () => {
     await page.goto("/en/auth/login");
 
     await page.getByLabel(/email/i).fill("nonexistent@test.com");
-    await page.getByLabel(/password/i).fill("WrongPassword999!");
+    await page.locator('input[type="password"]').fill("WrongPassword999!");
 
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
     // Error alert should appear — use specific ID to avoid matching __next-route-announcer__
     const alert = page.locator("#login-error");
@@ -118,7 +118,7 @@ test.describe("Login — invalid credentials", () => {
     await expect(page).toHaveURL(/\/auth\/login/);
 
     // Password should not be visible in plain text
-    const passwordInput = page.getByLabel(/password/i);
+    const passwordInput = page.locator('input[type="password"]');
     await expect(passwordInput).toHaveAttribute("type", "password");
   });
 });
@@ -134,7 +134,7 @@ test.describe("Login — empty field validation", () => {
     await page.goto("/en/auth/login");
 
     // Click submit without filling anything
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
     // Should stay on login page (HTML5 validation or form validation prevents submission)
     await expect(page).toHaveURL(/\/auth\/login/);
@@ -165,7 +165,7 @@ test.describe("Login — Portuguese locale", () => {
       await expect(page.getByLabel(/e-mail/i)).toBeVisible();
 
       // Password label — use getByLabel to avoid matching "Esqueceu a senha?"
-      await expect(page.getByLabel(/senha/i)).toBeVisible();
+      await expect(page.locator('input[type="password"]')).toBeVisible();
 
       // Submit button
       await expect(

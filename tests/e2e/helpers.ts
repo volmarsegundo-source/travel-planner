@@ -19,8 +19,9 @@ export async function loginAs(
   await page.goto("/en/auth/login");
 
   await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  // Target the password input specifically (not the "Show password" button in V2)
+  await page.locator('input[type="password"]').fill(password);
+  await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
   // Wait for redirect to dashboard — generous timeout for staging cold starts
   try {
@@ -71,8 +72,9 @@ export async function loginAs(
   // Now login
   await page.goto("/en/auth/login");
   await page.getByLabel(/email/i).fill(email);
-  await page.getByLabel(/password/i).fill(password);
-  await page.getByRole("button", { name: /sign in/i }).click();
+  // Target the password input specifically (not the "Show password" button in V2)
+  await page.locator('input[type="password"]').fill(password);
+  await page.getByRole("button", { name: /sign in|entrar/i }).click();
   await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
 }
 

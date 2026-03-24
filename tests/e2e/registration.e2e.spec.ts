@@ -80,7 +80,7 @@ test.describe("Registration E2E -- register then login", () => {
     // If redirected to login, sign in manually
     if (page.url().includes("/auth/login")) {
       await page.getByLabel(/email/i).fill(email);
-      await page.getByLabel(/password/i).fill(password);
+      await page.locator('input[type="password"]').first().fill(password);
       await page.getByRole("button", { name: /sign in/i }).click();
       await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
     }
