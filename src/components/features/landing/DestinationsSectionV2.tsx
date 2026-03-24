@@ -12,27 +12,34 @@ interface DestinationData {
   imageUrl?: string;
 }
 
+// Unsplash photo URLs — verified via CDN redirect from photo page:
+// Rio: GTLJklnjn-E → photo-1516834611397 — Christ the Redeemer at sunset
+// Bonito: y9K5K1B-guw → photo-1469797384183 — Gruta do Lago Azul cave interior
+// Pantanal: v4ynva2rNVc → photo-1604970747673 — Wetlands sunset, trees and water
 const DESTINATIONS: DestinationData[] = [
   {
     i18nKey: "rio",
     size: "large",
     gradientFrom: "from-atlas-secondary-container/80",
     gradientTo: "to-atlas-primary/60",
-    imageUrl: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80&auto=format",
+    // Christ the Redeemer at sunset — by Agustin Diaz Gargiulo (GTLJklnjn-E)
+    imageUrl: "https://images.unsplash.com/photo-1516834611397-8d633eaec5d0?w=800&q=80&fit=crop&auto=format",
   },
   {
     i18nKey: "bonito",
     size: "medium",
     gradientFrom: "from-atlas-tertiary-container/80",
     gradientTo: "to-atlas-primary/60",
-    imageUrl: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?w=800&q=80&auto=format",
+    // Gruta do Lago Azul, Bonito MS (y9K5K1B-guw)
+    imageUrl: "https://images.unsplash.com/photo-1469797384183-f961931553e9?w=800&q=80&fit=crop&auto=format",
   },
   {
     i18nKey: "pantanal",
     size: "panoramic",
     gradientFrom: "from-atlas-secondary/60",
     gradientTo: "to-atlas-primary/60",
-    imageUrl: "https://images.unsplash.com/photo-1598887142487-3c854d51eabb?w=800&q=80&auto=format",
+    // Pantanal wetlands — body of water near trees at sunset (v4ynva2rNVc)
+    imageUrl: "https://images.unsplash.com/photo-1604970747673-3b173ce8e2c7?w=1200&q=80&fit=crop&auto=format",
   },
 ];
 
