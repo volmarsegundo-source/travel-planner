@@ -395,7 +395,7 @@ export function Phase2WizardV2({
                       }}
                       min={0}
                       max={17}
-                      label={t("passengers.childAge", { index: i + 1 })}
+                      label={t("passengers.childAge", { number: i + 1 })}
                       ariaValueText={`${age} ${t("passengers.years")}`}
                       decreaseLabel={t("passengers.decrease")}
                       increaseLabel={t("passengers.increase")}

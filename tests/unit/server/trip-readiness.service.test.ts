@@ -297,8 +297,8 @@ describe("TripReadinessService", () => {
         "user-1"
       );
 
-      expect(result.phases[0]!.name).toBe("O Chamado");
-      expect(result.phases[1]!.name).toBe("O Explorador");
+      expect(result.phases[0]!.name).toBe("A Inspiração");
+      expect(result.phases[1]!.name).toBe("O Perfil");
       expect(result.phases[2]!.name).toBe("O Preparo");
       expect(result.phases[3]!.name).toBe("A Logística");
       expect(result.phases[4]!.name).toBe("Guia do Destino");

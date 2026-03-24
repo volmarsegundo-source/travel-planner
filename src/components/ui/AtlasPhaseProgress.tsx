@@ -179,7 +179,7 @@ function WizardLayout({
       role="list"
       aria-label={`Phase progress: ${completedCount} of ${segments.length} completed`}
       className={cn(
-        "flex items-start overflow-x-auto pb-2",
+        "flex items-center overflow-x-auto pb-2",
         "scrollbar-thin scrollbar-thumb-atlas-surface-container-high",
         className,
       )}

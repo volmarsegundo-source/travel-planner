@@ -85,13 +85,13 @@ describe("PhaseShellV2", () => {
     expect(screen.queryByText("Onde tudo comeca")).not.toBeInTheDocument();
   });
 
-  it("renders breadcrumb navigation", () => {
+  it("renders breadcrumb navigation in both layouts", () => {
     render(<PhaseShellV2 {...defaultProps}>Content</PhaseShellV2>);
 
-    expect(
-      screen.getByRole("navigation", { name: "phaseShellV2.breadcrumb.label" })
-    ).toBeInTheDocument();
-    expect(screen.getByText("phaseShellV2.breadcrumb.expeditions")).toBeInTheDocument();
+    // Breadcrumb renders in desktop sidebar AND mobile top bar
+    const breadcrumbs = screen.getAllByRole("navigation", { name: "phaseShellV2.breadcrumb.label" });
+    expect(breadcrumbs.length).toBe(2);
+    expect(screen.getAllByText("phaseShellV2.breadcrumb.expeditions").length).toBe(2);
   });
 
   it("renders AtlasPhaseProgress with wizard layout on desktop", () => {

@@ -106,8 +106,8 @@ const FULL_SUMMARY: ExpeditionSummaryData = {
 const FULL_READINESS: TripReadinessResult = {
   readinessPercent: 85,
   phases: [
-    { phase: 1, name: "The Calling", status: "complete", dataSnapshot: {} },
-    { phase: 2, name: "The Explorer", status: "complete", dataSnapshot: {} },
+    { phase: 1, name: "The Inspiration", status: "complete", dataSnapshot: {} },
+    { phase: 2, name: "The Profile", status: "complete", dataSnapshot: {} },
     { phase: 3, name: "The Preparation", status: "partial", dataSnapshot: { done: 5, total: 8 } },
     { phase: 4, name: "The Logistics", status: "complete", dataSnapshot: {} },
     { phase: 5, name: "The Day Map", status: "complete", dataSnapshot: {} },

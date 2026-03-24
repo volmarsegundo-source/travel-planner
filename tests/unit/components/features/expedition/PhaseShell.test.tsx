@@ -206,13 +206,15 @@ describe("PhaseShell", () => {
     expect(contentDiv).toBeTruthy();
   });
 
-  it("renders breadcrumb navigation in sidebar", () => {
+  it("renders breadcrumb navigation in both layouts", () => {
     render(
       <PhaseShell {...baseProps}>
         <div>Child</div>
       </PhaseShell>
     );
 
-    expect(screen.getByLabelText("phaseShellV2.breadcrumb.label")).toBeInTheDocument();
+    // Breadcrumb renders in desktop sidebar AND mobile top bar
+    const breadcrumbs = screen.getAllByLabelText("phaseShellV2.breadcrumb.label");
+    expect(breadcrumbs.length).toBe(2);
   });
 });

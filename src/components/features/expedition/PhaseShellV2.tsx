@@ -85,12 +85,22 @@ export function PhaseShellV2({
   const showStepIndicator =
     currentStep !== undefined && totalSteps !== undefined && totalSteps > 1;
 
-  // Build phase segments for AtlasPhaseProgress
+  // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always locked)
   const segments: PhaseSegment[] = Array.from(
-    { length: TOTAL_ACTIVE_PHASES },
+    { length: PHASE_DEFINITIONS.length },
     (_, i) => {
       const phase = i + 1;
       const phaseDef = PHASE_DEFINITIONS[i];
+
+      // Phases 7-8 are always locked (coming soon)
+      if (phase > TOTAL_ACTIVE_PHASES) {
+        return {
+          phase,
+          label: phaseDef?.name ?? `Phase ${phase}`,
+          state: "locked" as SegmentState,
+        };
+      }
+
       const phaseState = getPhaseState(
         phase,
         tripCurrentPhase,
@@ -170,8 +180,33 @@ export function PhaseShellV2({
 
       {/* Main content area */}
       <div className="flex flex-1 flex-col">
-        {/* Mobile progress bar */}
+        {/* Mobile breadcrumb + progress bar */}
         <div className="px-4 pt-4 lg:hidden">
+          <nav aria-label={tShell("breadcrumb.label")} className="mb-3">
+            <ol className="flex flex-wrap items-center gap-1 text-xs font-atlas-body text-atlas-on-surface-variant">
+              {breadcrumbItems.map((item, i) => (
+                <li key={i} className="flex items-center gap-1">
+                  {i > 0 && (
+                    <span className="text-atlas-outline-variant" aria-hidden="true">
+                      /
+                    </span>
+                  )}
+                  {item.href ? (
+                    <a
+                      href={item.href}
+                      className="hover:text-atlas-on-surface transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded"
+                    >
+                      {item.label}
+                    </a>
+                  ) : (
+                    <span className="font-semibold text-atlas-on-surface">
+                      {item.label}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ol>
+          </nav>
           <AtlasPhaseProgress
             segments={segments}
             layout="dashboard"

@@ -178,6 +178,63 @@ export function Phase1WizardV2({
     }
   }
 
+  async function handleSaveDraft() {
+    if (!destination.trim()) {
+      setErrorMessage(t("errors.destinationRequired"));
+      return;
+    }
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    const profileFields: Record<string, string | undefined> = {};
+    if (birthDate) profileFields.birthDate = birthDate;
+    if (phone) profileFields.phone = phone;
+    if (country) profileFields.country = country;
+    if (city) profileFields.city = city;
+    if (bio) profileFields.bio = bio;
+    if (name) profileFields.name = name;
+
+    const payload = {
+      destination: destination.trim(),
+      origin: origin.trim() || undefined,
+      destinationCountryCode: destinationCountryCode ?? undefined,
+      originCountryCode: originCountryCode ?? undefined,
+      destinationLat,
+      destinationLon,
+      startDate: startDate || undefined,
+      endDate: endDate || undefined,
+      flexibleDates,
+      profileFields: Object.keys(profileFields).length > 0 ? profileFields : undefined,
+    };
+
+    try {
+      if (_tripId) {
+        const result = await updatePhase1Action(_tripId, payload);
+        if (result.success) {
+          markClean();
+          setSaveSuccess(true);
+          setTimeout(() => setSaveSuccess(false), 2000);
+        } else {
+          setErrorMessage(result.error ?? "errors.generic");
+        }
+      } else {
+        const result = await createExpeditionAction(payload);
+        if (result.success && result.data) {
+          tripIdRef.current = result.data.tripId;
+          markClean();
+          setSaveSuccess(true);
+          setTimeout(() => setSaveSuccess(false), 2000);
+        } else if (!result.success) {
+          setErrorMessage(result.error ?? "errors.generic");
+        }
+      }
+    } catch {
+      setErrorMessage("errors.generic");
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
   // Auto-resolve origin country code
   const resolveCountryCode = useCallback(async (query: string, setter: (code: string | null) => void) => {
     if (query.length < 2) return;
@@ -336,7 +393,10 @@ export function Phase1WizardV2({
         tripIdRef.current = result.data!.tripId;
         router.push(`/expedition/${result.data!.tripId}/phase-2`);
       }
-    } catch {
+    } catch (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[Phase1WizardV2] handleSubmit error:", error);
+      }
       setErrorMessage("errors.generic");
       setIsSubmitting(false);
     }
@@ -377,6 +437,10 @@ export function Phase1WizardV2({
       ? { onSave: handleSave, isDirty: formDirty, saveSuccess }
       : {};
 
+    const draftAction = !isEditMode
+      ? { secondaryActions: [{ label: tV2("saveDraft"), onClick: handleSaveDraft }] }
+      : {};
+
     if (currentStep === 1) {
       return undefined;
     }
@@ -386,6 +450,7 @@ export function Phase1WizardV2({
         onPrimary: handleStep2Next,
         primaryLabel: tCommon("next"),
         ...dirtyProps,
+        ...draftAction,
       };
     }
     if (currentStep === 3) {
@@ -394,6 +459,7 @@ export function Phase1WizardV2({
         onPrimary: handleStep3Next,
         primaryLabel: tCommon("next"),
         ...dirtyProps,
+        ...draftAction,
       };
     }
     return {
@@ -405,6 +471,7 @@ export function Phase1WizardV2({
       isLoading: isSubmitting,
       isDisabled: isSubmitting,
       ...dirtyProps,
+      ...draftAction,
     };
   };
 
@@ -695,6 +762,19 @@ export function Phase1WizardV2({
                   />
                 </div>
               </div>
+              {startDate && endDate && new Date(endDate) > new Date(startDate) && (
+                <p
+                  className="text-sm font-atlas-body text-atlas-primary font-medium"
+                  data-testid="trip-duration"
+                >
+                  {tV2("duration", {
+                    days: Math.round(
+                      (new Date(endDate).getTime() - new Date(startDate).getTime()) /
+                        (1000 * 60 * 60 * 24)
+                    ),
+                  })}
+                </p>
+              )}
               {showPassportWarning && (
                 <div className="flex items-start gap-2 rounded-lg bg-atlas-warning-container border border-atlas-warning/30 px-4 py-3 text-sm font-atlas-body text-atlas-warning">
                   <span className="mt-0.5" aria-hidden="true">{"\u26A0\uFE0F"}</span>
@@ -752,6 +832,15 @@ export function Phase1WizardV2({
                       {flexibleDates ? t("step4.yes") : t("step4.no")}
                     </dd>
                   </div>
+                  {tripType && (
+                    <div className="flex justify-between">
+                      <dt className="text-atlas-on-surface-variant">{t("step4.tripType")}</dt>
+                      <dd className="font-medium text-atlas-on-surface flex items-center gap-1.5">
+                        <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
+                        <span>{t(`tripType.${TRIP_TYPE_BADGES[tripType].key}`)}</span>
+                      </dd>
+                    </div>
+                  )}
                 </dl>
                 <h3 className="mb-3 mt-4 text-sm font-medium font-atlas-body text-atlas-on-surface-variant">
                   {t("step4.profileSummary")}

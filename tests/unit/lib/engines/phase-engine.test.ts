@@ -390,7 +390,7 @@ describe("PhaseEngine.completePhase", () => {
       TEST_USER_ID,
       100, // Phase 1 pointsReward
       "phase_complete",
-      "Completed phase 1: O Chamado",
+      "Completed phase 1: A Inspiração",
       TEST_TRIP_ID,
       expect.anything() // tx
     );

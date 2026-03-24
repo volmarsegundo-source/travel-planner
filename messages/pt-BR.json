@@ -559,6 +559,7 @@
         "profileSummary": "Suas informações de perfil",
         "location": "Localização",
         "bio": "Sobre você",
+        "tripType": "Tipo de viagem",
         "cta": "Iniciar Expedição"
       },
       "tripType": {
@@ -1065,8 +1066,8 @@
       "lendario": "Lendário"
     },
     "phases": {
-      "theCalling": "O Chamado",
-      "theExplorer": "O Explorador",
+      "theCalling": "A Inspiração",
+      "theExplorer": "O Perfil",
       "thePreparation": "O Preparo",
       "theLogistics": "A Logística",
       "theDayMap": "O Mapa dos Dias",
@@ -1941,6 +1942,12 @@
       "newsletterSuccess": "Inscricao registrada! Em breve voce recebera novidades."
     }
   },
+  "errors": {
+    "generic": "Algo deu errado. Por favor, tente novamente.",
+    "tripNotFound": "Viagem não encontrada ou acesso negado.",
+    "maxTripsReached": "Você atingiu o número máximo de viagens.",
+    "unauthorized": "Faça login para continuar."
+  },
   "navV2": {
     "mainNavigation": "Navegacao principal"
   },
@@ -1952,7 +1959,9 @@
     }
   },
   "phase1V2": {
-    "title": "A Inspiracao"
+    "title": "A Inspiracao",
+    "duration": "{days, plural, one {# dia} other {# dias}}",
+    "saveDraft": "Salvar Rascunho"
   },
   "phase2V2": {
     "title": "O Perfil"

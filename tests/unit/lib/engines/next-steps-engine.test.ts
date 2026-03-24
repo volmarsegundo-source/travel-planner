@@ -9,7 +9,7 @@ import type { PhaseReadiness } from "@/server/services/trip-readiness.service";
 function makePhase(overrides: Partial<PhaseReadiness> = {}): PhaseReadiness {
   return {
     phase: 1,
-    name: "The Calling",
+    name: "The Inspiration",
     weight: 0.4,
     status: "not_started",
     readinessPercent: 0,
@@ -31,13 +31,13 @@ describe("getNextStepsSuggestions", () => {
 
   it("suggests starting not_started phases", () => {
     const phases = [
-      makePhase({ phase: 1, name: "The Calling", status: "not_started" }),
-      makePhase({ phase: 2, name: "The Explorer", status: "not_started" }),
+      makePhase({ phase: 1, name: "The Inspiration", status: "not_started" }),
+      makePhase({ phase: 2, name: "The Profile", status: "not_started" }),
     ];
     const result = getNextStepsSuggestions(tripId, phases, 0);
     expect(result.length).toBeGreaterThanOrEqual(1);
     expect(result[0].labelKey).toBe("expedition.nextSteps.startPhase");
-    expect(result[0].labelValues?.phase).toBe("The Calling");
+    expect(result[0].labelValues?.phase).toBe("The Inspiration");
   });
 
   it("suggests continuing partial phases", () => {
@@ -105,11 +105,11 @@ describe("getNextStepsSuggestions", () => {
 
   it("skips complete phases", () => {
     const phases = [
-      makePhase({ phase: 1, name: "The Calling", status: "complete", readinessPercent: 100 }),
-      makePhase({ phase: 2, name: "The Explorer", status: "not_started" }),
+      makePhase({ phase: 1, name: "The Inspiration", status: "complete", readinessPercent: 100 }),
+      makePhase({ phase: 2, name: "The Profile", status: "not_started" }),
     ];
     const result = getNextStepsSuggestions(tripId, phases, 50);
     expect(result[0].labelKey).toBe("expedition.nextSteps.startPhase");
-    expect(result[0].labelValues?.phase).toBe("The Explorer");
+    expect(result[0].labelValues?.phase).toBe("The Profile");
   });
 });

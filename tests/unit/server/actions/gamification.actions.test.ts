@@ -56,8 +56,8 @@ vi.mock("@/lib/engines/points-engine", () => ({
 
 vi.mock("@/lib/engines/phase-config", () => ({
   PHASE_DEFINITIONS: [
-    { phaseNumber: 1, name: "O Chamado", pointsReward: 100 },
-    { phaseNumber: 2, name: "O Explorador", pointsReward: 150 },
+    { phaseNumber: 1, name: "A Inspiração", pointsReward: 100 },
+    { phaseNumber: 2, name: "O Perfil", pointsReward: 150 },
   ],
 }));
 

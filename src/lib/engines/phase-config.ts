@@ -5,7 +5,7 @@ import type { PhaseDefinition, PhaseNumber } from "@/types/gamification.types";
 export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
   {
     phaseNumber: 1,
-    name: "O Chamado",
+    name: "A Inspiração",
     nameKey: "phases.theCalling",
     isFree: true,
     pointsReward: 100,
@@ -16,7 +16,7 @@ export const PHASE_DEFINITIONS: readonly PhaseDefinition[] = [
   },
   {
     phaseNumber: 2,
-    name: "O Explorador",
+    name: "O Perfil",
     nameKey: "phases.theExplorer",
     isFree: true,
     pointsReward: 150,

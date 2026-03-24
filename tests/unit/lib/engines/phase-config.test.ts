@@ -104,10 +104,10 @@ describe("TOTAL_PHASES", () => {
 // ─── getPhaseDefinition ──────────────────────────────────────────────────────
 
 describe("getPhaseDefinition", () => {
-  it('returns "O Chamado" for phase 1', () => {
+  it('returns "A Inspiração" for phase 1', () => {
     const phase = getPhaseDefinition(1);
     expect(phase).toBeDefined();
-    expect(phase!.name).toBe("O Chamado");
+    expect(phase!.name).toBe("A Inspiração");
     expect(phase!.phaseNumber).toBe(1);
   });
 
