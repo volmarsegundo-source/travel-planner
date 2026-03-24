@@ -129,7 +129,11 @@
       "Bash(ls src/app/[locale]/\\\\\\(app\\\\\\)/admin/ -R)",
       "Bash(ls src/app/[locale]/\\\\\\(app\\\\\\)/meu-atlas/ -R)",
       "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_16HjwCoKspGB@ep-lively-smoke-ac5tvs2g-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npm run dev:users 2>&1)",
-      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_16HjwCoKspGB@ep-lively-smoke-ac5tvs2g-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npx prisma migrate dev --name sprint36_purchase_and_role --create-only 2>&1)"
+      "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_16HjwCoKspGB@ep-lively-smoke-ac5tvs2g-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require\" npx prisma migrate dev --name sprint36_purchase_and_role --create-only 2>&1)",
+      "Bash(sed -i 's/\"\"daysRemaining\"\": \"\"{count} days remaining\"\"/\"\"daysRemaining\"\": \"\"days remaining\"\"/' /c/travel-planner/messages/en.json)",
+      "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% ready\"\"/\"\"percentReady\"\": \"\"ready\"\"/' /c/travel-planner/messages/en.json)",
+      "Bash(sed -i 's/\"\"daysRemaining\"\": \"\"{count} dias restantes\"\"/\"\"daysRemaining\"\": \"\"dias restantes\"\"/' /c/travel-planner/messages/pt-BR.json)",
+      "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% pronto\"\"/\"\"percentReady\"\": \"\"pronto\"\"/' /c/travel-planner/messages/pt-BR.json)"
     ]
   }
 }

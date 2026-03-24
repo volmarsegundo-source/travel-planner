@@ -91,6 +91,32 @@
       "backToLogin": "Back to login"
     }
   },
+  "authV2": {
+    "welcomeBack": "Welcome back",
+    "subtitle": "Sign in to your account to continue your expedition",
+    "emailLabel": "Email",
+    "emailPlaceholder": "your@email.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot your password?",
+    "rememberMe": "Remember me",
+    "submit": "Sign in",
+    "or": "or",
+    "socialGoogle": "Google",
+    "socialGithub": "GitHub",
+    "noAccount": "Don't have an account?",
+    "createAccount": "Create a free account",
+    "legalText": "By signing in, you agree to our",
+    "termsOfUse": "Terms of Use",
+    "and": "and",
+    "privacyPolicy": "Privacy Policy",
+    "brandTagline": "From dream to destination, with intelligence.",
+    "nextTrip": "NEXT TRIP",
+    "daysRemaining": "days remaining",
+    "percentReady": "ready",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password"
+  },
   "trustSignals": {
     "badge": "Your data is protected",
     "privacy": "We never share your data with third parties. You can delete your account at any time.",
@@ -1766,6 +1792,131 @@
     },
     "chip": {
       "remove": "Remove"
+    }
+  },
+  "landingV2": {
+    "nav": {
+      "logo": "Atlas",
+      "explore": "Explore",
+      "myTrips": "My Trips",
+      "planner": "Planner",
+      "login": "Sign In",
+      "getStarted": "Get Started",
+      "openMenu": "Open navigation menu",
+      "closeMenu": "Close navigation menu"
+    },
+    "hero": {
+      "badge": "The New Era of Planning",
+      "title": "Your next adventure starts here",
+      "subtitle": "Atlas is the seasoned travel companion that guides you from inspiration to your final itinerary using AI-powered recommendations tailored for the adventurous Brazilian traveler.",
+      "cta": "Start your expedition",
+      "secondaryCta": "How It Works",
+      "imageAlt": "Aerial view of Brazilian mountains at sunset with dramatic sky in orange and purple tones"
+    },
+    "phases": {
+      "title": "8 Expedition Phases",
+      "subtitle": "Our proprietary methodology ensures nothing is forgotten, turning each step into a seamless experience.",
+      "comingSoon": "Coming Soon",
+      "phase1": {
+        "name": "The Inspiration",
+        "description": "Destination curation based on your desires and global trends."
+      },
+      "phase2": {
+        "name": "The Profile",
+        "description": "Define your traveler style: from luxury to backpacking."
+      },
+      "phase3": {
+        "name": "The Preparation",
+        "description": "Documentation, vaccines and personalized smart checklists."
+      },
+      "phase4": {
+        "name": "The Logistics",
+        "description": "Connections, transfers and accommodation with the best value."
+      },
+      "phase5": {
+        "name": "Destination Guide",
+        "description": "Essential information about culture, currency and local climate."
+      },
+      "phase6": {
+        "name": "The Itinerary",
+        "description": "Daily schedule optimized to avoid fatigue and queues."
+      },
+      "phase7": {
+        "name": "The Expedition",
+        "description": "Real-time monitoring and support for unexpected events."
+      },
+      "phase8": {
+        "name": "The Legacy",
+        "description": "Digital journal and automatic organization of your best moments."
+      }
+    },
+    "ai": {
+      "title": "AI that understands your journey",
+      "description": "Forget complex spreadsheets. Our assistant processes thousands of data points to create itineraries that adapt to your rhythm.",
+      "feature1": "Algorithmic curation of local gastronomy",
+      "feature2": "Route optimization for pedestrians",
+      "feature3": "Real-time weather and event alerts",
+      "cta": "Explore AI technology",
+      "promptExample": "Atlas, suggest a romantic dinner in Noronha.",
+      "mockupAlt": "AI travel assistant interface showing map and recommendations"
+    },
+    "gamification": {
+      "title": "Earn points, level up",
+      "subtitle": "Every passport stamp now generates rewards. Accumulate Atlas Points and unlock exclusive benefits.",
+      "currentLevel": "Your Current Level",
+      "badge1": {
+        "name": "Born Explorer",
+        "description": "Earned by visiting 3 different Brazilian biomes."
+      },
+      "badge2": {
+        "name": "Legendary",
+        "description": "The highest status for those who completed 10 epic itineraries."
+      },
+      "badge3": {
+        "name": "Nature Guardian",
+        "description": "Reward for following sustainable tourism practices."
+      }
+    },
+    "destinations": {
+      "title": "Featured Destinations",
+      "viewAll": "View All Destinations",
+      "rio": {
+        "name": "Rio de Janeiro",
+        "category": "Culture & Beach",
+        "description": "Discover the secrets of the Marvelous City beyond the obvious.",
+        "imageAlt": "Aerial view of Christ the Redeemer over Rio de Janeiro with Sugarloaf Mountain in the background at dawn"
+      },
+      "bonito": {
+        "name": "Bonito",
+        "category": "Ecotourism",
+        "description": "Snorkeling in crystal-clear waters and unexplored caves.",
+        "imageAlt": "Crystal clear turquoise water of Rio da Prata in Bonito MS with green forest reflections"
+      },
+      "pantanal": {
+        "name": "Pantanal",
+        "category": "Wildlife",
+        "description": "The largest wildlife sanctuary in Brazil waiting for you.",
+        "imageAlt": "Panoramic view of Pantanal wetlands at sunset with water reflections and silhouetted trees"
+      }
+    },
+    "footer": {
+      "tagline": "Transforming the way Brazilians explore the world through technology and editorial curation.",
+      "explore": "Explore",
+      "destinationGuides": "Destination Guides",
+      "travelInsurance": "Travel Insurance",
+      "blog": "Editorial Blog",
+      "company": "Company",
+      "about": "About Us",
+      "contact": "Contact",
+      "privacy": "Privacy",
+      "newsletter": "News",
+      "newsletterDescription": "Subscribe for exclusive itineraries.",
+      "emailPlaceholder": "Your email",
+      "emailLabel": "Your email for newsletter",
+      "send": "Send",
+      "copyright": "Atlas Travel Planner",
+      "lgpd": "LGPD compliant. Your data is protected.",
+      "newsletterSuccess": "Subscription registered! You will receive news soon."
     }
   }
 }

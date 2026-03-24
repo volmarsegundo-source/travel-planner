@@ -20,7 +20,7 @@ const atlasButtonVariants = cva(
       variant: {
         primary: [
           "bg-atlas-secondary-container text-atlas-primary font-bold",
-          "shadow-atlas-md",
+          "shadow-atlas-md shadow-atlas-glow-amber",
           "hover:opacity-90",
         ].join(" "),
         "primary-dark": [

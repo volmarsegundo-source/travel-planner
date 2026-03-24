@@ -145,6 +145,7 @@ function WizardSegment({
             className={cn(
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2",
               "rounded-full cursor-pointer",
+              "min-w-[44px] min-h-[44px] flex items-center justify-center",
             )}
             aria-label={`Go to phase ${phase}: ${label}`}
           >
