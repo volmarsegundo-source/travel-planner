@@ -5,13 +5,9 @@ import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { DesignBranch } from "@/components/ui";
+import { AtlasButton, AtlasInput, AtlasCard } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
 import { DestinationAutocomplete } from "./DestinationAutocomplete";
-import { Phase1WizardV2 } from "./Phase1WizardV2";
 import {
   createExpeditionAction,
   updatePhase1Action,
@@ -52,29 +48,23 @@ function isProfileComplete(profile?: UserProfileData): boolean {
   );
 }
 
-interface Phase1WizardProps {
+interface Phase1WizardV2Props {
   passportExpiry?: string;
   userCountry?: string;
   userProfile?: UserProfileData;
   userName?: string;
-  /** Previously saved trip data for revisit pre-population */
   savedDestination?: string;
   savedOrigin?: string;
   savedStartDate?: string;
   savedEndDate?: string;
-  /** Trip ID -- present when revisiting an existing expedition */
   tripId?: string;
-  /** Access mode from navigation engine */
   accessMode?: PhaseAccessMode;
-  /** Trip's current phase from DB */
   tripCurrentPhase?: number;
-  /** Completed phase numbers from DB */
   completedPhases?: number[];
 }
 
-function Phase1WizardV1({
+export function Phase1WizardV2({
   passportExpiry,
-  // userCountry prop kept for backward compat but no longer used for classification
   userProfile,
   userName,
   savedDestination,
@@ -85,8 +75,9 @@ function Phase1WizardV1({
   accessMode = "first_visit",
   tripCurrentPhase = 1,
   completedPhases = [],
-}: Phase1WizardProps) {
+}: Phase1WizardV2Props) {
   const t = useTranslations("expedition.phase1");
+  const tV2 = useTranslations("phase1V2");
   const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
@@ -111,7 +102,7 @@ function Phase1WizardV1({
     [userProfile]
   );
 
-  // Form data -- pre-populate from saved trip data when revisiting
+  // Form data
   const [destination, setDestination] = useState(savedDestination ?? "");
   const [destinationCountryCode, setDestinationCountryCode] = useState<string | null>(null);
   const [destinationLat, setDestinationLat] = useState<number | undefined>(undefined);
@@ -123,14 +114,13 @@ function Phase1WizardV1({
         ? `${userProfile.city}, ${userProfile.country}`
         : "")
   );
-  // Track whether destination/origin were selected via autocomplete
   const [destinationSelectedRef] = useState<{ value: string | null }>({ value: null });
   const [originSelectedRef] = useState<{ value: string | null }>({ value: null });
   const [startDate, setStartDate] = useState(savedStartDate ?? "");
   const [endDate, setEndDate] = useState(savedEndDate ?? "");
   const [flexibleDates, setFlexibleDates] = useState(false);
 
-  // Profile fields (Step 1: About You) -- pre-populated from saved profile
+  // Profile fields
   const [birthDate, setBirthDate] = useState(userProfile?.birthDate ?? "");
   const [phone, setPhone] = useState(userProfile?.phone ?? "");
   const [country, setCountry] = useState(userProfile?.country ?? "");
@@ -142,17 +132,15 @@ function Phase1WizardV1({
   const tripIdRef = useRef<string>(_tripId ?? "");
   const locale = useLocale();
 
-  // ─── Dirty tracking ─────────────────────────────────────────────────────
+  // Dirty tracking
   const formValues = useMemo(() => ({
     destination, origin, startDate, endDate, flexibleDates: String(flexibleDates),
     birthDate, phone, country, city, bio, name,
   }), [destination, origin, startDate, endDate, flexibleDates, birthDate, phone, country, city, bio, name]);
 
   const { isDirty: formDirty, markClean } = useFormDirty(formValues);
-
   const [saveSuccess, setSaveSuccess] = useState(false);
 
-  /** Save current form data (edit mode only). */
   async function handleSave() {
     if (!isEditMode || !_tripId) return;
     const profileFields: Record<string, string | undefined> = {};
@@ -190,7 +178,7 @@ function Phase1WizardV1({
     }
   }
 
-  // Auto-resolve origin country code when pre-populated from profile
+  // Auto-resolve origin country code
   const resolveCountryCode = useCallback(async (query: string, setter: (code: string | null) => void) => {
     if (query.length < 2) return;
     try {
@@ -205,19 +193,18 @@ function Phase1WizardV1({
         }
       }
     } catch {
-      // Silently degrade -- classification will default to null
+      // Silently degrade
     }
   }, [locale]);
 
   useEffect(() => {
-    // If origin is pre-populated (from profile) but no country code, auto-resolve
     if (origin && !originCountryCode && !savedOrigin) {
       resolveCountryCode(origin, setOriginCountryCode);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Trip type classification -- uses ISO country codes for locale-independent matching
+  // Trip type classification
   const tripType = useMemo(() => {
     if (originCountryCode && destinationCountryCode) {
       return classifyTrip(originCountryCode, destinationCountryCode);
@@ -230,7 +217,6 @@ function Phase1WizardV1({
     if (!passportExpiry || !endDate) return false;
     const passportDate = new Date(passportExpiry);
     const tripEndDate = new Date(endDate);
-    // Warning: passport expires within 6 months of trip end
     const sixMonthsAfterEnd = new Date(tripEndDate);
     sixMonthsAfterEnd.setMonth(sixMonthsAfterEnd.getMonth() + 6);
     return passportDate < sixMonthsAfterEnd;
@@ -239,7 +225,6 @@ function Phase1WizardV1({
   function goToStep(step: number) {
     setCurrentStep(step);
     setErrorMessage(null);
-    // Persist step in URL for language switch preservation
     const url = new URL(window.location.href);
     url.searchParams.set("step", String(step));
     window.history.replaceState({}, "", url.toString());
@@ -272,23 +257,19 @@ function Phase1WizardV1({
   }
 
   function handleStep3Next() {
-    // Dates are mandatory unless flexible dates is checked
     if (!flexibleDates && (!startDate || !endDate)) {
       setErrorMessage(t("errors.datesRequired"));
       return;
     }
-
     if (startDate) {
       const start = new Date(startDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      // startDate must be strictly after today
       if (start <= today) {
         setErrorMessage(t("errors.dateInPast"));
         return;
       }
     }
-
     if (endDate) {
       const end = new Date(endDate);
       const today = new Date();
@@ -298,7 +279,6 @@ function Phase1WizardV1({
         return;
       }
     }
-
     if (startDate && endDate) {
       if (startDate === endDate) {
         setErrorMessage(t("errors.sameDates"));
@@ -309,7 +289,6 @@ function Phase1WizardV1({
         return;
       }
     }
-
     goToStep(4);
   }
 
@@ -317,7 +296,6 @@ function Phase1WizardV1({
     setIsSubmitting(true);
     setErrorMessage(null);
 
-    // Build profile fields (only non-empty)
     const profileFields: Record<string, string | undefined> = {};
     if (birthDate) profileFields.birthDate = birthDate;
     if (phone) profileFields.phone = phone;
@@ -341,29 +319,21 @@ function Phase1WizardV1({
 
     try {
       if (isEditMode && _tripId) {
-        // Revisit: update existing trip data without re-creating expedition
         const result = await updatePhase1Action(_tripId, payload);
-
         if (!result.success) {
           setErrorMessage(result.error);
           setIsSubmitting(false);
           return;
         }
-
-        // Navigate to phase-2 after saving changes
         router.push(`/expedition/${_tripId}/phase-2`);
       } else {
-        // First visit: create new expedition
         const result = await createExpeditionAction(payload);
-
         if (!result.success) {
           setErrorMessage(result.error);
           setIsSubmitting(false);
           return;
         }
-
         tripIdRef.current = result.data!.tripId;
-        // Navigate directly to phase-2
         router.push(`/expedition/${result.data!.tripId}/phase-2`);
       }
     } catch {
@@ -384,7 +354,6 @@ function Phase1WizardV1({
     originSelectedRef.value = result.displayName;
   }
 
-  // Clear stale country codes when user edits text after autocomplete selection
   function handleDestinationChange(newValue: string) {
     setDestination(newValue);
     if (destinationSelectedRef.value && newValue !== destinationSelectedRef.value) {
@@ -403,15 +372,13 @@ function Phase1WizardV1({
     }
   }
 
-  // Determine the footer action based on the current step
   const getFooterProps = () => {
-    // Dirty-state props (only meaningful in edit mode with existing trip)
     const dirtyProps = isEditMode && _tripId
       ? { onSave: handleSave, isDirty: formDirty, saveSuccess }
       : {};
 
     if (currentStep === 1) {
-      return undefined; // Step 1 uses inline buttons
+      return undefined;
     }
     if (currentStep === 2) {
       return {
@@ -429,7 +396,6 @@ function Phase1WizardV1({
         ...dirtyProps,
       };
     }
-    // Step 4: confirmation
     return {
       onBack: () => goToStep(3),
       onPrimary: handleSubmit,
@@ -462,11 +428,12 @@ function Phase1WizardV1({
         className="flex flex-col gap-6"
         aria-live="polite"
         aria-atomic="true"
+        data-testid="phase1-v2"
       >
         {errorMessage && (
           <div
             role="alert"
-            className="rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
+            className="rounded-lg bg-atlas-error-container px-4 py-3 text-sm font-atlas-body text-atlas-error border border-atlas-error/30"
           >
             {errorMessage.startsWith("errors.")
               ? tErrors(errorMessage.replace("errors.", ""))
@@ -476,57 +443,58 @@ function Phase1WizardV1({
 
         {/* Step 1: About You */}
         {currentStep === 1 && (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">{t("step1.title")}</h2>
+          <AtlasCard variant="base">
+            <h2 className="font-atlas-headline text-lg font-bold text-atlas-on-surface">
+              {t("step1.title")}
+            </h2>
 
-            {/* Show summary card when profile is complete and user is not editing */}
             {profileComplete && !isEditingProfile ? (
-              <>
-                <div className="rounded-xl border border-border bg-muted p-4">
+              <div className="mt-4 flex flex-col gap-4">
+                <div className="rounded-lg bg-atlas-surface-container-low p-4">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-sm font-medium text-muted-foreground">
+                    <h3 className="text-sm font-medium font-atlas-body text-atlas-on-surface-variant">
                       {t("step1.savedProfileTitle")}
                     </h3>
-                    <Button
+                    <AtlasButton
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsEditingProfile(true)}
                       data-testid="edit-profile-btn"
                     >
                       {t("step1.editProfile")}
-                    </Button>
+                    </AtlasButton>
                   </div>
-                  <dl className="space-y-2 text-sm">
+                  <dl className="space-y-2 text-sm font-atlas-body">
                     {name && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">{t("step1.name")}</dt>
-                        <dd className="font-medium">{name}</dd>
+                        <dt className="text-atlas-on-surface-variant">{t("step1.name")}</dt>
+                        <dd className="font-medium text-atlas-on-surface">{name}</dd>
                       </div>
                     )}
                     {birthDate && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>
-                        <dd className="font-medium">{birthDate}</dd>
+                        <dt className="text-atlas-on-surface-variant">{t("step1.birthDate")}</dt>
+                        <dd className="font-medium text-atlas-on-surface">{birthDate}</dd>
                       </div>
                     )}
                     {phone && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">{t("step1.phone")}</dt>
-                        <dd className="font-medium">{phone}</dd>
+                        <dt className="text-atlas-on-surface-variant">{t("step1.phone")}</dt>
+                        <dd className="font-medium text-atlas-on-surface">{phone}</dd>
                       </div>
                     )}
                     {(country || city) && (
                       <div className="flex justify-between">
-                        <dt className="text-muted-foreground">{t("step1.country")}</dt>
-                        <dd className="font-medium">
+                        <dt className="text-atlas-on-surface-variant">{t("step1.country")}</dt>
+                        <dd className="font-medium text-atlas-on-surface">
                           {[city, country].filter(Boolean).join(", ")}
                         </dd>
                       </div>
                     )}
                     {bio && (
                       <div className="flex justify-between gap-4">
-                        <dt className="shrink-0 text-muted-foreground">{t("step1.bio")}</dt>
-                        <dd className="font-medium text-right">
+                        <dt className="shrink-0 text-atlas-on-surface-variant">{t("step1.bio")}</dt>
+                        <dd className="font-medium text-atlas-on-surface text-right">
                           {bio.length > 80 ? `${bio.slice(0, 80)}...` : bio}
                         </dd>
                       </div>
@@ -534,287 +502,297 @@ function Phase1WizardV1({
                   </dl>
                 </div>
 
-                <Button onClick={handleStep1Next} size="lg" className="w-full">
+                <AtlasButton onClick={handleStep1Next} size="lg" fullWidth>
                   {tCommon("next")}
-                </Button>
-              </>
+                </AtlasButton>
+              </div>
             ) : (
-              <>
-                <p className="text-sm text-muted-foreground">{t("step1.subtitle")}</p>
+              <div className="mt-4 flex flex-col gap-4">
+                <p className="text-sm font-atlas-body text-atlas-on-surface-variant">
+                  {t("step1.subtitle")}
+                </p>
 
                 <div className="flex flex-col gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="profile-name">
-                      {t("step1.name")} <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="profile-name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      maxLength={100}
-                      placeholder={t("step1.namePlaceholder")}
-                      required
-                    />
-                  </div>
+                  <AtlasInput
+                    id="profile-name-v2"
+                    label={t("step1.name")}
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    maxLength={100}
+                    placeholder={t("step1.namePlaceholder")}
+                    required
+                  />
 
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="profile-birthdate">
-                      {t("step1.birthDate")} <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="profile-birthdate"
+                    <label
+                      htmlFor="profile-birthdate-v2"
+                      className="text-sm font-medium text-atlas-on-surface-variant"
+                    >
+                      {t("step1.birthDate")} <span className="text-atlas-error" aria-hidden="true">*</span>
+                    </label>
+                    <input
+                      id="profile-birthdate-v2"
                       type="date"
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
                       required
+                      className="w-full min-h-[48px] px-4 py-3 text-base font-atlas-body bg-atlas-surface-container-low text-atlas-on-surface placeholder:text-atlas-outline-variant rounded-lg border border-atlas-outline-variant transition-all duration-200 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2 focus:border-atlas-outline focus:bg-atlas-surface-container-lowest"
                     />
                   </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="profile-phone">{t("step1.phone")}</Label>
-                    <Input
-                      id="profile-phone"
-                      type="tel"
-                      inputMode="numeric"
-                      value={phone}
-                      onChange={(e) => {
-                        const formatted = formatBrazilianPhone(e.target.value);
-                        setPhone(formatted);
-                        if (phoneInvalid && isValidBrazilianPhone(formatted)) {
-                          setPhoneInvalid(false);
-                        }
-                      }}
-                      onBlur={() => {
-                        setPhoneInvalid(!isValidBrazilianPhone(phone));
-                      }}
-                      maxLength={15}
-                      placeholder={t("step1.phonePlaceholder")}
-                      aria-describedby={phoneInvalid ? "phone-error" : "phone-hint"}
-                      aria-invalid={phoneInvalid || undefined}
-                    />
-                    {phoneInvalid ? (
-                      <p id="phone-error" role="alert" className="text-xs text-destructive">
-                        {t("step1.phoneInvalid")}
-                      </p>
-                    ) : (
-                      <p id="phone-hint" className="text-xs text-muted-foreground/70">
-                        {t("step1.phoneHint")}
-                      </p>
-                    )}
-                  </div>
+                  <AtlasInput
+                    id="profile-phone-v2"
+                    label={t("step1.phone")}
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => {
+                      const formatted = formatBrazilianPhone(e.target.value);
+                      setPhone(formatted);
+                      if (phoneInvalid && isValidBrazilianPhone(formatted)) {
+                        setPhoneInvalid(false);
+                      }
+                    }}
+                    onBlur={() => {
+                      setPhoneInvalid(!isValidBrazilianPhone(phone));
+                    }}
+                    maxLength={15}
+                    placeholder={t("step1.phonePlaceholder")}
+                    error={phoneInvalid ? t("step1.phoneInvalid") : undefined}
+                    helperText={!phoneInvalid ? t("step1.phoneHint") : undefined}
+                  />
 
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="profile-country">{t("step1.country")}</Label>
-                      <Input
-                        id="profile-country"
-                        type="text"
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
-                        maxLength={100}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <Label htmlFor="profile-city">{t("step1.city")}</Label>
-                      <Input
-                        id="profile-city"
-                        type="text"
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        maxLength={100}
-                      />
-                    </div>
+                    <AtlasInput
+                      id="profile-country-v2"
+                      label={t("step1.country")}
+                      type="text"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      maxLength={100}
+                    />
+                    <AtlasInput
+                      id="profile-city-v2"
+                      label={t("step1.city")}
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      maxLength={100}
+                    />
                   </div>
 
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="profile-bio">{t("step1.bio")}</Label>
+                    <label
+                      htmlFor="profile-bio-v2"
+                      className="text-sm font-medium text-atlas-on-surface-variant"
+                    >
+                      {t("step1.bio")}
+                    </label>
                     <textarea
-                      id="profile-bio"
+                      id="profile-bio-v2"
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
                       maxLength={500}
                       rows={3}
-                      className="w-full rounded-lg border border-border bg-background text-foreground px-4 py-2 text-sm focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/50"
+                      className="w-full min-h-[48px] px-4 py-3 text-base font-atlas-body bg-atlas-surface-container-low text-atlas-on-surface placeholder:text-atlas-outline-variant rounded-lg border border-atlas-outline-variant transition-all duration-200 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2 focus:border-atlas-outline focus:bg-atlas-surface-container-lowest"
                       placeholder={t("step1.bioPlaceholder")}
                     />
-                    <span className="text-xs text-muted-foreground/70">{bio.length}/500</span>
+                    <span className="text-xs font-atlas-body text-atlas-on-surface-variant">
+                      {bio.length}/500
+                    </span>
                   </div>
                 </div>
 
-                <p className="text-xs text-muted-foreground/70">{t("step1.optional")}</p>
+                <p className="text-xs font-atlas-body text-atlas-on-surface-variant">
+                  {t("step1.optional")}
+                </p>
 
-                <Button onClick={handleStep1Next} size="lg" className="w-full">
+                <AtlasButton onClick={handleStep1Next} size="lg" fullWidth>
                   {tCommon("next")}
-                </Button>
-              </>
+                </AtlasButton>
+              </div>
             )}
-          </div>
+          </AtlasCard>
         )}
 
         {/* Step 2: Destination */}
         {currentStep === 2 && (
-          <div className="flex flex-col gap-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="step2-fields-grid">
-              <div>
-                <Label htmlFor="destination">{t("step2.title")}</Label>
-                <DestinationAutocomplete
-                  value={destination}
-                  onChange={handleDestinationChange}
-                  onSelect={handleDestinationSelect}
-                  placeholder={t("step2.placeholder")}
-                />
+          <AtlasCard variant="base">
+            <div className="flex flex-col gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="step2-fields-grid">
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
+                    {t("step2.title")}
+                  </label>
+                  <DestinationAutocomplete
+                    value={destination}
+                    onChange={handleDestinationChange}
+                    onSelect={handleDestinationSelect}
+                    placeholder={t("step2.placeholder")}
+                  />
+                </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
+                    {t("step2.origin")}
+                  </label>
+                  <DestinationAutocomplete
+                    value={origin}
+                    onChange={handleOriginChange}
+                    onSelect={handleOriginSelect}
+                    placeholder={t("step2.originPlaceholder")}
+                  />
+                  <p className="mt-1 text-xs font-atlas-body text-atlas-on-surface-variant">
+                    {t("step2.originHint")}
+                  </p>
+                </div>
               </div>
-              <div>
-                <Label htmlFor="origin">{t("step2.origin")}</Label>
-                <DestinationAutocomplete
-                  value={origin}
-                  onChange={handleOriginChange}
-                  onSelect={handleOriginSelect}
-                  placeholder={t("step2.originPlaceholder")}
-                />
-                <p className="mt-1 text-xs text-muted-foreground">{t("step2.originHint")}</p>
-              </div>
+              {tripType && (
+                <div className="flex items-center gap-2 rounded-lg bg-atlas-secondary-container/10 px-3 py-2 text-sm font-atlas-body text-atlas-primary">
+                  <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
+                  <span>{t(`tripType.${TRIP_TYPE_BADGES[tripType].key}`)}</span>
+                </div>
+              )}
             </div>
-            {tripType && (
-              <div className="flex items-center gap-2 rounded-lg bg-accent px-3 py-2 text-sm text-accent-foreground">
-                <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
-                <span>{t(`tripType.${TRIP_TYPE_BADGES[tripType].key}`)}</span>
-              </div>
-            )}
-          </div>
+          </AtlasCard>
         )}
 
         {/* Step 3: Dates */}
         {currentStep === 3 && (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">{t("step3.title")}</h2>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="expedition-start-date">{t("step3.startDate")}</Label>
-                <Input
-                  id="expedition-start-date"
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                />
+          <AtlasCard variant="base">
+            <div className="flex flex-col gap-4">
+              <h2 className="font-atlas-headline text-lg font-bold text-atlas-on-surface">
+                {t("step3.title")}
+              </h2>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="expedition-start-date-v2"
+                    className="text-sm font-medium text-atlas-on-surface-variant"
+                  >
+                    {t("step3.startDate")}
+                  </label>
+                  <input
+                    id="expedition-start-date-v2"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full min-h-[48px] px-4 py-3 text-base font-atlas-body bg-atlas-surface-container-low text-atlas-on-surface rounded-lg border border-atlas-outline-variant transition-all duration-200 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2 focus:border-atlas-outline focus:bg-atlas-surface-container-lowest"
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <label
+                    htmlFor="expedition-end-date-v2"
+                    className="text-sm font-medium text-atlas-on-surface-variant"
+                  >
+                    {t("step3.endDate")}
+                  </label>
+                  <input
+                    id="expedition-end-date-v2"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full min-h-[48px] px-4 py-3 text-base font-atlas-body bg-atlas-surface-container-low text-atlas-on-surface rounded-lg border border-atlas-outline-variant transition-all duration-200 motion-reduce:transition-none focus:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2 focus:border-atlas-outline focus:bg-atlas-surface-container-lowest"
+                  />
+                </div>
               </div>
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="expedition-end-date">{t("step3.endDate")}</Label>
-                <Input
-                  id="expedition-end-date"
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
+              {showPassportWarning && (
+                <div className="flex items-start gap-2 rounded-lg bg-atlas-warning-container border border-atlas-warning/30 px-4 py-3 text-sm font-atlas-body text-atlas-warning">
+                  <span className="mt-0.5" aria-hidden="true">{"\u26A0\uFE0F"}</span>
+                  <span>{t("passportExpiryWarning")}</span>
+                </div>
+              )}
+              <label className="flex min-h-[44px] items-center gap-2 text-sm font-atlas-body text-atlas-on-surface cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={flexibleDates}
+                  onChange={(e) => setFlexibleDates(e.target.checked)}
+                  className="rounded border-atlas-outline-variant focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
                 />
-              </div>
+                {t("step3.flexibleDates")}
+              </label>
             </div>
-            {showPassportWarning && (
-              <div className="flex items-start gap-2 rounded-lg bg-atlas-gold/10 border border-atlas-gold/30 px-4 py-3 text-sm text-atlas-gold">
-                <span className="mt-0.5">{"\u26A0\uFE0F"}</span>
-                <span>{t("passportExpiryWarning")}</span>
-              </div>
-            )}
-            <label className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                checked={flexibleDates}
-                onChange={(e) => setFlexibleDates(e.target.checked)}
-                className="rounded border-border"
-              />
-              {t("step3.flexibleDates")}
-            </label>
-          </div>
+          </AtlasCard>
         )}
 
         {/* Step 4: Confirmation */}
         {currentStep === 4 && (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">{t("step4.title")}</h2>
-            <div className="rounded-xl border border-border bg-muted p-4">
-              <h3 className="mb-3 text-sm font-medium text-muted-foreground">
-                {t("step4.summary")}
-              </h3>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step4.destination")}</dt>
-                  <dd className="font-medium">{destination}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step4.origin")}</dt>
-                  <dd className={origin ? "font-medium" : "text-muted-foreground/60 italic"}>
-                    {origin || tCommon("notProvided")}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step4.dates")}</dt>
-                  <dd className="font-medium">
-                    {startDate && endDate
-                      ? `${startDate} \u2192 ${endDate}`
-                      : flexibleDates
-                        ? t("step4.yes")
-                        : "\u2014"}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step4.flexibleDates")}</dt>
-                  <dd className="font-medium">
-                    {flexibleDates ? t("step4.yes") : t("step4.no")}
-                  </dd>
-                </div>
-              </dl>
-              <h3 className="mb-3 mt-4 text-sm font-medium text-muted-foreground">
-                {t("step4.profileSummary")}
-              </h3>
-              <dl className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step1.name")}</dt>
-                  <dd className={name ? "font-medium" : "text-muted-foreground/60 italic"}>
-                    {name || tCommon("notProvided")}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step1.birthDate")}</dt>
-                  <dd className={birthDate ? "font-medium" : "text-muted-foreground/60 italic"}>
-                    {birthDate || tCommon("notProvided")}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step1.phone")}</dt>
-                  <dd className={phone ? "font-medium" : "text-muted-foreground/60 italic"}>
-                    {phone || tCommon("notProvided")}
-                  </dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt className="text-muted-foreground">{t("step4.location")}</dt>
-                  <dd className={(country || city) ? "font-medium" : "text-muted-foreground/60 italic"}>
-                    {(country || city) ? [city, country].filter(Boolean).join(", ") : tCommon("notProvided")}
-                  </dd>
-                </div>
-                <div className="flex justify-between gap-4">
-                  <dt className="shrink-0 text-muted-foreground">{t("step4.bio")}</dt>
-                  <dd className={bio ? "font-medium text-right" : "text-muted-foreground/60 italic"}>
-                    {bio ? (bio.length > 100 ? `${bio.slice(0, 100)}...` : bio) : tCommon("notProvided")}
-                  </dd>
-                </div>
-              </dl>
+          <AtlasCard variant="base">
+            <div className="flex flex-col gap-4">
+              <h2 className="font-atlas-headline text-lg font-bold text-atlas-on-surface">
+                {t("step4.title")}
+              </h2>
+              <div className="rounded-lg bg-atlas-surface-container-low p-4">
+                <h3 className="mb-3 text-sm font-medium font-atlas-body text-atlas-on-surface-variant">
+                  {t("step4.summary")}
+                </h3>
+                <dl className="space-y-2 text-sm font-atlas-body">
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step4.destination")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">{destination}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step4.origin")}</dt>
+                    <dd className={origin ? "font-medium text-atlas-on-surface" : "text-atlas-outline-variant italic"}>
+                      {origin || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step4.dates")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">
+                      {startDate && endDate
+                        ? `${startDate} \u2192 ${endDate}`
+                        : flexibleDates
+                          ? t("step4.yes")
+                          : "\u2014"}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step4.flexibleDates")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">
+                      {flexibleDates ? t("step4.yes") : t("step4.no")}
+                    </dd>
+                  </div>
+                </dl>
+                <h3 className="mb-3 mt-4 text-sm font-medium font-atlas-body text-atlas-on-surface-variant">
+                  {t("step4.profileSummary")}
+                </h3>
+                <dl className="space-y-2 text-sm font-atlas-body">
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step1.name")}</dt>
+                    <dd className={name ? "font-medium text-atlas-on-surface" : "text-atlas-outline-variant italic"}>
+                      {name || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step1.birthDate")}</dt>
+                    <dd className={birthDate ? "font-medium text-atlas-on-surface" : "text-atlas-outline-variant italic"}>
+                      {birthDate || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step1.phone")}</dt>
+                    <dd className={phone ? "font-medium text-atlas-on-surface" : "text-atlas-outline-variant italic"}>
+                      {phone || tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step4.location")}</dt>
+                    <dd className={(country || city) ? "font-medium text-atlas-on-surface" : "text-atlas-outline-variant italic"}>
+                      {(country || city) ? [city, country].filter(Boolean).join(", ") : tCommon("notProvided")}
+                    </dd>
+                  </div>
+                  <div className="flex justify-between gap-4">
+                    <dt className="shrink-0 text-atlas-on-surface-variant">{t("step4.bio")}</dt>
+                    <dd className={bio ? "font-medium text-atlas-on-surface text-right" : "text-atlas-outline-variant italic"}>
+                      {bio ? (bio.length > 100 ? `${bio.slice(0, 100)}...` : bio) : tCommon("notProvided")}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
             </div>
-          </div>
+          </AtlasCard>
         )}
       </div>
     </PhaseShell>
-  );
-}
-
-/**
- * Phase1Wizard — public API.
- * Delegates to V1 or V2 based on the NEXT_PUBLIC_DESIGN_V2 feature flag.
- */
-export function Phase1Wizard(props: Phase1WizardProps) {
-  return (
-    <DesignBranch
-      v1={<Phase1WizardV1 {...props} />}
-      v2={<Phase1WizardV2 {...props} />}
-    />
   );
 }

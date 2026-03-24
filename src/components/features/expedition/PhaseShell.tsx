@@ -1,9 +1,11 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DesignBranch } from "@/components/ui";
 import { UnifiedProgressBar } from "./UnifiedProgressBar";
 import { StepProgressIndicator } from "./StepProgressIndicator";
 import { WizardFooter } from "./WizardFooter";
+import { PhaseShellV2 } from "./PhaseShellV2";
 
 interface PhaseShellProps {
   /** Trip ID for navigation URLs */
@@ -48,8 +50,8 @@ interface PhaseShellProps {
 }
 
 /**
- * Consistent wrapper for all expedition phase pages (1-6).
- * Eliminates per-phase layout inconsistencies.
+ * V1 implementation — consistent wrapper for all expedition phase pages (1-6).
+ * Extracted from original PhaseShell to support DesignBranch V1/V2 switching.
  *
  * Layout (top to bottom):
  * 1. UnifiedProgressBar (always)
@@ -61,7 +63,7 @@ interface PhaseShellProps {
  *
  * Spec ref: SPEC-UX-019 Section 4.2
  */
-export function PhaseShell({
+function PhaseShellV1({
   tripId,
   viewingPhase,
   tripCurrentPhase,
@@ -140,5 +142,18 @@ export function PhaseShell({
         <WizardFooter {...footerProps} />
       )}
     </div>
+  );
+}
+
+/**
+ * PhaseShell — public API used by all phase wizards.
+ * Delegates to V1 or V2 based on the NEXT_PUBLIC_DESIGN_V2 feature flag.
+ */
+export function PhaseShell(props: PhaseShellProps) {
+  return (
+    <DesignBranch
+      v1={<PhaseShellV1 {...props} />}
+      v2={<PhaseShellV2 {...props} />}
+    />
   );
 }

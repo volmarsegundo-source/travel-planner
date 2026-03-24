@@ -18,23 +18,18 @@
 - User stories in `docs/tasks.md` remain for backlog tracking but link to their spec
 - Sprint 25: new features require specs; Sprint 26: retroactive specs for critical features
 
-### Backlog State (as of 2026-03-23, Sprint 39 planning)
-- Product version: v0.33.0 (Sprint 38 complete -- Design System Foundation) / v0.34.0 in planning
-- Sprints 1-38 complete
+### Backlog State (as of 2026-03-24, Sprint 40 planning)
+- Product version: v0.34.0 (Sprint 39 in progress -- Landing + Login V2) / v0.35.0 in planning (Sprint 40)
+- Sprints 1-39 in progress
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-051
-- Sprint 36 backlog: `docs/specs/sprint-36/SPRINT-36-PRIORITIES.md`
-- Sprint 37 backlog: `docs/specs/sprint-37/SPRINT-37-PRIORITIES.md`
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-055
 - Sprint 38 backlog: `docs/specs/sprint-38/SPRINT-38-PRIORITIES.md`
 - Sprint 39 backlog: `docs/specs/sprint-39/SPRINT-39-PRIORITIES.md`
-- Sprint 31 product specs: SPEC-PROD-021, SPEC-PROD-022, SPEC-PROD-023, SPEC-PROD-024
-- Sprint 32 product specs: SPEC-PROD-025, SPEC-PROD-026, SPEC-PROD-027, SPEC-PROD-028
-- Sprint 33 product specs: SPEC-PROD-029, SPEC-PROD-030, SPEC-PROD-031, SPEC-PROD-032, SPEC-PROD-033, SPEC-PROD-034
-- Sprint 34 product specs: SPEC-PROD-035, SPEC-PROD-036, SPEC-PROD-037, SPEC-PROD-038
-- Sprint 36 product specs: SPEC-PROD-039, SPEC-PROD-040, SPEC-PROD-041, SPEC-PROD-042
-- Sprint 37 product specs: SPEC-PROD-043, SPEC-PROD-044, SPEC-PROD-045
+- Sprint 40 backlog: `docs/specs/sprint-40/SPRINT-40-PRIORITIES.md`
 - Sprint 38 product specs: SPEC-PROD-046 (Design System Foundation), SPEC-PROD-047 (Component Library v1)
 - Sprint 39 product specs: SPEC-PROD-048 (Landing Page V2), SPEC-PROD-049 (Login Page V2), SPEC-PROD-050 (Sprint 38 Carryover Fixes)
+- Sprint 40 product specs: SPEC-PROD-051 (Phase Shell V2 + Auth Nav V2), SPEC-PROD-052 (Phases 1-3 V2), SPEC-PROD-053 (Phases 4-6 V2 + Summary V2), SPEC-PROD-054 (Dashboard Meu Atlas V2)
+- Sprint 40 task breakdown: `docs/specs/sprint-40/SPRINT-40-TASKS.md`
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning
@@ -193,7 +188,8 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Feature flag: NEXT_PUBLIC_DESIGN_V2 (default: false, must remain false in staging/prod until rollout decision)
 - Component library: 7 components in src/components/ui/ (AtlasButton, AtlasInput, AtlasCard, AtlasChip, AtlasBadge, AtlasPhaseProgress, AtlasStepperInput)
 - Visual regression: Playwright screenshots baseline in e2e/visual-regression/baseline/
-- Migration plan: Sprint 38 (infrastructure) -> Sprint 39 (Landing + Login) -> Sprint 40 (Phases 1-3) -> Sprint 41 (Phases 4-6 + Summary) -> Sprint 42 (Dashboard)
+- Migration plan (REVISED 2026-03-24): Sprint 38 (infrastructure) -> Sprint 39 (Landing + Login) -> Sprint 40 (CONSOLIDATED: Shell + ALL Phases 1-6 + Summary + Dashboard) -> Sprint 41 (Design V2 staging rollout) -> Sprint 42 (Design V2 production rollout)
+- Sprint 40 consolidates original Sprints 40-42 into one sprint (50h, 2-track parallel). Rationale: shell is shared dependency; visual fragmentation of partial migration is unacceptable for staging demo; Component Library Sprint 38 makes the work tractable.
 
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)

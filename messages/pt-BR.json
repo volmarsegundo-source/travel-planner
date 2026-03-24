@@ -1918,5 +1918,24 @@
       "lgpd": "Em conformidade com a LGPD. Seus dados estao protegidos.",
       "newsletterSuccess": "Inscricao registrada! Em breve voce recebera novidades."
     }
+  },
+  "navV2": {
+    "mainNavigation": "Navegacao principal"
+  },
+  "phaseShellV2": {
+    "breadcrumb": {
+      "label": "Caminho de navegacao",
+      "expeditions": "Expedicoes",
+      "currentTrip": "Viagem atual"
+    }
+  },
+  "phase1V2": {
+    "title": "A Inspiracao"
+  },
+  "phase2V2": {
+    "title": "O Perfil"
+  },
+  "phase3V2": {
+    "title": "O Preparo"
   }
 }

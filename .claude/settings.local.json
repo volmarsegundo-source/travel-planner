@@ -133,7 +133,8 @@
       "Bash(sed -i 's/\"\"daysRemaining\"\": \"\"{count} days remaining\"\"/\"\"daysRemaining\"\": \"\"days remaining\"\"/' /c/travel-planner/messages/en.json)",
       "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% ready\"\"/\"\"percentReady\"\": \"\"ready\"\"/' /c/travel-planner/messages/en.json)",
       "Bash(sed -i 's/\"\"daysRemaining\"\": \"\"{count} dias restantes\"\"/\"\"daysRemaining\"\": \"\"dias restantes\"\"/' /c/travel-planner/messages/pt-BR.json)",
-      "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% pronto\"\"/\"\"percentReady\"\": \"\"pronto\"\"/' /c/travel-planner/messages/pt-BR.json)"
+      "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% pronto\"\"/\"\"percentReady\"\": \"\"pronto\"\"/' /c/travel-planner/messages/pt-BR.json)",
+      "Bash(NEXT_PUBLIC_DESIGN_V2=true npx next build)"
     ]
   }
 }
