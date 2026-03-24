@@ -6,9 +6,7 @@ import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import { TripReadinessService } from "@/server/services/trip-readiness.service";
 import { getNextStepsSuggestions } from "@/lib/engines/next-steps-engine";
-import { ExpeditionSummary } from "@/components/features/expedition/ExpeditionSummary";
 import { ExpeditionSummaryV2 } from "@/components/features/expedition/ExpeditionSummaryV2";
-import { DesignBranch } from "@/components/ui/DesignBranch";
 
 interface SummaryPageProps {
   params: Promise<{ locale: string; tripId: string }>;
@@ -71,27 +69,13 @@ export default async function SummaryPage({ params }: SummaryPageProps) {
           ]}
         />
       </div>
-      <DesignBranch
-        v1={
-          <ExpeditionSummary
-            tripId={tripId}
-            summary={summary}
-            readiness={readiness}
-            nextSteps={nextSteps}
-            startDate={startDate}
-            endDate={endDate}
-          />
-        }
-        v2={
-          <ExpeditionSummaryV2
-            tripId={tripId}
-            summary={summary}
-            readiness={readiness}
-            nextSteps={nextSteps}
-            startDate={startDate}
-            endDate={endDate}
-          />
-        }
+      <ExpeditionSummaryV2
+        tripId={tripId}
+        summary={summary}
+        readiness={readiness}
+        nextSteps={nextSteps}
+        startDate={startDate}
+        endDate={endDate}
       />
     </>
   );

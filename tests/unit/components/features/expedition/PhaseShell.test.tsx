@@ -1,7 +1,7 @@
 /**
  * Unit tests for PhaseShell component.
  *
- * Tests cover: layout rendering, UnifiedProgressBar presence,
+ * Tests cover: layout rendering, phase progress presence,
  * StepProgressIndicator conditional rendering, edit mode banner,
  * WizardFooter conditional rendering, contentMaxWidth variants.
  *
@@ -57,17 +57,7 @@ describe("PhaseShell", () => {
       </PhaseShell>
     );
 
-    expect(screen.getByTestId("phase-shell")).toBeInTheDocument();
-  });
-
-  it("renders UnifiedProgressBar", () => {
-    render(
-      <PhaseShell {...baseProps}>
-        <div>Child content</div>
-      </PhaseShell>
-    );
-
-    expect(screen.getByTestId("unified-progress-bar")).toBeInTheDocument();
+    expect(screen.getByTestId("phase-shell-v2")).toBeInTheDocument();
   });
 
   it("renders phase title as h1", () => {
@@ -214,5 +204,15 @@ describe("PhaseShell", () => {
 
     const contentDiv = container.querySelector(".max-w-4xl");
     expect(contentDiv).toBeTruthy();
+  });
+
+  it("renders breadcrumb navigation in sidebar", () => {
+    render(
+      <PhaseShell {...baseProps}>
+        <div>Child</div>
+      </PhaseShell>
+    );
+
+    expect(screen.getByLabelText("phaseShellV2.breadcrumb.label")).toBeInTheDocument();
   });
 });

@@ -168,8 +168,8 @@ describe("AppShellLayout", () => {
     });
     render(Component);
 
-    // AuthenticatedNavbar renders a nav with aria-label
-    const nav = screen.getByRole("navigation", { name: "Main navigation" });
+    // AuthenticatedNavbarV2 renders a nav with translated aria-label
+    const nav = screen.getByRole("navigation", { name: "navV2.mainNavigation" });
     expect(nav).toBeInTheDocument();
   });
 

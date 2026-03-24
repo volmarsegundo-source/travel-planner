@@ -5,9 +5,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { PointsEngine } from "@/lib/engines/points-engine";
-import { DestinationGuideWizard } from "@/components/features/expedition/DestinationGuideWizard";
 import { DestinationGuideV2 } from "@/components/features/expedition/DestinationGuideV2";
-import { DesignBranch } from "@/components/ui/DesignBranch";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
 interface Phase5PageProps {
@@ -48,21 +46,16 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
     // Non-critical — defaults to 0
   }
 
-  const sharedProps = {
-    tripId,
-    destination: trip.destination as string,
-    locale,
-    initialGuide,
-    accessMode,
-    tripCurrentPhase: trip.currentPhase,
-    completedPhases,
-    availablePoints,
-  };
-
   return (
-    <DesignBranch
-      v1={<DestinationGuideWizard {...sharedProps} />}
-      v2={<DestinationGuideV2 {...sharedProps} />}
+    <DestinationGuideV2
+      tripId={tripId}
+      destination={trip.destination as string}
+      locale={locale}
+      initialGuide={initialGuide}
+      accessMode={accessMode}
+      tripCurrentPhase={trip.currentPhase}
+      completedPhases={completedPhases}
+      availablePoints={availablePoints}
     />
   );
 }

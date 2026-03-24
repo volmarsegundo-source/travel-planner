@@ -1,7 +1,5 @@
 import { redirect } from "@/i18n/navigation";
 import { auth } from "@/lib/auth";
-import { DesignBranch } from "@/components/ui";
-import { LandingPageV1 } from "@/components/features/landing/LandingPageV1";
 import { LandingPageV2 } from "@/components/features/landing/LandingPageV2";
 
 interface HomePageProps {
@@ -18,10 +16,5 @@ export default async function HomePage({ params }: HomePageProps) {
 
   const isAuthenticated = !!session;
 
-  return (
-    <DesignBranch
-      v1={<LandingPageV1 />}
-      v2={<LandingPageV2 isAuthenticated={isAuthenticated} />}
-    />
-  );
+  return <LandingPageV2 isAuthenticated={isAuthenticated} />;
 }

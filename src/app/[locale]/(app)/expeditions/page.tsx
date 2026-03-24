@@ -3,9 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { TripService } from "@/server/services/trip.service";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
-import { ExpeditionsDashboard } from "@/components/features/dashboard/ExpeditionsDashboard";
 import { DashboardV2 } from "@/components/features/dashboard/DashboardV2";
-import { DesignBranch } from "@/components/ui/DesignBranch";
 import type { ExpeditionDTO } from "@/types/expedition.types";
 
 interface ExpeditionsPageProps {
@@ -61,10 +59,7 @@ export default async function ExpeditionsPage({ params }: ExpeditionsPageProps) 
         ]}
       />
       <div className="mt-6">
-        <DesignBranch
-          v1={<ExpeditionsDashboard expeditions={expeditions} />}
-          v2={<DashboardV2 expeditions={expeditions} />}
-        />
+        <DashboardV2 expeditions={expeditions} />
       </div>
     </div>
   );

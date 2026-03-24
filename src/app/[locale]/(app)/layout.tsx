@@ -3,7 +3,7 @@ import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
-import { NavbarBranch } from "@/components/layout/NavbarBranch";
+import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
 import { Footer } from "@/components/layout/Footer";
 
 interface AppShellLayoutProps {
@@ -62,7 +62,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
       >
         {t("skipToContent")}
       </a>
-      <NavbarBranch
+      <AuthenticatedNavbarV2
         userName={displayName}
         userImage={user.image ?? null}
         userEmail={user.email ?? ""}

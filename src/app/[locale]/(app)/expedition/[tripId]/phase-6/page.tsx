@@ -6,9 +6,7 @@ import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
-import { Phase6Wizard } from "@/components/features/expedition/Phase6Wizard";
 import { Phase6ItineraryV2 } from "@/components/features/expedition/Phase6ItineraryV2";
-import { DesignBranch } from "@/components/ui/DesignBranch";
 import { deriveAgeRange } from "@/server/services/expedition-summary.service";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { DestinationGuideContent } from "@/types/ai.types";
@@ -237,28 +235,24 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
     // Non-critical — defaults to 0
   }
 
-  const sharedProps = {
-    tripId,
-    destination: typeof trip.destination === "string" ? trip.destination : "",
-    locale,
-    startDate: trip.startDate instanceof Date ? trip.startDate.toISOString().split("T")[0]! : typeof trip.startDate === "string" ? trip.startDate.split("T")[0]! : null,
-    endDate: trip.endDate instanceof Date ? trip.endDate.toISOString().split("T")[0]! : typeof trip.endDate === "string" ? trip.endDate.split("T")[0]! : null,
-    initialDays: itineraryDays,
-    travelStyle: (phase2Meta?.travelStyle as TravelStyle | undefined) ?? undefined,
-    budgetTotal: (phase2Meta?.budget as number | undefined) ?? undefined,
-    budgetCurrency: (phase2Meta?.currency as string | undefined) ?? undefined,
-    travelers: totalTravelers,
-    expeditionContext,
-    accessMode,
-    tripCurrentPhase: trip.currentPhase,
-    completedPhases,
-    availablePoints,
-  };
-
   return (
-    <DesignBranch
-      v1={<Phase6Wizard key={`phase6-${itineraryDays.length}`} {...sharedProps} />}
-      v2={<Phase6ItineraryV2 key={`phase6-v2-${itineraryDays.length}`} {...sharedProps} />}
+    <Phase6ItineraryV2
+      key={`phase6-v2-${itineraryDays.length}`}
+      tripId={tripId}
+      destination={typeof trip.destination === "string" ? trip.destination : ""}
+      locale={locale}
+      startDate={trip.startDate instanceof Date ? trip.startDate.toISOString().split("T")[0]! : typeof trip.startDate === "string" ? trip.startDate.split("T")[0]! : null}
+      endDate={trip.endDate instanceof Date ? trip.endDate.toISOString().split("T")[0]! : typeof trip.endDate === "string" ? trip.endDate.split("T")[0]! : null}
+      initialDays={itineraryDays}
+      travelStyle={(phase2Meta?.travelStyle as TravelStyle | undefined) ?? undefined}
+      budgetTotal={(phase2Meta?.budget as number | undefined) ?? undefined}
+      budgetCurrency={(phase2Meta?.currency as string | undefined) ?? undefined}
+      travelers={totalTravelers}
+      expeditionContext={expeditionContext}
+      accessMode={accessMode}
+      tripCurrentPhase={trip.currentPhase}
+      completedPhases={completedPhases}
+      availablePoints={availablePoints}
     />
   );
 }

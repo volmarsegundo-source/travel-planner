@@ -134,7 +134,10 @@
       "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% ready\"\"/\"\"percentReady\"\": \"\"ready\"\"/' /c/travel-planner/messages/en.json)",
       "Bash(sed -i 's/\"\"daysRemaining\"\": \"\"{count} dias restantes\"\"/\"\"daysRemaining\"\": \"\"dias restantes\"\"/' /c/travel-planner/messages/pt-BR.json)",
       "Bash(sed -i 's/\"\"percentReady\"\": \"\"{percent}% pronto\"\"/\"\"percentReady\"\": \"\"pronto\"\"/' /c/travel-planner/messages/pt-BR.json)",
-      "Bash(NEXT_PUBLIC_DESIGN_V2=true npx next build)"
+      "Bash(NEXT_PUBLIC_DESIGN_V2=true npx next build)",
+      "Bash(NEXT_PUBLIC_DESIGN_V2=true PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test --reporter=list 2>&1)",
+      "Bash(NEXT_PUBLIC_DESIGN_V2=true PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test --reporter=list)",
+      "Bash(NEXT_PUBLIC_DESIGN_V2=false PLAYWRIGHT_BASE_URL=https://travel-planner-eight-navy.vercel.app npx playwright test --reporter=list)"
     ]
   }
 }

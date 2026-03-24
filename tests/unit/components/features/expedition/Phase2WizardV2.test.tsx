@@ -39,14 +39,6 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/expedition/test/phase-2",
 }));
 
-vi.mock("@/hooks/useDesignV2", () => ({
-  useDesignV2: () => false,
-}));
-
-vi.mock("@/lib/feature-flags", () => ({
-  isDesignV2Enabled: () => false,
-}));
-
 vi.mock("@/hooks/useFormDirty", () => ({
   useFormDirty: () => ({ isDirty: false, markClean: vi.fn() }),
 }));

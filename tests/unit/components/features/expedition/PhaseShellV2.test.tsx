@@ -37,14 +37,6 @@ vi.mock("@/i18n/navigation", () => ({
   usePathname: () => "/expedition/test-trip/phase-1",
 }));
 
-vi.mock("@/hooks/useDesignV2", () => ({
-  useDesignV2: () => false,
-}));
-
-vi.mock("@/lib/feature-flags", () => ({
-  isDesignV2Enabled: () => false,
-}));
-
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import { PhaseShellV2 } from "@/components/features/expedition/PhaseShellV2";

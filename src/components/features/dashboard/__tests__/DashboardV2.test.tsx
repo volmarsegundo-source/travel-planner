@@ -41,10 +41,6 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
-vi.mock("@/hooks/useDesignV2", () => ({
-  useDesignV2: () => true,
-}));
-
 vi.mock("@/lib/expedition-filters", () => ({
   filterAndSortExpeditions: (
     exps: ExpeditionDTO[],

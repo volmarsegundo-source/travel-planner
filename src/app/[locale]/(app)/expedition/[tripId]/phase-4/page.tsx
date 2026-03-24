@@ -1,7 +1,5 @@
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
-import { Phase4Wizard } from "@/components/features/expedition/Phase4Wizard";
 import { Phase4WizardV2 } from "@/components/features/expedition/Phase4WizardV2";
-import { DesignBranch } from "@/components/ui/DesignBranch";
 
 interface Phase4PageProps {
   params: Promise<{ locale: string; tripId: string }>;
@@ -28,10 +26,5 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
     completedPhases,
   };
 
-  return (
-    <DesignBranch
-      v1={<Phase4Wizard {...sharedProps} />}
-      v2={<Phase4WizardV2 {...sharedProps} />}
-    />
-  );
+  return <Phase4WizardV2 {...sharedProps} />;
 }

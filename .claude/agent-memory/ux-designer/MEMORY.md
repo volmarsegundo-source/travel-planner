@@ -222,7 +222,10 @@
 ## Sprint 39 — Landing Page + Login V2 (2026-03-23)
 - [sprint39_landing_login.md](sprint39_landing_login.md) — Full UX spec details and key decisions
 - UX Spec: docs/specs/sprint-39/UX-SPEC-LANDING-LOGIN-V2.md
-- Landing: 6 sections (nav, hero, 8 phases, AI, gamification, destinations, footer)
-- Login: split-screen (60/40 brand+form), teal border focus, amber ring focus
-- 0 new library components, 5 page compositions, 4 inline patterns
-- 5 open questions (icon lib, hero image, AI mockup, loading text, copyright entity)
+
+## Sprint 40 — All Screens V2 Validation (2026-03-24)
+- [sprint40_v2_validation.md](sprint40_v2_validation.md) — Post-merge visual audit of 10 V2 screens
+- Validation spec: docs/specs/sprint-40/UX-SPEC-ALL-SCREENS-V2.md
+- 10 screens validated (6 APPROVED, 4 APPROVED WITH CONDITIONS)
+- 0 hotfixes needed. Deferred items: P1 map panel, P2 charts/images, P3 gamification cards
+- All V2 screens use exclusively atlas-* tokens, Plus Jakarta Sans + Work Sans, 7 Atlas components
