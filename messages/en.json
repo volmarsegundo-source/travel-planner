@@ -1918,5 +1918,24 @@
       "lgpd": "LGPD compliant. Your data is protected.",
       "newsletterSuccess": "Subscription registered! You will receive news soon."
     }
+  },
+  "navV2": {
+    "mainNavigation": "Main navigation"
+  },
+  "phaseShellV2": {
+    "breadcrumb": {
+      "label": "Breadcrumb",
+      "expeditions": "Expeditions",
+      "currentTrip": "Current trip"
+    }
+  },
+  "phase1V2": {
+    "title": "The Inspiration"
+  },
+  "phase2V2": {
+    "title": "The Profile"
+  },
+  "phase3V2": {
+    "title": "The Preparation"
   }
 }

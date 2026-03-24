@@ -7,9 +7,11 @@ import { useFormDirty } from "@/hooks/useFormDirty";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { DesignBranch } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
 import { VisualCardSelector } from "./VisualCardSelector";
 import { PassengersStep } from "./PassengersStep";
+import { Phase2WizardV2 } from "./Phase2WizardV2";
 import { PreferencesSection } from "@/components/features/profile/PreferencesSection";
 import { completePhase2Action, updatePhase2Action } from "@/server/actions/expedition.actions";
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
@@ -58,7 +60,7 @@ interface Phase2WizardProps {
 // Step definitions (order matters)
 type StepKey = "travelerType" | "passengers" | "accommodation" | "pace" | "budget" | "preferences" | "confirmation";
 
-export function Phase2Wizard({
+function Phase2WizardV1({
   tripId,
   tripContext,
   savedData,
@@ -586,5 +588,18 @@ export function Phase2Wizard({
         )}
       </div>
     </PhaseShell>
+  );
+}
+
+/**
+ * Phase2Wizard — public API.
+ * Delegates to V1 or V2 based on the NEXT_PUBLIC_DESIGN_V2 feature flag.
+ */
+export function Phase2Wizard(props: Phase2WizardProps) {
+  return (
+    <DesignBranch
+      v1={<Phase2WizardV1 {...props} />}
+      v2={<Phase2WizardV2 {...props} />}
+    />
   );
 }

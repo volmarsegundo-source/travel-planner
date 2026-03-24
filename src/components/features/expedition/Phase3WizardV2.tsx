@@ -4,9 +4,8 @@ import { useState, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
-import { DesignBranch } from "@/components/ui";
+import { AtlasCard, AtlasBadge } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
-import { Phase3WizardV2 } from "./Phase3WizardV2";
 import {
   togglePhase3ItemAction,
   advanceFromPhaseAction,
@@ -22,21 +21,18 @@ interface ChecklistItemData {
   pointsValue: number;
 }
 
-interface Phase3WizardProps {
+interface Phase3WizardV2Props {
   tripId: string;
   items: ChecklistItemData[];
   tripType: string;
   destination: string;
   currentPhase?: number;
-  /** Access mode from navigation engine */
   accessMode?: PhaseAccessMode;
-  /** Trip's current phase from DB */
   tripCurrentPhase?: number;
-  /** Completed phase numbers from DB */
   completedPhases?: number[];
 }
 
-function Phase3WizardV1({
+export function Phase3WizardV2({
   tripId,
   items: initialItems,
   tripType,
@@ -45,7 +41,7 @@ function Phase3WizardV1({
   accessMode = "first_visit",
   tripCurrentPhase = 3,
   completedPhases = [],
-}: Phase3WizardProps) {
+}: Phase3WizardV2Props) {
   const t = useTranslations("expedition.phase3");
   const tExpedition = useTranslations("expedition");
   const tErrors = useTranslations("errors");
@@ -63,7 +59,7 @@ function Phase3WizardV1({
     points: number;
   } | null>(null);
 
-  // ─── Dirty tracking ─────────────────────────────────────────────────────
+  // Dirty tracking
   const checklistValues = useMemo(() => {
     const completed: Record<string, unknown> = {};
     for (const item of items) {
@@ -78,7 +74,6 @@ function Phase3WizardV1({
   const recommendedItems = items.filter((i) => !i.required);
   const requiredCompleted = requiredItems.filter((i) => i.completed).length;
 
-  /** Save handler — checklist toggles auto-save, so this just resets dirty baseline. */
   function handleSaveChecklist() {
     markClean();
   }
@@ -109,7 +104,6 @@ function Phase3WizardV1({
         setTimeout(() => setItemPoints(null), 2000);
       }
 
-      // Refresh server components so PhaseShell progress bar updates in real-time
       router.refresh();
     } catch {
       setErrorMessage("errors.generic");
@@ -131,7 +125,6 @@ function Phase3WizardV1({
         return;
       }
 
-      // Navigate directly to phase-4
       router.push(`/expedition/${tripId}/phase-4`);
     } catch {
       setErrorMessage("errors.generic");
@@ -152,6 +145,10 @@ function Phase3WizardV1({
       return null;
     }
   }
+
+  const progressPercent = requiredItems.length > 0
+    ? Math.round((requiredCompleted / requiredItems.length) * 100)
+    : 100;
 
   return (
     <PhaseShell
@@ -175,81 +172,53 @@ function Phase3WizardV1({
         isDirty: formDirty,
       }}
     >
-      {/* Trip context */}
-      <p className="text-center text-sm text-atlas-teal dark:text-atlas-teal-light">
-        {destination} -- {t(`tripTypes.${tripType}`)}
-      </p>
+      <div className="flex flex-col gap-6" data-testid="phase3-v2">
+        {/* Trip context */}
+        <p className="text-center text-sm font-atlas-body text-atlas-on-surface-variant">
+          {destination} -- {t(`tripTypes.${tripType}`)}
+        </p>
 
-      {/* Progress */}
-      <div className="mt-4 rounded-lg bg-muted p-3">
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">
-            {t("progress", {
-              completed: requiredCompleted,
-              total: requiredItems.length,
-            })}
-          </span>
-          <span className="font-semibold text-foreground">
-            {requiredItems.length > 0
-              ? Math.round((requiredCompleted / requiredItems.length) * 100)
-              : 100}
-            %
-          </span>
-        </div>
-        <div className="mt-2 h-2 overflow-hidden rounded-full bg-border">
-          <div
-            className="h-full rounded-full bg-atlas-gold transition-all duration-500"
-            style={{
-              width: `${requiredItems.length > 0 ? (requiredCompleted / requiredItems.length) * 100 : 100}%`,
-            }}
-          />
-        </div>
-      </div>
-
-      {errorMessage && (
-        <div
-          role="alert"
-          className="mt-4 rounded-md bg-destructive/10 px-4 py-3 text-sm text-destructive border border-destructive/30"
-        >
-          {errorMessage.startsWith("errors.")
-            ? tErrors(errorMessage.replace("errors.", ""))
-            : errorMessage}
-        </div>
-      )}
-
-      {/* Required items */}
-      <div className="mt-6">
-        <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-foreground">
-          <span className="inline-block h-2 w-2 rounded-full bg-atlas-rust" />
-          {t("requiredSection")}
-        </h2>
-        <div className="flex flex-col gap-2">
-          {requiredItems.map((item) => (
-            <ChecklistRow
-              key={item.itemKey}
-              item={item}
-              toggling={togglingKey === item.itemKey}
-              onToggle={handleToggle}
-              formatDeadline={formatDeadline}
-              t={t}
-              pointsPopup={
-                itemPoints?.key === item.itemKey ? itemPoints.points : null
-              }
+        {/* Progress card */}
+        <AtlasCard variant="base">
+          <div className="flex items-center justify-between text-sm font-atlas-body">
+            <span className="text-atlas-on-surface-variant">
+              {t("progress", {
+                completed: requiredCompleted,
+                total: requiredItems.length,
+              })}
+            </span>
+            <span className="font-bold text-atlas-on-surface">
+              {progressPercent}%
+            </span>
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-atlas-surface-container-high">
+            <div
+              className="h-full rounded-full bg-atlas-secondary-container transition-all duration-500 motion-reduce:transition-none"
+              style={{ width: `${progressPercent}%` }}
             />
-          ))}
-        </div>
-      </div>
+          </div>
+        </AtlasCard>
 
-      {/* Recommended items */}
-      {recommendedItems.length > 0 && (
-        <div className="mt-6">
-          <h2 className="mb-3 flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            <span className="inline-block h-2 w-2 rounded-full bg-atlas-teal" />
-            {t("recommendedSection")}
+        {errorMessage && (
+          <div
+            role="alert"
+            className="rounded-lg bg-atlas-error-container px-4 py-3 text-sm font-atlas-body text-atlas-error border border-atlas-error/30"
+          >
+            {errorMessage.startsWith("errors.")
+              ? tErrors(errorMessage.replace("errors.", ""))
+              : errorMessage}
+          </div>
+        )}
+
+        {/* Required items */}
+        <div>
+          <h2 className="mb-3 flex items-center gap-2 text-sm font-atlas-headline font-bold uppercase tracking-wider text-atlas-on-surface">
+            <span className="inline-block h-2 w-2 rounded-full bg-atlas-error" />
+            {t("requiredSection")}
           </h2>
           <div className="flex flex-col gap-2">
-            {recommendedItems.map((item) => (
-              <ChecklistRow
+            {requiredItems.map((item) => (
+              <ChecklistRowV2
                 key={item.itemKey}
                 item={item}
                 toggling={togglingKey === item.itemKey}
@@ -263,14 +232,39 @@ function Phase3WizardV1({
             ))}
           </div>
         </div>
-      )}
+
+        {/* Recommended items */}
+        {recommendedItems.length > 0 && (
+          <div>
+            <h2 className="mb-3 flex items-center gap-2 text-sm font-atlas-headline font-bold uppercase tracking-wider text-atlas-on-surface-variant">
+              <span className="inline-block h-2 w-2 rounded-full bg-atlas-tertiary-fixed-dim" />
+              {t("recommendedSection")}
+            </h2>
+            <div className="flex flex-col gap-2">
+              {recommendedItems.map((item) => (
+                <ChecklistRowV2
+                  key={item.itemKey}
+                  item={item}
+                  toggling={togglingKey === item.itemKey}
+                  onToggle={handleToggle}
+                  formatDeadline={formatDeadline}
+                  t={t}
+                  pointsPopup={
+                    itemPoints?.key === item.itemKey ? itemPoints.points : null
+                  }
+                />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </PhaseShell>
   );
 }
 
-// --- Checklist Row -----------------------------------------------------------
+// --- Checklist Row V2 -------------------------------------------------------
 
-interface ChecklistRowProps {
+interface ChecklistRowV2Props {
   item: ChecklistItemData;
   toggling: boolean;
   onToggle: (key: string) => void;
@@ -279,14 +273,14 @@ interface ChecklistRowProps {
   pointsPopup: number | null;
 }
 
-function ChecklistRow({
+function ChecklistRowV2({
   item,
   toggling,
   onToggle,
   formatDeadline,
   t,
   pointsPopup,
-}: ChecklistRowProps) {
+}: ChecklistRowV2Props) {
   const deadline = formatDeadline(item.deadline);
 
   return (
@@ -296,23 +290,23 @@ function ChecklistRow({
       aria-checked={item.completed}
       onClick={() => onToggle(item.itemKey)}
       disabled={toggling}
-      className={`relative flex w-full items-start gap-3 rounded-lg border p-3 text-left transition-all ${
+      className={`relative flex w-full min-h-[44px] items-start gap-3 rounded-lg border p-3 text-left transition-all duration-200 motion-reduce:transition-none ${
         item.completed
-          ? "border-atlas-teal/30 bg-atlas-teal/5"
-          : "border-border bg-card hover:border-atlas-gold/30"
-      } ${toggling ? "opacity-60" : ""}`}
+          ? "border-atlas-tertiary-fixed-dim/30 bg-atlas-tertiary-fixed/10"
+          : "border-atlas-outline-variant/20 bg-atlas-surface-container-lowest hover:border-atlas-secondary-container/30"
+      } ${toggling ? "opacity-60" : ""} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2`}
       aria-label={t(`items.${item.itemKey}`)}
     >
       {/* Checkbox */}
       <div
-        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors ${
+        className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 transition-colors duration-200 motion-reduce:transition-none ${
           item.completed
-            ? "border-atlas-teal bg-atlas-teal text-white"
-            : "border-border"
+            ? "border-atlas-tertiary-fixed-dim bg-atlas-tertiary-fixed-dim text-white"
+            : "border-atlas-outline-variant"
         }`}
       >
         {item.completed && (
-          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+          <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3} aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
           </svg>
         )}
@@ -321,45 +315,30 @@ function ChecklistRow({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <span
-          className={`text-sm font-medium ${
+          className={`text-sm font-medium font-atlas-body ${
             item.completed
-              ? "text-muted-foreground line-through"
-              : "text-card-foreground"
+              ? "text-atlas-on-surface-variant line-through"
+              : "text-atlas-on-surface"
           }`}
         >
           {t(`items.${item.itemKey}`)}
         </span>
         {deadline && (
-          <p className="mt-0.5 text-xs text-muted-foreground">
+          <p className="mt-0.5 text-xs font-atlas-body text-atlas-on-surface-variant">
             {t("deadline", { date: deadline })}
           </p>
         )}
       </div>
 
       {/* Points badge */}
-      <span className="shrink-0 rounded-full bg-atlas-gold/10 px-2 py-0.5 text-xs font-medium text-atlas-gold">
-        +{item.pointsValue}
-      </span>
+      <AtlasBadge variant="pa" points={item.pointsValue} size="sm" />
 
       {/* Points popup animation */}
       {pointsPopup && (
-        <span className="absolute -top-2 right-2 animate-bounce rounded-full bg-atlas-gold px-2 py-0.5 text-xs font-bold text-atlas-ink">
+        <span className="absolute -top-2 right-2 animate-bounce motion-reduce:animate-none rounded-full bg-atlas-secondary-container px-2 py-0.5 text-xs font-bold font-atlas-body text-atlas-primary">
           +{pointsPopup}
         </span>
       )}
     </button>
-  );
-}
-
-/**
- * Phase3Wizard — public API.
- * Delegates to V1 or V2 based on the NEXT_PUBLIC_DESIGN_V2 feature flag.
- */
-export function Phase3Wizard(props: Phase3WizardProps) {
-  return (
-    <DesignBranch
-      v1={<Phase3WizardV1 {...props} />}
-      v2={<Phase3WizardV2 {...props} />}
-    />
   );
 }
