@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Send } from "lucide-react";
 import { AtlasButton } from "@/components/ui";
+import Link from "next/link";
 
 /** Simulated delay for newsletter subscription (no backend) */
 const NEWSLETTER_SIMULATED_DELAY_MS = 500;
@@ -56,28 +57,28 @@ export function FooterV2() {
           </h4>
           <ul className="space-y-4">
             <li>
-              <a
+              <Link
                 href="/como-funciona"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("destinationGuides")}
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/como-funciona"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("travelInsurance")}
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/como-funciona"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("blog")}
-              </a>
+              </Link>
             </li>
           </ul>
         </div>
@@ -89,28 +90,28 @@ export function FooterV2() {
           </h4>
           <ul className="space-y-4">
             <li>
-              <a
+              <Link
                 href="/sobre"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("about")}
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/contato"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("contact")}
-              </a>
+              </Link>
             </li>
             <li>
-              <a
+              <Link
                 href="/privacidade"
                 className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
               >
                 {t("privacy")}
-              </a>
+              </Link>
             </li>
           </ul>
         </div>

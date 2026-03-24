@@ -5,6 +5,12 @@ const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  eslint: {
+    // Skip ESLint during Next.js build — it runs separately in CI.
+    // The atlas-design/no-raw-tailwind-colors rule warns on V1 files
+    // that will be migrated in Sprint 40+.
+    ignoreDuringBuilds: true,
+  },
   experimental: {
     workerThreads: false,
     cpus: 1,
