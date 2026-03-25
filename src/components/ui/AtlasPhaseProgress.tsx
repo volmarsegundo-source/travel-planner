@@ -218,51 +218,73 @@ function DashboardLayout({
       aria-valuemin={0}
       aria-valuemax={segments.length}
       aria-label={`Phase progress: ${completedCount} of ${segments.length} completed`}
-      className={cn("flex items-center gap-1", className)}
+      className={cn("flex items-center", className)}
     >
-      {segments.map((segment) => {
+      {segments.map((segment, i) => {
         const isClickable = segment.state === "completed" && onSegmentClick;
 
-        const barColorClass = cn(
-          segment.state === "completed" && "bg-atlas-secondary-container",
-          segment.state === "active" && "bg-atlas-secondary-container shadow-atlas-glow-amber animate-pulse motion-reduce:animate-none",
-          segment.state === "pending" && "bg-atlas-surface-container-high",
-          segment.state === "locked" && "bg-atlas-surface-container-high opacity-40",
+        // Circle styles matching sidebar (wizard) layout
+        const circleBase = "size-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300 motion-reduce:transition-none";
+        const circleStyle = cn(
+          circleBase,
+          segment.state === "completed" && "bg-atlas-secondary-container text-atlas-on-secondary-container",
+          segment.state === "active" && "bg-atlas-secondary-container text-atlas-on-secondary-container shadow-atlas-glow-amber animate-pulse motion-reduce:animate-none",
+          segment.state === "pending" && "bg-atlas-surface-container-high text-atlas-on-surface-variant",
+          segment.state === "locked" && "bg-atlas-surface-container-high/50 text-atlas-disabled",
         );
 
-        if (isClickable) {
-          return (
-            <button
-              key={segment.phase}
-              type="button"
-              onClick={() => onSegmentClick(segment.phase)}
-              className={cn(
-                "flex-1 relative cursor-pointer py-2",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded",
-              )}
-              aria-label={`Phase ${segment.phase}: ${segment.label} - completed. Click to navigate.`}
-            >
-              <div className={cn("h-1.5 w-full rounded-full transition-all duration-300 motion-reduce:transition-none", barColorClass)} />
-            </button>
-          );
-        }
+        // Connector line between circles
+        const connectorLine = i < segments.length - 1 && (
+          <div
+            key={`line-${segment.phase}`}
+            className={cn(
+              "flex-1 h-0.5 mx-0.5",
+              segments[i + 1]?.state === "completed" || segment.state === "completed"
+                ? "bg-atlas-secondary-container"
+                : "bg-atlas-surface-container-high",
+            )}
+          />
+        );
 
-        return (
+        // Circle content: check for completed, number for others, lock for locked
+        const circleContent = segment.state === "completed" ? (
+          <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        ) : segment.state === "locked" ? (
+          <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
+          </svg>
+        ) : (
+          <span>{segment.phase}</span>
+        );
+
+        const circleElement = isClickable ? (
+          <button
+            key={segment.phase}
+            type="button"
+            onClick={() => onSegmentClick(segment.phase)}
+            className={cn(circleStyle, "cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2")}
+            aria-label={`Phase ${segment.phase}: ${segment.label} - completed. Click to navigate.`}
+          >
+            {circleContent}
+          </button>
+        ) : (
           <div
             key={segment.phase}
-            className="flex-1 relative py-2"
+            className={circleStyle}
             title={`Phase ${segment.phase}: ${segment.label} - ${stateAriaLabels[segment.state]}`}
           >
-            <div className={cn("h-1.5 w-full rounded-full transition-all duration-300 motion-reduce:transition-none", barColorClass)} />
-            {segment.state === "locked" && (
-              <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
-                <svg className="size-3 text-atlas-disabled" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <rect x="3" y="11" width="18" height="11" rx="2" />
-                  <path d="M7 11V7a5 5 0 0110 0v4" />
-                </svg>
-              </div>
-            )}
+            {circleContent}
           </div>
+        );
+
+        return (
+          <React.Fragment key={segment.phase}>
+            {circleElement}
+            {connectorLine}
+          </React.Fragment>
         );
       })}
     </div>

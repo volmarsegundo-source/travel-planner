@@ -68,7 +68,7 @@ export function AuthenticatedNavbarV2({
   return (
     <header
       role="banner"
-      className="sticky top-0 z-50 h-16 border-b border-atlas-outline-variant/20 bg-atlas-surface-container-lowest/95 backdrop-blur supports-[backdrop-filter]:bg-atlas-surface-container-lowest/80"
+      className="sticky top-0 z-50 h-16 border-b border-atlas-outline-variant/20 bg-atlas-surface-container-lowest/95 dark:bg-atlas-primary-container/95 backdrop-blur supports-[backdrop-filter]:bg-atlas-surface-container-lowest/80 dark:supports-[backdrop-filter]:bg-atlas-primary-container/80"
       data-testid="navbar-v2"
     >
       <nav
