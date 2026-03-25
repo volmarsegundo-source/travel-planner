@@ -82,12 +82,12 @@
       "tokenExpired": "Este link expirou. Solicite um novo.",
       "generic": "Algo deu errado. Por favor, tente novamente.",
       "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
-      "oauthError": "Nao foi possivel autenticar. Tente novamente.",
+      "oauthError": "Não foi possível autenticar. Tente novamente.",
       "oauthTitle": "Erro de Autenticacao",
-      "oauthConfiguration": "Ha um problema com a configuracao do servidor.",
-      "oauthAccessDenied": "Voce nao tem permissao para fazer login.",
-      "oauthVerification": "O link de verificacao expirou ou ja foi utilizado.",
-      "oauthAccountNotLinked": "Este e-mail ja esta associado a outro metodo de login.",
+      "oauthConfiguration": "Ha um problema com a configuração do servidor.",
+      "oauthAccessDenied": "Você não tem permissao para fazer login.",
+      "oauthVerification": "O link de verificação expirou ou já foi utilizado.",
+      "oauthAccountNotLinked": "Este e-mail já está associado a outro método de login.",
       "backToLogin": "Voltar ao login"
     }
   },
@@ -180,7 +180,7 @@
       "endDateBeforeStart": "A data de volta deve ser após a ida.",
       "maxTripsReached": "Você atingiu o limite de {max} viagens ativas.",
       "notFound": "Viagem não encontrada.",
-      "notAuthorized": "Você não tem permissão para acessar esta viagem."
+      "notAuthorized": "Você não tem permissão para acessar está viagem."
     }
   },
   "itinerary": {
@@ -252,9 +252,9 @@
         "saveAndExit": "Salvar e sair",
         "discard": "Descartar",
         "cancel": "Cancelar",
-        "unsavedChangesTitle": "Alteracoes nao salvas",
-        "unsavedChangesMessage": "Voce tem alteracoes nao salvas.",
-        "saveBeforeBack": "Salvar alteracoes antes de voltar?",
+        "unsavedChangesTitle": "Alterações não salvas",
+        "unsavedChangesMessage": "Você tem alterações não salvas.",
+        "saveBeforeBack": "Salvar alterações antes de voltar?",
         "saveAndBack": "Salvar e voltar",
         "saveAndAdvance": "Salvar e avancar",
         "advanceWithoutSaving": "Avancar sem salvar",
@@ -342,7 +342,7 @@
     "saveChanges": "Salvar alterações",
     "profileUpdated": "Perfil atualizado com sucesso!",
     "deleteAccount": "Excluir minha conta",
-    "deleteWarning": "Esta ação é permanente e não pode ser desfeita. Todos os seus dados (viagens, itinerários, checklists) serão anonimizados e marcados para exclusão.",
+    "deleteWarning": "Está ação é permanente e não pode ser desfeita. Todos os seus dados (viagens, itinerários, checklists) serão anonimizados e marcados para exclusão.",
     "deleteConfirmTitle": "Tem certeza?",
     "deleteConfirmMessage": "Para confirmar, digite seu endereço de e-mail abaixo:",
     "deleteConfirmPlaceholder": "Digite seu e-mail para confirmar",
@@ -431,7 +431,7 @@
       "quickAccessChecklist": "Checklist",
       "quickAccessGuide": "Guia",
       "quickAccessItinerary": "Roteiro",
-      "quickAccessReport": "Relatorio",
+      "quickAccessReport": "Relatório",
       "quickAccessLabel": "Acesso rapido — {destination}",
       "quickAccessSummary": "Resumo"
     }
@@ -511,13 +511,13 @@
   },
   "expedition": {
     "phase1": {
-      "title": "A Inspiracao",
+      "title": "A Inspiração",
       "subtitle": "Para onde sua próxima aventura vai te levar?",
       "destinationPlaceholder": "Busque uma cidade...",
       "passportExpiryWarning": "Seu passaporte pode expirar antes ou durante a viagem. Verifique a validade antes de continuar.",
       "step1": {
         "title": "Sobre você",
-        "subtitle": "Nos ajude a personalizar sua viagem. Preencha o que puder — cada campo ganha Coordenadas!",
+        "subtitle": "Nós ajude a personalizar sua viagem. Preencha o que puder — cada campo ganha Coordenadas!",
         "name": "Nome completo",
         "namePlaceholder": "Seu nome completo",
         "birthDate": "Data de nascimento",
@@ -643,7 +643,7 @@
       },
       "preferences": {
         "title": "Preferências Pessoais",
-        "subtitle": "Nos ajude a tornar sua viagem mais confortável.",
+        "subtitle": "Nós ajude a tornar sua viagem mais confortável.",
         "dietary": "Restrições alimentares",
         "dietaryPlaceholder": "ex. vegetariano, sem glúten, halal...",
         "accessibility": "Necessidades de acessibilidade",
@@ -773,7 +773,7 @@
     "phase4": {
       "title": "A Logística",
       "subtitle": "Planeje como chegar e se locomover no destino",
-      "undecided": "Ainda nao decidi, vou definir depois.",
+      "undecided": "Ainda não decidi, vou definir depois.",
       "carRentalQuestion": "Você vai precisar alugar um carro?",
       "carRentalHint": "Isso determina se você precisa de documentação especial para dirigir.",
       "carRentalYes": "Sim, vou",
@@ -823,7 +823,7 @@
         "banner": "Complete o seguinte antes de avancar:",
         "transportRequired": "Pelo menos um trecho de transporte com tipo, local de partida, local de chegada, data de partida e data de chegada",
         "accommodationRequired": "Pelo menos uma hospedagem com tipo, check-in e check-out",
-        "mobilityRequired": "Pelo menos uma opcao de mobilidade local selecionada"
+        "mobilityRequired": "Pelo menos uma opção de mobilidade local selecionada"
       },
       "transport": {
         "title": "Transporte",
@@ -885,7 +885,7 @@
         "subtitle": "Onde você vai se hospedar durante a viagem?",
         "addEntry": "Adicionar Hospedagem",
         "removeEntry": "Remover",
-        "removeConfirm": "Remover esta hospedagem?",
+        "removeConfirm": "Remover está hospedagem?",
         "maxReached": "Máximo de {max} hospedagens atingido",
         "entry": "Estadia {number}",
         "accommodationType": "Tipo",
@@ -919,10 +919,10 @@
       "generateCta": "Gerar Guia do Destino",
       "regenerateCta": "Atualizar guia ({remaining} restantes)",
       "completeCta": "Completar Fase e Ganhar Pontos",
-      "viewAllSectionsHint": "Leia todas as seções para completar esta fase ({viewed}/{total})",
+      "viewAllSectionsHint": "Leia todas as seções para completar está fase ({viewed}/{total})",
       "aiDisclaimer": "Este guia foi gerado por Inteligência Artificial e requer revisão humana.",
       "heroTitle": "Referência Rápida",
-      "sectionUnavailable": "Informação indisponível para esta seção.",
+      "sectionUnavailable": "Informação indisponível para está seção.",
       "regenerateConfirm": "Os dados da viagem mudaram desde que o guia foi gerado. Regenerar o guia?",
       "regenerateConfirmYes": "Sim, regenerar",
       "regenerateConfirmNo": "Manter atual",
@@ -954,20 +954,20 @@
       "cancelGeneration": "Cancelar",
       "aiDisclaimer": "Este roteiro foi gerado por inteligência artificial e pode conter imprecisões. Verifique horários, preços e disponibilidade antes de viajar.",
       "regenerateConfirmTitle": "Regerar roteiro?",
-      "regenerateConfirmMessage": "Isso substituirá seu roteiro atual por um novo. Esta ação não pode ser desfeita.",
+      "regenerateConfirmMessage": "Isso substituirá seu roteiro atual por um novo. Está ação não pode ser desfeita.",
       "regenerateConfirmYes": "Sim, regerar",
       "regenerateConfirmNo": "Manter atual",
-      "progressAnalyzing": "Analisando destino e preferencias...",
+      "progressAnalyzing": "Analisando destino e preferências...",
       "progressPlanning": "Planejando atividades dia a dia...",
       "progressOptimizing": "Otimizando seu roteiro...",
       "progressAlmostDone": "Quase pronto...",
-      "progressDaysPlanned": "{count} dias planejados ate agora",
-      "errorPersistFailed": "O roteiro foi gerado mas nao pode ser salvo. Tente novamente."
+      "progressDaysPlanned": "{count} dias planejados até agora",
+      "errorPersistFailed": "O roteiro foi gerado mas não pode ser salvo. Tente novamente."
     },
     "hub": {
       "title": "Expedição",
       "comingSoon": "A Fase {number} está chegando!",
-      "comingSoonSubtitle": "Esta fase ainda não está disponível. Fique ligado!"
+      "comingSoonSubtitle": "Está fase ainda não está disponível. Fique ligado!"
     },
     "animation": {
       "pointsEarned": "+{points} pontos!",
@@ -990,7 +990,7 @@
       "viewExpeditions": "Ver Expedições"
     },
     "completeExpedition": "Concluir Expedição",
-    "completeConfirm": "Tem certeza que deseja concluir esta expedição? Você ainda pode editar as fases após a conclusão.",
+    "completeConfirm": "Tem certeza que deseja concluir está expedição? Você ainda pode editar as fases após a conclusão.",
     "completeConfirmYes": "Sim, concluir",
     "completeConfirmNo": "Ainda não",
     "summary": {
@@ -1027,20 +1027,20 @@
       "phasesOverview": "Visão Geral das Fases",
       "continuePhase": "Continuar",
       "startPhase": "Iniciar",
-      "completion": "Conclusao",
+      "completion": "Conclusão",
       "completionLabel": "{percent}% concluido",
       "pendingItemsTitle": "Itens Pendentes",
       "pendingRequired": "Acoes obrigatorias",
       "pendingRecommended": "Acoes recomendadas",
       "pendingPhaseItem": "Fase {phase}: {item}",
-      "phaseNotStarted": "Fase nao iniciada"
+      "phaseNotStarted": "Fase não iniciada"
     },
     "progress": "Passo {current} de {total}",
     "phaseProgress": "Fase {current} de {total}",
     "phaseLabel": "Fase {number}: {name}",
-    "editBanner": "Voce esta revisitando a Fase {phase}. Suas alteracoes serao salvas quando voce confirmar.",
-    "progressBarLabel": "Progresso da expedicao",
-    "aiDisclaimer": "Conteudo gerado por IA. Revise e ajuste conforme necessario para sua viagem.",
+    "editBanner": "Você está revisitando a Fase {phase}. Suas alterações serão salvas quando você confirmar.",
+    "progressBarLabel": "Progresso da expedição",
+    "aiDisclaimer": "Conteúdo gerado por IA. Revise e ajuste conforme necessario para sua viagem.",
     "countdown": {
       "daysUntil": "{days, plural, one {# dia para sua viagem} other {# dias para sua viagem}}",
       "inProgress": "Sua viagem está em andamento!",
@@ -1088,17 +1088,17 @@
     "badge": {
       "viewProfile": "Ver seu perfil Atlas",
       "ariaLabel": "{points} PA, {rankName}",
-      "levelLabel": "Nivel: {rank}"
+      "levelLabel": "Nível: {rank}"
     },
     "confirmModal": {
       "title": "Confirmar Geracao com IA",
       "costMessage": "Gerar {feature} custa {cost} PA.",
-      "balanceAfter": "Saldo apos: {balance} PA",
+      "balanceAfter": "Saldo após: {balance} PA",
       "currentBalance": "Saldo atual: {balance} PA",
       "generate": "Gerar",
       "cancel": "Cancelar",
       "insufficientTitle": "Saldo Insuficiente",
-      "insufficientMessage": "Voce precisa de {cost} PA mas tem {balance} PA.",
+      "insufficientMessage": "Você precisa de {cost} PA mas tem {balance} PA.",
       "missing": "Faltam {amount} PA",
       "earnMore": "Ganhar mais pontos",
       "buyPA": "Comprar PA",
@@ -1106,12 +1106,12 @@
     },
     "tutorial": {
       "step1Title": "Ganhe Pontos",
-      "step1Description": "Ganhe pontos completando fases da sua expedicao",
+      "step1Description": "Ganhe pontos completando fases da sua expedição",
       "step2Title": "Gaste Pontos",
       "step2Description": "Gaste pontos para gerar checklists, guias e roteiros com IA",
-      "step3Title": "Suba de Nivel",
-      "step3Description": "Suba de nivel e desbloqueie conquistas",
-      "next": "Proximo",
+      "step3Title": "Suba de Nível",
+      "step3Description": "Suba de nível e desbloqueie conquistas",
+      "next": "Próximo",
       "skip": "Pular",
       "finish": "Entendi!",
       "stepIndicator": "Passo {current} de {total}"
@@ -1120,9 +1120,9 @@
       "title": "Como Funciona",
       "pageDescription": "Saiba como funcionam os Pontos Atlas",
       "section1Title": "O que sao Pontos Atlas?",
-      "section1Description": "Pontos Atlas (PA) sao a moeda da sua jornada de planejamento de viagem. Ganhe-os completando fases da expedicao e gaste-os para desbloquear recursos com IA como checklists, guias de destino e roteiros personalizados.",
+      "section1Description": "Pontos Atlas (PA) sao a moeda da sua jornada de planejamento de viagem. Ganhe-os completando fases da expedição e gaste-os para desbloquear recursos com IA como checklists, guias de destino e roteiros personalizados.",
       "section2Title": "Como ganhar PA",
-      "section2Description": "Complete atividades durante sua expedicao para ganhar pontos.",
+      "section2Description": "Complete atividades durante sua expedição para ganhar pontos.",
       "section3Title": "Como gastar PA",
       "section3Description": "Use seus pontos para acessar ferramentas de viagem com IA.",
       "section4Title": "Niveis",
@@ -1132,11 +1132,11 @@
         "activity": "Atividade",
         "points": "Pontos",
         "welcomeBonus": "Bonus de boas-vindas",
-        "dailyLogin": "Login diario",
-        "phase1": "Completar Fase 1 — A Inspiracao",
+        "dailyLogin": "Login diário",
+        "phase1": "Completar Fase 1 — A Inspiração",
         "phase2": "Completar Fase 2 — O Perfil",
         "phase3": "Completar Fase 3 — O Preparo",
-        "phase4": "Completar Fase 4 — A Logistica",
+        "phase4": "Completar Fase 4 — A Logística",
         "phase5": "Completar Fase 5 — Guia do Destino",
         "phase6": "Completar Fase 6 — O Roteiro",
         "profileField": "Completar campo do perfil",
@@ -1151,45 +1151,45 @@
         "itinerary": "Roteiro IA (Fase 6)"
       },
       "levelTable": {
-        "level": "Nivel",
+        "level": "Nível",
         "name": "Nome",
         "threshold": "Pontos Necessarios"
       },
       "faq": {
-        "q1": "O que acontece se eu nao tiver PA suficientes?",
-        "a1": "Voce ainda pode avancar pelas fases sem IA para ganhar mais pontos. Complete campos do perfil e itens do checklist para PA adicional.",
+        "q1": "O que acontece se eu não tiver PA suficientes?",
+        "a1": "Você ainda pode avancar pelas fases sem IA para ganhar mais pontos. Complete campos do perfil e itens do checklist para PA adicional.",
         "q2": "Posso perder PA?",
-        "a2": "PA so e gasto quando voce gera conteudo com IA. Completar fases e outras atividades sempre adicionam ao seu saldo.",
+        "a2": "PA só e gasto quando você gera conteúdo com IA. Completar fases e outras atividades sempre adicionam ao seu saldo.",
         "q3": "Os pontos expiram?",
         "a3": "Nao, seus Pontos Atlas nunca expiram. Tome seu tempo planejando a viagem perfeita.",
         "q4": "Como verifico meu saldo?",
-        "a4": "Seu saldo de PA atual esta sempre visivel no badge do cabecalho no topo da pagina."
+        "a4": "Seu saldo de PA atual está sempre visivel no badge do cabecalho no topo da pagina."
       }
     },
     "badges": {
       "primeira_viagem": {
         "name": "Primeira Viagem",
-        "description": "Complete sua primeira expedicao"
+        "description": "Complete sua primeira expedição"
       },
       "viajante_frequente": {
         "name": "Viajante Frequente",
-        "description": "Complete 3 expedicoes"
+        "description": "Complete 3 expedições"
       },
       "globetrotter": {
         "name": "Globetrotter",
-        "description": "Complete 5 expedicoes"
+        "description": "Complete 5 expedições"
       },
       "marco_polo": {
         "name": "Marco Polo",
-        "description": "Complete 10 expedicoes"
+        "description": "Complete 10 expedições"
       },
       "detalhista": {
         "name": "Detalhista",
-        "description": "Preencha todos os campos de logistica em uma expedicao"
+        "description": "Preencha todos os campos de logística em uma expedição"
       },
       "planejador_nato": {
         "name": "Planejador Nato",
-        "description": "Complete todas as 6 fases de uma expedicao"
+        "description": "Complete todas as 6 fases de uma expedição"
       },
       "zero_pendencias": {
         "name": "Zero Pendencias",
@@ -1197,7 +1197,7 @@
       },
       "revisor": {
         "name": "Revisor",
-        "description": "Revisite uma fase ja concluida"
+        "description": "Revisite uma fase já concluida"
       },
       "sem_fronteiras": {
         "name": "Sem Fronteiras",
@@ -1225,7 +1225,7 @@
       },
       "maratonista": {
         "name": "Maratonista",
-        "description": "Complete 3 expedicoes em 30 dias"
+        "description": "Complete 3 expedições em 30 dias"
       },
       "fundador": {
         "name": "Fundador",
@@ -1254,23 +1254,23 @@
       "processing": "Processando pagamento...",
       "successTitle": "Compra realizada!",
       "successMessage": "Seu novo saldo e {balance} PA",
-      "backToExpeditions": "Voltar para expedicoes",
+      "backToExpeditions": "Voltar para expedições",
       "errorTitle": "Pagamento falhou",
       "error": "Algo deu errado. Tente novamente.",
-      "paymentFailed": "O pagamento nao pode ser processado. Tente novamente.",
-      "invalidPackage": "Pacote selecionado invalido.",
+      "paymentFailed": "O pagamento não pode ser processado. Tente novamente.",
+      "invalidPackage": "Pacote selecionado inválido.",
       "rateLimited": "Muitas compras realizadas. Aguarde antes de tentar novamente.",
       "tryAgain": "Tentar novamente",
       "bestValue": "Melhor custo-beneficio",
       "recommended": "Recomendado",
-      "neededForFeature": "Voce precisa de {amount} PA para {feature}",
-      "neededGeneric": "Voce precisa de {amount} PA"
+      "neededForFeature": "Você precisa de {amount} PA para {feature}",
+      "neededGeneric": "Você precisa de {amount} PA"
     },
     "purchaseHistory": {
-      "title": "Historico de Compras",
+      "title": "Histórico de Compras",
       "empty": "Nenhuma compra realizada",
-      "loading": "Carregando historico de compras...",
-      "loadError": "Erro ao carregar historico de compras.",
+      "loading": "Carregando histórico de compras...",
+      "loadError": "Erro ao carregar histórico de compras.",
       "date": "Data",
       "package": "Pacote",
       "paAmount": "PA",
@@ -1293,7 +1293,7 @@
       "earnedOn": "Conquistado em {date}",
       "progress": "{current} de {target}",
       "newBadge": "Novo badge desbloqueado!",
-      "closeToast": "Fechar notificacao"
+      "closeToast": "Fechar notificação"
     }
   },
   "admin": {
@@ -1309,7 +1309,7 @@
       "totalPurchases": "Total de Compras",
       "revenueChart": "Receita (ultimos 30 dias)",
       "revenueChartLabel": "Grafico de barras de receita dos ultimos 30 dias",
-      "noRevenueData": "Nenhum dado de receita disponivel ainda.",
+      "noRevenueData": "Nenhum dado de receita disponível ainda.",
       "userTable": "Usuarios",
       "columnUser": "Usuario",
       "columnEmail": "Email",
@@ -1339,7 +1339,7 @@
         "itinerary": "Roteiro",
         "levelDistribution": "Distribuicao de Niveis",
         "topDestinations": "Destinos Mais Populares",
-        "noData": "Nenhum dado disponivel."
+        "noData": "Nenhum dado disponível."
       },
       "alerts": {
         "marginWarning": "Atencao: Margem bruta em {percent}% — abaixo do target de 80%",
@@ -1351,7 +1351,7 @@
         "exported": "Exportado com sucesso"
       },
       "period": {
-        "label": "Filtro de periodo",
+        "label": "Filtro de período",
         "7d": "7 dias",
         "30d": "30 dias",
         "90d": "90 dias",
@@ -1366,9 +1366,9 @@
         "search": "Buscar por email ou nome...",
         "noResults": "Nenhum usuario encontrado.",
         "prev": "Anterior",
-        "next": "Proximo",
+        "next": "Próximo",
         "prevPage": "Ir para pagina anterior",
-        "nextPage": "Ir para proxima pagina"
+        "nextPage": "Ir para próxima pagina"
       }
     }
   },
@@ -1405,14 +1405,14 @@
     "retry": "Tentar novamente"
   },
   "report": {
-    "title": "Relatorio da Expedicao",
-    "viewReport": "Ver relatorio",
-    "reportNotAvailable": "O relatorio estara disponivel quando as fases de preparo, guia e roteiro estiverem completas.",
+    "title": "Relatório da Expedição",
+    "viewReport": "Ver relatório",
+    "reportNotAvailable": "O relatório estara disponível quando as fases de preparo, guia e roteiro estiverem completas.",
     "generatedAt": "Gerado em {date}",
-    "phase1Title": "A Inspiracao",
+    "phase1Title": "A Inspiração",
     "phase2Title": "O Perfil",
     "phase3Title": "O Preparo",
-    "phase4Title": "A Logistica",
+    "phase4Title": "A Logística",
     "phase5Title": "Guia do Destino",
     "phase6Title": "O Roteiro",
     "destination": "Destino",
@@ -1476,13 +1476,13 @@
       "goBack": "Voltar"
     },
     "tripNotFound": {
-      "description": "Esta viagem não existe ou você não tem acesso."
+      "description": "Está viagem não existe ou você não tem acesso."
     },
     "generic": "Algo deu errado. Tente novamente.",
     "network": "Problema de conexão. Verifique sua internet.",
     "timeout": "A operação demorou demais. Tente novamente.",
     "unauthorized": "Você precisa fazer login para continuar.",
-    "forbidden": "Você não tem permissão para realizar esta ação.",
+    "forbidden": "Você não tem permissão para realizar está ação.",
     "notFound": "Página não encontrada.",
     "aiAuthError": "Erro de configuração da IA. Verifique a chave da API.",
     "aiModelError": "Modelo de IA indisponível. Tente novamente mais tarde.",
@@ -1490,17 +1490,17 @@
     "aiSchemaError": "A IA retornou um formato inesperado. Tente novamente.",
     "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
     "validation": "Dados de entrada inválidos.",
-    "phaseAlreadyCompleted": "Esta fase já foi concluída. Você pode revisitar os dados.",
-    "phaseOrderViolation": "Não é possível completar esta fase fora de ordem.",
-    "phaseNotActive": "Esta fase ainda não está ativa.",
+    "phaseAlreadyCompleted": "Está fase já foi concluída. Você pode revisitar os dados.",
+    "phaseOrderViolation": "Não é possível completar está fase fora de ordem.",
+    "phaseNotActive": "Está fase ainda não está ativa.",
     "prerequisitesNotMet": "Os pré-requisitos desta fase não foram cumpridos.",
-    "notExpeditionMode": "Esta viagem não está em modo expedição.",
+    "notExpeditionMode": "Está viagem não está em modo expedição.",
     "invalidPhase": "Número de fase inválido.",
-    "phaseNotSkippable": "Esta fase não pode ser pulada — deve ser concluída.",
-    "aiNotAvailable": "IA não disponível para esta fase.",
+    "phaseNotSkippable": "Está fase não pode ser pulada — deve ser concluída.",
+    "aiNotAvailable": "IA não disponível para está fase.",
     "aiAgeRestricted": "Você precisa ter 18 anos ou mais para usar recursos de IA.",
-    "insufficientBalance": "Saldo de PA insuficiente para esta acao.",
-    "invalidAiType": "Tipo de recurso IA invalido."
+    "insufficientBalance": "Saldo de PA insuficiente para está ação.",
+    "invalidAiType": "Tipo de recurso IA inválido."
   },
   "legal": {
     "terms": {
@@ -1543,7 +1543,7 @@
       "title": "Política de Privacidade",
       "breadcrumb": "Política de Privacidade",
       "lastUpdated": "Atualizado em: Março de 2026",
-      "intro": "Sua privacidade é importante para nós. Esta política explica como o Atlas Travel Planner coleta, usa e protege suas informações pessoais.",
+      "intro": "Sua privacidade é importante para nós. Está política explica como o Atlas Travel Planner coleta, usa e protege suas informações pessoais.",
       "sections": {
         "collection": {
           "title": "1. Informações que Coletamos",
@@ -1608,16 +1608,16 @@
     }
   },
   "preferences": {
-    "sectionTitle": "Preferencias de Viagem",
-    "sectionSubtitle": "Complete suas preferencias para receber sugestoes mais personalizadas.",
-    "progressHintStart": "Suas preferencias ajudam a gerar roteiros sob medida para voce.",
+    "sectionTitle": "Preferências de Viagem",
+    "sectionSubtitle": "Complete suas preferências para receber sugestoes mais personalizadas.",
+    "progressHintStart": "Suas preferências ajudam a gerar roteiros sob medida para você.",
     "progressHintContinue": "Faltam {remaining} categorias para um perfil completo.",
-    "progressComplete": "Perfil completo! Seus roteiros serao altamente personalizados.",
-    "notFilled": "Nao preenchido",
-    "saveError": "Nao foi possivel salvar. Tente novamente.",
+    "progressComplete": "Perfil completo! Seus roteiros serão altamente personalizados.",
+    "notFilled": "Não preenchido",
+    "saveError": "Não foi possível salvar. Tente novamente.",
     "saving": "Salvando...",
     "pointsPerCategory": "+5 pts",
-    "next": "Proximo",
+    "next": "Próximo",
     "previous": "Anterior",
     "pageIndicator": "Pagina {current} de {total}",
     "pageChanged": "Pagina {current} de {total}",
@@ -1630,12 +1630,12 @@
         "intenseDesc": "Aproveitar cada minuto, muitas atividades"
       },
       "foodPreferences": {
-        "title": "Preferencias Alimentares",
-        "question": "Quais sao suas preferencias alimentares?"
+        "title": "Preferências Alimentares",
+        "question": "Quais sao suas preferências alimentares?"
       },
       "interests": {
         "title": "Interesses e Hobbies",
-        "question": "O que voce mais gosta de fazer em viagens?"
+        "question": "O que você mais gosta de fazer em viagens?"
       },
       "budgetStyle": {
         "title": "Estilo de Orcamento",
@@ -1647,15 +1647,15 @@
       },
       "socialPreference": {
         "title": "Preferencia Social",
-        "question": "Como voce prefere viajar?"
+        "question": "Como você prefere viajar?"
       },
       "accommodationStyle": {
         "title": "Estilo de Hospedagem",
-        "question": "Onde voce prefere se hospedar?"
+        "question": "Onde você prefere se hospedar?"
       },
       "fitnessLevel": {
-        "title": "Nivel de Condicionamento",
-        "question": "Qual e o seu nivel de condicionamento fisico?",
+        "title": "Nível de Condicionamento",
+        "question": "Qual e o seu nível de condicionamento fisico?",
         "lowDesc": "Atividades leves, sem muito esforco",
         "moderateDesc": "Caminhadas e atividades moderadas",
         "highDesc": "Trilhas longas, atividades intensas"
@@ -1669,7 +1669,7 @@
       },
       "wakePreference": {
         "title": "Preferencia de Horario",
-        "question": "Voce e mais matutino ou noturno?",
+        "question": "Você e mais matutino ou noturno?",
         "earlyBirdDesc": "Gosto de comecar cedo, aproveitar a manha",
         "flexibleDesc": "Sem preferencia forte",
         "nightOwlDesc": "Prefiro comecar mais tarde, curtir a noite"
@@ -1762,7 +1762,7 @@
     "searching": "Buscando destinos...",
     "searchLabel": "Buscar destinos",
     "searchError": "Busca indisponivel. Digite o destino manualmente.",
-    "placeholder": "Para onde voce vai?",
+    "placeholder": "Para onde você vai?",
     "recentSearches": "Buscas recentes",
     "clearRecent": "Limpar",
     "resultsCount": "{count} {count, plural, one {resultado encontrado} other {resultados encontrados}}",
@@ -1780,8 +1780,8 @@
       "hidePassword": "Ocultar senha"
     },
     "badge": {
-      "newNotification": "Nova notificacao",
-      "notificationCount": "{count} notificacoes"
+      "newNotification": "Nova notificação",
+      "notificationCount": "{count} notificações"
     },
     "phaseProgress": {
       "progressLabel": "Progresso das fases: {completed} de {total} concluidas",
@@ -1803,23 +1803,23 @@
       "planner": "Planejador",
       "login": "Entrar",
       "getStarted": "Criar Conta",
-      "openMenu": "Abrir menu de navegacao",
-      "closeMenu": "Fechar menu de navegacao"
+      "openMenu": "Abrir menu de navegação",
+      "closeMenu": "Fechar menu de navegação"
     },
     "hero": {
       "badge": "A Nova Era do Planejamento",
-      "title": "Sua proxima aventura comeca aqui",
-      "subtitle": "Planeje viagens incriveis em minutos — facil, inteligente e divertido. A IA cuida dos detalhes, voce aproveita a aventura.",
-      "cta": "Comece sua expedicao",
+      "title": "Sua próxima aventura comeca aqui",
+      "subtitle": "Planeje viagens incríveis em minutos — fácil, inteligente e divertido. A IA cuida dos detalhes, você aproveita a aventura.",
+      "cta": "Comece sua expedição",
       "secondaryCta": "Como Funciona",
       "imageAlt": "Vista aerea de montanhas brasileiras ao por do sol com ceu dramatico em tons de laranja e roxo"
     },
     "phases": {
-      "title": "8 Fases da Expedicao",
+      "title": "8 Fases da Expedição",
       "subtitle": "Nossa metodologia proprietaria garante que nada seja esquecido, transformando cada etapa em uma experiencia fluida.",
       "comingSoon": "Em Breve",
       "phase1": {
-        "name": "A Inspiracao",
+        "name": "A Inspiração",
         "description": "Curadoria de destinos baseada em seus desejos e tendencias globais."
       },
       "phase2": {
@@ -1831,19 +1831,19 @@
         "description": "Documentacao, vacinas e checklists inteligentes personalizados."
       },
       "phase4": {
-        "name": "A Logistica",
+        "name": "A Logística",
         "description": "Conexoes, transferencias e hospedagem no melhor custo-beneficio."
       },
       "phase5": {
         "name": "Guia do Destino",
-        "description": "Informacoes essenciais sobre cultura, moeda e clima local."
+        "description": "Informações essenciais sobre cultura, moeda e clima local."
       },
       "phase6": {
         "name": "O Roteiro",
-        "description": "Cronograma diario otimizado para evitar fadiga e filas."
+        "description": "Cronograma diário otimizado para evitar fadiga e filas."
       },
       "phase7": {
-        "name": "A Expedicao",
+        "name": "A Expedição",
         "description": "Monitoramento em tempo real e suporte para imprevistos."
       },
       "phase8": {
@@ -1862,13 +1862,13 @@
       "mockupAlt": "Preview de roteiro de viagem gerado por IA"
     },
     "gamification": {
-      "title": "Ganhe pontos, suba de nivel",
+      "title": "Ganhe pontos, suba de nível",
       "subtitle": "Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie beneficios exclusivos.",
-      "currentLevel": "Seu Nivel Atual",
+      "currentLevel": "Seu Nível Atual",
       "explanation": "Complete fases para ganhar Pontos Atlas. Use-os para gerar roteiros, checklists e guias de destino com IA.",
       "badge1": {
         "name": "Primeira Viagem",
-        "description": "Complete sua primeira expedicao."
+        "description": "Complete sua primeira expedição."
       },
       "badge2": {
         "name": "Globetrotter",
@@ -1880,7 +1880,7 @@
       },
       "badge4": {
         "name": "Viajante Frequente",
-        "description": "Complete 3 expedicoes."
+        "description": "Complete 3 expedições."
       },
       "badge5": {
         "name": "Em Familia",
@@ -1892,11 +1892,11 @@
       },
       "badge7": {
         "name": "Maratonista",
-        "description": "Complete 3 expedicoes em 30 dias."
+        "description": "Complete 3 expedições em 30 dias."
       },
       "badge8": {
         "name": "Fiel",
-        "description": "10+ logins diarios."
+        "description": "10+ logins diários."
       }
     },
     "destinations": {
@@ -1917,7 +1917,7 @@
       "pantanal": {
         "name": "Pantanal",
         "category": "Fauna Silvestre",
-        "description": "O maior santuario de vida selvagem do Brasil esperando por voce.",
+        "description": "O maior santuario de vida selvagem do Brasil esperando por você.",
         "imageAlt": "Vista panoramica do Pantanal ao por do sol com agua refletindo e arvores em silhueta"
       }
     },
@@ -1928,7 +1928,7 @@
       "travelInsurance": "Seguro Viagem",
       "blog": "Blog Editorial",
       "company": "Empresa",
-      "about": "Sobre Nos",
+      "about": "Sobre Nós",
       "contact": "Contato",
       "privacy": "Politica de Privacidade",
       "terms": "Termos de Uso",
@@ -1938,8 +1938,8 @@
       "emailLabel": "Seu email para newsletter",
       "send": "Enviar",
       "copyright": "Atlas Travel Planner",
-      "lgpd": "Em conformidade com a LGPD. Seus dados estao protegidos.",
-      "newsletterSuccess": "Inscricao registrada! Em breve voce recebera novidades."
+      "lgpd": "Em conformidade com a LGPD. Seus dados estão protegidos.",
+      "newsletterSuccess": "Inscricao registrada! Em breve você recebera novidades."
     }
   },
   "errors": {
@@ -1949,17 +1949,17 @@
     "unauthorized": "Faça login para continuar."
   },
   "navV2": {
-    "mainNavigation": "Navegacao principal"
+    "mainNavigation": "Navegação principal"
   },
   "phaseShellV2": {
     "breadcrumb": {
-      "label": "Caminho de navegacao",
-      "expeditions": "Expedicoes",
+      "label": "Caminho de navegação",
+      "expeditions": "Expedições",
       "currentTrip": "Viagem atual"
     }
   },
   "phase1V2": {
-    "title": "A Inspiracao",
+    "title": "A Inspiração",
     "duration": "{days, plural, one {# dia} other {# dias}}",
     "saveDraft": "Salvar Rascunho"
   },
@@ -1971,35 +1971,35 @@
   },
   "dashboardV2": {
     "greeting": "Ola, {name}!",
-    "subtitle": "Sua jornada de exploracao esta apenas comecando. Onde sera seu proximo horizonte?",
+    "subtitle": "Sua jornada de exploracao está apenas comecando. Onde sera seu próximo horizonte?",
     "recentBadges": "Conquistas Recentes",
     "noBadges": "Complete fases para desbloquear conquistas",
-    "levelLabel": "Nivel {level} - {rank}",
+    "levelLabel": "Nível {level} - {rank}",
     "pointsLabel": "{points} Pontos Atlas",
-    "nextRankLabel": "Proximo Nivel",
+    "nextRankLabel": "Próximo Nível",
     "pointsToNext": "{points} pts faltantes",
-    "maxRank": "Nivel maximo atingido!",
-    "progressPercent": "{percent}% para o proximo nivel",
+    "maxRank": "Nível maximo atingido!",
+    "progressPercent": "{percent}% para o próximo nível",
     "tripStatus": "Status do Roteiro",
     "phaseLabel": "Fase {number} - {name}",
     "phasesCompleted": "{completed} de {total} etapas concluidas",
     "continuePlanning": "Continuar Planejamento",
-    "noActiveTrip": "Nenhuma expedicao ativa",
+    "noActiveTrip": "Nenhuma expedição ativa",
     "noActiveTripSubtitle": "Comece uma nova aventura e ganhe pontos ao longo do caminho.",
-    "startNewExpedition": "Iniciar Nova Expedicao",
+    "startNewExpedition": "Iniciar Nova Expedição",
     "nextTrips": "Minhas Proximas Viagens",
     "daysUntil": "Em {days} dias",
-    "nextStop": "Proxima Parada",
+    "nextStop": "Próxima Parada",
     "viewDetails": "Ver detalhes",
-    "myExpeditions": "Minhas Expedicoes",
+    "myExpeditions": "Minhas Expedições",
     "newDestination": "Novo Destino",
     "newDestinationDesc": "Comece uma nova aventura agora.",
-    "viewAllExpeditions": "Ver todas as expedicoes",
+    "viewAllExpeditions": "Ver todas as expedições",
     "planned": "PLANEJADO",
     "inProgress": "EM ANDAMENTO",
     "draft": "RASCUNHO",
     "quickActions": "Acoes Rapidas",
-    "newExpedition": "Nova Expedicao",
+    "newExpedition": "Nova Expedição",
     "newExpeditionDesc": "Inicie uma nova aventura de planejamento.",
     "buyPA": "Comprar PA",
     "buyPADesc": "Adquira Pontos Atlas para desbloquear recursos.",
