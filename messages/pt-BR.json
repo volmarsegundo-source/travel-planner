@@ -1968,5 +1968,36 @@
   },
   "phase3V2": {
     "title": "O Preparo"
+  },
+  "dashboardV2": {
+    "greeting": "Ola, {name}!",
+    "subtitle": "Sua jornada de exploracao esta apenas comecando. Onde sera seu proximo horizonte?",
+    "recentBadges": "Conquistas Recentes",
+    "noBadges": "Complete fases para desbloquear conquistas",
+    "levelLabel": "Lvl {level} - {rank}",
+    "pointsLabel": "{points} Pontos Atlas",
+    "nextRankLabel": "Proximo Nivel",
+    "pointsToNext": "{points} pts faltantes",
+    "maxRank": "Nivel maximo atingido!",
+    "progressPercent": "{percent}% para o proximo nivel",
+    "tripStatus": "Status do Roteiro",
+    "phaseLabel": "Fase {number} - {name}",
+    "phasesCompleted": "{completed} de {total} etapas concluidas",
+    "continuePlanning": "Continuar Planejamento",
+    "noActiveTrip": "Nenhuma expedicao ativa",
+    "noActiveTripSubtitle": "Comece uma nova aventura e ganhe pontos ao longo do caminho.",
+    "startNewExpedition": "Iniciar Nova Expedicao",
+    "nextTrips": "Minhas Proximas Viagens",
+    "daysUntil": "Em {days} dias",
+    "nextStop": "Proxima Parada",
+    "quickActions": "Acoes Rapidas",
+    "newExpedition": "Nova Expedicao",
+    "newExpeditionDesc": "Inicie uma nova aventura de planejamento.",
+    "buyPA": "Comprar PA",
+    "buyPADesc": "Adquira Pontos Atlas para desbloquear recursos.",
+    "expertTip": "Dica do Especialista",
+    "tipText": "Reserve hospedagens com cancelamento gratuito para manter flexibilidade no planejamento.",
+    "loading": "Carregando dashboard...",
+    "viewAllExpeditions": "Ver Todas as Expedicoes"
   }
 }

@@ -107,7 +107,7 @@ export function AuthenticatedNavbarV2({
 
           <div className="mx-1 h-6 w-px bg-atlas-outline-variant/20" aria-hidden="true" />
 
-          <ThemeToggle />
+          {/* ThemeToggle removed — light mode forced for beta */}
           <LanguageSwitcher />
 
           {gamification && (
@@ -179,7 +179,7 @@ export function AuthenticatedNavbarV2({
               </div>
             )}
             <div className="border-t border-atlas-outline-variant/20 pt-2 flex gap-2">
-              <ThemeToggle />
+              {/* ThemeToggle removed — light mode forced for beta */}
               <LanguageSwitcher />
             </div>
             <div className="border-t border-atlas-outline-variant/20 pt-2">

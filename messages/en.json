@@ -1968,5 +1968,36 @@
   },
   "phase3V2": {
     "title": "The Preparation"
+  },
+  "dashboardV2": {
+    "greeting": "Hello, {name}!",
+    "subtitle": "Your exploration journey is just beginning. Where is your next horizon?",
+    "recentBadges": "Recent Achievements",
+    "noBadges": "Complete phases to unlock achievements",
+    "levelLabel": "Lvl {level} - {rank}",
+    "pointsLabel": "{points} Atlas Points",
+    "nextRankLabel": "Next Level",
+    "pointsToNext": "{points} pts to go",
+    "maxRank": "Max level reached!",
+    "progressPercent": "{percent}% to next level",
+    "tripStatus": "Itinerary Status",
+    "phaseLabel": "Phase {number} - {name}",
+    "phasesCompleted": "{completed} of {total} steps completed",
+    "continuePlanning": "Continue Planning",
+    "noActiveTrip": "No active expedition",
+    "noActiveTripSubtitle": "Start a new adventure and earn points along the way.",
+    "startNewExpedition": "Start New Expedition",
+    "nextTrips": "My Upcoming Trips",
+    "daysUntil": "In {days} days",
+    "nextStop": "Next Stop",
+    "quickActions": "Quick Actions",
+    "newExpedition": "New Expedition",
+    "newExpeditionDesc": "Start a new planning adventure.",
+    "buyPA": "Buy PA",
+    "buyPADesc": "Get Atlas Points to unlock features.",
+    "expertTip": "Expert Tip",
+    "tipText": "Book accommodations with free cancellation to keep your planning flexible.",
+    "loading": "Loading dashboard...",
+    "viewAllExpeditions": "View All Expeditions"
   }
 }

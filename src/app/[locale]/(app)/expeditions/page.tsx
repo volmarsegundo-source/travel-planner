@@ -2,9 +2,19 @@ import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { TripService } from "@/server/services/trip.service";
+import { PointsEngine } from "@/lib/engines/points-engine";
+import { BADGE_REGISTRY } from "@/lib/gamification/badge-registry";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { DashboardV2 } from "@/components/features/dashboard/DashboardV2";
 import type { ExpeditionDTO } from "@/types/expedition.types";
+import type { BadgeDTO, GamificationData } from "@/components/features/dashboard/DashboardV2";
+import type { Rank } from "@/types/gamification.types";
+
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const MAX_RECENT_BADGES = 3;
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 interface ExpeditionsPageProps {
   params: Promise<{ locale: string }>;
@@ -21,9 +31,11 @@ export default async function ExpeditionsPage({ params }: ExpeditionsPageProps) 
 
   const tNav = await getTranslations("navigation");
 
-  const tripsWithPhases = await TripService.getUserTripsWithExpeditionData(
-    session.user.id
-  );
+  // Fetch trips, gamification data, and badges in parallel
+  const [tripsWithPhases, progressSummary] = await Promise.all([
+    TripService.getUserTripsWithExpeditionData(session.user.id),
+    PointsEngine.getProgressSummary(session.user.id),
+  ]);
 
   const expeditions: ExpeditionDTO[] = tripsWithPhases
     .filter((t: (typeof tripsWithPhases)[number]) => t.expeditionMode)
@@ -50,6 +62,32 @@ export default async function ExpeditionsPage({ params }: ExpeditionsPageProps) 
       hasLogistics: t.hasLogistics,
     }));
 
+  // Build gamification data
+  const gamification: GamificationData = {
+    totalPoints: progressSummary.totalPoints,
+    availablePoints: progressSummary.availablePoints,
+    currentRank: progressSummary.currentRank as Rank,
+  };
+
+  // Build recent badges DTO (last N earned, with icon from registry)
+  const badgeRegistryMap = new Map(
+    BADGE_REGISTRY.map((b) => [b.key, b]),
+  );
+
+  const recentBadges: BadgeDTO[] = progressSummary.badges
+    .slice(0, MAX_RECENT_BADGES)
+    .map((b) => {
+      const def = badgeRegistryMap.get(b.badgeKey);
+      return {
+        badgeKey: b.badgeKey,
+        earnedAt: b.earnedAt ? b.earnedAt.toISOString() : new Date().toISOString(),
+        icon: def?.icon ?? "",
+        nameKey: def?.nameKey ?? `gamification.badges.${b.badgeKey}.name`,
+      };
+    });
+
+  const userName = session.user.name ?? "";
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
       <Breadcrumb
@@ -59,7 +97,12 @@ export default async function ExpeditionsPage({ params }: ExpeditionsPageProps) 
         ]}
       />
       <div className="mt-6">
-        <DashboardV2 expeditions={expeditions} />
+        <DashboardV2
+          userName={userName}
+          gamification={gamification}
+          expeditions={expeditions}
+          recentBadges={recentBadges}
+        />
       </div>
     </div>
   );
