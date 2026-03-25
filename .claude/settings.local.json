@@ -167,7 +167,13 @@
       "Bash(curl -sI -L https://unsplash.com/photos/Kmf8MZkk9GQ/download?w=1920)",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1633511089809-fbe0483ca103?w=1920&q=80&fit=crop&auto=format\")",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1696580436068-f19c26850e8b?w=1920&q=80&fit=crop&auto=format\")",
-      "Bash(find /c/travel-planner/src/app/[locale]/\\\\\\(app\\\\\\) -type f -name \"page.tsx\")"
+      "Bash(find /c/travel-planner/src/app/[locale]/\\\\\\(app\\\\\\) -type f -name \"page.tsx\")",
+      "Bash(sed -i 's/\"\"title\"\": \"\"The Explorer\"\"/\"\"title\"\": \"\"The Profile\"\"/g' /c/travel-planner/messages/en.json)",
+      "Bash(sed -i 's/Complete Phase 2 — The Explorer/Complete Phase 2 — The Profile/' /c/travel-planner/messages/en.json)",
+      "Bash(sed -i 's/\"\"phase2Title\"\": \"\"The Explorer\"\"/\"\"phase2Title\"\": \"\"The Profile\"\"/' /c/travel-planner/messages/en.json)",
+      "Bash(sed -i 's/\"\"title\"\": \"\"O Explorador\"\"/\"\"title\"\": \"\"O Perfil\"\"/g' /c/travel-planner/messages/pt-BR.json)",
+      "Bash(sed -i 's/Completar Fase 2 — O Explorador/Completar Fase 2 — O Perfil/' /c/travel-planner/messages/pt-BR.json)",
+      "Bash(Inspiration\" and \"The Explorer\" → \"The Profile\" across:*)"
     ]
   }
 }

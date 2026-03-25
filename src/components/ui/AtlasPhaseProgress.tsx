@@ -223,17 +223,11 @@ function DashboardLayout({
       {segments.map((segment) => {
         const isClickable = segment.state === "completed" && onSegmentClick;
 
-        const barClasses = cn(
-          "h-1.5 flex-1 rounded-full",
-          "transition-all duration-300 motion-reduce:transition-none",
+        const barColorClass = cn(
           segment.state === "completed" && "bg-atlas-secondary-container",
-          segment.state === "active" && [
-            "bg-atlas-secondary-container",
-            "shadow-atlas-glow-amber",
-            "animate-pulse motion-reduce:animate-none",
-          ],
+          segment.state === "active" && "bg-atlas-secondary-container shadow-atlas-glow-amber animate-pulse motion-reduce:animate-none",
           segment.state === "pending" && "bg-atlas-surface-container-high",
-          segment.state === "locked" && "bg-atlas-surface-container-high",
+          segment.state === "locked" && "bg-atlas-surface-container-high opacity-40",
         );
 
         if (isClickable) {
@@ -243,13 +237,12 @@ function DashboardLayout({
               type="button"
               onClick={() => onSegmentClick(segment.phase)}
               className={cn(
-                barClasses,
-                "cursor-pointer min-h-[44px] flex items-center",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring",
+                "flex-1 relative cursor-pointer py-2",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded",
               )}
               aria-label={`Phase ${segment.phase}: ${segment.label} - completed. Click to navigate.`}
             >
-              <div className="h-1.5 w-full rounded-full bg-atlas-secondary-container" />
+              <div className={cn("h-1.5 w-full rounded-full transition-all duration-300 motion-reduce:transition-none", barColorClass)} />
             </button>
           );
         }
@@ -257,9 +250,19 @@ function DashboardLayout({
         return (
           <div
             key={segment.phase}
-            className={barClasses}
+            className="flex-1 relative py-2"
             title={`Phase ${segment.phase}: ${segment.label} - ${stateAriaLabels[segment.state]}`}
-          />
+          >
+            <div className={cn("h-1.5 w-full rounded-full transition-all duration-300 motion-reduce:transition-none", barColorClass)} />
+            {segment.state === "locked" && (
+              <div className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                <svg className="size-3 text-atlas-disabled" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <rect x="3" y="11" width="18" height="11" rx="2" />
+                  <path d="M7 11V7a5 5 0 0110 0v4" />
+                </svg>
+              </div>
+            )}
+          </div>
         );
       })}
     </div>

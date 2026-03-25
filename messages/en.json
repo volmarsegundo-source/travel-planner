@@ -511,7 +511,7 @@
   },
   "expedition": {
     "phase1": {
-      "title": "The Calling",
+      "title": "The Inspiration",
       "subtitle": "Where will your next adventure take you?",
       "destinationPlaceholder": "Search for a city...",
       "passportExpiryWarning": "Your passport may expire before or during your trip. Please check its validity before continuing.",
@@ -581,7 +581,7 @@
       }
     },
     "phase2": {
-      "title": "The Explorer",
+      "title": "The Profile",
       "subtitle": "Define your travel style and preferences.",
       "step1": {
         "title": "What type of traveler are you?",
@@ -1133,8 +1133,8 @@
         "points": "Points",
         "welcomeBonus": "Welcome bonus",
         "dailyLogin": "Daily login",
-        "phase1": "Complete Phase 1 — The Calling",
-        "phase2": "Complete Phase 2 — The Explorer",
+        "phase1": "Complete Phase 1 — The Inspiration",
+        "phase2": "Complete Phase 2 — The Profile",
         "phase3": "Complete Phase 3 — The Preparation",
         "phase4": "Complete Phase 4 — The Logistics",
         "phase5": "Complete Phase 5 — Destination Guide",
@@ -1409,8 +1409,8 @@
     "viewReport": "View report",
     "reportNotAvailable": "The report will be available when the preparation, guide, and itinerary phases are complete.",
     "generatedAt": "Generated on {date}",
-    "phase1Title": "The Calling",
-    "phase2Title": "The Explorer",
+    "phase1Title": "The Inspiration",
+    "phase2Title": "The Profile",
     "phase3Title": "The Preparation",
     "phase4Title": "The Logistics",
     "phase5Title": "Destination Guide",

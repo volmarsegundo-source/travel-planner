@@ -118,7 +118,7 @@ const AtlasInput = React.forwardRef<HTMLInputElement, AtlasInputProps>(
             aria-describedby={describedBy}
             className={cn(
               "w-full min-h-[48px] px-4 py-3 text-base font-atlas-body",
-              "bg-atlas-surface-container-low text-atlas-on-surface",
+              "bg-atlas-surface-container-low dark:bg-atlas-primary-container/40 text-atlas-on-surface dark:text-atlas-on-primary",
               "placeholder:text-atlas-outline-variant",
               "rounded-lg border",
               "transition-all duration-200 motion-reduce:transition-none",

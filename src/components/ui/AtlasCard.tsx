@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 
 const atlasCardVariants = cva(
   [
-    "flex flex-col bg-atlas-surface-container-lowest text-atlas-on-surface",
+    "flex flex-col bg-atlas-surface-container-lowest dark:bg-atlas-primary-container/50 text-atlas-on-surface dark:text-atlas-on-primary",
     "transition-all duration-200 motion-reduce:transition-none",
   ].join(" "),
   {

@@ -511,7 +511,7 @@
   },
   "expedition": {
     "phase1": {
-      "title": "O Chamado",
+      "title": "A Inspiracao",
       "subtitle": "Para onde sua próxima aventura vai te levar?",
       "destinationPlaceholder": "Busque uma cidade...",
       "passportExpiryWarning": "Seu passaporte pode expirar antes ou durante a viagem. Verifique a validade antes de continuar.",
@@ -581,7 +581,7 @@
       }
     },
     "phase2": {
-      "title": "O Explorador",
+      "title": "O Perfil",
       "subtitle": "Defina seu estilo de viagem e preferências.",
       "step1": {
         "title": "Que tipo de viajante você é?",
@@ -1133,8 +1133,8 @@
         "points": "Pontos",
         "welcomeBonus": "Bonus de boas-vindas",
         "dailyLogin": "Login diario",
-        "phase1": "Completar Fase 1 — O Chamado",
-        "phase2": "Completar Fase 2 — O Explorador",
+        "phase1": "Completar Fase 1 — A Inspiracao",
+        "phase2": "Completar Fase 2 — O Perfil",
         "phase3": "Completar Fase 3 — O Preparo",
         "phase4": "Completar Fase 4 — A Logistica",
         "phase5": "Completar Fase 5 — Guia do Destino",
@@ -1409,8 +1409,8 @@
     "viewReport": "Ver relatorio",
     "reportNotAvailable": "O relatorio estara disponivel quando as fases de preparo, guia e roteiro estiverem completas.",
     "generatedAt": "Gerado em {date}",
-    "phase1Title": "O Chamado",
-    "phase2Title": "O Explorador",
+    "phase1Title": "A Inspiracao",
+    "phase2Title": "O Perfil",
     "phase3Title": "O Preparo",
     "phase4Title": "A Logistica",
     "phase5Title": "Guia do Destino",

@@ -139,9 +139,9 @@ export function PhaseShellV2({
   ];
 
   return (
-    <div className="flex min-h-[60vh]" data-testid="phase-shell-v2">
+    <div className="flex min-h-[60vh] bg-atlas-surface dark:bg-atlas-primary/95" data-testid="phase-shell-v2">
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:border-r lg:border-atlas-outline-variant/20 lg:bg-atlas-surface-container-lowest lg:p-6">
+      <aside className="hidden lg:flex lg:w-64 lg:shrink-0 lg:flex-col lg:border-r lg:border-atlas-outline-variant/20 lg:bg-atlas-surface-container-lowest dark:lg:bg-atlas-primary-container/30 lg:p-6">
         {/* Breadcrumb */}
         <nav aria-label={tShell("breadcrumb.label")} className="mb-6">
           <ol className="flex flex-wrap items-center gap-1 text-xs font-atlas-body text-atlas-on-surface-variant">
