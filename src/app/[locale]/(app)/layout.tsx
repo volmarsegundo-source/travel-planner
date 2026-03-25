@@ -4,7 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
-import { Footer } from "@/components/layout/Footer";
+import { FooterV2 } from "@/components/features/landing/FooterV2";
 
 interface AppShellLayoutProps {
   children: React.ReactNode;
@@ -71,7 +71,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
       <main id="main-content" className="flex-1">
         {children}
       </main>
-      <Footer variant="authenticated" />
+      <FooterV2 />
     </div>
   );
 }

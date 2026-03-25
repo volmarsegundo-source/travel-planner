@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui";
-import { Menu, X } from "lucide-react";
+import { Compass, Menu, X } from "lucide-react";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 interface LandingNavProps {
@@ -30,8 +30,9 @@ export function LandingNav({ isAuthenticated = false }: LandingNavProps) {
         <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="text-2xl font-bold tracking-tight text-atlas-primary font-atlas-headline"
+            className="flex items-center gap-2 text-2xl font-bold tracking-tight text-atlas-primary font-atlas-headline"
           >
+            <Compass className="size-6" aria-hidden="true" />
             {t("logo")}
           </Link>
 

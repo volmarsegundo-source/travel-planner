@@ -1974,7 +1974,7 @@
     "subtitle": "Your exploration journey is just beginning. Where is your next horizon?",
     "recentBadges": "Recent Achievements",
     "noBadges": "Complete phases to unlock achievements",
-    "levelLabel": "Lvl {level} - {rank}",
+    "levelLabel": "Level {level} - {rank}",
     "pointsLabel": "{points} Atlas Points",
     "nextRankLabel": "Next Level",
     "pointsToNext": "{points} pts to go",
@@ -1990,14 +1990,19 @@
     "nextTrips": "My Upcoming Trips",
     "daysUntil": "In {days} days",
     "nextStop": "Next Stop",
+    "viewDetails": "View details",
+    "myExpeditions": "My Expeditions",
+    "newDestination": "New Destination",
+    "newDestinationDesc": "Start a new adventure now.",
+    "viewAllExpeditions": "View all expeditions",
+    "planned": "PLANNED",
+    "inProgress": "IN PROGRESS",
+    "draft": "DRAFT",
     "quickActions": "Quick Actions",
     "newExpedition": "New Expedition",
     "newExpeditionDesc": "Start a new planning adventure.",
     "buyPA": "Buy PA",
     "buyPADesc": "Get Atlas Points to unlock features.",
-    "expertTip": "Expert Tip",
-    "tipText": "Book accommodations with free cancellation to keep your planning flexible.",
-    "loading": "Loading dashboard...",
-    "viewAllExpeditions": "View All Expeditions"
+    "loading": "Loading dashboard..."
   }
 }

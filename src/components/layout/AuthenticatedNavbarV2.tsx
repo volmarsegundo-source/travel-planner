@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { Compass } from "lucide-react";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 // ThemeToggle removed — light mode forced for beta (dark mode redesign post-beta)
 import { UserMenu } from "@/components/layout/UserMenu";
@@ -80,6 +81,7 @@ export function AuthenticatedNavbarV2({
           href="/expeditions"
           className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2 rounded-lg"
         >
+          <Compass className="size-5 text-atlas-primary" aria-hidden="true" />
           <span
             className="font-atlas-headline text-lg font-bold text-atlas-primary"
             aria-hidden="true"

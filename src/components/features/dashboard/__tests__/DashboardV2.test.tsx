@@ -72,7 +72,7 @@ function makeExpedition(overrides: Partial<ExpeditionDTO> = {}): ExpeditionDTO {
     destination: "Tokyo, Japan",
     currentPhase: 3,
     completedPhases: [1, 2],
-    totalPhases: 6,
+    totalPhases: 8,
     coverEmoji: "\uD83C\uDDEF\uD83C\uDDF5",
     startDate: "2026-05-01",
     endDate: "2026-05-14",
@@ -137,13 +137,11 @@ describe("DashboardV2", () => {
     expect(screen.getByTestId("dashboard-v2-loading")).toBeInTheDocument();
   });
 
-  // ─── Section A: Greeting ───────────────────────────────────────────────
+  // ─── Section 2: Greeting ──────────────────────────────────────────────
 
   it("renders personalized greeting with user name", () => {
     render(<DashboardV2 {...makeProps({ userName: "Marco" })} />);
-    // The mock returns "dashboardV2.greeting" — the key itself, confirming greeting renders
     expect(screen.getByTestId("dashboard-greeting")).toBeInTheDocument();
-    // Verify the translation function was called (greeting key present in output)
     expect(screen.getByTestId("dashboard-greeting").textContent).toContain("greeting");
   });
 
@@ -152,42 +150,7 @@ describe("DashboardV2", () => {
     expect(screen.getByText(/dashboardV2\.subtitle/)).toBeInTheDocument();
   });
 
-  // ─── Section B: Level/XP Bar ───────────────────────────────────────────
-
-  it("renders XP bar card with level and rank", () => {
-    render(<DashboardV2 {...makeProps()} />);
-    expect(screen.getByTestId("xp-bar-card")).toBeInTheDocument();
-  });
-
-  it("renders total points display", () => {
-    render(
-      <DashboardV2
-        {...makeProps({ gamification: makeGamification({ totalPoints: 3250 }) })}
-      />,
-    );
-    // The mock returns "dashboardV2.pointsLabel" with param substitution: {points} -> 3,250
-    // But toLocaleString in JSDOM may not format as 3,250 — check the key is rendered
-    expect(screen.getByText(/pointsLabel/)).toBeInTheDocument();
-  });
-
-  it("renders XP progress bar", () => {
-    render(<DashboardV2 {...makeProps()} />);
-    expect(screen.getByTestId("xp-progress-bar")).toBeInTheDocument();
-  });
-
-  it("renders next rank info when not max rank", () => {
-    render(<DashboardV2 {...makeProps()} />);
-    expect(screen.getByText(/dashboardV2\.nextRankLabel/)).toBeInTheDocument();
-    expect(screen.getByText(/dashboardV2\.pointsToNext/)).toBeInTheDocument();
-  });
-
-  // ─── Section C: Active Trip ────────────────────────────────────────────
-
-  it("renders active trip status section with phase info", () => {
-    render(<DashboardV2 {...makeProps()} />);
-    expect(screen.getByTestId("trip-status-section")).toBeInTheDocument();
-    expect(screen.getByTestId("phase-progress-bar")).toBeInTheDocument();
-  });
+  // ─── Section 3: Next Stop (Active Trip) ───────────────────────────────
 
   it("renders featured trip card with destination name", () => {
     render(<DashboardV2 {...makeProps()} />);
@@ -199,6 +162,12 @@ describe("DashboardV2", () => {
   it("renders continue planning button for active trip", () => {
     render(<DashboardV2 {...makeProps()} />);
     expect(screen.getByTestId("continue-planning-btn")).toBeInTheDocument();
+  });
+
+  it("renders view details link for active trip", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("view-details-link")).toBeInTheDocument();
+    expect(screen.getByTestId("view-details-link")).toHaveAttribute("href", "/expedition/trip-1");
   });
 
   it("renders days until trip when start date is in the future", () => {
@@ -222,18 +191,121 @@ describe("DashboardV2", () => {
     expect(screen.getByTestId("start-expedition-btn")).toBeInTheDocument();
   });
 
+  // ─── Section 4: Active Route Status (Phase Progress) ─────────────────
+
+  it("renders active trip status section with phase info", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("trip-status-section")).toBeInTheDocument();
+    expect(screen.getByTestId("phase-progress-bar")).toBeInTheDocument();
+  });
+
   it("does not render trip status section when no expeditions", () => {
     render(<DashboardV2 {...makeProps({ expeditions: [] })} />);
     expect(screen.queryByTestId("trip-status-section")).not.toBeInTheDocument();
   });
 
+  it("renders 8 phase progress segments for active trip", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    const progressBar = screen.getByTestId("phase-progress-bar");
+    expect(progressBar.children).toHaveLength(8);
+  });
+
   it("renders completed phases count", () => {
     render(<DashboardV2 {...makeProps()} />);
-    // "2 de 6 etapas concluidas" via i18n mock
+    // "X de 8 etapas concluidas" via i18n mock — key is rendered
     expect(screen.getByText(/dashboardV2\.phasesCompleted/)).toBeInTheDocument();
   });
 
-  // ─── Section D: Recent Badges ──────────────────────────────────────────
+  // ─── Section 5: My Expeditions ───────────────────────────────────────
+
+  it("renders my expeditions section", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("my-expeditions-section")).toBeInTheDocument();
+  });
+
+  it("renders trip cards for expeditions", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    const tripCards = screen.getAllByTestId("trip-card");
+    expect(tripCards.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("renders new destination card", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("new-destination-card")).toBeInTheDocument();
+  });
+
+  it("renders new destination card even with 0 expeditions", () => {
+    render(<DashboardV2 {...makeProps({ expeditions: [] })} />);
+    expect(screen.getByTestId("new-destination-card")).toBeInTheDocument();
+  });
+
+  it("new destination card links to /expedition/new", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    const card = screen.getByTestId("new-destination-card");
+    expect(card).toHaveAttribute("href", "/expedition/new");
+  });
+
+  it("renders view all link when more than 3 expeditions", () => {
+    const expeditions = Array.from({ length: 5 }, (_, i) =>
+      makeExpedition({
+        id: `trip-${i}`,
+        destination: `City ${i}`,
+        createdAt: `2026-03-${String(i + 1).padStart(2, "0")}T00:00:00.000Z`,
+      }),
+    );
+    render(<DashboardV2 {...makeProps({ expeditions })} />);
+    expect(screen.getByTestId("view-all-expeditions-link")).toBeInTheDocument();
+  });
+
+  it("does not render view all link when 3 or fewer expeditions", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.queryByTestId("view-all-expeditions-link")).not.toBeInTheDocument();
+  });
+
+  it("renders + Nova Expedicao button in section header", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("new-expedition-header-btn")).toBeInTheDocument();
+  });
+
+  // ─── Section 6: Level & Points ───────────────────────────────────────
+
+  it("renders XP bar card with level and rank", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("xp-bar-card")).toBeInTheDocument();
+  });
+
+  it("renders total points display", () => {
+    render(
+      <DashboardV2
+        {...makeProps({ gamification: makeGamification({ totalPoints: 3250 }) })}
+      />,
+    );
+    expect(screen.getByText(/pointsLabel/)).toBeInTheDocument();
+  });
+
+  it("renders XP progress bar", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByTestId("xp-progress-bar")).toBeInTheDocument();
+  });
+
+  it("renders next rank info when not max rank", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    expect(screen.getByText(/dashboardV2\.nextRankLabel/)).toBeInTheDocument();
+    expect(screen.getByText(/dashboardV2\.pointsToNext/)).toBeInTheDocument();
+  });
+
+  it("uses 'Level' format (not 'Lvl') in level label", () => {
+    render(<DashboardV2 {...makeProps()} />);
+    // The i18n mock returns the key "dashboardV2.levelLabel" with param substitution
+    // The key is now "Level {level} - {rank}" / "Nivel {level} - {rank}"
+    // In the mock, it renders "dashboardV2.levelLabel" with params substituted
+    const xpCard = screen.getByTestId("xp-bar-card");
+    expect(xpCard.textContent).toContain("levelLabel");
+    // Verify that "Lvl" is NOT present in the rendered content
+    expect(xpCard.textContent).not.toContain("Lvl");
+  });
+
+  // ─── Section 7: Recent Badges ────────────────────────────────────────
 
   it("renders recent badges when present", () => {
     const badges = [
@@ -251,9 +323,9 @@ describe("DashboardV2", () => {
     expect(screen.getByTestId("no-badges")).toBeInTheDocument();
   });
 
-  // ─── Section E: Quick Actions ──────────────────────────────────────────
+  // ─── Section 8: Quick Actions ────────────────────────────────────────
 
-  it("renders quick action cards", () => {
+  it("renders quick action cards (only 2)", () => {
     render(<DashboardV2 {...makeProps()} />);
     expect(screen.getByTestId("quick-actions-section")).toBeInTheDocument();
     expect(screen.getByTestId("action-new-expedition")).toBeInTheDocument();
@@ -272,30 +344,21 @@ describe("DashboardV2", () => {
     expect(link).toHaveAttribute("href", "/meu-atlas/comprar-pa");
   });
 
-  // ─── Section F: Expert Tip ─────────────────────────────────────────────
+  // ─── Removed sections ────────────────────────────────────────────────
 
-  it("renders expert tip card", () => {
+  it("does NOT render expert tip card", () => {
     render(<DashboardV2 {...makeProps()} />);
-    expect(screen.getByTestId("expert-tip-card")).toBeInTheDocument();
+    expect(screen.queryByTestId("expert-tip-card")).not.toBeInTheDocument();
   });
 
-  // ─── Phase segments ────────────────────────────────────────────────────
-
-  it("renders 6 phase progress segments for active trip", () => {
-    render(<DashboardV2 {...makeProps()} />);
-    const progressBar = screen.getByTestId("phase-progress-bar");
-    // 6 slim bars inside
-    expect(progressBar.children).toHaveLength(6);
-  });
-
-  // ─── Edge cases ────────────────────────────────────────────────────────
+  // ─── Edge cases ──────────────────────────────────────────────────────
 
   it("selects most recent non-completed trip as active", () => {
     const expeditions = [
       makeExpedition({
         id: "old",
         destination: "Paris",
-        completedPhases: [1, 2, 3, 4, 5, 6],
+        completedPhases: [1, 2, 3, 4, 5, 6, 7, 8],
         createdAt: "2026-02-01T00:00:00.000Z",
       }),
       makeExpedition({
@@ -308,5 +371,39 @@ describe("DashboardV2", () => {
     ];
     render(<DashboardV2 {...makeProps({ expeditions })} />);
     expect(screen.getByTestId("featured-destination")).toHaveTextContent("Rome");
+  });
+
+  it("sorts expedition cards by status priority: active > planned > completed", () => {
+    const expeditions = [
+      makeExpedition({
+        id: "completed-1",
+        destination: "Paris",
+        status: "completed",
+        completedPhases: [1, 2, 3, 4, 5, 6, 7, 8],
+        createdAt: "2026-03-20T00:00:00.000Z",
+      }),
+      makeExpedition({
+        id: "active-1",
+        destination: "Tokyo",
+        status: "active",
+        completedPhases: [1, 2],
+        createdAt: "2026-03-10T00:00:00.000Z",
+      }),
+      makeExpedition({
+        id: "planned-1",
+        destination: "Rome",
+        status: "planned",
+        completedPhases: [],
+        createdAt: "2026-03-15T00:00:00.000Z",
+      }),
+    ];
+    render(<DashboardV2 {...makeProps({ expeditions })} />);
+    const tripCards = screen.getAllByTestId("trip-card");
+    // Active (Tokyo) should appear first
+    expect(tripCards[0]!.textContent).toContain("Tokyo");
+    // Then planned (Rome)
+    expect(tripCards[1]!.textContent).toContain("Rome");
+    // Then completed (Paris)
+    expect(tripCards[2]!.textContent).toContain("Paris");
   });
 });

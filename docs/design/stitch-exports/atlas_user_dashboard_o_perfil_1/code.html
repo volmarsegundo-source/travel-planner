@@ -7,7 +7,6 @@
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@400;500&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <script id="tailwind-config">
       tailwind.config = {
         darkMode: "class",
@@ -66,7 +65,7 @@
               "body": ["Work Sans"],
               "label": ["Work Sans"]
             },
-            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem", "3xl": "1.5rem", "full": "9999px"},
           },
         },
       }
@@ -76,7 +75,7 @@
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
       }
       body { font-family: 'Work Sans', sans-serif; }
-      h1, h2, h3, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
+      h1, h2, h3, h4, h5, .font-headline { font-family: 'Plus Jakarta Sans', sans-serif; }
       .glass-effect { backdrop-filter: blur(16px); }
     </style>
 </head>
@@ -84,7 +83,7 @@
 <div class="flex min-h-screen">
 <!-- SideNavBar -->
 <aside class="hidden md:flex flex-col p-4 gap-2 h-screen w-64 border-r border-slate-200/50 dark:border-slate-800/50 bg-slate-50 dark:bg-slate-950 sticky top-0">
-<div class="mb-8 px-2">
+<div class="mb-8 px-2 flex items-center gap-2">
 <h1 class="text-2xl font-bold tracking-tight text-slate-900 dark:text-white font-headline">Atlas</h1>
 </div>
 <div class="mb-6 px-2">
@@ -112,8 +111,8 @@
 <div class="mt-auto space-y-1">
 <button class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-container text-on-tertiary-container rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity mb-4">
 <span class="material-symbols-outlined text-sm" data-icon="auto_awesome">auto_awesome</span>
-                    Atlas AI Assistant
-                </button>
+                Atlas AI Assistant
+            </button>
 <a class="flex items-center gap-3 px-3 py-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900/50 hover:translate-x-1 transition-all rounded-lg text-sm" href="#">
 <span class="material-symbols-outlined" data-icon="settings">settings</span>
 <span>Configurações</span>
@@ -127,25 +126,25 @@
 <!-- Main Canvas -->
 <main class="flex-1 bg-surface overflow-x-hidden">
 <!-- TopAppBar -->
-<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm">
+<header class="sticky top-0 w-full z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-sm border-b border-slate-100">
 <div class="flex items-center justify-between px-6 h-16 max-w-screen-2xl mx-auto">
 <div class="flex items-center gap-8">
 <nav class="hidden md:flex items-center gap-6">
 <a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-sm font-medium" href="#">Explorar</a>
-<a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-sm font-medium" href="#">Minhas Viagens</a>
+<a class="text-primary transition-colors text-sm font-bold border-b-2 border-primary py-5" href="#">Minhas Viagens</a>
 <a class="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-colors text-sm font-medium" href="#">Planejador</a>
 </nav>
 </div>
 <div class="flex items-center gap-4">
-<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="notifications">notifications</span>
-<span class="material-symbols-outlined text-on-surface-variant cursor-pointer" data-icon="workspace_premium">workspace_premium</span>
-<div class="h-8 w-8 rounded-full overflow-hidden bg-surface-container-highest">
-<img alt="User profile" data-alt="close-up portrait of a smiling young man with a friendly expression in a modern professional studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxpS_dqCrbRMFMHJAhFV9Jdqw6sspNYT2C45d3miv47SfrmitwEfuDsfPnX0neMCcUuAYliEcUlCs3BSOr6UOdvqSIB5S1FEvd61hrJdNfO3sQY-RHRXM8PhS4CCr4m6lt84ZLSJleDqyME5qTivm1rcFkdgsYhu4C6SZWa3zagT90QhajAphTZ39KNEwairTH09YS4BOhFlyUxGClD1VIgZFARWLkefhYNQ5-3Oha0yO6sN163yHUUWnCOBHe7RlQElXMAfD4FdAF"/>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="workspace_premium">workspace_premium</span>
+<div class="h-8 w-8 rounded-full overflow-hidden bg-surface-container-highest border border-slate-200">
+<img alt="User profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxpS_dqCrbRMFMHJAhFV9Jdqw6sspNYT2C45d3miv47SfrmitwEfuDsfPnX0neMCcUuAYliEcUlCs3BSOr6UOdvqSIB5S1FEvd61hrJdNfO3sQY-RHRXM8PhS4CCr4m6lt84ZLSJleDqyME5qTivm1rcFkdgsYhu4C6SZWa3zagT90QhajAphTZ39KNEwairTH09YS4BOhFlyUxGClD1VIgZFARWLkefhYNQ5-3Oha0yO6sN163yHUUWnCOBHe7RlQElXMAfD4FdAF"/>
 </div>
 </div>
 </div>
 </header>
-<div class="max-w-screen-2xl mx-auto px-6 py-12 space-y-16">
+<div class="max-w-screen-2xl mx-auto px-6 py-10 space-y-12">
 <!-- Profile Section & Level -->
 <section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
 <div class="lg:col-span-2 space-y-6">
@@ -154,54 +153,56 @@
 <p class="text-lg text-on-surface-variant max-w-xl">Sua jornada de exploração está apenas começando. Onde será seu próximo horizonte?</p>
 </div>
 <!-- RPG Stats Card -->
-<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm border border-outline-variant/10">
-<div class="flex items-center justify-between mb-6">
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm border border-outline-variant/10">
+<div class="flex items-center justify-between mb-4">
 <div class="flex items-center gap-4">
-<div class="w-16 h-16 bg-primary-container rounded-lg flex items-center justify-center">
-<span class="material-symbols-outlined text-3xl text-secondary-container" data-icon="military_tech" style="font-variation-settings: 'FILL' 1;">military_tech</span>
+<div class="w-14 h-14 bg-primary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl text-secondary-container" data-icon="military_tech" style="font-variation-settings: 'FILL' 1;">military_tech</span>
 </div>
 <div>
-<h3 class="text-xl font-bold text-primary font-headline">Lvl 12 - Explorador</h3>
-<p class="text-sm font-medium text-secondary">3,250 Pontos Atlas</p>
+<h3 class="text-lg font-bold text-primary font-headline">Lvl 12 - Explorador</h3>
+<p class="text-xs font-medium text-secondary">3,250 Pontos Atlas</p>
 </div>
 </div>
 <div class="text-right">
-<p class="text-xs font-bold text-on-surface-variant opacity-60 uppercase tracking-widest">Próximo Nível</p>
-<p class="text-sm font-semibold text-primary">750 pts faltantes</p>
+<p class="text-[10px] font-bold text-on-surface-variant opacity-60 uppercase tracking-widest">Próximo Nível</p>
+<p class="text-xs font-semibold text-primary">750 pts faltantes</p>
 </div>
 </div>
-<div class="w-full bg-surface-container-high h-3 rounded-full overflow-hidden">
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
 <div class="bg-gradient-to-r from-primary to-secondary-container h-full w-[82%] rounded-full transition-all duration-1000"></div>
 </div>
 </div>
 </div>
 <!-- Recent Badges -->
 <div class="space-y-4">
-<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60 px-1">Conquistas Recentes</h3>
-<div class="grid grid-cols-2 gap-4">
-<div class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center text-center gap-2 group hover:translate-y-[-2px] transition-transform">
-<div class="w-12 h-12 rounded-full bg-secondary-fixed flex items-center justify-center mb-1">
-<span class="material-symbols-outlined text-on-secondary-fixed-variant" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant opacity-60 px-1">Conquistas Recentes</h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center text-center gap-2 group hover:translate-y-[-2px] transition-transform cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-lg text-on-secondary-fixed-variant" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
 </div>
-<p class="text-xs font-bold text-primary leading-tight">Desbravador do Nordeste</p>
+<p class="text-[10px] font-bold text-primary leading-tight">Desbravador do Nordeste</p>
 </div>
-<div class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center text-center gap-2 group hover:translate-y-[-2px] transition-transform">
-<div class="w-12 h-12 rounded-full bg-primary-fixed flex items-center justify-center mb-1">
-<span class="material-symbols-outlined text-on-primary-fixed-variant" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
+<div class="bg-surface-container-low p-4 rounded-xl flex flex-col items-center text-center gap-2 group hover:translate-y-[-2px] transition-transform cursor-pointer border border-transparent hover:border-outline-variant/20">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center mb-1">
+<span class="material-symbols-outlined text-lg text-on-primary-fixed-variant" data-icon="bolt" style="font-variation-settings: 'FILL' 1;">bolt</span>
 </div>
-<p class="text-xs font-bold text-primary leading-tight">Planejador Ágil</p>
+<p class="text-[10px] font-bold text-primary leading-tight">Planejador Ágil</p>
 </div>
 </div>
 </div>
 </section>
-<!-- Current Planning Status -->
-<section class="space-y-8">
+<!-- Active Trip Context -->
+<section class="space-y-6">
 <div class="flex items-end justify-between">
 <div class="space-y-1">
-<h3 class="text-xs font-bold uppercase tracking-widest text-secondary">Status do Roteiro</h3>
-<h2 class="text-3xl font-extrabold text-primary font-headline">Fase 3 - O Preparo</h2>
+<h3 class="text-[10px] font-bold uppercase tracking-widest text-secondary">Status do Roteiro Ativo</h3>
+<h2 class="text-2xl font-extrabold text-primary font-headline">Fase 3 - O Preparo</h2>
 </div>
-<p class="text-sm font-medium text-on-surface-variant">3 de 8 etapas concluídas</p>
+<div class="text-right">
+<p class="text-xs font-medium text-on-surface-variant">3 de 8 etapas concluídas</p>
+</div>
 </div>
 <div class="flex gap-2 w-full">
 <div class="h-1.5 flex-1 bg-secondary-container rounded-full"></div>
@@ -214,59 +215,158 @@
 <div class="h-1.5 flex-1 bg-surface-container-high rounded-full"></div>
 </div>
 </section>
-<!-- Next Trip & Actions -->
-<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-<!-- Featured Trip Card -->
-<div class="lg:col-span-8 group">
-<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60 mb-6">Minhas Próximas Viagens</h3>
-<div class="relative h-[480px] rounded-3xl overflow-hidden shadow-xl">
-<img alt="Fernando de Noronha" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="stunning panoramic view of Morro do Pico in Fernando de Noronha with turquoise waters and lush tropical vegetation under a clear blue sky" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAy7U2-JiicVzJ36ccg5I-BHT71XnJZEGU9_QGvmqzEVV5Hvs3d6i2sATZ5POc8kELhorzF5mDZxTjKaC1LoLhAAFLG7TIbXluj0q9JhRIO3H5cqNBtxnQYUYcRxQut1cb2hy9r2M6p6MQRce7rBlgnPElG_-1h9uD0ikzUhyaBkro_6Ko-qvRhWiKr1PJKhw76ZYBIJOfcW161mJITLDHOMIXFACevihP0jRLTLF0Xqo38ZmtL2_gpddFEbcQaeX4JcQzi7BMxave"/>
-<div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
-<div class="absolute bottom-0 left-0 p-10 w-full">
-<div class="flex items-center gap-3 mb-4">
-<span class="px-3 py-1 bg-secondary-container text-white text-[10px] font-bold uppercase tracking-widest rounded-full">Próxima Parada</span>
-<span class="text-white/80 text-sm font-medium flex items-center gap-1">
-<span class="material-symbols-outlined text-sm" data-icon="calendar_month">calendar_month</span>
+<!-- Trips Grid -->
+<section class="space-y-8">
+<!-- Highlighted Next Trip -->
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Próxima Parada</h3>
+<button class="text-primary text-xs font-bold flex items-center gap-1 hover:gap-2 transition-all">Ver detalhes <span class="material-symbols-outlined text-xs">arrow_forward</span></button>
+</div>
+<div class="relative h-[320px] rounded-3xl overflow-hidden shadow-lg group">
+<img alt="Fernando de Noronha" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAy7U2-JiicVzJ36ccg5I-BHT71XnJZEGU9_QGvmqzEVV5Hvs3d6i2sATZ5POc8kELhorzF5mDZxTjKaC1LoLhAAFLG7TIbXluj0q9JhRIO3H5cqNBtxnQYUYcRxQut1cb2hy9r2M6p6MQRce7rBlgnPElG_-1h9uD0ikzUhyaBkro_6Ko-qvRhWiKr1PJKhw76ZYBIJOfcW161mJITLDHOMIXFACevihP0jRLTLF0Xqo38ZmtL2_gpddFEbcQaeX4JcQzi7BMxave"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-8 w-full flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-2">
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 bg-secondary-container text-white text-[9px] font-bold uppercase tracking-widest rounded-full">Ativo</span>
+<span class="text-white/90 text-xs font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="calendar_month">calendar_month</span>
                                         Em 14 dias
                                     </span>
 </div>
-<h4 class="text-5xl font-black text-white font-headline mb-4 tracking-tight">Fernando de Noronha</h4>
-<div class="flex gap-4">
-<button class="px-6 py-3 bg-white text-primary font-bold rounded-xl flex items-center gap-2 hover:bg-slate-50 transition-colors active:scale-95 duration-200">
-                                        Continuar Planejamento
-                                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+<h4 class="text-4xl font-black text-white font-headline tracking-tight">Fernando de Noronha</h4>
+</div>
+<button class="px-6 py-3 bg-white text-primary font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-slate-50 transition-colors active:scale-95 duration-200 shadow-xl">
+                                Continuar Planejamento
+                                <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
 </button>
 </div>
 </div>
 </div>
+<!-- Other Trips Section -->
+<div class="space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60">Minhas Expedições</h3>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-full text-xs font-bold hover:shadow-lg transition-all active:scale-95">
+<span class="material-symbols-outlined text-sm">add</span>
+                            Nova Expedição
+                        </button>
 </div>
-<!-- Quick Actions Grid -->
-<div class="lg:col-span-4 flex flex-col gap-6">
-<h3 class="text-xs font-bold uppercase tracking-widest text-on-surface-variant opacity-60 mb-0">Ações Rápidas</h3>
-<button class="flex flex-col gap-3 p-6 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl text-left hover:shadow-md transition-shadow group">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Trip 1: Lisboa -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Lisboa, Portugal" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAL-ElOmj2-r_sjhoN87SyfZT6EM6vMOWuHOllt9RQN6broYtKwKALFsHgSZ4oytRbBd9neI9HalbjbjMpjilqGRVomOgWivE_Sgmt_Xy9HwzfKK_baXi87adrcU78EniGJtTwHwy53gIxWhqK_qwY1JFuT9hNFXL8aVNOE1n1NJvLQscID_NpLUi3BaDEgd4qMs00a86Zl8D5SPnvafM31jfWgDoyOGcCGOBBPOhuunPI4GQzRO-GMrLkGRGQY-FEXlPbjNUEExdzL"/>
+<span class="absolute top-3 right-3 px-2 py-1 bg-on-tertiary-container text-white text-[9px] font-bold uppercase rounded-md">Planejado</span>
+</div>
+<div class="p-5 space-y-4">
+<div>
+<h5 class="font-bold text-primary text-lg truncate">Lisboa, Portugal</h5>
+<p class="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                                        12 dias • Março 2026
+                                    </p>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-[10px] font-medium text-on-surface-variant">
+<span>Progresso</span>
+<span>80%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-on-tertiary-container h-full w-[80%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Trip 2: Toscana -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Toscana, Itália" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5BWZlNhoMcVxrQDtWA0UnhvbzC-QXwZk_UhgHXMUuueuDK2w6o8U6GEIHmCQCWSyz-tO2jfA_2GlUrTVgsDIb_DYyD5UiZ5weJkYxgkkYkjiFeYJ-vzI-TTTNyxgCqzRIXYJ0xhpfXTePd-Zb7V8hXYiGyZGCwovuL2DmV1EU4KR3YOXNee131yfSN2N9zL3ydQV5qlvkDlu9MZwIWFWFXGhNHDa0a83mSQr99hzx49VnC59g4fNi37hhsU2cUUj6bcgVWe_3U0HD"/>
+<span class="absolute top-3 right-3 px-2 py-1 bg-secondary-container text-white text-[9px] font-bold uppercase rounded-md">Em andamento</span>
+</div>
+<div class="p-5 space-y-4">
+<div>
+<h5 class="font-bold text-primary text-lg truncate">Toscana, Itália</h5>
+<p class="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                                        10 dias • Junho 2026
+                                    </p>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-[10px] font-medium text-on-surface-variant">
+<span>Progresso</span>
+<span>35%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-secondary-container h-full w-[35%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Trip 3: Kyoto -->
+<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant/10 shadow-sm hover:shadow-md transition-shadow group cursor-pointer">
+<div class="relative h-40 overflow-hidden">
+<img alt="Kyoto, Japão" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbIoJ5l8twLhTqJt06RkCRJamGWubwGKPzzH3I4c_m3Y0rHyMbMLIO8Koi8JzLMc5SGTInVMQw9d4ZgK1q0QqZFbTsa6hlSfQPHXpJEETR8bQ3dTQ_AWWZftDo1ujrcM59PdwVZzMKKtpKT_e66fmKhYbaF6QI6d0TxRar8VtvmUqMFQGqFrbX9ARqEUHP01s7iW4POV-K_EChV6u5DMrg1sKKiZXPnnVLbSNXUeIfbKD6oYr6n_R6vyHpFRdc3pXlTrOXkhRlfZ8T"/>
+<span class="absolute top-3 right-3 px-2 py-1 bg-slate-400 text-white text-[9px] font-bold uppercase rounded-md">Rascunho</span>
+</div>
+<div class="p-5 space-y-4">
+<div>
+<h5 class="font-bold text-primary text-lg truncate">Kyoto, Japão</h5>
+<p class="text-xs text-on-surface-variant flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                                        15 dias • Outubro 2026
+                                    </p>
+</div>
+<div class="space-y-2">
+<div class="flex justify-between items-center text-[10px] font-medium text-on-surface-variant">
+<span>Progresso</span>
+<span>5%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-slate-300 h-full w-[5%] rounded-full"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Add New Trip Card -->
+<button class="bg-dashed border-2 border-dashed border-outline-variant/50 rounded-2xl flex flex-col items-center justify-center gap-4 h-full min-h-[260px] hover:border-primary/50 hover:bg-surface-container-low transition-all group">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant group-hover:bg-primary group-hover:text-white transition-colors">
+<span class="material-symbols-outlined text-2xl">add_location_alt</span>
+</div>
+<div class="text-center px-4">
+<p class="font-bold text-primary">Novo Destino</p>
+<p class="text-xs text-on-surface-variant mt-1">Comece uma nova aventura agora</p>
+</div>
+</button>
+</div>
+</div>
+</section>
+<!-- Secondary Actions -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<button class="flex items-center gap-4 p-5 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl text-left hover:shadow-md transition-shadow group">
 <div class="w-10 h-10 rounded-lg bg-tertiary-fixed-dim flex items-center justify-center text-on-tertiary-fixed-variant group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined" data-icon="checklist">checklist</span>
+<span class="material-symbols-outlined text-xl" data-icon="checklist">checklist</span>
 </div>
 <div>
-<h5 class="font-bold text-primary">Checklist de Bagagem</h5>
-<p class="text-sm text-on-surface-variant">Confira o que não pode faltar.</p>
+<h5 class="font-bold text-primary text-sm">Checklist de Bagagem</h5>
+<p class="text-[10px] text-on-surface-variant">O que não pode faltar.</p>
 </div>
 </button>
-<button class="flex flex-col gap-3 p-6 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl text-left hover:shadow-md transition-shadow group">
+<button class="flex items-center gap-4 p-5 bg-surface-container-lowest border border-outline-variant/10 rounded-2xl text-left hover:shadow-md transition-shadow group">
 <div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-on-primary-fixed-variant group-hover:scale-110 transition-transform">
-<span class="material-symbols-outlined" data-icon="psychology">psychology</span>
+<span class="material-symbols-outlined text-xl" data-icon="psychology">psychology</span>
 </div>
 <div>
-<h5 class="font-bold text-primary">Gerar Novo Roteiro AI</h5>
-<p class="text-sm text-on-surface-variant">Deixe a inteligência criar sua rota.</p>
+<h5 class="font-bold text-primary text-sm">Gerar Roteiro AI</h5>
+<p class="text-[10px] text-on-surface-variant">Curadoria inteligente.</p>
 </div>
 </button>
-<div class="mt-auto bg-primary-container p-6 rounded-2xl text-white relative overflow-hidden">
+<div class="bg-primary-container p-5 rounded-2xl text-white flex items-center gap-4 relative overflow-hidden">
+<span class="material-symbols-outlined text-xl text-secondary-container relative z-10" data-icon="lightbulb">lightbulb</span>
 <div class="relative z-10">
-<p class="text-[10px] font-bold uppercase tracking-[0.2em] text-secondary-fixed-dim mb-2">Dica do Especialista</p>
-<p class="text-sm font-medium leading-relaxed opacity-90">"Noronha exige a Taxa de Preservação paga com antecedência para evitar filas."</p>
-</div>
-<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-8xl text-white/5 rotate-12" data-icon="lightbulb">lightbulb</span>
+<p class="text-[9px] font-bold uppercase tracking-widest text-secondary-fixed-dim">Dica Atlas</p>
+<p class="text-[10px] font-medium leading-tight opacity-90">Pague a TPA de Noronha com antecedência online.</p>
 </div>
 </div>
 </section>
@@ -276,52 +376,52 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-12 px-8 max-w-screen-2xl mx-auto">
 <div class="md:col-span-1">
 <span class="text-xl font-black text-white font-headline">Atlas</span>
-<p class="mt-4 text-slate-400 leading-relaxed">Transformando sonhos em roteiros memoráveis com curadoria inteligente.</p>
+<p class="mt-4 text-slate-400 text-sm leading-relaxed">Transformando sonhos em roteiros memoráveis com curadoria inteligente.</p>
 </div>
 <div>
-<h4 class="text-white font-bold mb-6">Explorar</h4>
-<ul class="space-y-4">
-<li><a class="text-slate-400 hover:text-white underline-offset-4 hover:underline transition-all" href="#">Guias de Destino</a></li>
-<li><a class="text-slate-400 hover:text-white underline-offset-4 hover:underline transition-all" href="#">Seguro Viagem</a></li>
+<h4 class="text-white font-bold mb-6 text-sm">Explorar</h4>
+<ul class="space-y-3">
+<li><a class="text-slate-400 text-sm hover:text-white transition-all" href="#">Guias de Destino</a></li>
+<li><a class="text-slate-400 text-sm hover:text-white transition-all" href="#">Seguro Viagem</a></li>
 </ul>
 </div>
 <div>
-<h4 class="text-white font-bold mb-6">Recursos</h4>
-<ul class="space-y-4">
-<li><a class="text-slate-400 hover:text-white underline-offset-4 hover:underline transition-all" href="#">Blog Editorial</a></li>
-<li><a class="text-slate-400 hover:text-white underline-offset-4 hover:underline transition-all" href="#">Sobre Nós</a></li>
+<h4 class="text-white font-bold mb-6 text-sm">Recursos</h4>
+<ul class="space-y-3">
+<li><a class="text-slate-400 text-sm hover:text-white transition-all" href="#">Blog Editorial</a></li>
+<li><a class="text-slate-400 text-sm hover:text-white transition-all" href="#">Sobre Nós</a></li>
 </ul>
 </div>
 <div>
-<h4 class="text-white font-bold mb-6">Ajuda</h4>
-<ul class="space-y-4">
-<li><a class="text-slate-400 hover:text-white underline-offset-4 hover:underline transition-all" href="#">Contato</a></li>
-<li><a class="text-slate-400 hover:text-white underline-offset-4 hover:underline transition-all" href="#">Termos de Uso</a></li>
+<h4 class="text-white font-bold mb-6 text-sm">Ajuda</h4>
+<ul class="space-y-3">
+<li><a class="text-slate-400 text-sm hover:text-white transition-all" href="#">Contato</a></li>
+<li><a class="text-slate-400 text-sm hover:text-white transition-all" href="#">Termos de Uso</a></li>
 </ul>
 </div>
 </div>
 <div class="max-w-screen-2xl mx-auto px-8 mt-16 pt-8 border-t border-slate-800/50 flex flex-col md:flex-row justify-between items-center gap-4">
-<p class="text-slate-500 text-sm">© 2024 Atlas Travel Planner. Transformando sonhos em roteiros.</p>
+<p class="text-slate-500 text-xs">© 2024 Atlas Travel Planner. Transformando sonhos em roteiros.</p>
 <div class="flex gap-6">
-<span class="material-symbols-outlined text-slate-500 hover:text-amber-400 cursor-pointer transition-colors" data-icon="language">language</span>
-<span class="material-symbols-outlined text-slate-500 hover:text-amber-400 cursor-pointer transition-colors" data-icon="share">share</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-secondary-container cursor-pointer transition-colors text-sm" data-icon="language">language</span>
+<span class="material-symbols-outlined text-slate-500 hover:text-secondary-container cursor-pointer transition-colors text-sm" data-icon="share">share</span>
 </div>
 </div>
 </footer>
 </main>
 </div>
 <!-- Mobile Navigation Shell -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-xl border-t border-slate-100 flex justify-around py-3 px-6 z-[60]">
-<a class="flex flex-col items-center gap-1 text-slate-900 font-semibold" href="#">
-<span class="material-symbols-outlined" data-icon="explore" style="font-variation-settings: 'FILL' 1;">explore</span>
+<nav class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-xl border-t border-slate-100 flex justify-around py-3 px-6 z-[60]">
+<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
 <span class="text-[10px]">Explorar</span>
 </a>
-<a class="flex flex-col items-center gap-1 text-slate-400" href="#">
-<span class="material-symbols-outlined" data-icon="airplane_ticket">airplane_ticket</span>
+<a class="flex flex-col items-center gap-1 text-primary font-bold" href="#">
+<span class="material-symbols-outlined" data-icon="airplane_ticket" style="font-variation-settings: 'FILL' 1;">airplane_ticket</span>
 <span class="text-[10px]">Viagens</span>
 </a>
 <a class="flex flex-col items-center gap-1 text-slate-400" href="#">
-<span class="material-symbols-outlined" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="material-symbols-outlined" data-icon="person">person</span>
 <span class="text-[10px]">Perfil</span>
 </a>
 </nav>

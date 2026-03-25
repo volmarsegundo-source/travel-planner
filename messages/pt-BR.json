@@ -1974,7 +1974,7 @@
     "subtitle": "Sua jornada de exploracao esta apenas comecando. Onde sera seu proximo horizonte?",
     "recentBadges": "Conquistas Recentes",
     "noBadges": "Complete fases para desbloquear conquistas",
-    "levelLabel": "Lvl {level} - {rank}",
+    "levelLabel": "Nivel {level} - {rank}",
     "pointsLabel": "{points} Pontos Atlas",
     "nextRankLabel": "Proximo Nivel",
     "pointsToNext": "{points} pts faltantes",
@@ -1990,14 +1990,19 @@
     "nextTrips": "Minhas Proximas Viagens",
     "daysUntil": "Em {days} dias",
     "nextStop": "Proxima Parada",
+    "viewDetails": "Ver detalhes",
+    "myExpeditions": "Minhas Expedicoes",
+    "newDestination": "Novo Destino",
+    "newDestinationDesc": "Comece uma nova aventura agora.",
+    "viewAllExpeditions": "Ver todas as expedicoes",
+    "planned": "PLANEJADO",
+    "inProgress": "EM ANDAMENTO",
+    "draft": "RASCUNHO",
     "quickActions": "Acoes Rapidas",
     "newExpedition": "Nova Expedicao",
     "newExpeditionDesc": "Inicie uma nova aventura de planejamento.",
     "buyPA": "Comprar PA",
     "buyPADesc": "Adquira Pontos Atlas para desbloquear recursos.",
-    "expertTip": "Dica do Especialista",
-    "tipText": "Reserve hospedagens com cancelamento gratuito para manter flexibilidade no planejamento.",
-    "loading": "Carregando dashboard...",
-    "viewAllExpeditions": "Ver Todas as Expedicoes"
+    "loading": "Carregando dashboard..."
   }
 }

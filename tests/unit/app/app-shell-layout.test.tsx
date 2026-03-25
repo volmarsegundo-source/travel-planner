@@ -43,6 +43,22 @@ vi.mock("@/i18n/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
 }));
 
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    className,
+  }: {
+    children: React.ReactNode;
+    href: string;
+    className?: string;
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
+  ),
+}));
+
 vi.mock("next-intl/server", () => ({
   getTranslations: vi.fn().mockResolvedValue((key: string) => `common.${key}`),
 }));
@@ -93,14 +109,14 @@ describe("AppShellLayout", () => {
     mockAuth.mockResolvedValue(mockSession);
   });
 
-  it("renders Footer with copyright text in authenticated pages", async () => {
+  it("renders FooterV2 with copyright text in authenticated pages", async () => {
     const Component = await AppShellLayout({
       children: <div>Page content</div>,
       params: Promise.resolve({ locale: "en" }),
     });
     render(Component);
 
-    expect(screen.getByText("landing.footer.copyright")).toBeInTheDocument();
+    expect(screen.getByText(/landingV2\.footer\.copyright/)).toBeInTheDocument();
   });
 
   it("renders Footer inside a footer element", async () => {
@@ -114,19 +130,18 @@ describe("AppShellLayout", () => {
     expect(footer).toBeInTheDocument();
   });
 
-  it("renders Footer with terms, privacy, and support links (authenticated variant)", async () => {
+  it("renders FooterV2 with terms and privacy links", async () => {
     const Component = await AppShellLayout({
       children: <div>Page content</div>,
       params: Promise.resolve({ locale: "en" }),
     });
     render(Component);
 
-    expect(screen.getByRole("link", { name: "landing.footer.terms" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "landing.footer.privacy" })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "landing.footer.support" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "landingV2.footer.terms" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "landingV2.footer.privacy" })).toBeInTheDocument();
   });
 
-  it("does not render sign in or sign up links in Footer", async () => {
+  it("does not render sign in or sign up links in FooterV2", async () => {
     const Component = await AppShellLayout({
       children: <div>Page content</div>,
       params: Promise.resolve({ locale: "en" }),
