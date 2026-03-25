@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
+// ThemeToggle removed — light mode forced for beta (dark mode redesign post-beta)
 import { UserMenu } from "@/components/layout/UserMenu";
 import { AtlasBadge } from "@/components/ui";
 
