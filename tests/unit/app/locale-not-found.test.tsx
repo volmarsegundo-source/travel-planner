@@ -1,7 +1,7 @@
 /**
  * Tests for the locale-aware 404 page.
  *
- * Verifies Header/Footer presence, i18n text rendering, and navigation link.
+ * Verifies LandingNav/Footer presence, i18n text rendering, and navigation link.
  */
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
@@ -70,10 +70,10 @@ describe("Locale NotFound page", () => {
     expect(homeLink).toHaveAttribute("href", "/");
   });
 
-  it("renders Header component (app name visible)", () => {
+  it("renders LandingNav with logo text", () => {
     render(<NotFound />);
 
-    expect(screen.getByText("common.appName")).toBeInTheDocument();
+    expect(screen.getByText("landingV2.nav.logo")).toBeInTheDocument();
   });
 
   it("renders Footer component (copyright visible)", () => {

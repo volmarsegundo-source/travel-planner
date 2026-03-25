@@ -92,18 +92,18 @@ describe("Footer", () => {
       expect(screen.getByText("landing.footer.copyright")).toBeInTheDocument();
     });
 
-    it("renders a terms link pointing to /terms", () => {
+    it("renders a terms link pointing to /termos", () => {
       render(<Footer variant="authenticated" />);
 
       const termsLink = screen.getByRole("link", { name: "landing.footer.terms" });
-      expect(termsLink).toHaveAttribute("href", "/terms");
+      expect(termsLink).toHaveAttribute("href", "/termos");
     });
 
-    it("renders a privacy link pointing to /privacy", () => {
+    it("renders a privacy link pointing to /privacidade", () => {
       render(<Footer variant="authenticated" />);
 
       const privacyLink = screen.getByRole("link", { name: "landing.footer.privacy" });
-      expect(privacyLink).toHaveAttribute("href", "/privacy");
+      expect(privacyLink).toHaveAttribute("href", "/privacidade");
     });
 
     it("renders a support link pointing to /support", () => {

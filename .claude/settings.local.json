@@ -166,7 +166,8 @@
       "Bash(curl -sI -L https://unsplash.com/photos/j2bxM61qXQ4/download?w=1920)",
       "Bash(curl -sI -L https://unsplash.com/photos/Kmf8MZkk9GQ/download?w=1920)",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1633511089809-fbe0483ca103?w=1920&q=80&fit=crop&auto=format\")",
-      "Bash(curl -sI \"https://images.unsplash.com/photo-1696580436068-f19c26850e8b?w=1920&q=80&fit=crop&auto=format\")"
+      "Bash(curl -sI \"https://images.unsplash.com/photo-1696580436068-f19c26850e8b?w=1920&q=80&fit=crop&auto=format\")",
+      "Bash(find /c/travel-planner/src/app/[locale]/\\\\\\(app\\\\\\) -type f -name \"page.tsx\")"
     ]
   }
 }

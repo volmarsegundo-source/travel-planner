@@ -25,13 +25,13 @@ export function Footer({ variant = "public" }: FooterProps) {
           {variant === "authenticated" ? (
             <>
               <Link
-                href="/terms"
+                href="/termos"
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {t("landing.footer.terms")}
               </Link>
               <Link
-                href="/privacy"
+                href="/privacidade"
                 className="text-sm text-muted-foreground transition-colors hover:text-foreground"
               >
                 {t("landing.footer.privacy")}
