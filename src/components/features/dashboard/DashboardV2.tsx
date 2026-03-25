@@ -291,12 +291,96 @@ function getStatusLabelKey(status: string): string {
   }
 }
 
-// Gradient placeholders for trip cards
+// Gradient fallbacks for trip cards (atlas-compliant)
 const CARD_GRADIENTS = [
-  "from-blue-400 to-indigo-600",
-  "from-emerald-400 to-teal-600",
-  "from-orange-400 to-rose-600",
+  "from-atlas-secondary-container/70 to-atlas-primary/60",
+  "from-atlas-tertiary-fixed/70 to-atlas-primary/50",
+  "from-atlas-secondary/50 to-atlas-primary/60",
 ];
+
+// Known destination → Unsplash image mapping (verified CDN URLs)
+const DESTINATION_IMAGES: Record<string, string> = {
+  "rio de janeiro": "https://images.unsplash.com/photo-1516834611397-8d633eaec5d0?w=600&q=80&fit=crop&auto=format",
+  "bonito": "https://images.unsplash.com/photo-1469797384183-f961931553e9?w=600&q=80&fit=crop&auto=format",
+  "pantanal": "https://images.unsplash.com/photo-1604970747673-3b173ce8e2c7?w=600&q=80&fit=crop&auto=format",
+  "fernando de noronha": "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=600&q=80&fit=crop&auto=format",
+  "salvador": "https://images.unsplash.com/photo-1548963670-aaaa8f73a5e3?w=600&q=80&fit=crop&auto=format",
+  "lisbon": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=600&q=80&fit=crop&auto=format",
+  "lisboa": "https://images.unsplash.com/photo-1585208798174-6cedd86e019a?w=600&q=80&fit=crop&auto=format",
+  "paris": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=600&q=80&fit=crop&auto=format",
+  "tokyo": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=600&q=80&fit=crop&auto=format",
+};
+
+function getDestinationImage(destination: string): string | null {
+  const key = destination.toLowerCase().trim();
+  for (const [name, url] of Object.entries(DESTINATION_IMAGES)) {
+    if (key.includes(name)) return url;
+  }
+  return null;
+}
+
+// ─── Phase Progress Section (extracted for reorder) ──────────────────────────
+
+function PhaseProgressSection({
+  activeTrip,
+  t,
+  tPhases,
+}: {
+  activeTrip: ExpeditionDTO;
+  t: (key: string, values?: Record<string, string | number>) => string;
+  tPhases: (key: string) => string;
+}) {
+  const phaseSegments = Array.from({ length: TOTAL_EXPEDITION_PHASES }, (_, i) => {
+    const phase = i + 1;
+    const completed = activeTrip.completedPhases.includes(phase);
+    const active = phase === activeTrip.currentPhase;
+    return {
+      phase,
+      label: tPhases(PHASE_NAMES_KEYS[i] ?? "theCalling"),
+      state: completed ? "completed" : active ? "active" : "pending",
+    };
+  });
+
+  return (
+    <section className="space-y-4" data-testid="trip-status-section">
+      <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1">
+          <AtlasBadge variant="category-overline">
+            {t("tripStatus")}
+          </AtlasBadge>
+          <h2 className="text-2xl font-extrabold text-atlas-primary font-atlas-headline lg:text-3xl">
+            {t("phaseLabel", {
+              number: activeTrip.currentPhase,
+              name: tPhases(PHASE_NAMES_KEYS[activeTrip.currentPhase - 1] ?? "theCalling"),
+            })}
+          </h2>
+        </div>
+        <p className="text-sm font-medium font-atlas-body text-atlas-on-surface-variant">
+          {t("phasesCompleted", {
+            completed: activeTrip.completedPhases.length,
+            total: TOTAL_EXPEDITION_PHASES,
+          })}
+        </p>
+      </div>
+      <div className="flex w-full gap-2" data-testid="phase-progress-bar">
+        {phaseSegments.map((seg) => (
+          <div
+            key={seg.phase}
+            className={[
+              "h-1.5 flex-1 rounded-full transition-colors",
+              seg.state === "completed"
+                ? "bg-atlas-secondary-container"
+                : seg.state === "active"
+                  ? "bg-atlas-secondary-container shadow-[0_0_12px_rgba(254,147,44,0.4)]"
+                  : "bg-atlas-surface-container-high",
+            ].join(" ")}
+            title={`${seg.label} - ${seg.state}`}
+          />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -387,12 +471,23 @@ export function DashboardV2({
         </div>
       </section>
 
-      {/* ── Section 3: NEXT STOP — Active trip card ────────────────────────── */}
+      {/* ── Section 3: ACTIVE ROUTE STATUS — Phase progress (before trip card) */}
+      {activeTrip && (
+        <PhaseProgressSection activeTrip={activeTrip} t={t} tPhases={tPhases} />
+      )}
+
+      {/* ── Section 4: NEXT STOP — Active trip card ────────────────────────── */}
       <section data-testid="featured-trip-section">
         {activeTrip ? (
           <div className="group relative h-80 overflow-hidden rounded-atlas-xl bg-atlas-primary-container shadow-atlas-xl lg:h-[480px]">
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary/90 via-atlas-primary/20 to-transparent" />
+            {/* Destination image (with gradient overlay for text legibility) */}
+            {(() => {
+              const featuredImg = getDestinationImage(activeTrip.destination);
+              return featuredImg ? (
+                <img src={featuredImg} alt={activeTrip.destination} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+              ) : null;
+            })()}
+            <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary/90 via-atlas-primary/40 to-transparent" />
             {/* View details link - top right */}
             <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
               <Link
@@ -460,47 +555,7 @@ export function DashboardV2({
         )}
       </section>
 
-      {/* ── Section 4: ACTIVE ROUTE STATUS — Phase progress ───────────────── */}
-      {activeTrip && (
-        <section className="space-y-8" data-testid="trip-status-section">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
-            <div className="space-y-1">
-              <AtlasBadge variant="category-overline">
-                {t("tripStatus")}
-              </AtlasBadge>
-              <h2 className="text-2xl font-extrabold text-atlas-primary font-atlas-headline lg:text-3xl">
-                {t("phaseLabel", {
-                  number: activeTrip.currentPhase,
-                  name: tPhases(PHASE_NAMES_KEYS[activeTrip.currentPhase - 1] ?? "theCalling"),
-                })}
-              </h2>
-            </div>
-            <p className="text-sm font-medium font-atlas-body text-atlas-on-surface-variant">
-              {t("phasesCompleted", {
-                completed: activeTrip.completedPhases.length,
-                total: TOTAL_EXPEDITION_PHASES,
-              })}
-            </p>
-          </div>
-          {/* Phase progress bar — 8 slim segments */}
-          <div className="flex w-full gap-2" data-testid="phase-progress-bar">
-            {phaseSegments.map((seg) => (
-              <div
-                key={seg.phase}
-                className={[
-                  "h-1.5 flex-1 rounded-full transition-colors",
-                  seg.state === "completed"
-                    ? "bg-atlas-secondary-container"
-                    : seg.state === "active"
-                      ? "bg-atlas-secondary-container shadow-[0_0_12px_rgba(254,147,44,0.4)]"
-                      : "bg-atlas-surface-container-high",
-                ].join(" ")}
-                title={`${seg.label} - ${seg.state}`}
-              />
-            ))}
-          </div>
-        </section>
-      )}
+      {/* ── (Phase progress moved to Section 3 above) ── */}
 
       {/* ── Section 5: MY EXPEDITIONS — Grid of trips ─────────────────────── */}
       <section data-testid="my-expeditions-section">
@@ -526,6 +581,7 @@ export function DashboardV2({
             const progressPercent = getTripProgressPercent(exp);
             const durationLabel = getTripDurationLabel(exp.startDate, exp.endDate);
             const gradient = CARD_GRADIENTS[idx % CARD_GRADIENTS.length]!;
+            const imageUrl = getDestinationImage(exp.destination);
             const statusKey = getStatusLabelKey(exp.status);
             const badgeColor = getStatusBadgeColor(exp.status);
 
@@ -539,8 +595,16 @@ export function DashboardV2({
                   className="group overflow-hidden rounded-atlas-xl bg-atlas-surface-container-lowest shadow-atlas-sm transition-transform hover:-translate-y-1 motion-reduce:hover:translate-y-0"
                   data-testid="trip-card"
                 >
-                  {/* Gradient placeholder */}
-                  <div className={`h-[200px] bg-gradient-to-br ${gradient} relative`}>
+                  {/* Destination image with gradient fallback */}
+                  <div className={`h-[200px] relative overflow-hidden ${!imageUrl ? `bg-gradient-to-br ${gradient}` : ""}`}>
+                    {imageUrl && (
+                      <img
+                        src={imageUrl}
+                        alt={exp.destination}
+                        className="absolute inset-0 h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                    )}
                     <div className="absolute left-3 top-3">
                       <AtlasBadge variant="status" color={badgeColor} size="sm">
                         {t(statusKey)}
