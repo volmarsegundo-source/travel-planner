@@ -29,6 +29,7 @@
 - Sprint 38 product specs: SPEC-PROD-046 (Design System Foundation), SPEC-PROD-047 (Component Library v1)
 - Sprint 39 product specs: SPEC-PROD-048 (Landing Page V2), SPEC-PROD-049 (Login Page V2), SPEC-PROD-050 (Sprint 38 Carryover Fixes)
 - Sprint 40 product specs: SPEC-PROD-051 (Phase Shell V2 + Auth Nav V2), SPEC-PROD-052 (Phases 1-3 V2), SPEC-PROD-053 (Phases 4-6 V2 + Summary V2), SPEC-PROD-054 (Dashboard Meu Atlas V2)
+- Sprint 40 detailed sub-spec: SPEC-PROD-PHASE5-REDESIGN (Phase 5 full AC breakdown, 64 ACs) -- `docs/specs/sprint-40/SPEC-PROD-PHASE5-REDESIGN.md`
 - Sprint 40 task breakdown: `docs/specs/sprint-40/SPRINT-40-TASKS.md`
 - Staging: travel-planner-eight-navy.vercel.app
 
@@ -180,7 +181,8 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Token source of truth: `docs/specs/sprint-38/UX-PARECER-DESIGN-SYSTEM.md` (overrides DESIGN.md)
 - Screen exports: `docs/design/SCREEN-INDEX.md` (6 official screens: Landing, Login, Dashboard, Phase 1, Phase 3, Roteiro)
 - Official screens: Landing Page, Login (Stitch export available), Dashboard, Phase 1, Phase 3 (O Preparo), Roteiro/Itinerary
-- Pending screens (no Stitch export yet): Phase 2, Phase 4, Phase 5, Phase 6, Summary
+- Pending screens (no Stitch export yet): Phase 2 (inline UX review), Phase 6 detailed, Summary
+- Stitch exports NOW AVAILABLE (confirmed 2026-03-26): Phase 2 (phase2_o_perfil), Phase 4 (phase4_a_logistica), Phase 5 (phase5_guia_destino), Phase 6 (phase6_roteiro_detalhado), Summary (summary_expedicao) -- all listed in SCREEN-INDEX.md
 - Primary font: Plus Jakarta Sans (headings, ExtraBold 800) -- NOT Outfit (DESIGN.md was wrong)
 - Body font: Work Sans (body Regular 400 / Medium 500) -- NOT DM Sans (DESIGN.md was wrong)
 - Key colors: use atlas-* tokens (M3 palette). atlas-primary=#040d1b, atlas-secondary-container=#fe932c (CTA), atlas-on-tertiary-container=#1c9a8e (teal/AI)
