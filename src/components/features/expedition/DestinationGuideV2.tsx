@@ -206,17 +206,11 @@ export function DestinationGuideV2({
         phaseSubtitle={t("subtitle")}
         showFooter={false}
       >
-        <div className="mt-6" data-testid="guide-v2-skeleton">
-          <AtlasCard loading className="h-24 w-full" />
-        </div>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <AtlasCard key={i} loading className="h-20" />
-          ))}
-        </div>
-        <div className="mt-4 flex flex-col gap-2">
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-10 gap-4" data-testid="guide-v2-skeleton">
+          <AtlasCard loading className="md:col-span-6 h-32" />
+          <AtlasCard loading className="md:col-span-4 h-32" />
           {Array.from({ length: 6 }).map((_, i) => (
-            <AtlasCard key={i} loading className="h-28" />
+            <AtlasCard key={i} loading className="md:col-span-5 h-40" />
           ))}
         </div>
         <p className="mt-4 text-center text-sm font-atlas-body text-atlas-on-surface-variant">
@@ -239,9 +233,18 @@ export function DestinationGuideV2({
       isEditMode={accessMode === "revisit"}
       showFooter={false}
     >
-      <p className="mt-2 text-center text-sm font-atlas-body text-atlas-on-surface-variant">
-        {destination}
-      </p>
+      {/* V2 hero header — large destination name + AI badge */}
+      <header className="mt-6 mb-8" data-testid="guide-v2-header">
+        <div className="flex items-center gap-3 mb-3">
+          <AtlasBadge variant="ai-tip">AI</AtlasBadge>
+        </div>
+        <h1 className="text-3xl md:text-4xl font-atlas-headline font-bold text-atlas-on-surface tracking-tight">
+          {t("title")}: {destination}
+        </h1>
+        <p className="mt-2 text-base font-atlas-body text-atlas-on-surface-variant">
+          {t("subtitle")}
+        </p>
+      </header>
 
       {errorMessage && (
         <AtlasCard variant="base" className="mt-4 !bg-atlas-error-container !border-atlas-error/30" role="alert">
@@ -316,52 +319,129 @@ export function DestinationGuideV2({
         </>
       )}
 
-      {/* Guide content — bento grid layout */}
+      {/* Guide content — V2 bento grid layout */}
       {guide && (
         <>
-          {/* Hero summary banner */}
-          <AtlasCard variant="dark" className="mt-6" data-testid="hero-banner-v2">
-            <h2 className="text-sm font-atlas-headline font-bold mb-2">
-              {t("heroTitle")}
-            </h2>
-            <p className="text-sm font-atlas-body leading-relaxed opacity-90">
-              {STAT_SECTIONS.map((key) => {
-                const section = guide[key];
-                if (!section) return null;
-                return `${section.icon} ${section.title}: ${section.summary}`;
-              })
-                .filter(Boolean)
-                .join(" \u00B7 ")}
-            </p>
-          </AtlasCard>
+          {/* Bento grid — 10 columns on desktop, stacked on mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-10 gap-4" data-testid="guide-v2-bento">
 
-          {/* Stat cards — bento grid */}
-          <div className="mt-4 grid grid-cols-2 gap-3" data-testid="stat-cards-v2">
-            {STAT_SECTIONS.map((key) => {
+            {/* Quick reference card — spans 6 cols (hero summary) */}
+            <AtlasCard
+              variant="dark"
+              className="md:col-span-6"
+              data-testid="hero-banner-v2"
+            >
+              <h2 className="text-xl font-atlas-headline font-bold mb-4">
+                {t("heroTitle")}
+              </h2>
+              <p className="text-sm font-atlas-body leading-relaxed opacity-90">
+                {STAT_SECTIONS.map((key) => {
+                  const section = guide[key];
+                  if (!section) return null;
+                  return `${section.icon} ${section.title}: ${section.summary}`;
+                })
+                  .filter(Boolean)
+                  .join(" \u00B7 ")}
+              </p>
+            </AtlasCard>
+
+            {/* Stat cards panel — spans 4 cols */}
+            <AtlasCard
+              variant="base"
+              className="md:col-span-4 !bg-atlas-surface-container-low"
+              data-testid="stat-cards-v2"
+            >
+              <h2 className="text-lg font-atlas-headline font-bold mb-4 text-atlas-on-surface">
+                {t("heroTitle")}
+              </h2>
+              <div className="grid grid-cols-2 gap-y-6 gap-x-4">
+                {STAT_SECTIONS.map((key) => {
+                  const section = guide[key];
+                  if (!section) {
+                    return (
+                      <div key={key} className="flex flex-col gap-1">
+                        <span className="text-xs font-atlas-body text-atlas-on-surface-variant">
+                          {t("sectionUnavailable")}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div key={key} className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 text-atlas-primary-container">
+                        <span className="text-lg" aria-hidden="true">{section.icon}</span>
+                        <span className="text-[10px] font-atlas-body font-bold uppercase tracking-widest text-atlas-on-surface-variant">
+                          {section.title}
+                        </span>
+                      </div>
+                      <span className="text-base font-atlas-headline font-bold text-atlas-on-surface">
+                        {section.summary}
+                      </span>
+                      {section.tips.length > 0 && (
+                        <ul className="mt-0.5">
+                          {section.tips.map((tip, i) => (
+                            <li key={i} className="text-[10px] font-atlas-body text-atlas-on-surface-variant leading-tight">
+                              {tip}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </AtlasCard>
+
+            {/* Content sections — bento cards with accent borders */}
+            {CONTENT_SECTIONS.map((key) => {
               const section = guide[key];
+              const accentClass = SECTION_ACCENT_MAP[key] ?? "";
+              // Safety and first content card span 5 cols each (side by side)
+              const spanClass = "md:col-span-5";
+
               if (!section) {
                 return (
-                  <AtlasCard key={key} variant="base" className="text-center min-h-[120px] justify-center">
-                    <span className="text-xs font-atlas-body text-atlas-on-surface-variant">
+                  <AtlasCard
+                    key={key}
+                    variant="base"
+                    className={`${spanClass} min-h-[160px] ${accentClass}`}
+                    data-testid={`content-card-${key}`}
+                  >
+                    <p className="text-xs font-atlas-body text-atlas-on-surface-variant">
                       {t("sectionUnavailable")}
-                    </span>
+                    </p>
                   </AtlasCard>
                 );
               }
+
               return (
-                <AtlasCard key={key} variant="elevated" className="text-center min-h-[120px] justify-center items-center">
-                  <span className="text-2xl" aria-hidden="true">{section.icon}</span>
-                  <span className="mt-1 text-xs font-atlas-headline font-bold text-atlas-on-surface">
-                    {section.title}
-                  </span>
-                  <span className="text-[11px] font-atlas-body text-atlas-on-surface-variant line-clamp-2">
+                <AtlasCard
+                  key={key}
+                  variant="base"
+                  className={`${spanClass} min-h-[160px] ${accentClass}`}
+                  data-testid={`content-card-${key}`}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl" aria-hidden="true">{section.icon}</span>
+                      <h3 className="text-base font-atlas-headline font-bold text-atlas-on-surface">
+                        {section.title}
+                      </h3>
+                    </div>
+                  </div>
+                  <p className="text-sm font-atlas-body text-atlas-on-surface leading-relaxed">
                     {section.summary}
-                  </span>
+                  </p>
+                  {section.details && (
+                    <p className="mt-2 text-sm font-atlas-body text-atlas-on-surface-variant leading-relaxed">
+                      {section.details}
+                    </p>
+                  )}
                   {section.tips.length > 0 && (
-                    <ul className="mt-1 w-full">
+                    <ul className="mt-3 space-y-1.5">
                       {section.tips.map((tip, i) => (
-                        <li key={i} className="flex items-start gap-1 text-[10px] font-atlas-body text-atlas-on-surface-variant">
-                          <span className="text-atlas-secondary-container" aria-hidden="true">-</span>
+                        <li key={i} className="flex items-start gap-2 text-sm font-atlas-body text-atlas-on-surface-variant">
+                          <span className="mt-0.5 text-atlas-primary-container flex-shrink-0" aria-hidden="true">&#x2022;</span>
                           {tip}
                         </li>
                       ))}
@@ -372,49 +452,16 @@ export function DestinationGuideV2({
             })}
           </div>
 
-          {/* Content sections — bento cards with accent borders */}
-          <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2" data-testid="content-cards-v2">
-            {CONTENT_SECTIONS.map((key) => {
-              const section = guide[key];
-              const accentClass = SECTION_ACCENT_MAP[key] ?? "";
-
-              if (!section) {
-                return (
-                  <AtlasCard key={key} variant="base" className={`min-h-[140px] ${accentClass}`}>
-                    <p className="text-xs font-atlas-body text-atlas-on-surface-variant">
-                      {t("sectionUnavailable")}
-                    </p>
-                  </AtlasCard>
-                );
-              }
-
-              return (
-                <AtlasCard key={key} variant="base" className={`min-h-[140px] ${accentClass}`}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl" aria-hidden="true">{section.icon}</span>
-                    <h3 className="text-sm font-atlas-headline font-bold text-atlas-on-surface">
-                      {section.title}
-                    </h3>
-                  </div>
-                  <p className="text-sm font-atlas-body text-atlas-on-surface">{section.summary}</p>
-                  {section.details && (
-                    <p className="mt-1 text-sm font-atlas-body text-atlas-on-surface-variant">
-                      {section.details}
-                    </p>
-                  )}
-                  {section.tips.length > 0 && (
-                    <ul className="mt-2 flex flex-col gap-1">
-                      {section.tips.map((tip, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs font-atlas-body text-atlas-on-surface-variant">
-                          <span className="mt-0.5 text-atlas-secondary-container" aria-hidden="true">-</span>
-                          {tip}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </AtlasCard>
-              );
-            })}
+          {/* Regenerate button */}
+          <div className="mt-6 flex justify-center">
+            <AtlasButton
+              variant="secondary"
+              size="sm"
+              onClick={handleRequestGenerate}
+              disabled={isGenerating}
+            >
+              {t("regenerateCta", { remaining: "" })}
+            </AtlasButton>
           </div>
 
           {/* AI disclaimer */}

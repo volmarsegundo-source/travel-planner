@@ -117,7 +117,7 @@ describe("DestinationGuideV2", () => {
 
     expect(screen.getByTestId("hero-banner-v2")).toBeInTheDocument();
     expect(screen.getByTestId("stat-cards-v2")).toBeInTheDocument();
-    expect(screen.getByTestId("content-cards-v2")).toBeInTheDocument();
+    expect(screen.getByTestId("guide-v2-bento")).toBeInTheDocument();
   });
 
   it("renders stat section titles", () => {
@@ -182,7 +182,8 @@ describe("DestinationGuideV2", () => {
       />,
     );
 
-    expect(screen.getByText("Lisbon, Portugal")).toBeInTheDocument();
+    // V2: destination is inside the hero header as "title: destination"
+    expect(screen.getByText(/Lisbon, Portugal/)).toBeInTheDocument();
   });
 
   it("renders wizard footer when guide exists", () => {

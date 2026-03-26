@@ -170,6 +170,35 @@ export function Phase4WizardV2({
   function goToStep(step: number) {
     setCurrentStep(step);
     setErrorMessage(null);
+    setValidationErrors([]);
+  }
+
+  /** Validate the current step before navigating forward */
+  function validateCurrentStep(): string[] {
+    const errors: string[] = [];
+    if (currentStep === 1 && !transportUndecided) {
+      const hasValid = transportSegments.some(
+        (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
+      );
+      if (!hasValid) errors.push(tValidation("transportRequired"));
+    }
+    if (currentStep === 2 && !accommodationUndecided) {
+      const hasValid = accommodations.some(
+        (a) => a.accommodationType && a.checkIn && a.checkOut,
+      );
+      if (!hasValid) errors.push(tValidation("accommodationRequired"));
+    }
+    if (currentStep === 3 && !mobilityUndecided && mobility.length === 0) {
+      errors.push(tValidation("mobilityRequired"));
+    }
+    return errors;
+  }
+
+  function handleStepNext(nextStep: number) {
+    const errors = validateCurrentStep();
+    setValidationErrors(errors);
+    if (errors.length > 0) return;
+    goToStep(nextStep);
   }
 
   // Load existing data
@@ -429,7 +458,7 @@ export function Phase4WizardV2({
               />
               <WizardFooter
                 onBack={() => router.push(`/expedition/${tripId}/phase-3`)}
-                onPrimary={() => goToStep(2)}
+                onPrimary={() => handleStepNext(2)}
                 primaryLabel={tCommon("next")}
                 onSave={handleSaveCurrentStep}
                 isDirty={isDirty}
@@ -455,7 +484,7 @@ export function Phase4WizardV2({
               />
               <WizardFooter
                 onBack={() => goToStep(1)}
-                onPrimary={() => goToStep(3)}
+                onPrimary={() => handleStepNext(3)}
                 primaryLabel={tCommon("next")}
                 onSave={handleSaveCurrentStep}
                 isDirty={isDirty}
