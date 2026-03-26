@@ -755,6 +755,13 @@
       "advancePending": "Advance (checklist pending)",
       "advancePartial": "Advance ({count} items pending)",
       "advanceComplete": "Phase Complete — Advance →",
+      "addCustomItem": "+ Add custom item",
+      "customItemPlaceholder": "Item name (e.g., Travel adapter)",
+      "markAsRequired": "Mark as required",
+      "addItem": "Add",
+      "adding": "Adding...",
+      "cancel": "Cancel",
+      "removeItem": "Remove item",
       "goToCurrentPhase": "Go to Phase {phase} →",
       "tripTypes": {
         "domestic": "Domestic",

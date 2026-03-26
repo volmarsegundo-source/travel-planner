@@ -8,6 +8,8 @@ import { AtlasCard, AtlasBadge } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
 import {
   togglePhase3ItemAction,
+  addCustomChecklistItemAction,
+  removeCustomChecklistItemAction,
   advanceFromPhaseAction,
 } from "@/server/actions/expedition.actions";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
@@ -59,6 +61,13 @@ export function Phase3WizardV2({
     points: number;
   } | null>(null);
 
+  // Custom item form
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemRequired, setNewItemRequired] = useState(false);
+  const [isAddingItem, setIsAddingItem] = useState(false);
+  const [removingKey, setRemovingKey] = useState<string | null>(null);
+
   // Dirty tracking
   const checklistValues = useMemo(() => {
     const completed: Record<string, unknown> = {};
@@ -109,6 +118,62 @@ export function Phase3WizardV2({
       setErrorMessage("errors.generic");
     } finally {
       setTogglingKey(null);
+    }
+  }
+
+  async function handleAddCustomItem() {
+    if (!newItemName.trim() || newItemName.trim().length < 2) return;
+    setIsAddingItem(true);
+    setErrorMessage(null);
+
+    try {
+      const result = await addCustomChecklistItemAction(tripId, newItemName.trim(), newItemRequired);
+      if (!result.success) {
+        setErrorMessage(result.error);
+        setIsAddingItem(false);
+        return;
+      }
+
+      setItems((prev) => [
+        ...prev,
+        {
+          id: result.data!.id,
+          itemKey: result.data!.itemKey,
+          required: result.data!.required,
+          completed: false,
+          deadline: null,
+          pointsValue: 0,
+        },
+      ]);
+      setNewItemName("");
+      setNewItemRequired(false);
+      setShowAddForm(false);
+      router.refresh();
+    } catch {
+      setErrorMessage("errors.generic");
+    } finally {
+      setIsAddingItem(false);
+    }
+  }
+
+  async function handleRemoveItem(itemKey: string) {
+    if (!itemKey.startsWith("custom_")) return;
+    setRemovingKey(itemKey);
+    setErrorMessage(null);
+
+    try {
+      const result = await removeCustomChecklistItemAction(tripId, itemKey);
+      if (!result.success) {
+        setErrorMessage(result.error);
+        setRemovingKey(null);
+        return;
+      }
+      setItems((prev) => prev.filter((i) => i.itemKey !== itemKey));
+      router.refresh();
+    } catch {
+      setErrorMessage("errors.generic");
+    } finally {
+      setRemovingKey(null);
     }
   }
 
@@ -223,6 +288,8 @@ export function Phase3WizardV2({
                 item={item}
                 toggling={togglingKey === item.itemKey}
                 onToggle={handleToggle}
+                onRemove={item.itemKey.startsWith("custom_") ? handleRemoveItem : undefined}
+                removing={removingKey === item.itemKey}
                 formatDeadline={formatDeadline}
                 t={t}
                 pointsPopup={
@@ -247,6 +314,8 @@ export function Phase3WizardV2({
                   item={item}
                   toggling={togglingKey === item.itemKey}
                   onToggle={handleToggle}
+                  onRemove={item.itemKey.startsWith("custom_") ? handleRemoveItem : undefined}
+                  removing={removingKey === item.itemKey}
                   formatDeadline={formatDeadline}
                   t={t}
                   pointsPopup={
@@ -257,6 +326,68 @@ export function Phase3WizardV2({
             </div>
           </div>
         )}
+
+        {/* Add custom item */}
+        <div className="pt-2">
+          {!showAddForm ? (
+            <button
+              type="button"
+              onClick={() => setShowAddForm(true)}
+              className="flex w-full min-h-[44px] items-center justify-center gap-2 rounded-lg border-2 border-dashed border-atlas-outline-variant/30 p-3 text-sm font-medium font-atlas-body text-atlas-on-surface-variant hover:border-atlas-secondary-container/50 hover:text-atlas-on-surface transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+              data-testid="add-custom-item-btn"
+            >
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              {t("addCustomItem")}
+            </button>
+          ) : (
+            <AtlasCard variant="base" className="p-4">
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                  placeholder={t("customItemPlaceholder")}
+                  className="w-full min-h-[44px] px-3 py-2 text-sm font-atlas-body bg-atlas-surface-container-low text-atlas-on-surface placeholder:text-atlas-outline-variant rounded-lg border border-atlas-outline-variant focus:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+                  maxLength={100}
+                  autoFocus
+                  data-testid="custom-item-input"
+                />
+                <div className="flex items-center gap-4">
+                  <label className="flex items-center gap-2 text-sm font-atlas-body text-atlas-on-surface-variant cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newItemRequired}
+                      onChange={(e) => setNewItemRequired(e.target.checked)}
+                      className="h-4 w-4 rounded border-atlas-outline-variant text-atlas-secondary-container focus-visible:ring-atlas-focus-ring"
+                    />
+                    {t("markAsRequired")}
+                  </label>
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <button
+                    type="button"
+                    onClick={() => { setShowAddForm(false); setNewItemName(""); setNewItemRequired(false); }}
+                    className="px-3 py-1.5 text-sm font-medium font-atlas-body text-atlas-on-surface-variant hover:text-atlas-on-surface rounded-lg transition-colors"
+                    disabled={isAddingItem}
+                  >
+                    {t("cancel")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleAddCustomItem}
+                    disabled={isAddingItem || newItemName.trim().length < 2}
+                    className="px-4 py-1.5 text-sm font-bold font-atlas-body bg-atlas-secondary-container text-atlas-primary rounded-lg hover:bg-atlas-secondary-container/80 disabled:opacity-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+                    data-testid="confirm-add-item-btn"
+                  >
+                    {isAddingItem ? t("adding") : t("addItem")}
+                  </button>
+                </div>
+              </div>
+            </AtlasCard>
+          )}
+        </div>
       </div>
     </PhaseShell>
   );
@@ -268,6 +399,8 @@ interface ChecklistRowV2Props {
   item: ChecklistItemData;
   toggling: boolean;
   onToggle: (key: string) => void;
+  onRemove?: (key: string) => void;
+  removing?: boolean;
   formatDeadline: (iso: string | null) => string | null;
   t: (key: string, values?: Record<string, string | number>) => string;
   pointsPopup: number | null;
@@ -277,6 +410,8 @@ function ChecklistRowV2({
   item,
   toggling,
   onToggle,
+  onRemove,
+  removing = false,
   formatDeadline,
   t,
   pointsPopup,
@@ -321,7 +456,9 @@ function ChecklistRowV2({
               : "text-atlas-on-surface"
           }`}
         >
-          {t(`items.${item.itemKey}`)}
+          {item.itemKey.startsWith("custom_")
+            ? item.itemKey.slice(7).replace(/_/g, " ")
+            : t(`items.${item.itemKey}`)}
         </span>
         {deadline && (
           <p className="mt-0.5 text-xs font-atlas-body text-atlas-on-surface-variant">
@@ -330,8 +467,23 @@ function ChecklistRowV2({
         )}
       </div>
 
-      {/* Points badge */}
-      <AtlasBadge variant="pa" points={item.pointsValue} size="sm" />
+      {/* Remove button (custom items only) */}
+      {onRemove && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onRemove(item.itemKey); }}
+          disabled={removing}
+          className="shrink-0 p-1 text-atlas-on-surface-variant/50 hover:text-atlas-error transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded"
+          aria-label={t("removeItem")}
+        >
+          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      )}
+
+      {/* Points badge (system items only) */}
+      {item.pointsValue > 0 && <AtlasBadge variant="pa" points={item.pointsValue} size="sm" />}
 
       {/* Points popup animation */}
       {pointsPopup && (

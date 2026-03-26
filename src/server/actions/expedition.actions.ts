@@ -408,6 +408,78 @@ export async function togglePhase3ItemAction(
   }
 }
 
+// ─── addCustomChecklistItemAction ───────────────────────────────────────────
+
+export async function addCustomChecklistItemAction(
+  tripId: string,
+  itemName: string,
+  required: boolean
+): Promise<ActionResult<{ id: string; itemKey: string; required: boolean }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  const trimmed = itemName.trim();
+  if (!trimmed || trimmed.length < 2 || trimmed.length > 100) {
+    return { success: false, error: "expedition.phase3.invalidItemName" };
+  }
+
+  try {
+    // Use a readable key with custom_ prefix (for identification) + sanitized name
+    const sanitized = trimmed.toLowerCase().replace(/[^a-z0-9]/g, "_").slice(0, 35);
+    const itemKey = `custom_${sanitized}`;
+
+    const item = await db.phaseChecklistItem.create({
+      data: {
+        tripId,
+        phaseNumber: 3,
+        itemKey,
+        required,
+        completed: false,
+        pointsValue: 0,
+      },
+    });
+
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: { id: item.id, itemKey: item.itemKey, required: item.required } };
+  } catch (error) {
+    logger.error("expedition.addCustomChecklistItem.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── removeCustomChecklistItemAction ────────────────────────────────────────
+
+export async function removeCustomChecklistItemAction(
+  tripId: string,
+  itemKey: string
+): Promise<ActionResult<void>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  // Only allow removing custom items (prefixed with custom_)
+  if (!itemKey.startsWith("custom_")) {
+    return { success: false, error: "expedition.phase3.cannotRemoveSystemItem" };
+  }
+
+  try {
+    await db.phaseChecklistItem.deleteMany({
+      where: { tripId, phaseNumber: 3, itemKey },
+    });
+
+    revalidatePath(`/expedition/${tripId}`);
+    return { success: true, data: undefined };
+  } catch (error) {
+    logger.error("expedition.removeCustomChecklistItem.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
 // ─── completePhase3Action ───────────────────────────────────────────────────
 
 export async function completePhase3Action(

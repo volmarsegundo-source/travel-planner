@@ -755,6 +755,13 @@
       "advancePending": "Avançar (checklist pendente)",
       "advancePartial": "Avançar ({count} itens pendentes)",
       "advanceComplete": "Fase Completa — Avançar →",
+      "addCustomItem": "+ Adicionar item personalizado",
+      "customItemPlaceholder": "Nome do item (ex: Adaptador de tomada)",
+      "markAsRequired": "Marcar como obrigatório",
+      "addItem": "Adicionar",
+      "adding": "Adicionando...",
+      "cancel": "Cancelar",
+      "removeItem": "Remover item",
       "goToCurrentPhase": "Ir para a Fase {phase} →",
       "tripTypes": {
         "domestic": "Nacional",
