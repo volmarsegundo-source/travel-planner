@@ -555,6 +555,42 @@ export function Phase2WizardV2({
                     {formatCurrency(budget, currency, locale)}
                   </dd>
                 </div>
+                {/* Travel pace */}
+                {selectedPreferences?.travelPace && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.pace")}</dt>
+                    <dd className="font-medium text-atlas-on-surface capitalize">
+                      {String(selectedPreferences.travelPace).replace(/_/g, " ")}
+                    </dd>
+                  </div>
+                )}
+                {/* Food preferences */}
+                {selectedPreferences?.foodPreferences && selectedPreferences.foodPreferences.length > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.dietary")}</dt>
+                    <dd className="font-medium text-atlas-on-surface text-right max-w-[60%]">
+                      {selectedPreferences.foodPreferences.map((f) => String(f).replace(/_/g, " ")).join(", ")}
+                    </dd>
+                  </div>
+                )}
+                {/* Interests */}
+                {selectedPreferences?.interests && selectedPreferences.interests.length > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.interests")}</dt>
+                    <dd className="font-medium text-atlas-on-surface text-right max-w-[60%]">
+                      {selectedPreferences.interests.map((i) => String(i).replace(/_/g, " ")).join(", ")}
+                    </dd>
+                  </div>
+                )}
+                {/* Fitness level */}
+                {selectedPreferences?.fitnessLevel && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.fitness")}</dt>
+                    <dd className="font-medium text-atlas-on-surface capitalize">
+                      {String(selectedPreferences.fitnessLevel).replace(/_/g, " ")}
+                    </dd>
+                  </div>
+                )}
               </dl>
             </div>
           </AtlasCard>

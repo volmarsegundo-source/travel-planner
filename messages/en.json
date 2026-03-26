@@ -663,7 +663,10 @@
         "childrenAges": "Children ages: {ages}",
         "preferences": "Preferences",
         "accommodation": "Accommodation",
-        "pace": "Pace",
+        "pace": "Travel pace",
+        "dietary": "Dietary preferences",
+        "interests": "Interests",
+        "fitness": "Fitness level",
         "budget": "Budget",
         "preferencesCount": "{count} {count, plural, =1 {category} other {categories}}",
         "prefLabel": {
