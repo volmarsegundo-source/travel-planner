@@ -833,7 +833,10 @@
         "banner": "Complete o seguinte antes de avancar:",
         "transportRequired": "Pelo menos um trecho de transporte com tipo, local de partida, local de chegada, data de partida e data de chegada",
         "accommodationRequired": "Pelo menos uma hospedagem com tipo, check-in e check-out",
-        "mobilityRequired": "Pelo menos uma opção de mobilidade local selecionada"
+        "mobilityRequired": "Pelo menos uma opção de mobilidade local selecionada",
+        "checkInBeforeTripStart": "A data de check-in não pode ser antes do início da viagem",
+        "checkOutAfterTripEnd": "A data de check-out não pode ser depois do fim da viagem",
+        "checkOutBeforeCheckIn": "A data de check-out não pode ser antes do check-in"
       },
       "transport": {
         "title": "Transporte",

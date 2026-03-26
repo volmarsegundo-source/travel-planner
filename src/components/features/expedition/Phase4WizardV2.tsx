@@ -67,6 +67,7 @@ interface Phase4WizardV2Props {
   origin: string | null;
   destination: string;
   startDate: string | null;
+  endDate: string | null;
   currentPhase?: number;
   accessMode?: PhaseAccessMode;
   tripCurrentPhase?: number;
@@ -81,6 +82,7 @@ export function Phase4WizardV2({
   origin,
   destination,
   startDate,
+  endDate,
   currentPhase,
   accessMode = "first_visit",
   tripCurrentPhase = 4,
@@ -448,6 +450,8 @@ export function Phase4WizardV2({
                 onUndecidedChange={setAccommodationUndecided}
                 initialUndecided={accommodationUndecided}
                 onChange={handleAccommodationChange}
+                tripStartDate={startDate}
+                tripEndDate={endDate}
               />
               <WizardFooter
                 onBack={() => goToStep(1)}
@@ -475,7 +479,7 @@ export function Phase4WizardV2({
               />
 
               {/* Car rental prerequisites */}
-              {mobility.includes("car_rental") && (
+              {mobility.includes("car_rental") && !mobilityUndecided && (
                 <>
                   <AtlasCard variant="base">
                     <h2 className="text-lg font-atlas-headline font-bold text-atlas-on-surface">

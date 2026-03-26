@@ -245,4 +245,82 @@ describe("AccommodationStep", () => {
     const asterisks = container.querySelectorAll(".text-destructive");
     expect(asterisks.length).toBe(0);
   });
+
+  // ─── FIX #4: Date validation with trip boundaries ─────────────────────
+
+  describe("date validation", () => {
+    const TRIP_START = "2026-06-01T00:00:00.000Z";
+    const TRIP_END = "2026-06-10T00:00:00.000Z";
+
+    it("sets min and max on check-in input when tripStartDate and tripEndDate are provided", () => {
+      renderStep({ tripStartDate: TRIP_START, tripEndDate: TRIP_END });
+
+      const checkInInput = screen.getByLabelText(/checkIn/);
+      expect(checkInInput).toHaveAttribute("min", "2026-06-01");
+      expect(checkInInput).toHaveAttribute("max", "2026-06-10");
+    });
+
+    it("sets min and max on check-out input when tripStartDate and tripEndDate are provided", () => {
+      renderStep({ tripStartDate: TRIP_START, tripEndDate: TRIP_END });
+
+      const checkOutInput = screen.getByLabelText(/checkOut/);
+      expect(checkOutInput).toHaveAttribute("min", "2026-06-01");
+      expect(checkOutInput).toHaveAttribute("max", "2026-06-10");
+    });
+
+    it("does not set min/max when tripStartDate and tripEndDate are null", () => {
+      renderStep({ tripStartDate: null, tripEndDate: null });
+
+      const checkInInput = screen.getByLabelText(/checkIn/);
+      expect(checkInInput).not.toHaveAttribute("min");
+      expect(checkInInput).not.toHaveAttribute("max");
+    });
+
+    it("shows error when check-in is before trip start date", () => {
+      renderStep({ tripStartDate: TRIP_START, tripEndDate: TRIP_END });
+
+      const checkInInput = screen.getByLabelText(/checkIn/);
+      fireEvent.change(checkInInput, { target: { value: "2026-05-20" } });
+
+      expect(screen.getByTestId("date-error-0")).toBeInTheDocument();
+      expect(screen.getByText(/checkInBeforeTripStart/)).toBeInTheDocument();
+    });
+
+    it("shows error when check-out is after trip end date", () => {
+      renderStep({ tripStartDate: TRIP_START, tripEndDate: TRIP_END });
+
+      // First set a valid check-in
+      const checkInInput = screen.getByLabelText(/checkIn/);
+      fireEvent.change(checkInInput, { target: { value: "2026-06-01" } });
+
+      const checkOutInput = screen.getByLabelText(/checkOut/);
+      fireEvent.change(checkOutInput, { target: { value: "2026-06-15" } });
+
+      expect(screen.getByTestId("date-error-0")).toBeInTheDocument();
+      expect(screen.getByText(/checkOutAfterTripEnd/)).toBeInTheDocument();
+    });
+
+    it("clears error when dates are corrected to valid range", () => {
+      renderStep({ tripStartDate: TRIP_START, tripEndDate: TRIP_END });
+
+      // Set invalid check-in
+      const checkInInput = screen.getByLabelText(/checkIn/);
+      fireEvent.change(checkInInput, { target: { value: "2026-05-20" } });
+      expect(screen.getByTestId("date-error-0")).toBeInTheDocument();
+
+      // Correct to valid date
+      fireEvent.change(checkInInput, { target: { value: "2026-06-02" } });
+      expect(screen.queryByTestId("date-error-0")).not.toBeInTheDocument();
+    });
+
+    it("pre-fills check-in and check-out with trip dates for new entries", () => {
+      renderStep({ tripStartDate: TRIP_START, tripEndDate: TRIP_END });
+
+      const checkInInput = screen.getByLabelText(/checkIn/) as HTMLInputElement;
+      const checkOutInput = screen.getByLabelText(/checkOut/) as HTMLInputElement;
+
+      expect(checkInInput.value).toBe("2026-06-01");
+      expect(checkOutInput.value).toBe("2026-06-10");
+    });
+  });
 });

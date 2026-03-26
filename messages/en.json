@@ -833,7 +833,10 @@
         "banner": "Please complete the following before advancing:",
         "transportRequired": "At least one transport segment with type, departure place, arrival place, departure date, and arrival date",
         "accommodationRequired": "At least one accommodation with type, check-in, and check-out dates",
-        "mobilityRequired": "At least one local mobility option selected"
+        "mobilityRequired": "At least one local mobility option selected",
+        "checkInBeforeTripStart": "Check-in date cannot be before the trip start date",
+        "checkOutAfterTripEnd": "Check-out date cannot be after the trip end date",
+        "checkOutBeforeCheckIn": "Check-out date cannot be before check-in date"
       },
       "transport": {
         "title": "Transport",

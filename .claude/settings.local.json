@@ -178,7 +178,8 @@
       "Bash(curl -sI -L https://unsplash.com/photos/tYGZvg-Ozh4/download?w=600)",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&q=80&fit=crop&auto=format\")",
       "Bash(curl -sI \"https://images.unsplash.com/photo-1589394760151-b4c9890765fe?w=600&q=80&fit=crop&auto=format\")",
-      "Bash(curl -sI https://source.unsplash.com/featured/800x400/?fortaleza,brazil,travel)"
+      "Bash(curl -sI https://source.unsplash.com/featured/800x400/?fortaleza,brazil,travel)",
+      "Bash(python3 -c \":*)"
     ]
   }
 }

@@ -35,18 +35,33 @@ interface AccommodationStepProps {
   initialUndecided?: boolean;
   /** Callback when entries change (for parent state sync) */
   onChange?: (accommodations: AccommodationInput[]) => void;
+  /** Trip start date (ISO string) for date validation and pre-fill */
+  tripStartDate?: string | null;
+  /** Trip end date (ISO string) for date validation and pre-fill */
+  tripEndDate?: string | null;
+}
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+/** Convert an ISO datetime string to a YYYY-MM-DD string for date inputs */
+function toDateString(iso: string): string | null {
+  try {
+    return new Date(iso).toISOString().split("T")[0];
+  } catch {
+    return null;
+  }
 }
 
 // ─── Default entry factory ──────────────────────────────────────────────────
 
-function createEmptyEntry(orderIndex: number): AccommodationInput {
+function createEmptyEntry(orderIndex: number, prefillCheckIn?: string | null, prefillCheckOut?: string | null): AccommodationInput {
   return {
     accommodationType: "hotel",
     name: null,
     address: null,
     bookingCode: null,
-    checkIn: null,
-    checkOut: null,
+    checkIn: prefillCheckIn ? new Date(prefillCheckIn) : null,
+    checkOut: prefillCheckOut ? new Date(prefillCheckOut) : null,
     estimatedCost: null,
     currency: null,
     notes: null,
@@ -70,16 +85,24 @@ export function AccommodationStep({
   onUndecidedChange,
   initialUndecided = false,
   onChange,
+  tripStartDate,
+  tripEndDate,
 }: AccommodationStepProps) {
   const t = useTranslations("expedition.phase4.accommodation");
   const tPhase4 = useTranslations("expedition.phase4");
+  const tValidation = useTranslations("expedition.phase4.validation");
   const baseId = useId();
 
+  // Compute date boundaries as YYYY-MM-DD strings for min/max attrs
+  const tripStartDateStr = tripStartDate ? toDateString(tripStartDate) : null;
+  const tripEndDateStr = tripEndDate ? toDateString(tripEndDate) : null;
+
   const [undecided, setUndecided] = useState(initialUndecided);
+  const [dateErrors, setDateErrors] = useState<Record<number, string>>({});
   const [entries, setEntries] = useState<AccommodationInput[]>(
     initialAccommodations.length > 0
       ? initialAccommodations
-      : [createEmptyEntry(0)]
+      : [createEmptyEntry(0, tripStartDate, tripEndDate)]
   );
 
   function handleUndecidedChange(checked: boolean) {
@@ -90,7 +113,7 @@ export function AccommodationStep({
   function handleAddEntry() {
     if (entries.length >= MAX_ACCOMMODATIONS) return;
     setEntries((prev) => {
-      const next = [...prev, createEmptyEntry(prev.length)];
+      const next = [...prev, createEmptyEntry(prev.length, tripStartDate, tripEndDate)];
       onChange?.(next);
       return next;
     });
@@ -106,11 +129,52 @@ export function AccommodationStep({
     });
   }
 
+  function validateDateForEntry(field: "checkIn" | "checkOut", value: Date | null, index: number, currentEntry: AccommodationInput) {
+    if (!value) {
+      setDateErrors((prev) => {
+        const next = { ...prev };
+        delete next[index];
+        return next;
+      });
+      return;
+    }
+
+    const checkIn = field === "checkIn" ? value : (currentEntry.checkIn ? new Date(currentEntry.checkIn) : null);
+    const checkOut = field === "checkOut" ? value : (currentEntry.checkOut ? new Date(currentEntry.checkOut) : null);
+    const start = tripStartDate ? new Date(tripStartDate) : null;
+    const end = tripEndDate ? new Date(tripEndDate) : null;
+
+    let error = "";
+
+    if (start && checkIn && checkIn < new Date(start.toISOString().split("T")[0])) {
+      error = tValidation("checkInBeforeTripStart");
+    } else if (end && checkOut && checkOut > new Date(end.toISOString().split("T")[0] + "T23:59:59")) {
+      error = tValidation("checkOutAfterTripEnd");
+    } else if (checkIn && checkOut && checkOut < checkIn) {
+      error = tValidation("checkOutBeforeCheckIn");
+    }
+
+    setDateErrors((prev) => {
+      if (!error) {
+        const next = { ...prev };
+        delete next[index];
+        return next;
+      }
+      return { ...prev, [index]: error };
+    });
+  }
+
   function updateEntry(index: number, field: keyof AccommodationInput, value: unknown) {
     setEntries((prev) => {
       const next = prev.map((entry, i) =>
         i === index ? { ...entry, [field]: value } : entry
       );
+
+      // Validate dates when check-in or check-out changes
+      if (field === "checkIn" || field === "checkOut") {
+        validateDateForEntry(field, value as Date | null, index, next[index]);
+      }
+
       onChange?.(next);
       return next;
     });
@@ -263,6 +327,8 @@ export function AccommodationStep({
                         ? new Date(entry.checkIn).toISOString().split("T")[0]
                         : ""
                     }
+                    min={tripStartDateStr ?? undefined}
+                    max={tripEndDateStr ?? undefined}
                     onChange={(e) =>
                       updateEntry(
                         index,
@@ -286,6 +352,8 @@ export function AccommodationStep({
                         ? new Date(entry.checkOut).toISOString().split("T")[0]
                         : ""
                     }
+                    min={tripStartDateStr ?? undefined}
+                    max={tripEndDateStr ?? undefined}
                     onChange={(e) =>
                       updateEntry(
                         index,
@@ -295,6 +363,15 @@ export function AccommodationStep({
                     }
                   />
                 </div>
+
+                {/* Date validation error */}
+                {dateErrors[index] && (
+                  <div className="sm:col-span-2" data-testid={`date-error-${index}`}>
+                    <p className="text-sm text-destructive" role="alert">
+                      {dateErrors[index]}
+                    </p>
+                  </div>
+                )}
 
                 {/* Estimated cost */}
                 <div>
