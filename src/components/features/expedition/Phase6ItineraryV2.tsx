@@ -56,11 +56,11 @@ const CATEGORY_STYLES: Record<ActivityCategory, CategoryStyle> = {
     timeColor: "text-atlas-secondary-container",
   },
   culture: {
-    dotBg: "bg-[#1c9a8e]",
-    borderClass: "border-l-8 border-[#1c9a8e]",
+    dotBg: "bg-atlas-on-tertiary-container",
+    borderClass: "border-l-8 border-atlas-on-tertiary-container",
     chipBg: "bg-atlas-tertiary-fixed",
     chipText: "text-atlas-on-tertiary-fixed-variant",
-    timeColor: "text-[#1c9a8e]",
+    timeColor: "text-atlas-on-tertiary-container",
   },
   food: {
     dotBg: "bg-atlas-secondary-container",
