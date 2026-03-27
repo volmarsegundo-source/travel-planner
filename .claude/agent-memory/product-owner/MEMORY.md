@@ -31,6 +31,8 @@
 - Sprint 40 product specs: SPEC-PROD-051 (Phase Shell V2 + Auth Nav V2), SPEC-PROD-052 (Phases 1-3 V2), SPEC-PROD-053 (Phases 4-6 V2 + Summary V2), SPEC-PROD-054 (Dashboard Meu Atlas V2)
 - Sprint 40 detailed sub-spec: SPEC-PROD-PHASE5-REDESIGN (Phase 5 full AC breakdown, 64 ACs) -- `docs/specs/sprint-40/SPEC-PROD-PHASE5-REDESIGN.md`
 - Sprint 40 task breakdown: `docs/specs/sprint-40/SPRINT-40-TASKS.md`
+- Sprint 40 guide content spec: SPEC-GUIA-DESTINO-CONTEUDO (8 sections, content contract for Phase 5 guide, personalization rules per section) -- `docs/specs/sprint-40/SPEC-GUIA-DESTINO-CONTEUDO.md`
+- Sprint 40 Phase 6 redesign brief: SPEC-PHASE6-REDESIGN-BRIEF (44 ACs from Stitch prototype analysis, split 60/40 layout, day selector, timeline, map, footer) -- `docs/specs/sprint-40/SPEC-PHASE6-REDESIGN-BRIEF.md`
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning

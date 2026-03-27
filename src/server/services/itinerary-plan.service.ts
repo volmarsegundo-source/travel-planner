@@ -4,6 +4,7 @@ import { ForbiddenError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import type { DestinationGuideContent } from "@/types/ai.types";
+import { isGuideV2 } from "@/types/ai.types";
 
 // ─── ItineraryPlanService ────────────────────────────────────────────────────
 
@@ -93,28 +94,51 @@ export class ItineraryPlanService {
 
     const guideContent = guide?.content as unknown as DestinationGuideContent | null;
 
-    // Build context summary from guide sections (supports both 6-section and 10-section formats)
+    // Build context summary from guide sections (supports v1 10-section and v2 structured formats)
     let guideContext: string | undefined;
     if (guideContent) {
       const parts: string[] = [];
-      if (guideContent.timezone?.summary) {
-        parts.push(`Timezone: ${guideContent.timezone.summary}`);
-      }
-      if (guideContent.currency?.summary) {
-        parts.push(`Currency: ${guideContent.currency.summary}`);
-      }
-      if (guideContent.cultural_tips?.summary) {
-        parts.push(`Culture: ${guideContent.cultural_tips.summary}`);
-      }
-      if (guideContent.language?.summary) {
-        parts.push(`Language: ${guideContent.language.summary}`);
-      }
-      // New sections from 10-section format (T-S19-008)
-      if (guideContent.safety?.summary) {
-        parts.push(`Safety: ${guideContent.safety.summary}`);
-      }
-      if (guideContent.transport_overview?.summary) {
-        parts.push(`Transport: ${guideContent.transport_overview.summary}`);
+
+      if (isGuideV2(guideContent)) {
+        // v2 structured format
+        if (guideContent.quickFacts?.timezone?.value) {
+          parts.push(`Timezone: ${guideContent.quickFacts.timezone.value}`);
+        }
+        if (guideContent.quickFacts?.currency?.value) {
+          parts.push(`Currency: ${guideContent.quickFacts.currency.value}`);
+        }
+        if (guideContent.quickFacts?.language?.value) {
+          parts.push(`Language: ${guideContent.quickFacts.language.value}`);
+        }
+        if (guideContent.culturalTips?.length > 0) {
+          parts.push(`Culture: ${guideContent.culturalTips[0]}`);
+        }
+        if (guideContent.safety?.level) {
+          parts.push(`Safety: ${guideContent.safety.level}`);
+        }
+        if (guideContent.localTransport?.options?.length > 0) {
+          parts.push(`Transport: ${guideContent.localTransport.options.join(", ")}`);
+        }
+      } else {
+        // v1 flat format
+        if (guideContent.timezone?.summary) {
+          parts.push(`Timezone: ${guideContent.timezone.summary}`);
+        }
+        if (guideContent.currency?.summary) {
+          parts.push(`Currency: ${guideContent.currency.summary}`);
+        }
+        if (guideContent.cultural_tips?.summary) {
+          parts.push(`Culture: ${guideContent.cultural_tips.summary}`);
+        }
+        if (guideContent.language?.summary) {
+          parts.push(`Language: ${guideContent.language.summary}`);
+        }
+        if (guideContent.safety?.summary) {
+          parts.push(`Safety: ${guideContent.safety.summary}`);
+        }
+        if (guideContent.transport_overview?.summary) {
+          parts.push(`Transport: ${guideContent.transport_overview.summary}`);
+        }
       }
       if (parts.length > 0) {
         guideContext = parts.join(". ");

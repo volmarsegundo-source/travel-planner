@@ -11,6 +11,7 @@ import type {
   ExpeditionSummaryPhase4,
 } from "./expedition-summary.service";
 import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
+import { isGuideV2 } from "@/types/ai.types";
 
 // ─── Report-Specific Types ───────────────────────────────────────────────────
 
@@ -219,28 +220,36 @@ export class ReportGenerationService {
       const content = guide.content as unknown as DestinationGuideContent;
       const sections: GuideSection[] = [];
 
-      const sectionKeys: GuideSectionKey[] = [
-        "timezone",
-        "currency",
-        "language",
-        "safety",
-        "transport_overview",
-        "cultural_tips",
-        "health",
-        "electricity",
-        "connectivity",
-        "local_customs",
-      ];
+      if (isGuideV2(content)) {
+        // v2 structured format — map to report sections
+        sections.push({ key: "destination", title: content.destination.name, icon: "", content: content.destination.subtitle });
+        if (content.quickFacts?.currency) {
+          sections.push({ key: "currency", title: content.quickFacts.currency.label, icon: "", content: content.quickFacts.currency.value });
+        }
+        if (content.quickFacts?.timezone) {
+          sections.push({ key: "timezone", title: content.quickFacts.timezone.label, icon: "", content: content.quickFacts.timezone.value });
+        }
+        if (content.safety) {
+          sections.push({ key: "safety", title: "Safety", icon: "", content: `Level: ${content.safety.level}` });
+        }
+      } else {
+        // v1 flat format
+        const sectionKeys: GuideSectionKey[] = [
+          "timezone", "currency", "language", "safety",
+          "transport_overview", "cultural_tips", "health",
+          "electricity", "connectivity", "local_customs",
+        ];
 
-      for (const key of sectionKeys) {
-        const section = content[key];
-        if (section) {
-          sections.push({
-            key,
-            title: section.title,
-            icon: section.icon,
-            content: section.summary ?? "",
-          });
+        for (const key of sectionKeys) {
+          const section = content[key];
+          if (section) {
+            sections.push({
+              key,
+              title: section.title,
+              icon: section.icon,
+              content: section.summary ?? "",
+            });
+          }
         }
       }
 

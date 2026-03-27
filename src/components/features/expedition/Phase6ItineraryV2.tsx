@@ -203,6 +203,10 @@ export function Phase6ItineraryV2({
               stopProgressTimer();
               syncPhase6CompletionAction(tripId).catch(() => {});
               setIsGenerating(false);
+              // Refresh server data so the page re-renders with persisted itinerary days.
+              // The page component uses key={`phase6-v2-${itineraryDays.length}`} which
+              // forces a remount when the server returns updated data.
+              router.refresh();
               return;
             }
             if (data.startsWith('{"error":')) {

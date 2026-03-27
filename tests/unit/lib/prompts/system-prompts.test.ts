@@ -62,37 +62,44 @@ describe("CHECKLIST_SYSTEM_PROMPT", () => {
   });
 });
 
-describe("GUIDE_SYSTEM_PROMPT", () => {
+describe("GUIDE_SYSTEM_PROMPT (v2)", () => {
   it("is a non-empty string", () => {
     expect(typeof GUIDE_SYSTEM_PROMPT).toBe("string");
-    expect(GUIDE_SYSTEM_PROMPT.length).toBeGreaterThan(50);
+    expect(GUIDE_SYSTEM_PROMPT.length).toBeGreaterThan(100);
   });
 
-  it("contains the travel expert role", () => {
-    expect(GUIDE_SYSTEM_PROMPT).toContain("travel expert");
+  it("contains the travel guide writer role", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain("professional travel guide writer");
   });
 
-  it("specifies exactly 10 sections (T-S19-008)", () => {
-    expect(GUIDE_SYSTEM_PROMPT).toContain("10 sections");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("timezone");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("currency");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("language");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("electricity");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("connectivity");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("cultural_tips");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("safety");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("health");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("transport_overview");
-    expect(GUIDE_SYSTEM_PROMPT).toContain("local_customs");
+  it("specifies v2 structured JSON keys", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"destination"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"quickFacts"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"safety"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"dailyCosts"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"mustSee"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"documentation"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"localTransport"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"culturalTips"');
   });
 
-  it("includes type field with stat and content values", () => {
-    expect(GUIDE_SYSTEM_PROMPT).toContain('"type": "stat"');
-    expect(GUIDE_SYSTEM_PROMPT).toContain('"type": "content"');
+  it("includes safety level enum values", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain("safe|moderate|caution");
   });
 
-  it("includes details field for content sections", () => {
-    expect(GUIDE_SYSTEM_PROMPT).toContain('"details"');
+  it("includes mustSee category enum values", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain("nature|culture|food|nightlife|sport|adventure");
+  });
+
+  it("includes hard rules and personalization rules", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain("HARD RULES:");
+    expect(GUIDE_SYSTEM_PROMPT).toContain("PERSONALIZATION RULES:");
+  });
+
+  it("includes quickFacts subkeys", () => {
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"climate"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"plugType"');
+    expect(GUIDE_SYSTEM_PROMPT).toContain('"dialCode"');
   });
 
   it("does not contain dynamic trip-specific data", () => {

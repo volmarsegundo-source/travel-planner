@@ -7,5 +7,5 @@ export const CacheKeys = {
     `search:${encodeURIComponent(query)}:${filters}`,
   aiPlan: (hash: string) => `cache:ai-plan:${hash}`,
   aiChecklist: (hash: string) => `cache:ai-checklist:${hash}`,
-  aiGuide: (hash: string) => `cache:ai-guide:${hash}`,
+  aiGuide: (hash: string) => `cache:ai-guide:v2:${hash}`,
 } as const;

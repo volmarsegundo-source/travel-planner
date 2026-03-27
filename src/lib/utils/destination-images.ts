@@ -13,7 +13,7 @@ export const DESTINATION_IMAGES: Record<string, string> = {
   "pantanal": "https://images.unsplash.com/photo-1604970747673-3b173ce8e2c7?w=600&q=80&fit=crop&auto=format",
   "fernando de noronha": "https://images.unsplash.com/photo-1518639192441-8fce0a366e2e?w=600&q=80&fit=crop&auto=format",
   "salvador": "https://images.unsplash.com/photo-1548963670-aaaa8f73a5e3?w=600&q=80&fit=crop&auto=format",
-  "fortaleza": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=600&q=80&fit=crop&auto=format",
+  "fortaleza": "https://images.unsplash.com/photo-1589394760151-0e216e47d4f3?w=600&q=80&fit=crop&auto=format",
   "florianópolis": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80&fit=crop&auto=format",
   "florianopolis": "https://images.unsplash.com/photo-1519681393784-d120267933ba?w=600&q=80&fit=crop&auto=format",
   "são paulo": "https://images.unsplash.com/photo-1543059080-db0c9f5b6e3d?w=600&q=80&fit=crop&auto=format",

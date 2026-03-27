@@ -15,28 +15,11 @@ import {
 } from "@/server/actions/expedition.actions";
 import { spendPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
-import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
+import { isGuideV2 } from "@/types/ai.types";
+import type { DestinationGuideContent, DestinationGuideContentV2 } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-/** Quick fact keys displayed in the 2x3 grid */
-const QUICK_FACT_KEYS: GuideSectionKey[] = [
-  "timezone", "currency", "language", "electricity",
-];
-
-/** Content sections rendered as bento cards below the quick facts */
-const CONTENT_SECTIONS: GuideSectionKey[] = [
-  "connectivity", "cultural_tips", "safety", "health", "transport_overview", "local_customs",
-];
-
-/** Icon mapping for quick facts — using emoji as acceptable per UX checklist */
-const QUICK_FACT_ICONS: Record<string, string> = {
-  timezone: "\u{1F552}",     // clock
-  currency: "\u{1F4B0}",    // money bag
-  language: "\u{1F5E3}",    // speaking head
-  electricity: "\u{1F50C}", // plug
-};
 
 /** Safety level config for the colored badge */
 const SAFETY_LEVEL_CONFIG = {
@@ -48,7 +31,7 @@ const SAFETY_LEVEL_CONFIG = {
     bgClass: "bg-atlas-on-tertiary-container/10",
   },
   moderate: {
-    label: "Atenção",
+    label: "Atencao",
     labelEn: "Moderate",
     dotClass: "bg-atlas-secondary",
     textClass: "text-atlas-secondary",
@@ -64,6 +47,26 @@ const SAFETY_LEVEL_CONFIG = {
 } as const;
 
 type SafetyLevel = keyof typeof SAFETY_LEVEL_CONFIG;
+
+/** Category icons for mustSee items */
+const CATEGORY_ICONS: Record<string, string> = {
+  nature: "\u{1F333}",
+  culture: "\u{1F3DB}",
+  food: "\u{1F37D}",
+  nightlife: "\u{1F319}",
+  sport: "\u{26BD}",
+  adventure: "\u{1F3D4}",
+};
+
+/** Quick fact icons */
+const QUICK_FACT_ICONS: Record<string, string> = {
+  climate: "\u{1F321}",
+  currency: "\u{1F4B0}",
+  language: "\u{1F5E3}",
+  timezone: "\u{1F552}",
+  plugType: "\u{1F50C}",
+  dialCode: "\u{1F4F1}",
+};
 
 /** Bento card shared CSS */
 const BENTO_CARD_BASE =
@@ -112,7 +115,7 @@ function HeaderSkeleton() {
 function BentoSkeleton() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-10 gap-6 max-w-7xl" data-testid="guide-v2-skeleton">
-      {/* B1 skeleton — 6 cols */}
+      {/* B1 skeleton -- 6 cols */}
       <div className={`md:col-span-6 ${BENTO_CARD_BASE} overflow-hidden`}>
         <SkeletonPulse className="h-64 w-full !rounded-none" />
         <div className="p-8 space-y-3">
@@ -121,7 +124,7 @@ function BentoSkeleton() {
           <SkeletonPulse className="w-[75%] h-4" />
         </div>
       </div>
-      {/* B2 skeleton — 4 cols */}
+      {/* B2 skeleton -- 4 cols */}
       <div className={`md:col-span-4 bg-atlas-surface-container-low rounded-xl border border-atlas-outline-variant/15 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] p-8`}>
         <SkeletonPulse className="w-[140px] h-5 mb-6" />
         <div className="grid grid-cols-2 gap-y-8 gap-x-4">
@@ -130,7 +133,7 @@ function BentoSkeleton() {
           ))}
         </div>
       </div>
-      {/* B3 skeleton — 5 cols */}
+      {/* B3 skeleton -- 5 cols */}
       <div className={`md:col-span-5 ${BENTO_CARD_BASE} p-8`}>
         <div className="flex justify-between mb-6">
           <SkeletonPulse className="w-[140px] h-5" />
@@ -143,7 +146,7 @@ function BentoSkeleton() {
           </div>
         ))}
       </div>
-      {/* B4 skeleton — 5 cols */}
+      {/* B4 skeleton -- 5 cols */}
       <div className={`md:col-span-5 ${BENTO_CARD_BASE} p-8`}>
         <SkeletonPulse className="w-[130px] h-5 mb-6" />
         {Array.from({ length: 4 }).map((_, i) => (
@@ -154,7 +157,7 @@ function BentoSkeleton() {
         ))}
         <SkeletonPulse className="w-full h-12 rounded-lg mt-6" />
       </div>
-      {/* B5 skeleton — 10 cols */}
+      {/* B5 skeleton -- 10 cols */}
       <div className={`md:col-span-10 ${BENTO_CARD_BASE} p-8`}>
         <SkeletonPulse className="w-[160px] h-5 mb-6" />
         <div className="flex gap-6 overflow-hidden">
@@ -173,24 +176,14 @@ function BentoSkeleton() {
   );
 }
 
-// ─── Bento Card Sub-components ───────────────────────────────────────────────
+// ─── V2 Bento Card Sub-components ────────────────────────────────────────────
 
-/** B1 — "Sobre o Destino" card with hero image and description */
-function AboutDestinationCard({ guide, destination }: {
-  guide: DestinationGuideContent;
+/** B1 -- "Sobre o Destino" card with hero image and overview */
+function AboutDestinationCardV2({ guide, destination }: {
+  guide: DestinationGuideContentV2;
   destination: string;
 }) {
-  // Use connectivity or cultural_tips section data as the "about" narrative
-  const aboutSection = guide.connectivity ?? guide.cultural_tips;
-  const safetySection = guide.safety;
-
-  // Compose overview paragraphs from available sections
-  const overviewParagraphs: string[] = [];
-  if (aboutSection?.summary) overviewParagraphs.push(aboutSection.summary);
-  if (aboutSection?.details) overviewParagraphs.push(aboutSection.details);
-  if (overviewParagraphs.length === 0 && safetySection?.summary) {
-    overviewParagraphs.push(safetySection.summary);
-  }
+  const destInfo = guide.destination;
 
   return (
     <div
@@ -211,9 +204,16 @@ function AboutDestinationCard({ guide, destination }: {
           ) : null;
         })()}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent" />
-        <span className="absolute bottom-4 left-6 text-white font-atlas-headline font-bold text-base">
-          {destination}
-        </span>
+        <div className="absolute bottom-4 left-6 text-white">
+          <span className="font-atlas-headline font-bold text-base block">
+            {destInfo?.name ?? destination}
+          </span>
+          {destInfo?.nickname && (
+            <span className="text-white/80 text-xs font-atlas-body italic">
+              {destInfo.nickname}
+            </span>
+          )}
+        </div>
       </div>
       {/* Content area */}
       <div className="p-6">
@@ -223,8 +223,13 @@ function AboutDestinationCard({ guide, destination }: {
           </span>
           Sobre o Destino
         </h2>
-        {overviewParagraphs.length > 0 ? (
-          overviewParagraphs.map((paragraph, i) => (
+        {destInfo?.subtitle && (
+          <p className="text-sm font-medium text-atlas-on-surface mb-3 font-atlas-body">
+            {destInfo.subtitle}
+          </p>
+        )}
+        {destInfo?.overview && destInfo.overview.length > 0 ? (
+          destInfo.overview.map((paragraph, i) => (
             <p
               key={i}
               className="text-atlas-on-surface-variant leading-relaxed font-atlas-body mb-4 last:mb-0"
@@ -242,45 +247,19 @@ function AboutDestinationCard({ guide, destination }: {
   );
 }
 
-/** B2 — "Informacoes Rapidas" quick facts grid */
-function QuickFactsCard({ guide }: { guide: DestinationGuideContent }) {
-  const facts = QUICK_FACT_KEYS.map((key) => {
-    const section = guide[key];
-    return {
-      key,
-      icon: QUICK_FACT_ICONS[key] ?? "\u{2139}",
-      label: section?.title ?? key,
-      value: section?.summary ?? "\u2014",
-    };
-  });
+/** B2 -- "Informacoes Rapidas" quick facts 2x3 grid */
+function QuickFactsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
+  const qf = guide.quickFacts;
+  if (!qf) return null;
 
-  // Add DDI and Tomada from the electricity section tips if available
-  const electricitySection = guide.electricity;
-  const extraFacts: Array<{ key: string; icon: string; label: string; value: string }> = [];
-
-  // Try to extract power outlet info from electricity
-  if (electricitySection) {
-    extraFacts.push({
-      key: "powerOutlet",
-      icon: "\u{26A1}",
-      label: "Tomada",
-      value: electricitySection.tips?.[0] ?? electricitySection.summary ?? "\u2014",
-    });
-  }
-
-  // Try to extract dial code from connectivity
-  const connectivitySection = guide.connectivity;
-  if (connectivitySection) {
-    extraFacts.push({
-      key: "dialCode",
-      icon: "\u{1F4F1}",
-      label: "DDI",
-      value: connectivitySection.tips?.[0] ?? connectivitySection.summary ?? "\u2014",
-    });
-  }
-
-  // Take up to 6 facts total
-  const allFacts = [...facts, ...extraFacts].slice(0, 6);
+  const facts = [
+    { key: "climate", icon: QUICK_FACT_ICONS.climate, label: qf.climate?.label ?? "Clima", value: qf.climate?.value },
+    { key: "currency", icon: QUICK_FACT_ICONS.currency, label: qf.currency?.label ?? "Moeda", value: qf.currency?.value },
+    { key: "language", icon: QUICK_FACT_ICONS.language, label: qf.language?.label ?? "Idioma", value: qf.language?.value },
+    { key: "timezone", icon: QUICK_FACT_ICONS.timezone, label: qf.timezone?.label ?? "Fuso", value: qf.timezone?.value },
+    { key: "plugType", icon: QUICK_FACT_ICONS.plugType, label: qf.plugType?.label ?? "Tomada", value: qf.plugType?.value },
+    { key: "dialCode", icon: QUICK_FACT_ICONS.dialCode, label: qf.dialCode?.label ?? "DDI", value: qf.dialCode?.value },
+  ];
 
   return (
     <div
@@ -288,10 +267,10 @@ function QuickFactsCard({ guide }: { guide: DestinationGuideContent }) {
       data-testid="quick-facts-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
-        {"Informações Rápidas"}
+        {"Informacoes Rapidas"}
       </h2>
       <div className="grid grid-cols-2 gap-y-4 gap-x-3">
-        {allFacts.map((fact) => (
+        {facts.map((fact) => (
           <div key={fact.key} className="flex flex-col gap-0.5">
             <div className="flex items-center gap-1.5 text-atlas-secondary">
               <span aria-hidden="true" className="text-sm">{fact.icon}</span>
@@ -300,7 +279,7 @@ function QuickFactsCard({ guide }: { guide: DestinationGuideContent }) {
               </span>
             </div>
             <span className="text-sm font-bold text-atlas-on-surface font-atlas-body">
-              {fact.value}
+              {fact.value ?? "\u2014"}
             </span>
           </div>
         ))}
@@ -309,20 +288,12 @@ function QuickFactsCard({ guide }: { guide: DestinationGuideContent }) {
   );
 }
 
-/** B3 — "Dicas de Seguranca" safety card with level badge */
-function SafetyCard({ guide, locale }: { guide: DestinationGuideContent; locale: string }) {
-  const safetySection = guide.safety;
-  if (!safetySection) return null;
+/** B3 -- "Dicas de Seguranca" safety card with level badge and emergency numbers */
+function SafetyCardV2({ guide, locale }: { guide: DestinationGuideContentV2; locale: string }) {
+  const safety = guide.safety;
+  if (!safety) return null;
 
-  // Determine safety level from the section data
-  const summaryLower = (safetySection.summary ?? "").toLowerCase();
-  let level: SafetyLevel = "safe";
-  if (summaryLower.includes("cautela") || summaryLower.includes("caution") || summaryLower.includes("perig")) {
-    level = "caution";
-  } else if (summaryLower.includes("aten") || summaryLower.includes("moderate") || summaryLower.includes("moder")) {
-    level = "moderate";
-  }
-
+  const level: SafetyLevel = safety.level ?? "safe";
   const config = SAFETY_LEVEL_CONFIG[level];
   const badgeLabel = locale === "en" ? config.labelEn : config.label;
 
@@ -334,7 +305,7 @@ function SafetyCard({ guide, locale }: { guide: DestinationGuideContent; locale:
       <div>
         <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
           <h2 className="text-lg font-bold font-atlas-headline text-atlas-on-surface">
-            {"Dicas de Segurança"}
+            {"Dicas de Seguranca"}
           </h2>
           <div
             className={`flex items-center gap-2 ${config.bgClass} ${config.textClass} px-3 py-1 rounded-full text-xs font-bold font-atlas-body`}
@@ -345,9 +316,9 @@ function SafetyCard({ guide, locale }: { guide: DestinationGuideContent; locale:
             {badgeLabel}
           </div>
         </div>
-        {safetySection.tips.length > 0 ? (
+        {safety.tips.length > 0 ? (
           <ul className="space-y-4">
-            {safetySection.tips.map((tip, i) => (
+            {safety.tips.map((tip, i) => (
               <li key={i} className="flex gap-3 items-start">
                 <span className="text-atlas-secondary-container flex-shrink-0" aria-hidden="true">
                   {"\u2705"}
@@ -358,61 +329,31 @@ function SafetyCard({ guide, locale }: { guide: DestinationGuideContent; locale:
               </li>
             ))}
           </ul>
-        ) : (
-          <p className="text-sm font-atlas-body text-atlas-on-surface-variant">
-            {safetySection.summary}
-          </p>
-        )}
+        ) : null}
       </div>
+      {/* Emergency numbers */}
+      {safety.emergencyNumbers && (
+        <div className="mt-4 p-3 bg-atlas-surface-container-low rounded-lg">
+          <p className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant mb-2 font-atlas-body">
+            Emergencia
+          </p>
+          <div className="flex flex-wrap gap-3 text-xs font-atlas-body text-atlas-on-surface">
+            <span>Policia: {safety.emergencyNumbers.police}</span>
+            <span>Ambulancia: {safety.emergencyNumbers.ambulance}</span>
+            {safety.emergencyNumbers.tourist && (
+              <span>Turismo: {safety.emergencyNumbers.tourist}</span>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-/** B4 — "Custos Medios" average costs card */
-function CostsCard({ guide }: { guide: DestinationGuideContent }) {
-  // Build cost items from available content sections
-  const costItems: Array<{ label: string; range: string }> = [];
-  const localCustoms = guide.local_customs;
-  const transportSection = guide.transport_overview;
-  const healthSection = guide.health;
-
-  // Attempt to extract cost data from section tips
-  if (transportSection?.tips) {
-    transportSection.tips.forEach((tip) => {
-      if (tip.includes("€") || tip.includes("$") || tip.includes("R$") || tip.includes("USD")) {
-        costItems.push({ label: "Transporte", range: tip });
-      }
-    });
-  }
-  if (healthSection?.tips) {
-    healthSection.tips.forEach((tip) => {
-      if (tip.includes("€") || tip.includes("$") || tip.includes("R$")) {
-        costItems.push({ label: "Saúde", range: tip });
-      }
-    });
-  }
-  if (localCustoms?.tips) {
-    localCustoms.tips.forEach((tip) => {
-      if (tip.includes("€") || tip.includes("$") || tip.includes("R$")) {
-        costItems.push({ label: "Geral", range: tip });
-      }
-    });
-  }
-
-  // If no structured cost data from tips, show transport and local customs summaries
-  if (costItems.length === 0) {
-    if (transportSection) {
-      costItems.push({ label: "Transporte", range: transportSection.summary });
-    }
-    if (localCustoms) {
-      costItems.push({ label: "Costumes Locais", range: localCustoms.summary });
-    }
-    if (healthSection) {
-      costItems.push({ label: "Saúde", range: healthSection.summary });
-    }
-  }
-
-  const localTip = localCustoms?.details ?? transportSection?.details ?? null;
+/** B4 -- "Custos Medios Diarios" three-column cost comparison table */
+function CostsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
+  const costs = guide.dailyCosts;
+  if (!costs) return null;
 
   return (
     <div
@@ -420,38 +361,64 @@ function CostsCard({ guide }: { guide: DestinationGuideContent }) {
       data-testid="costs-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
-        {"Custos Médios"}
+        {"Custos Medios Diarios"}
       </h2>
-      {costItems.length > 0 ? (
-        <div className="space-y-0">
-          {costItems.map((item, i) => (
-            <div
-              key={i}
-              className={`flex justify-between items-center py-2 min-w-0 ${
-                i < costItems.length - 1 ? "border-b border-atlas-surface-container" : ""
-              }`}
-            >
-              <span className="text-xs text-atlas-on-surface-variant font-medium font-atlas-body truncate min-w-0">
-                {item.label}
-              </span>
-              <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-right ml-2 flex-shrink-0 max-w-[55%] break-words">
-                {item.range}
-              </span>
-            </div>
-          ))}
+
+      {/* Column headers */}
+      <div className="grid grid-cols-4 gap-2 mb-2">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body" />
+        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body text-center">Econ.</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body text-center">Medio</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body text-center">Premium</span>
+      </div>
+
+      {/* Cost rows */}
+      {costs.items.map((item, i) => (
+        <div
+          key={i}
+          className={`grid grid-cols-4 gap-2 py-2 ${
+            i < costs.items.length - 1 ? "border-b border-atlas-surface-container" : ""
+          }`}
+        >
+          <span className="text-xs text-atlas-on-surface-variant font-medium font-atlas-body truncate">
+            {item.category}
+          </span>
+          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-center">
+            {item.budget}
+          </span>
+          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-center">
+            {item.mid}
+          </span>
+          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-center">
+            {item.premium}
+          </span>
         </div>
-      ) : (
-        <p className="text-sm font-atlas-body text-atlas-on-surface-variant">
-          {"\u2014"}
-        </p>
+      ))}
+
+      {/* Daily total */}
+      {costs.dailyTotal && (
+        <div className="grid grid-cols-4 gap-2 py-3 mt-2 bg-atlas-surface-container-low rounded-lg px-2">
+          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body">Total/dia</span>
+          <span className="text-xs font-bold text-atlas-secondary font-atlas-body text-center">
+            {costs.dailyTotal.budget}
+          </span>
+          <span className="text-xs font-bold text-atlas-secondary font-atlas-body text-center">
+            {costs.dailyTotal.mid}
+          </span>
+          <span className="text-xs font-bold text-atlas-secondary font-atlas-body text-center">
+            {costs.dailyTotal.premium}
+          </span>
+        </div>
       )}
-      {localTip && (
-        <div className="mt-6 p-4 bg-atlas-surface-container-low rounded-lg flex items-center gap-3">
+
+      {/* Money-saving tip */}
+      {costs.tip && (
+        <div className="mt-4 p-3 bg-atlas-surface-container-low rounded-lg flex items-center gap-3">
           <span className="text-atlas-secondary flex-shrink-0" aria-hidden="true">
             {"\u{1F4A1}"}
           </span>
           <p className="text-xs text-atlas-on-surface-variant font-atlas-body">
-            {localTip}
+            {costs.tip}
           </p>
         </div>
       )}
@@ -459,38 +426,11 @@ function CostsCard({ guide }: { guide: DestinationGuideContent }) {
   );
 }
 
-/** B5 — "O que nao perder" attractions horizontal carousel */
-function AttractionsCard({ guide }: { guide: DestinationGuideContent }) {
+/** B5 -- "O que nao perder" mustSee horizontal carousel */
+function MustSeeCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Build attraction list from content sections that have tips
-  const attractions: Array<{ name: string; description: string }> = [];
-
-  // cultural_tips tips become "attractions"
-  const culturalSection = guide.cultural_tips;
-  if (culturalSection?.tips) {
-    culturalSection.tips.forEach((tip) => {
-      attractions.push({
-        name: tip.split(":")[0]?.trim().substring(0, 40) ?? tip.substring(0, 40),
-        description: tip,
-      });
-    });
-  }
-
-  // local_customs tips as additional attractions
-  const localCustoms = guide.local_customs;
-  if (localCustoms?.tips && attractions.length < 4) {
-    localCustoms.tips.forEach((tip) => {
-      if (attractions.length < 8) {
-        attractions.push({
-          name: tip.split(":")[0]?.trim().substring(0, 40) ?? tip.substring(0, 40),
-          description: tip,
-        });
-      }
-    });
-  }
-
-  if (attractions.length === 0) return null;
+  const mustSee = guide.mustSee;
+  if (!mustSee || mustSee.length === 0) return null;
 
   return (
     <div
@@ -498,7 +438,7 @@ function AttractionsCard({ guide }: { guide: DestinationGuideContent }) {
       data-testid="attractions-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
-        {"O que não perder"}
+        {"O que nao perder"}
       </h2>
       <div
         ref={scrollRef}
@@ -507,7 +447,7 @@ function AttractionsCard({ guide }: { guide: DestinationGuideContent }) {
         aria-label="Attractions carousel"
         style={{ WebkitOverflowScrolling: "touch" }}
       >
-        {attractions.map((attraction, i) => (
+        {mustSee.map((item, i) => (
           <div
             key={i}
             className="min-w-[280px] bg-white rounded-xl overflow-hidden shadow-sm group focus-visible:outline-2 focus-visible:outline-atlas-secondary-container focus-visible:outline-offset-2"
@@ -516,18 +456,43 @@ function AttractionsCard({ guide }: { guide: DestinationGuideContent }) {
             {/* Gradient placeholder for image */}
             <div className="h-40 relative overflow-hidden">
               <div className="w-full h-full bg-gradient-to-br from-atlas-surface-container-high to-atlas-secondary-container/30 group-hover:scale-105 motion-reduce:group-hover:scale-100 transition-transform duration-500" />
+              {/* Category chip */}
+              <span className="absolute top-3 left-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-atlas-body flex items-center gap-1">
+                <span aria-hidden="true">{CATEGORY_ICONS[item.category] ?? "\u{1F4CD}"}</span>
+                {item.category}
+              </span>
             </div>
             <div className="p-4">
               <h3 className="font-bold font-atlas-headline text-atlas-on-surface mb-1">
-                {attraction.name}
+                {item.name}
               </h3>
+              <div className="flex gap-3 text-[10px] text-atlas-on-surface-variant font-atlas-body mb-2">
+                <span>{item.estimatedTime}</span>
+                <span>{item.costRange}</span>
+              </div>
               <p className="text-xs text-atlas-on-surface-variant font-atlas-body line-clamp-2">
-                {attraction.description}
+                {item.description}
               </p>
             </div>
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+// ─── V1 Fallback ──────────────────────────────────────────────────────────────
+
+/** Renders a simplified fallback for legacy v1 guide data with a regenerate prompt */
+function LegacyGuideFallback({ onRegenerate }: { onRegenerate: () => void }) {
+  return (
+    <div className="text-center py-8">
+      <p className="text-sm font-atlas-body text-atlas-on-surface-variant mb-4">
+        Este guia foi gerado em uma versao anterior. Regenere para obter o novo formato com custos, atracoes e mais.
+      </p>
+      <AtlasButton variant="primary" onClick={onRegenerate}>
+        Regenerar Guia
+      </AtlasButton>
     </div>
   );
 }
@@ -551,7 +516,7 @@ export function DestinationGuideV2({
   const tErrors = useTranslations("errors");
   const router = useRouter();
 
-  const [guide, setGuide] = useState(initialGuide?.content ?? null);
+  const [guide, setGuide] = useState<DestinationGuideContent | null>(initialGuide?.content ?? null);
   const [_generationCount, setGenerationCount] = useState(initialGuide?.generationCount ?? 0);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
@@ -612,7 +577,7 @@ export function DestinationGuideV2({
   useEffect(() => {
     if (!hasCheckedHashRef.current && initialGuide && tripDataHash && storedDataHash && tripDataHash !== storedDataHash) {
       hasCheckedHashRef.current = true;
-      // Data changed — auto-regenerate without user prompt
+      // Data changed -- auto-regenerate without user prompt
       spendPAForAIAction(tripId, "ai_accommodation")
         .then((result) => {
           if (result.success && result.data && "remainingBalance" in result.data) {
@@ -697,6 +662,11 @@ export function DestinationGuideV2({
     );
   }
 
+  // ─── Determine guide version ──────────────────────────────────────────────
+
+  const guideIsV2 = guide !== null && isGuideV2(guide);
+  const guideV2 = guideIsV2 ? (guide as DestinationGuideContentV2) : null;
+
   // ─── Main render ─────────────────────────────────────────────────────────
 
   return (
@@ -710,7 +680,7 @@ export function DestinationGuideV2({
       isEditMode={accessMode === "revisit"}
       showFooter={false}
     >
-      {/* V2 Page Header — AC-P5-001 through AC-P5-003 */}
+      {/* V2 Page Header */}
       <header className="mb-6 max-w-5xl" data-testid="guide-v2-header">
         <div className="flex items-center gap-3 mb-4">
           <span
@@ -751,8 +721,6 @@ export function DestinationGuideV2({
         </div>
       )}
 
-      {/* Regenerate confirm dialog removed — auto-regeneration handles data changes */}
-
       {/* PA Confirmation Modal */}
       <PAConfirmationModal
         isOpen={showPAConfirm}
@@ -764,7 +732,7 @@ export function DestinationGuideV2({
         isLoading={isSpending}
       />
 
-      {/* Empty state — no guide yet */}
+      {/* Empty state -- no guide yet */}
       {!guide && (
         <>
           <div className="mt-8 text-center">
@@ -782,31 +750,46 @@ export function DestinationGuideV2({
         </>
       )}
 
-      {/* Guide content — V2 bento grid layout */}
-      {guide && (
+      {/* Legacy v1 guide -- show fallback with regenerate prompt */}
+      {guide && !guideIsV2 && (
         <>
-          {/* 10-column bento grid — AC-P5-006 through AC-P5-041 */}
+          <LegacyGuideFallback onRegenerate={handleRequestGenerate} />
+          <div className="mt-3">
+            <WizardFooter
+              onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+              onPrimary={handleComplete}
+              primaryLabel={tExpedition("cta.advance")}
+              isLoading={isCompleting}
+              isDisabled={isCompleting}
+            />
+          </div>
+        </>
+      )}
+
+      {/* V2 Guide content -- bento grid layout */}
+      {guideV2 && (
+        <>
           <div
             className="grid grid-cols-1 md:grid-cols-10 gap-6 max-w-7xl"
             data-testid="guide-v2-bento"
           >
-            {/* B1 — Sobre o Destino (6 cols) */}
-            <AboutDestinationCard guide={guide} destination={destination} />
+            {/* B1 -- Sobre o Destino (6 cols) */}
+            <AboutDestinationCardV2 guide={guideV2} destination={destination} />
 
-            {/* B2 — Informacoes Rapidas (4 cols) */}
-            <QuickFactsCard guide={guide} />
+            {/* B2 -- Informacoes Rapidas (4 cols) */}
+            <QuickFactsCardV2 guide={guideV2} />
 
-            {/* B3 — Dicas de Seguranca (5 cols) */}
-            <SafetyCard guide={guide} locale={locale} />
+            {/* B3 -- Dicas de Seguranca (5 cols) */}
+            <SafetyCardV2 guide={guideV2} locale={locale} />
 
-            {/* B4 — Custos Medios (5 cols) */}
-            <CostsCard guide={guide} />
+            {/* B4 -- Custos Medios Diarios (5 cols) */}
+            <CostsCardV2 guide={guideV2} />
 
-            {/* B5 — O que nao perder (10 cols full width) */}
-            <AttractionsCard guide={guide} />
+            {/* B5 -- O que nao perder (10 cols full width) */}
+            <MustSeeCardV2 guide={guideV2} />
           </div>
 
-          {/* AI disclaimer — plain centered italic text per spec AC-P5-042 */}
+          {/* AI disclaimer */}
           <footer className="mt-12 mb-20 text-center max-w-2xl mx-auto" role="note" data-testid="ai-disclaimer">
             <p className="text-[10px] text-atlas-on-surface-variant/60 leading-relaxed italic font-atlas-body">
               {t("aiDisclaimer")}

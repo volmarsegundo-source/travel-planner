@@ -10,6 +10,7 @@ import { Phase6ItineraryV2 } from "@/components/features/expedition/Phase6Itiner
 import { deriveAgeRange } from "@/server/services/expedition-summary.service";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { DestinationGuideContent } from "@/types/ai.types";
+import { isGuideV2 } from "@/types/ai.types";
 
 interface Phase6PageProps {
   params: Promise<{ locale: string; tripId: string }>;
@@ -89,11 +90,26 @@ async function collectExpeditionContext(
   if (guide) {
     const content = guide.content as unknown as DestinationGuideContent;
     const summaries: string[] = [];
-    const keys = ["cultural_tips", "safety", "transport_overview"] as const;
-    for (const key of keys) {
-      const section = content[key];
-      if (section?.summary) {
-        summaries.push(`${section.title}: ${section.summary}`);
+
+    if (isGuideV2(content)) {
+      // v2 format: extract from structured fields
+      if (content.destination?.subtitle) {
+        summaries.push(`Destination: ${content.destination.subtitle}`);
+      }
+      if (content.safety?.level) {
+        summaries.push(`Safety: ${content.safety.level}`);
+      }
+      if (content.culturalTips?.length > 0) {
+        summaries.push(`Tips: ${content.culturalTips.slice(0, 2).join("; ")}`);
+      }
+    } else {
+      // v1 format: use section keys
+      const keys = ["cultural_tips", "safety", "transport_overview"] as const;
+      for (const key of keys) {
+        const section = content[key];
+        if (section?.summary) {
+          summaries.push(`${section.title}: ${section.summary}`);
+        }
       }
     }
     guideContext = summaries.join("; ");

@@ -17,6 +17,7 @@ export {
   PLAN_SYSTEM_PROMPT,
   CHECKLIST_SYSTEM_PROMPT,
   GUIDE_SYSTEM_PROMPT,
+  GUIDE_SYSTEM_PROMPT_V1,
 } from "./system-prompts";
 
 // Versioned templates

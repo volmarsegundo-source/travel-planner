@@ -1,48 +1,78 @@
 /**
- * Versioned prompt template for destination pocket guide generation.
+ * Versioned prompt template for destination guide generation (v2).
  *
  * Converts dynamic trip parameters into XML-tagged user prompts
  * for optimal Claude instruction adherence. System prompt is sourced
  * from system-prompts.ts to maintain a single source of truth.
  *
- * @version 1.0.0
- * @see docs/prompts/OPTIMIZATION-BACKLOG.md (OPT-006, OPT-007)
+ * v2 changes:
+ * - Structured JSON output (destination, quickFacts, safety, dailyCosts, mustSee,
+ *   documentation, localTransport, culturalTips)
+ * - XML-tagged user prompt for better context parsing
+ * - maxTokens reduced from 4096 to 3072
+ *
+ * @version 2.0.0
+ * @see docs/specs/sprint-40/PROMPT-GUIA-DESTINO-PERSONALIZADO.md (SPEC-AI-005)
  */
 
 import { GUIDE_SYSTEM_PROMPT } from "./system-prompts";
 import type { PromptTemplate, GuideParams } from "./types";
 
-/** Destination guide prompt template v1.0.0 */
+/** Destination guide prompt template v2.0.0 */
 export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
-  version: "1.0.0",
+  version: "2.0.0",
   model: "guide",
-  maxTokens: 4096,
+  maxTokens: 3072,
   cacheControl: true,
   system: GUIDE_SYSTEM_PROMPT,
 
   buildUserPrompt(params: GuideParams): string {
     const lang = params.language === "pt-BR" ? "Brazilian Portuguese" : "English";
+    const lines: string[] = [];
 
-    const lines: string[] = [
-      `Destination: ${params.destination}`,
-      `Respond in: ${lang}`,
-    ];
+    lines.push(`<destination>${params.destination}</destination>`);
+    lines.push(`<language>${lang}</language>`);
 
-    // Append traveler context when available for personalized recommendations
     const ctx = params.travelerContext;
     if (ctx) {
-      lines.push("", "Traveler context (use to personalize tips):");
-      if (ctx.startDate && ctx.endDate) lines.push(`Travel dates: ${ctx.startDate} to ${ctx.endDate}`);
-      if (ctx.travelers) lines.push(`Travelers: ${ctx.travelers}`);
-      if (ctx.travelerType) lines.push(`Traveler type: ${ctx.travelerType}`);
-      if (ctx.accommodationStyle) lines.push(`Accommodation style: ${ctx.accommodationStyle}`);
-      if (ctx.travelPace) lines.push(`Travel pace: ${ctx.travelPace}/10`);
-      if (ctx.budget && ctx.budgetCurrency) lines.push(`Budget: ${ctx.budget} ${ctx.budgetCurrency}`);
-      if (ctx.dietaryRestrictions) lines.push(`Dietary restrictions: ${ctx.dietaryRestrictions}`);
-      if (ctx.interests && ctx.interests.length > 0) lines.push(`Interests: ${ctx.interests.join(", ")}`);
-      if (ctx.fitnessLevel) lines.push(`Fitness level: ${ctx.fitnessLevel}`);
-      if (ctx.transportTypes && ctx.transportTypes.length > 0) lines.push(`Transport: ${ctx.transportTypes.join(", ")}`);
-      if (ctx.tripType) lines.push(`Trip type: ${ctx.tripType}`);
+      lines.push("");
+      lines.push("<traveler_context>");
+
+      if (ctx.startDate && ctx.endDate) {
+        lines.push(`  <dates>${ctx.startDate} to ${ctx.endDate}</dates>`);
+      }
+      if (ctx.travelers) {
+        lines.push(`  <group_size>${ctx.travelers}</group_size>`);
+      }
+      if (ctx.travelerType) {
+        lines.push(`  <traveler_type>${ctx.travelerType}</traveler_type>`);
+      }
+      if (ctx.travelPace) {
+        lines.push(`  <pace>${ctx.travelPace}</pace>`);
+      }
+      if (ctx.budget && ctx.budgetCurrency) {
+        lines.push(`  <budget amount="${ctx.budget}" currency="${ctx.budgetCurrency}" />`);
+      }
+      if (ctx.accommodationStyle) {
+        lines.push(`  <accommodation_style>${ctx.accommodationStyle}</accommodation_style>`);
+      }
+      if (ctx.dietaryRestrictions) {
+        lines.push(`  <dietary>${ctx.dietaryRestrictions}</dietary>`);
+      }
+      if (ctx.interests && ctx.interests.length > 0) {
+        lines.push(`  <interests>${ctx.interests.join(", ")}</interests>`);
+      }
+      if (ctx.fitnessLevel) {
+        lines.push(`  <fitness>${ctx.fitnessLevel}</fitness>`);
+      }
+      if (ctx.transportTypes && ctx.transportTypes.length > 0) {
+        lines.push(`  <booked_transport>${ctx.transportTypes.join(", ")}</booked_transport>`);
+      }
+      if (ctx.tripType) {
+        lines.push(`  <trip_type>${ctx.tripType}</trip_type>`);
+      }
+
+      lines.push("</traveler_context>");
     }
 
     return lines.join("\n");

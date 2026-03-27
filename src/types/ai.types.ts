@@ -118,7 +118,7 @@ export interface ChecklistResult {
   categories: ChecklistCategoryData[];
 }
 
-// ─── Destination Guide (Phase 5) ────────────────────────────────────────────
+// ─── Destination Guide (Phase 5) — v1 (DEPRECATED, kept for cached data) ────
 
 export type GuideSectionType = "stat" | "content";
 
@@ -143,7 +143,98 @@ export type GuideSectionKey =
   | "transport_overview"
   | "local_customs";
 
-export type DestinationGuideContent = Record<GuideSectionKey, GuideSectionData>;
+/** @deprecated Use DestinationGuideContentV2 for new code */
+export type DestinationGuideContentV1 = Record<GuideSectionKey, GuideSectionData>;
+
+// ─── Destination Guide (Phase 5) — v2 ──────────────────────────────────────
+
+export interface QuickFact {
+  label: string;
+  value: string;
+}
+
+export interface SafetyInfo {
+  level: "safe" | "moderate" | "caution";
+  tips: string[];
+  emergencyNumbers: {
+    police: string;
+    ambulance: string;
+    tourist: string | null;
+  };
+}
+
+export interface CostItem {
+  category: string;
+  budget: string;
+  mid: string;
+  premium: string;
+}
+
+export interface DailyCosts {
+  items: CostItem[];
+  dailyTotal: {
+    budget: string;
+    mid: string;
+    premium: string;
+  };
+  tip?: string;
+}
+
+export interface MustSeeItem {
+  name: string;
+  category: "nature" | "culture" | "food" | "nightlife" | "sport" | "adventure";
+  estimatedTime: string;
+  costRange: string;
+  description: string;
+}
+
+export interface DocumentationInfo {
+  passport: string;
+  visa: string;
+  vaccines: string;
+  insurance: string;
+}
+
+export interface LocalTransportInfo {
+  options: string[];
+  tips: string[];
+}
+
+export interface DestinationInfo {
+  name: string;
+  nickname: string;
+  subtitle: string;
+  overview: string[];
+}
+
+export interface DestinationGuideContentV2 {
+  destination: DestinationInfo;
+  quickFacts: {
+    climate: QuickFact;
+    currency: QuickFact;
+    language: QuickFact;
+    timezone: QuickFact;
+    plugType: QuickFact;
+    dialCode: QuickFact;
+  };
+  safety: SafetyInfo;
+  dailyCosts: DailyCosts;
+  mustSee: MustSeeItem[];
+  documentation: DocumentationInfo;
+  localTransport: LocalTransportInfo;
+  culturalTips: string[];
+}
+
+/**
+ * Union type for guide content — supports both v1 (legacy cached) and v2 (new).
+ * Use `isGuideV2()` to discriminate at runtime.
+ */
+export type DestinationGuideContent = DestinationGuideContentV1 | DestinationGuideContentV2;
+
+/** Type guard: returns true if the guide content is v2 format */
+export function isGuideV2(content: DestinationGuideContent): content is DestinationGuideContentV2 {
+  return "destination" in content && "quickFacts" in content && "mustSee" in content;
+}
 
 export interface GenerateGuideParams {
   userId: string;

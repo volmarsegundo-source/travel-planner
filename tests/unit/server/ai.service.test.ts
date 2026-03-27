@@ -473,16 +473,56 @@ describe("AiService.generateChecklist", () => {
 // ─── Destination Guide Tests ────────────────────────────────────────────────
 
 const VALID_GUIDE_RESPONSE = {
-  timezone: { title: "Timezone", icon: "clock", summary: "CET (UTC+1)", tips: ["Adjust your clock on arrival"], type: "stat" },
-  currency: { title: "Currency", icon: "euro", summary: "Euro (EUR)", tips: ["Cards widely accepted"], type: "stat" },
-  language: { title: "Language", icon: "speech", summary: "French", tips: ["Learn basic greetings"], type: "stat" },
-  electricity: { title: "Electricity", icon: "plug", summary: "Type C/E, 230V", tips: ["Bring an adapter"], type: "stat" },
-  connectivity: { title: "Connectivity", icon: "wifi", summary: "Good 4G coverage", tips: ["Get a local SIM"], type: "content", details: "Wi-Fi is widely available in cafes and hotels." },
-  cultural_tips: { title: "Culture", icon: "star", summary: "Rich history", tips: ["Greet with bonjour"], type: "content", details: "French culture values politeness and formality." },
-  safety: { title: "Safety", icon: "shield", summary: "Generally safe for tourists", tips: ["Watch for pickpockets"], type: "content", details: "Paris is generally safe but stay alert in crowded areas." },
-  health: { title: "Health", icon: "heart", summary: "Good healthcare available", tips: ["Carry EHIC card"], type: "content", details: "France has excellent public healthcare system." },
-  transport_overview: { title: "Transport", icon: "train", summary: "Excellent metro system", tips: ["Buy a Navigo pass"], type: "content", details: "The Paris metro is one of the best in the world." },
-  local_customs: { title: "Customs", icon: "flag", summary: "Kiss on both cheeks", tips: ["Say bonjour when entering shops"], type: "content", details: "French people greet with la bise in social settings." },
+  destination: {
+    name: "Paris",
+    nickname: "A Cidade Luz",
+    subtitle: "Uma capital onde arte e gastronomia se encontram.",
+    overview: ["Paris e a capital da Franca, famosa pela Torre Eiffel.", "Conhecida pela culinaria refinada e museus de classe mundial."],
+  },
+  quickFacts: {
+    climate: { label: "Clima", value: "15-25C (verao)" },
+    currency: { label: "Moeda", value: "Euro (EUR)" },
+    language: { label: "Idioma", value: "Frances" },
+    timezone: { label: "Fuso Horario", value: "UTC+1 (CET)" },
+    plugType: { label: "Tomada", value: "Tipo C/E (230V)" },
+    dialCode: { label: "DDI", value: "+33" },
+  },
+  safety: {
+    level: "safe",
+    tips: ["Cuidado com carteiristas no metro.", "Evite areas isoladas a noite.", "Mantenha bolsa fechada."],
+    emergencyNumbers: { police: "17", ambulance: "15", tourist: null },
+  },
+  dailyCosts: {
+    items: [
+      { category: "Refeicao", budget: "EUR 10-18", mid: "EUR 25-40", premium: "EUR 60+" },
+      { category: "Transporte", budget: "EUR 3-7", mid: "EUR 15-25", premium: "EUR 40+" },
+      { category: "Hospedagem", budget: "EUR 50-80", mid: "EUR 120-180", premium: "EUR 250+" },
+    ],
+    dailyTotal: { budget: "EUR 63-105", mid: "EUR 160-245", premium: "EUR 350+" },
+    tip: "Compre um passe Navigo semanal para transporte ilimitado.",
+  },
+  mustSee: [
+    { name: "Torre Eiffel", category: "culture", estimatedTime: "2-3h", costRange: "EUR 10-26", description: "O simbolo mais iconico de Paris." },
+    { name: "Museu do Louvre", category: "culture", estimatedTime: "3-4h", costRange: "EUR 0-17", description: "O maior museu de arte do mundo." },
+    { name: "Montmartre", category: "culture", estimatedTime: "2-3h", costRange: "EUR 0", description: "Bairro bohemio com vista panoramica." },
+    { name: "Jardim de Luxemburgo", category: "nature", estimatedTime: "1-2h", costRange: "EUR 0", description: "Parque ideal para relaxar." },
+    { name: "Marais", category: "food", estimatedTime: "2-3h", costRange: "EUR 15-30", description: "Bairro gastronomico com falafel famoso." },
+  ],
+  documentation: {
+    passport: "Passaporte valido com minimo 3 meses de validade.",
+    visa: "Isento para brasileiros ate 90 dias (Espaco Schengen).",
+    vaccines: "Nenhuma vacina obrigatoria.",
+    insurance: "Seguro viagem obrigatorio para Schengen. Cobertura minima EUR 30.000.",
+  },
+  localTransport: {
+    options: ["Metro de Paris (16 linhas)", "Onibus RATP", "RER (trem suburbano)", "Uber/Bolt"],
+    tips: ["O passe Navigo semanal custa EUR 22.80.", "Taxis do aeroporto tem tarifa fixa."],
+  },
+  culturalTips: [
+    "Sempre cumprimente com bonjour ao entrar em lojas.",
+    "Gorjeta nao e obrigatoria, mas 5-10% e apreciado.",
+    "Jantar comeca as 20h; restaurantes abrem tarde.",
+  ],
 };
 
 const BASE_GUIDE_PARAMS = {
@@ -515,7 +555,8 @@ describe("AiService.generateDestinationGuide", () => {
 
     const result = await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
 
-    expect(result.timezone.title).toBe("Timezone");
+    expect(result.destination.name).toBe("Paris");
+    expect(result.quickFacts.currency.value).toBe("Euro (EUR)");
     expect(mocks.generateResponse).not.toHaveBeenCalled();
   });
 
@@ -528,7 +569,8 @@ describe("AiService.generateDestinationGuide", () => {
 
     const result = await AiService.generateDestinationGuide(BASE_GUIDE_PARAMS);
 
-    expect(result.currency.summary).toBe("Euro (EUR)");
+    expect(result.destination.name).toBe("Paris");
+    expect(result.mustSee).toHaveLength(5);
     expect(mocks.generateResponse).toHaveBeenCalledOnce();
     expect(mocks.redisSet).toHaveBeenCalledOnce();
   });
@@ -608,8 +650,8 @@ describe("System prompt passing", () => {
     const options = (mocks.generateResponse.mock.calls[0] as unknown[])[3] as { systemPrompt?: string };
     expect(options).toBeDefined();
     expect(options.systemPrompt).toBeDefined();
-    expect(options.systemPrompt).toContain("pocket guide");
-    expect(options.systemPrompt).toContain("10 sections");
+    expect(options.systemPrompt).toContain("professional travel guide writer");
+    expect(options.systemPrompt).toContain("mustSee");
   });
 
   it("user message for plan contains trip details, not system instructions", async () => {

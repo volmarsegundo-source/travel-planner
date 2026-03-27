@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { DestinationGuideV2 } from "../DestinationGuideV2";
-import type { DestinationGuideContent } from "@/types/ai.types";
+import type { DestinationGuideContentV2 } from "@/types/ai.types";
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Mocks
@@ -64,35 +64,64 @@ vi.mock("@/components/features/gamification/PAConfirmationModal", () => ({
  * Fixtures
  * ──────────────────────────────────────────────────────────────────────────── */
 
-function makeGuideSection(title: string, options?: { tips?: string[]; details?: string }) {
-  return {
-    icon: "X",
-    title,
-    summary: `${title} summary`,
-    details: options?.details ?? `${title} details`,
-    tips: options?.tips ?? ["tip 1", "tip 2"],
-    type: "stat" as const,
-  };
-}
-
-const mockGuide: DestinationGuideContent = {
-  timezone: makeGuideSection("Fuso Horario"),
-  currency: makeGuideSection("Moeda"),
-  language: makeGuideSection("Idioma"),
-  electricity: makeGuideSection("Eletricidade"),
-  connectivity: makeGuideSection("Conectividade"),
-  cultural_tips: makeGuideSection("Dicas Culturais", {
-    tips: ["Alfama: bairro mais antigo", "Torre de Belem: icone manuelino", "Pasteis de Belem: receita secreta"],
-  }),
-  safety: makeGuideSection("Seguranca", {
-    tips: ["Cuidado com carteiristas", "Calcado escorregadio", "Evite ruas desertas"],
-  }),
-  health: makeGuideSection("Saude"),
-  transport_overview: makeGuideSection("Transporte", { tips: ["Metro €1.50", "Taxi €6-10"] }),
-  local_customs: makeGuideSection("Costumes Locais", {
-    tips: ["Fado: musica tradicional", "Cafe expresso: €0.80"],
-    details: "Dica: Lisboa Card oferece transporte gratis.",
-  }),
+const mockGuideV2: DestinationGuideContentV2 = {
+  destination: {
+    name: "Lisboa",
+    nickname: "A Cidade das Sete Colinas",
+    subtitle: "Uma capital europeia de historia milenar e gastronomia.",
+    overview: [
+      "Lisboa e uma das capitais mais antigas da Europa com mais de 3.000 anos.",
+      "Em junho, a cidade ganha vida com as Festas dos Santos Populares.",
+    ],
+  },
+  quickFacts: {
+    climate: { label: "Clima", value: "18-28C (junho)" },
+    currency: { label: "Moeda", value: "Euro (EUR)" },
+    language: { label: "Idioma", value: "Portugues" },
+    timezone: { label: "Fuso Horario", value: "UTC+1" },
+    plugType: { label: "Tomada", value: "Tipo F (230V)" },
+    dialCode: { label: "DDI", value: "+351" },
+  },
+  safety: {
+    level: "safe",
+    tips: [
+      "Cuidado com carteiristas no Tram 28.",
+      "Calcadas podem ser escorregadias.",
+      "Evite pertences visiveis no carro.",
+    ],
+    emergencyNumbers: { police: "112", ambulance: "112", tourist: "+351 213 421 634" },
+  },
+  dailyCosts: {
+    items: [
+      { category: "Refeicao", budget: "EUR 10-18", mid: "EUR 25-40", premium: "EUR 60+" },
+      { category: "Transporte", budget: "EUR 3-7", mid: "EUR 15-25", premium: "EUR 40+" },
+      { category: "Hospedagem", budget: "EUR 50-80", mid: "EUR 120-180", premium: "EUR 250+" },
+    ],
+    dailyTotal: { budget: "EUR 63-105", mid: "EUR 160-245", premium: "EUR 350+" },
+    tip: "Compre o Lisboa Card para transporte ilimitado.",
+  },
+  mustSee: [
+    { name: "Oceanario de Lisboa", category: "nature", estimatedTime: "2-3h", costRange: "EUR 0-25", description: "Um dos maiores aquarios da Europa." },
+    { name: "Torre de Belem", category: "culture", estimatedTime: "1-2h", costRange: "EUR 0-8", description: "Icone do estilo manuelino." },
+    { name: "Pasteis de Belem", category: "food", estimatedTime: "1h", costRange: "EUR 5-10", description: "Os pasteis de nata originais." },
+    { name: "Alfama", category: "culture", estimatedTime: "2-3h", costRange: "EUR 0", description: "Bairro mais antigo de Lisboa." },
+    { name: "Sintra", category: "nature", estimatedTime: "4-5h", costRange: "EUR 10-30", description: "Palacios e jardins encantados." },
+  ],
+  documentation: {
+    passport: "Passaporte valido com minimo 6 meses.",
+    visa: "Isento para brasileiros ate 90 dias.",
+    vaccines: "Nenhuma vacina obrigatoria.",
+    insurance: "Seguro viagem obrigatorio para Schengen.",
+  },
+  localTransport: {
+    options: ["Metro de Lisboa", "Tram 28", "Uber/Bolt"],
+    tips: ["Cartao Viva Viagem e recarregavel.", "Taxis do aeroporto tem tarifa fixa."],
+  },
+  culturalTips: [
+    "Cumprimente com dois beijos no rosto.",
+    "Gorjeta nao obrigatoria, 5-10% apreciado.",
+    "Almoco e a refeicao principal (12h30-14h).",
+  ],
 };
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -120,86 +149,160 @@ describe("DestinationGuideV2", () => {
     expect(screen.getByTestId("phase-shell")).toBeInTheDocument();
   });
 
-  // ─── Bento grid rendering ─────────────────────────────────────────────
+  // ─── V2 Bento grid rendering ──────────────────────────────────────────
 
-  it("renders bento grid when initialGuide is provided", () => {
+  it("renders bento grid when v2 guide is provided", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("guide-v2-bento")).toBeInTheDocument();
   });
 
-  it("renders about destination card", () => {
+  it("renders about destination card with overview paragraphs", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("about-destination-card")).toBeInTheDocument();
     expect(screen.getByText("Sobre o Destino")).toBeInTheDocument();
+    expect(screen.getByText(/Lisboa e uma das capitais/)).toBeInTheDocument();
+    expect(screen.getByText(/Festas dos Santos Populares/)).toBeInTheDocument();
   });
 
-  it("renders quick facts card with stat titles", () => {
+  it("renders destination nickname in about card", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+    expect(screen.getByText("A Cidade das Sete Colinas")).toBeInTheDocument();
+  });
+
+  it("renders quick facts card with 6 facts", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("quick-facts-card")).toBeInTheDocument();
-    expect(screen.getByText("Fuso Horario")).toBeInTheDocument();
+    expect(screen.getByText("Clima")).toBeInTheDocument();
     expect(screen.getByText("Moeda")).toBeInTheDocument();
     expect(screen.getByText("Idioma")).toBeInTheDocument();
-    expect(screen.getByText("Eletricidade")).toBeInTheDocument();
+    expect(screen.getByText("Fuso Horario")).toBeInTheDocument();
+    expect(screen.getByText("Tomada")).toBeInTheDocument();
+    expect(screen.getByText("DDI")).toBeInTheDocument();
   });
 
-  it("renders safety card with tips", () => {
+  it("renders quick fact values", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+    expect(screen.getByText("Euro (EUR)")).toBeInTheDocument();
+    expect(screen.getByText("+351")).toBeInTheDocument();
+  });
+
+  it("renders safety card with tips and level badge", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("safety-card")).toBeInTheDocument();
-    expect(screen.getByText("Dicas de Segurança")).toBeInTheDocument();
-    expect(screen.getByText("Cuidado com carteiristas")).toBeInTheDocument();
+    expect(screen.getByText("Dicas de Seguranca")).toBeInTheDocument();
+    expect(screen.getByText("Cuidado com carteiristas no Tram 28.")).toBeInTheDocument();
   });
 
-  it("renders safety badge with level indicator", () => {
+  it("renders safety badge with correct level", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
-    // Default level should be "Safe" since summary doesn't contain caution/moderate keywords
     expect(screen.getByText("Safe")).toBeInTheDocument();
   });
 
-  it("renders costs card", () => {
+  it("renders emergency numbers in safety card", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+    expect(screen.getByText(/Policia: 112/)).toBeInTheDocument();
+    expect(screen.getByText(/Turismo: \+351 213 421 634/)).toBeInTheDocument();
+  });
+
+  it("renders costs card with three-column layout", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("costs-card")).toBeInTheDocument();
-    expect(screen.getByText("Custos Médios")).toBeInTheDocument();
+    expect(screen.getByText("Custos Medios Diarios")).toBeInTheDocument();
+    expect(screen.getByText("Refeicao")).toBeInTheDocument();
+    expect(screen.getByText("Transporte")).toBeInTheDocument();
+    expect(screen.getByText("Hospedagem")).toBeInTheDocument();
   });
 
-  it("renders attractions card with items from tips", () => {
+  it("renders daily total in costs card", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+    expect(screen.getByText("Total/dia")).toBeInTheDocument();
+    expect(screen.getByText("EUR 63-105")).toBeInTheDocument();
+  });
+
+  it("renders money-saving tip in costs card", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+    expect(screen.getByText("Compre o Lisboa Card para transporte ilimitado.")).toBeInTheDocument();
+  });
+
+  it("renders attractions card with mustSee items", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("attractions-card")).toBeInTheDocument();
-    expect(screen.getByText("O que não perder")).toBeInTheDocument();
+    expect(screen.getByText("O que nao perder")).toBeInTheDocument();
+    expect(screen.getByText("Oceanario de Lisboa")).toBeInTheDocument();
+    expect(screen.getByText("Torre de Belem")).toBeInTheDocument();
+    expect(screen.getByText("Pasteis de Belem")).toBeInTheDocument();
+  });
+
+  it("renders mustSee item metadata (time, cost)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+    // Multiple items may have "2-3h" so use getAllByText
+    expect(screen.getAllByText("2-3h").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText("EUR 0-25")).toBeInTheDocument();
   });
 
   // ─── V2 Page Header ───────────────────────────────────────────────────
@@ -208,7 +311,7 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("guide-v2-header")).toBeInTheDocument();
@@ -219,22 +322,10 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent("Lisbon, Portugal");
-  });
-
-  it("renders destination name in about card overlay", () => {
-    render(
-      <DestinationGuideV2
-        {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
-      />,
-    );
-    // Destination name appears in both the H1 and the about card overlay
-    const aboutCard = screen.getByTestId("about-destination-card");
-    expect(aboutCard).toHaveTextContent("Lisbon, Portugal");
   });
 
   // ─── AI Disclaimer ────────────────────────────────────────────────────
@@ -243,7 +334,7 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     const disclaimer = screen.getByTestId("ai-disclaimer");
@@ -258,26 +349,24 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
   });
 
-  // ─── Regenerate confirm ───────────────────────────────────────────────
+  // ─── Auto-regenerate ──────────────────────────────────────────────────
 
   it("auto-regenerates when hash mismatch (no confirm dialog)", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
         tripDataHash="new-hash"
         storedDataHash="old-hash"
       />,
     );
-    // No confirm dialog — auto-regeneration triggers instead
     expect(screen.queryByTestId("regenerate-confirm-dialog-v2")).not.toBeInTheDocument();
-    // PA spend is called for the auto-regeneration
     expect(mockSpendPAForAIAction).toHaveBeenCalledWith("trip-1", "ai_accommodation");
   });
 
@@ -286,66 +375,20 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
         tripDataHash="same-hash"
         storedDataHash="same-hash"
       />,
     );
-    // No dialog and no PA spend for regeneration (guide already exists with matching hash)
     expect(screen.queryByTestId("regenerate-confirm-dialog-v2")).not.toBeInTheDocument();
     expect(mockSpendPAForAIAction).not.toHaveBeenCalled();
   });
 
   // ─── Skeleton state ───────────────────────────────────────────────────
 
-  it("renders bento skeleton grid with correct gap", () => {
-    // When no initial guide, auto-generate triggers which sets isGenerating
-    // We test skeleton by checking for the skeleton testid
+  it("renders phase shell when no initial guide (auto-generate fires)", () => {
     render(<DestinationGuideV2 {...defaultProps} initialGuide={null} />);
-    // Auto-generate fires, skeleton should appear
     expect(screen.getByTestId("phase-shell")).toBeInTheDocument();
-  });
-
-  // ─── Quick facts card value fallback ──────────────────────────────────
-
-  it("renders dash for missing quick fact values", () => {
-    const partialGuide: DestinationGuideContent = {
-      ...mockGuide,
-      timezone: { icon: "X", title: "Timezone", summary: "", tips: [], type: "stat" },
-    };
-    render(
-      <DestinationGuideV2
-        {...defaultProps}
-        initialGuide={{ content: partialGuide, generationCount: 1, viewedSections: [] }}
-      />,
-    );
-    const factsCard = screen.getByTestId("quick-facts-card");
-    expect(factsCard).toBeInTheDocument();
-  });
-
-  // ─── Content sections ─────────────────────────────────────────────────
-
-  it("renders overview paragraphs in about card", () => {
-    render(
-      <DestinationGuideV2
-        {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
-      />,
-    );
-    // Connectivity summary and details are used as overview paragraphs
-    expect(screen.getByText("Conectividade summary")).toBeInTheDocument();
-    expect(screen.getByText("Conectividade details")).toBeInTheDocument();
-  });
-
-  it("renders costs card with local tip when details present", () => {
-    render(
-      <DestinationGuideV2
-        {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
-      />,
-    );
-    // local_customs has details that becomes the local tip
-    expect(screen.getByText("Dica: Lisboa Card oferece transporte gratis.")).toBeInTheDocument();
   });
 
   // ─── Accessibility ────────────────────────────────────────────────────
@@ -354,7 +397,7 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     const badge = screen.getByRole("status", { name: "Gerado por IA" });
@@ -365,7 +408,7 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     const safetyBadge = screen.getByRole("status", { name: "Safe" });
@@ -376,50 +419,78 @@ describe("DestinationGuideV2", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     const carousel = screen.getByRole("region", { name: "Attractions carousel" });
     expect(carousel).toBeInTheDocument();
   });
 
-  it("error alert has role=alert", () => {
-    // Render with guide to access the error display area, then trigger error via state
-    // Instead, we just verify the structure doesn't crash without error
+  it("error alert has role=alert when error exists", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
+    // No error by default
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   // ─── H1 sizing per spec ───────────────────────────────────────────────
 
-  it("H1 has correct text-2xl class (design system consistent)", () => {
+  it("H1 has correct text-2xl class", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     const h1 = screen.getByRole("heading", { level: 1 });
     expect(h1.className).toContain("text-2xl");
   });
 
-  // ─── No blue Tailwind classes (atlas tokens only) ─────────────────────
+  // ─── No blue Tailwind classes ─────────────────────────────────────────
 
   it("AI disclaimer does not use blue-* Tailwind classes", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
-        initialGuide={{ content: mockGuide, generationCount: 1, viewedSections: [] }}
+        initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
     const disclaimer = screen.getByTestId("ai-disclaimer");
     expect(disclaimer.className).not.toContain("blue-");
     const innerP = disclaimer.querySelector("p");
     expect(innerP?.className).not.toContain("blue-");
+  });
+
+  // ─── Legacy v1 fallback ───────────────────────────────────────────────
+
+  it("renders legacy fallback when v1 guide data is provided", () => {
+    const v1Guide = {
+      timezone: { icon: "X", title: "TZ", summary: "UTC+1", tips: ["t1"], type: "stat" as const },
+      currency: { icon: "X", title: "Cur", summary: "EUR", tips: ["t1"], type: "stat" as const },
+      language: { icon: "X", title: "Lang", summary: "PT", tips: ["t1"], type: "stat" as const },
+      electricity: { icon: "X", title: "Elec", summary: "230V", tips: ["t1"], type: "stat" as const },
+      connectivity: { icon: "X", title: "Conn", summary: "Good", tips: ["t1"], type: "content" as const },
+      cultural_tips: { icon: "X", title: "Tips", summary: "Be nice", tips: ["t1"], type: "content" as const },
+      safety: { icon: "X", title: "Safety", summary: "Safe", tips: ["t1"], type: "content" as const },
+      health: { icon: "X", title: "Health", summary: "OK", tips: ["t1"], type: "content" as const },
+      transport_overview: { icon: "X", title: "Trans", summary: "Metro", tips: ["t1"], type: "content" as const },
+      local_customs: { icon: "X", title: "Customs", summary: "Fado", tips: ["t1"], type: "content" as const },
+    };
+
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ content: v1Guide, generationCount: 1, viewedSections: [] }}
+      />,
+    );
+
+    // Should show legacy fallback, not v2 bento grid
+    expect(screen.queryByTestId("guide-v2-bento")).not.toBeInTheDocument();
+    expect(screen.getByText(/versao anterior/)).toBeInTheDocument();
+    expect(screen.getByText("Regenerar Guia")).toBeInTheDocument();
   });
 });

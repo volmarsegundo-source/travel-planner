@@ -174,46 +174,49 @@ describe("checklistPrompt", () => {
   });
 });
 
-// ─── Destination Guide Template ──────────────────────────────────────────────
+// ─── Destination Guide Template (v2) ────────────────────────────────────────
 
 describe("destinationGuidePrompt", () => {
-  it("has correct metadata", () => {
-    expect(destinationGuidePrompt.version).toBe("1.0.0");
+  it("has correct v2 metadata", () => {
+    expect(destinationGuidePrompt.version).toBe("2.0.0");
     expect(destinationGuidePrompt.model).toBe("guide");
-    expect(destinationGuidePrompt.maxTokens).toBe(4096);
+    expect(destinationGuidePrompt.maxTokens).toBe(3072);
     expect(destinationGuidePrompt.cacheControl).toBe(true);
   });
 
-  it("uses GUIDE_SYSTEM_PROMPT as system field", () => {
+  it("uses v2 GUIDE_SYSTEM_PROMPT as system field", () => {
     expect(destinationGuidePrompt.system).toBe(GUIDE_SYSTEM_PROMPT);
+    expect(destinationGuidePrompt.system).toContain("professional travel guide writer");
+    expect(destinationGuidePrompt.system).toContain("mustSee");
+    expect(destinationGuidePrompt.system).toContain("quickFacts");
   });
 
-  it("builds user prompt for pt-BR language", () => {
+  it("builds user prompt with XML-tagged destination and language for pt-BR", () => {
     const prompt = destinationGuidePrompt.buildUserPrompt(BASE_GUIDE_PARAMS);
 
-    expect(prompt).toContain("Rome, Italy");
-    expect(prompt).toContain("Brazilian Portuguese");
+    expect(prompt).toContain("<destination>Rome, Italy</destination>");
+    expect(prompt).toContain("<language>Brazilian Portuguese</language>");
   });
 
-  it("builds user prompt for en language", () => {
+  it("builds user prompt with XML-tagged destination and language for en", () => {
     const prompt = destinationGuidePrompt.buildUserPrompt({
       ...BASE_GUIDE_PARAMS,
       language: "en",
     });
 
-    expect(prompt).toContain("Rome, Italy");
-    expect(prompt).toContain("English");
+    expect(prompt).toContain("<destination>Rome, Italy</destination>");
+    expect(prompt).toContain("<language>English</language>");
   });
 
   it("does not include system instructions in user prompt", () => {
     const prompt = destinationGuidePrompt.buildUserPrompt(BASE_GUIDE_PARAMS);
 
-    expect(prompt).not.toContain("travel expert");
-    expect(prompt).not.toContain("6 sections");
+    expect(prompt).not.toContain("professional travel guide writer");
+    expect(prompt).not.toContain("HARD RULES");
     expect(prompt).not.toContain("JSON SCHEMA");
   });
 
-  it("includes traveler context when provided", () => {
+  it("includes traveler context with XML tags when provided", () => {
     const prompt = destinationGuidePrompt.buildUserPrompt({
       ...BASE_GUIDE_PARAMS,
       travelerContext: {
@@ -233,20 +236,21 @@ describe("destinationGuidePrompt", () => {
       },
     });
 
-    expect(prompt).toContain("Rome, Italy");
-    expect(prompt).toContain("Brazilian Portuguese");
-    expect(prompt).toContain("Traveler context");
-    expect(prompt).toContain("Travel dates: 2026-04-01 to 2026-04-10");
-    expect(prompt).toContain("Travelers: 4");
-    expect(prompt).toContain("Traveler type: family");
-    expect(prompt).toContain("Accommodation style: hotel");
-    expect(prompt).toContain("Travel pace: 6/10");
-    expect(prompt).toContain("Budget: 5000 EUR");
-    expect(prompt).toContain("Dietary restrictions: vegetarian");
-    expect(prompt).toContain("Interests: history, food");
-    expect(prompt).toContain("Fitness level: moderate");
-    expect(prompt).toContain("Transport: flight, train");
-    expect(prompt).toContain("Trip type: international");
+    expect(prompt).toContain("<destination>Rome, Italy</destination>");
+    expect(prompt).toContain("<language>Brazilian Portuguese</language>");
+    expect(prompt).toContain("<traveler_context>");
+    expect(prompt).toContain("</traveler_context>");
+    expect(prompt).toContain("<dates>2026-04-01 to 2026-04-10</dates>");
+    expect(prompt).toContain("<group_size>4</group_size>");
+    expect(prompt).toContain("<traveler_type>family</traveler_type>");
+    expect(prompt).toContain("<pace>6</pace>");
+    expect(prompt).toContain('<budget amount="5000" currency="EUR" />');
+    expect(prompt).toContain("<accommodation_style>hotel</accommodation_style>");
+    expect(prompt).toContain("<dietary>vegetarian</dietary>");
+    expect(prompt).toContain("<interests>history, food</interests>");
+    expect(prompt).toContain("<fitness>moderate</fitness>");
+    expect(prompt).toContain("<booked_transport>flight, train</booked_transport>");
+    expect(prompt).toContain("<trip_type>international</trip_type>");
   });
 
   it("omits traveler context fields that are undefined", () => {
@@ -258,17 +262,31 @@ describe("destinationGuidePrompt", () => {
       },
     });
 
-    expect(prompt).toContain("Travelers: 2");
-    expect(prompt).toContain("Traveler type: couple");
-    expect(prompt).not.toContain("Travel dates:");
-    expect(prompt).not.toContain("Budget:");
-    expect(prompt).not.toContain("Dietary restrictions:");
-    expect(prompt).not.toContain("Interests:");
+    expect(prompt).toContain("<group_size>2</group_size>");
+    expect(prompt).toContain("<traveler_type>couple</traveler_type>");
+    expect(prompt).not.toContain("<dates>");
+    expect(prompt).not.toContain("<budget");
+    expect(prompt).not.toContain("<dietary>");
+    expect(prompt).not.toContain("<interests>");
   });
 
-  it("does not include traveler context section when no context provided", () => {
+  it("does not include traveler_context block when no context provided", () => {
     const prompt = destinationGuidePrompt.buildUserPrompt(BASE_GUIDE_PARAMS);
 
-    expect(prompt).not.toContain("Traveler context");
+    expect(prompt).not.toContain("<traveler_context>");
+    expect(prompt).not.toContain("</traveler_context>");
+  });
+
+  it("builds minimal prompt with only destination and language when context is empty", () => {
+    const prompt = destinationGuidePrompt.buildUserPrompt({
+      ...BASE_GUIDE_PARAMS,
+      travelerContext: {},
+    });
+
+    // Empty context should still produce traveler_context block but with no children
+    expect(prompt).toContain("<traveler_context>");
+    expect(prompt).toContain("</traveler_context>");
+    expect(prompt).not.toContain("<dates>");
+    expect(prompt).not.toContain("<group_size>");
   });
 });

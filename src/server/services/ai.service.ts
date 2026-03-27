@@ -21,7 +21,7 @@ import type {
   GenerateChecklistParams,
   ChecklistResult,
   GenerateGuideParams,
-  DestinationGuideContent,
+  DestinationGuideContentV2,
 } from "@/types/ai.types";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -90,26 +90,79 @@ const ChecklistResultSchema = z.object({
   categories: z.array(ChecklistCategorySchema),
 });
 
-const GuideSectionSchema = z.object({
-  title: z.string(),
-  icon: z.string(),
-  summary: z.string(),
-  tips: z.array(z.string()).max(5),
-  type: z.enum(["stat", "content"]),
-  details: z.string().optional(),
+const QuickFactSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+const SafetySchema = z.object({
+  level: z.enum(["safe", "moderate", "caution"]),
+  tips: z.array(z.string()).min(1).max(5),
+  emergencyNumbers: z.object({
+    police: z.string(),
+    ambulance: z.string(),
+    tourist: z.string().nullable(),
+  }),
+});
+
+const CostItemSchema = z.object({
+  category: z.string(),
+  budget: z.string(),
+  mid: z.string(),
+  premium: z.string(),
+});
+
+const DailyCostsSchema = z.object({
+  items: z.array(CostItemSchema).min(3).max(3),
+  dailyTotal: z.object({
+    budget: z.string(),
+    mid: z.string(),
+    premium: z.string(),
+  }),
+  tip: z.string().optional(),
+});
+
+const MustSeeItemSchema = z.object({
+  name: z.string(),
+  category: z.enum(["nature", "culture", "food", "nightlife", "sport", "adventure"]),
+  estimatedTime: z.string(),
+  costRange: z.string(),
+  description: z.string(),
+});
+
+const DocumentationSchema = z.object({
+  passport: z.string(),
+  visa: z.string(),
+  vaccines: z.string(),
+  insurance: z.string(),
+});
+
+const LocalTransportSchema = z.object({
+  options: z.array(z.string()).min(1).max(5),
+  tips: z.array(z.string()).min(1).max(3),
 });
 
 const DestinationGuideContentSchema = z.object({
-  timezone: GuideSectionSchema,
-  currency: GuideSectionSchema,
-  language: GuideSectionSchema,
-  electricity: GuideSectionSchema,
-  connectivity: GuideSectionSchema,
-  cultural_tips: GuideSectionSchema,
-  safety: GuideSectionSchema,
-  health: GuideSectionSchema,
-  transport_overview: GuideSectionSchema,
-  local_customs: GuideSectionSchema,
+  destination: z.object({
+    name: z.string(),
+    nickname: z.string(),
+    subtitle: z.string(),
+    overview: z.array(z.string()).min(1).max(4),
+  }),
+  quickFacts: z.object({
+    climate: QuickFactSchema,
+    currency: QuickFactSchema,
+    language: QuickFactSchema,
+    timezone: QuickFactSchema,
+    plugType: QuickFactSchema,
+    dialCode: QuickFactSchema,
+  }),
+  safety: SafetySchema,
+  dailyCosts: DailyCostsSchema,
+  mustSee: z.array(MustSeeItemSchema).min(5).max(8),
+  documentation: DocumentationSchema,
+  localTransport: LocalTransportSchema,
+  culturalTips: z.array(z.string()).min(3).max(5),
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -193,6 +246,37 @@ function extractJsonFromResponse(text: string): unknown {
     }
     throw new Error("No valid JSON found in response");
   }
+}
+
+/**
+ * Builds a deterministic cache input string for guide generation.
+ * Fields are serialized in a fixed order so that identical contexts
+ * always produce the same hash regardless of JS object key order.
+ */
+function buildGuideCacheInput(
+  destination: string,
+  language: string,
+  ctx?: import("@/lib/prompts/types").GuideTravelerContext,
+): string {
+  const parts = [destination, language];
+  if (ctx) {
+    parts.push(
+      ctx.startDate ?? "",
+      ctx.endDate ?? "",
+      String(ctx.travelers ?? ""),
+      ctx.travelerType ?? "",
+      String(ctx.travelPace ?? ""),
+      String(ctx.budget ?? ""),
+      ctx.budgetCurrency ?? "",
+      ctx.accommodationStyle ?? "",
+      ctx.dietaryRestrictions ?? "",
+      (ctx.interests ?? []).sort().join(","),
+      ctx.fitnessLevel ?? "",
+      (ctx.transportTypes ?? []).sort().join(","),
+      ctx.tripType ?? "",
+    );
+  }
+  return parts.join(":");
 }
 
 // ─── Provider factory ─────────────────────────────────────────────────────────
@@ -458,19 +542,19 @@ export class AiService {
   }
 
   /**
-   * Generates a destination pocket guide using AI.
-   * Returns structured info across 10 sections: timezone, currency, language,
-   * electricity, connectivity, cultural_tips, safety, health, transport_overview,
-   * and local_customs. Each section has a type ("stat" or "content") and optional details.
+   * Generates a destination guide using AI (v2 structured JSON).
+   * Returns structured info: destination, quickFacts, safety, dailyCosts,
+   * mustSee, documentation, localTransport, culturalTips.
+   * Cache key is versioned (v2) so old v1 keys expire naturally via TTL.
    */
   static async generateDestinationGuide(
     params: GenerateGuideParams
-  ): Promise<DestinationGuideContent> {
+  ): Promise<DestinationGuideContentV2> {
     const { userId, destination, language } = params;
     const hid = hashUserId(userId);
 
-    const contextHash = params.travelerContext ? JSON.stringify(params.travelerContext) : "";
-    const cacheInput = `${destination}:${language}:${contextHash}`;
+    // Deterministic cache input: fixed field order for consistent hashing
+    const cacheInput = buildGuideCacheInput(destination, language, params.travelerContext);
     const cacheHash = md5(cacheInput);
     const cacheKey = CacheKeys.aiGuide(cacheHash);
 
@@ -483,7 +567,7 @@ export class AiService {
     }
     if (cached) {
       logger.info("ai.guide.cache.hit", { userId: hid });
-      return JSON.parse(cached) as DestinationGuideContent;
+      return JSON.parse(cached) as DestinationGuideContentV2;
     }
 
     const userMessage = destinationGuidePrompt.buildUserPrompt({
@@ -516,7 +600,7 @@ export class AiService {
       throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
     }
 
-    const result = parsed.data as DestinationGuideContent;
+    const result = parsed.data as DestinationGuideContentV2;
 
     // Cache result
     try {

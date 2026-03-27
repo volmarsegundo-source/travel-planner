@@ -4,6 +4,7 @@ import { decrypt } from "@/lib/crypto";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
+import { isGuideV2 } from "@/types/ai.types";
 import type { UserPreferences } from "@/lib/validations/preferences.schema";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -474,13 +475,23 @@ export class ExpeditionSummaryService {
     if (guide) {
       const content = guide.content as unknown as DestinationGuideContent;
       const highlights: string[] = [];
-      for (const key of HIGHLIGHT_SECTION_KEYS) {
-        const section = content[key];
-        if (section) {
-          highlights.push(`${section.icon} ${section.title}`);
+
+      if (isGuideV2(content)) {
+        // v2 format: extract highlights from destination info + safety level
+        if (content.destination?.name) highlights.push(content.destination.name);
+        if (content.safety?.level) highlights.push(content.safety.level);
+        if (content.quickFacts?.currency?.value) highlights.push(content.quickFacts.currency.value);
+      } else {
+        // v1 format: use section icons + titles
+        for (const key of HIGHLIGHT_SECTION_KEYS) {
+          const section = content[key];
+          if (section) {
+            highlights.push(`${section.icon} ${section.title}`);
+          }
+          if (highlights.length >= 3) break;
         }
-        if (highlights.length >= 3) break;
       }
+
       phase5 = {
         generatedAt: guide.generatedAt.toISOString().split("T")[0]!,
         highlights,

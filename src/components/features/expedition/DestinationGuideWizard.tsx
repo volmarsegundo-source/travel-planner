@@ -15,7 +15,7 @@ import {
 } from "@/server/actions/expedition.actions";
 import { spendPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
-import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
+import type { DestinationGuideContentV1, GuideSectionKey } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 interface DestinationGuideWizardProps {
@@ -23,7 +23,7 @@ interface DestinationGuideWizardProps {
   destination: string;
   locale: string;
   initialGuide?: {
-    content: DestinationGuideContent;
+    content: DestinationGuideContentV1;
     generationCount: number;
     viewedSections: string[];
   } | null;
@@ -188,7 +188,7 @@ export function DestinationGuideWizard({
         return;
       }
 
-      setGuide(result.data!.content);
+      setGuide(result.data!.content as DestinationGuideContentV1);
       setGenerationCount(result.data!.generationCount);
     } catch {
       setErrorMessage("errors.generic");
