@@ -32,7 +32,7 @@ async function ensureExpeditionExists(
   await page.waitForLoadState("networkidle");
 
   // Check if an expedition card already exists (new card uses div, not article)
-  const expCard = page.locator('[data-testid="expedition-card"]').first();
+  const expCard = page.locator('[data-testid="trip-card"], [data-testid="expedition-card"]').first();
   if (await expCard.isVisible({ timeout: 5_000 }).catch(() => false)) {
     const tripId = await extractTripIdFromCard(page);
     if (tripId) return tripId;
@@ -48,12 +48,20 @@ async function ensureExpeditionExists(
 async function extractTripIdFromCard(
   page: import("@playwright/test").Page
 ): Promise<string | null> {
-  const expCard = page.locator('[data-testid="expedition-card"]').first();
+  const expCard = page.locator('[data-testid="trip-card"], [data-testid="expedition-card"]').first();
   if (!(await expCard.isVisible({ timeout: 3_000 }).catch(() => false))) {
     return null;
   }
 
-  const expLink = expCard.locator("a").first();
+  // V2 wraps trip-card div inside <a>, so check both child and parent link
+  const childLink = expCard.locator("a").first();
+  const parentLink = page.locator('a:has([data-testid="trip-card"])').first()
+    .or(page.locator('a:has([data-testid="expedition-card"])').first());
+
+  const expLink = await childLink.isVisible({ timeout: 2_000 }).catch(() => false)
+    ? childLink
+    : parentLink;
+
   if (!(await expLink.isVisible({ timeout: 3_000 }).catch(() => false))) {
     return null;
   }
@@ -80,7 +88,7 @@ async function createExpeditionViaPhase1(
 
   // Click "New Expedition" link
   const newExpBtn = page
-    .locator('[data-testid="new-expedition-btn"]')
+    .locator('[data-testid="new-expedition-header-btn"], [data-testid="start-expedition-btn"], [data-testid="new-destination-card"], [data-testid="new-expedition-btn"]')
     .or(page.getByRole("link", { name: /new expedition|start expedition/i }))
     .or(page.getByRole("link", { name: /nova expedi|iniciar expedi|come/i }));
   await newExpBtn.first().click();
@@ -93,13 +101,13 @@ async function createExpeditionViaPhase1(
   await nextBtnStep1.first().waitFor({ timeout: 15_000 });
 
   // Check if profile form is visible (not summary card)
-  const nameInput = page.locator("#profile-name");
+  const nameInput = page.locator("#profile-name-v2, #profile-name").first();
   if (await nameInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
     const currentName = await nameInput.inputValue();
     if (!currentName) {
       await nameInput.fill("Test User");
     }
-    const birthInput = page.locator("#profile-birthdate");
+    const birthInput = page.locator("#profile-birthdate-v2, #profile-birthdate").first();
     if (await birthInput.isVisible({ timeout: 2_000 }).catch(() => false)) {
       const currentBirth = await birthInput.inputValue();
       if (!currentBirth) {
@@ -137,11 +145,11 @@ async function createExpeditionViaPhase1(
   await wizardNext.click();
 
   // -- Step 3: Dates --
-  const startDateInput = page.locator("#expedition-start-date");
+  const startDateInput = page.locator("#expedition-start-date-v2, #expedition-start-date").first();
   if (await startDateInput.isVisible({ timeout: 5_000 }).catch(() => false)) {
     await startDateInput.fill("2026-08-01");
   }
-  const endDateInput = page.locator("#expedition-end-date");
+  const endDateInput = page.locator("#expedition-end-date-v2, #expedition-end-date").first();
   if (await endDateInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
     await endDateInput.fill("2026-08-10");
   }
@@ -619,22 +627,22 @@ test.describe("Persistence -- dashboard phase count", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // Find the phase count text on an expedition card
-    const phaseCountText = page
-      .locator('[data-testid="phase-count-text"]')
+    // Find phase status info — V2 uses trip-status-section or phase-progress-bar
+    const phaseStatusSection = page
+      .locator('[data-testid="trip-status-section"], [data-testid="phase-count-text"]')
       .first();
     if (
-      await phaseCountText.isVisible({ timeout: 5_000 }).catch(() => false)
+      await phaseStatusSection.isVisible({ timeout: 5_000 }).catch(() => false)
     ) {
-      const text = await phaseCountText.textContent();
-      // Should contain phase/total pattern (e.g., "Phase 3 of 6")
+      const text = await phaseStatusSection.textContent();
+      // Should contain phase info
       expect(text).toBeTruthy();
       expect(text!.length).toBeGreaterThan(0);
     }
 
-    // The progress bar should also be visible
+    // The progress bar should also be visible — V2 uses phase-progress-bar
     const progressBar = page
-      .locator('[data-testid="dashboard-phase-progress-bar"]')
+      .locator('[data-testid="phase-progress-bar"], [data-testid="dashboard-phase-progress-bar"]')
       .first();
     if (
       await progressBar.isVisible({ timeout: 3_000 }).catch(() => false)
@@ -661,11 +669,11 @@ test.describe("Persistence -- expedition card destination", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    const expCard = page.locator('[data-testid="expedition-card"]').first();
+    const expCard = page.locator('[data-testid="trip-card"], [data-testid="expedition-card"]').first();
     await expect(expCard).toBeVisible({ timeout: 5_000 });
 
-    // Card heading (h3) should contain the destination name
-    const cardHeading = expCard.locator("h3").first();
+    // Card heading (h3 or h4) should contain the destination name — V2 uses h4
+    const cardHeading = expCard.locator("h3, h4").first();
     await expect(cardHeading).toBeVisible({ timeout: 5_000 });
     const headingText = await cardHeading.textContent();
     expect(headingText).toBeTruthy();

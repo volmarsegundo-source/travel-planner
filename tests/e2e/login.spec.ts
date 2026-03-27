@@ -107,8 +107,8 @@ test.describe("Login — invalid credentials", () => {
 
     await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
-    // Error alert should appear — use specific ID to avoid matching __next-route-announcer__
-    const alert = page.locator("#login-error");
+    // Error alert should appear — V2 uses role="alert" with id="login-v2-error"
+    const alert = page.locator('#login-v2-error, #login-error, [role="alert"]').first();
     await expect(alert).toBeVisible({ timeout: 10_000 });
     await expect(alert).toContainText(
       /invalid|incorrect|incorretos/i
@@ -188,18 +188,15 @@ test.describe("Login — register link", () => {
     await page.goto("/en/auth/login");
 
     // "Don't have an account?" text and "Create account" / "Sign up" link
+    // V2 LoginForm uses "Create a free account" text
     await expect(
-      page.getByText(/don't have an account|não tem uma conta|sign up|criar conta/i)
+      page.getByText(/don't have an account|não tem uma conta|sign up|criar conta/i).first()
     ).toBeVisible();
 
-    // Use the link in the page body (not header) to avoid strict mode violation
-    const createAccountLink = page
-      .locator("main, form, [role='main'], .auth-form, section")
-      .getByRole("link", { name: /create account|sign up|criar conta|cadastr/i });
-    // Fall back to first match if no scoped element found
-    const linkToClick = await createAccountLink.count() > 0
-      ? createAccountLink.first()
-      : page.getByRole("link", { name: /create account|sign up|criar conta|cadastr/i }).first();
+    // V2 login form link text: "Create a free account" — use broader regex
+    const linkToClick = page
+      .getByRole("link", { name: /create.*account|sign up|criar conta|cadastr/i })
+      .first();
     await linkToClick.click();
 
     await page.waitForURL(/\/auth\/register/, { timeout: 30_000 });

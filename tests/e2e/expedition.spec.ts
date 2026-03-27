@@ -44,19 +44,19 @@ test.describe("Expedition — Phase 1 wizard", () => {
 
     // Wait for wizard to render
     const nextBtnStep1 = page.getByRole("button", { name: /^next$/i });
-    await nextBtnStep1.waitFor({ timeout: 15_000 });
+    await nextBtnStep1.first().waitFor({ timeout: 15_000 });
 
     // Check for profile summary card first (profile already populated)
     const summaryCard = page.locator('[data-testid="edit-profile-btn"]');
     if (await summaryCard.isVisible({ timeout: 5_000 }).catch(() => false)) {
       // Profile already populated — just click Next
     } else {
-      // Fill name and birthDate
-      const nameInput = page.locator("#profile-name");
+      // Fill name and birthDate — V2 uses -v2 suffix IDs
+      const nameInput = page.locator("#profile-name-v2, #profile-name").first();
       if (await nameInput.isVisible({ timeout: 3_000 }).catch(() => false)) {
         await nameInput.fill("Test User");
       }
-      const birthInput = page.locator("#profile-birthdate");
+      const birthInput = page.locator("#profile-birthdate-v2, #profile-birthdate").first();
       if (await birthInput.isVisible({ timeout: 2_000 }).catch(() => false)) {
         const bval = await birthInput.inputValue();
         if (!bval) await birthInput.fill("1990-01-01");
@@ -64,7 +64,7 @@ test.describe("Expedition — Phase 1 wizard", () => {
     }
 
     // Click Next to advance to step 2
-    await nextBtnStep1.click();
+    await nextBtnStep1.first().click();
 
     // Wait for step 2 to render (destination input)
     await page.locator('[data-testid="destination-input"]').first().waitFor({ timeout: 15_000 });
@@ -97,9 +97,11 @@ test.describe("Expedition — Phase 1 wizard", () => {
     await wizardNext.click();
     await page.waitForTimeout(500);
 
-    // Step 3: Dates — fill start and end
-    const startDate = page.getByLabel(/departure|start|ida|início/i).first();
-    const endDate = page.getByLabel(/return|end|volta|fim/i).first();
+    // Step 3: Dates — fill start and end (V2 uses expedition-*-date-v2 IDs)
+    const startDate = page.locator("#expedition-start-date-v2, #expedition-start-date").first()
+      .or(page.getByLabel(/departure|start|ida|início/i).first());
+    const endDate = page.locator("#expedition-end-date-v2, #expedition-end-date").first()
+      .or(page.getByLabel(/return|end|volta|fim/i).first());
     if (await startDate.isVisible({ timeout: 5_000 }).catch(() => false)) {
       await startDate.fill("2026-07-01");
       await endDate.fill("2026-07-15");
@@ -190,12 +192,11 @@ test.describe("Expedition — dashboard display", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // Expeditions page should show at least one expedition card
-    // or the empty state
+    // Expeditions page should show at least one trip card, featured trip, or empty state
     const expeditionCard = page
-      .getByText(/phase|fase/i)
+      .locator('[data-testid="trip-card"], [data-testid="featured-trip-section"], [data-testid="no-active-trip"]')
       .first()
-      .or(page.getByText(/start.*first.*expedition|comece.*primeira.*expedição/i));
+      .or(page.getByText(/phase|fase|expedition|expedição/i).first());
 
     await expect(expeditionCard).toBeVisible({ timeout: 10_000 });
   });
@@ -261,14 +262,19 @@ test.describe("Itinerary — AI generation", () => {
     await page.waitForLoadState("networkidle");
 
     // If there are expedition cards, click the first one
-    const expeditionCard = page.locator('[data-testid="expedition-card"]').first();
+    const expeditionCard = page.locator('[data-testid="trip-card"], [data-testid="expedition-card"]').first();
     if (!(await expeditionCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
       test.skip(true, "No expeditions available — create an expedition first");
       return;
     }
 
     // Click on expedition link to navigate to detail
-    const expeditionLink = expeditionCard.locator("a").first();
+    // V2 wraps trip-card inside <a>, so use parent link if child not found
+    let expeditionLink = expeditionCard.locator("a").first();
+    if (!(await expeditionLink.isVisible({ timeout: 2_000 }).catch(() => false))) {
+      expeditionLink = page.locator('a:has([data-testid="trip-card"])').first()
+        .or(page.locator('a:has([data-testid="expedition-card"])').first());
+    }
     await expeditionLink.click();
 
     await page.waitForURL(/\/expedition\/[^/]+/, { timeout: 15_000 });
@@ -294,14 +300,18 @@ test.describe("Expedition — phase page", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    const expeditionCard = page.locator('[data-testid="expedition-card"]').first();
+    const expeditionCard = page.locator('[data-testid="trip-card"], [data-testid="expedition-card"]').first();
     if (!(await expeditionCard.isVisible({ timeout: 5_000 }).catch(() => false))) {
       test.skip(true, "No expeditions available");
       return;
     }
 
-    // Navigate to expedition phase page
-    const expeditionLink = expeditionCard.locator("a").first();
+    // Navigate to expedition phase page — V2 wraps card inside <a>
+    let expeditionLink = expeditionCard.locator("a").first();
+    if (!(await expeditionLink.isVisible({ timeout: 2_000 }).catch(() => false))) {
+      expeditionLink = page.locator('a:has([data-testid="trip-card"])').first()
+        .or(page.locator('a:has([data-testid="expedition-card"])').first());
+    }
     await expeditionLink.click();
     await page.waitForURL(/\/expedition\/[^/]+/, { timeout: 15_000 });
     await page.waitForLoadState("networkidle");

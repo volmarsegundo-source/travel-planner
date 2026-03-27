@@ -69,8 +69,9 @@ test("complete user journey from landing to logout", async ({
 
   if (page.url().includes("/auth/login")) {
     // ── Step 4: Verify success banner and login page ─────────────────────
+    // V2 login page heading is "Welcome back" instead of "Sign in"
     await expect(
-      page.getByRole("heading", { name: /sign in/i })
+      page.getByRole("heading", { name: /sign in|welcome back|bem-vindo/i })
     ).toBeVisible();
 
     await expect(
@@ -79,9 +80,9 @@ test("complete user journey from landing to logout", async ({
 
     // ── Step 5: Log in with the newly created credentials ────────────────
     await page.getByLabel(/email/i).fill(uniqueEmail);
-    await page.getByLabel(/password/i).fill(password);
+    await page.locator('input[type="password"]').fill(password);
 
-    await page.getByRole("button", { name: /sign in/i }).click();
+    await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
     // Should redirect to trips/expeditions page
     await page.waitForURL(/\/trips|\/expeditions/, { timeout: 60_000 });
@@ -139,9 +140,9 @@ test("complete user journey from landing to logout", async ({
 
   // ── Step 11: Log in again with the same credentials ────────────────────
   await page.getByLabel(/email/i).fill(uniqueEmail);
-  await page.getByLabel(/password/i).fill(password);
+  await page.locator('input[type="password"]').fill(password);
 
-  await page.getByRole("button", { name: /sign in/i }).click();
+  await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
   await page.waitForURL(/\/trips|\/expeditions/, { timeout: 30_000 });
 
