@@ -38,8 +38,10 @@ vi.mock("@/server/actions/expedition.actions", () => ({
   bulkViewGuideSectionsAction: vi.fn().mockResolvedValue({}),
 }));
 
+const mockSpendPAForAIAction = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true, data: { remainingBalance: 100 } }));
+
 vi.mock("@/server/actions/gamification.actions", () => ({
-  spendPAForAIAction: vi.fn().mockResolvedValue({ success: true, data: { remainingBalance: 100 } }),
+  spendPAForAIAction: mockSpendPAForAIAction,
 }));
 
 vi.mock("../PhaseShell", () => ({
@@ -264,7 +266,7 @@ describe("DestinationGuideV2", () => {
 
   // ─── Regenerate confirm ───────────────────────────────────────────────
 
-  it("shows regenerate confirm when hash mismatch", () => {
+  it("auto-regenerates when hash mismatch (no confirm dialog)", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
@@ -273,10 +275,14 @@ describe("DestinationGuideV2", () => {
         storedDataHash="old-hash"
       />,
     );
-    expect(screen.getByTestId("regenerate-confirm-dialog-v2")).toBeInTheDocument();
+    // No confirm dialog — auto-regeneration triggers instead
+    expect(screen.queryByTestId("regenerate-confirm-dialog-v2")).not.toBeInTheDocument();
+    // PA spend is called for the auto-regeneration
+    expect(mockSpendPAForAIAction).toHaveBeenCalledWith("trip-1", "ai_accommodation");
   });
 
-  it("does not show regenerate confirm when hashes match", () => {
+  it("does not auto-regenerate when hashes match", () => {
+    mockSpendPAForAIAction.mockClear();
     render(
       <DestinationGuideV2
         {...defaultProps}
@@ -285,7 +291,9 @@ describe("DestinationGuideV2", () => {
         storedDataHash="same-hash"
       />,
     );
+    // No dialog and no PA spend for regeneration (guide already exists with matching hash)
     expect(screen.queryByTestId("regenerate-confirm-dialog-v2")).not.toBeInTheDocument();
+    expect(mockSpendPAForAIAction).not.toHaveBeenCalled();
   });
 
   // ─── Skeleton state ───────────────────────────────────────────────────
@@ -389,7 +397,7 @@ describe("DestinationGuideV2", () => {
 
   // ─── H1 sizing per spec ───────────────────────────────────────────────
 
-  it("H1 has correct text-4xl md:text-5xl classes", () => {
+  it("H1 has correct text-2xl class (design system consistent)", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
@@ -397,8 +405,7 @@ describe("DestinationGuideV2", () => {
       />,
     );
     const h1 = screen.getByRole("heading", { level: 1 });
-    expect(h1.className).toContain("text-4xl");
-    expect(h1.className).toContain("md:text-5xl");
+    expect(h1.className).toContain("text-2xl");
   });
 
   // ─── No blue Tailwind classes (atlas tokens only) ─────────────────────

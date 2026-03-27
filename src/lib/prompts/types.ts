@@ -62,8 +62,39 @@ export interface ChecklistParams {
   language: "pt-BR" | "en";
 }
 
+/** Traveler context from Phases 1-4 for richer guide personalization */
+export interface GuideTravelerContext {
+  /** Trip dates (Phase 1) */
+  startDate?: string;
+  endDate?: string;
+  /** Number of travelers (Phase 1/2) */
+  travelers?: number;
+  /** Traveler type: solo, couple, family, group (Phase 2) */
+  travelerType?: string;
+  /** Accommodation style preference (Phase 2) */
+  accommodationStyle?: string;
+  /** Travel pace 1-10 (Phase 2) */
+  travelPace?: number;
+  /** Budget amount (Phase 2) */
+  budget?: number;
+  /** Budget currency (Phase 2) */
+  budgetCurrency?: string;
+  /** Dietary restrictions (Phase 2 / profile) */
+  dietaryRestrictions?: string;
+  /** User interests from preferences (Phase 3) */
+  interests?: string[];
+  /** Fitness level from preferences */
+  fitnessLevel?: string;
+  /** Transport types booked (Phase 4) */
+  transportTypes?: string[];
+  /** Trip type: domestic, international, etc. */
+  tripType?: string;
+}
+
 /** Parameters for the destination pocket guide prompt */
 export interface GuideParams {
   destination: string;
   language: "pt-BR" | "en";
+  /** Optional traveler context for personalized guide */
+  travelerContext?: GuideTravelerContext;
 }

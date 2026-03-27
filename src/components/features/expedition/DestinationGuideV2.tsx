@@ -4,8 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { AtlasButton } from "@/components/ui/AtlasButton";
-import { AtlasBadge } from "@/components/ui/AtlasBadge";
 import { PhaseShell } from "./PhaseShell";
+import { getDestinationImage } from "@/lib/utils/destination-images";
 import { WizardFooter } from "./WizardFooter";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
@@ -101,7 +101,7 @@ function SkeletonPulse({ className }: { className?: string }) {
 
 function HeaderSkeleton() {
   return (
-    <header className="mb-10 max-w-5xl" aria-hidden="true">
+    <header className="mb-6 max-w-5xl" aria-hidden="true">
       <SkeletonPulse className="w-[120px] h-6 rounded-full mb-4" />
       <SkeletonPulse className="w-[70%] h-12 mb-2" />
       <SkeletonPulse className="w-[85%] h-6" />
@@ -199,14 +199,25 @@ function AboutDestinationCard({ guide, destination }: {
     >
       {/* Hero image area with gradient overlay */}
       <div className="h-64 relative bg-gradient-to-br from-atlas-primary to-atlas-secondary-container">
+        {(() => {
+          const imgUrl = getDestinationImage(destination);
+          return imgUrl ? (
+            <img
+              src={imgUrl}
+              alt={destination}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : null;
+        })()}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent" />
-        <span className="absolute bottom-4 left-6 text-white font-atlas-headline font-bold text-xl">
+        <span className="absolute bottom-4 left-6 text-white font-atlas-headline font-bold text-base">
           {destination}
         </span>
       </div>
       {/* Content area */}
-      <div className="p-8">
-        <h2 className="text-xl font-bold font-atlas-headline mb-4 flex items-center gap-2">
+      <div className="p-6">
+        <h2 className="text-lg font-bold font-atlas-headline mb-3 flex items-center gap-2">
           <span className="text-atlas-secondary-container" aria-hidden="true">
             {"\u2139\uFE0F"}
           </span>
@@ -273,22 +284,22 @@ function QuickFactsCard({ guide }: { guide: DestinationGuideContent }) {
 
   return (
     <div
-      className="md:col-span-4 bg-atlas-surface-container-low rounded-xl p-8 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-atlas-outline-variant/15"
+      className="md:col-span-4 bg-atlas-surface-container-low rounded-xl p-5 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-atlas-outline-variant/15"
       data-testid="quick-facts-card"
     >
-      <h2 className="text-xl font-bold font-atlas-headline mb-6 text-atlas-on-surface">
+      <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
         {"Informações Rápidas"}
       </h2>
-      <div className="grid grid-cols-2 gap-y-8 gap-x-4">
+      <div className="grid grid-cols-2 gap-y-4 gap-x-3">
         {allFacts.map((fact) => (
-          <div key={fact.key} className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 text-atlas-secondary">
-              <span aria-hidden="true" className="text-base">{fact.icon}</span>
-              <span className="text-xs font-bold uppercase tracking-wider font-atlas-body">
+          <div key={fact.key} className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-1.5 text-atlas-secondary">
+              <span aria-hidden="true" className="text-sm">{fact.icon}</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body">
                 {fact.label}
               </span>
             </div>
-            <span className="text-lg font-bold text-atlas-on-surface font-atlas-body">
+            <span className="text-sm font-bold text-atlas-on-surface font-atlas-body">
               {fact.value}
             </span>
           </div>
@@ -317,12 +328,12 @@ function SafetyCard({ guide, locale }: { guide: DestinationGuideContent; locale:
 
   return (
     <div
-      className={`md:col-span-5 ${BENTO_CARD_BASE} p-8 flex flex-col justify-between`}
+      className={`md:col-span-5 ${BENTO_CARD_BASE} p-6 flex flex-col justify-between`}
       data-testid="safety-card"
     >
       <div>
-        <div className="flex flex-wrap justify-between items-start mb-6 gap-2">
-          <h2 className="text-xl font-bold font-atlas-headline text-atlas-on-surface">
+        <div className="flex flex-wrap justify-between items-start mb-4 gap-2">
+          <h2 className="text-lg font-bold font-atlas-headline text-atlas-on-surface">
             {"Dicas de Segurança"}
           </h2>
           <div
@@ -405,10 +416,10 @@ function CostsCard({ guide }: { guide: DestinationGuideContent }) {
 
   return (
     <div
-      className={`md:col-span-5 ${BENTO_CARD_BASE} p-8`}
+      className={`md:col-span-5 ${BENTO_CARD_BASE} p-6 overflow-hidden`}
       data-testid="costs-card"
     >
-      <h2 className="text-xl font-bold font-atlas-headline mb-6 text-atlas-on-surface">
+      <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
         {"Custos Médios"}
       </h2>
       {costItems.length > 0 ? (
@@ -416,14 +427,14 @@ function CostsCard({ guide }: { guide: DestinationGuideContent }) {
           {costItems.map((item, i) => (
             <div
               key={i}
-              className={`flex justify-between items-center py-2 ${
+              className={`flex justify-between items-center py-2 min-w-0 ${
                 i < costItems.length - 1 ? "border-b border-atlas-surface-container" : ""
               }`}
             >
-              <span className="text-atlas-on-surface-variant font-medium font-atlas-body break-words">
+              <span className="text-xs text-atlas-on-surface-variant font-medium font-atlas-body truncate min-w-0">
                 {item.label}
               </span>
-              <span className="font-bold text-atlas-on-surface font-atlas-body text-right ml-2 flex-shrink-0">
+              <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-right ml-2 flex-shrink-0 max-w-[55%] break-words">
                 {item.range}
               </span>
             </div>
@@ -483,10 +494,10 @@ function AttractionsCard({ guide }: { guide: DestinationGuideContent }) {
 
   return (
     <div
-      className={`md:col-span-10 ${BENTO_CARD_BASE} p-8`}
+      className={`md:col-span-10 ${BENTO_CARD_BASE} p-6`}
       data-testid="attractions-card"
     >
-      <h2 className="text-xl font-bold font-atlas-headline mb-6 text-atlas-on-surface">
+      <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
         {"O que não perder"}
       </h2>
       <div
@@ -545,47 +556,12 @@ export function DestinationGuideV2({
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
   const [bulkPointsAwarded, setBulkPointsAwarded] = useState(false);
   const [showPAConfirm, setShowPAConfirm] = useState(false);
   const [paBalance, setPABalance] = useState(availablePoints);
   const [isSpending, setIsSpending] = useState(false);
 
   const guideCost = AI_COSTS.ai_accommodation;
-
-  // Auto-generate on first visit
-  const hasTriggeredRef = useRef(false);
-  useEffect(() => {
-    if (!initialGuide && !isGenerating && !hasTriggeredRef.current) {
-      hasTriggeredRef.current = true;
-      spendPAForAIAction(tripId, "ai_accommodation")
-        .then((result) => {
-          if (result.success && result.data && "remainingBalance" in result.data) {
-            setPABalance(result.data.remainingBalance);
-          }
-        })
-        .catch(() => {})
-        .finally(() => { handleGenerate(); });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Auto-update hash check
-  const hasCheckedHashRef = useRef(false);
-  useEffect(() => {
-    if (!hasCheckedHashRef.current && initialGuide && tripDataHash && storedDataHash && tripDataHash !== storedDataHash) {
-      hasCheckedHashRef.current = true;
-      setShowRegenerateConfirm(true);
-    }
-  }, [initialGuide, tripDataHash, storedDataHash]);
-
-  // Bulk points on guide load
-  useEffect(() => {
-    if (guide && !bulkPointsAwarded) {
-      setBulkPointsAwarded(true);
-      bulkViewGuideSectionsAction(tripId).catch(() => {});
-    }
-  }, [guide, bulkPointsAwarded, tripId]);
 
   const handleRequestGenerate = useCallback(() => {
     setShowPAConfirm(true);
@@ -594,7 +570,6 @@ export function DestinationGuideV2({
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     setErrorMessage(null);
-    setShowRegenerateConfirm(false);
     try {
       const result = await generateDestinationGuideAction(tripId, locale);
       if (!result.success) {
@@ -610,6 +585,52 @@ export function DestinationGuideV2({
       setIsGenerating(false);
     }
   }, [tripId, locale]);
+
+  // Stable ref for handleGenerate to use in effects without dependency issues
+  const handleGenerateRef = useRef(handleGenerate);
+  handleGenerateRef.current = handleGenerate;
+
+  // Auto-generate on first visit
+  const hasTriggeredRef = useRef(false);
+  useEffect(() => {
+    if (!initialGuide && !isGenerating && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      spendPAForAIAction(tripId, "ai_accommodation")
+        .then((result) => {
+          if (result.success && result.data && "remainingBalance" in result.data) {
+            setPABalance(result.data.remainingBalance);
+          }
+        })
+        .catch(() => {})
+        .finally(() => { handleGenerateRef.current(); });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto-regenerate when trip data has changed since last guide generation
+  const hasCheckedHashRef = useRef(false);
+  useEffect(() => {
+    if (!hasCheckedHashRef.current && initialGuide && tripDataHash && storedDataHash && tripDataHash !== storedDataHash) {
+      hasCheckedHashRef.current = true;
+      // Data changed — auto-regenerate without user prompt
+      spendPAForAIAction(tripId, "ai_accommodation")
+        .then((result) => {
+          if (result.success && result.data && "remainingBalance" in result.data) {
+            setPABalance(result.data.remainingBalance);
+          }
+        })
+        .catch(() => {})
+        .finally(() => { handleGenerateRef.current(); });
+    }
+  }, [initialGuide, tripDataHash, storedDataHash, tripId]);
+
+  // Bulk points on guide load
+  useEffect(() => {
+    if (guide && !bulkPointsAwarded) {
+      setBulkPointsAwarded(true);
+      bulkViewGuideSectionsAction(tripId).catch(() => {});
+    }
+  }, [guide, bulkPointsAwarded, tripId]);
 
   const handlePAConfirmAndGenerate = useCallback(async () => {
     setIsSpending(true);
@@ -690,7 +711,7 @@ export function DestinationGuideV2({
       showFooter={false}
     >
       {/* V2 Page Header — AC-P5-001 through AC-P5-003 */}
-      <header className="mb-10 max-w-5xl" data-testid="guide-v2-header">
+      <header className="mb-6 max-w-5xl" data-testid="guide-v2-header">
         <div className="flex items-center gap-3 mb-4">
           <span
             className="bg-atlas-primary-fixed text-atlas-on-primary-fixed px-3 py-1 rounded-full text-xs font-bold tracking-wide font-atlas-body inline-flex items-center gap-1"
@@ -708,10 +729,10 @@ export function DestinationGuideV2({
             Gerado por IA
           </span>
         </div>
-        <h1 className="text-4xl md:text-5xl font-atlas-headline font-bold text-atlas-on-surface tracking-tight mb-2">
+        <h1 className="text-2xl font-atlas-headline font-bold text-atlas-on-surface tracking-tight mb-2">
           {t("title")}: {destination}
         </h1>
-        <p className="text-lg font-medium font-atlas-body text-atlas-on-surface-variant">
+        <p className="text-base font-medium font-atlas-body text-atlas-on-surface-variant">
           {guide ? t("subtitle") : t("generateHint")}
         </p>
       </header>
@@ -730,38 +751,7 @@ export function DestinationGuideV2({
         </div>
       )}
 
-      {/* Regenerate confirm dialog */}
-      {showRegenerateConfirm && (
-        <div
-          className={`${BENTO_CARD_BASE} p-6 !border-atlas-warning/30 !bg-atlas-warning-container/20 mb-6`}
-          role="alertdialog"
-          aria-label={t("regenerateConfirm")}
-          data-testid="regenerate-confirm-dialog-v2"
-        >
-          <p className="text-sm font-atlas-body text-atlas-on-surface">
-            {t("regenerateConfirm")}
-          </p>
-          <div className="mt-3 flex gap-2">
-            <AtlasButton
-              size="sm"
-              variant="danger"
-              onClick={() => {
-                setShowRegenerateConfirm(false);
-                handleRequestGenerate();
-              }}
-            >
-              {t("regenerateConfirmYes")}
-            </AtlasButton>
-            <AtlasButton
-              size="sm"
-              variant="secondary"
-              onClick={() => setShowRegenerateConfirm(false)}
-            >
-              {t("regenerateConfirmNo")}
-            </AtlasButton>
-          </div>
-        </div>
-      )}
+      {/* Regenerate confirm dialog removed — auto-regeneration handles data changes */}
 
       {/* PA Confirmation Modal */}
       <PAConfirmationModal
@@ -814,18 +804,6 @@ export function DestinationGuideV2({
 
             {/* B5 — O que nao perder (10 cols full width) */}
             <AttractionsCard guide={guide} />
-          </div>
-
-          {/* Regenerate button */}
-          <div className="mt-6 flex justify-center">
-            <AtlasButton
-              variant="secondary"
-              size="sm"
-              onClick={handleRequestGenerate}
-              disabled={isGenerating}
-            >
-              {t("regenerateCta", { remaining: "" })}
-            </AtlasButton>
           </div>
 
           {/* AI disclaimer — plain centered italic text per spec AC-P5-042 */}

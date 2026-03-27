@@ -149,4 +149,6 @@ export interface GenerateGuideParams {
   userId: string;
   destination: string;
   language: "pt-BR" | "en";
+  /** Optional traveler context from Phases 1-4 for personalized guide */
+  travelerContext?: import("@/lib/prompts/types").GuideTravelerContext;
 }

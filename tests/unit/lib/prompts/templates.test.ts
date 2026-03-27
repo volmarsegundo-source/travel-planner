@@ -212,4 +212,63 @@ describe("destinationGuidePrompt", () => {
     expect(prompt).not.toContain("6 sections");
     expect(prompt).not.toContain("JSON SCHEMA");
   });
+
+  it("includes traveler context when provided", () => {
+    const prompt = destinationGuidePrompt.buildUserPrompt({
+      ...BASE_GUIDE_PARAMS,
+      travelerContext: {
+        startDate: "2026-04-01",
+        endDate: "2026-04-10",
+        travelers: 4,
+        travelerType: "family",
+        accommodationStyle: "hotel",
+        travelPace: 6,
+        budget: 5000,
+        budgetCurrency: "EUR",
+        dietaryRestrictions: "vegetarian",
+        interests: ["history", "food"],
+        fitnessLevel: "moderate",
+        transportTypes: ["flight", "train"],
+        tripType: "international",
+      },
+    });
+
+    expect(prompt).toContain("Rome, Italy");
+    expect(prompt).toContain("Brazilian Portuguese");
+    expect(prompt).toContain("Traveler context");
+    expect(prompt).toContain("Travel dates: 2026-04-01 to 2026-04-10");
+    expect(prompt).toContain("Travelers: 4");
+    expect(prompt).toContain("Traveler type: family");
+    expect(prompt).toContain("Accommodation style: hotel");
+    expect(prompt).toContain("Travel pace: 6/10");
+    expect(prompt).toContain("Budget: 5000 EUR");
+    expect(prompt).toContain("Dietary restrictions: vegetarian");
+    expect(prompt).toContain("Interests: history, food");
+    expect(prompt).toContain("Fitness level: moderate");
+    expect(prompt).toContain("Transport: flight, train");
+    expect(prompt).toContain("Trip type: international");
+  });
+
+  it("omits traveler context fields that are undefined", () => {
+    const prompt = destinationGuidePrompt.buildUserPrompt({
+      ...BASE_GUIDE_PARAMS,
+      travelerContext: {
+        travelers: 2,
+        travelerType: "couple",
+      },
+    });
+
+    expect(prompt).toContain("Travelers: 2");
+    expect(prompt).toContain("Traveler type: couple");
+    expect(prompt).not.toContain("Travel dates:");
+    expect(prompt).not.toContain("Budget:");
+    expect(prompt).not.toContain("Dietary restrictions:");
+    expect(prompt).not.toContain("Interests:");
+  });
+
+  it("does not include traveler context section when no context provided", () => {
+    const prompt = destinationGuidePrompt.buildUserPrompt(BASE_GUIDE_PARAMS);
+
+    expect(prompt).not.toContain("Traveler context");
+  });
 });

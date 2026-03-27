@@ -469,7 +469,8 @@ export class AiService {
     const { userId, destination, language } = params;
     const hid = hashUserId(userId);
 
-    const cacheInput = `${destination}:${language}`;
+    const contextHash = params.travelerContext ? JSON.stringify(params.travelerContext) : "";
+    const cacheInput = `${destination}:${language}:${contextHash}`;
     const cacheHash = md5(cacheInput);
     const cacheKey = CacheKeys.aiGuide(cacheHash);
 
@@ -488,6 +489,7 @@ export class AiService {
     const userMessage = destinationGuidePrompt.buildUserPrompt({
       destination,
       language,
+      travelerContext: params.travelerContext,
     });
 
     const provider = getProvider();

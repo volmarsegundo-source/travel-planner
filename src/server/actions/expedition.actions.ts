@@ -694,9 +694,26 @@ export async function generateDestinationGuideAction(
   if (!session?.user?.id) throw new UnauthorizedError();
 
   try {
+    // Fetch trip with Phase 1-4 context for personalized guide
     const trip = await db.trip.findFirst({
       where: { id: tripId, userId: session.user.id, deletedAt: null },
-      select: { id: true, destination: true },
+      select: {
+        id: true,
+        destination: true,
+        startDate: true,
+        endDate: true,
+        tripType: true,
+        passengers: true,
+        localMobility: true,
+        phases: {
+          where: { phaseNumber: { in: [2] } },
+          select: { metadata: true, phaseNumber: true },
+        },
+        transportSegments: {
+          select: { transportType: true },
+          distinct: ["transportType"],
+        },
+      },
     });
 
     if (!trip) {
@@ -725,11 +742,63 @@ export async function generateDestinationGuideAction(
       return { success: false, error: "errors.guideGenerationLimit" };
     }
 
-    // Generate guide via AI
+    // Build traveler context from Phases 1-4 data
+    const phase2Meta = trip.phases?.find((p) => p.phaseNumber === 2)?.metadata as Record<string, unknown> | null;
+    const passengers = trip.passengers as Record<string, unknown> | null;
+    const totalTravelers = passengers
+      ? ((passengers.adults as number) ?? 1) +
+        ((passengers.children as { count: number })?.count ?? 0) +
+        ((passengers.seniors as number) ?? 0) +
+        ((passengers.infants as number) ?? 0)
+      : undefined;
+
+    // Fetch user profile for dietary restrictions and preferences
+    let dietaryRestrictions: string | undefined;
+    let interests: string[] | undefined;
+    let fitnessLevel: string | undefined;
+    try {
+      const profile = await db.userProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { dietaryRestrictions: true, preferences: true },
+      });
+      if (profile?.dietaryRestrictions) {
+        dietaryRestrictions = profile.dietaryRestrictions;
+      }
+      const prefs = profile?.preferences as Record<string, unknown> | null;
+      if (prefs) {
+        if (Array.isArray(prefs.interests) && prefs.interests.length > 0) {
+          interests = prefs.interests as string[];
+        }
+        if (typeof prefs.fitnessLevel === "string") {
+          fitnessLevel = prefs.fitnessLevel;
+        }
+      }
+    } catch {
+      // Non-critical — continue without profile data
+    }
+
+    const travelerContext: import("@/lib/prompts/types").GuideTravelerContext = {
+      startDate: trip.startDate?.toISOString().split("T")[0],
+      endDate: trip.endDate?.toISOString().split("T")[0],
+      travelers: totalTravelers,
+      travelerType: phase2Meta?.travelerType as string | undefined,
+      accommodationStyle: phase2Meta?.accommodationStyle as string | undefined,
+      travelPace: phase2Meta?.travelPace as number | undefined,
+      budget: phase2Meta?.budget as number | undefined,
+      budgetCurrency: phase2Meta?.currency as string | undefined,
+      dietaryRestrictions,
+      interests,
+      fitnessLevel,
+      transportTypes: trip.transportSegments?.map((s) => s.transportType),
+      tripType: trip.tripType,
+    };
+
+    // Generate guide via AI with full traveler context
     const content = await AiService.generateDestinationGuide({
       userId: session.user.id,
       destination: sanitizedDestination,
       language: locale.startsWith("pt") ? "pt-BR" : "en",
+      travelerContext,
     });
 
     // All sections are auto-viewed on generation
