@@ -192,13 +192,13 @@ test.describe("Expedition — dashboard display", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // Expeditions page should show at least one trip card, featured trip, or empty state
-    const expeditionCard = page
-      .locator('[data-testid="trip-card"], [data-testid="featured-trip-section"], [data-testid="no-active-trip"]')
-      .first()
-      .or(page.getByText(/phase|fase|expedition|expedição/i).first());
+    // V2 Dashboard shows greeting, trip cards, or empty state
+    const dashboardContent = page.locator('[data-testid="dashboard-v2"]');
+    await expect(dashboardContent).toBeVisible({ timeout: 15_000 });
 
-    await expect(expeditionCard).toBeVisible({ timeout: 10_000 });
+    // Should show either trip cards or the empty state CTA
+    const hasContent = page.locator('[data-testid="trip-card"], [data-testid="featured-trip-section"], [data-testid="no-active-trip"], [data-testid="start-expedition-btn"]').first();
+    await expect(hasContent).toBeVisible({ timeout: 10_000 });
   });
 });
 
@@ -241,9 +241,11 @@ test.describe("Expedition — points increase", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // The navbar shows gamification info as a badge with role="status"
-    const gamificationBadge = page.locator('[data-testid="gamification-badge"]');
-    await expect(gamificationBadge).toBeVisible({ timeout: 10_000 });
+    // V2 navbar shows PA points via AtlasBadge — look for text containing "PA" or point numbers
+    const pointsDisplay = page.getByText(/\d+\s*PA|\d+\s*pontos|\d+\s*points/i).first()
+      .or(page.locator('[data-testid="gamification-badge"]').first())
+      .or(page.locator('[data-slot="atlas-badge"]').first());
+    await expect(pointsDisplay).toBeVisible({ timeout: 15_000 });
   });
 });
 

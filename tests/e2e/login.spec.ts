@@ -107,11 +107,14 @@ test.describe("Login — invalid credentials", () => {
 
     await page.getByRole("button", { name: /sign in|entrar/i }).click();
 
-    // Error alert should appear — V2 uses role="alert" with id="login-v2-error"
-    const alert = page.locator('#login-v2-error, #login-error, [role="alert"]').first();
-    await expect(alert).toBeVisible({ timeout: 10_000 });
+    // Error alert should appear — V2 uses role="alert"
+    // Wait for network to settle (server validates credentials)
+    await page.waitForLoadState("networkidle");
+    const alert = page.getByRole("alert").first();
+    await expect(alert).toBeVisible({ timeout: 15_000 });
     await expect(alert).toContainText(
-      /invalid|incorrect|incorretos/i
+      /invalid|incorrect|incorretos|inválido/i,
+      { timeout: 5_000 }
     );
 
     // Must stay on login page

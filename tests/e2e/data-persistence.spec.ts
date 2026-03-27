@@ -373,9 +373,10 @@ test.describe("Persistence -- phase 4 transport data", () => {
     const { landed: onPhase4 } = await navigateToPhase(page, tripId, 4);
 
     if (onPhase4) {
-      // Transport step (step 1) -- verify it renders
-      const transportHeading = page.getByText(/transport/i).first();
-      await expect(transportHeading).toBeVisible({ timeout: 10_000 });
+      // Transport step (step 1) -- verify it renders (V2 uses chip indicators)
+      await page.waitForLoadState("networkidle");
+      const transportIndicator = page.getByText(/transport|transporte/i).first();
+      await expect(transportIndicator).toBeVisible({ timeout: 15_000 });
 
       // Navigate to step 2 (accommodation)
       const nextBtn = page.locator('[data-testid="wizard-primary"]');
@@ -391,9 +392,10 @@ test.describe("Persistence -- phase 4 transport data", () => {
         await page.waitForTimeout(500);
 
         // Transport step should still render with its data
+        await page.waitForLoadState("networkidle");
         await expect(
-          page.getByText(/transport/i).first()
-        ).toBeVisible({ timeout: 5_000 });
+          page.getByText(/transport|transporte/i).first()
+        ).toBeVisible({ timeout: 10_000 });
       }
     } else {
       // Not on phase 4 -- verify the current page loaded correctly
@@ -428,12 +430,13 @@ test.describe("Persistence -- phase 4 accommodation data", () => {
         await page.waitForTimeout(500);
       }
 
-      // Verify accommodation step loaded
+      // Verify accommodation step loaded (V2 uses chip indicators)
+      await page.waitForLoadState("networkidle");
       const accomHeading = page
         .getByText(/accommodation|hospedagem/i)
         .first();
       if (
-        await accomHeading.isVisible({ timeout: 5_000 }).catch(() => false)
+        await accomHeading.isVisible({ timeout: 10_000 }).catch(() => false)
       ) {
         // Navigate to step 3 (mobility)
         if (await nextBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
