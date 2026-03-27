@@ -113,11 +113,13 @@ export function AuthenticatedNavbarV2({
           <LanguageSwitcher />
 
           {gamification && (
-            <AtlasBadge
-              variant="pa"
-              points={gamification.availablePoints}
-              size="md"
-            />
+            <span data-testid="pa-counter">
+              <AtlasBadge
+                variant="pa"
+                points={gamification.availablePoints}
+                size="md"
+              />
+            </span>
           )}
 
           <UserMenu
@@ -172,7 +174,7 @@ export function AuthenticatedNavbarV2({
               {tNavLegacy("myAtlas")}
             </Link>
             {gamification && (
-              <div className="border-t border-atlas-outline-variant/20 pt-2">
+              <div className="border-t border-atlas-outline-variant/20 pt-2" data-testid="pa-counter-mobile">
                 <AtlasBadge
                   variant="pa"
                   points={gamification.availablePoints}

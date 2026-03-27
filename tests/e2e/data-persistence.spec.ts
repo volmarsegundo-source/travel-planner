@@ -378,24 +378,28 @@ test.describe("Persistence -- phase 4 transport data", () => {
       const transportIndicator = page.getByText(/transport|transporte/i).first();
       await expect(transportIndicator).toBeVisible({ timeout: 15_000 });
 
-      // Navigate to step 2 (accommodation)
+      // Navigate to step 2 (accommodation) — wait for V2 chip to render
       const nextBtn = page.locator('[data-testid="wizard-primary"]');
-      if (await nextBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await nextBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await nextBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState("networkidle");
+        await page.waitForTimeout(1000);
       }
+
+      // Verify step 2 loaded
+      await expect(page.getByText(/accommodation|hospedagem/i).first()).toBeVisible({ timeout: 10_000 });
 
       // Navigate back to step 1 (transport)
       const backBtn = page.locator('[data-testid="wizard-back"]');
-      if (await backBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await backBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await backBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState("networkidle");
+        await page.waitForTimeout(1000);
 
         // Transport step should still render with its data
-        await page.waitForLoadState("networkidle");
         await expect(
           page.getByText(/transport|transporte/i).first()
-        ).toBeVisible({ timeout: 10_000 });
+        ).toBeVisible({ timeout: 15_000 });
       }
     } else {
       // Not on phase 4 -- verify the current page loaded correctly
@@ -423,32 +427,34 @@ test.describe("Persistence -- phase 4 accommodation data", () => {
     const { landed: onPhase4 } = await navigateToPhase(page, tripId, 4);
 
     if (onPhase4) {
-      // Navigate to step 2 (accommodation)
+      // Navigate to step 2 (accommodation) — wait for V2 step transition
       const nextBtn = page.locator('[data-testid="wizard-primary"]');
-      if (await nextBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+      if (await nextBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
         await nextBtn.click();
-        await page.waitForTimeout(500);
+        await page.waitForLoadState("networkidle");
+        await page.waitForTimeout(1000);
       }
 
-      // Verify accommodation step loaded (V2 uses chip indicators)
-      await page.waitForLoadState("networkidle");
+      // Verify accommodation step loaded
       const accomHeading = page
         .getByText(/accommodation|hospedagem/i)
         .first();
       if (
-        await accomHeading.isVisible({ timeout: 10_000 }).catch(() => false)
+        await accomHeading.isVisible({ timeout: 15_000 }).catch(() => false)
       ) {
         // Navigate to step 3 (mobility)
-        if (await nextBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        if (await nextBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
           await nextBtn.click();
-          await page.waitForTimeout(500);
+          await page.waitForLoadState("networkidle");
+          await page.waitForTimeout(1000);
         }
 
         // Navigate back to step 2 (accommodation)
         const backBtn = page.locator('[data-testid="wizard-back"]');
-        if (await backBtn.isVisible({ timeout: 3_000 }).catch(() => false)) {
+        if (await backBtn.isVisible({ timeout: 5_000 }).catch(() => false)) {
           await backBtn.click();
-          await page.waitForTimeout(500);
+          await page.waitForLoadState("networkidle");
+          await page.waitForTimeout(1000);
 
           // Accommodation step should still render
           await expect(

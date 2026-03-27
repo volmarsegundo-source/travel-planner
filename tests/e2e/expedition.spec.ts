@@ -241,10 +241,8 @@ test.describe("Expedition — points increase", () => {
     await page.goto("/en/expeditions");
     await page.waitForLoadState("networkidle");
 
-    // V2 navbar shows PA points via AtlasBadge — look for text containing "PA" or point numbers
-    const pointsDisplay = page.getByText(/\d+\s*PA|\d+\s*pontos|\d+\s*points/i).first()
-      .or(page.locator('[data-testid="gamification-badge"]').first())
-      .or(page.locator('[data-slot="atlas-badge"]').first());
+    // V2 navbar shows PA points via AtlasBadge with data-testid="pa-counter"
+    const pointsDisplay = page.locator('[data-testid="pa-counter"]').first();
     await expect(pointsDisplay).toBeVisible({ timeout: 15_000 });
   });
 });
