@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasCard } from "@/components/ui/AtlasCard";
-import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
 import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
@@ -23,6 +22,125 @@ import { AI_COSTS } from "@/types/gamification.types";
 import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
+
+// ─── Category System ─────────────────────────────────────────────────────────
+
+/**
+ * Activity categories for the V2 timeline.
+ * Each category maps to specific atlas design tokens per SPEC-PROD-PHASE6-REDESIGN Bloco 7.
+ */
+type ActivityCategory =
+  | "logistics"
+  | "culture"
+  | "food"
+  | "nature"
+  | "nightlife"
+  | "sport"
+  | "shopping"
+  | "adventure";
+
+interface CategoryStyle {
+  dotBg: string;
+  borderClass: string;
+  chipBg: string;
+  chipText: string;
+  timeColor: string;
+}
+
+const CATEGORY_STYLES: Record<ActivityCategory, CategoryStyle> = {
+  logistics: {
+    dotBg: "bg-atlas-secondary-container",
+    borderClass: "",
+    chipBg: "bg-atlas-surface-container-low",
+    chipText: "text-atlas-on-surface-variant",
+    timeColor: "text-atlas-secondary-container",
+  },
+  culture: {
+    dotBg: "bg-[#1c9a8e]",
+    borderClass: "border-l-8 border-[#1c9a8e]",
+    chipBg: "bg-atlas-tertiary-fixed",
+    chipText: "text-atlas-on-tertiary-fixed-variant",
+    timeColor: "text-[#1c9a8e]",
+  },
+  food: {
+    dotBg: "bg-atlas-secondary-container",
+    borderClass: "border-l-8 border-atlas-secondary-container",
+    chipBg: "bg-atlas-secondary-fixed",
+    chipText: "text-atlas-on-secondary-fixed-variant",
+    timeColor: "text-atlas-secondary-container",
+  },
+  nature: {
+    dotBg: "bg-atlas-success",
+    borderClass: "border-l-8 border-atlas-success",
+    chipBg: "bg-atlas-success/10",
+    chipText: "text-atlas-success",
+    timeColor: "text-atlas-success",
+  },
+  nightlife: {
+    dotBg: "bg-atlas-info",
+    borderClass: "border-l-8 border-atlas-info",
+    chipBg: "bg-atlas-info/10",
+    chipText: "text-atlas-info",
+    timeColor: "text-atlas-info",
+  },
+  sport: {
+    dotBg: "bg-atlas-warning",
+    borderClass: "border-l-8 border-atlas-warning",
+    chipBg: "bg-atlas-warning/10",
+    chipText: "text-atlas-warning",
+    timeColor: "text-atlas-warning",
+  },
+  shopping: {
+    dotBg: "bg-atlas-secondary",
+    borderClass: "border-l-8 border-atlas-secondary",
+    chipBg: "bg-atlas-secondary/10",
+    chipText: "text-atlas-secondary",
+    timeColor: "text-atlas-secondary",
+  },
+  adventure: {
+    dotBg: "bg-atlas-tertiary-fixed",
+    borderClass: "border-l-8 border-atlas-tertiary-fixed",
+    chipBg: "bg-atlas-tertiary-fixed/20",
+    chipText: "text-atlas-on-tertiary-fixed-variant",
+    timeColor: "text-atlas-tertiary-fixed",
+  },
+};
+
+const VALID_CATEGORIES = new Set<string>(Object.keys(CATEGORY_STYLES));
+const FALLBACK_CATEGORY: ActivityCategory = "logistics";
+
+function resolveCategory(raw: string | null | undefined): ActivityCategory {
+  if (!raw) return FALLBACK_CATEGORY;
+  const lower = raw.toLowerCase();
+  if (VALID_CATEGORIES.has(lower)) return lower as ActivityCategory;
+  // Map v1 types to v2 categories
+  const V1_MAP: Record<string, ActivityCategory> = {
+    sightseeing: "culture",
+    food: "food",
+    transport: "logistics",
+    accommodation: "logistics",
+    leisure: "nature",
+    shopping: "shopping",
+  };
+  return V1_MAP[lower] ?? FALLBACK_CATEGORY;
+}
+
+function getCategoryStyle(category: ActivityCategory): CategoryStyle {
+  return CATEGORY_STYLES[category] ?? CATEGORY_STYLES[FALLBACK_CATEGORY];
+}
+
+// ─── Category label i18n keys ────────────────────────────────────────────────
+
+const CATEGORY_LABEL_KEYS: Record<ActivityCategory, string> = {
+  logistics: "categoryLogistics",
+  culture: "categoryCulture",
+  food: "categoryFood",
+  nature: "categoryNature",
+  nightlife: "categoryNightlife",
+  sport: "categorySport",
+  shopping: "categoryShopping",
+  adventure: "categoryAdventure",
+};
 
 // ─── Inline Icons ────────────────────────────────────────────────────────────
 
@@ -45,7 +163,97 @@ function XIcon() {
   );
 }
 
+function ClockIcon() {
+  return (
+    <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
+    </svg>
+  );
+}
+
+function CostIcon() {
+  return (
+    <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  );
+}
+
+function LightbulbIcon() {
+  return (
+    <svg className="size-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 0 1 8.91 14" />
+    </svg>
+  );
+}
+
+function ChartIcon() {
+  return (
+    <svg className="size-7 text-atlas-secondary-container" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="18" y1="20" x2="18" y2="10" />
+      <line x1="12" y1="20" x2="12" y2="4" />
+      <line x1="6" y1="20" x2="6" y2="14" />
+    </svg>
+  );
+}
+
+function ArrowBackIcon() {
+  return (
+    <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  );
+}
+
+function ArrowForwardIcon() {
+  return (
+    <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="5" y1="12" x2="19" y2="12" />
+      <polyline points="12 5 19 12 12 19" />
+    </svg>
+  );
+}
+
+function MapPinIcon() {
+  return (
+    <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </svg>
+  );
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
+
+/** V2 activity shape from the AI-generated JSON (PROMPT-ROTEIRO-PERSONALIZADO). */
+interface V2Activity {
+  time: string;
+  name: string;
+  description: string;
+  duration: string;
+  estimatedCost: string;
+  category: string;
+  coordinates?: { lat: number; lng: number } | null;
+  tip?: string | null;
+}
+
+/** V2 day shape from the AI-generated JSON. */
+interface V2Day {
+  dayNumber: number;
+  date: string;
+  title: string;
+  activities: V2Activity[];
+  summary?: {
+    activitiesCount: number;
+    totalDuration: string;
+    totalCost: string;
+  };
+}
 
 interface Phase6ItineraryV2Props {
   tripId: string;
@@ -69,6 +277,8 @@ interface Phase6ItineraryV2Props {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const PROGRESS_UPDATE_INTERVAL_MS = 1000;
+const PA_COST = AI_COSTS.ai_itinerary;
+const TOTAL_PHASES = 8;
 
 function mapStatusToErrorKey(status: number): string {
   const statusMap: Record<number, string> = {
@@ -78,7 +288,461 @@ function mapStatusToErrorKey(status: number): string {
   return statusMap[status] ?? "errorGenerate";
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/** Convert ItineraryDayWithActivities (DB shape) to V2Day (UI shape). */
+function convertToV2Days(
+  dbDays: ItineraryDayWithActivities[],
+  startDate: string,
+): V2Day[] {
+  return dbDays.map((day) => {
+    const dayDate = day.date
+      ? new Date(day.date).toISOString().split("T")[0]!
+      : addDays(startDate, day.dayNumber - 1);
+
+    const activities: V2Activity[] = day.activities.map((act) => ({
+      time: act.startTime ?? "09:00",
+      name: act.title,
+      description: act.notes ?? "",
+      duration: computeDuration(act.startTime, act.endTime),
+      estimatedCost: "",
+      category: act.activityType ?? "logistics",
+      coordinates: null,
+      tip: null,
+    }));
+
+    return {
+      dayNumber: day.dayNumber,
+      date: dayDate,
+      title: day.notes ?? "",
+      activities,
+      summary: {
+        activitiesCount: activities.length,
+        totalDuration: sumDurations(activities),
+        totalCost: "",
+      },
+    };
+  });
+}
+
+function addDays(dateStr: string, days: number): string {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().split("T")[0]!;
+}
+
+function computeDuration(start: string | null, end: string | null): string {
+  if (!start || !end) return "1h";
+  const [sh, sm] = start.split(":").map(Number);
+  const [eh, em] = end.split(":").map(Number);
+  const totalMin = (eh! - sh!) * 60 + (em! - sm!);
+  if (totalMin <= 0) return "1h";
+  const hours = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  if (hours > 0 && mins > 0) return `${hours}h${mins.toString().padStart(2, "0")}`;
+  if (hours > 0) return `${hours}h`;
+  return `${mins}min`;
+}
+
+function sumDurations(activities: V2Activity[]): string {
+  let totalMin = 0;
+  for (const a of activities) {
+    const match = a.duration.match(/^(?:(\d+)h)?(?:(\d+)(?:min)?)?$/);
+    if (match) {
+      totalMin += (Number(match[1] ?? 0)) * 60 + Number(match[2] ?? 0);
+    }
+  }
+  const hours = Math.floor(totalMin / 60);
+  const mins = totalMin % 60;
+  if (hours > 0 && mins > 0) return `${hours}h${mins.toString().padStart(2, "0")}`;
+  if (hours > 0) return `${hours}h`;
+  return `${totalMin}min`;
+}
+
+function formatDate(dateStr: string, locale: string): string {
+  try {
+    const d = new Date(dateStr + "T12:00:00");
+    return d.toLocaleDateString(locale === "pt-BR" ? "pt-BR" : "en", {
+      day: "numeric",
+      month: "short",
+    });
+  } catch {
+    return dateStr;
+  }
+}
+
+// ─── Sub-Components ──────────────────────────────────────────────────────────
+
+/** Day Selector Pills — horizontal scrollable strip. AC-P6-023 to AC-P6-030 */
+function DaySelectorPills({
+  days,
+  selectedDay,
+  onSelect,
+  locale,
+}: {
+  days: V2Day[];
+  selectedDay: number;
+  onSelect: (dayNumber: number) => void;
+  locale: string;
+}) {
+  const pillRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
+
+  // Auto-scroll active pill into view (AC-P6-030)
+  useEffect(() => {
+    const el = pillRefs.current.get(selectedDay);
+    if (el?.scrollIntoView) {
+      el.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+    }
+  }, [selectedDay]);
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    const idx = days.findIndex((d) => d.dayNumber === selectedDay);
+    if (e.key === "ArrowRight" && idx < days.length - 1) {
+      e.preventDefault();
+      const next = days[idx + 1]!;
+      onSelect(next.dayNumber);
+      pillRefs.current.get(next.dayNumber)?.focus();
+    } else if (e.key === "ArrowLeft" && idx > 0) {
+      e.preventDefault();
+      const prev = days[idx - 1]!;
+      onSelect(prev.dayNumber);
+      pillRefs.current.get(prev.dayNumber)?.focus();
+    }
+  }
+
+  return (
+    <div
+      className="flex gap-3 overflow-x-auto py-2 hide-scrollbar"
+      role="tablist"
+      aria-label="Day selector"
+      onKeyDown={handleKeyDown}
+      data-testid="day-selector-pills"
+    >
+      {days.map((day) => {
+        const isActive = day.dayNumber === selectedDay;
+        return (
+          <button
+            key={day.dayNumber}
+            ref={(el) => {
+              if (el) pillRefs.current.set(day.dayNumber, el);
+            }}
+            role="tab"
+            aria-selected={isActive}
+            aria-controls={`day-panel-${day.dayNumber}`}
+            id={`day-tab-${day.dayNumber}`}
+            tabIndex={isActive ? 0 : -1}
+            onClick={() => onSelect(day.dayNumber)}
+            className={[
+              "flex flex-col items-center justify-center min-w-[100px] h-20 rounded-xl transition-all duration-200 motion-reduce:transition-none",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2",
+              isActive
+                ? "bg-atlas-secondary-container text-atlas-primary shadow-lg"
+                : "bg-atlas-surface-container-lowest text-atlas-on-surface-variant hover:bg-atlas-surface-container-low",
+            ].join(" ")}
+            data-testid={`day-pill-${day.dayNumber}`}
+          >
+            <span className="text-sm font-bold font-atlas-body">
+              Dia {day.dayNumber}
+            </span>
+            <span className={`text-xs font-atlas-body ${isActive ? "opacity-80" : ""}`}>
+              {formatDate(day.date, locale)}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Day Header — "Dia N -- Title" with left amber accent. AC-P6-031 */
+function DayHeader({ day }: { day: V2Day }) {
+  return (
+    <h2
+      className="text-2xl font-atlas-headline font-bold text-atlas-on-surface border-l-4 border-atlas-secondary-container pl-6 mb-4"
+      data-testid={`day-header-${day.dayNumber}`}
+    >
+      Dia {day.dayNumber} {day.title ? `\u2014 ${day.title}` : ""}
+    </h2>
+  );
+}
+
+/** Single activity card in the timeline. AC-P6-036 to AC-P6-040 */
+function ActivityCard({
+  activity,
+  t,
+}: {
+  activity: V2Activity;
+  t: (key: string) => string;
+}) {
+  const category = resolveCategory(activity.category);
+  const style = getCategoryStyle(category);
+  const labelKey = CATEGORY_LABEL_KEYS[category];
+
+  return (
+    <article
+      className={[
+        "flex-1 bg-atlas-surface-container-lowest p-6 md:p-6 p-4 rounded-xl",
+        "shadow-sm hover:shadow-md transition-shadow duration-200 motion-reduce:transition-none",
+        style.borderClass,
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      aria-label={activity.name}
+      data-testid="activity-card"
+      data-category={category}
+    >
+      {/* Row 1: Time + Category chip */}
+      <div className="flex justify-between items-start mb-2">
+        <span className={`text-sm font-bold font-atlas-body ${style.timeColor}`}>
+          {activity.time}
+        </span>
+        <span
+          className={`${style.chipBg} ${style.chipText} px-3 py-1 rounded-full text-xs font-bold font-atlas-body`}
+          data-testid="category-chip"
+        >
+          {t(labelKey)}
+        </span>
+      </div>
+
+      {/* Row 2: Activity name */}
+      <h3 className="text-xl font-bold font-atlas-headline text-atlas-on-surface mb-1">
+        {activity.name}
+      </h3>
+
+      {/* Row 3: Description */}
+      {activity.description && (
+        <p className="text-atlas-on-surface-variant leading-relaxed font-atlas-body mb-4">
+          {activity.description}
+        </p>
+      )}
+
+      {/* Row 4: Metadata — duration + cost */}
+      <div className="flex gap-4 text-xs font-bold text-atlas-on-surface-variant/70 uppercase tracking-wider font-atlas-body">
+        {activity.duration && (
+          <span className="flex items-center gap-1">
+            <ClockIcon /> {activity.duration}
+          </span>
+        )}
+        {activity.estimatedCost && (
+          <span className="flex items-center gap-1">
+            <CostIcon /> {activity.estimatedCost}
+          </span>
+        )}
+      </div>
+
+      {/* Row 5: Optional tip */}
+      {activity.tip && (
+        <div className="mt-3 flex items-start gap-2 bg-atlas-secondary-fixed text-atlas-on-secondary-fixed-variant px-4 py-2 rounded-lg text-sm italic font-atlas-body" data-testid="activity-tip">
+          <LightbulbIcon />
+          <span>{activity.tip}</span>
+        </div>
+      )}
+    </article>
+  );
+}
+
+/** Vertical timeline with category dots and activity cards. AC-P6-033 to AC-P6-035 */
+function ActivityTimeline({
+  activities,
+  t,
+}: {
+  activities: V2Activity[];
+  t: (key: string) => string;
+}) {
+  return (
+    <div className="flex flex-col gap-8 relative" data-testid="activity-timeline">
+      {/* Vertical line — desktop only (AC-P6-033/034) */}
+      <div
+        className="absolute left-[7px] top-0 bottom-0 w-0.5 bg-atlas-surface-container-high hidden md:block"
+        aria-hidden="true"
+      />
+
+      {activities.map((activity, idx) => {
+        const category = resolveCategory(activity.category);
+        const style = getCategoryStyle(category);
+
+        return (
+          <div key={idx} className="flex gap-8 group">
+            {/* Category dot (AC-P6-035) */}
+            <div className="relative z-10 pt-1" aria-hidden="true">
+              <div
+                className={`w-4 h-4 rounded-full ${style.dotBg} ring-4 ring-atlas-surface`}
+                data-testid="timeline-dot"
+                data-category={category}
+              />
+            </div>
+
+            {/* Activity card */}
+            <ActivityCard activity={activity} t={t} />
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Day Summary Card at the bottom of each day's timeline. AC-P6-047 to AC-P6-050 */
+function DaySummaryCard({
+  day,
+  t,
+}: {
+  day: V2Day;
+  t: (key: string) => string;
+}) {
+  const summary = day.summary;
+  if (!summary) return null;
+
+  return (
+    <div
+      className="mt-8 bg-atlas-surface-container p-8 rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6"
+      role="region"
+      aria-label={t("daySummaryLabel")}
+      data-testid={`day-summary-${day.dayNumber}`}
+    >
+      {/* Left: icon + title */}
+      <div className="flex items-center gap-6">
+        <div className="p-4 bg-atlas-surface-container-lowest rounded-xl">
+          <ChartIcon />
+        </div>
+        <div>
+          <h4 className="text-xl font-atlas-headline font-bold text-atlas-on-surface">
+            {t("daySummaryTitle")} {day.dayNumber}
+          </h4>
+          {day.title && (
+            <p className="text-atlas-on-surface-variant font-atlas-body">
+              {day.title}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Right: 3 stats */}
+      <div className="flex gap-10">
+        <div className="text-center">
+          <p className="text-2xl font-atlas-headline font-extrabold text-atlas-on-surface">
+            {summary.activitiesCount}
+          </p>
+          <p className="text-xs uppercase font-bold text-atlas-on-surface-variant/60 font-atlas-body">
+            {t("statActivities")}
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-atlas-headline font-extrabold text-atlas-on-surface">
+            {summary.totalDuration}
+          </p>
+          <p className="text-xs uppercase font-bold text-atlas-on-surface-variant/60 font-atlas-body">
+            {t("statDuration")}
+          </p>
+        </div>
+        <div className="text-center">
+          <p className="text-2xl font-atlas-headline font-extrabold text-atlas-on-surface">
+            {summary.totalCost || "\u2014"}
+          </p>
+          <p className="text-xs uppercase font-bold text-atlas-on-surface-variant/60 font-atlas-body">
+            {t("statCost")}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/** Map panel placeholder (v1 — full Leaflet deferred to v2). AC-P6-051 */
+function MapPanel({
+  activities,
+  t,
+}: {
+  activities: V2Activity[];
+  t: (key: string) => string;
+}) {
+  const locations = activities.filter(
+    (a) => a.coordinates?.lat != null && a.coordinates?.lng != null,
+  );
+
+  return (
+    <aside
+      className="w-full md:w-2/5 h-screen sticky top-20 bg-atlas-surface-container-low p-8 hidden md:block"
+      aria-hidden="true"
+      data-testid="map-panel"
+    >
+      <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-xl border border-white/20 bg-atlas-surface-container">
+        {/* Glass-morphism label */}
+        <div className="absolute top-6 left-6 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/40 bg-white/70 backdrop-blur-[12px]">
+          <MapPinIcon />
+          <span className="font-bold text-atlas-on-surface font-atlas-body">
+            {t("mapLabel")}
+          </span>
+        </div>
+
+        {/* Location list (placeholder for Leaflet) */}
+        <div className="flex flex-col items-center justify-center h-full px-6 pt-16">
+          {locations.length > 0 ? (
+            <ul className="space-y-3 w-full max-w-xs">
+              {locations.map((loc, i) => (
+                <li
+                  key={i}
+                  className="flex items-center gap-3 rounded-lg bg-atlas-surface-container-lowest p-3 shadow-sm"
+                >
+                  <span className="flex items-center justify-center w-7 h-7 rounded-full bg-atlas-secondary-container text-atlas-primary text-xs font-bold">
+                    {i + 1}
+                  </span>
+                  <span className="text-sm font-atlas-body text-atlas-on-surface truncate">
+                    {loc.name}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-atlas-on-surface-variant font-atlas-body text-center">
+              {t("mapNoLocations")}
+            </p>
+          )}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/** Phase progress mini-bar for footer. AC-P6-061 */
+function FooterProgressBar({
+  completedPhases,
+  currentPhase,
+  t,
+}: {
+  completedPhases: number[];
+  currentPhase: number;
+  t: (key: string) => string;
+}) {
+  const segments = Array.from({ length: TOTAL_PHASES }, (_, i) => {
+    const phase = i + 1;
+    if (completedPhases.includes(phase)) return "completed";
+    if (phase === currentPhase) return "active";
+    return "locked";
+  });
+
+  return (
+    <div className="hidden md:flex flex-col items-center">
+      <span className="text-xs font-bold text-atlas-on-surface-variant/60 uppercase tracking-widest mb-1 font-atlas-body">
+        {t("footerProgress")}
+      </span>
+      <div className="flex gap-1">
+        {segments.map((state, i) => (
+          <div
+            key={i}
+            className={[
+              "w-6 h-1 rounded-full",
+              state === "completed" ? "bg-atlas-tertiary-fixed-dim" : "",
+              state === "active" ? "bg-atlas-secondary-container" : "",
+              state === "locked" ? "bg-atlas-surface-container-high" : "",
+            ].join(" ")}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 export function Phase6ItineraryV2({
   tripId,
@@ -103,30 +767,40 @@ export function Phase6ItineraryV2({
   const tPhases = useTranslations("gamification.phases");
   const router = useRouter();
 
+  // ─── State ───────────────────────────────────────────────────────────────
   const [isGenerating, setIsGenerating] = useState(false);
-  const [days] = useState(initialDays);
   const [error, setError] = useState<string | null>(null);
   const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const [daysGenerated, setDaysGenerated] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
+  const [selectedDay, setSelectedDay] = useState(1);
+  const [showPAConfirm, setShowPAConfirm] = useState(false);
+  const [paBalance, setPABalance] = useState(availablePoints);
+  const [isSpending, setIsSpending] = useState(false);
+
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasTriggeredRef = useRef(false);
   const streamStartRef = useRef<number>(0);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const accumulatedRef = useRef("");
-  const [showPAConfirm, setShowPAConfirm] = useState(false);
-  const [paBalance, setPABalance] = useState(availablePoints);
-  const [isSpending, setIsSpending] = useState(false);
 
-  const itineraryCost = AI_COSTS.ai_itinerary;
-  const hasItinerary = days.length > 0;
-  const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
-
+  // ─── Derived values ──────────────────────────────────────────────────────
   const effectiveStartDate = startDate || new Date().toISOString().split("T")[0]!;
   const effectiveEndDate = endDate || effectiveStartDate;
   const totalDays = calculateTotalDays(effectiveStartDate, effectiveEndDate);
+  const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
+  const hasItinerary = initialDays.length > 0;
 
+  // Convert DB days to V2 format
+  const v2Days = useMemo(
+    () => (hasItinerary ? convertToV2Days(initialDays, effectiveStartDate) : []),
+    [initialDays, effectiveStartDate, hasItinerary],
+  );
+
+  const currentDay = v2Days.find((d) => d.dayNumber === selectedDay) ?? v2Days[0] ?? null;
+
+  // ─── Progress timer ──────────────────────────────────────────────────────
   useEffect(() => {
     return () => {
       if (progressTimerRef.current) clearInterval(progressTimerRef.current);
@@ -153,6 +827,7 @@ export function Phase6ItineraryV2({
     }
   }, []);
 
+  // ─── Generation logic ────────────────────────────────────────────────────
   const handleGenerate = useCallback(async () => {
     setError(null);
     setIsGenerating(true);
@@ -203,9 +878,6 @@ export function Phase6ItineraryV2({
               stopProgressTimer();
               syncPhase6CompletionAction(tripId).catch(() => {});
               setIsGenerating(false);
-              // Refresh server data so the page re-renders with persisted itinerary days.
-              // The page component uses key={`phase6-v2-${itineraryDays.length}`} which
-              // forces a remount when the server returns updated data.
               router.refresh();
               return;
             }
@@ -234,9 +906,9 @@ export function Phase6ItineraryV2({
       setIsGenerating(false);
       abortControllerRef.current = null;
     }
-  }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, t, totalDays, startProgressTimer, stopProgressTimer]);
+  }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, t, totalDays, startProgressTimer, stopProgressTimer, router]);
 
-  // Auto-trigger
+  // ─── Auto-trigger on first visit ────────────────────────────────────────
   useEffect(() => {
     if (initialDays.length === 0 && !hasTriggeredRef.current) {
       hasTriggeredRef.current = true;
@@ -252,6 +924,7 @@ export function Phase6ItineraryV2({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialDays.length]);
 
+  // ─── PA + generation handlers ────────────────────────────────────────────
   function handleRequestGenerate() { setShowPAConfirm(true); }
 
   async function handlePAConfirmAndGenerate() {
@@ -277,7 +950,6 @@ export function Phase6ItineraryV2({
   }
 
   function handleCancel() { abortControllerRef.current?.abort(); }
-  function handleViewExpeditions() { router.push("/expeditions"); }
 
   function handleRegenerateClick() {
     if (hasItinerary) setShowRegenerateConfirm(true);
@@ -289,8 +961,7 @@ export function Phase6ItineraryV2({
     handleRequestGenerate();
   }
 
-  // ─── Generating state ─────────────────────────────────────────────────────
-
+  // ─── GENERATING STATE ──────────────────────────────────────────────────
   if (isGenerating) {
     return (
       <PhaseShell
@@ -338,8 +1009,7 @@ export function Phase6ItineraryV2({
     );
   }
 
-  // ─── Empty state ──────────────────────────────────────────────────────────
-
+  // ─── EMPTY STATE ───────────────────────────────────────────────────────
   if (!hasItinerary) {
     return (
       <PhaseShell
@@ -365,7 +1035,7 @@ export function Phase6ItineraryV2({
           <PAConfirmationModal
             isOpen={showPAConfirm} onClose={() => setShowPAConfirm(false)}
             onConfirm={handlePAConfirmAndGenerate} featureName={t("title")}
-            paCost={itineraryCost} currentBalance={paBalance} isLoading={isSpending}
+            paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
           />
           <WizardFooter
             onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
@@ -377,62 +1047,159 @@ export function Phase6ItineraryV2({
     );
   }
 
-  // ─── Generated state ──────────────────────────────────────────────────────
-
+  // ─── GENERATED STATE — Split 60/40 layout ──────────────────────────────
   return (
     <PhaseShell
       tripId={tripId} viewingPhase={6} tripCurrentPhase={tripCurrentPhase}
       completedPhases={completedPhases} phaseTitle={t("title")}
       isEditMode={accessMode === "revisit"} showFooter={false} contentMaxWidth="4xl"
     >
-      <div className="mb-6 space-y-1">
-        <p className="text-sm font-atlas-headline font-bold text-atlas-secondary-container" data-testid="phase-6-label-v2">
-          {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
-        </p>
-        <p className="text-sm font-atlas-body text-atlas-on-surface-variant">{destination}</p>
-      </div>
+      {/* Main split layout */}
+      <div className="flex flex-col md:flex-row min-h-screen -mx-4 sm:-mx-6">
+        {/* Left Column — 60% — Itinerary content */}
+        <section className="w-full md:w-3/5 px-4 sm:px-8 py-6 md:py-12 bg-atlas-surface">
+          {/* Content header */}
+          <header className="flex flex-col gap-6 mb-12">
+            <div className="flex flex-col md:flex-row justify-between items-start gap-4">
+              <div>
+                <h1
+                  className="text-3xl md:text-5xl font-atlas-headline font-extrabold tracking-tight text-atlas-on-surface mb-2"
+                  data-testid="itinerary-heading"
+                >
+                  {t("yourItinerary")}: {destination}
+                </h1>
+                <p className="text-lg text-atlas-on-surface-variant font-medium font-atlas-body">
+                  {totalDays} {t("days")} {travelers > 1 ? `\u2022 ${travelers} ${t("travelers")}` : ""}
+                  {travelStyle ? ` \u2022 ${travelStyle}` : ""}
+                </p>
+              </div>
+              <div className="flex gap-4 flex-wrap">
+                <AtlasButton
+                  variant="secondary"
+                  onClick={handleRegenerateClick}
+                  disabled={isGenerating}
+                  data-testid="regenerate-btn"
+                >
+                  {t("regenerateCta")} ({PA_COST} PA)
+                </AtlasButton>
+              </div>
+            </div>
 
-      <ItineraryEditor initialDays={days} tripId={tripId} locale={locale} />
+            {/* Day Selector Pills */}
+            <DaySelectorPills
+              days={v2Days}
+              selectedDay={selectedDay}
+              onSelect={setSelectedDay}
+              locale={locale}
+            />
+          </header>
 
-      <div className="mt-6">
-        <AiDisclaimer message={t("aiDisclaimer")} />
-      </div>
+          {/* Day content panel */}
+          {currentDay && (
+            <section
+              id={`day-panel-${currentDay.dayNumber}`}
+              role="tabpanel"
+              aria-labelledby={`day-tab-${currentDay.dayNumber}`}
+              aria-label={`Dia ${currentDay.dayNumber} ${currentDay.title ? `\u2014 ${currentDay.title}` : ""}`}
+              data-testid={`day-panel-${currentDay.dayNumber}`}
+            >
+              {/* Day header (AC-P6-031) */}
+              <DayHeader day={currentDay} />
 
-      {error && (
-        <p role="alert" className="mt-4 text-sm font-atlas-body text-atlas-error">{error}</p>
-      )}
+              {/* Activity timeline (AC-P6-033) */}
+              <ActivityTimeline
+                activities={currentDay.activities}
+                t={t}
+              />
 
-      {/* Regenerate confirm */}
-      {showRegenerateConfirm && (
-        <AtlasCard
-          variant="base"
-          className="mt-4 !border-atlas-warning/30 !bg-atlas-warning-container/20"
-          role="alertdialog"
-          aria-label={t("regenerateConfirmTitle")}
-        >
-          <p className="text-sm font-atlas-headline font-bold text-atlas-on-surface">{t("regenerateConfirmTitle")}</p>
-          <p className="mt-1 text-sm font-atlas-body text-atlas-on-surface-variant">{t("regenerateConfirmMessage")}</p>
-          <div className="mt-3 flex gap-2">
-            <AtlasButton size="sm" variant="danger" onClick={handleRegenerateConfirm}>{t("regenerateConfirmYes")}</AtlasButton>
-            <AtlasButton size="sm" variant="secondary" onClick={() => setShowRegenerateConfirm(false)}>{t("regenerateConfirmNo")}</AtlasButton>
+              {/* Day summary card (AC-P6-047) */}
+              <DaySummaryCard day={currentDay} t={t} />
+            </section>
+          )}
+
+          {/* AI disclaimer */}
+          <div className="mt-6">
+            <AiDisclaimer message={t("aiDisclaimer")} />
           </div>
-        </AtlasCard>
-      )}
 
+          {/* Error display */}
+          {error && (
+            <p role="alert" className="mt-4 text-sm font-atlas-body text-atlas-error">{error}</p>
+          )}
+
+          {/* Regenerate confirmation */}
+          {showRegenerateConfirm && (
+            <AtlasCard
+              variant="base"
+              className="mt-4 !border-atlas-warning/30 !bg-atlas-warning-container/20"
+              role="alertdialog"
+              aria-label={t("regenerateConfirmTitle")}
+            >
+              <p className="text-sm font-atlas-headline font-bold text-atlas-on-surface">{t("regenerateConfirmTitle")}</p>
+              <p className="mt-1 text-sm font-atlas-body text-atlas-on-surface-variant">{t("regenerateConfirmMessage")}</p>
+              <div className="mt-3 flex gap-2">
+                <AtlasButton size="sm" variant="danger" onClick={handleRegenerateConfirm}>{t("regenerateConfirmYes")}</AtlasButton>
+                <AtlasButton size="sm" variant="secondary" onClick={() => setShowRegenerateConfirm(false)}>{t("regenerateConfirmNo")}</AtlasButton>
+              </div>
+            </AtlasCard>
+          )}
+        </section>
+
+        {/* Right Column — 40% — Map Panel (AC-P6-051) */}
+        <MapPanel
+          activities={currentDay?.activities ?? []}
+          t={t}
+        />
+      </div>
+
+      {/* PA Confirmation Modal */}
       <PAConfirmationModal
         isOpen={showPAConfirm} onClose={() => setShowPAConfirm(false)}
         onConfirm={handlePAConfirmAndGenerate} featureName={t("title")}
-        paCost={itineraryCost} currentBalance={paBalance} isLoading={isSpending}
+        paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
       />
 
-      <div className="mt-8">
-        <WizardFooter
-          onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
-          onPrimary={handleViewExpeditions}
-          primaryLabel={tExpedition("cta.viewExpeditions")}
-          secondaryActions={[{ label: t("regenerateCta"), onClick: handleRegenerateClick }]}
-        />
-      </div>
+      {/* Custom footer matching Stitch design (AC-P6-059) */}
+      <footer
+        className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-8px_24px_rgba(4,13,27,0.04)] z-50 px-4 sm:px-8 py-4"
+        data-testid="phase6-footer"
+      >
+        <div className="max-w-[1440px] mx-auto flex justify-between items-center">
+          {/* Back button */}
+          <button
+            onClick={() => router.push(`/expedition/${tripId}/phase-5`)}
+            className="flex items-center gap-2 text-atlas-on-surface-variant font-bold font-atlas-body hover:text-atlas-secondary-container transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded-lg py-2"
+            data-testid="footer-back-btn"
+          >
+            <ArrowBackIcon />
+            {t("footerBack")}
+          </button>
+
+          {/* Center progress (AC-P6-061) */}
+          <FooterProgressBar
+            completedPhases={completedPhases}
+            currentPhase={6}
+            t={t}
+          />
+
+          {/* Primary CTA */}
+          <button
+            onClick={() => router.push(`/expedition/${tripId}/summary`)}
+            className={[
+              "flex items-center gap-2 px-8 py-3 rounded-lg font-bold font-atlas-body",
+              "bg-atlas-primary text-atlas-on-primary",
+              "hover:bg-atlas-secondary-container hover:text-atlas-primary",
+              "transition-all duration-200 motion-reduce:transition-none",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2",
+            ].join(" ")}
+            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
+            data-testid="footer-summary-btn"
+          >
+            {t("footerSummary")}
+            <ArrowForwardIcon />
+          </button>
+        </div>
+      </footer>
     </PhaseShell>
   );
 }

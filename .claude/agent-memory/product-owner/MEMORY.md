@@ -33,6 +33,7 @@
 - Sprint 40 task breakdown: `docs/specs/sprint-40/SPRINT-40-TASKS.md`
 - Sprint 40 guide content spec: SPEC-GUIA-DESTINO-CONTEUDO (8 sections, content contract for Phase 5 guide, personalization rules per section) -- `docs/specs/sprint-40/SPEC-GUIA-DESTINO-CONTEUDO.md`
 - Sprint 40 Phase 6 redesign brief: SPEC-PHASE6-REDESIGN-BRIEF (44 ACs from Stitch prototype analysis, split 60/40 layout, day selector, timeline, map, footer) -- `docs/specs/sprint-40/SPEC-PHASE6-REDESIGN-BRIEF.md`
+- Sprint 40 Phase 6 full product spec: SPEC-PROD-PHASE6-REDESIGN (93 ACs in 15 blocks: layout, header, stepper, actions, pills, timeline, categories, day summary, map, footer, states, personalization, a11y, regression, performance) -- `docs/specs/sprint-40/SPEC-PROD-PHASE6-REDESIGN.md`
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning

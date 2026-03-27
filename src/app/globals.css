@@ -447,3 +447,12 @@ body::before {
     scroll-behavior: auto !important;
   }
 }
+
+/* Hide scrollbar for pill selectors and horizontal scroll containers */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
