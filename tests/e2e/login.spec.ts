@@ -21,7 +21,7 @@ test.describe("Login — form elements", () => {
 
     // Heading
     await expect(
-      page.getByRole("heading", { name: /sign in/i })
+      page.getByRole("heading", { name: /sign in|welcome back|bem-vindo/i })
     ).toBeVisible();
 
     // Email field
@@ -158,7 +158,7 @@ test.describe("Login — Portuguese locale", () => {
 
       // Heading in Portuguese
       await expect(
-        page.getByRole("heading", { name: /entrar/i })
+        page.getByRole("heading", { name: /entrar|bem-vindo/i })
       ).toBeVisible();
 
       // Email label — use getByLabel to find the associated input

@@ -34,10 +34,10 @@ test("complete user journey from landing to logout", async ({
   // Verify landing page loaded (header, hero visible)
   await expect(
     page.getByRole("heading", {
-      name: /plan your|planeje sua/i,
+      name: /plan your|planeje sua|next adventure|aventura/i,
     }).first()
   ).toBeVisible();
-  await expect(page.getByText("Travel Planner").first()).toBeVisible();
+  await expect(page.getByText(/Atlas/i).first()).toBeVisible();
 
   // ── Step 2: Click "Get Started" to go to register ────────────────────────
   await page

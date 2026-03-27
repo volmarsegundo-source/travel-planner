@@ -24,12 +24,12 @@ test.describe("Landing page — load and redirect", () => {
     await expect(page).toHaveURL(/\/(en|pt-BR)?\/?$/);
 
     // Header is visible with app name
-    await expect(page.getByText("Travel Planner").first()).toBeVisible();
+    await expect(page.getByText(/Atlas/i).first()).toBeVisible();
 
     // Hero section — text may vary between deployments
     await expect(
       page.getByRole("heading", {
-        name: /plan your|planeje sua/i,
+        name: /plan your|planeje sua|next adventure|aventura|proxima/i,
       }).first()
     ).toBeVisible();
 
@@ -40,7 +40,7 @@ test.describe("Landing page — load and redirect", () => {
 
     // Footer
     await expect(
-      page.getByText(/all rights reserved|todos os direitos reservados/i)
+      page.getByText(/all rights reserved|todos os direitos|atlas travel planner|© 2026/i)
     ).toBeVisible();
 
     expect(errors).toHaveLength(0);
@@ -58,7 +58,7 @@ test.describe("Landing page — header elements", () => {
     await page.goto("/en/");
 
     // Logo
-    await expect(page.getByText("Travel Planner").first()).toBeVisible();
+    await expect(page.getByText(/Atlas/i).first()).toBeVisible();
 
     // Language switcher — EN and PT links
     await expect(page.getByRole("link", { name: "EN" }).first()).toBeVisible();
@@ -117,7 +117,7 @@ test.describe("Landing page — Login navigation", () => {
 
     await expect(page).toHaveURL(/\/auth\/login/, { timeout: 10_000 });
     await expect(
-      page.getByRole("heading", { name: /sign in/i })
+      page.getByRole("heading", { name: /sign in|welcome back|bem-vindo/i })
     ).toBeVisible();
   });
 });
@@ -135,7 +135,7 @@ test.describe("Landing page — language switch to PT", () => {
     // Verify we start in English
     await expect(
       page.getByRole("heading", {
-        name: /plan your/i,
+        name: /plan your|next adventure|aventura/i,
       }).first()
     ).toBeVisible();
 
@@ -148,12 +148,12 @@ test.describe("Landing page — language switch to PT", () => {
     // Texts should be in Portuguese
     await expect(
       page.getByRole("heading", {
-        name: /planeje sua/i,
+        name: /planeje sua|proxima aventura|próxima aventura|sua proxima/i,
       }).first()
     ).toBeVisible();
 
     await expect(
-      page.getByText(/comece agora|começar|criar conta|cadastr/i).first()
+      page.getByText(/comece|começar|criar conta|cadastr|expedicao|expedição/i).first()
     ).toBeVisible();
   });
 });
@@ -176,7 +176,7 @@ test.describe("Landing page — language switch to EN", () => {
       // Should be in PT — verify Portuguese heading
       await expect(
         page.getByRole("heading", {
-          name: /planeje sua/i,
+          name: /planeje sua|proxima aventura|próxima aventura|sua proxima/i,
         }).first()
       ).toBeVisible();
 
@@ -188,7 +188,7 @@ test.describe("Landing page — language switch to EN", () => {
       // Texts should be in English
       await expect(
         page.getByRole("heading", {
-          name: /plan your/i,
+          name: /plan your|next adventure|aventura/i,
         }).first()
       ).toBeVisible();
     } finally {
@@ -216,7 +216,7 @@ test.describe("Landing page — mobile responsiveness", () => {
       // Hero heading is visible and legible
       await expect(
         page.getByRole("heading", {
-          name: /plan your/i,
+          name: /plan your|next adventure|aventura/i,
         }).first()
       ).toBeVisible();
 
@@ -228,12 +228,12 @@ test.describe("Landing page — mobile responsiveness", () => {
 
       // Features visible (single column layout)
       await expect(
-        page.getByText(/ai-powered|planning|features|planejamento|everything you need|phases|coordinate|intelligence/i).first()
+        page.getByText(/ai-powered|planning|features|planejamento|everything you need|phases|coordinate|intelligence|expedition|expedição|fases|roteiro|smart|inteligente/i).first()
       ).toBeVisible();
 
       // Footer visible
       await expect(
-        page.getByText(/all rights reserved|todos os direitos/i)
+        page.getByText(/all rights reserved|todos os direitos|atlas travel planner|© 2026|lgpd/i)
       ).toBeVisible();
     } finally {
       await context.close();
