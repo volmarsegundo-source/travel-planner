@@ -1033,8 +1033,6 @@ function Phase2Content({
   // Collect activity/interest chips from preferences
   const interestChips = prefs?.interests ?? [];
   const foodChips = (prefs?.foodPreferences ?? []).filter((f) => f !== "no_restrictions");
-  const culturalInterests = prefs?.socialPreference ?? [];
-  const accessibilityItems = prefs?.accommodationStyle ?? [];
 
   return (
     <div className="space-y-2" data-testid="phase-content-2">

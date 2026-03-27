@@ -53,6 +53,7 @@ import type { NextStep } from "@/lib/engines/next-steps-engine";
 
 const FULL_SUMMARY: ExpeditionSummaryData = {
   tripId: "trip-1",
+  tripTitle: "Trip to Paris",
   currentPhase: 6,
   phase1: {
     destination: "Paris, France",
@@ -95,7 +96,7 @@ const FULL_SUMMARY: ExpeditionSummaryData = {
     ],
     mobility: ["public_transit", "walking"],
   },
-  phase5: { generatedAt: "2026-05-15", highlights: ["UTC+1", "EUR", "French"] },
+  phase5: { generatedAt: "2026-05-15", highlights: ["UTC+1", "EUR", "French"], safetyLevel: null, keyFacts: [], topAttractions: [] },
   phase6: { dayCount: 10, totalActivities: 35 },
   pendingItems: [
     { phase: 3, key: "documents", severity: "required" },
@@ -122,6 +123,7 @@ const NEXT_STEPS: NextStep[] = [
 
 const EMPTY_SUMMARY: ExpeditionSummaryData = {
   tripId: "trip-2",
+  tripTitle: "",
   currentPhase: 1,
   phase1: { destination: "Berlin", origin: null, destinationLat: null, destinationLon: null, startDate: null, endDate: null, tripType: "international", flexibleDates: false, name: null, ageRange: null },
   phase2: null, phase3: null, phase4: null, phase5: null, phase6: null,

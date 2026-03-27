@@ -129,7 +129,7 @@ describe("calculateCompletionPercentage", () => {
       { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
       { done: 5, total: 5, items: [] },
       { transportSegments: [{ type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", departureAt: null, arrivalAt: null, provider: null, maskedBookingCode: null }], accommodations: [{ type: "hotel", name: "H", checkIn: null, checkOut: null, maskedBookingCode: null }], mobility: ["metro"] },
-      { generatedAt: "2026-05-01", highlights: [] },
+      { generatedAt: "2026-05-01", highlights: [], safetyLevel: null, keyFacts: [], topAttractions: [] },
       { dayCount: 3, totalActivities: 10 },
     );
     expect(result).toBe(100);
@@ -157,7 +157,7 @@ describe("collectPendingItems", () => {
       { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
       { done: 3, total: 3, items: [{ itemKey: "passport", completed: true, required: true }, { itemKey: "visa", completed: true, required: true }, { itemKey: "insurance", completed: true, required: false }] },
       { transportSegments: [{ type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", departureAt: null, arrivalAt: null, provider: null, maskedBookingCode: null }], accommodations: [{ type: "hotel", name: "H", checkIn: null, checkOut: null, maskedBookingCode: null }], mobility: ["metro"] },
-      { generatedAt: "2026-05-01", highlights: [] },
+      { generatedAt: "2026-05-01", highlights: [], safetyLevel: null, keyFacts: [], topAttractions: [] },
       { dayCount: 3, totalActivities: 10 },
     );
     expect(result).toEqual([]);
@@ -226,6 +226,7 @@ describe("ExpeditionSummaryService", () => {
       // Setup trip
       prismaMock.trip.findFirst.mockResolvedValue({
         id: "trip-1",
+        title: "Trip to Paris",
         destination: "Paris, France",
         origin: "Sao Paulo, Brazil",
         startDate: new Date("2026-06-01"),
@@ -379,6 +380,7 @@ describe("ExpeditionSummaryService", () => {
     it("returns null for missing phase data with pendingItems", async () => {
       prismaMock.trip.findFirst.mockResolvedValue({
         id: "trip-1",
+        title: "Berlin Trip",
         destination: "Berlin",
         origin: null,
         startDate: null,
@@ -429,6 +431,7 @@ describe("ExpeditionSummaryService", () => {
     it("masks booking codes in transport segments", async () => {
       prismaMock.trip.findFirst.mockResolvedValue({
         id: "trip-1",
+        title: "Tokyo Trip",
         destination: "Tokyo",
         origin: null,
         startDate: null,
