@@ -5,7 +5,6 @@ import { db } from "@/server/db";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import { TripReadinessService } from "@/server/services/trip-readiness.service";
-import { getNextStepsSuggestions } from "@/lib/engines/next-steps-engine";
 import { ExpeditionSummaryV2 } from "@/components/features/expedition/ExpeditionSummaryV2";
 
 interface SummaryPageProps {
@@ -49,19 +48,13 @@ export default async function SummaryPage({ params }: SummaryPageProps) {
     return null;
   }
 
-  const nextSteps = getNextStepsSuggestions(
-    tripId,
-    readiness.phases,
-    readiness.readinessPercent
-  );
-
   // Extract trip dates for countdown
   const startDate = summary.phase1?.startDate ?? null;
   const endDate = summary.phase1?.endDate ?? null;
 
   return (
     <>
-      <div className="mx-auto max-w-2xl px-4 pt-6 sm:px-6">
+      <div className="mx-auto max-w-4xl px-4 pt-6 sm:px-6 lg:px-8">
         <Breadcrumb
           items={[
             { label: tNav("breadcrumb.home"), href: "/expeditions" },
@@ -73,7 +66,6 @@ export default async function SummaryPage({ params }: SummaryPageProps) {
         tripId={tripId}
         summary={summary}
         readiness={readiness}
-        nextSteps={nextSteps}
         startDate={startDate}
         endDate={endDate}
       />

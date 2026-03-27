@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 
-<html class="light" lang="pt-BR"><head>
+<html lang="pt-BR"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Sumário da Expedição | Modern Explorer</title>
+<title>Atlas | Sumário da Expedição</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&amp;family=Work+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -14,53 +14,53 @@
         theme: {
           extend: {
             colors: {
-              "primary": "#914d00",
-              "tertiary-fixed-dim": "#92d2c9",
-              "surface-bright": "#f9f9ff",
-              "inverse-on-surface": "#ebf1ff",
-              "on-tertiary-fixed": "#00201d",
-              "secondary-container": "#d6e0f4",
-              "tertiary-container": "#7ab9b0",
-              "surface-container-highest": "#d9e3f7",
-              "surface-dim": "#d1daef",
-              "on-error": "#ffffff",
-              "surface": "#f9f9ff",
-              "on-background": "#121c2a",
-              "tertiary": "#266861",
-              "on-surface": "#121c2a",
-              "error-container": "#ffdad6",
-              "surface-container-lowest": "#ffffff",
-              "primary-fixed": "#ffdcc3",
-              "on-secondary-fixed": "#121c2a",
-              "secondary-fixed": "#d9e3f7",
-              "on-tertiary": "#ffffff",
-              "primary-container": "#fe932c",
-              "on-primary-fixed-variant": "#6e3900",
-              "surface-container-high": "#dfe8fd",
-              "secondary": "#555f70",
-              "inverse-surface": "#273140",
-              "on-secondary-fixed-variant": "#3e4757",
-              "surface-tint": "#914d00",
-              "surface-container": "#e7eeff",
-              "on-tertiary-fixed-variant": "#005049",
-              "on-surface-variant": "#554336",
-              "error": "#ba1a1a",
-              "on-tertiary-container": "#004a43",
-              "on-primary": "#ffffff",
-              "background": "#f9f9ff",
-              "inverse-primary": "#ffb77e",
-              "outline": "#887364",
               "primary-fixed-dim": "#ffb77e",
-              "outline-variant": "#dcc2b0",
-              "on-error-container": "#93000a",
-              "on-secondary": "#ffffff",
-              "on-primary-fixed": "#2f1500",
+              "on-tertiary-fixed": "#00201d",
+              "error-container": "#ffdad6",
+              "on-error": "#ffffff",
+              "surface-tint": "#914d00",
+              "surface-bright": "#f9f9ff",
+              "on-surface-variant": "#554336",
               "secondary-fixed-dim": "#bdc7db",
-              "surface-variant": "#d9e3f7",
+              "on-tertiary": "#ffffff",
+              "on-secondary-fixed-variant": "#3e4757",
+              "on-secondary-fixed": "#121c2a",
+              "on-primary-fixed": "#2f1500",
+              "on-error-container": "#93000a",
+              "on-tertiary-container": "#004a43",
+              "secondary-fixed": "#d9e3f7",
+              "on-primary-container": "#663400",
               "surface-container-low": "#f0f3ff",
+              "secondary-container": "#d6e0f4",
+              "tertiary-fixed-dim": "#92d2c9",
+              "error": "#ba1a1a",
+              "primary-container": "#fe932c",
+              "on-primary": "#ffffff",
+              "surface": "#f9f9ff",
+              "primary-fixed": "#ffdcc3",
+              "inverse-on-surface": "#ebf1ff",
+              "surface-container-high": "#dfe8fd",
+              "outline": "#887364",
+              "on-tertiary-fixed-variant": "#005049",
+              "outline-variant": "#dcc2b0",
+              "on-secondary": "#ffffff",
+              "secondary": "#555f70",
               "on-secondary-container": "#596374",
+              "on-primary-fixed-variant": "#6e3900",
+              "inverse-surface": "#273140",
+              "on-background": "#121c2a",
+              "surface-variant": "#d9e3f7",
+              "surface-dim": "#d1daef",
+              "background": "#f9f9ff",
+              "surface-container-lowest": "#ffffff",
+              "primary": "#914d00",
               "tertiary-fixed": "#aeefe5",
-              "on-primary-container": "#663400"
+              "tertiary": "#266861",
+              "tertiary-container": "#7ab9b0",
+              "inverse-primary": "#ffb77e",
+              "surface-container": "#e7eeff",
+              "on-surface": "#121c2a",
+              "surface-container-highest": "#d9e3f7"
             },
             fontFamily: {
               "headline": ["Plus Jakarta Sans"],
@@ -76,249 +76,426 @@
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        .bg-glass {
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(12px);
-            background-color: rgba(255, 255, 255, 0.7);
+            -webkit-backdrop-filter: blur(12px);
         }
         .spring-transition {
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .custom-shadow {
+            box-shadow: 0px 24px 48px rgba(4, 13, 27, 0.06);
         }
     </style>
 </head>
-<body class="bg-surface font-body text-on-surface">
-<!-- TopNavBar -->
-<header class="bg-[#f9f9ff] dark:bg-[#040d1b] flex justify-between items-center w-full px-8 py-4 max-w-7xl mx-auto sticky top-0 z-50">
+<body class="bg-surface font-body text-on-surface selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar Navigation Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#040d1b]">
 <div class="flex items-center gap-8">
-<span class="text-2xl font-bold text-[#040d1b] dark:text-[#f9f9ff] font-headline tracking-tight">Modern Explorer</span>
-<nav class="hidden md:flex gap-6">
-<a class="text-[#040d1b] dark:text-[#f9f9ff] opacity-70 hover:text-[#fe932c] transition-colors duration-200 font-medium" href="#">Explorar</a>
-<a class="text-[#fe932c] border-b-2 border-[#fe932c] pb-1 font-medium" href="#">Minhas Viagens</a>
-<a class="text-[#040d1b] dark:text-[#f9f9ff] opacity-70 hover:text-[#fe932c] transition-colors duration-200 font-medium" href="#">Roteiros</a>
-<a class="text-[#040d1b] dark:text-[#f9f9ff] opacity-70 hover:text-[#fe932c] transition-colors duration-200 font-medium" href="#">Comunidade</a>
+<span class="text-2xl font-headline font-bold text-[#fe932c] tracking-tight">Atlas</span>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-slate-300 font-medium hover:bg-white/10 px-3 py-1 rounded transition-colors" href="#">Explorar</a>
+<a class="text-[#fe932c] border-b-2 border-[#fe932c] font-medium px-3 py-1" href="#">Minhas Viagens</a>
+<a class="text-slate-300 font-medium hover:bg-white/10 px-3 py-1 rounded transition-colors" href="#">Comunidade</a>
 </nav>
 </div>
-<div class="flex items-center gap-4">
-<button class="material-symbols-outlined text-on-surface-variant p-2 spring-transition hover:bg-surface-container">notifications</button>
-<button class="material-symbols-outlined text-on-surface-variant p-2 spring-transition hover:bg-surface-container">redeem</button>
-<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
-<img alt="Avatar do usuário" data-alt="close-up portrait of a smiling young man in a clean studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPsuug7LEyCn_eSHw68Ey8d8Qmx2TZq0Y4vPnRYvLOGmw6td7uSw03dUfZl_LINVcmNhzlSvnwMLf3-FZQEjJJe7mfsHw0gEIs0bt1YWyWI4p5LorU71be7nmQeci8zOOXBgytRa4OnlZlk5b8dizBf_wRJJp5bPM2eaXE1uSPtxBFZItTt4a4N8pH7ScL5RgHxtVhEjhUxmd_y-UZjjqrnSNE6sDZDU3Hd2zS1KmiQ-uzZwQc5YxKQwxOHJ_9Ke9pkoeJWRpGUkO8"/>
+<div class="flex items-center gap-4 text-slate-300">
+<span class="material-symbols-outlined hover:bg-white/10 p-2 rounded-full cursor-pointer">notifications</span>
+<span class="material-symbols-outlined hover:bg-white/10 p-2 rounded-full cursor-pointer">help</span>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User profile photo" data-alt="Portrait of a smiling professional man with short dark hair in a bright studio setting with soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVtxBxPWjsRq0rDmDiCh8M-hLd21jg3vgClzKXqBU0yoawqQ8Gk6bjBAj7b5I4pxsJnC-K1H9lBaRmID2QVuw5BjcqXyLITM9-jdMDtPDYtGxxErX0MLd8Df_kDbWmSmYMP6H5xr8wDF-yElREL-KDo0qx38NzxOWftw0VVQ3X5L1zQaiAChfwor8CYP1I9ZXMM1FFbLHUXGrxLEMEf-7hAedT6Pe_XjkH1MT5_y88mC2CADAPrXv-HEPNXezjN6lDialyKwUHYkWe"/>
 </div>
 </div>
 </header>
-<main class="max-w-7xl mx-auto px-8 py-12 pb-24">
-<!-- Breadcrumb -->
-<nav class="flex items-center gap-2 mb-8 text-sm text-on-surface-variant">
-<span class="hover:text-primary cursor-pointer">Minhas Expedições</span>
-<span class="material-symbols-outlined text-xs">chevron_right</span>
-<span class="hover:text-primary cursor-pointer">Lisboa 2026</span>
-<span class="material-symbols-outlined text-xs">chevron_right</span>
-<span class="text-primary font-semibold">Sumário</span>
-</nav>
-<!-- Header Section -->
-<section class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
-<div class="space-y-4">
-<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-tertiary-container/20 text-on-tertiary-fixed-variant text-sm font-semibold">
-<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                    ✅ Planejamento Completo
-                </div>
-<h1 class="text-5xl font-bold font-headline text-on-surface tracking-tight leading-tight">Expedição Lisboa 2026</h1>
-<p class="text-xl text-on-surface-variant font-medium">
-                    São Paulo → Lisboa • 15-26 Mar 2026 • 12 dias • 2 viajantes
-                </p>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 flex flex-col p-4 z-40 bg-[#f0f3ff] dark:bg-[#040d1b] font-['Work_Sans'] text-sm font-medium">
+<div class="mb-8 px-4 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">landscape</span>
 </div>
-<div class="flex gap-3">
-<button class="px-6 py-3 rounded-lg border-2 border-outline-variant text-on-surface font-semibold flex items-center gap-2 spring-transition hover:bg-surface-container-low active:scale-95">
-<span class="material-symbols-outlined">picture_as_pdf</span>
-                    Exportar PDF
-                </button>
-<button class="px-6 py-3 rounded-lg border-2 border-outline-variant text-on-surface font-semibold flex items-center gap-2 spring-transition hover:bg-surface-container-low active:scale-95">
-<span class="material-symbols-outlined">share</span>
-                    Compartilhar
-                </button>
-<button class="px-6 py-3 rounded-lg bg-primary-container text-on-background font-bold flex items-center gap-2 spring-transition hover:brightness-110 active:scale-95">
-<span class="material-symbols-outlined">edit</span>
-                    Editar
-                </button>
+<div>
+<p class="font-bold text-[#040d1b] dark:text-[#fe932c]">Trip to Horizon</p>
+<p class="text-xs text-on-surface-variant">Phase 4 of 8</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="flex items-center gap-3 text-on-tertiary-fixed-variant px-4 py-3 spring-transition hover:bg-[#e7eeff] rounded-lg">
+<span class="material-symbols-outlined text-on-tertiary-fixed-variant" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Exploration</span>
+</div>
+<div class="flex items-center gap-3 text-on-tertiary-fixed-variant px-4 py-3 spring-transition hover:bg-[#e7eeff] rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Route Selection</span>
+</div>
+<div class="flex items-center gap-3 text-on-tertiary-fixed-variant px-4 py-3 spring-transition hover:bg-[#e7eeff] rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Traveler Profile</span>
+</div>
+<div class="flex items-center gap-3 text-on-tertiary-fixed-variant px-4 py-3 spring-transition hover:bg-[#e7eeff] rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Logistics Hub</span>
+</div>
+<div class="flex items-center gap-3 text-on-tertiary-fixed-variant px-4 py-3 spring-transition hover:bg-[#e7eeff] rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Checklist</span>
+</div>
+<div class="flex items-center gap-3 text-on-tertiary-fixed-variant px-4 py-3 spring-transition hover:bg-[#e7eeff] rounded-lg">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span>Budgeting</span>
+</div>
+<div class="flex items-center gap-3 text-[#554336] opacity-50 px-4 py-3 cursor-not-allowed">
+<span class="material-symbols-outlined">lock</span>
+<span>Rewards</span>
+</div>
+<div class="flex items-center gap-3 bg-[#fe932c] text-[#040d1b] rounded-lg px-4 py-3 shadow-sm font-bold">
+<span class="material-symbols-outlined">verified</span>
+<span>Final Review</span>
+</div>
+</nav>
+<button class="mt-auto w-full py-3 bg-on-surface text-surface rounded-lg font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">download</span>
+            Download Itinerary
+        </button>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 pt-16 min-h-screen">
+<div class="p-8 max-w-7xl mx-auto space-y-12">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-sm text-on-surface-variant mb-4">
+<span>Expedições</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>Fortaleza 2026</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span class="text-on-surface font-semibold">Sumário</span>
+</nav>
+<!-- Hero Section -->
+<section class="relative h-[480px] rounded-2xl overflow-hidden custom-shadow group">
+<img alt="Fortaleza beach view" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Wide panoramic shot of Fortaleza's sandy beach and turquoise ocean water under a bright blue sky with a few fluffy clouds" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTsohrh2-R4aHawGN84EoqWI8AvLpBCgtz7dejcSQGrHbl-4N6WxPy8fFgp-JK8CnQWnyKmgqMB9tISSUoSsduAtz3Bgnc25YF7ykO7YAZnSiu-wRuYoRAbbJeYXujDOrzp_3y5UAQUdxS3jAmOZkLUil7mYaPz2b3IdpWgxDsa0hVNuC8Il1JLhE6od-EPl7loI3ehG1bCXZx_7J803Vj5wmmCWBk9Ac75Wp4iKUWT0f244F35yvifyxlO0K1sSmNVIJv7pGXajiw"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#040d1b] via-[#040d1b]/40 to-transparent"></div>
+<div class="absolute bottom-0 left-0 p-12 w-full">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div class="space-y-4">
+<span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-on-tertiary-fixed-variant text-white text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+                                Planejamento Completo
+                            </span>
+<h1 class="text-5xl md:text-6xl font-headline font-extrabold text-white tracking-tight">Expedição Fortaleza 2026</h1>
+<div class="flex flex-wrap items-center gap-y-2 gap-x-6 text-slate-200">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">location_on</span> São Paulo → Fortaleza, Ceará</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">calendar_today</span> 29 Mar - 04 Abr 2026</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">schedule</span> 6 dias</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">group</span> 7 viajantes</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-sm">family_restroom</span> Família</span>
+</div>
+</div>
+</div>
+<div class="mt-8 flex flex-wrap gap-4">
+<button class="px-6 py-3 bg-[#fe932c] text-[#040d1b] font-bold rounded-lg flex items-center gap-2 hover:brightness-110 spring-transition">
+<span class="material-symbols-outlined">download</span> Exportar PDF
+                        </button>
+<button class="px-6 py-3 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold rounded-lg flex items-center gap-2 hover:bg-white/20 spring-transition">
+<span class="material-symbols-outlined">share</span> Compartilhar
+                        </button>
+<button class="px-6 py-3 bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold rounded-lg flex items-center gap-2 hover:bg-white/20 spring-transition">
+<span class="material-symbols-outlined">edit</span> Editar Expedição
+                        </button>
+</div>
 </div>
 </section>
-<!-- Main Bento Grid -->
-<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
-<!-- Orçamento Total (Donut Chart) -->
-<div class="md:col-span-4 bg-surface-container-lowest p-8 rounded-xl shadow-[0px_24px_48px_rgba(4,13,27,0.06)] border border-outline-variant/15 flex flex-col justify-between">
-<div>
-<h3 class="text-on-surface-variant font-semibold mb-2">Orçamento Total</h3>
-<div class="text-3xl font-bold font-headline text-on-surface">R$ 8.400</div>
+<!-- Progress Strip -->
+<section class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<div class="flex justify-between items-center text-sm font-bold">
+<span class="text-on-surface">6 de 8 etapas concluídas</span>
+<span class="text-on-tertiary-fixed-variant">🏆 +180 Pontos Atlas ganhos nesta expedição</span>
 </div>
-<div class="relative w-48 h-48 mx-auto my-8 flex items-center justify-center">
-<!-- Simple SVG Donut Representation -->
-<svg class="w-full h-full -rotate-90" viewbox="0 0 100 100">
-<circle cx="50" cy="50" fill="transparent" r="40" stroke="#e7eeff" stroke-width="12"></circle>
-<circle cx="50" cy="50" fill="transparent" r="40" stroke="#fe932c" stroke-dasharray="251" stroke-dashoffset="150" stroke-linecap="round" stroke-width="12"></circle>
-<circle cx="50" cy="50" fill="transparent" r="40" stroke="#266861" stroke-dasharray="251" stroke-dashoffset="200" stroke-linecap="round" stroke-width="12"></circle>
+<div class="flex gap-2">
+<div class="h-3 flex-1 bg-on-tertiary-fixed-variant rounded-full"></div>
+<div class="h-3 flex-1 bg-on-tertiary-fixed-variant rounded-full"></div>
+<div class="h-3 flex-1 bg-on-tertiary-fixed-variant rounded-full"></div>
+<div class="h-3 flex-1 bg-on-tertiary-fixed-variant rounded-full"></div>
+<div class="h-3 flex-1 bg-on-tertiary-fixed-variant rounded-full"></div>
+<div class="h-3 flex-1 bg-on-tertiary-fixed-variant rounded-full"></div>
+<div class="h-3 flex-1 bg-surface-container-highest rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-surface-variant">lock</span>
+</div>
+<div class="h-3 flex-1 bg-surface-container-highest rounded-full flex items-center justify-center">
+<span class="material-symbols-outlined text-[10px] text-on-surface-variant">lock</span>
+</div>
+</div>
+</section>
+<!-- Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Card 1: Destino e Datas -->
+<article class="bg-surface-container-lowest p-8 rounded-xl custom-shadow space-y-6">
+<div class="flex items-center justify-between">
+<h3 class="text-xl font-headline font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">distance</span>
+                            Destino e Datas
+                        </h3>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="space-y-1">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Origem</p>
+<p class="font-medium">São Paulo, SP</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Destino</p>
+<p class="font-medium">Fortaleza, CE</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Período</p>
+<p class="font-medium">29/03 a 04/04</p>
+</div>
+<div class="space-y-1">
+<p class="text-xs font-bold text-on-surface-variant uppercase tracking-tighter">Viajantes</p>
+<p class="font-medium">7 pessoas</p>
+</div>
+</div>
+</article>
+<!-- Card 2: Perfil do Viajante -->
+<article class="bg-surface-container-lowest p-8 rounded-xl custom-shadow space-y-6">
+<h3 class="text-xl font-headline font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">person_search</span>
+                        Perfil do Viajante
+                    </h3>
+<div class="flex flex-wrap gap-2">
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-medium">Praia</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-medium">Gastronomia</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-medium">Cultura</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-medium">Ritmo: Tranquilo</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-medium">Budget: Econômico</span>
+</div>
+<div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">apartment</span>
+<span class="text-sm">Preferência de Hospedagem: Hotel</span>
+</div>
+</article>
+<!-- Card 3: Logística -->
+<article class="bg-surface-container-lowest p-8 rounded-xl custom-shadow space-y-6">
+<h3 class="text-xl font-headline font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">local_shipping</span>
+                        Logística
+                    </h3>
+<ul class="space-y-4">
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">flight</span>
+<span class="text-sm font-medium">Transporte: Avião</span>
+</div>
+<span class="text-xs font-bold text-on-tertiary-fixed-variant">CONFIRMADO</span>
+</li>
+<li class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant">directions_car</span>
+<span class="text-sm font-medium">Local: Táxi / App</span>
+</div>
+<span class="text-xs font-bold text-on-tertiary-fixed-variant">OK</span>
+</li>
+<li class="flex items-center justify-between text-error">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined">warning</span>
+<span class="text-sm font-medium">Traslado Aeroporto Pendente</span>
+</div>
+</li>
+</ul>
+</article>
+<!-- Card 4: Checklist -->
+<article class="bg-surface-container-lowest p-8 rounded-xl custom-shadow space-y-6">
+<h3 class="text-xl font-headline font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">fact_check</span>
+                        Checklist
+                    </h3>
+<div class="space-y-2">
+<div class="flex justify-between text-sm mb-1">
+<span class="font-bold">Progresso</span>
+<span>80% (8/10 itens)</span>
+</div>
+<div class="h-2 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-on-tertiary-fixed-variant w-[80%]"></div>
+</div>
+</div>
+<div class="flex items-center gap-3 p-3 bg-error-container text-on-error-container rounded-lg text-sm">
+<span class="material-symbols-outlined">priority_high</span>
+<span>Item Pendente: Contratação de Seguro Viagem</span>
+</div>
+</article>
+<!-- Full Width Card: Guia do Destino -->
+<article class="md:col-span-2 bg-[#040d1b] text-white p-8 rounded-xl space-y-8 relative overflow-hidden">
+<div class="absolute top-0 right-0 w-1/2 h-full opacity-20 pointer-events-none">
+<img alt="Texture map" class="w-full h-full object-cover" data-alt="Abstract aerial view of ocean waves hitting the sand with textures of foam and water" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3dz86NRcLc9IUFgse7nVT86nE6OCzIGS2f_OYJhNkljKAEI6q8zM3YOdGWu3wBG1M4BAorus0jN61e6qPnR6xqihX79g5-vm_6X69joSZeDWPsc1XkkeD0yeWL3lM-RdlW4vF5WMjhgRPV0-LhtLJhGKEwGsSOZKeUMWOzCIoOR_7VXZ0UYw1d4Jxs11edoAVqDFlW2UDeeeUt7VsqbQzM2TziIbE8fd0_lgCvrGEXx8pGwjnIGDDlGMKL64uusRFfYoDOOtkKnEa"/>
+</div>
+<div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+<div class="space-y-2">
+<h3 class="text-3xl font-headline font-bold flex items-center gap-3">
+<span class="material-symbols-outlined text-[#fe932c]">explore</span>
+                                Guia do Destino: Fortaleza
+                            </h3>
+<p class="text-slate-400">Dicas essenciais para sua estadia na capital do Ceará.</p>
+</div>
+<div class="flex gap-6">
+<div class="text-center">
+<p class="text-xs font-bold text-[#fe932c] uppercase mb-1">Clima</p>
+<p class="text-xl font-bold">28-32°C</p>
+</div>
+<div class="text-center">
+<p class="text-xs font-bold text-[#fe932c] uppercase mb-1">Segurança</p>
+<p class="text-xl font-bold text-tertiary-fixed">Nível Verde</p>
+</div>
+</div>
+</div>
+<div class="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+<div class="p-4 bg-white/5 rounded-lg border border-white/10">
+<h4 class="font-bold mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">stars</span>
+                                Praia de Iracema
+                            </h4>
+<p class="text-sm text-slate-300">Pôr do sol imperdível na Ponte dos Ingleses e polo cultural.</p>
+</div>
+<div class="p-4 bg-white/5 rounded-lg border border-white/10">
+<h4 class="font-bold mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">waves</span>
+                                Beach Park
+                            </h4>
+<p class="text-sm text-slate-300">A 20 min da capital, um dos melhores parques aquáticos do mundo.</p>
+</div>
+<div class="p-4 bg-white/5 rounded-lg border border-white/10">
+<h4 class="font-bold mb-2 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">theater_comedy</span>
+                                Dragão do Mar
+                            </h4>
+<p class="text-sm text-slate-300">Centro de arte e cultura com museus, planetário e bares.</p>
+</div>
+</div>
+</article>
+<!-- Full Width Card: Roteiro -->
+<article class="md:col-span-2 bg-surface-container-lowest p-8 rounded-xl custom-shadow space-y-8">
+<div class="flex justify-between items-end">
+<div class="space-y-1">
+<h3 class="text-2xl font-headline font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">event_note</span>
+                                Roteiro: 6 dias
+                            </h3>
+<p class="text-on-surface-variant">22 atividades planejadas no total</p>
+</div>
+<div class="text-right">
+<p class="text-xs font-bold text-on-surface-variant uppercase">Custo Médio</p>
+<p class="text-2xl font-headline font-extrabold text-[#005049]">R$ 1.530<span class="text-sm font-normal"> / pessoa</span></p>
+</div>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-6 gap-4">
+<div class="p-4 bg-surface-container-low rounded-lg text-center space-y-2 border-b-4 border-primary">
+<p class="text-xs font-bold">DIA 1</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Chegada</p>
+</div>
+<div class="p-4 bg-surface-container rounded-lg text-center space-y-2 border-b-4 border-on-tertiary-fixed-variant">
+<p class="text-xs font-bold">DIA 2</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Iracema</p>
+</div>
+<div class="p-4 bg-surface-container rounded-lg text-center space-y-2 border-b-4 border-on-tertiary-fixed-variant">
+<p class="text-xs font-bold">DIA 3</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Beach Park</p>
+</div>
+<div class="p-4 bg-surface-container rounded-lg text-center space-y-2 border-b-4 border-on-tertiary-fixed-variant">
+<p class="text-xs font-bold">DIA 4</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Centro</p>
+</div>
+<div class="p-4 bg-surface-container rounded-lg text-center space-y-2 border-b-4 border-on-tertiary-fixed-variant">
+<p class="text-xs font-bold">DIA 5</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Cumbuco</p>
+</div>
+<div class="p-4 bg-surface-container rounded-lg text-center space-y-2 border-b-4 border-on-tertiary-fixed-variant">
+<p class="text-xs font-bold">DIA 6</p>
+<p class="text-[10px] text-on-surface-variant uppercase">Partida</p>
+</div>
+</div>
+</article>
+</div>
+<!-- Budget Overview -->
+<section class="bg-surface-container-lowest p-8 rounded-xl custom-shadow">
+<div class="flex flex-col md:flex-row gap-12 items-center">
+<div class="w-64 h-64 relative flex items-center justify-center">
+<svg class="w-full h-full transform -rotate-90">
+<circle cx="50%" cy="50%" fill="transparent" r="40%" stroke="#e7eeff" stroke-width="24"></circle>
+<circle cx="50%" cy="50%" fill="transparent" r="40%" stroke="#040d1b" stroke-dasharray="251 251" stroke-dashoffset="175" stroke-width="24"></circle>
+<circle cx="50%" cy="50%" fill="transparent" r="40%" stroke="#fe932c" stroke-dasharray="251 251" stroke-dashoffset="100" stroke-width="24"></circle>
 </svg>
-<div class="absolute inset-0 flex flex-col items-center justify-center">
-<span class="text-xs text-on-surface-variant font-medium">Saúde</span>
-<span class="text-lg font-bold">100%</span>
+<div class="absolute flex flex-col items-center">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Total</p>
+<p class="text-2xl font-headline font-extrabold">R$ 9.400</p>
 </div>
 </div>
-<div class="grid grid-cols-2 gap-4 text-xs font-medium">
-<div class="flex items-center gap-2">
-<div class="w-2 h-2 rounded-full bg-primary-container"></div>
-<span class="text-on-surface-variant">Transporte 35%</span>
+<div class="flex-1 space-y-6 w-full">
+<div class="flex justify-between items-center">
+<h3 class="text-2xl font-headline font-bold">Visão de Gastos</h3>
+<div class="px-3 py-1 bg-error-container text-on-error-container text-xs font-bold rounded-lg animate-pulse flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">warning</span>
+                                R$ 343 acima do orçamento por pessoa
+                            </div>
 </div>
-<div class="flex items-center gap-2">
-<div class="w-2 h-2 rounded-full bg-tertiary"></div>
-<span class="text-on-surface-variant">Hospedagem 40%</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div class="p-4 bg-surface-container-low rounded-lg flex justify-between items-center">
+<div>
+<p class="text-xs text-on-surface-variant font-bold">Transporte (30%)</p>
+<p class="font-bold">R$ 2.800</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">flight_takeoff</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg flex justify-between items-center">
+<div>
+<p class="text-xs text-on-surface-variant font-bold">Hospedagem (38%)</p>
+<p class="font-bold">R$ 3.600</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">bed</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg flex justify-between items-center">
+<div>
+<p class="text-xs text-on-surface-variant font-bold">Alimentação (19%)</p>
+<p class="font-bold">R$ 1.800</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">restaurant</span>
+</div>
+<div class="p-4 bg-surface-container-low rounded-lg flex justify-between items-center">
+<div>
+<p class="text-xs text-on-surface-variant font-bold">Atividades (13%)</p>
+<p class="font-bold">R$ 1.200</p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">confirmation_number</span>
 </div>
 </div>
 </div>
-<!-- Roteiro & Checklist Container -->
-<div class="md:col-span-4 flex flex-col gap-6">
-<!-- Roteiro -->
-<div class="bg-surface-container-lowest p-8 rounded-xl flex-1 border border-outline-variant/15">
-<h3 class="text-on-surface-variant font-semibold mb-4">Roteiro</h3>
-<div class="flex items-center gap-4 mb-6">
-<div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center">
-<span class="material-symbols-outlined text-on-secondary-container">calendar_month</span>
+</div>
+</section>
+<!-- Gamification Strip -->
+<section class="flex flex-wrap items-center justify-between p-6 bg-gradient-to-r from-on-tertiary-fixed-variant to-[#003833] rounded-xl text-white">
+<div class="flex items-center gap-6">
+<div class="flex -space-x-3">
+<div class="w-12 h-12 rounded-full border-2 border-[#005049] bg-white/20 flex items-center justify-center backdrop-blur-sm" title="Primeira Viagem">
+<span class="material-symbols-outlined text-[#fe932c]" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<div class="w-12 h-12 rounded-full border-2 border-[#005049] bg-white/20 flex items-center justify-center backdrop-blur-sm" title="Explorador do Nordeste">
+<span class="material-symbols-outlined text-[#fe932c]" style="font-variation-settings: 'FILL' 1;">map</span>
+</div>
 </div>
 <div>
-<div class="text-xl font-bold">12 dias</div>
-<div class="text-sm text-on-surface-variant">38 atividades</div>
+<p class="text-sm font-bold uppercase tracking-widest text-[#fe932c]">Conquistas Ativas</p>
+<p class="text-xl font-headline font-extrabold">Level 9 Desbravador</p>
 </div>
 </div>
-<!-- Mini Calendar Visual -->
-<div class="grid grid-cols-7 gap-1">
-<div class="h-8 rounded bg-primary-container/20"></div>
-<div class="h-8 rounded bg-primary-container/20"></div>
-<div class="h-8 rounded bg-primary-container"></div>
-<div class="h-8 rounded bg-primary-container"></div>
-<div class="h-8 rounded bg-primary-container"></div>
-<div class="h-8 rounded bg-primary-container"></div>
-<div class="h-8 rounded bg-primary-container"></div>
-<!-- Day indicators... -->
+<div class="h-10 w-40 bg-white/10 rounded-lg flex items-center justify-center gap-2 border border-white/20">
+<span class="text-xs font-bold">Próximo Level em 400 pts</span>
 </div>
-</div>
-<!-- Checklist -->
-<div class="bg-surface-container-lowest p-8 rounded-xl flex-1 border border-outline-variant/15">
-<h3 class="text-on-surface-variant font-semibold mb-4">Checklist</h3>
-<div class="flex justify-between items-end mb-2">
-<span class="text-2xl font-bold">12/18 itens</span>
-<span class="text-sm font-bold text-tertiary">67%</span>
-</div>
-<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-<div class="bg-tertiary h-full w-2/3"></div>
-</div>
-<p class="mt-4 text-sm text-on-surface-variant">Faltam documentos e seguro.</p>
-</div>
-</div>
-<!-- Gamificação -->
-<div class="md:col-span-4 bg-[#040d1b] p-8 rounded-xl text-white relative overflow-hidden group border border-white/5">
-<div class="absolute -top-12 -right-12 w-48 h-48 bg-primary-container rounded-full opacity-10 group-hover:opacity-20 transition-opacity"></div>
-<h3 class="text-primary-container font-semibold mb-6 flex items-center gap-2">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
-                    Status da Expedição
-                </h3>
-<div class="mb-8">
-<div class="text-sm opacity-60 mb-1">Rank Atual</div>
-<div class="text-3xl font-headline font-bold">Aventureiro</div>
-</div>
-<div class="flex items-center gap-3 mb-8">
-<div class="bg-white/10 px-4 py-2 rounded-lg font-bold text-primary-container">+180 PA</div>
-<div class="text-sm opacity-60">Próximo nível: Explorador</div>
-</div>
-<div class="flex gap-4">
-<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center" title="Explorador de Lisboa">
-<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">castle</span>
-</div>
-<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center" title="Planejador Fiel">
-<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">assignment_turned_in</span>
-</div>
-<div class="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center" title="Veloz">
-<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">bolt</span>
-</div>
-</div>
-</div>
-<!-- Fases (Wide) -->
-<div class="md:col-span-12 bg-surface-container-low p-10 rounded-xl border border-outline-variant/15">
-<h3 class="text-on-surface-variant font-semibold mb-8">Fluxo de Preparação</h3>
-<div class="relative flex justify-between items-center">
-<div class="absolute top-1/2 left-0 w-full h-1 bg-surface-container-highest -translate-y-1/2 -z-0"></div>
-<div class="absolute top-1/2 left-0 w-3/4 h-1 bg-tertiary -translate-y-1/2 -z-0 transition-all duration-1000"></div>
-<!-- Phase Markers -->
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">1</div>
-<span class="text-xs font-bold">Destino</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">2</div>
-<span class="text-xs font-bold">Voos</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">3</div>
-<span class="text-xs font-bold">Estadia</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">4</div>
-<span class="text-xs font-bold">Roteiro</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">5</div>
-<span class="text-xs font-bold">Transporte</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white text-xs font-bold">6</div>
-<span class="text-xs font-bold">Seguro</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center text-on-surface-variant text-xs font-bold">
-<span class="material-symbols-outlined text-sm">lock</span>
-</div>
-<span class="text-xs font-medium text-on-surface-variant">Check-in</span>
-</div>
-<div class="relative z-10 flex flex-col items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest border-2 border-outline-variant flex items-center justify-center text-on-surface-variant text-xs font-bold">
-<span class="material-symbols-outlined text-sm">lock</span>
-</div>
-<span class="text-xs font-medium text-on-surface-variant">Partida</span>
-</div>
-</div>
-</div>
-</div>
-<!-- Footer / Disclaimer -->
-<div class="flex flex-col md:flex-row justify-between items-center gap-6 pt-12 border-t border-surface-container-high">
-<div class="flex flex-col gap-1 text-sm text-on-surface-variant opacity-70">
-<div class="flex items-center gap-1">
-<span class="material-symbols-outlined text-sm">smart_toy</span>
-                    🤖 Gerado com IA
-                </div>
-<div>Última atualização: 23 Mar 2026, 14:30</div>
-</div>
-<button class="px-8 py-3 rounded-lg border-2 border-outline text-on-surface font-bold spring-transition hover:bg-surface-container active:scale-95">
-                Voltar ao Dashboard
-            </button>
+</section>
+<!-- Bottom Action Bar -->
+<footer class="flex justify-between items-center pt-8 border-t border-outline-variant/15">
+<button class="flex items-center gap-2 font-bold text-on-surface-variant hover:text-on-surface spring-transition">
+<span class="material-symbols-outlined">arrow_back</span>
+                    Voltar para Roteiro
+                </button>
+<button class="h-12 px-8 bg-[#fe932c] text-[#040d1b] font-bold rounded-lg flex items-center gap-2 hover:brightness-110 custom-shadow spring-transition">
+                    Voltar ao Dashboard <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</footer>
 </div>
 </main>
-<!-- BottomNavBar (Mobile Only) -->
-<nav class="md:hidden fixed bottom-0 left-0 w-full z-50 bg-[#ffffff]/70 dark:bg-[#040d1b]/70 backdrop-blur-xl flex justify-around items-center px-6 py-3 pb-safe shadow-[0px_-4px_24px_rgba(4,13,27,0.06)] rounded-t-3xl">
-<button class="flex flex-col items-center justify-center text-[#554336] dark:text-[#d6e0f4] p-2">
-<span class="material-symbols-outlined">home</span>
-<span class="text-xs font-medium font-['Work_Sans'] mt-1">Início</span>
-</button>
-<button class="flex flex-col items-center justify-center text-[#040d1b] dark:text-[#040d1b] bg-[#fe932c] rounded-xl px-4 py-1 scale-110 transition-all">
-<span class="material-symbols-outlined">luggage</span>
-<span class="text-xs font-medium font-['Work_Sans'] mt-1">Viagens</span>
-</button>
-<button class="flex flex-col items-center justify-center text-[#554336] dark:text-[#d6e0f4] p-2">
-<span class="material-symbols-outlined">bookmark</span>
-<span class="text-xs font-medium font-['Work_Sans'] mt-1">Salvos</span>
-</button>
-<button class="flex flex-col items-center justify-center text-[#554336] dark:text-[#d6e0f4] p-2">
-<span class="material-symbols-outlined">person</span>
-<span class="text-xs font-medium font-['Work_Sans'] mt-1">Perfil</span>
-</button>
-</nav>
-<!-- Map Background Aesthetic Element (Subtle) -->
-<div class="fixed top-0 right-0 -z-10 w-1/3 h-full opacity-[0.03] pointer-events-none">
-<img class="w-full h-full object-cover" data-alt="minimalist white architectural map lines and topography patterns on a light background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA5KMjuyGCPFo0DRWAIu4FOTtr9T1rIKOJ3YrBxrTJ14HvEejY3wkjAT3WJXDJYQZHrAiLzMveZPTGbez55vkXitWmCW-jdhvC2Px8BvK5xCy3NPhFjTmc8A24b2m-h0-L1ezjWuW89m4gY-5d81k1RxC4yeUa7Auaxag-htRp2yLolk2k4BeQHSayD7qsVVJK8-2GuX0hTiO0QnUMn1abY-f3v2Lps3f4tg8nBcXPbyDQvSQ6iPuEs0nZkNtLunwPe_IiZwZ8p_E3a"/>
-</div>
 </body></html>

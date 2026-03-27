@@ -74,9 +74,22 @@ export interface ExpeditionSummaryPhase4 {
   mobility: string[];
 }
 
+export interface GuideKeyFact {
+  label: string;
+  value: string;
+}
+
+export interface GuideAttraction {
+  name: string;
+  description: string;
+}
+
 export interface ExpeditionSummaryPhase5 {
   generatedAt: string;
   highlights: string[];
+  safetyLevel: string | null;
+  keyFacts: GuideKeyFact[];
+  topAttractions: GuideAttraction[];
 }
 
 export interface ExpeditionSummaryPhase6 {
@@ -92,6 +105,7 @@ export interface PendingItem {
 
 export interface ExpeditionSummary {
   tripId: string;
+  tripTitle: string;
   currentPhase: number;
   phase1: ExpeditionSummaryPhase1 | null;
   phase2: ExpeditionSummaryPhase2 | null;
@@ -289,6 +303,7 @@ export class ExpeditionSummaryService {
       where: { id: tripId, userId, deletedAt: null },
       select: {
         id: true,
+        title: true,
         destination: true,
         origin: true,
         destinationLat: true,
@@ -475,12 +490,35 @@ export class ExpeditionSummaryService {
     if (guide) {
       const content = guide.content as unknown as DestinationGuideContent;
       const highlights: string[] = [];
+      let safetyLevel: string | null = null;
+      const keyFacts: GuideKeyFact[] = [];
+      const topAttractions: GuideAttraction[] = [];
 
       if (isGuideV2(content)) {
         // v2 format: extract highlights from destination info + safety level
         if (content.destination?.name) highlights.push(content.destination.name);
-        if (content.safety?.level) highlights.push(content.safety.level);
+        if (content.safety?.level) {
+          highlights.push(content.safety.level);
+          safetyLevel = content.safety.level;
+        }
         if (content.quickFacts?.currency?.value) highlights.push(content.quickFacts.currency.value);
+
+        // Key facts from quickFacts
+        const factKeys = ["climate", "currency", "language", "timezone"] as const;
+        for (const fk of factKeys) {
+          const fact = content.quickFacts?.[fk];
+          if (fact?.label && fact?.value) {
+            keyFacts.push({ label: fact.label, value: fact.value });
+          }
+        }
+
+        // Top attractions from mustSee
+        const MAX_ATTRACTIONS = 3;
+        if (content.mustSee) {
+          for (const item of content.mustSee.slice(0, MAX_ATTRACTIONS)) {
+            topAttractions.push({ name: item.name, description: item.description });
+          }
+        }
       } else {
         // v1 format: use section icons + titles
         for (const key of HIGHLIGHT_SECTION_KEYS) {
@@ -495,6 +533,9 @@ export class ExpeditionSummaryService {
       phase5 = {
         generatedAt: guide.generatedAt.toISOString().split("T")[0]!,
         highlights,
+        safetyLevel,
+        keyFacts,
+        topAttractions,
       };
     }
 
@@ -523,6 +564,7 @@ export class ExpeditionSummaryService {
 
     return {
       tripId,
+      tripTitle: trip.title,
       currentPhase: trip.currentPhase,
       phase1,
       phase2,
