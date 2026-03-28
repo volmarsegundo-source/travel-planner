@@ -92,9 +92,16 @@ export interface ExpeditionSummaryPhase5 {
   topAttractions: GuideAttraction[];
 }
 
+export interface Phase6DaySummary {
+  dayNumber: number;
+  title: string | null;
+  activitiesCount: number;
+}
+
 export interface ExpeditionSummaryPhase6 {
   dayCount: number;
   totalActivities: number;
+  days: Phase6DaySummary[];
 }
 
 export interface PendingItem {
@@ -374,8 +381,11 @@ export class ExpeditionSummaryService {
         }),
         db.itineraryDay.findMany({
           where: { tripId },
+          orderBy: { dayNumber: "asc" },
           select: {
             id: true,
+            dayNumber: true,
+            notes: true,
             _count: { select: { activities: true } },
           },
         }),
@@ -549,6 +559,11 @@ export class ExpeditionSummaryService {
       phase6 = {
         dayCount: itineraryDays.length,
         totalActivities,
+        days: itineraryDays.map((day) => ({
+          dayNumber: day.dayNumber,
+          title: day.notes?.split("\n")[0]?.slice(0, 60) ?? null,
+          activitiesCount: day._count.activities,
+        })),
       };
     }
 

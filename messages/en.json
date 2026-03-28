@@ -1129,6 +1129,8 @@
       "phase5Highlights": "Highlights:",
       "phase6Days": "{count, plural, one {# day planned} other {# days planned}}",
       "phase6Activities": "{count, plural, one {# activity} other {# activities}}",
+      "phase6DayDefault": "Day {num}",
+      "phase6DayActivities": "{count, plural, one {# activity} other {# activities}}",
       "phase6NotGenerated": "Itinerary not yet created",
       "gamificationTitle": "EXPEDITION ACHIEVEMENTS",
       "gamificationPA": "{points} PA earned",

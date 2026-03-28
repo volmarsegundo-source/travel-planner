@@ -852,13 +852,14 @@ function PhaseContent({
             label={t("phase3Progress", { done: p.done, total: p.total })}
           />
           {showPending ? (
-            <div>
-              <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant mt-2">
+            <div className="mt-2 rounded-lg border-l-4 border-atlas-warning bg-atlas-warning-container p-3" role="alert">
+              <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface flex items-center gap-1.5">
+                <span aria-hidden="true">⚠️</span>
                 {t("phase3Pending")}
               </p>
               <ul className="mt-1 space-y-0.5">
                 {pendingRequired.slice(0, MAX_PENDING_DISPLAY).map((item) => (
-                  <li key={item.itemKey} className="text-xs font-atlas-body text-atlas-warning flex items-center gap-1">
+                  <li key={item.itemKey} className="text-xs font-atlas-body text-atlas-on-error-container flex items-center gap-1">
                     <span aria-hidden="true">!</span>
                     <span>{item.itemKey}</span>
                   </li>
@@ -1001,12 +1002,32 @@ function PhaseContent({
       const p = summary.phase6;
       if (!p) return null;
       return (
-        <div className="space-y-1" data-testid="phase-content-6">
+        <div className="space-y-2" data-testid="phase-content-6">
           <p className={rowClasses}>
             {t("phase6Days", { count: p.dayCount })}
             {" \u00B7 "}
             {t("phase6Activities", { count: p.totalActivities })}
           </p>
+          {/* Day-by-day summary */}
+          {p.days && p.days.length > 0 && (
+            <div className="mt-2 space-y-1.5">
+              {p.days.map((day) => (
+                <div
+                  key={day.dayNumber}
+                  className="flex items-center gap-2 text-xs font-atlas-body text-atlas-on-surface-variant"
+                >
+                  <span className="inline-flex items-center justify-center size-5 rounded-full bg-atlas-secondary-container/20 text-atlas-secondary text-[10px] font-bold shrink-0">
+                    {day.dayNumber}
+                  </span>
+                  <span className="truncate">
+                    {day.title || t("phase6DayDefault", { num: day.dayNumber })}
+                  </span>
+                  <span className="text-atlas-outline-variant">&middot;</span>
+                  <span className="shrink-0">{t("phase6DayActivities", { count: day.activitiesCount })}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       );
     }
