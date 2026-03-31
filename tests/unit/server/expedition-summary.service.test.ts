@@ -210,6 +210,52 @@ describe("collectPendingItems", () => {
     const accommodationItem = result.find((p) => p.phase === 4 && p.key === "accommodation");
     expect(accommodationItem?.severity).toBe("recommended");
   });
+
+  // ── Phase 4 "Ainda não decidi" scenarios (SPEC-FASE4-AND-001) ──────────
+
+  it("flags transportUndecided as info severity, not recommended", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 3, total: 3, items: [] },
+      { transportSegments: [], accommodations: [{ type: "hotel", name: "H", checkIn: null, checkOut: null, maskedBookingCode: null }], mobility: ["metro"], transportUndecided: true, accommodationUndecided: false, mobilityUndecided: false },
+      null,
+      null,
+    );
+    const transportItem = result.find((p) => p.phase === 4 && p.key === "transport_undecided");
+    expect(transportItem).toBeDefined();
+    expect(transportItem?.severity).toBe("info");
+    // Should NOT have a "transport" recommended item
+    expect(result.find((p) => p.phase === 4 && p.key === "transport")).toBeUndefined();
+  });
+
+  it("flags all undecided steps as info severity", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 3, total: 3, items: [] },
+      { transportSegments: [], accommodations: [], mobility: [], transportUndecided: true, accommodationUndecided: true, mobilityUndecided: true },
+      null,
+      null,
+    );
+    const phase4Items = result.filter((p) => p.phase === 4);
+    expect(phase4Items).toHaveLength(3);
+    expect(phase4Items.every((p) => p.severity === "info")).toBe(true);
+    expect(phase4Items.map((p) => p.key).sort()).toEqual(["accommodation_undecided", "mobility_undecided", "transport_undecided"]);
+  });
+
+  it("does not flag as undecided when fields are filled", () => {
+    const result = collectPendingItems(
+      { destination: "Paris", origin: "SP", startDate: "2026-06-01", endDate: "2026-06-10", tripType: "int", destinationLat: null, destinationLon: null, flexibleDates: false, name: null, ageRange: null },
+      { travelerType: "solo", accommodationStyle: "hotel", travelPace: 5, budget: 3000, currency: "USD", passengers: null, budgetRange: null, preferences: null },
+      { done: 3, total: 3, items: [] },
+      { transportSegments: [{ type: "flight", departurePlace: "GRU", arrivalPlace: "CDG", departureAt: null, arrivalAt: null, provider: null, maskedBookingCode: null }], accommodations: [{ type: "hotel", name: "H", checkIn: null, checkOut: null, maskedBookingCode: null }], mobility: ["metro"], transportUndecided: false, accommodationUndecided: false, mobilityUndecided: false },
+      { generatedAt: "2026-05-01", highlights: [], safetyLevel: null, keyFacts: [], topAttractions: [] },
+      { dayCount: 3, totalActivities: 10 },
+    );
+    const phase4Items = result.filter((p) => p.phase === 4);
+    expect(phase4Items).toHaveLength(0);
+  });
 });
 
 describe("ExpeditionSummaryService", () => {
@@ -302,9 +348,9 @@ describe("ExpeditionSummaryService", () => {
 
       // Itinerary days
       prismaMock.itineraryDay.findMany.mockResolvedValue([
-        { id: "day-1", _count: { activities: 4 } },
-        { id: "day-2", _count: { activities: 3 } },
-        { id: "day-3", _count: { activities: 5 } },
+        { id: "day-1", _count: { activities: 4 }, activities: [{ title: "Visit Eiffel Tower" }, { title: "Louvre Museum" }, { title: "Seine Cruise" }, { title: "Dinner" }] },
+        { id: "day-2", _count: { activities: 3 }, activities: [{ title: "Versailles" }, { title: "Shopping" }, { title: "Café" }] },
+        { id: "day-3", _count: { activities: 5 }, activities: [{ title: "Montmartre" }, { title: "Sacré-Cœur" }, { title: "Lunch" }, { title: "Musée d'Orsay" }, { title: "Night walk" }] },
       ] as never);
 
       const result = await ExpeditionSummaryService.getExpeditionSummary(
@@ -365,10 +411,12 @@ describe("ExpeditionSummaryService", () => {
       expect(result.phase5!.highlights).toHaveLength(3);
 
       // Phase 6
-      expect(result.phase6).toEqual({
+      expect(result.phase6).toMatchObject({
         dayCount: 3,
         totalActivities: 12,
       });
+      expect(result.phase6!.days).toHaveLength(3);
+      expect(result.phase6!.days[0].activityNames).toEqual(["Visit Eiffel Tower", "Louvre Museum", "Seine Cruise", "Dinner"]);
 
       // New fields
       expect(result.currentPhase).toBe(6);

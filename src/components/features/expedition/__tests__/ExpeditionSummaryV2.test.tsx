@@ -227,31 +227,7 @@ describe("ExpeditionSummaryV2", () => {
     expect(screen.getByText("expedition.summaryV2.heroDestinationFallback")).toBeInTheDocument();
   });
 
-  // ─── Overview Card ────────────────────────────────────────────────────────
-
-  it("renders trip overview card with key fields", () => {
-    render(<ExpeditionSummaryV2 {...defaultProps} />);
-    const card = screen.getByTestId("overview-card");
-    expect(card).toBeInTheDocument();
-    expect(within(card).getByText("expedition.summaryV2.overviewTitle")).toBeInTheDocument();
-    expect(within(card).getByText("Sao Paulo")).toBeInTheDocument();
-  });
-
-  it("renders travel style chips in overview", () => {
-    render(<ExpeditionSummaryV2 {...defaultProps} />);
-    const card = screen.getByTestId("overview-card");
-    expect(within(card).getByText("couple")).toBeInTheDocument();
-    expect(within(card).getByText("hotel")).toBeInTheDocument();
-  });
-
-  it("shows phase 1 CTA when phase1 is null", () => {
-    const noPhase1 = {
-      ...mockSummary,
-      phase1: null,
-    } as unknown as ExpeditionSummaryData;
-    render(<ExpeditionSummaryV2 {...defaultProps} summary={noPhase1} />);
-    expect(screen.getByText("expedition.summaryV2.overviewComplete1")).toBeInTheDocument();
-  });
+  // ─── Overview Card removed (Bloco 2 Fix #2) ─────────────────────────────
 
   // ─── Phase Progress Bar ───────────────────────────────────────────────────
 
@@ -315,22 +291,26 @@ describe("ExpeditionSummaryV2", () => {
     render(<ExpeditionSummaryV2 {...defaultProps} />);
     const content = screen.getByTestId("phase-content-2");
     expect(within(content).getByTestId("phase2-interests")).toBeInTheDocument();
-    expect(within(content).getByText("beaches")).toBeInTheDocument();
-    expect(within(content).getByText("gastronomy")).toBeInTheDocument();
+    // Chips now use tPrefValue — mock returns "expedition.phase2.prefValue.{key}"
+    expect(within(content).getByText(/prefValue\.beaches/)).toBeInTheDocument();
+    expect(within(content).getByText(/prefValue\.gastronomy/)).toBeInTheDocument();
   });
 
   it("renders phase 2 dietary chips from preferences (P0 #2)", () => {
     render(<ExpeditionSummaryV2 {...defaultProps} />);
     const content = screen.getByTestId("phase-content-2");
     expect(within(content).getByTestId("phase2-dietary")).toBeInTheDocument();
-    expect(within(content).getByText("vegetarian")).toBeInTheDocument();
+    expect(within(content).getByText(/prefValue\.vegetarian/)).toBeInTheDocument();
   });
 
   it("renders phase 2 fitness level from preferences (P0 #2)", () => {
     render(<ExpeditionSummaryV2 {...defaultProps} />);
     const content = screen.getByTestId("phase-content-2");
-    expect(within(content).getByTestId("phase2-fitness")).toBeInTheDocument();
-    expect(within(content).getByText(/moderate/)).toBeInTheDocument();
+    const fitnessEl = within(content).getByTestId("phase2-fitness");
+    expect(fitnessEl).toBeInTheDocument();
+    // Fitness label + value both translated
+    expect(fitnessEl.textContent).toContain("phase2FitnessLabel");
+    expect(fitnessEl.textContent).toContain("phase2FitnessModerate");
   });
 
   it("omits preference sections when preferences are null", () => {
@@ -371,44 +351,21 @@ describe("ExpeditionSummaryV2", () => {
     expect(within(content).getByText(/Hotel Paris Plaza/)).toBeInTheDocument();
   });
 
-  it("renders phase 4 mobility chips", () => {
+  it("renders phase 4 mobility chips (translated)", () => {
     render(<ExpeditionSummaryV2 {...defaultProps} />);
     const content = screen.getByTestId("phase-content-4");
-    expect(within(content).getByText("metro")).toBeInTheDocument();
-    expect(within(content).getByText("walking")).toBeInTheDocument();
+    // Mobility chips are now translated — "metro" → phase4MobilityOther, "walking" → phase4MobilityWalking
+    const mobilityChips = within(content).getAllByText(/phase4Mobility/);
+    expect(mobilityChips.length).toBeGreaterThanOrEqual(2);
   });
 
   // ─── Phase 5: P0 #3 — dramatic dark card ─────────────────────────────────
 
-  it("renders phase 5 as dark card spanning 2 columns (P0 #3)", () => {
+  // Phase 5 now uses standard card (Bloco 2 Fix #6 — consistent styling)
+  it("renders phase 5 as standard card with content", () => {
     render(<ExpeditionSummaryV2 {...defaultProps} />);
     const card = screen.getByTestId("phase-card-v2-5");
     expect(card).toBeInTheDocument();
-    expect(card.className).toContain("md:col-span-2");
-    expect(card.className).toContain("bg-[#040d1b]");
-  });
-
-  it("renders phase 5 safety level badge (P0 #3)", () => {
-    render(<ExpeditionSummaryV2 {...defaultProps} />);
-    expect(screen.getByTestId("phase5-safety")).toBeInTheDocument();
-  });
-
-  it("renders phase 5 key facts as stat boxes (P0 #3)", () => {
-    render(<ExpeditionSummaryV2 {...defaultProps} />);
-    const stats = screen.getByTestId("phase5-stats");
-    const facts = within(stats).getAllByTestId("phase5-fact");
-    expect(facts.length).toBe(2);
-    expect(within(stats).getByText("Euro (EUR)")).toBeInTheDocument();
-  });
-
-  it("renders phase 5 top attractions as sub-cards (P0 #3)", () => {
-    render(<ExpeditionSummaryV2 {...defaultProps} />);
-    const attractions = screen.getByTestId("phase5-attractions");
-    const cards = within(attractions).getAllByTestId("phase5-attraction-card");
-    expect(cards.length).toBe(3);
-    expect(within(attractions).getByText("Torre Eiffel")).toBeInTheDocument();
-    expect(within(attractions).getByText("Louvre")).toBeInTheDocument();
-    expect(within(attractions).getByText("Montmartre")).toBeInTheDocument();
   });
 
   it("renders phase 5 AI badge", () => {

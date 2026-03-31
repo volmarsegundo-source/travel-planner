@@ -1043,7 +1043,13 @@ export async function viewGuideSectionAction(
 export async function advanceFromPhaseAction(
   tripId: string,
   phaseNumber: number,
-  metadata?: { needsCarRental?: boolean; cnhResolved?: boolean }
+  metadata?: {
+    needsCarRental?: boolean;
+    cnhResolved?: boolean;
+    transportUndecided?: boolean;
+    accommodationUndecided?: boolean;
+    mobilityUndecided?: boolean;
+  }
 ): Promise<
   ActionResult<{
     nextPhase: number;
@@ -1073,6 +1079,9 @@ export async function advanceFromPhaseAction(
             metadata: {
               needsCarRental: Boolean(metadata.needsCarRental ?? false),
               cnhResolved: Boolean(metadata.cnhResolved ?? false),
+              transportUndecided: Boolean(metadata.transportUndecided ?? false),
+              accommodationUndecided: Boolean(metadata.accommodationUndecided ?? false),
+              mobilityUndecided: Boolean(metadata.mobilityUndecided ?? false),
             },
           },
         });
@@ -1098,11 +1107,21 @@ export async function advanceFromPhaseAction(
         where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
       });
       const phaseMeta = phase?.metadata as Record<string, unknown> | null;
-      if (phaseMeta?.needsCarRental === true) {
+
+      // If ANY step is undecided, do NOT award points (SPEC-FASE4-AND-001 RN-06)
+      const anyUndecided = Boolean(
+        phaseMeta?.transportUndecided ||
+        phaseMeta?.accommodationUndecided ||
+        phaseMeta?.mobilityUndecided
+      );
+
+      if (anyUndecided) {
+        prerequisitesMet = false;
+      } else if (phaseMeta?.needsCarRental === true) {
         // CNH is required for any trip with car rental
         prerequisitesMet = phaseMeta?.cnhResolved === true;
       } else {
-        // No car rental needed
+        // No car rental needed — all steps filled
         prerequisitesMet = phaseMeta?.needsCarRental === false;
       }
     }
@@ -1178,6 +1197,37 @@ export async function getExpeditionPhasesAction(
     return { success: true, data: phases };
   } catch (error) {
     logger.error("expedition.getPhases.error", error, {
+      userId: hashUserId(session.user.id),
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── getPhaseMetadataAction ─────────────────────────────────────────────────
+
+export async function getPhaseMetadataAction(
+  tripId: string,
+  phaseNumber: number
+): Promise<ActionResult<Record<string, unknown>>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    const phase = await db.expeditionPhase.findFirst({
+      where: {
+        tripId,
+        phaseNumber,
+        trip: { userId: session.user.id, deletedAt: null },
+      },
+      select: { metadata: true },
+    });
+
+    return {
+      success: true,
+      data: (phase?.metadata as Record<string, unknown>) ?? {},
+    };
+  } catch (error) {
+    logger.error("expedition.getPhaseMetadata.error", error, {
       userId: hashUserId(session.user.id),
     });
     return { success: false, error: mapErrorToKey(error) };

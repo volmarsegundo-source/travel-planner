@@ -10,6 +10,7 @@ import { AtlasChip } from "@/components/ui/AtlasChip";
 import { PointsAnimation } from "./PointsAnimation";
 import { TripCountdown } from "./TripCountdown";
 import { getDestinationImage } from "@/lib/utils/destination-images";
+import { getPhaseStatusVisual, deriveCanonicalStatus, type PhaseStatus } from "@/lib/utils/phase-status";
 import { Link } from "@/i18n/navigation";
 import type { ExpeditionSummary as ExpeditionSummaryData } from "@/server/services/expedition-summary.service";
 import type { TripReadinessResult } from "@/server/services/trip-readiness.service";
@@ -44,6 +45,88 @@ const SAFETY_LEVEL_MAP: Record<string, { color: "success" | "warning" | "error";
   caution: { color: "error", key: "phase5SafeCaution" },
 };
 
+const TRIP_TYPE_KEYS: Record<string, string> = {
+  domestic: "tripTypeDomestic",
+  mercosul: "tripTypeMercosul",
+  international: "tripTypeInternational",
+  schengen: "tripTypeSchengen",
+};
+
+const CHECKLIST_ITEM_KEYS: Record<string, string> = {
+  // Legacy / EXTRA_CHECKLIST_ITEMS keys
+  passport_valid_6m: "phase3ItemPassport",
+  visa_required: "phase3ItemVisa",
+  travel_insurance: "phase3ItemInsurance",
+  yellow_fever_vaccine: "phase3ItemYellowFever",
+  etias_eta: "phase3ItemEtias",
+  emergency_contacts: "phase3ItemEmergency",
+  copies_documents: "phase3ItemDocuments",
+  local_currency: "phase3ItemCurrency",
+  // Checklist rules keys (all trip types)
+  national_id: "phase3ItemNationalId",
+  passport: "phase3ItemPassportDoc",
+  passport_validity: "phase3ItemPassportValidity",
+  flight_tickets: "phase3ItemFlightTickets",
+  accommodation: "phase3ItemAccommodation",
+  travel_insurance_rec: "phase3ItemInsuranceRec",
+  travel_insurance_30k: "phase3ItemInsurance30k",
+  currency_exchange: "phase3ItemCurrencyExchange",
+  visa_check: "phase3ItemVisaCheck",
+  vaccinations: "phase3ItemVaccinations",
+  notify_bank: "phase3ItemNotifyBank",
+  international_sim: "phase3ItemInternationalSim",
+  power_adapter: "phase3ItemPowerAdapter",
+  schengen_visa: "phase3ItemSchengenVisa",
+  eta_etias: "phase3ItemEtaEtias",
+};
+
+const TRANSPORT_TYPE_KEYS: Record<string, string> = {
+  flight: "phase4TransportFlight",
+  bus: "phase4TransportBus",
+  train: "phase4TransportTrain",
+  car: "phase4TransportCar",
+  ferry: "phase4TransportFerry",
+  other: "phase4TransportOther",
+};
+
+const ACCOMMODATION_TYPE_KEYS: Record<string, string> = {
+  hotel: "phase4AccomHotel",
+  hostel: "phase4AccomHostel",
+  airbnb: "phase4AccomAirbnb",
+  friends_house: "phase4AccomFriends",
+  camping: "phase4AccomCamping",
+  other: "phase4AccomOther",
+};
+
+const MOBILITY_TYPE_KEYS: Record<string, string> = {
+  public_transit: "phase4MobilityPublicTransit",
+  taxi_rideshare: "phase4MobilityTaxiRideshare",
+  walking: "phase4MobilityWalking",
+  bicycle: "phase4MobilityBicycle",
+  private_transfer: "phase4MobilityPrivateTransfer",
+  car_rental: "phase4MobilityCarRental",
+  other: "phase4MobilityOther",
+};
+
+const PACE_LABELS: Record<string, string> = {
+  1: "phase2PaceRelaxed",
+  2: "phase2PaceRelaxed",
+  3: "phase2PaceRelaxed",
+  4: "phase2PaceModerate",
+  5: "phase2PaceModerate",
+  6: "phase2PaceModerate",
+  7: "phase2PaceIntense",
+  8: "phase2PaceIntense",
+  9: "phase2PaceIntense",
+  10: "phase2PaceIntense",
+};
+
+const FITNESS_KEYS: Record<string, string> = {
+  low: "phase2FitnessLow",
+  moderate: "phase2FitnessModerate",
+  high: "phase2FitnessHigh",
+};
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface ExpeditionSummaryV2Props {
@@ -68,7 +151,7 @@ interface ExpeditionSummaryV2Props {
   } | null;
 }
 
-type PhaseStatus = "complete" | "partial" | "not_started";
+// PhaseStatus imported from @/lib/utils/phase-status
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -116,6 +199,7 @@ export function ExpeditionSummaryV2({
 }: ExpeditionSummaryV2Props) {
   const t = useTranslations("expedition.summaryV2");
   const tPhases = useTranslations("gamification.phases");
+  const tPrefValue = useTranslations("expedition.phase2.prefValue");
   const router = useRouter();
   const locale = useLocale();
 
@@ -147,10 +231,37 @@ export function ExpeditionSummaryV2({
   function getPhaseStatus(phaseNum: number): PhaseStatus {
     if (!readiness) {
       const phaseKey = `phase${phaseNum}` as keyof typeof summary;
-      return summary[phaseKey] ? "complete" : "not_started";
+      return summary[phaseKey] ? "completed" : "not_started";
     }
     const phase = readiness.phases.find((p) => p.phase === phaseNum);
-    return phase?.status ?? "not_started";
+    if (!phase) return "not_started";
+
+    // Detect pending items for Phase 3 (checklist) and Phase 4 (undecided)
+    const hasPendingItems = detectPendingItems(phaseNum, summary);
+    const currentPhaseNum = readiness.phases.find(
+      (p) => p.status === "partial"
+    )?.phase;
+
+    return deriveCanonicalStatus({
+      readinessStatus: phase.status,
+      phaseNumber: phaseNum,
+      isCurrentPhase: phaseNum === currentPhaseNum,
+      hasPendingItems,
+    });
+  }
+
+  function detectPendingItems(phaseNum: number, data: ExpeditionSummaryData): boolean {
+    if (phaseNum === 3 && data.phase3) {
+      return data.phase3.total > 0 && data.phase3.done < data.phase3.total;
+    }
+    if (phaseNum === 4 && data.phase4) {
+      return !!(
+        data.phase4.transportUndecided ||
+        data.phase4.accommodationUndecided ||
+        data.phase4.mobilityUndecided
+      );
+    }
+    return false;
   }
 
   function getPhaseUrl(phaseNum: number): string {
@@ -158,31 +269,23 @@ export function ExpeditionSummaryV2({
   }
 
   function getStatusBadgeColor(status: PhaseStatus): "success" | "warning" | "info" {
-    if (status === "complete") return "success";
-    if (status === "partial") return "warning";
-    return "info";
+    return getPhaseStatusVisual(status).badgeColor;
   }
 
   function getStatusLabel(status: PhaseStatus): string {
-    if (status === "complete") return t("phaseCompleted");
-    if (status === "partial") return t("phaseInProgress");
-    return t("phaseNotStarted");
+    return t(getPhaseStatusVisual(status).badgeTextKey);
   }
 
   function getCtaLabel(status: PhaseStatus): string {
-    if (status === "complete") return t("phaseEdit");
-    if (status === "partial") return t("phaseContinue");
-    return t("phaseStart");
+    return t(getPhaseStatusVisual(status).ctaTextKey);
   }
 
   function getBorderClass(status: PhaseStatus): string {
-    if (status === "complete") return "border-l-4 border-l-atlas-success";
-    if (status === "partial") return "border-l-4 border-l-atlas-secondary-container";
-    return "";
+    return getPhaseStatusVisual(status).borderClass;
   }
 
   const completedCount = Array.from({ length: TOTAL_PHASES }, (_, i) => i + 1)
-    .filter((n) => getPhaseStatus(n) === "complete").length;
+    .filter((n) => getPhaseStatus(n) === "completed").length;
 
   const destination = summary.phase1?.destination ?? null;
   const origin = summary.phase1?.origin ?? null;
@@ -275,78 +378,14 @@ export function ExpeditionSummaryV2({
         </div>
       </section>
 
-      {/* ─── Trip Overview Card ────────────────────────────────────────────── */}
-      <section className="mt-8" data-testid="overview-card" aria-labelledby="overview-heading">
-        {summary.phase1 ? (
-          <AtlasCard variant="elevated">
-            <AtlasBadge variant="category-overline" className="mb-4">
-              <span id="overview-heading">{t("overviewTitle")}</span>
-            </AtlasBadge>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-              <OverviewField label={t("overviewOrigin")} value={origin ?? t("overviewNotInformed")} muted={!origin} />
-              <OverviewField label={t("overviewTripType")} value={summary.phase1.tripType} />
-              <OverviewField label={t("overviewDestination")} value={summary.phase1.destination} />
-              <OverviewField
-                label={t("overviewTravelers")}
-                value={totalPassengers > 0 ? formatPassengersCompact(summary.phase2?.passengers ?? null, t) : t("overviewNotDefined")}
-                muted={totalPassengers === 0}
-              />
-              <OverviewField label={t("overviewDeparture")} value={summary.phase1.startDate ? formatDate(summary.phase1.startDate) : t("overviewNotDefined")} muted={!summary.phase1.startDate} />
-              <OverviewField
-                label={t("overviewBudget")}
-                value={formatBudget(summary.phase2?.budget ?? null, summary.phase2?.currency ?? null, summary.phase2?.budgetRange ?? null)}
-                muted={!summary.phase2?.budget && !summary.phase2?.budgetRange}
-              />
-              <OverviewField
-                label={t("overviewReturn")}
-                value={
-                  summary.phase1.flexibleDates
-                    ? t("overviewFlexibleDates")
-                    : summary.phase1.endDate
-                      ? formatDate(summary.phase1.endDate)
-                      : t("overviewNotDefined")
-                }
-                muted={!summary.phase1.endDate && !summary.phase1.flexibleDates}
-              />
-            </div>
-
-            {/* Travel style chips */}
-            {(summary.phase2?.travelerType || summary.phase2?.accommodationStyle) && (
-              <div className="mt-4 flex flex-wrap gap-2">
-                {summary.phase2?.travelerType && (
-                  <AtlasChip mode="selectable" selected disabled size="sm">
-                    {summary.phase2.travelerType}
-                  </AtlasChip>
-                )}
-                {summary.phase2?.accommodationStyle && (
-                  <AtlasChip mode="selectable" selected disabled size="sm">
-                    {summary.phase2.accommodationStyle}
-                  </AtlasChip>
-                )}
-              </div>
-            )}
-          </AtlasCard>
-        ) : (
-          <AtlasCard variant="elevated">
-            <p className="text-sm font-atlas-body text-atlas-on-surface-variant">
-              {t("overviewComplete1")}
-            </p>
-            <Link href={getPhaseUrl(1)} className="mt-2 inline-block">
-              <AtlasButton variant="ghost" size="sm">{t("phaseStart")}</AtlasButton>
-            </Link>
-          </AtlasCard>
-        )}
-      </section>
-
-      {/* ─── Phase Progress Bar ────────────────────────────────────────────── */}
+      {/* ─── Phase Progress Bar (moved above phase cards, clickable) ─────── */}
       <section className="mt-8" data-testid="phase-progress-bar">
         {/* Visible progress count label */}
         <p className="text-sm font-atlas-body font-bold text-atlas-on-surface mb-3" data-testid="progress-count-label">
           {t("progressCountLabel", { completed: completedCount, total: TOTAL_PHASES })}
         </p>
         <div
-          role="img"
+          role="navigation"
           aria-label={t("progressLabel", { completed: completedCount, total: TOTAL_PHASES })}
           className="flex items-center justify-between"
         >
@@ -357,51 +396,57 @@ export function ExpeditionSummaryV2({
 
             return (
               <div key={phaseNum} className="flex items-center flex-1 last:flex-none">
-                {/* Circle */}
-                <div className="flex flex-col items-center">
-                  <div
-                    className={`
-                      flex items-center justify-center rounded-full
-                      size-7 md:size-8
-                      ${status === "complete"
-                        ? "bg-atlas-success text-white"
-                        : status === "partial"
-                          ? "bg-atlas-secondary-container shadow-atlas-glow-amber animate-pulse motion-reduce:animate-none"
-                          : "border-2 border-atlas-outline-variant"
-                      }
-                    `}
-                    data-testid={`progress-circle-${phaseNum}`}
-                  >
-                    {status === "complete" && <CheckIcon className="size-3.5 text-white" />}
-                    {status === "partial" && (
-                      <span className="text-xs font-bold text-atlas-primary">{phaseNum}</span>
-                    )}
-                    {status === "not_started" && (
-                      <span className="text-xs font-semibold text-atlas-on-surface-variant">{phaseNum}</span>
-                    )}
-                  </div>
-                  <span
-                    className={`
-                      mt-1 text-[10px] md:text-xs font-atlas-body font-semibold text-center
-                      ${status === "complete"
-                        ? "text-[#059669]"
-                        : status === "partial"
-                          ? "text-atlas-on-surface font-bold"
-                          : "text-atlas-on-surface-variant"
-                      }
-                    `}
-                  >
-                    <span className="hidden sm:inline">{tPhases(PHASE_NAME_KEYS[i])}</span>
-                    <span className="sm:hidden">{phaseNum}</span>
-                  </span>
-                </div>
+                {/* Circle — clickable, navigates to phase */}
+                <Link href={getPhaseUrl(phaseNum)} className="flex flex-col items-center group cursor-pointer">
+                  {(() => {
+                    const visual = getPhaseStatusVisual(status);
+                    return (
+                      <>
+                        <div
+                          className={`
+                            flex items-center justify-center rounded-full
+                            size-7 md:size-8
+                            ${visual.circleBg} ${visual.circleText} ${visual.circleBorder}
+                            ${status === "in_progress" ? "shadow-atlas-glow-amber animate-pulse motion-reduce:animate-none" : ""}
+                          `}
+                          data-testid={`progress-circle-${phaseNum}`}
+                        >
+                          {visual.icon === "check" && <CheckIcon className="size-3.5 text-white" />}
+                          {visual.icon === "number" && (
+                            <span className={`text-xs font-bold ${status === "in_progress" ? "text-atlas-primary" : "text-white"}`}>{phaseNum}</span>
+                          )}
+                          {visual.icon === "outline" && (
+                            <span className="text-xs font-semibold text-atlas-on-surface-variant">{phaseNum}</span>
+                          )}
+                          {visual.icon === "lock" && (
+                            <span className="text-xs" aria-hidden="true">🔒</span>
+                          )}
+                        </div>
+                        <span
+                          className={`
+                            mt-1 text-[10px] md:text-xs font-atlas-body font-semibold text-center
+                            ${status === "completed"
+                              ? "text-[#059669]"
+                              : status === "in_progress" || status === "pending"
+                                ? "text-atlas-on-surface font-bold"
+                                : "text-atlas-on-surface-variant"
+                            }
+                          `}
+                        >
+                          <span className="hidden sm:inline">{tPhases(PHASE_NAME_KEYS[i])}</span>
+                          <span className="sm:hidden">{phaseNum}</span>
+                        </span>
+                      </>
+                    );
+                  })()}
+                </Link>
 
                 {/* Connecting line */}
                 {!isLast && (
                   <div
                     className={`
                       flex-1 h-0.5 mx-1
-                      ${status === "complete"
+                      ${status === "completed"
                         ? "bg-atlas-success"
                         : "bg-atlas-surface-container-high"
                       }
@@ -428,25 +473,6 @@ export function ExpeditionSummaryV2({
             const status = getPhaseStatus(phaseNum);
             const icon = PHASE_ICONS[i];
             const name = tPhases(PHASE_NAME_KEYS[i]);
-
-            // Phase 5 gets special dark treatment spanning 2 columns
-            if (phaseNum === 5 && status !== "not_started") {
-              return (
-                <Phase5DarkCard
-                  key={phaseNum}
-                  summary={summary}
-                  status={status}
-                  icon={icon}
-                  name={name}
-                  tripId={tripId}
-                  formatDate={formatDate}
-                  t={t}
-                  getStatusBadgeColor={getStatusBadgeColor}
-                  getStatusLabel={getStatusLabel}
-                  getCtaLabel={getCtaLabel}
-                />
-              );
-            }
 
             return (
               <AtlasCard
@@ -492,6 +518,7 @@ export function ExpeditionSummaryV2({
                       summary={summary}
                       formatDate={formatDate}
                       t={t}
+                      tPrefValue={tPrefValue}
                       tripId={tripId}
                     />
                   </div>
@@ -793,12 +820,14 @@ function PhaseContent({
   summary,
   formatDate,
   t,
+  tPrefValue,
   tripId,
 }: {
   phaseNum: number;
   summary: ExpeditionSummaryData;
   formatDate: (d: string | null) => string;
   t: (key: string, values?: Record<string, string | number>) => string;
+  tPrefValue: (key: string) => string;
   tripId: string;
 }) {
   const rowClasses = "text-sm font-atlas-body text-atlas-on-surface-variant";
@@ -807,19 +836,39 @@ function PhaseContent({
     case 1: {
       const p = summary.phase1;
       if (!p) return null;
+      const dur = calculateDuration(p.startDate, p.endDate);
+      const passengers = summary.phase2?.passengers ?? null;
       return (
         <div className="space-y-1" data-testid="phase-content-1">
           <p className={rowClasses}>
-            {p.origin && <><span className="font-semibold">{p.origin}</span>{" \u2192 "}</>}
+            <span className="font-semibold">{t("phase1Origin")}:</span>{" "}
+            {p.origin ?? "-"}
+          </p>
+          <p className={rowClasses}>
+            <span className="font-semibold">{t("phase1Destination")}:</span>{" "}
             <span className="font-bold text-atlas-on-surface">{p.destination}</span>
           </p>
           <p className={rowClasses}>
+            <span className="font-semibold">{t("phase1Dates")}:</span>{" "}
             {formatDate(p.startDate)} - {formatDate(p.endDate)}
-            {p.tripType && <>{" \u00B7 "}<span>{p.tripType}</span></>}
+            {dur !== null && <>{" ("}{t("phase1Duration", { count: dur })}{")"}</>}
           </p>
+          {p.tripType && (
+            <p className={rowClasses}>
+              <span className="font-semibold">{t("phase1TripType")}:</span>{" "}
+              {t(TRIP_TYPE_KEYS[p.tripType] ?? "tripTypeDomestic")}
+            </p>
+          )}
+          {passengers && (
+            <p className={rowClasses}>
+              <span className="font-semibold">{t("phase1TravelerBreakdown")}:</span>{" "}
+              {formatPassengersCompact(passengers, t)}
+            </p>
+          )}
           {p.flexibleDates && (
             <p className={rowClasses}>
-              {t("phase1FlexibleDates")}: {t("phase1Yes")}
+              <span className="font-semibold">{t("phase1FlexibleDates")}:</span>{" "}
+              {t("phase1Yes")}
             </p>
           )}
         </div>
@@ -830,7 +879,7 @@ function PhaseContent({
       const p = summary.phase2;
       if (!p) return null;
       return (
-        <Phase2Content phase2={p} t={t} formatDate={formatDate} />
+        <Phase2Content phase2={p} t={t} tPrefValue={tPrefValue} formatDate={formatDate} />
       );
     }
 
@@ -861,13 +910,13 @@ function PhaseContent({
                 {pendingRequired.slice(0, MAX_PENDING_DISPLAY).map((item) => (
                   <li key={item.itemKey} className="text-xs font-atlas-body text-atlas-on-error-container flex items-center gap-1">
                     <span aria-hidden="true">!</span>
-                    <span>{item.itemKey}</span>
+                    <span>{CHECKLIST_ITEM_KEYS[item.itemKey] ? t(CHECKLIST_ITEM_KEYS[item.itemKey]) : item.itemKey}</span>
                   </li>
                 ))}
                 {pendingRecommended.slice(0, Math.max(0, MAX_PENDING_DISPLAY - pendingRequired.length)).map((item) => (
                   <li key={item.itemKey} className="text-xs font-atlas-body text-atlas-on-surface-variant flex items-center gap-1">
                     <span aria-hidden="true">&middot;</span>
-                    <span>{item.itemKey}</span>
+                    <span>{CHECKLIST_ITEM_KEYS[item.itemKey] ? t(CHECKLIST_ITEM_KEYS[item.itemKey]) : item.itemKey}</span>
                   </li>
                 ))}
               </ul>
@@ -907,8 +956,11 @@ function PhaseContent({
                   <li key={idx} className="text-xs font-atlas-body text-atlas-on-surface-variant">
                     <span aria-hidden="true">{TRANSPORT_EMOJIS[seg.type] ?? TRANSPORT_EMOJIS.other}</span>
                     {" "}
-                    {seg.departurePlace ?? "\u2014"} \u2192 {seg.arrivalPlace ?? "\u2014"}
+                    {t(TRANSPORT_TYPE_KEYS[seg.type] ?? "phase4TransportOther")}
+                    {": "}
+                    {seg.departurePlace ?? "\u2014"} {"\u2192"} {seg.arrivalPlace ?? "\u2014"}
                     {seg.departureAt && <>{" \u00B7 "}{formatDate(seg.departureAt)}</>}
+                    {seg.provider && <>{" \u00B7 "}{seg.provider}</>}
                     {seg.maskedBookingCode && (
                       <span className="ml-2 font-mono text-atlas-on-surface-variant">
                         {t("phase4BookingCode", { code: seg.maskedBookingCode })}
@@ -931,13 +983,14 @@ function PhaseContent({
               <ul className="mt-1 space-y-1">
                 {p.accommodations.slice(0, MAX_ACCOMMODATION_DISPLAY).map((acc, idx) => (
                   <li key={idx} className="text-xs font-atlas-body text-atlas-on-surface-variant">
-                    {acc.type}: {acc.name ?? "\u2014"}
+                    {t(ACCOMMODATION_TYPE_KEYS[acc.type] ?? "phase4AccomOther")}
+                    {acc.name && <>: {acc.name}</>}
                     {(acc.checkIn || acc.checkOut) && (
                       <>{" \u00B7 "}{formatDate(acc.checkIn)} - {formatDate(acc.checkOut)}</>
                     )}
                     {acc.maskedBookingCode && (
                       <span className="ml-2 font-mono text-atlas-on-surface-variant">
-                        {acc.maskedBookingCode}
+                        {t("phase4BookingCode", { code: acc.maskedBookingCode })}
                       </span>
                     )}
                   </li>
@@ -949,7 +1002,7 @@ function PhaseContent({
           </div>
 
           {/* Mobility */}
-          {hasMobility && (
+          {hasMobility ? (
             <div>
               <p className={`${rowClasses} font-semibold mb-1`}>
                 {t("phase4Mobility")}
@@ -957,12 +1010,59 @@ function PhaseContent({
               <div className="flex flex-wrap gap-1">
                 {p.mobility.map((m) => (
                   <AtlasChip key={m} mode="selectable" disabled size="sm">
-                    {m}
+                    {t(MOBILITY_TYPE_KEYS[m] ?? "phase4MobilityOther")}
                   </AtlasChip>
                 ))}
               </div>
             </div>
+          ) : (
+            <div>
+              <p className={`${rowClasses} font-semibold`}>{t("phase4Mobility")}</p>
+              <p className="text-xs font-atlas-body text-atlas-on-surface-variant italic">{t("phase4Undecided")}</p>
+            </div>
           )}
+
+          {/* Car rental info from phase metadata */}
+          {p.mobility.includes("car_rental") && (
+            <p className={rowClasses}>
+              <span className="font-semibold">{t("phase4CarRental")}:</span>{" "}
+              {t("phase4CarRentalYes")}
+            </p>
+          )}
+
+          {/* Undecided steps alert */}
+          {/* Undecided steps alert — uses centralized pending visual */}
+          {(p.transportUndecided || p.accommodationUndecided || p.mobilityUndecided) && (() => {
+            const pendingVisual = getPhaseStatusVisual("pending");
+            return (
+              <div className={`mt-2 rounded-lg border p-3 ${pendingVisual.alertBg} ${pendingVisual.alertBorder}`} role="alert">
+                <p className={`text-xs font-semibold font-atlas-body ${pendingVisual.alertText} flex items-center gap-1.5`}>
+                  <span aria-hidden="true">⚠️</span>
+                  {t("phase4PendingDecisions")}
+                </p>
+                <ul className="mt-1 space-y-0.5">
+                  {p.transportUndecided && (
+                    <li className={`text-xs font-atlas-body ${pendingVisual.alertText} flex items-center gap-1`}>
+                      <span aria-hidden="true">&bull;</span>
+                      <span>{t("phase4TransportUndecided")}</span>
+                    </li>
+                  )}
+                  {p.accommodationUndecided && (
+                    <li className={`text-xs font-atlas-body ${pendingVisual.alertText} flex items-center gap-1`}>
+                      <span aria-hidden="true">&bull;</span>
+                      <span>{t("phase4AccommodationUndecided")}</span>
+                    </li>
+                  )}
+                  {p.mobilityUndecided && (
+                    <li className={`text-xs font-atlas-body ${pendingVisual.alertText} flex items-center gap-1`}>
+                      <span aria-hidden="true">&bull;</span>
+                      <span>{t("phase4MobilityUndecided")}</span>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            );
+          })()}
         </div>
       );
     }
@@ -1008,22 +1108,34 @@ function PhaseContent({
             {" \u00B7 "}
             {t("phase6Activities", { count: p.totalActivities })}
           </p>
-          {/* Day-by-day summary */}
+          {/* Day-by-day summary with activity names */}
           {p.days && p.days.length > 0 && (
-            <div className="mt-2 space-y-1.5">
+            <div className="mt-2 space-y-2">
               {p.days.map((day) => (
                 <div
                   key={day.dayNumber}
-                  className="flex items-center gap-2 text-xs font-atlas-body text-atlas-on-surface-variant"
+                  className="text-xs font-atlas-body text-atlas-on-surface-variant"
                 >
-                  <span className="inline-flex items-center justify-center size-5 rounded-full bg-atlas-secondary-container/20 text-atlas-secondary text-[10px] font-bold shrink-0">
-                    {day.dayNumber}
-                  </span>
-                  <span className="truncate">
-                    {day.title || t("phase6DayDefault", { num: day.dayNumber })}
-                  </span>
-                  <span className="text-atlas-outline-variant">&middot;</span>
-                  <span className="shrink-0">{t("phase6DayActivities", { count: day.activitiesCount })}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center justify-center size-5 rounded-full bg-atlas-secondary-container/20 text-atlas-secondary text-[10px] font-bold shrink-0">
+                      {day.dayNumber}
+                    </span>
+                    <span className="font-semibold">
+                      {day.title || t("phase6DayDefault", { num: day.dayNumber })}
+                    </span>
+                    <span className="text-atlas-outline-variant">&middot;</span>
+                    <span className="shrink-0">{t("phase6DayActivities", { count: day.activitiesCount })}</span>
+                  </div>
+                  {day.activityNames && day.activityNames.length > 0 && (
+                    <ul className="ml-7 mt-0.5 space-y-0">
+                      {day.activityNames.map((name, idx) => (
+                        <li key={idx} className="text-atlas-on-surface-variant flex items-center gap-1">
+                          <span aria-hidden="true" className="text-[8px]">•</span>
+                          <span>{name}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               ))}
             </div>
@@ -1042,10 +1154,12 @@ function PhaseContent({
 function Phase2Content({
   phase2,
   t,
+  tPrefValue,
   formatDate: _formatDate,
 }: {
   phase2: NonNullable<ExpeditionSummaryData["phase2"]>;
   t: (key: string, values?: Record<string, string | number>) => string;
+  tPrefValue: (key: string) => string;
   formatDate: (d: string | null) => string;
 }) {
   const rowClasses = "text-sm font-atlas-body text-atlas-on-surface-variant";
@@ -1054,6 +1168,13 @@ function Phase2Content({
   // Collect activity/interest chips from preferences
   const interestChips = prefs?.interests ?? [];
   const foodChips = (prefs?.foodPreferences ?? []).filter((f) => f !== "no_restrictions");
+  const accommodationPrefChips = prefs?.accommodationStyle ?? [];
+  const socialChips = prefs?.socialPreference ?? [];
+
+  // Translate a pref value key
+  function translatePref(key: string): string {
+    try { return tPrefValue(key); } catch { return key; }
+  }
 
   return (
     <div className="space-y-2" data-testid="phase-content-2">
@@ -1061,26 +1182,26 @@ function Phase2Content({
       <div className="flex flex-wrap gap-2">
         {phase2.travelerType && (
           <AtlasChip mode="selectable" selected disabled size="sm">
-            {phase2.travelerType}
+            {translatePref(phase2.travelerType)}
           </AtlasChip>
         )}
         {phase2.accommodationStyle && (
           <AtlasChip mode="selectable" selected disabled size="sm">
-            {phase2.accommodationStyle}
+            {translatePref(phase2.accommodationStyle)}
           </AtlasChip>
         )}
       </div>
 
-      {/* P0 #2: Activity/interest preferences as chips */}
+      {/* Activity/interest preferences as chips */}
       {interestChips.length > 0 && (
         <div data-testid="phase2-interests">
           <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant mb-1">
-            {t("phase2Styles")}
+            {t("phase2Interests")}
           </p>
           <div className="flex flex-wrap gap-1">
             {interestChips.map((interest) => (
               <AtlasChip key={interest} mode="selectable" disabled size="sm">
-                {interest}
+                {translatePref(interest)}
               </AtlasChip>
             ))}
           </div>
@@ -1096,34 +1217,69 @@ function Phase2Content({
           <div className="flex flex-wrap gap-1">
             {foodChips.map((food) => (
               <AtlasChip key={food} mode="selectable" disabled size="sm">
-                {food}
+                {translatePref(food)}
               </AtlasChip>
             ))}
           </div>
         </div>
       )}
 
-      {/* Pace + budget line */}
+      {/* Accommodation preferences */}
+      {accommodationPrefChips.length > 0 && (
+        <div data-testid="phase2-accommodation-pref">
+          <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant mb-1">
+            {t("phase2AccommodationPrefLabel")}
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {accommodationPrefChips.map((acc) => (
+              <AtlasChip key={acc} mode="selectable" disabled size="sm">
+                {translatePref(acc)}
+              </AtlasChip>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Social preference / hobbies */}
+      {socialChips.length > 0 && (
+        <div data-testid="phase2-social">
+          <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant mb-1">
+            {t("phase2HobbiesLabel")}
+          </p>
+          <div className="flex flex-wrap gap-1">
+            {socialChips.map((s) => (
+              <AtlasChip key={s} mode="selectable" disabled size="sm">
+                {translatePref(s)}
+              </AtlasChip>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Pace (translated label) + budget line */}
       <p className={rowClasses}>
         {phase2.travelPace !== null && (
-          <>{t("phase2TravelPace")}: {phase2.travelPace}</>
+          <><span className="font-semibold">{t("phase2TravelPace")}:</span>{" "}
+          {t(PACE_LABELS[String(phase2.travelPace)] ?? "phase2PaceModerate")}</>
         )}
         {phase2.budget !== null && (
-          <>{phase2.travelPace !== null ? " \u00B7 " : ""}{t("phase2Budget")}: {formatBudget(phase2.budget, phase2.currency, phase2.budgetRange)}</>
+          <>{phase2.travelPace !== null ? " · " : ""}<span className="font-semibold">{t("phase2Budget")}:</span>{" "}{formatBudget(phase2.budget, phase2.currency, phase2.budgetRange)}</>
         )}
       </p>
 
       {/* Passengers */}
       {phase2.passengers && (
         <p className={rowClasses}>
-          {t("phase2Passengers")}: {formatPassengersCompact(phase2.passengers, t)}
+          <span className="font-semibold">{t("phase2Passengers")}:</span>{" "}
+          {formatPassengersCompact(phase2.passengers, t)}
         </p>
       )}
 
-      {/* Fitness level from preferences */}
+      {/* Fitness level (translated) */}
       {prefs?.fitnessLevel && (
         <p className={rowClasses} data-testid="phase2-fitness">
-          Fitness: {prefs.fitnessLevel}
+          <span className="font-semibold">{t("phase2FitnessLabel")}:</span>{" "}
+          {t(FITNESS_KEYS[prefs.fitnessLevel] ?? "phase2FitnessModerate")}
         </p>
       )}
     </div>

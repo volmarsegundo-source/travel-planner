@@ -67,6 +67,8 @@ export class PhaseCompletionService {
 
     const phase2 = phases.find((p) => p.phaseNumber === 2);
     const phase2Meta = phase2?.metadata as Record<string, unknown> | null;
+    const phase4 = phases.find((p) => p.phaseNumber === 4);
+    const phase4Meta = phase4?.metadata as Record<string, unknown> | null;
 
     const requiredItems = checklistItems.filter((i) => i.required);
     const completedRequired = requiredItems.filter((i) => i.completed).length;
@@ -90,6 +92,9 @@ export class PhaseCompletionService {
       phase4: {
         transportSegmentCount: transportSegments,
         accommodationCount: accommodations,
+        transportUndecided: Boolean(phase4Meta?.transportUndecided),
+        accommodationUndecided: Boolean(phase4Meta?.accommodationUndecided),
+        mobilityUndecided: Boolean(phase4Meta?.mobilityUndecided),
       },
       phase5: {
         hasGuide: guide !== null,

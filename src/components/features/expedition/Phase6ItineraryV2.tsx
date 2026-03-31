@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo, Suspense } from "react";
+import dynamic from "next/dynamic";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { AtlasButton } from "@/components/ui/AtlasButton";
@@ -19,9 +20,16 @@ import {
 import { syncPhase6CompletionAction } from "@/server/actions/expedition.actions";
 import { spendPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
-import type { ItineraryDayWithActivities } from "@/server/actions/itinerary.actions";
+import {
+  addActivityAction,
+  updateActivityAction,
+  deleteActivityAction,
+} from "@/server/actions/itinerary.actions";
+import type { ItineraryDayWithActivities, ActivityData } from "@/server/actions/itinerary.actions";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
+
+const ItineraryMap = dynamic(() => import("./ItineraryMap"), { ssr: false });
 
 // ─── Category System ─────────────────────────────────────────────────────────
 
@@ -232,7 +240,9 @@ function MapPinIcon() {
 
 /** V2 activity shape from the AI-generated JSON (PROMPT-ROTEIRO-PERSONALIZADO). */
 interface V2Activity {
+  id?: string;
   time: string;
+  endTime?: string;
   name: string;
   description: string;
   duration: string;
@@ -244,6 +254,7 @@ interface V2Activity {
 
 /** V2 day shape from the AI-generated JSON. */
 interface V2Day {
+  id?: string;
   dayNumber: number;
   date: string;
   title: string;
@@ -301,7 +312,9 @@ function convertToV2Days(
       : addDays(startDate, day.dayNumber - 1);
 
     const activities: V2Activity[] = day.activities.map((act) => ({
+      id: act.id,
       time: act.startTime ?? "09:00",
+      endTime: act.endTime ?? undefined,
       name: act.title,
       description: act.notes ?? "",
       duration: computeDuration(act.startTime, act.endTime),
@@ -312,6 +325,7 @@ function convertToV2Days(
     }));
 
     return {
+      id: day.id,
       dayNumber: day.dayNumber,
       date: dayDate,
       title: day.notes ?? "",
@@ -466,14 +480,233 @@ function DayHeader({ day }: { day: V2Day }) {
   );
 }
 
+function PencilIcon() {
+  return (
+    <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+      <path d="m15 5 4 4" />
+    </svg>
+  );
+}
+
+function TrashIcon() {
+  return (
+    <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <polyline points="3 6 5 6 21 6" />
+      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    </svg>
+  );
+}
+
+function PlusIcon() {
+  return (
+    <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+  );
+}
+
+// ─── Activity Edit Form ─────────────────────────────────────────────────────
+
+interface ActivityFormData {
+  name: string;
+  startTime: string;
+  endTime: string;
+  description: string;
+  category: string;
+}
+
+const EMPTY_FORM: ActivityFormData = {
+  name: "",
+  startTime: "09:00",
+  endTime: "",
+  description: "",
+  category: "logistics",
+};
+
+function ActivityEditForm({
+  initial,
+  onSave,
+  onCancel,
+  isSaving,
+  t,
+}: {
+  initial?: ActivityFormData;
+  onSave: (data: ActivityFormData) => void;
+  onCancel: () => void;
+  isSaving: boolean;
+  t: (key: string) => string;
+}) {
+  const [form, setForm] = useState<ActivityFormData>(initial ?? EMPTY_FORM);
+  const [nameError, setNameError] = useState(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    nameInputRef.current?.focus();
+  }, []);
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    const trimmedName = form.name.trim();
+    if (!trimmedName) {
+      setNameError(true);
+      nameInputRef.current?.focus();
+      return;
+    }
+    setNameError(false);
+    onSave({ ...form, name: trimmedName });
+  }
+
+  const categoryOptions: { value: string; label: string }[] = [
+    { value: "logistics", label: t("categoryLogistics") },
+    { value: "culture", label: t("categoryCulture") },
+    { value: "food", label: t("categoryFood") },
+    { value: "nature", label: t("categoryNature") },
+    { value: "nightlife", label: t("categoryNightlife") },
+    { value: "sport", label: t("categorySport") },
+    { value: "shopping", label: t("categoryShopping") },
+    { value: "adventure", label: t("categoryAdventure") },
+  ];
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      className="flex-1 bg-atlas-surface-container-lowest p-4 md:p-6 rounded-xl shadow-sm border border-atlas-outline-variant/30"
+      data-testid="activity-edit-form"
+    >
+      {/* Activity name */}
+      <div className="mb-3">
+        <label htmlFor="activity-name" className="block text-sm font-bold font-atlas-body text-atlas-on-surface mb-1">
+          {t("activityName")} *
+        </label>
+        <input
+          ref={nameInputRef}
+          id="activity-name"
+          type="text"
+          value={form.name}
+          onChange={(e) => { setForm((f) => ({ ...f, name: e.target.value })); setNameError(false); }}
+          maxLength={200}
+          required
+          aria-invalid={nameError}
+          aria-describedby={nameError ? "activity-name-error" : undefined}
+          className={[
+            "w-full rounded-lg border px-3 py-2 text-sm font-atlas-body",
+            "bg-atlas-surface text-atlas-on-surface",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring",
+            nameError ? "border-atlas-error" : "border-atlas-outline-variant/50",
+          ].join(" ")}
+          data-testid="activity-name-input"
+        />
+        {nameError && (
+          <p id="activity-name-error" className="mt-1 text-xs text-atlas-error font-atlas-body" role="alert">
+            {t("activityNameRequired")}
+          </p>
+        )}
+      </div>
+
+      {/* Time row */}
+      <div className="flex gap-3 mb-3">
+        <div className="flex-1">
+          <label htmlFor="activity-start-time" className="block text-sm font-bold font-atlas-body text-atlas-on-surface mb-1">
+            {t("activityTime")}
+          </label>
+          <input
+            id="activity-start-time"
+            type="time"
+            value={form.startTime}
+            onChange={(e) => setForm((f) => ({ ...f, startTime: e.target.value }))}
+            className="w-full rounded-lg border border-atlas-outline-variant/50 px-3 py-2 text-sm font-atlas-body bg-atlas-surface text-atlas-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+            data-testid="activity-start-time-input"
+          />
+        </div>
+        <div className="flex-1">
+          <label htmlFor="activity-end-time" className="block text-sm font-bold font-atlas-body text-atlas-on-surface mb-1">
+            {t("activityEndTime")}
+          </label>
+          <input
+            id="activity-end-time"
+            type="time"
+            value={form.endTime}
+            onChange={(e) => setForm((f) => ({ ...f, endTime: e.target.value }))}
+            className="w-full rounded-lg border border-atlas-outline-variant/50 px-3 py-2 text-sm font-atlas-body bg-atlas-surface text-atlas-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+            data-testid="activity-end-time-input"
+          />
+        </div>
+      </div>
+
+      {/* Category */}
+      <div className="mb-3">
+        <label htmlFor="activity-category" className="block text-sm font-bold font-atlas-body text-atlas-on-surface mb-1">
+          {t("activityCategory")}
+        </label>
+        <select
+          id="activity-category"
+          value={form.category}
+          onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
+          className="w-full rounded-lg border border-atlas-outline-variant/50 px-3 py-2 text-sm font-atlas-body bg-atlas-surface text-atlas-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+          data-testid="activity-category-select"
+        >
+          {categoryOptions.map((opt) => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Description */}
+      <div className="mb-4">
+        <label htmlFor="activity-description" className="block text-sm font-bold font-atlas-body text-atlas-on-surface mb-1">
+          {t("activityDescription")}
+        </label>
+        <textarea
+          id="activity-description"
+          value={form.description}
+          onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
+          maxLength={2000}
+          rows={2}
+          className="w-full rounded-lg border border-atlas-outline-variant/50 px-3 py-2 text-sm font-atlas-body bg-atlas-surface text-atlas-on-surface focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring resize-y"
+          data-testid="activity-description-input"
+        />
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <AtlasButton
+          type="submit"
+          size="sm"
+          disabled={isSaving}
+          data-testid="activity-save-btn"
+        >
+          {isSaving ? t("activitySaving") : t("saveActivity")}
+        </AtlasButton>
+        <AtlasButton
+          type="button"
+          variant="secondary"
+          size="sm"
+          onClick={onCancel}
+          disabled={isSaving}
+          data-testid="activity-cancel-btn"
+        >
+          {t("cancelEdit")}
+        </AtlasButton>
+      </div>
+    </form>
+  );
+}
+
 /** Single activity card in the timeline. AC-P6-036 to AC-P6-040 */
 function ActivityCard({
   activity,
   t,
+  onEdit,
+  onDelete,
 }: {
   activity: V2Activity;
   t: (key: string) => string;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const category = resolveCategory(activity.category);
   const style = getCategoryStyle(category);
   const labelKey = CATEGORY_LABEL_KEYS[category];
@@ -491,17 +724,41 @@ function ActivityCard({
       data-testid="activity-card"
       data-category={category}
     >
-      {/* Row 1: Time + Category chip */}
+      {/* Row 1: Time + Category chip + action buttons */}
       <div className="flex justify-between items-start mb-2">
         <span className={`text-sm font-bold font-atlas-body ${style.timeColor}`}>
           {activity.time}
         </span>
-        <span
-          className={`${style.chipBg} ${style.chipText} px-3 py-1 rounded-full text-xs font-bold font-atlas-body`}
-          data-testid="category-chip"
-        >
-          {t(labelKey)}
-        </span>
+        <div className="flex items-center gap-2">
+          <span
+            className={`${style.chipBg} ${style.chipText} px-3 py-1 rounded-full text-xs font-bold font-atlas-body`}
+            data-testid="category-chip"
+          >
+            {t(labelKey)}
+          </span>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-atlas-on-surface-variant hover:bg-atlas-surface-container-high transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+              aria-label={t("editActivity")}
+              data-testid="activity-edit-btn"
+            >
+              <PencilIcon />
+            </button>
+          )}
+          {onDelete && (
+            <button
+              type="button"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-atlas-error/70 hover:bg-atlas-error/10 transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+              aria-label={t("deleteActivity")}
+              data-testid="activity-delete-btn"
+            >
+              <TrashIcon />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Row 2: Activity name */}
@@ -537,18 +794,113 @@ function ActivityCard({
           <span>{activity.tip}</span>
         </div>
       )}
+
+      {/* Delete confirmation inline */}
+      {showDeleteConfirm && (
+        <div className="mt-3 flex items-center gap-3 bg-atlas-error-container/20 px-4 py-3 rounded-lg" role="alertdialog" aria-label={t("deleteConfirm")} data-testid="activity-delete-confirm">
+          <p className="text-sm font-atlas-body text-atlas-on-surface flex-1">{t("deleteConfirm")}</p>
+          <AtlasButton size="sm" variant="danger" onClick={onDelete} data-testid="activity-delete-confirm-yes">
+            {t("deleteConfirmYes")}
+          </AtlasButton>
+          <AtlasButton size="sm" variant="secondary" onClick={() => setShowDeleteConfirm(false)} data-testid="activity-delete-confirm-no">
+            {t("deleteConfirmNo")}
+          </AtlasButton>
+        </div>
+      )}
     </article>
   );
 }
 
-/** Vertical timeline with category dots and activity cards. AC-P6-033 to AC-P6-035 */
+/** Vertical timeline with category dots, activity cards, and CRUD controls. AC-P6-033 to AC-P6-035 */
 function ActivityTimeline({
   activities,
+  dayId,
+  tripId,
   t,
+  onMutate,
 }: {
   activities: V2Activity[];
+  dayId?: string;
+  tripId: string;
   t: (key: string) => string;
+  onMutate: () => void;
 }) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+
+  /** Map V2 category to DB activityType */
+  function mapCategoryToActivityType(category: string): ActivityData["activityType"] {
+    const CATEGORY_TO_TYPE: Record<string, ActivityData["activityType"]> = {
+      logistics: "TRANSPORT",
+      culture: "SIGHTSEEING",
+      food: "FOOD",
+      nature: "LEISURE",
+      nightlife: "LEISURE",
+      sport: "LEISURE",
+      shopping: "SHOPPING",
+      adventure: "SIGHTSEEING",
+    };
+    return CATEGORY_TO_TYPE[category] ?? undefined;
+  }
+
+  async function handleAdd(data: ActivityFormData) {
+    if (!dayId) return;
+    setIsSaving(true);
+    try {
+      const result = await addActivityAction(tripId, dayId, {
+        title: data.name,
+        notes: data.description || undefined,
+        startTime: data.startTime || undefined,
+        endTime: data.endTime || undefined,
+        activityType: mapCategoryToActivityType(data.category),
+      });
+      if (result.success) {
+        setIsAdding(false);
+        onMutate();
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleUpdate(activityId: string, data: ActivityFormData) {
+    setIsSaving(true);
+    try {
+      const result = await updateActivityAction(activityId, tripId, {
+        title: data.name,
+        notes: data.description || undefined,
+        startTime: data.startTime || undefined,
+        endTime: data.endTime || undefined,
+        activityType: mapCategoryToActivityType(data.category),
+      });
+      if (result.success) {
+        setEditingId(null);
+        onMutate();
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleDelete(activityId: string) {
+    setIsSaving(true);
+    try {
+      const result = await deleteActivityAction(activityId, tripId);
+      if (result.success) {
+        onMutate();
+      }
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  /** Map V2 activityType back to V2 category for the edit form */
+  function resolveFormCategory(raw: string): string {
+    if (VALID_CATEGORIES.has(raw.toLowerCase())) return raw.toLowerCase();
+    return FALLBACK_CATEGORY;
+  }
+
   return (
     <div className="flex flex-col gap-8 relative" data-testid="activity-timeline">
       {/* Vertical line — desktop only (AC-P6-033/034) */}
@@ -560,9 +912,10 @@ function ActivityTimeline({
       {activities.map((activity, idx) => {
         const category = resolveCategory(activity.category);
         const style = getCategoryStyle(category);
+        const isEditing = editingId != null && activity.id === editingId;
 
         return (
-          <div key={idx} className="flex gap-8 group">
+          <div key={activity.id ?? idx} className="flex gap-8 group">
             {/* Category dot (AC-P6-035) */}
             <div className="relative z-10 pt-1" aria-hidden="true">
               <div
@@ -572,11 +925,62 @@ function ActivityTimeline({
               />
             </div>
 
-            {/* Activity card */}
-            <ActivityCard activity={activity} t={t} />
+            {/* Activity card or edit form */}
+            {isEditing ? (
+              <ActivityEditForm
+                initial={{
+                  name: activity.name,
+                  startTime: activity.time,
+                  endTime: activity.endTime ?? "",
+                  description: activity.description,
+                  category: resolveFormCategory(activity.category),
+                }}
+                onSave={(data) => handleUpdate(activity.id!, data)}
+                onCancel={() => setEditingId(null)}
+                isSaving={isSaving}
+                t={t}
+              />
+            ) : (
+              <ActivityCard
+                activity={activity}
+                t={t}
+                onEdit={activity.id ? () => setEditingId(activity.id!) : undefined}
+                onDelete={activity.id ? () => handleDelete(activity.id!) : undefined}
+              />
+            )}
           </div>
         );
       })}
+
+      {/* Add activity form or button */}
+      {isAdding ? (
+        <div className="flex gap-8">
+          <div className="relative z-10 pt-1" aria-hidden="true">
+            <div className="w-4 h-4 rounded-full bg-atlas-surface-container-high ring-4 ring-atlas-surface" />
+          </div>
+          <ActivityEditForm
+            onSave={handleAdd}
+            onCancel={() => setIsAdding(false)}
+            isSaving={isSaving}
+            t={t}
+          />
+        </div>
+      ) : dayId ? (
+        <div className="flex gap-8">
+          <div className="relative z-10 pt-1" aria-hidden="true">
+            <div className="w-4 h-4 rounded-full bg-atlas-surface-container-high ring-4 ring-atlas-surface" />
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsAdding(true)}
+            className="flex items-center gap-2 min-h-[44px] px-4 py-2 rounded-xl border-2 border-dashed border-atlas-outline-variant/40 text-atlas-on-surface-variant hover:border-atlas-secondary-container hover:text-atlas-secondary-container transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring font-atlas-body text-sm font-bold"
+            data-testid="add-activity-btn"
+          >
+            <PlusIcon />
+            {t("addActivity")}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -647,7 +1051,7 @@ function DaySummaryCard({
   );
 }
 
-/** Map panel placeholder (v1 — full Leaflet deferred to v2). AC-P6-051 */
+/** Interactive Leaflet map panel for itinerary activities. AC-P6-051 */
 function MapPanel({
   activities,
   t,
@@ -667,37 +1071,37 @@ function MapPanel({
     >
       <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-xl border border-white/20 bg-atlas-surface-container">
         {/* Glass-morphism label */}
-        <div className="absolute top-6 left-6 px-4 py-2 rounded-lg flex items-center gap-2 border border-white/40 bg-white/70 backdrop-blur-[12px]">
+        <div className="absolute top-6 left-6 z-[1000] px-4 py-2 rounded-lg flex items-center gap-2 border border-white/40 bg-white/70 backdrop-blur-[12px]">
           <MapPinIcon />
           <span className="font-bold text-atlas-on-surface font-atlas-body">
             {t("mapLabel")}
           </span>
         </div>
 
-        {/* Location list (placeholder for Leaflet) */}
-        <div className="flex flex-col items-center justify-center h-full px-6 pt-16">
-          {locations.length > 0 ? (
-            <ul className="space-y-3 w-full max-w-xs">
-              {locations.map((loc, i) => (
-                <li
-                  key={i}
-                  className="flex items-center gap-3 rounded-lg bg-atlas-surface-container-lowest p-3 shadow-sm"
-                >
-                  <span className="flex items-center justify-center w-7 h-7 rounded-full bg-atlas-secondary-container text-atlas-primary text-xs font-bold">
-                    {i + 1}
-                  </span>
-                  <span className="text-sm font-atlas-body text-atlas-on-surface truncate">
-                    {loc.name}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          ) : (
+        {locations.length > 0 ? (
+          <Suspense
+            fallback={
+              <div className="flex items-center justify-center h-full">
+                <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
+                  {t("mapLoading")}
+                </p>
+              </div>
+            }
+          >
+            <ItineraryMap
+              activities={locations.map((loc) => ({
+                name: loc.name,
+                coordinates: loc.coordinates as { lat: number; lng: number },
+              }))}
+            />
+          </Suspense>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full px-6 pt-16">
             <p className="text-sm text-atlas-on-surface-variant font-atlas-body text-center">
               {t("mapNoLocations")}
             </p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </aside>
   );
@@ -775,6 +1179,7 @@ export function Phase6ItineraryV2({
   const [daysGenerated, setDaysGenerated] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
   const [selectedDay, setSelectedDay] = useState(1);
+  const [viewMode, setViewMode] = useState<"by_day" | "continuous">("by_day");
   const [showPAConfirm, setShowPAConfirm] = useState(false);
   const [paBalance, setPABalance] = useState(availablePoints);
   const [isSpending, setIsSpending] = useState(false);
@@ -961,6 +1366,11 @@ export function Phase6ItineraryV2({
     handleRequestGenerate();
   }
 
+  /** Refresh page data after an activity add/edit/delete */
+  function handleActivityMutate() {
+    router.refresh();
+  }
+
   // ─── GENERATING STATE ──────────────────────────────────────────────────
   if (isGenerating) {
     return (
@@ -1085,17 +1495,37 @@ export function Phase6ItineraryV2({
               </div>
             </div>
 
-            {/* Day Selector Pills */}
-            <DaySelectorPills
-              days={v2Days}
-              selectedDay={selectedDay}
-              onSelect={setSelectedDay}
-              locale={locale}
-            />
+            {/* View Toggle + Day Selector */}
+            <div className="flex items-center gap-3">
+              <DaySelectorPills
+                days={v2Days}
+                selectedDay={selectedDay}
+                onSelect={(day) => { setSelectedDay(day); setViewMode("by_day"); }}
+                locale={locale}
+              />
+              <div className="flex shrink-0 rounded-lg border border-atlas-outline-variant/30 overflow-hidden" data-testid="view-toggle">
+                <button
+                  onClick={() => setViewMode("by_day")}
+                  className={`px-3 py-1.5 text-xs font-bold font-atlas-body transition-colors ${viewMode === "by_day" ? "bg-atlas-primary text-atlas-on-primary" : "text-atlas-on-surface-variant hover:bg-atlas-surface-container-high"}`}
+                  aria-pressed={viewMode === "by_day"}
+                  data-testid="view-toggle-day"
+                >
+                  {t("viewByDay")}
+                </button>
+                <button
+                  onClick={() => setViewMode("continuous")}
+                  className={`px-3 py-1.5 text-xs font-bold font-atlas-body transition-colors ${viewMode === "continuous" ? "bg-atlas-primary text-atlas-on-primary" : "text-atlas-on-surface-variant hover:bg-atlas-surface-container-high"}`}
+                  aria-pressed={viewMode === "continuous"}
+                  data-testid="view-toggle-continuous"
+                >
+                  {t("viewContinuous")}
+                </button>
+              </div>
+            </div>
           </header>
 
-          {/* Day content panel */}
-          {currentDay && (
+          {/* Day content — By Day mode */}
+          {viewMode === "by_day" && currentDay && (
             <section
               id={`day-panel-${currentDay.dayNumber}`}
               role="tabpanel"
@@ -1103,18 +1533,22 @@ export function Phase6ItineraryV2({
               aria-label={`Dia ${currentDay.dayNumber} ${currentDay.title ? `\u2014 ${currentDay.title}` : ""}`}
               data-testid={`day-panel-${currentDay.dayNumber}`}
             >
-              {/* Day header (AC-P6-031) */}
               <DayHeader day={currentDay} />
-
-              {/* Activity timeline (AC-P6-033) */}
-              <ActivityTimeline
-                activities={currentDay.activities}
-                t={t}
-              />
-
-              {/* Day summary card (AC-P6-047) */}
+              <ActivityTimeline activities={currentDay.activities} dayId={currentDay.id} tripId={tripId} t={t} onMutate={handleActivityMutate} />
               <DaySummaryCard day={currentDay} t={t} />
             </section>
+          )}
+
+          {/* Day content — Continuous list mode */}
+          {viewMode === "continuous" && (
+            <div className="space-y-6" data-testid="continuous-view">
+              {v2Days.map((day) => (
+                <section key={day.dayNumber} data-testid={`continuous-day-${day.dayNumber}`}>
+                  <DayHeader day={day} />
+                  <ActivityTimeline activities={day.activities} dayId={day.id} tripId={tripId} t={t} onMutate={handleActivityMutate} />
+                </section>
+              ))}
+            </div>
           )}
 
           {/* AI disclaimer */}
@@ -1159,47 +1593,12 @@ export function Phase6ItineraryV2({
         paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
       />
 
-      {/* Custom footer matching Stitch design (AC-P6-059) */}
-      <footer
-        className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-8px_24px_rgba(4,13,27,0.04)] z-50 px-4 sm:px-8 py-4"
-        data-testid="phase6-footer"
-      >
-        <div className="max-w-[1440px] mx-auto flex justify-between items-center">
-          {/* Back button */}
-          <button
-            onClick={() => router.push(`/expedition/${tripId}/phase-5`)}
-            className="flex items-center gap-2 text-atlas-on-surface-variant font-bold font-atlas-body hover:text-atlas-secondary-container transition-colors duration-200 motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded-lg py-2"
-            data-testid="footer-back-btn"
-          >
-            <ArrowBackIcon />
-            {t("footerBack")}
-          </button>
-
-          {/* Center progress (AC-P6-061) */}
-          <FooterProgressBar
-            completedPhases={completedPhases}
-            currentPhase={6}
-            t={t}
-          />
-
-          {/* Primary CTA */}
-          <button
-            onClick={() => router.push(`/expedition/${tripId}/summary`)}
-            className={[
-              "flex items-center gap-2 px-8 py-3 rounded-lg font-bold font-atlas-body",
-              "bg-atlas-primary text-atlas-on-primary",
-              "hover:bg-atlas-secondary-container hover:text-atlas-primary",
-              "transition-all duration-200 motion-reduce:transition-none",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2",
-            ].join(" ")}
-            style={{ transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)" }}
-            data-testid="footer-summary-btn"
-          >
-            {t("footerSummary")}
-            <ArrowForwardIcon />
-          </button>
-        </div>
-      </footer>
+      {/* Standardized WizardFooter (Bloco 3 Fix #3) */}
+      <WizardFooter
+        onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
+        onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
+        primaryLabel={t("footerSummary")}
+      />
     </PhaseShell>
   );
 }

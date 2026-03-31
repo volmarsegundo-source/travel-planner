@@ -72,6 +72,9 @@ export interface ExpeditionSummaryPhase4 {
   transportSegments: TransportSummary[];
   accommodations: AccommodationSummary[];
   mobility: string[];
+  transportUndecided?: boolean;
+  accommodationUndecided?: boolean;
+  mobilityUndecided?: boolean;
 }
 
 export interface GuideKeyFact {
@@ -96,6 +99,7 @@ export interface Phase6DaySummary {
   dayNumber: number;
   title: string | null;
   activitiesCount: number;
+  activityNames: string[];
 }
 
 export interface ExpeditionSummaryPhase6 {
@@ -107,7 +111,7 @@ export interface ExpeditionSummaryPhase6 {
 export interface PendingItem {
   phase: number;
   key: string;
-  severity: "required" | "recommended";
+  severity: "required" | "recommended" | "info";
 }
 
 export interface ExpeditionSummary {
@@ -271,11 +275,23 @@ export function collectPendingItems(
     pending.push({ phase: 3, key: "checklist", severity: "required" });
   }
 
-  // Phase 4
-  if (!phase4 || phase4.transportSegments.length === 0) {
+  // Phase 4 — respect undecided flags (SPEC-FASE4-AND-001 RN-10)
+  if (phase4) {
+    if (phase4.transportUndecided) {
+      pending.push({ phase: 4, key: "transport_undecided", severity: "info" });
+    } else if (phase4.transportSegments.length === 0) {
+      pending.push({ phase: 4, key: "transport", severity: "recommended" });
+    }
+    if (phase4.accommodationUndecided) {
+      pending.push({ phase: 4, key: "accommodation_undecided", severity: "info" });
+    } else if (phase4.accommodations.length === 0) {
+      pending.push({ phase: 4, key: "accommodation", severity: "recommended" });
+    }
+    if (phase4.mobilityUndecided) {
+      pending.push({ phase: 4, key: "mobility_undecided", severity: "info" });
+    }
+  } else {
     pending.push({ phase: 4, key: "transport", severity: "recommended" });
-  }
-  if (!phase4 || phase4.accommodations.length === 0) {
     pending.push({ phase: 4, key: "accommodation", severity: "recommended" });
   }
 
@@ -387,6 +403,10 @@ export class ExpeditionSummaryService {
             dayNumber: true,
             notes: true,
             _count: { select: { activities: true } },
+            activities: {
+              orderBy: { startTime: "asc" },
+              select: { title: true },
+            },
           },
         }),
       ]);
@@ -460,8 +480,15 @@ export class ExpeditionSummaryService {
     }
 
     // Phase 4
+    const phase4Meta = phaseMap.get(4)?.metadata as Record<string, unknown> | null;
+    const phase4HasData =
+      transport.length > 0 ||
+      accommodations.length > 0 ||
+      trip.localMobility.length > 0 ||
+      phaseMap.has(4); // Phase 4 exists (user advanced through it)
+
     let phase4: ExpeditionSummaryPhase4 | null = null;
-    if (transport.length > 0 || accommodations.length > 0 || trip.localMobility.length > 0) {
+    if (phase4HasData) {
       phase4 = {
         transportSegments: transport.map((t) => ({
           type: t.transportType,
@@ -492,6 +519,9 @@ export class ExpeditionSummaryService {
             : null,
         })),
         mobility: trip.localMobility,
+        transportUndecided: Boolean(phase4Meta?.transportUndecided),
+        accommodationUndecided: Boolean(phase4Meta?.accommodationUndecided),
+        mobilityUndecided: Boolean(phase4Meta?.mobilityUndecided),
       };
     }
 
@@ -563,6 +593,7 @@ export class ExpeditionSummaryService {
           dayNumber: day.dayNumber,
           title: day.notes?.split("\n")[0]?.slice(0, 60) ?? null,
           activitiesCount: day._count.activities,
+          activityNames: day.activities.map((a) => a.title),
         })),
       };
     }

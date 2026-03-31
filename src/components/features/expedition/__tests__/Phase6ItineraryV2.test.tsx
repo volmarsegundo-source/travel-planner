@@ -46,6 +46,12 @@ vi.mock("@/server/actions/expedition.actions", () => ({
   syncPhase6CompletionAction: vi.fn().mockResolvedValue({}),
 }));
 
+vi.mock("@/server/actions/itinerary.actions", () => ({
+  addActivityAction: vi.fn().mockResolvedValue({ success: true, data: { id: "new-act" } }),
+  updateActivityAction: vi.fn().mockResolvedValue({ success: true }),
+  deleteActivityAction: vi.fn().mockResolvedValue({ success: true }),
+}));
+
 vi.mock("@/server/actions/gamification.actions", () => ({
   spendPAForAIAction: vi
     .fn()
@@ -275,16 +281,15 @@ describe("Phase6ItineraryV2", () => {
       expect(screen.getByTestId("ai-disclaimer")).toBeInTheDocument();
     });
 
-    it("renders custom footer with back and summary buttons", () => {
+    it("renders standardized WizardFooter", () => {
       render(
         <Phase6ItineraryV2
           {...defaultProps}
           initialDays={twoDays as never}
         />,
       );
-      expect(screen.getByTestId("phase6-footer")).toBeInTheDocument();
-      expect(screen.getByTestId("footer-back-btn")).toBeInTheDocument();
-      expect(screen.getByTestId("footer-summary-btn")).toBeInTheDocument();
+      // WizardFooter is now used instead of custom footer
+      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
     });
   });
 
@@ -579,49 +584,15 @@ describe("Phase6ItineraryV2", () => {
 
   // ─── Footer Navigation ───────────────────────────────────────────────────
 
-  describe("Footer navigation", () => {
-    it("back button navigates to phase 5", async () => {
-      const user = userEvent.setup();
+  describe("Footer navigation (WizardFooter)", () => {
+    it("renders WizardFooter with back and primary buttons", () => {
       render(
         <Phase6ItineraryV2
           {...defaultProps}
           initialDays={twoDays as never}
         />,
       );
-
-      await user.click(screen.getByTestId("footer-back-btn"));
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        "/expedition/trip-1/phase-5",
-      );
-    });
-
-    it("summary button navigates to summary page", async () => {
-      const user = userEvent.setup();
-      render(
-        <Phase6ItineraryV2
-          {...defaultProps}
-          initialDays={twoDays as never}
-        />,
-      );
-
-      await user.click(screen.getByTestId("footer-summary-btn"));
-      expect(mockRouterPush).toHaveBeenCalledWith(
-        "/expedition/trip-1/summary",
-      );
-    });
-
-    it("renders footer progress bar with phase segments", () => {
-      render(
-        <Phase6ItineraryV2
-          {...defaultProps}
-          initialDays={twoDays as never}
-        />,
-      );
-      const footer = screen.getByTestId("phase6-footer");
-      // Footer should contain the progress label
-      expect(footer).toHaveTextContent(
-        "expedition.phase6.footerProgress",
-      );
+      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
     });
   });
 

@@ -35,6 +35,9 @@ export interface PhaseDataSnapshot {
   phase4: {
     transportSegmentCount: number;
     accommodationCount: number;
+    transportUndecided?: boolean;
+    accommodationUndecided?: boolean;
+    mobilityUndecided?: boolean;
   };
   phase5: {
     hasGuide: boolean;
@@ -136,6 +139,9 @@ function evaluatePhase4(
   const hasTransport = data.transportSegmentCount > 0;
   const hasAccommodation = data.accommodationCount > 0;
   const hasEither = hasTransport || hasAccommodation;
+  const anyUndecided = Boolean(
+    data.transportUndecided || data.accommodationUndecided || data.mobilityUndecided
+  );
 
   const requirements: PhaseCompletionRequirement[] = [
     {
@@ -144,6 +150,23 @@ function evaluatePhase4(
       label: "phase4.logisticsEntry",
     },
   ];
+
+  if (anyUndecided) {
+    if (data.transportUndecided) {
+      requirements.push({ key: "transportUndecided", met: false, label: "phase4.transportUndecided" });
+    }
+    if (data.accommodationUndecided) {
+      requirements.push({ key: "accommodationUndecided", met: false, label: "phase4.accommodationUndecided" });
+    }
+    if (data.mobilityUndecided) {
+      requirements.push({ key: "mobilityUndecided", met: false, label: "phase4.mobilityUndecided" });
+    }
+  }
+
+  // If any section is undecided, phase is in_progress (not completed)
+  if (anyUndecided) {
+    return { phase: 4, status: "in_progress", requirements };
+  }
 
   return {
     phase: 4,

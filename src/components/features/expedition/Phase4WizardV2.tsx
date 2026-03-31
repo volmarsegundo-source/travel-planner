@@ -12,7 +12,7 @@ import { WizardFooter } from "./WizardFooter";
 import { TransportStep } from "./TransportStep";
 import { AccommodationStep } from "./AccommodationStep";
 import { MobilityStep } from "./MobilityStep";
-import { advanceFromPhaseAction } from "@/server/actions/expedition.actions";
+import { advanceFromPhaseAction, getPhaseMetadataAction } from "@/server/actions/expedition.actions";
 import {
   saveTransportSegmentsAction,
   getTransportSegmentsAction,
@@ -205,11 +205,12 @@ export function Phase4WizardV2({
   const loadData = useCallback(async () => {
     setLoadingData(true);
     try {
-      const [transportResult, accommodationResult, mobilityResult] =
+      const [transportResult, accommodationResult, mobilityResult, metadataResult] =
         await Promise.all([
           getTransportSegmentsAction(tripId),
           getAccommodationsAction(tripId),
           getLocalMobilityAction(tripId),
+          getPhaseMetadataAction(tripId, 4),
         ]);
 
       if (transportResult.success && transportResult.data) {
@@ -220,6 +221,13 @@ export function Phase4WizardV2({
       }
       if (mobilityResult.success && mobilityResult.data) {
         setMobility(mobilityResult.data.mobility);
+      }
+      // Restore undecided flags from saved metadata (SPEC-FASE4-AND-001)
+      if (metadataResult.success && metadataResult.data) {
+        const meta = metadataResult.data;
+        if (meta.transportUndecided) setTransportUndecided(true);
+        if (meta.accommodationUndecided) setAccommodationUndecided(true);
+        if (meta.mobilityUndecided) setMobilityUndecided(true);
       }
     } catch {
       // Silently fail
@@ -342,6 +350,9 @@ export function Phase4WizardV2({
       const result = await advanceFromPhaseAction(tripId, 4, {
         needsCarRental: needsCarRental ?? false,
         cnhResolved: needsCarRental ? (needsCinh ? cnhConfirmed : true) : true,
+        transportUndecided,
+        accommodationUndecided,
+        mobilityUndecided,
       });
 
       if (!result.success) {

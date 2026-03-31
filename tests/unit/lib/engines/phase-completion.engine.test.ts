@@ -187,6 +187,56 @@ describe("evaluatePhaseCompletion - Phase 4", () => {
     const result = evaluatePhaseCompletion(4, snapshot);
     expect(result.status).toBe("pending");
   });
+
+  // ── "Ainda não decidi" scenarios (SPEC-FASE4-AND-001) ──────────────────
+
+  it("returns in_progress when transportUndecided is true (scenario B)", () => {
+    const snapshot = makeEmptySnapshot();
+    snapshot.phase4 = { transportSegmentCount: 0, accommodationCount: 1, transportUndecided: true };
+    const result = evaluatePhaseCompletion(4, snapshot);
+    expect(result.status).toBe("in_progress");
+    expect(result.requirements.find((r) => r.key === "transportUndecided")?.met).toBe(false);
+  });
+
+  it("returns in_progress when all 3 undecided flags are true (scenario B)", () => {
+    const snapshot = makeEmptySnapshot();
+    snapshot.phase4 = {
+      transportSegmentCount: 0,
+      accommodationCount: 0,
+      transportUndecided: true,
+      accommodationUndecided: true,
+      mobilityUndecided: true,
+    };
+    const result = evaluatePhaseCompletion(4, snapshot);
+    expect(result.status).toBe("in_progress");
+    expect(result.requirements.filter((r) => r.key.includes("Undecided")).length).toBe(3);
+  });
+
+  it("returns completed when data exists and no undecided flags (scenario C)", () => {
+    const snapshot = makeEmptySnapshot();
+    snapshot.phase4 = {
+      transportSegmentCount: 1,
+      accommodationCount: 1,
+      transportUndecided: false,
+      accommodationUndecided: false,
+      mobilityUndecided: false,
+    };
+    const result = evaluatePhaseCompletion(4, snapshot);
+    expect(result.status).toBe("completed");
+  });
+
+  it("returns in_progress even when data exists if undecided is true (RN-03)", () => {
+    const snapshot = makeEmptySnapshot();
+    snapshot.phase4 = {
+      transportSegmentCount: 1,
+      accommodationCount: 1,
+      transportUndecided: true,
+      accommodationUndecided: false,
+      mobilityUndecided: false,
+    };
+    const result = evaluatePhaseCompletion(4, snapshot);
+    expect(result.status).toBe("in_progress");
+  });
 });
 
 // ─── Phase 5 ────────────────────────────────────────────────────────────────
