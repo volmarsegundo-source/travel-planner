@@ -198,7 +198,7 @@ describe("evaluatePhaseCompletion - Phase 4", () => {
     expect(result.requirements.find((r) => r.key === "transportUndecided")?.met).toBe(false);
   });
 
-  it("returns in_progress when all 3 undecided flags are true (scenario B)", () => {
+  it("returns pending when all 3 undecided flags are true and no data (scenario B)", () => {
     const snapshot = makeEmptySnapshot();
     snapshot.phase4 = {
       transportSegmentCount: 0,
@@ -208,7 +208,7 @@ describe("evaluatePhaseCompletion - Phase 4", () => {
       mobilityUndecided: true,
     };
     const result = evaluatePhaseCompletion(4, snapshot);
-    expect(result.status).toBe("in_progress");
+    expect(result.status).toBe("pending");
     expect(result.requirements.filter((r) => r.key.includes("Undecided")).length).toBe(3);
   });
 

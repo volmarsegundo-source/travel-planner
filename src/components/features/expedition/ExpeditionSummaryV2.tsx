@@ -39,12 +39,6 @@ const MAX_TRANSPORT_DISPLAY = 3;
 const MAX_ACCOMMODATION_DISPLAY = 3;
 const TOTAL_PHASES = 6;
 
-const SAFETY_LEVEL_MAP: Record<string, { color: "success" | "warning" | "error"; key: string }> = {
-  safe: { color: "success", key: "phase5SafeSafe" },
-  moderate: { color: "warning", key: "phase5SafeModerate" },
-  caution: { color: "error", key: "phase5SafeCaution" },
-};
-
 const TRIP_TYPE_KEYS: Record<string, string> = {
   domestic: "tripTypeDomestic",
   mercosul: "tripTypeMercosul",
@@ -621,145 +615,6 @@ export function ExpeditionSummaryV2({
   );
 }
 
-// ─── Phase 5 Dark Card (P0 #3) ──────────────────────────────────────────────
-
-function Phase5DarkCard({
-  summary,
-  status,
-  icon,
-  name,
-  tripId,
-  formatDate,
-  t,
-  getStatusBadgeColor,
-  getStatusLabel,
-  getCtaLabel,
-}: {
-  summary: ExpeditionSummaryData;
-  status: PhaseStatus;
-  icon: string;
-  name: string;
-  tripId: string;
-  formatDate: (d: string | null) => string;
-  t: (key: string, values?: Record<string, string | number>) => string;
-  getStatusBadgeColor: (s: PhaseStatus) => "success" | "warning" | "info";
-  getStatusLabel: (s: PhaseStatus) => string;
-  getCtaLabel: (s: PhaseStatus) => string;
-}) {
-  const p = summary.phase5;
-
-  return (
-    <div
-      className="md:col-span-2 bg-[#040d1b] text-white p-6 rounded-atlas-xl relative overflow-hidden"
-      data-testid="phase-card-v2-5"
-    >
-      {/* Card header */}
-      <div className="relative z-10 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-xl" aria-hidden="true">{icon}</span>
-          <div>
-            <h3 className="font-atlas-headline text-lg font-bold text-white">
-              {name}
-            </h3>
-            <AtlasBadge variant="status" color={getStatusBadgeColor(status)} size="sm">
-              {getStatusLabel(status)}
-            </AtlasBadge>
-          </div>
-        </div>
-        <Link href={`/expedition/${tripId}/phase-5`}>
-          <AtlasButton variant="ghost" size="sm" data-testid="edit-phase-v2-5" className="text-white hover:text-white/80">
-            {getCtaLabel(status)}
-          </AtlasButton>
-        </Link>
-      </div>
-
-      {/* Dark card body */}
-      {p ? (
-        <div className="relative z-10 mt-4 space-y-4" data-testid="phase-content-5">
-          {/* Generated date + AI badge */}
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-atlas-body text-white/70">
-              {t("phase5GeneratedAt", { date: formatDate(p.generatedAt) })}
-            </p>
-            <AtlasBadge variant="ai-tip">AI</AtlasBadge>
-          </div>
-
-          {/* Stat boxes row: safety level + key facts */}
-          <div className="flex flex-wrap gap-4" data-testid="phase5-stats">
-            {p.safetyLevel && (
-              <div className="text-center" data-testid="phase5-safety">
-                <p className="text-xs font-bold text-atlas-secondary-container uppercase mb-1">
-                  {t("phase5SafetyLevel")}
-                </p>
-                <p className={`text-lg font-bold ${
-                  p.safetyLevel === "safe" ? "text-emerald-400" :
-                  p.safetyLevel === "moderate" ? "text-amber-400" :
-                  "text-red-400"
-                }`}>
-                  {t(SAFETY_LEVEL_MAP[p.safetyLevel]?.key ?? "phase5SafeModerate")}
-                </p>
-              </div>
-            )}
-            {p.keyFacts.map((fact, idx) => (
-              <div key={idx} className="text-center" data-testid="phase5-fact">
-                <p className="text-xs font-bold text-atlas-secondary-container uppercase mb-1">
-                  {fact.label}
-                </p>
-                <p className="text-lg font-bold text-white">
-                  {fact.value}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Top attractions */}
-          {p.topAttractions.length > 0 && (
-            <div data-testid="phase5-attractions">
-              <p className="text-xs font-semibold font-atlas-body text-white/60 mb-2">
-                {t("phase5Attractions")}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {p.topAttractions.map((attr, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 bg-white/5 rounded-lg border border-white/10"
-                    data-testid="phase5-attraction-card"
-                  >
-                    <h4 className="font-bold text-sm text-white mb-1">{attr.name}</h4>
-                    <p className="text-xs text-white/60">{attr.description}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Fallback: highlights as list */}
-          {p.topAttractions.length === 0 && p.highlights.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold font-atlas-body text-white/60">
-                {t("phase5Highlights")}
-              </p>
-              <ul className="mt-1 space-y-0.5">
-                {p.highlights.map((h, idx) => (
-                  <li key={idx} className="text-xs font-atlas-body text-white/70 flex items-center gap-1">
-                    <span aria-hidden="true">&middot;</span>
-                    <span>{h}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div className="relative z-10 mt-3">
-          <p className="text-xs italic font-atlas-body text-white/60">
-            {t("phaseEmptyText")}
-          </p>
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -1067,7 +922,6 @@ function PhaseContent({
       );
     }
 
-    // Phase 5 handled by Phase5DarkCard — this is fallback for non-dark rendering
     case 5: {
       const p = summary.phase5;
       if (!p) return null;

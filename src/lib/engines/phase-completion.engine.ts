@@ -163,9 +163,11 @@ function evaluatePhase4(
     }
   }
 
-  // If any section is undecided, phase is in_progress (not completed)
+  // All 3 undecided + no data → "pending" (completed with caveats, not actively in progress)
+  // Partial undecided (some data, some undecided) → "in_progress"
+  const allUndecided = data.transportUndecided && data.accommodationUndecided && data.mobilityUndecided;
   if (anyUndecided) {
-    return { phase: 4, status: "in_progress", requirements };
+    return { phase: 4, status: allUndecided && !hasEither ? "pending" : "in_progress", requirements };
   }
 
   return {

@@ -106,7 +106,8 @@ test.describe("Registration — duplicate email", () => {
     });
 
     // Now try to register again with the same email
-    // Navigate explicitly to register page (needed if auto-logged in on staging)
+    // Clear session cookies so the register page doesn't redirect or skip validation
+    await page.context().clearCookies();
     await page.goto("/en/auth/register");
     await page.getByLabel(/email/i).fill(dupEmail);
     await page.getByLabel(/^password$/i).fill("TestPassword@123");
