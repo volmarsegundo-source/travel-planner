@@ -939,6 +939,11 @@
       "regenerateConfirm": "Trip data has changed since this guide was generated. Regenerate the guide?",
       "regenerateConfirmYes": "Yes, regenerate",
       "regenerateConfirmNo": "Keep current",
+      "emptyStateTitle": "Destination Guide: {destination}",
+      "emptyStateDescription": "Generate a personalized guide with essential information about {destination}.",
+      "emptyStateCost": "Cost: {cost} Atlas Points",
+      "insufficientPA": "Insufficient Atlas Points",
+      "generating": "Generating guide...",
       "sections": {
         "timezone": "Timezone",
         "currency": "Currency",
@@ -955,6 +960,9 @@
     "phase6": {
       "title": "The Itinerary",
       "subtitle": "Your day-by-day travel plan, powered by AI.",
+      "emptyTitle": "The Itinerary: {destination}",
+      "emptyDescription": "Generate a personalized day-by-day itinerary for your expedition.",
+      "paCost": "Cost: {cost} Atlas Points",
       "generateHint": "Generate a personalized itinerary based on your destination, travel style, and budget. You can edit and reorganize activities after generation.",
       "generateCta": "Generate Itinerary with AI",
       "regenerateCta": "Regenerate Itinerary",

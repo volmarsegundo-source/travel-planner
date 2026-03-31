@@ -357,7 +357,7 @@ function CostsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
 
   return (
     <div
-      className={`md:col-span-6 ${BENTO_CARD_BASE} p-6 overflow-hidden`}
+      className={`md:col-span-10 ${BENTO_CARD_BASE} p-6 overflow-hidden`}
       data-testid="costs-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
@@ -559,22 +559,7 @@ export function DestinationGuideV2({
   const handleGenerateRef = useRef(handleGenerate);
   handleGenerateRef.current = handleGenerate;
 
-  // Auto-generate on first visit
-  const hasTriggeredRef = useRef(false);
-  useEffect(() => {
-    if (!initialGuide && !isGenerating && !hasTriggeredRef.current) {
-      hasTriggeredRef.current = true;
-      spendPAForAIAction(tripId, "ai_accommodation")
-        .then((result) => {
-          if (result.success && result.data && "remainingBalance" in result.data) {
-            setPABalance(result.data.remainingBalance);
-          }
-        })
-        .catch(() => {})
-        .finally(() => { handleGenerateRef.current(); });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const insufficientPA = paBalance < guideCost;
 
   // Auto-regenerate when trip data has changed since last guide generation
   const hasCheckedHashRef = useRef(false);
@@ -736,22 +721,26 @@ export function DestinationGuideV2({
         isLoading={isSpending}
       />
 
-      {/* Empty state -- no guide yet */}
+      {/* Empty state -- no guide yet, manual generation */}
       {!guide && (
-        <>
-          <div className="mt-8 text-center">
-            <p className="mb-4 text-sm font-atlas-body text-atlas-on-surface-variant">
-              {t("generateHint")}
-            </p>
-          </div>
-          <WizardFooter
-            onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
-            onPrimary={handleRequestGenerate}
-            primaryLabel={t("generateCta")}
-            isLoading={isGenerating}
-            isDisabled={isGenerating}
-          />
-        </>
+        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+          <div className="text-5xl mb-4" aria-hidden="true">{"\uD83D\uDDFA\uFE0F"}</div>
+          <h2 className="text-xl font-bold font-atlas-headline text-atlas-on-surface mb-2">
+            {t("emptyStateTitle", { destination })}
+          </h2>
+          <p className="text-sm text-atlas-on-surface-variant font-atlas-body mb-2 max-w-md">
+            {t("emptyStateDescription", { destination })}
+          </p>
+          <p className="text-sm font-semibold text-atlas-on-tertiary-container mb-6">
+            {t("emptyStateCost", { cost: guideCost })}
+          </p>
+          <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating || insufficientPA}>
+            {isGenerating ? t("generating") : t("generateCta")}
+          </AtlasButton>
+          {insufficientPA && (
+            <p className="text-xs text-destructive mt-2">{t("insufficientPA")}</p>
+          )}
+        </div>
       )}
 
       {/* Legacy v1 guide -- show fallback with regenerate prompt */}

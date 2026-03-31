@@ -939,6 +939,11 @@
       "regenerateConfirm": "Os dados da viagem mudaram desde que o guia foi gerado. Regenerar o guia?",
       "regenerateConfirmYes": "Sim, regenerar",
       "regenerateConfirmNo": "Manter atual",
+      "emptyStateTitle": "Guia do Destino: {destination}",
+      "emptyStateDescription": "Gere um guia personalizado com informações essenciais sobre {destination}.",
+      "emptyStateCost": "Custo: {cost} Pontos Atlas",
+      "insufficientPA": "Pontos Atlas insuficientes",
+      "generating": "Gerando guia...",
       "sections": {
         "timezone": "Fuso Horário",
         "currency": "Moeda",
@@ -955,6 +960,9 @@
     "phase6": {
       "title": "O Roteiro",
       "subtitle": "Seu plano dia a dia, gerado por IA.",
+      "emptyTitle": "O Roteiro: {destination}",
+      "emptyDescription": "Gere um roteiro dia-a-dia personalizado para sua expedição.",
+      "paCost": "Custo: {cost} Pontos Atlas",
       "generateHint": "Gere um roteiro personalizado baseado no seu destino, estilo de viagem e orçamento. Você pode editar e reorganizar atividades após a geração.",
       "generateCta": "Gerar Roteiro com IA",
       "regenerateCta": "Regerar Roteiro",

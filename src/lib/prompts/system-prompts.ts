@@ -39,7 +39,9 @@ JSON SCHEMA:
           "startTime": "HH:MM",
           "endTime": "HH:MM",
           "estimatedCost": number,
-          "activityType": "SIGHTSEEING|FOOD|TRANSPORT|ACCOMMODATION|LEISURE|SHOPPING"
+          "activityType": "SIGHTSEEING|FOOD|TRANSPORT|ACCOMMODATION|LEISURE|SHOPPING",
+          "latitude": number (-90 to 90, approximate GPS latitude of the location),
+          "longitude": number (-180 to 180, approximate GPS longitude of the location)
         }
       ]
     }

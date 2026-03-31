@@ -1,7 +1,6 @@
 // Allow AI generation requests up to 120s (Anthropic SDK timeout is 90s)
 export const maxDuration = 120;
 
-import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -181,7 +180,7 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
   const { locale, tripId } = await params;
 
   // Phase access guard (replaces inline currentPhase < 6 check)
-  const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+  const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
     tripId, 6, locale,
     {
       destination: true,
@@ -201,9 +200,6 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
       },
     }
   );
-
-  const session = await auth();
-  const userId = session!.user!.id!;
 
   // Ensure ItineraryPlan exists
   await ItineraryPlanService.getOrCreateItineraryPlan(tripId, userId, locale);

@@ -1,4 +1,3 @@
-import { auth } from "@/lib/auth";
 import { ChecklistEngine } from "@/lib/engines/checklist-engine";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { Phase3Wizard } from "@/components/features/expedition/Phase3Wizard";
@@ -11,18 +10,16 @@ interface Phase3PageProps {
 export default async function Phase3Page({ params }: Phase3PageProps) {
   const { locale, tripId } = await params;
 
-  // Phase access guard (replaces inline currentPhase < 3 check)
-  const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+  // Phase access guard — also provides userId (no need for a second auth() call)
+  const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
     tripId, 3, locale,
     { tripType: true, startDate: true, destination: true }
   );
 
-  const session = await auth();
-
   // Initialize phase 3 checklist (idempotent)
   await ChecklistEngine.initializePhase3Checklist(
     tripId,
-    session!.user!.id!,
+    userId,
     trip.tripType as TripType,
     trip.startDate as Date | null
   );

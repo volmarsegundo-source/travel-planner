@@ -78,6 +78,8 @@ export interface DayActivity {
   endTime: string;
   estimatedCost: number;
   activityType: ActivityType;
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface DayPlan {

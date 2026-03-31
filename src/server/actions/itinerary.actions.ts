@@ -30,6 +30,8 @@ export interface Activity {
   endTime: string | null;
   orderIndex: number;
   activityType: string | null;
+  latitude: number | null;
+  longitude: number | null;
   createdAt: Date;
   updatedAt: Date;
 }

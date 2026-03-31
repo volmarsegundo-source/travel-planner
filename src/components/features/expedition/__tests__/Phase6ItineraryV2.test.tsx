@@ -219,12 +219,12 @@ describe("Phase6ItineraryV2", () => {
       expect(screen.getByTestId("phase-shell")).toBeInTheDocument();
     });
 
-    it("shows phase label and generate hint", () => {
+    it("shows phase label and empty state info", () => {
       render(<Phase6ItineraryV2 {...defaultProps} />);
       expect(screen.getByTestId("phase-6-label-v2")).toBeInTheDocument();
-      expect(
-        screen.getByText("expedition.phase6.generateHint"),
-      ).toBeInTheDocument();
+      expect(screen.getByText("expedition.phase6.emptyTitle")).toBeInTheDocument();
+      expect(screen.getByText("expedition.phase6.emptyDescription")).toBeInTheDocument();
+      expect(screen.getByText("expedition.phase6.paCost")).toBeInTheDocument();
     });
 
     it("renders WizardFooter in empty state", () => {

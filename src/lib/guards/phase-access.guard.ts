@@ -18,6 +18,7 @@ interface GuardResult {
     currentPhase: number;
     [key: string]: unknown;
   };
+  userId: string;
   accessMode: PhaseAccessMode;
   completedPhases: number[];
 }
@@ -99,6 +100,7 @@ export async function guardPhaseAccess(
 
   return {
     trip: { ...trip, currentPhase: safeCurrentPhase } as GuardResult["trip"],
+    userId: session.user.id,
     accessMode: access.mode,
     completedPhases,
   };

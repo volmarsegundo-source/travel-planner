@@ -64,6 +64,12 @@ export function Phase2WizardV2({
   const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
+  const tPrefValue = useTranslations("expedition.phase2.prefValue");
+
+  /** Translate a preference key, falling back to humanized key */
+  function tp(key: string): string {
+    try { return tPrefValue(key); } catch { return key.replace(/_/g, " "); }
+  }
   const locale = useLocale();
   const router = useRouter();
 
@@ -560,7 +566,7 @@ export function Phase2WizardV2({
                   <div className="flex justify-between">
                     <dt className="text-atlas-on-surface-variant">{t("step5.pace")}</dt>
                     <dd className="font-medium text-atlas-on-surface capitalize">
-                      {String(selectedPreferences.travelPace).replace(/_/g, " ")}
+                      {tp(String(selectedPreferences.travelPace))}
                     </dd>
                   </div>
                 )}
@@ -569,7 +575,7 @@ export function Phase2WizardV2({
                   <div className="flex justify-between">
                     <dt className="text-atlas-on-surface-variant">{t("step5.dietary")}</dt>
                     <dd className="font-medium text-atlas-on-surface text-right max-w-[60%]">
-                      {selectedPreferences.foodPreferences.map((f) => String(f).replace(/_/g, " ")).join(", ")}
+                      {selectedPreferences.foodPreferences.map((f) => tp(String(f))).join(", ")}
                     </dd>
                   </div>
                 )}
@@ -578,7 +584,7 @@ export function Phase2WizardV2({
                   <div className="flex justify-between">
                     <dt className="text-atlas-on-surface-variant">{t("step5.interests")}</dt>
                     <dd className="font-medium text-atlas-on-surface text-right max-w-[60%]">
-                      {selectedPreferences.interests.map((i) => String(i).replace(/_/g, " ")).join(", ")}
+                      {selectedPreferences.interests.map((i) => tp(String(i))).join(", ")}
                     </dd>
                   </div>
                 )}
@@ -587,7 +593,7 @@ export function Phase2WizardV2({
                   <div className="flex justify-between">
                     <dt className="text-atlas-on-surface-variant">{t("step5.fitness")}</dt>
                     <dd className="font-medium text-atlas-on-surface capitalize">
-                      {String(selectedPreferences.fitnessLevel).replace(/_/g, " ")}
+                      {tp(String(selectedPreferences.fitnessLevel))}
                     </dd>
                   </div>
                 )}

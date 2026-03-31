@@ -320,7 +320,10 @@ function convertToV2Days(
       duration: computeDuration(act.startTime, act.endTime),
       estimatedCost: "",
       category: act.activityType ?? "logistics",
-      coordinates: null,
+      coordinates:
+        act.latitude != null && act.longitude != null
+          ? { lat: act.latitude, lng: act.longitude }
+          : null,
       tip: null,
     }));
 
@@ -1313,21 +1316,8 @@ export function Phase6ItineraryV2({
     }
   }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, t, totalDays, startProgressTimer, stopProgressTimer, router]);
 
-  // ─── Auto-trigger on first visit ────────────────────────────────────────
-  useEffect(() => {
-    if (initialDays.length === 0 && !hasTriggeredRef.current) {
-      hasTriggeredRef.current = true;
-      spendPAForAIAction(tripId, "ai_itinerary")
-        .then((result) => {
-          if (result.success && result.data && "remainingBalance" in result.data) {
-            setPABalance(result.data.remainingBalance);
-          }
-        })
-        .catch(() => {})
-        .finally(() => { handleGenerate(); });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialDays.length]);
+  // Auto-trigger removed — generation is now manual per SPEC-PROD-055.
+  // User must click "Gerar Roteiro com IA" in the empty state.
 
   // ─── PA + generation handlers ────────────────────────────────────────────
   function handleRequestGenerate() { setShowPAConfirm(true); }
@@ -1436,8 +1426,14 @@ export function Phase6ItineraryV2({
               {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
             </p>
           </div>
+          <h2 className="text-xl font-atlas-headline font-bold text-atlas-on-surface">
+            {t("emptyTitle", { destination })}
+          </h2>
           <p className="max-w-sm text-sm font-atlas-body text-atlas-on-surface-variant">
-            {t("generateHint")}
+            {t("emptyDescription")}
+          </p>
+          <p className="text-sm font-bold font-atlas-body text-atlas-on-tertiary-container">
+            {t("paCost", { cost: PA_COST })}
           </p>
           {error && (
             <p role="alert" className="text-sm font-atlas-body text-atlas-error">{error}</p>

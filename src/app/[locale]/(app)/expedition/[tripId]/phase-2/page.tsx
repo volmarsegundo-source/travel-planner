@@ -1,5 +1,4 @@
 import { db } from "@/server/db";
-import { auth } from "@/lib/auth";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { Phase2Wizard } from "@/components/features/expedition/Phase2Wizard";
 import { parsePreferences } from "@/lib/validations/preferences.schema";
@@ -12,7 +11,7 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
   const { locale, tripId } = await params;
 
   // Phase access guard (replaces inline currentPhase < 2 check)
-  const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+  const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
     tripId, 2, locale,
     { destination: true, origin: true, startDate: true, endDate: true, passengers: true }
   );
@@ -28,16 +27,13 @@ export default async function Phase2Page({ params }: Phase2PageProps) {
     : null;
 
   // Load saved user preferences for Phase 2 revisit
-  const session = await auth();
   let savedPreferences: ReturnType<typeof parsePreferences> | undefined;
-  if (session?.user?.id) {
-    const profile = await db.userProfile.findUnique({
-      where: { userId: session.user.id },
-      select: { preferences: true },
-    });
-    if (profile?.preferences) {
-      savedPreferences = parsePreferences(profile.preferences);
-    }
+  const profile = await db.userProfile.findUnique({
+    where: { userId },
+    select: { preferences: true },
+  });
+  if (profile?.preferences) {
+    savedPreferences = parsePreferences(profile.preferences);
   }
 
   const savedPassengers = (trip.passengers != null && typeof trip.passengers === "object")

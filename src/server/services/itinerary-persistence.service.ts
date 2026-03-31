@@ -21,6 +21,8 @@ const DayActivitySchema = z.object({
     "LEISURE",
     "SHOPPING",
   ]),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
 });
 
 const DayPlanSchema = z.object({
@@ -78,6 +80,8 @@ export async function persistItinerary(
             endTime: activity.endTime,
             orderIndex: index,
             activityType: activity.activityType,
+            latitude: activity.latitude ?? null,
+            longitude: activity.longitude ?? null,
           })),
         });
       }

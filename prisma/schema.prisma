@@ -190,6 +190,10 @@ model Activity {
   orderIndex   Int      @default(0)
   activityType String?  @db.VarChar(50)
 
+  // GPS coordinates (optional — populated by AI)
+  latitude  Float?
+  longitude Float?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
