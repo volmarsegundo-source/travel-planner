@@ -64,7 +64,7 @@ export function Phase2WizardV2({
   const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
-  const tPrefValue = useTranslations("expedition.phase2.prefValue");
+  const tPrefValue = useTranslations("expedition.phase2.step5.prefValue");
 
   /** Translate a preference key, falling back to humanized key */
   function tp(key: string): string {

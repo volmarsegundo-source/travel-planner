@@ -193,7 +193,7 @@ export function ExpeditionSummaryV2({
 }: ExpeditionSummaryV2Props) {
   const t = useTranslations("expedition.summaryV2");
   const tPhases = useTranslations("gamification.phases");
-  const tPrefValue = useTranslations("expedition.phase2.prefValue");
+  const tPrefValue = useTranslations("expedition.phase2.step5.prefValue");
   const router = useRouter();
   const locale = useLocale();
 

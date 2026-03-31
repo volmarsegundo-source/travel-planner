@@ -16,13 +16,20 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
     { tripType: true, startDate: true, destination: true }
   );
 
-  // Initialize phase 3 checklist (idempotent)
-  await ChecklistEngine.initializePhase3Checklist(
-    tripId,
-    userId,
-    trip.tripType as TripType,
-    trip.startDate as Date | null
-  );
+  // Initialize phase 3 checklist (idempotent) — wrapped in try-catch
+  // because initializePhase3Checklist can fail on first visit if trip
+  // metadata is incomplete (race condition with Phase 2 completion).
+  try {
+    await ChecklistEngine.initializePhase3Checklist(
+      tripId,
+      userId,
+      trip.tripType as TripType,
+      trip.startDate as Date | null
+    );
+  } catch (error) {
+    console.error("[Phase3Page] initializePhase3Checklist failed:", error);
+    // Continue — checklist may already exist from a previous visit
+  }
 
   // Fetch checklist items
   const items = await ChecklistEngine.getPhaseChecklist(tripId, 3);

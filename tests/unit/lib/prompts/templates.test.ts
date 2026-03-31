@@ -180,7 +180,7 @@ describe("destinationGuidePrompt", () => {
   it("has correct v2 metadata", () => {
     expect(destinationGuidePrompt.version).toBe("2.0.0");
     expect(destinationGuidePrompt.model).toBe("guide");
-    expect(destinationGuidePrompt.maxTokens).toBe(3072);
+    expect(destinationGuidePrompt.maxTokens).toBe(4096);
     expect(destinationGuidePrompt.cacheControl).toBe(true);
   });
 

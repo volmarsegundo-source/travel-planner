@@ -696,17 +696,24 @@ export function DestinationGuideV2({
         </p>
       </header>
 
-      {/* Error display */}
+      {/* Error display with retry */}
       {errorMessage && (
         <div
           className={`${BENTO_CARD_BASE} p-6 !bg-atlas-error-container !border-atlas-error/30 mb-6`}
           role="alert"
         >
-          <p className="text-sm font-atlas-body text-atlas-error">
+          <p className="text-sm font-atlas-body text-atlas-error mb-3">
             {errorMessage.startsWith("errors.")
               ? tErrors(errorMessage.replace("errors.", ""))
               : errorMessage}
           </p>
+          <AtlasButton
+            variant="secondary"
+            size="sm"
+            onClick={() => { setErrorMessage(null); handleRequestGenerate(); }}
+          >
+            {tErrors("boundary.tryAgain")}
+          </AtlasButton>
         </div>
       )}
 
@@ -721,8 +728,8 @@ export function DestinationGuideV2({
         isLoading={isSpending}
       />
 
-      {/* Empty state -- no guide yet, manual generation */}
-      {!guide && (
+      {/* Empty state -- no guide yet, manual generation (hide when error is showing) */}
+      {!guide && !errorMessage && (
         <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
           <div className="text-5xl mb-4" aria-hidden="true">{"\uD83D\uDDFA\uFE0F"}</div>
           <h2 className="text-xl font-bold font-atlas-headline text-atlas-on-surface mb-2">

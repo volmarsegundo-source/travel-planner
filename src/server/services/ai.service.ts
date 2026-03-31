@@ -159,7 +159,7 @@ const DestinationGuideContentSchema = z.object({
   }),
   safety: SafetySchema,
   dailyCosts: DailyCostsSchema,
-  mustSee: z.array(MustSeeItemSchema).min(5).max(8),
+  mustSee: z.array(MustSeeItemSchema).min(3).max(8),
   documentation: DocumentationSchema,
   localTransport: LocalTransportSchema,
   culturalTips: z.array(z.string()).min(3).max(5),

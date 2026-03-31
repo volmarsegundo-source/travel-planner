@@ -9,7 +9,7 @@
  * - Structured JSON output (destination, quickFacts, safety, dailyCosts, mustSee,
  *   documentation, localTransport, culturalTips)
  * - XML-tagged user prompt for better context parsing
- * - maxTokens reduced from 4096 to 3072
+ * - maxTokens set to 4096 for reliable schema completion
  *
  * @version 2.0.0
  * @see docs/specs/sprint-40/PROMPT-GUIA-DESTINO-PERSONALIZADO.md (SPEC-AI-005)
@@ -22,7 +22,7 @@ import type { PromptTemplate, GuideParams } from "./types";
 export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
   version: "2.0.0",
   model: "guide",
-  maxTokens: 3072,
+  maxTokens: 4096,
   cacheControl: true,
   system: GUIDE_SYSTEM_PROMPT,
 

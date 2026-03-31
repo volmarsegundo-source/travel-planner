@@ -243,7 +243,14 @@ function calculateLevel(totalPoints: number): number {
 }
 
 function getSortedExpeditions(expeditions: ExpeditionDTO[]): ExpeditionDTO[] {
-  return [...expeditions].sort((a, b) => {
+  // Deduplicate by ID (safety guard against data duplication)
+  const seen = new Set<string>();
+  const unique = expeditions.filter((e) => {
+    if (seen.has(e.id)) return false;
+    seen.add(e.id);
+    return true;
+  });
+  return unique.sort((a, b) => {
     const aPriority = STATUS_SORT_PRIORITY[a.status] ?? 2;
     const bPriority = STATUS_SORT_PRIORITY[b.status] ?? 2;
     if (aPriority !== bPriority) return aPriority - bPriority;
