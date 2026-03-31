@@ -201,7 +201,30 @@ export async function POST(request: NextRequest) {
           }
 
           // Parse accumulated JSON and persist to DB before sending [DONE]
-          const plan = parseItineraryJson(accumulated);
+          let plan = parseItineraryJson(accumulated);
+
+          // Retry with non-streaming fallback if streaming response was incomplete
+          if (!plan && accumulated.length > 100) {
+            logger.warn("ai.stream.parse.retry", { userIdHash: hid, tripId: validatedTripId, accumulatedLength: accumulated.length });
+            try {
+              const retryProvider = new ClaudeProvider();
+              const retryResponse = await retryProvider.generateResponse(
+                userMessage,
+                tokenBudget,
+                "plan",
+                { systemPrompt: PLAN_SYSTEM_PROMPT },
+              );
+              plan = parseItineraryJson(retryResponse.text);
+              if (plan) {
+                // Send the complete plan as final chunk so client has full data
+                controller.enqueue(encoder.encode(`data: ${retryResponse.text}\n\n`));
+                logger.info("ai.stream.retry.success", { userIdHash: hid, tripId: validatedTripId });
+              }
+            } catch (retryError) {
+              logger.warn("ai.stream.retry.failed", { userIdHash: hid, error: String(retryError) });
+            }
+          }
+
           if (plan) {
             try {
               await persistItinerary(validatedTripId, plan);

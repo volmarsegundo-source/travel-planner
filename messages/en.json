@@ -1684,7 +1684,14 @@
     "generic": "Something went wrong. Please try again.",
     "tripNotFound": "Trip not found or access denied.",
     "maxTripsReached": "You have reached the maximum number of trips.",
-    "unauthorized": "Please sign in to continue."
+    "unauthorized": "Please sign in to continue.",
+    "aiSchemaError": "The AI response was incomplete. Please try again.",
+    "boundary": {
+      "title": "Something went wrong",
+      "description": "An unexpected error occurred.",
+      "tryAgain": "Try again",
+      "goBack": "Go back"
+    }
   },
   "legal": {
     "terms": {

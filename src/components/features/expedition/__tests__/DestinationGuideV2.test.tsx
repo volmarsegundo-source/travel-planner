@@ -252,7 +252,7 @@ describe("DestinationGuideV2", () => {
       />,
     );
     expect(screen.getByTestId("costs-card")).toBeInTheDocument();
-    expect(screen.getByText("Custos Medios Diarios")).toBeInTheDocument();
+    expect(screen.getByText("Custos Médios Diários")).toBeInTheDocument();
     expect(screen.getByText("Refeicao")).toBeInTheDocument();
     expect(screen.getByText("Transporte")).toBeInTheDocument();
     expect(screen.getByText("Hospedagem")).toBeInTheDocument();

@@ -1117,7 +1117,7 @@ function Phase2Content({
           {t(PACE_LABELS[String(phase2.travelPace)] ?? "phase2PaceModerate")}</>
         )}
         {phase2.budget !== null && (
-          <>{phase2.travelPace !== null ? " · " : ""}<span className="font-semibold">{t("phase2Budget")}:</span>{" "}{formatBudget(phase2.budget, phase2.currency, phase2.budgetRange)}</>
+          <>{phase2.travelPace !== null ? " · " : ""}<span className="font-semibold">{t("phase2Budget")}:</span>{" "}{formatBudget(phase2.budget, phase2.currency, phase2.budgetRange, translatePref)}</>
         )}
       </p>
 
@@ -1159,6 +1159,7 @@ function formatBudget(
   budget: number | null,
   currency: string | null,
   budgetRange: string | null,
+  translatePref?: (key: string) => string,
 ): string {
   if (budget !== null && currency) {
     try {
@@ -1171,6 +1172,6 @@ function formatBudget(
       return `${currency} ${budget}`;
     }
   }
-  if (budgetRange) return budgetRange;
+  if (budgetRange) return translatePref ? translatePref(budgetRange) : budgetRange;
   return "-";
 }

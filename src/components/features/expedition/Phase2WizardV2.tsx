@@ -426,11 +426,11 @@ export function Phase2WizardV2({
               <p className="text-sm font-atlas-body text-atlas-on-surface-variant">
                 {t("passengers.total", { count: totalPassengers })}
               </p>
-              <div className="flex gap-3 mt-2">
+              <div className="flex gap-3 mt-2 max-w-full">
                 <AtlasButton variant="secondary" onClick={handleBack}>
                   {tCommon("back")}
                 </AtlasButton>
-                <AtlasButton onClick={handleNext} fullWidth>
+                <AtlasButton onClick={handleNext} className="flex-1 min-w-0">
                   {tCommon("next")}
                 </AtlasButton>
               </div>

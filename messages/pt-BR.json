@@ -256,8 +256,8 @@
         "unsavedChangesMessage": "Você tem alterações não salvas.",
         "saveBeforeBack": "Salvar alterações antes de voltar?",
         "saveAndBack": "Salvar e voltar",
-        "saveAndAdvance": "Salvar e avancar",
-        "advanceWithoutSaving": "Avancar sem salvar",
+        "saveAndAdvance": "Salvar e avançar",
+        "advanceWithoutSaving": "Avançar sem salvar",
         "dataSaved": "Dados salvos"
       }
     }
@@ -1684,7 +1684,14 @@
     "generic": "Algo deu errado. Por favor, tente novamente.",
     "tripNotFound": "Viagem não encontrada ou acesso negado.",
     "maxTripsReached": "Você atingiu o número máximo de viagens.",
-    "unauthorized": "Faça login para continuar."
+    "unauthorized": "Faça login para continuar.",
+    "aiSchemaError": "A resposta da IA ficou incompleta. Por favor, tente novamente.",
+    "boundary": {
+      "title": "Algo deu errado",
+      "description": "Ocorreu um erro inesperado.",
+      "tryAgain": "Tentar novamente",
+      "goBack": "Voltar"
+    }
   },
   "legal": {
     "terms": {

@@ -11,45 +11,16 @@
  */
 
 import { useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-import type { ComponentType } from "react";
-import type {
-  MapContainerProps,
-  TileLayerProps,
-  MarkerProps,
-  PopupProps,
-  PolylineProps,
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Polyline,
+  useMap,
 } from "react-leaflet";
-
-// ─── Dynamic imports for SSR-incompatible react-leaflet components ──────────
-
-const MapContainer = dynamic<MapContainerProps>(
-  () => import("react-leaflet").then((mod) => mod.MapContainer as unknown as ComponentType<MapContainerProps>),
-  { ssr: false },
-);
-
-const TileLayer = dynamic<TileLayerProps>(
-  () => import("react-leaflet").then((mod) => mod.TileLayer as unknown as ComponentType<TileLayerProps>),
-  { ssr: false },
-);
-
-const Marker = dynamic<MarkerProps>(
-  () => import("react-leaflet").then((mod) => mod.Marker as unknown as ComponentType<MarkerProps>),
-  { ssr: false },
-);
-
-const Popup = dynamic<PopupProps>(
-  () => import("react-leaflet").then((mod) => mod.Popup as unknown as ComponentType<PopupProps>),
-  { ssr: false },
-);
-
-const Polyline = dynamic<PolylineProps>(
-  () => import("react-leaflet").then((mod) => mod.Polyline as unknown as ComponentType<PolylineProps>),
-  { ssr: false },
-);
 
 // ─── Numbered marker icon factory ───────────────────────────────────────────
 
@@ -73,34 +44,22 @@ function createNumberedIcon(index: number): L.DivIcon {
 /**
  * FitBounds is rendered inside MapContainer to imperatively
  * call fitBounds whenever the coordinates change.
- *
- * We import useMap at module level inside the dynamic wrapper,
- * but because FitBounds is only rendered client-side (inside the
- * dynamically loaded MapContainer), this is safe.
  */
-const FitBounds = dynamic<{ positions: L.LatLngTuple[] }>(
-  () =>
-    import("react-leaflet").then((mod) => {
-      const { useMap } = mod;
-      function FitBoundsInner({ positions }: { positions: L.LatLngTuple[] }) {
-        const map = useMap();
-        const prevRef = useRef<string>("");
+function FitBounds({ positions }: { positions: L.LatLngTuple[] }) {
+  const map = useMap();
+  const prevRef = useRef<string>("");
 
-        useEffect(() => {
-          const key = JSON.stringify(positions);
-          if (key === prevRef.current || positions.length === 0) return;
-          prevRef.current = key;
+  useEffect(() => {
+    const key = JSON.stringify(positions);
+    if (key === prevRef.current || positions.length === 0) return;
+    prevRef.current = key;
 
-          const bounds = L.latLngBounds(positions.map((p) => L.latLng(p[0], p[1])));
-          map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
-        }, [positions, map]);
+    const bounds = L.latLngBounds(positions.map((p) => L.latLng(p[0], p[1])));
+    map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+  }, [positions, map]);
 
-        return null;
-      }
-      return FitBoundsInner as unknown as ComponentType<{ positions: L.LatLngTuple[] }>;
-    }),
-  { ssr: false },
-);
+  return null;
+}
 
 // ─── Public types ───────────────────────────────────────────────────────────
 

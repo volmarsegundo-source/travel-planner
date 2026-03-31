@@ -357,59 +357,63 @@ function CostsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
 
   return (
     <div
-      className={`md:col-span-5 ${BENTO_CARD_BASE} p-6 overflow-hidden`}
+      className={`md:col-span-6 ${BENTO_CARD_BASE} p-6 overflow-hidden`}
       data-testid="costs-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
-        {"Custos Medios Diarios"}
+        {"Custos Médios Diários"}
       </h2>
 
-      {/* Column headers */}
-      <div className="grid grid-cols-4 gap-2 mb-2">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body" />
-        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body text-center">Econ.</span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body text-center">Medio</span>
-        <span className="text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant font-atlas-body text-center">Premium</span>
+      {/* Table layout for better readability */}
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs font-atlas-body">
+          <thead>
+            <tr className="border-b border-atlas-surface-container">
+              <th className="text-left text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant pb-2 pr-4" />
+              <th className="text-center text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant pb-2 px-3 whitespace-nowrap">Econômico</th>
+              <th className="text-center text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant pb-2 px-3 whitespace-nowrap">Moderado</th>
+              <th className="text-center text-[10px] font-bold uppercase tracking-widest text-atlas-on-surface-variant pb-2 px-3 whitespace-nowrap">Premium</th>
+            </tr>
+          </thead>
+          <tbody>
+            {costs.items.map((item, i) => (
+              <tr
+                key={i}
+                className={i < costs.items.length - 1 ? "border-b border-atlas-surface-container" : ""}
+              >
+                <td className="text-atlas-on-surface-variant font-medium py-2.5 pr-4 whitespace-nowrap">
+                  {item.category}
+                </td>
+                <td className="font-bold text-atlas-on-surface text-center py-2.5 px-3">
+                  {item.budget}
+                </td>
+                <td className="font-bold text-atlas-on-surface text-center py-2.5 px-3">
+                  {item.mid}
+                </td>
+                <td className="font-bold text-atlas-on-surface text-center py-2.5 px-3">
+                  {item.premium}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+          {costs.dailyTotal && (
+            <tfoot>
+              <tr className="bg-atlas-surface-container-low">
+                <td className="font-bold text-atlas-on-surface py-2.5 pr-4 rounded-l-lg pl-2">Total/dia</td>
+                <td className="font-bold text-atlas-secondary text-center py-2.5 px-3">
+                  {costs.dailyTotal.budget}
+                </td>
+                <td className="font-bold text-atlas-secondary text-center py-2.5 px-3">
+                  {costs.dailyTotal.mid}
+                </td>
+                <td className="font-bold text-atlas-secondary text-center py-2.5 px-3 rounded-r-lg">
+                  {costs.dailyTotal.premium}
+                </td>
+              </tr>
+            </tfoot>
+          )}
+        </table>
       </div>
-
-      {/* Cost rows */}
-      {costs.items.map((item, i) => (
-        <div
-          key={i}
-          className={`grid grid-cols-4 gap-2 py-2 ${
-            i < costs.items.length - 1 ? "border-b border-atlas-surface-container" : ""
-          }`}
-        >
-          <span className="text-xs text-atlas-on-surface-variant font-medium font-atlas-body truncate">
-            {item.category}
-          </span>
-          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-center">
-            {item.budget}
-          </span>
-          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-center">
-            {item.mid}
-          </span>
-          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body text-center">
-            {item.premium}
-          </span>
-        </div>
-      ))}
-
-      {/* Daily total */}
-      {costs.dailyTotal && (
-        <div className="grid grid-cols-4 gap-2 py-3 mt-2 bg-atlas-surface-container-low rounded-lg px-2">
-          <span className="text-xs font-bold text-atlas-on-surface font-atlas-body">Total/dia</span>
-          <span className="text-xs font-bold text-atlas-secondary font-atlas-body text-center">
-            {costs.dailyTotal.budget}
-          </span>
-          <span className="text-xs font-bold text-atlas-secondary font-atlas-body text-center">
-            {costs.dailyTotal.mid}
-          </span>
-          <span className="text-xs font-bold text-atlas-secondary font-atlas-body text-center">
-            {costs.dailyTotal.premium}
-          </span>
-        </div>
-      )}
 
       {/* Money-saving tip */}
       {costs.tip && (

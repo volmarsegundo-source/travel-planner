@@ -577,39 +577,51 @@ export class AiService {
     });
 
     const provider = getProvider();
-    const response = await provider.generateResponse(
-      userMessage,
-      destinationGuidePrompt.maxTokens,
-      destinationGuidePrompt.model,
-      { systemPrompt: destinationGuidePrompt.system },
-    );
+    const MAX_ATTEMPTS = 2;
+    let lastError: unknown;
 
-    logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
+    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const response = await provider.generateResponse(
+        userMessage,
+        destinationGuidePrompt.maxTokens,
+        destinationGuidePrompt.model,
+        { systemPrompt: destinationGuidePrompt.system },
+      );
 
-    let rawJson: unknown;
-    try {
-      rawJson = extractJsonFromResponse(response.text);
-    } catch (error) {
-      logger.error("ai.guide.parse.error", error, { userId: hid });
-      throw new AppError("AI_PARSE_ERROR", "errors.aiParseError", 502);
+      logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
+
+      let rawJson: unknown;
+      try {
+        rawJson = extractJsonFromResponse(response.text);
+      } catch (error) {
+        logger.warn("ai.guide.parse.error", { userId: hid, attempt, error: String(error) });
+        lastError = error;
+        if (attempt < MAX_ATTEMPTS) continue;
+        throw new AppError("AI_PARSE_ERROR", "errors.aiSchemaError", 502);
+      }
+
+      const parsed = DestinationGuideContentSchema.safeParse(rawJson);
+      if (!parsed.success) {
+        logger.warn("ai.guide.schema.error", { userId: hid, attempt, errors: parsed.error.errors.length });
+        lastError = parsed.error;
+        if (attempt < MAX_ATTEMPTS) continue;
+        throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
+      }
+
+      // Success — cache and return
+      const result = parsed.data as DestinationGuideContentV2;
+
+      try {
+        await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
+      } catch {
+        logger.warn("ai.guide.cache.set.error", { userId: hid });
+      }
+
+      logger.info("ai.guide.generated", { userId: hid, destination });
+      return result;
     }
 
-    const parsed = DestinationGuideContentSchema.safeParse(rawJson);
-    if (!parsed.success) {
-      logger.error("ai.guide.schema.error", parsed.error, { userId: hid });
-      throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
-    }
-
-    const result = parsed.data as DestinationGuideContentV2;
-
-    // Cache result
-    try {
-      await redis.set(cacheKey, JSON.stringify(result), "EX", CACHE_TTL.AI_PLAN);
-    } catch {
-      logger.warn("ai.guide.cache.set.error", { userId: hid });
-    }
-
-    logger.info("ai.guide.generated", { userId: hid, destination });
-    return result;
+    // Unreachable — loop always returns or throws, but TypeScript needs this
+    throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
   }
 }
