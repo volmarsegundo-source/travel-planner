@@ -948,6 +948,13 @@
       "emptyStateDescription": "Generate a personalized guide with essential information about {destination}.",
       "emptyStateCost": "Cost: {cost} Atlas Points",
       "insufficientPA": "Insufficient Atlas Points",
+      "featureClimate": "Climate & Currency",
+      "featureClimateDesc": "Accurate forecasts and real-time exchange rates to plan your spending and clothing.",
+      "featureSafety": "Safety & Health",
+      "featureSafetyDesc": "Updated local guidance, nearby hospitals and essential emergency numbers.",
+      "featureCulture": "Cultural Tips",
+      "featureCultureDesc": "Local customs, social etiquette and unmissable experiences curated by us.",
+      "processingNote": "AI processing takes approximately 10 seconds.",
       "generating": "Generating guide...",
       "sections": {
         "timezone": "Timezone",
@@ -1028,7 +1035,15 @@
       "deleteConfirmNo": "Keep",
       "activityNameRequired": "Activity name is required",
       "activitySaving": "Saving...",
-      "activityDeleting": "Deleting..."
+      "activityDeleting": "Deleting...",
+      "featureOptimization": "Route Optimization",
+      "featureOptimizationDesc": "AI-optimized activities to save time on every minute of your trip.",
+      "featureTips": "Exclusive Tips",
+      "featureTipsDesc": "Gastronomy tips curated by AI, from street food to regional gems.",
+      "featureChecklist": "Dynamic Checklist",
+      "featureChecklistDesc": "Smart travel checklist based on your trip to your destination.",
+      "backToGuide": "Back to Guide",
+      "processingNote": "AI processing takes approximately 10 seconds."
     },
     "hub": {
       "title": "Expedition",

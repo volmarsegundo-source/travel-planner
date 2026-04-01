@@ -948,6 +948,13 @@
       "emptyStateDescription": "Gere um guia personalizado com informações essenciais sobre {destination}.",
       "emptyStateCost": "Custo: {cost} Pontos Atlas",
       "insufficientPA": "Pontos Atlas insuficientes",
+      "featureClimate": "Clima e Moeda",
+      "featureClimateDesc": "Previsões precisas e cotações em tempo real para planejar seus gastos e vestimentas.",
+      "featureSafety": "Segurança e Saúde",
+      "featureSafetyDesc": "Orientações locais atualizadas, hospitais próximos e números de emergência essenciais.",
+      "featureCulture": "Dicas Culturais",
+      "featureCultureDesc": "Costumes locais, etiqueta social e experiências imperdíveis selecionadas por nossa curadoria.",
+      "processingNote": "Processamento de IA leva aproximadamente 10 segundos.",
       "generating": "Gerando guia...",
       "sections": {
         "timezone": "Fuso Horário",
@@ -1028,7 +1035,15 @@
       "deleteConfirmNo": "Manter",
       "activityNameRequired": "Nome da atividade é obrigatório",
       "activitySaving": "Salvando...",
-      "activityDeleting": "Excluindo..."
+      "activityDeleting": "Excluindo...",
+      "featureOptimization": "Otimização Logística",
+      "featureOptimizationDesc": "Atividades otimizadas por IA para você economizar cada minuto da sua jornada.",
+      "featureTips": "Dicas Exclusivas",
+      "featureTipsDesc": "Sugestões de gastronomia curadas por IA, desde comida de rua até joias regionais.",
+      "featureChecklist": "Checklist Dinâmico",
+      "featureChecklistDesc": "Sua lista de viagem inteligente baseada na jornada até seu destino.",
+      "backToGuide": "Voltar para o Guia",
+      "processingNote": "Processamento de IA leva aproximadamente 10 segundos."
     },
     "hub": {
       "title": "Expedição",

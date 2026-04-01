@@ -299,7 +299,7 @@ function SafetyCardV2({ guide, locale }: { guide: DestinationGuideContentV2; loc
 
   return (
     <div
-      className={`md:col-span-5 ${BENTO_CARD_BASE} p-6 flex flex-col justify-between`}
+      className={`md:col-span-10 ${BENTO_CARD_BASE} p-6 flex flex-col justify-between`}
       data-testid="safety-card"
     >
       <div>
@@ -725,23 +725,66 @@ export function DestinationGuideV2({
 
       {/* Empty state — no guide yet, manual generation */}
       {!guide && (
-        <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
-          <div className="text-5xl mb-4" aria-hidden="true">{"\uD83D\uDDFA\uFE0F"}</div>
-          <h2 className="text-xl font-bold font-atlas-headline text-atlas-on-surface mb-2">
+        <div className="flex flex-col items-center justify-center py-12 px-6 text-center max-w-3xl mx-auto">
+          {/* Sparkles icon */}
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-atlas-primary/10 mb-6">
+            <svg className="w-8 h-8 text-atlas-primary" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
+            </svg>
+          </div>
+
+          {/* Title */}
+          <h2 className="text-2xl md:text-3xl font-bold font-atlas-headline text-atlas-on-surface mb-3">
             {t("emptyStateTitle", { destination })}
           </h2>
-          <p className="text-sm text-atlas-on-surface-variant font-atlas-body mb-2 max-w-md">
+
+          {/* Description */}
+          <p className="text-base text-atlas-on-surface-variant font-atlas-body mb-8 max-w-lg">
             {t("emptyStateDescription", { destination })}
           </p>
-          <p className="text-sm font-semibold text-atlas-on-tertiary-container mb-6">
+
+          {/* Feature cards - 3 columns */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 w-full">
+            <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-atlas-primary/10 mb-3 mx-auto">
+                <span className="text-atlas-primary text-lg" aria-hidden="true">{"\uD83C\uDF24\uFE0F"}</span>
+              </div>
+              <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureClimate")}</h3>
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureClimateDesc")}</p>
+            </div>
+            <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 mb-3 mx-auto">
+                <span className="text-emerald-600 text-lg" aria-hidden="true">{"\uD83D\uDEE1\uFE0F"}</span>
+              </div>
+              <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureSafety")}</h3>
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureSafetyDesc")}</p>
+            </div>
+            <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-atlas-tertiary/10 mb-3 mx-auto">
+                <span className="text-atlas-tertiary text-lg" aria-hidden="true">{"\uD83C\uDFAD"}</span>
+              </div>
+              <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureCulture")}</h3>
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureCultureDesc")}</p>
+            </div>
+          </div>
+
+          {/* PA Cost */}
+          <p className="text-sm font-semibold text-atlas-on-tertiary-container mb-4">
             {t("emptyStateCost", { cost: guideCost })}
           </p>
-          <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating || insufficientPA}>
-            {isGenerating ? t("generating") : t("generateCta")}
+
+          {/* CTA Button */}
+          <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating || insufficientPA} size="lg">
+            {isGenerating ? t("generating") : t("generateCta")} {"\u2728"}
           </AtlasButton>
           {insufficientPA && (
             <p className="text-xs text-destructive mt-2">{t("insufficientPA")}</p>
           )}
+
+          {/* Footer note */}
+          <p className="text-xs text-atlas-on-surface-variant/60 font-atlas-body mt-6">
+            {t("processingNote")}
+          </p>
         </div>
       )}
 

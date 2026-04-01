@@ -1417,37 +1417,73 @@ export function Phase6ItineraryV2({
         completedPhases={completedPhases} phaseTitle={t("title")} phaseSubtitle={t("subtitle")}
         showFooter={false} contentMaxWidth="4xl"
       >
-        <div className="flex flex-col items-center justify-center gap-6 text-center">
-          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-atlas-secondary-container/20">
-            <MapIcon />
+        <div className="flex flex-col items-center justify-center py-12 px-6 text-center max-w-3xl mx-auto">
+          {/* Sparkles icon */}
+          <div className="flex items-center justify-center w-16 h-16 rounded-full bg-atlas-primary/10 mb-6">
+            <svg className="w-8 h-8 text-atlas-primary" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 2L9.19 8.63L2 9.24L7.46 13.97L5.82 21L12 17.27L18.18 21L16.54 13.97L22 9.24L14.81 8.63L12 2Z" />
+            </svg>
           </div>
-          <div className="space-y-2">
-            <p className="text-sm font-atlas-headline font-bold text-atlas-secondary-container" data-testid="phase-6-label-v2">
-              {tExpedition("phaseLabel", { number: 6, name: tPhases("theTreasure") })}
-            </p>
-          </div>
-          <h2 className="text-xl font-atlas-headline font-bold text-atlas-on-surface">
+
+          <h2 className="text-2xl md:text-3xl font-bold font-atlas-headline text-atlas-on-surface mb-3">
             {t("emptyTitle", { destination })}
           </h2>
-          <p className="max-w-sm text-sm font-atlas-body text-atlas-on-surface-variant">
+
+          <p className="text-base text-atlas-on-surface-variant font-atlas-body mb-8 max-w-lg">
             {t("emptyDescription")}
           </p>
-          <p className="text-sm font-bold font-atlas-body text-atlas-on-tertiary-container">
+
+          {/* Feature cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 w-full">
+            <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-atlas-primary/10 mb-3 mx-auto">
+                <span className="text-atlas-primary text-lg" aria-hidden="true">{"\uD83D\uDCCD"}</span>
+              </div>
+              <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureOptimization")}</h3>
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureOptimizationDesc")}</p>
+            </div>
+            <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 mb-3 mx-auto">
+                <span className="text-emerald-600 text-lg" aria-hidden="true">{"\uD83D\uDCA1"}</span>
+              </div>
+              <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureTips")}</h3>
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureTipsDesc")}</p>
+            </div>
+            <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-atlas-tertiary/10 mb-3 mx-auto">
+                <span className="text-atlas-tertiary text-lg" aria-hidden="true">{"\u2705"}</span>
+              </div>
+              <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureChecklist")}</h3>
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureChecklistDesc")}</p>
+            </div>
+          </div>
+
+          <p className="text-sm font-semibold text-atlas-on-tertiary-container mb-4">
             {t("paCost", { cost: PA_COST })}
           </p>
+
           {error && (
-            <p role="alert" className="text-sm font-atlas-body text-atlas-error">{error}</p>
+            <p role="alert" className="text-sm font-atlas-body text-atlas-error mb-3">{error}</p>
           )}
+
           <PAConfirmationModal
             isOpen={showPAConfirm} onClose={() => setShowPAConfirm(false)}
             onConfirm={handlePAConfirmAndGenerate} featureName={t("title")}
             paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
           />
-          <WizardFooter
-            onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
-            onPrimary={handleRequestGenerate}
-            primaryLabel={t("generateCta")}
-          />
+
+          <div className="flex items-center gap-4">
+            <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating} size="lg">
+              {t("generateCta")} {"\u2192"}
+            </AtlasButton>
+            <AtlasButton variant="ghost" onClick={() => router.push(`/expedition/${tripId}/phase-5`)}>
+              {t("backToGuide")}
+            </AtlasButton>
+          </div>
+
+          <p className="text-xs text-atlas-on-surface-variant/60 font-atlas-body mt-6">
+            {t("processingNote")}
+          </p>
         </div>
       </PhaseShell>
     );
