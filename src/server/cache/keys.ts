@@ -8,4 +8,6 @@ export const CacheKeys = {
   aiPlan: (hash: string) => `cache:ai-plan:${hash}`,
   aiChecklist: (hash: string) => `cache:ai-checklist:${hash}`,
   aiGuide: (hash: string) => `cache:ai-guide:v2:${hash}`,
+  destinationImage: (destination: string) =>
+    `img:dest:${destination.toLowerCase().trim().replace(/\s+/g, "_")}`,
 } as const;

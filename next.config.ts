@@ -11,6 +11,11 @@ const nextConfig: NextConfig = {
     // that will be migrated in Sprint 40+.
     ignoreDuringBuilds: true,
   },
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "images.unsplash.com" },
+    ],
+  },
   experimental: {
     workerThreads: false,
     cpus: 1,

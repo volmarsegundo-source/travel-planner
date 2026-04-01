@@ -10,6 +10,7 @@ export { AtlasChip } from "./AtlasChip";
 export { AtlasBadge } from "./AtlasBadge";
 export { AtlasPhaseProgress } from "./AtlasPhaseProgress";
 export { AtlasStepperInput } from "./AtlasStepperInput";
+// DestinationImage: import directly from "@/components/ui/DestinationImage" (server-only dep)
 // Types
 export type { AtlasButtonProps } from "./AtlasButton";
 export type { AtlasInputProps } from "./AtlasInput";
@@ -18,3 +19,4 @@ export type { AtlasChipProps, ChipColor } from "./AtlasChip";
 export type { AtlasBadgeProps, StatusColor } from "./AtlasBadge";
 export type { AtlasPhaseProgressProps, PhaseSegment, SegmentState } from "./AtlasPhaseProgress";
 export type { AtlasStepperInputProps } from "./AtlasStepperInput";
+// DestinationImageProps: import directly from "@/components/ui/DestinationImage"
