@@ -552,7 +552,7 @@ export function Phase2WizardV2({
                 <div className="flex justify-between">
                   <dt className="text-atlas-on-surface-variant">{t("step5.accommodation")}</dt>
                   <dd className={accommodationStyle ? "font-medium text-atlas-on-surface" : "text-atlas-outline-variant italic"}>
-                    {accommodationStyle ? t(`step2.${accommodationStyle}`) : tCommon("notProvided")}
+                    {accommodationStyle ? tp(accommodationStyle) : tCommon("notProvided")}
                   </dd>
                 </div>
                 <div className="flex justify-between">
@@ -594,6 +594,51 @@ export function Phase2WizardV2({
                     <dt className="text-atlas-on-surface-variant">{t("step5.fitness")}</dt>
                     <dd className="font-medium text-atlas-on-surface capitalize">
                       {tp(String(selectedPreferences.fitnessLevel))}
+                    </dd>
+                  </div>
+                )}
+                {/* Photography interest */}
+                {selectedPreferences?.photographyInterest && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.photography")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">
+                      {tp(String(selectedPreferences.photographyInterest))}
+                    </dd>
+                  </div>
+                )}
+                {/* Wake preference */}
+                {selectedPreferences?.wakePreference && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.wake")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">
+                      {tp(String(selectedPreferences.wakePreference))}
+                    </dd>
+                  </div>
+                )}
+                {/* Connectivity needs */}
+                {selectedPreferences?.connectivityNeeds && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.connectivity")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">
+                      {tp(String(selectedPreferences.connectivityNeeds))}
+                    </dd>
+                  </div>
+                )}
+                {/* Social preference */}
+                {selectedPreferences?.socialPreference && selectedPreferences.socialPreference.length > 0 && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.social")}</dt>
+                    <dd className="font-medium text-atlas-on-surface text-right max-w-[60%]">
+                      {selectedPreferences.socialPreference.map((s) => tp(String(s))).join(", ")}
+                    </dd>
+                  </div>
+                )}
+                {/* Budget style */}
+                {selectedPreferences?.budgetStyle && (
+                  <div className="flex justify-between">
+                    <dt className="text-atlas-on-surface-variant">{t("step5.budgetStyle")}</dt>
+                    <dd className="font-medium text-atlas-on-surface">
+                      {tp(String(selectedPreferences.budgetStyle))}
                     </dd>
                   </div>
                 )}

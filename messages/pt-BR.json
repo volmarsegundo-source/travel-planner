@@ -667,6 +667,11 @@
         "dietary": "Restrições alimentares",
         "interests": "Interesses",
         "fitness": "Condicionamento físico",
+        "photography": "Fotografia",
+        "wake": "Preferência de horário",
+        "connectivity": "Conectividade",
+        "social": "Estilo social",
+        "budgetStyle": "Estilo de orçamento",
         "budget": "Orçamento",
         "preferencesCount": "{count} {count, plural, =1 {categoria} other {categorias}}",
         "prefLabel": {

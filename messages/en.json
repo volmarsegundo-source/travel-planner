@@ -667,6 +667,11 @@
         "dietary": "Dietary preferences",
         "interests": "Interests",
         "fitness": "Fitness level",
+        "photography": "Photography",
+        "wake": "Wake preference",
+        "connectivity": "Connectivity",
+        "social": "Social style",
+        "budgetStyle": "Budget style",
         "budget": "Budget",
         "preferencesCount": "{count} {count, plural, =1 {category} other {categories}}",
         "prefLabel": {
