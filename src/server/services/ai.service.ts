@@ -97,12 +97,12 @@ const QuickFactSchema = z.object({
 
 const SafetySchema = z.object({
   level: z.enum(["safe", "moderate", "caution"]),
-  tips: z.array(z.string()).min(1).max(5),
+  tips: z.array(z.string()).min(1).max(10),
   emergencyNumbers: z.object({
-    police: z.string(),
-    ambulance: z.string(),
-    tourist: z.string().nullable(),
-  }),
+    police: z.string().optional().default("911"),
+    ambulance: z.string().optional().default("911"),
+    tourist: z.string().nullable().optional().default(null),
+  }).optional(),
 });
 
 const CostItemSchema = z.object({
@@ -113,40 +113,40 @@ const CostItemSchema = z.object({
 });
 
 const DailyCostsSchema = z.object({
-  items: z.array(CostItemSchema).min(3).max(3),
+  items: z.array(CostItemSchema).min(1).max(10),
   dailyTotal: z.object({
     budget: z.string(),
     mid: z.string(),
     premium: z.string(),
-  }),
+  }).optional(),
   tip: z.string().optional(),
 });
 
 const MustSeeItemSchema = z.object({
   name: z.string(),
-  category: z.enum(["nature", "culture", "food", "nightlife", "sport", "adventure"]),
-  estimatedTime: z.string(),
-  costRange: z.string(),
-  description: z.string(),
+  category: z.string(), // relaxed — AI may use unexpected categories
+  estimatedTime: z.string().optional().default(""),
+  costRange: z.string().optional().default(""),
+  description: z.string().optional().default(""),
 });
 
 const DocumentationSchema = z.object({
   passport: z.string(),
   visa: z.string(),
-  vaccines: z.string(),
-  insurance: z.string(),
+  vaccines: z.string().optional().default("Consult your doctor"),
+  insurance: z.string().optional().default("Recommended"),
 });
 
 const LocalTransportSchema = z.object({
-  options: z.array(z.string()).min(1).max(5),
-  tips: z.array(z.string()).min(1).max(3),
+  options: z.array(z.string()).min(1).max(10),
+  tips: z.array(z.string()).min(1).max(10),
 });
 
 const DestinationGuideContentSchema = z.object({
   destination: z.object({
     name: z.string(),
-    nickname: z.string(),
-    subtitle: z.string(),
+    nickname: z.string().optional().default(""),
+    subtitle: z.string().optional().default(""),
     overview: z.array(z.string()).min(1).max(4),
   }),
   quickFacts: z.object({
@@ -154,15 +154,15 @@ const DestinationGuideContentSchema = z.object({
     currency: QuickFactSchema,
     language: QuickFactSchema,
     timezone: QuickFactSchema,
-    plugType: QuickFactSchema,
-    dialCode: QuickFactSchema,
+    plugType: QuickFactSchema.optional(),
+    dialCode: QuickFactSchema.optional(),
   }),
   safety: SafetySchema,
-  dailyCosts: DailyCostsSchema,
-  mustSee: z.array(MustSeeItemSchema).min(3).max(8),
-  documentation: DocumentationSchema,
-  localTransport: LocalTransportSchema,
-  culturalTips: z.array(z.string()).min(3).max(5),
+  dailyCosts: DailyCostsSchema.optional(),
+  mustSee: z.array(MustSeeItemSchema).min(1).max(10),
+  documentation: DocumentationSchema.optional(),
+  localTransport: LocalTransportSchema.optional(),
+  culturalTips: z.array(z.string()).min(1).max(10),
 });
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
