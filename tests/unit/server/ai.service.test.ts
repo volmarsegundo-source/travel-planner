@@ -494,7 +494,7 @@ const VALID_GUIDE_RESPONSE = {
   },
   dailyCosts: {
     items: [
-      { category: "Refeicao", budget: "EUR 10-18", mid: "EUR 25-40", premium: "EUR 60+" },
+      { category: "Refeição", budget: "EUR 10-18", mid: "EUR 25-40", premium: "EUR 60+" },
       { category: "Transporte", budget: "EUR 3-7", mid: "EUR 15-25", premium: "EUR 40+" },
       { category: "Hospedagem", budget: "EUR 50-80", mid: "EUR 120-180", premium: "EUR 250+" },
     ],

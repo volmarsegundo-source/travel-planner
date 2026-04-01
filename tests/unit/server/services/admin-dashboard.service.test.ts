@@ -500,7 +500,7 @@ describe("AdminDashboardService.getMarginAlerts", () => {
     const alert = await AdminDashboardService.getMarginAlerts();
 
     expect(alert.level).toBe("yellow");
-    expect(alert.message).toContain("Atencao");
+    expect(alert.message).toContain("Atenção");
   });
 
   it("returns red when margin is below 50%", async () => {

@@ -375,9 +375,9 @@
     "phaseProgress": "{completed} de {total} fases",
     "currentPhase": "Fase {number}",
     "viewExpedition": "Continuar",
-    "phasesCompleted": "Fase {current} de {total} · {completed} concluidas",
+    "phasesCompleted": "Fase {current} de {total} · {completed} concluídas",
     "completed": "Concluida",
-    "progressLabel": "Progresso: {completed} de {total} fases concluidas",
+    "progressLabel": "Progresso: {completed} de {total} fases concluídas",
     "travelDates": "{start} – {end}",
     "checklist": {
       "items": "{done}/{total} itens",
@@ -432,7 +432,7 @@
       "quickAccessGuide": "Guia",
       "quickAccessItinerary": "Roteiro",
       "quickAccessReport": "Relatório",
-      "quickAccessLabel": "Acesso rapido — {destination}",
+      "quickAccessLabel": "Acesso rápido — {destination}",
       "quickAccessSummary": "Resumo"
     }
   },
@@ -629,11 +629,11 @@
         "title": "Quem vai viajar?",
         "adults": "Adultos",
         "adultsHint": "18+ anos",
-        "children": "Criancas",
+        "children": "Crianças",
         "childrenHint": "2-17 anos",
         "seniors": "Idosos",
         "seniorsHint": "65+ anos",
-        "infants": "Bebes",
+        "infants": "Bebês",
         "infantsHint": "Menos de 2 anos",
         "childAge": "Idade da crianca {number}",
         "total": "Total de passageiros: {count}",
@@ -835,7 +835,7 @@
         }
       },
       "validation": {
-        "banner": "Complete o seguinte antes de avancar:",
+        "banner": "Complete o seguinte antes de avançar:",
         "transportRequired": "Pelo menos um trecho de transporte com tipo, local de partida, local de chegada, data de partida e data de chegada",
         "accommodationRequired": "Pelo menos uma hospedagem com tipo, check-in e check-out",
         "mobilityRequired": "Pelo menos uma opção de mobilidade local selecionada",
@@ -1094,10 +1094,10 @@
       "continuePhase": "Continuar",
       "startPhase": "Iniciar",
       "completion": "Conclusão",
-      "completionLabel": "{percent}% concluido",
+      "completionLabel": "{percent}% concluído",
       "pendingItemsTitle": "Itens Pendentes",
-      "pendingRequired": "Acoes obrigatorias",
-      "pendingRecommended": "Acoes recomendadas",
+      "pendingRequired": "Ações obrigatórias",
+      "pendingRecommended": "Ações recomendadas",
       "pendingPhaseItem": "Fase {phase}: {item}",
       "phaseNotStarted": "Fase não iniciada"
     },
@@ -1265,7 +1265,7 @@
     "phaseLabel": "Fase {number}: {name}",
     "editBanner": "Você está revisitando a Fase {phase}. Suas alterações serão salvas quando você confirmar.",
     "progressBarLabel": "Progresso da expedição",
-    "aiDisclaimer": "Conteúdo gerado por IA. Revise e ajuste conforme necessario para sua viagem.",
+    "aiDisclaimer": "Conteúdo gerado por IA. Revise e ajuste conforme necessário para sua viagem.",
     "countdown": {
       "daysUntil": "{days, plural, one {# dia para sua viagem} other {# dias para sua viagem}}",
       "inProgress": "Sua viagem está em andamento!",
@@ -1316,7 +1316,7 @@
       "levelLabel": "Nível: {rank}"
     },
     "confirmModal": {
-      "title": "Confirmar Geracao com IA",
+      "title": "Confirmar Geração com IA",
       "costMessage": "Gerar {feature} custa {cost} PA.",
       "balanceAfter": "Saldo após: {balance} PA",
       "currentBalance": "Saldo atual: {balance} PA",
@@ -1344,8 +1344,8 @@
     "howItWorks": {
       "title": "Como Funciona",
       "pageDescription": "Saiba como funcionam os Pontos Atlas",
-      "section1Title": "O que sao Pontos Atlas?",
-      "section1Description": "Pontos Atlas (PA) sao a moeda da sua jornada de planejamento de viagem. Ganhe-os completando fases da expedição e gaste-os para desbloquear recursos com IA como checklists, guias de destino e roteiros personalizados.",
+      "section1Title": "O que são Pontos Atlas?",
+      "section1Description": "Pontos Atlas (PA) são a moeda da sua jornada de planejamento de viagem. Ganhe-os completando fases da expedição e gaste-os para desbloquear recursos com IA como checklists, guias de destino e roteiros personalizados.",
       "section2Title": "Como ganhar PA",
       "section2Description": "Complete atividades durante sua expedição para ganhar pontos.",
       "section3Title": "Como gastar PA",
@@ -1378,17 +1378,17 @@
       "levelTable": {
         "level": "Nível",
         "name": "Nome",
-        "threshold": "Pontos Necessarios"
+        "threshold": "Pontos Necessários"
       },
       "faq": {
         "q1": "O que acontece se eu não tiver PA suficientes?",
-        "a1": "Você ainda pode avancar pelas fases sem IA para ganhar mais pontos. Complete campos do perfil e itens do checklist para PA adicional.",
+        "a1": "Você ainda pode avançar pelas fases sem IA para ganhar mais pontos. Complete campos do perfil e itens do checklist para PA adicional.",
         "q2": "Posso perder PA?",
-        "a2": "PA só e gasto quando você gera conteúdo com IA. Completar fases e outras atividades sempre adicionam ao seu saldo.",
+        "a2": "PA só é gasto quando você gera conteúdo com IA. Completar fases e outras atividades sempre adicionam ao seu saldo.",
         "q3": "Os pontos expiram?",
-        "a3": "Nao, seus Pontos Atlas nunca expiram. Tome seu tempo planejando a viagem perfeita.",
+        "a3": "Não, seus Pontos Atlas nunca expiram. Tome seu tempo planejando a viagem perfeita.",
         "q4": "Como verifico meu saldo?",
-        "a4": "Seu saldo de PA atual está sempre visivel no badge do cabecalho no topo da pagina."
+        "a4": "Seu saldo de PA atual está sempre visível no badge do cabeçalho no topo da página."
       }
     },
     "badges": {
@@ -1417,8 +1417,8 @@
         "description": "Complete todas as 6 fases de uma expedição"
       },
       "zero_pendencias": {
-        "name": "Zero Pendencias",
-        "description": "Complete todos os itens obrigatorios do checklist"
+        "name": "Zero Pendências",
+        "description": "Complete todos os itens obrigatórios do checklist"
       },
       "revisor": {
         "name": "Revisor",
@@ -1429,8 +1429,8 @@
         "description": "Planeje uma viagem internacional"
       },
       "em_familia": {
-        "name": "Em Familia",
-        "description": "Planeje uma viagem com criancas"
+        "name": "Em Família",
+        "description": "Planeje uma viagem com crianças"
       },
       "solo_explorer": {
         "name": "Solo Explorer",
@@ -1486,7 +1486,7 @@
       "invalidPackage": "Pacote selecionado inválido.",
       "rateLimited": "Muitas compras realizadas. Aguarde antes de tentar novamente.",
       "tryAgain": "Tentar novamente",
-      "bestValue": "Melhor custo-beneficio",
+      "bestValue": "Melhor custo-benefício",
       "recommended": "Recomendado",
       "neededForFeature": "Você precisa de {amount} PA para {feature}",
       "neededGeneric": "Você precisa de {amount} PA"
@@ -1524,41 +1524,41 @@
   "admin": {
     "dashboard": {
       "title": "Painel Administrativo",
-      "subtitle": "Receita, usuarios e metricas da plataforma",
+      "subtitle": "Receita, usuários e métricas da plataforma",
       "kpisTitle": "Indicadores-chave de Desempenho",
       "totalRevenue": "Receita Total",
       "estimatedAiCost": "Custo Estimado de IA",
       "margin": "Margem",
-      "activeUsers": "Usuarios Ativos (30d)",
-      "paInCirculation": "PA em Circulacao",
+      "activeUsers": "Usuários Ativos (30d)",
+      "paInCirculation": "PA em Circulação",
       "totalPurchases": "Total de Compras",
-      "revenueChart": "Receita (ultimos 30 dias)",
-      "revenueChartLabel": "Grafico de barras de receita dos ultimos 30 dias",
+      "revenueChart": "Receita (últimos 30 dias)",
+      "revenueChartLabel": "Gráfico de barras de receita dos últimos 30 dias",
       "noRevenueData": "Nenhum dado de receita disponível ainda.",
-      "userTable": "Usuarios",
-      "columnUser": "Usuario",
+      "userTable": "Usuários",
+      "columnUser": "Usuário",
       "columnEmail": "Email",
       "columnPoints": "Pontos",
       "columnRevenue": "Receita",
       "columnTrips": "Viagens",
       "columnRank": "Rank",
-      "noUsers": "Nenhum usuario encontrado.",
-      "pageInfo": "Pagina {page} de {totalPages}",
+      "noUsers": "Nenhum usuário encontrado.",
+      "pageInfo": "Página {page} de {totalPages}",
       "kpi": {
-        "userKpis": "Metricas de Usuarios",
-        "financialKpis": "Metricas Financeiras",
+        "userKpis": "Métricas de Usuários",
+        "financialKpis": "Métricas Financeiras",
         "payingUsers": "pagantes",
         "freeUsers": "gratuitos",
-        "totalUsers": "Total de Usuarios",
+        "totalUsers": "Total de Usuários",
         "arpu": "ARPU",
-        "conversionRate": "Taxa de Conversao",
+        "conversionRate": "Taxa de Conversão",
         "grossMargin": "Margem Bruta",
         "paEmitted": "PA Emitidos",
         "paConsumed": "PA Consumidos"
       },
       "charts": {
         "aiCalls": "Chamadas de IA",
-        "aiCallsLabel": "Grafico de barras de chamadas de IA por funcionalidade",
+        "aiCallsLabel": "Gráfico de barras de chamadas de IA por funcionalidade",
         "checklist": "Checklist",
         "guide": "Guia",
         "itinerary": "Roteiro",
@@ -1567,8 +1567,8 @@
         "noData": "Nenhum dado disponível."
       },
       "alerts": {
-        "marginWarning": "Atencao: Margem bruta em {percent}% — abaixo do target de 80%",
-        "marginCritical": "ALERTA: Margem bruta critica em {percent}%"
+        "marginWarning": "Atenção: Margem bruta em {percent}% — abaixo do target de 80%",
+        "marginCritical": "ALERTA: Margem bruta crítica em {percent}%"
       },
       "export": {
         "exportCsv": "Exportar CSV",
@@ -1589,11 +1589,11 @@
         "revenue": "Receita",
         "balance": "Saldo",
         "search": "Buscar por email ou nome...",
-        "noResults": "Nenhum usuario encontrado.",
+        "noResults": "Nenhum usuário encontrado.",
         "prev": "Anterior",
         "next": "Próximo",
-        "prevPage": "Ir para pagina anterior",
-        "nextPage": "Ir para próxima pagina"
+        "prevPage": "Ir para página anterior",
+        "nextPage": "Ir para próxima página"
       }
     }
   },
@@ -1632,7 +1632,7 @@
   "report": {
     "title": "Relatório da Expedição",
     "viewReport": "Ver relatório",
-    "reportNotAvailable": "O relatório estara disponível quando as fases de preparo, guia e roteiro estiverem completas.",
+    "reportNotAvailable": "O relatório estará disponível quando as fases de preparo, guia e roteiro estiverem completas.",
     "generatedAt": "Gerado em {date}",
     "phase1Title": "A Inspiração",
     "phase2Title": "O Perfil",
@@ -1657,13 +1657,13 @@
     "name": "Nome",
     "ageRange": "Faixa etaria",
     "passengerCounts": "Passageiros",
-    "passengersDetail": "{adults} adultos, {children} criancas, {seniors} idosos, {infants} bebes",
+    "passengersDetail": "{adults} adultos, {children} crianças, {seniors} idosos, {infants} bebês",
     "travelPace": "Ritmo de viagem",
     "paceValue": "{value}/10",
-    "budgetLabel": "Orcamento",
+    "budgetLabel": "Orçamento",
     "interestsLabel": "Interesses",
-    "pendingRequired": "Itens obrigatorios pendentes",
-    "pendingRequiredCount": "{count} itens obrigatorios restantes",
+    "pendingRequired": "Itens obrigatórios pendentes",
+    "pendingRequiredCount": "{count} itens obrigatórios restantes",
     "enums": {
       "tripType": {
         "domestic": "Nacional",
@@ -1674,7 +1674,7 @@
       "travelerType": {
         "solo": "Solo",
         "couple": "Casal",
-        "family": "Familia",
+        "family": "Família",
         "group": "Grupo",
         "student": "Estudante",
         "business": "Negocios"
@@ -1823,34 +1823,34 @@
     "pointsPerCategory": "+5 pts",
     "next": "Próximo",
     "previous": "Anterior",
-    "pageIndicator": "Pagina {current} de {total}",
-    "pageChanged": "Pagina {current} de {total}",
+    "pageIndicator": "Página {current} de {total}",
+    "pageChanged": "Página {current} de {total}",
     "categories": {
       "travelPace": {
         "title": "Ritmo de Viagem",
-        "question": "Qual e o seu ritmo ideal de viagem?",
+        "question": "Qual é o seu ritmo ideal de viagem?",
         "relaxedDesc": "Poucas atividades por dia, com calma",
-        "moderateDesc": "Equilibrio entre passeios e descanso",
+        "moderateDesc": "Equilíbrio entre passeios e descanso",
         "intenseDesc": "Aproveitar cada minuto, muitas atividades"
       },
       "foodPreferences": {
         "title": "Preferências Alimentares",
-        "question": "Quais sao suas preferências alimentares?"
+        "question": "Quais são suas preferências alimentares?"
       },
       "interests": {
         "title": "Interesses e Hobbies",
         "question": "O que você mais gosta de fazer em viagens?"
       },
       "budgetStyle": {
-        "title": "Estilo de Orcamento",
-        "question": "Qual e o seu estilo de orcamento?",
-        "budgetDesc": "Hostels, transporte publico, street food",
-        "moderateDesc": "Hoteis 3-4 estrelas, restaurantes locais",
-        "comfortableDesc": "Hoteis premium, experiencias exclusivas",
+        "title": "Estilo de Orçamento",
+        "question": "Qual é o seu estilo de orçamento?",
+        "budgetDesc": "Hostels, transporte público, street food",
+        "moderateDesc": "Hotéis 3-4 estrelas, restaurantes locais",
+        "comfortableDesc": "Hotéis premium, experiências exclusivas",
         "luxuryDesc": "Resorts, voos executivos, fine dining"
       },
       "socialPreference": {
-        "title": "Preferencia Social",
+        "title": "Preferência Social",
         "question": "Como você prefere viajar?"
       },
       "accommodationStyle": {
@@ -1859,29 +1859,29 @@
       },
       "fitnessLevel": {
         "title": "Nível de Condicionamento",
-        "question": "Qual e o seu nível de condicionamento fisico?",
-        "lowDesc": "Atividades leves, sem muito esforco",
+        "question": "Qual é o seu nível de condicionamento físico?",
+        "lowDesc": "Atividades leves, sem muito esforço",
         "moderateDesc": "Caminhadas e atividades moderadas",
         "highDesc": "Trilhas longas, atividades intensas"
       },
       "photographyInterest": {
         "title": "Interesse em Fotografia",
-        "question": "Qual e o seu interesse em fotografia?",
-        "casualDesc": "Fotos rapidas com o celular",
-        "enthusiastDesc": "Gosto de explorar angulos e horarios",
+        "question": "Qual é o seu interesse em fotografia?",
+        "casualDesc": "Fotos rápidas com o celular",
+        "enthusiastDesc": "Gosto de explorar ângulos e horários",
         "professionalDesc": "Preciso de tempo extra em cada ponto"
       },
       "wakePreference": {
-        "title": "Preferencia de Horario",
-        "question": "Você e mais matutino ou noturno?",
-        "earlyBirdDesc": "Gosto de comecar cedo, aproveitar a manha",
-        "flexibleDesc": "Sem preferencia forte",
-        "nightOwlDesc": "Prefiro comecar mais tarde, curtir a noite"
+        "title": "Preferência de Horário",
+        "question": "Você é mais matutino ou noturno?",
+        "earlyBirdDesc": "Gosto de começar cedo, aproveitar a manhã",
+        "flexibleDesc": "Sem preferência forte",
+        "nightOwlDesc": "Prefiro começar mais tarde, curtir a noite"
       },
       "connectivityNeeds": {
         "title": "Necessidade de Conectividade",
-        "question": "Qual e a sua necessidade de internet durante a viagem?",
-        "essentialDesc": "Preciso de WiFi o tempo todo (trabalho, comunicacao)",
+        "question": "Qual é a sua necessidade de internet durante a viagem?",
+        "essentialDesc": "Preciso de WiFi o tempo todo (trabalho, comunicação)",
         "occasionalDesc": "Para mapas, mensagens e fotos",
         "digitalDetoxDesc": "Quero desconectar e curtir offline"
       }
@@ -1928,8 +1928,8 @@
         "solo": "Solo e tranquilo",
         "meet_travelers": "Encontrar outros viajantes",
         "group_activities": "Atividades em grupo",
-        "family": "Em familia",
-        "romantic_couple": "Romantico a dois"
+        "family": "Em família",
+        "romantic_couple": "Romântico a dois"
       },
       "accommodationStyle": {
         "hostel": "Hostel",
@@ -1965,7 +1965,7 @@
     "noResults": "Nenhuma cidade encontrada. Tente outra ortografia.",
     "searching": "Buscando destinos...",
     "searchLabel": "Buscar destinos",
-    "searchError": "Busca indisponivel. Digite o destino manualmente.",
+    "searchError": "Busca indisponível. Digite o destino manualmente.",
     "placeholder": "Para onde você vai?",
     "recentSearches": "Buscas recentes",
     "clearRecent": "Limpar",
@@ -1988,7 +1988,7 @@
       "notificationCount": "{count} notificações"
     },
     "phaseProgress": {
-      "progressLabel": "Progresso das fases: {completed} de {total} concluidas",
+      "progressLabel": "Progresso das fases: {completed} de {total} concluídas",
       "goToPhase": "Ir para fase {phase}: {label}",
       "completed": "concluida",
       "current": "atual",
@@ -2016,27 +2016,27 @@
       "subtitle": "Planeje viagens incríveis em minutos — fácil, inteligente e divertido. A IA cuida dos detalhes, você aproveita a aventura.",
       "cta": "Comece sua expedição",
       "secondaryCta": "Como Funciona",
-      "imageAlt": "Vista aerea de montanhas brasileiras ao por do sol com ceu dramatico em tons de laranja e roxo"
+      "imageAlt": "Vista aérea de montanhas brasileiras ao pôr do sol com céu dramático em tons de laranja e roxo"
     },
     "phases": {
       "title": "8 Fases da Expedição",
-      "subtitle": "Nossa metodologia proprietaria garante que nada seja esquecido, transformando cada etapa em uma experiencia fluida.",
+      "subtitle": "Nossa metodologia proprietária garante que nada seja esquecido, transformando cada etapa em uma experiência fluida.",
       "comingSoon": "Em Breve",
       "phase1": {
         "name": "A Inspiração",
-        "description": "Curadoria de destinos baseada em seus desejos e tendencias globais."
+        "description": "Curadoria de destinos baseada em seus desejos e tendências globais."
       },
       "phase2": {
         "name": "O Perfil",
-        "description": "Definicao do seu estilo de viajante: do luxo ao mochilao."
+        "description": "Definição do seu estilo de viajante: do luxo ao mochilão."
       },
       "phase3": {
         "name": "O Preparo",
-        "description": "Documentacao, vacinas e checklists inteligentes personalizados."
+        "description": "Documentação, vacinas e checklists inteligentes personalizados."
       },
       "phase4": {
         "name": "A Logística",
-        "description": "Conexoes, transferencias e hospedagem no melhor custo-beneficio."
+        "description": "Conexões, transferências e hospedagem no melhor custo-benefício."
       },
       "phase5": {
         "name": "Guia do Destino",
@@ -2052,13 +2052,13 @@
       },
       "phase8": {
         "name": "O Legado",
-        "description": "Diario digital e organizacao automatica dos melhores momentos."
+        "description": "Diário digital e organização automática dos melhores momentos."
       }
     },
     "ai": {
       "title": "Ferramentas de planejamento com IA",
       "description": "Gere roteiros completos, checklists de documentos e guias de destino — tudo personalizado para o perfil da sua viagem.",
-      "feature1": "Geracao de roteiro dia a dia completo",
+      "feature1": "Geração de roteiro dia a dia completo",
       "feature2": "Checklist inteligente de documentos e vistos",
       "feature3": "Guia detalhado do destino com dicas locais",
       "cta": "Saiba como funciona",
@@ -2067,7 +2067,7 @@
     },
     "gamification": {
       "title": "Ganhe pontos, suba de nível",
-      "subtitle": "Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie beneficios exclusivos.",
+      "subtitle": "Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie benefícios exclusivos.",
       "currentLevel": "Seu Nível Atual",
       "explanation": "Complete fases para ganhar Pontos Atlas. Use-os para gerar roteiros, checklists e guias de destino com IA.",
       "badge1": {
@@ -2087,8 +2087,8 @@
         "description": "Complete 3 expedições."
       },
       "badge5": {
-        "name": "Em Familia",
-        "description": "Planeje uma viagem em familia com criancas."
+        "name": "Em Família",
+        "description": "Planeje uma viagem em família com crianças."
       },
       "badge6": {
         "name": "Sem Fronteiras",
@@ -2109,20 +2109,20 @@
       "rio": {
         "name": "Rio de Janeiro",
         "category": "Cultura & Praia",
-        "description": "Descubra os segredos da Cidade Maravilhosa alem do obvio.",
-        "imageAlt": "Vista aerea do Cristo Redentor sobre o Rio de Janeiro com Pao de Acucar ao fundo ao amanhecer"
+        "description": "Descubra os segredos da Cidade Maravilhosa além do óbvio.",
+        "imageAlt": "Vista aérea do Cristo Redentor sobre o Rio de Janeiro com Pão de Açúcar ao fundo ao amanhecer"
       },
       "bonito": {
         "name": "Bonito",
         "category": "Ecoturismo",
-        "description": "Flutuacoes em aguas cristalinas e grutas inexploradas.",
-        "imageAlt": "Aguas cristalinas turquesa do Rio da Prata em Bonito MS com reflexos de floresta verde"
+        "description": "Flutuações em águas cristalinas e grutas inexploradas.",
+        "imageAlt": "Águas cristalinas turquesa do Rio da Prata em Bonito MS com reflexos de floresta verde"
       },
       "pantanal": {
         "name": "Pantanal",
         "category": "Fauna Silvestre",
-        "description": "O maior santuario de vida selvagem do Brasil esperando por você.",
-        "imageAlt": "Vista panoramica do Pantanal ao por do sol com agua refletindo e arvores em silhueta"
+        "description": "O maior santuário de vida selvagem do Brasil esperando por você.",
+        "imageAlt": "Vista panorâmica do Pantanal ao pôr do sol com água refletindo e árvores em silhueta"
       }
     },
     "footer": {
@@ -2176,16 +2176,16 @@
     "pointsLabel": "{points} Pontos Atlas",
     "nextRankLabel": "Próximo Nível",
     "pointsToNext": "{points} pts faltantes",
-    "maxRank": "Nível maximo atingido!",
+    "maxRank": "Nível máximo atingido!",
     "progressPercent": "{percent}% para o próximo nível",
     "tripStatus": "Status do Roteiro",
     "phaseLabel": "Fase {number} - {name}",
-    "phasesCompleted": "{completed} de {total} etapas concluidas",
+    "phasesCompleted": "{completed} de {total} etapas concluídas",
     "continuePlanning": "Continuar Planejamento",
     "noActiveTrip": "Nenhuma expedição ativa",
     "noActiveTripSubtitle": "Comece uma nova aventura e ganhe pontos ao longo do caminho.",
     "startNewExpedition": "Iniciar Nova Expedição",
-    "nextTrips": "Minhas Proximas Viagens",
+    "nextTrips": "Minhas Próximas Viagens",
     "daysUntil": "Em {days} dias",
     "nextStop": "Próxima Parada",
     "viewDetails": "Ver detalhes",
@@ -2196,7 +2196,7 @@
     "planned": "PLANEJADO",
     "inProgress": "EM ANDAMENTO",
     "draft": "RASCUNHO",
-    "quickActions": "Acoes Rapidas",
+    "quickActions": "Ações Rápidas",
     "newExpedition": "Nova Expedição",
     "newExpeditionDesc": "Inicie uma nova aventura de planejamento.",
     "buyPA": "Comprar PA",

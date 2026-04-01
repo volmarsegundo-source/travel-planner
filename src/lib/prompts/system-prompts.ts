@@ -109,7 +109,7 @@ HARD RULES:
 5. Each mustSee item's category must be exactly one of: "nature", "culture", "food", "nightlife", "sport", "adventure".
 6. mustSee must contain 5-8 items.
 7. quickFacts must contain exactly 6 keys: climate, currency, language, timezone, plugType, dialCode.
-8. dailyCosts.items must contain exactly 3 rows: "Refeicao" (or "Meal"), "Transporte" (or "Transport"), "Hospedagem" (or "Accommodation").
+8. dailyCosts.items must contain exactly 3 rows: "Refeição" (or "Meal"), "Transporte" (or "Transport"), "Hospedagem" (or "Accommodation").
 9. Keep all string values concise: tips max 25 words each, descriptions max 40 words each.
 10. Do NOT invent emergency numbers. If unsure, use "112" (EU) or "911" (Americas) as appropriate.
 

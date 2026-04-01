@@ -31,7 +31,7 @@ const SAFETY_LEVEL_CONFIG = {
     bgClass: "bg-atlas-on-tertiary-container/10",
   },
   moderate: {
-    label: "Atencao",
+    label: "Atenção",
     labelEn: "Moderate",
     dotClass: "bg-atlas-secondary",
     textClass: "text-atlas-secondary",
@@ -247,7 +247,7 @@ function AboutDestinationCardV2({ guide, destination }: {
   );
 }
 
-/** B2 -- "Informacoes Rapidas" quick facts 2x3 grid */
+/** B2 -- "Informações Rápidas" quick facts 2x3 grid */
 function QuickFactsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
   const qf = guide.quickFacts;
   if (!qf) return null;
@@ -267,7 +267,7 @@ function QuickFactsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
       data-testid="quick-facts-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
-        {"Informacoes Rapidas"}
+        {"Informações Rápidas"}
       </h2>
       <div className="grid grid-cols-2 gap-y-4 gap-x-3">
         {facts.map((fact) => (
@@ -771,7 +771,7 @@ export function DestinationGuideV2({
             {/* B1 -- Sobre o Destino (6 cols) */}
             <AboutDestinationCardV2 guide={guideV2} destination={destination} />
 
-            {/* B2 -- Informacoes Rapidas (4 cols) */}
+            {/* B2 -- Informações Rápidas (4 cols) */}
             <QuickFactsCardV2 guide={guideV2} />
 
             {/* B3 -- Dicas de Seguranca (5 cols) */}

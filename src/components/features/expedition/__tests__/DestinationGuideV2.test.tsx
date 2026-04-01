@@ -93,7 +93,7 @@ const mockGuideV2: DestinationGuideContentV2 = {
   },
   dailyCosts: {
     items: [
-      { category: "Refeicao", budget: "EUR 10-18", mid: "EUR 25-40", premium: "EUR 60+" },
+      { category: "Refeição", budget: "EUR 10-18", mid: "EUR 25-40", premium: "EUR 60+" },
       { category: "Transporte", budget: "EUR 3-7", mid: "EUR 15-25", premium: "EUR 40+" },
       { category: "Hospedagem", budget: "EUR 50-80", mid: "EUR 120-180", premium: "EUR 250+" },
     ],
@@ -253,7 +253,7 @@ describe("DestinationGuideV2", () => {
     );
     expect(screen.getByTestId("costs-card")).toBeInTheDocument();
     expect(screen.getByText("Custos Médios Diários")).toBeInTheDocument();
-    expect(screen.getByText("Refeicao")).toBeInTheDocument();
+    expect(screen.getByText("Refeição")).toBeInTheDocument();
     expect(screen.getByText("Transporte")).toBeInTheDocument();
     expect(screen.getByText("Hospedagem")).toBeInTheDocument();
   });

@@ -444,7 +444,7 @@ export class AdminDashboardService {
     if (marginPercent < 80 && kpis.totalRevenueCents > 0) {
       return {
         level: "yellow",
-        message: `Atencao: Margem bruta em ${marginPercent}% — abaixo do target de 80%`,
+        message: `Atenção: Margem bruta em ${marginPercent}% — abaixo do target de 80%`,
         marginPercent,
       };
     }

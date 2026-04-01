@@ -48,8 +48,8 @@ const defaultProps = {
   viewingPhase: 1,
   tripCurrentPhase: 1,
   completedPhases: [] as number[],
-  phaseTitle: "A Inspiracao",
-  phaseSubtitle: "Onde tudo comeca",
+  phaseTitle: "A Inspiração",
+  phaseSubtitle: "Onde tudo começa",
 };
 
 describe("PhaseShellV2", () => {
@@ -68,21 +68,21 @@ describe("PhaseShellV2", () => {
 
     const heading = screen.getByTestId("phase-label");
     expect(heading.tagName).toBe("H1");
-    expect(heading).toHaveTextContent("A Inspiracao");
+    expect(heading).toHaveTextContent("A Inspiração");
     expect(heading.className).toContain("font-atlas-headline");
   });
 
   it("renders phase subtitle when provided", () => {
     render(<PhaseShellV2 {...defaultProps}>Content</PhaseShellV2>);
 
-    expect(screen.getByText("Onde tudo comeca")).toBeInTheDocument();
+    expect(screen.getByText("Onde tudo começa")).toBeInTheDocument();
   });
 
   it("does not render subtitle when omitted", () => {
     const props = { ...defaultProps, phaseSubtitle: undefined };
     render(<PhaseShellV2 {...props}>Content</PhaseShellV2>);
 
-    expect(screen.queryByText("Onde tudo comeca")).not.toBeInTheDocument();
+    expect(screen.queryByText("Onde tudo começa")).not.toBeInTheDocument();
   });
 
   it("renders breadcrumb navigation in both layouts", () => {
