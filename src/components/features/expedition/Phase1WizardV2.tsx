@@ -375,14 +375,17 @@ export function Phase1WizardV2({
     };
 
     try {
-      if (isEditMode && _tripId) {
-        const result = await updatePhase1Action(_tripId, payload);
+      // Use tripIdRef (may have been set by auto-save) or _tripId from props
+      const existingTripId = _tripId || tripIdRef.current || "";
+
+      if (existingTripId) {
+        const result = await updatePhase1Action(existingTripId, payload);
         if (!result.success) {
           setErrorMessage(result.error);
           setIsSubmitting(false);
           return;
         }
-        router.push(`/expedition/${_tripId}/phase-2`);
+        router.push(`/expedition/${existingTripId}/phase-2`);
       } else {
         const result = await createExpeditionAction(payload);
         if (!result.success) {

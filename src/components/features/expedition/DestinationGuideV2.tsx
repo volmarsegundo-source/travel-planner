@@ -669,51 +669,46 @@ export function DestinationGuideV2({
       isEditMode={accessMode === "revisit"}
       showFooter={false}
     >
-      {/* V2 Page Header */}
-      <header className="mb-6 max-w-5xl" data-testid="guide-v2-header">
-        <div className="flex items-center gap-3 mb-4">
-          <span
-            className="bg-atlas-primary-fixed text-atlas-on-primary-fixed px-3 py-1 rounded-full text-xs font-bold tracking-wide font-atlas-body inline-flex items-center gap-1"
-            role="status"
-            aria-label="Gerado por IA"
-          >
-            <svg
-              className="size-[18px]"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
+      {/* V2 Page Header — only shown when guide exists (empty state has its own title) */}
+      {guide && (
+        <header className="mb-6 max-w-5xl" data-testid="guide-v2-header">
+          <div className="flex items-center gap-3 mb-4">
+            <span
+              className="bg-atlas-primary-fixed text-atlas-on-primary-fixed px-3 py-1 rounded-full text-xs font-bold tracking-wide font-atlas-body inline-flex items-center gap-1"
+              role="status"
+              aria-label="Gerado por IA"
             >
-              <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1.27c.34-.6.99-1 1.73-1a2 2 0 1 1 0 4c-.74 0-1.39-.4-1.73-1H21a7 7 0 0 1-7 7v1.27c.6.34 1 .99 1 1.73a2 2 0 1 1-4 0c0-.74.4-1.39 1-1.73V23a7 7 0 0 1-7-7H3.73c-.34.6-.99 1-1.73 1a2 2 0 1 1 0-4c.74 0 1.39.4 1.73 1H5a7 7 0 0 1 7-7V5.73C11.4 5.39 11 4.74 11 4a2 2 0 0 1 1-1.73V2z" />
-            </svg>
-            Gerado por IA
-          </span>
-        </div>
-        <h1 className="text-2xl font-atlas-headline font-bold text-atlas-on-surface tracking-tight mb-2">
-          {t("title")}: {destination}
-        </h1>
-        <p className="text-base font-medium font-atlas-body text-atlas-on-surface-variant">
-          {guide ? t("subtitle") : t("generateHint")}
-        </p>
-      </header>
+              <svg
+                className="size-[18px]"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1.27c.34-.6.99-1 1.73-1a2 2 0 1 1 0 4c-.74 0-1.39-.4-1.73-1H21a7 7 0 0 1-7 7v1.27c.6.34 1 .99 1 1.73a2 2 0 1 1-4 0c0-.74.4-1.39 1-1.73V23a7 7 0 0 1-7-7H3.73c-.34.6-.99 1-1.73 1a2 2 0 1 1 0-4c.74 0 1.39.4 1.73 1H5a7 7 0 0 1 7-7V5.73C11.4 5.39 11 4.74 11 4a2 2 0 0 1 1-1.73V2z" />
+              </svg>
+              Gerado por IA
+            </span>
+          </div>
+          <h1 className="text-2xl font-atlas-headline font-bold text-atlas-on-surface tracking-tight mb-2">
+            {t("title")}: {destination}
+          </h1>
+          <p className="text-base font-medium font-atlas-body text-atlas-on-surface-variant">
+            {t("subtitle")}
+          </p>
+        </header>
+      )}
 
-      {/* Error display with retry */}
+      {/* Error display — retry is via the empty state CTA below */}
       {errorMessage && (
         <div
           className={`${BENTO_CARD_BASE} p-6 !bg-atlas-error-container !border-atlas-error/30 mb-6`}
           role="alert"
         >
-          <p className="text-sm font-atlas-body text-atlas-error mb-3">
+          <p className="text-sm font-atlas-body text-atlas-error">
             {errorMessage.startsWith("errors.")
               ? tErrors(errorMessage.replace("errors.", ""))
               : errorMessage}
           </p>
-          <AtlasButton
-            variant="secondary"
-            size="sm"
-            onClick={() => { setErrorMessage(null); handleRequestGenerate(); }}
-          >
-            {tErrors("boundary.tryAgain")}
-          </AtlasButton>
         </div>
       )}
 
@@ -728,8 +723,8 @@ export function DestinationGuideV2({
         isLoading={isSpending}
       />
 
-      {/* Empty state -- no guide yet, manual generation (hide when error is showing) */}
-      {!guide && !errorMessage && (
+      {/* Empty state — no guide yet, manual generation */}
+      {!guide && (
         <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
           <div className="text-5xl mb-4" aria-hidden="true">{"\uD83D\uDDFA\uFE0F"}</div>
           <h2 className="text-xl font-bold font-atlas-headline text-atlas-on-surface mb-2">

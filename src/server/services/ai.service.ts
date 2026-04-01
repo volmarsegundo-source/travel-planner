@@ -581,6 +581,11 @@ export class AiService {
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      logger.info("ai.guide.attempt", {
+        userId: hid, attempt, maxTokens: destinationGuidePrompt.maxTokens,
+        model: destinationGuidePrompt.model, destination,
+      });
+
       const response = await provider.generateResponse(
         userMessage,
         destinationGuidePrompt.maxTokens,
@@ -590,11 +595,21 @@ export class AiService {
 
       logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
 
+      logger.info("ai.guide.response", {
+        userId: hid, attempt, textLength: response.text.length,
+        wasTruncated: response.wasTruncated,
+        preview: response.text.substring(0, 200),
+      });
+
       let rawJson: unknown;
       try {
         rawJson = extractJsonFromResponse(response.text);
       } catch (error) {
-        logger.warn("ai.guide.parse.error", { userId: hid, attempt, error: String(error) });
+        logger.warn("ai.guide.parse.error", {
+          userId: hid, attempt, error: String(error),
+          responseLength: response.text.length,
+          responseTail: response.text.substring(response.text.length - 200),
+        });
         lastError = error;
         if (attempt < MAX_ATTEMPTS) continue;
         throw new AppError("AI_PARSE_ERROR", "errors.aiSchemaError", 502);
@@ -602,7 +617,11 @@ export class AiService {
 
       const parsed = DestinationGuideContentSchema.safeParse(rawJson);
       if (!parsed.success) {
-        logger.warn("ai.guide.schema.error", { userId: hid, attempt, errors: parsed.error.errors.length });
+        const failedPaths = parsed.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
+        logger.warn("ai.guide.schema.error", {
+          userId: hid, attempt, errorCount: parsed.error.errors.length,
+          failedPaths: failedPaths.slice(0, 10),
+        });
         lastError = parsed.error;
         if (attempt < MAX_ATTEMPTS) continue;
         throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
