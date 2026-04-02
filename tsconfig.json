@@ -39,6 +39,7 @@
     "node_modules",
     "travel-planner",
     "docs/evals/graders",
-    "scripts"
+    "scripts",
+    "tests"
   ]
 }

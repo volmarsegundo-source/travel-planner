@@ -1482,18 +1482,22 @@ export function Phase6ItineraryV2({
             paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
           />
 
-          <div className="flex items-center gap-4">
-            <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating} size="lg">
-              {t("generateCta")} {"\u2192"}
-            </AtlasButton>
-            <AtlasButton variant="ghost" onClick={() => router.push(`/expedition/${tripId}/phase-5`)}>
-              {t("backToGuide")}
-            </AtlasButton>
-          </div>
+          <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating} size="lg">
+            {t("generateCta")} {"\u2192"}
+          </AtlasButton>
 
           <p className="text-xs text-atlas-on-surface-variant/60 font-atlas-body mt-6">
             {t("processingNote")}
           </p>
+
+          {/* Navigation: Back / Advance (skip itinerary) */}
+          <div className="mt-8 w-full">
+            <WizardFooter
+              onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
+              onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
+              primaryLabel={tExpedition("cta.advance")}
+            />
+          </div>
         </div>
       </PhaseShell>
     );

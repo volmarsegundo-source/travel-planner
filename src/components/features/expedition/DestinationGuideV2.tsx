@@ -780,6 +780,15 @@ export function DestinationGuideV2({
           <p className="text-xs text-atlas-on-surface-variant/60 font-atlas-body mt-6">
             {t("processingNote")}
           </p>
+
+          {/* Navigation: Back / Advance (skip guide) */}
+          <div className="mt-8 w-full">
+            <WizardFooter
+              onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+              onPrimary={handleComplete}
+              primaryLabel={tExpedition("cta.advance")}
+            />
+          </div>
         </div>
       )}
 

@@ -226,10 +226,11 @@ describe("Phase6ItineraryV2", () => {
       expect(screen.getByText("expedition.phase6.paCost")).toBeInTheDocument();
     });
 
-    it("renders CTA buttons in empty state", () => {
+    it("renders CTA and WizardFooter in empty state", () => {
       render(<Phase6ItineraryV2 {...defaultProps} />);
       expect(screen.getByText(/expedition\.phase6\.generateCta/)).toBeInTheDocument();
-      expect(screen.getByText("expedition.phase6.backToGuide")).toBeInTheDocument();
+      // WizardFooter provides navigation
+      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
     });
   });
 
