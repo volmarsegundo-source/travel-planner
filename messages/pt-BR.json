@@ -967,7 +967,14 @@
         "health": "Saúde",
         "transport_overview": "Transporte",
         "local_customs": "Costumes Locais"
-      }
+      },
+      "mustSeeTitle": "O que não perder",
+      "categoryNature": "Natureza",
+      "categoryCulture": "Cultura",
+      "categoryFood": "Gastronomia",
+      "categoryNightlife": "Vida Noturna",
+      "categorySport": "Esporte",
+      "categoryAdventure": "Aventura"
     },
     "phase6": {
       "title": "O Roteiro",
@@ -1715,6 +1722,7 @@
     "maxTripsReached": "Você atingiu o número máximo de viagens.",
     "unauthorized": "Faça login para continuar.",
     "aiSchemaError": "A resposta da IA ficou incompleta. Por favor, tente novamente.",
+    "prerequisitesNotMet": "Pré-requisitos não atendidos. Complete as fases anteriores.",
     "boundary": {
       "title": "Algo deu errado",
       "description": "Ocorreu um erro inesperado.",

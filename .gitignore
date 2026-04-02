@@ -59,3 +59,4 @@ eval-report.json
 # Artifacts (external copies, not part of project)
 mnt/
 travel-planner/
+client_secret_*.json

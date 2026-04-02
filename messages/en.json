@@ -967,7 +967,14 @@
         "health": "Health",
         "transport_overview": "Transport",
         "local_customs": "Local Customs"
-      }
+      },
+      "mustSeeTitle": "Must-See Attractions",
+      "categoryNature": "Nature",
+      "categoryCulture": "Culture",
+      "categoryFood": "Food",
+      "categoryNightlife": "Nightlife",
+      "categorySport": "Sport",
+      "categoryAdventure": "Adventure"
     },
     "phase6": {
       "title": "The Itinerary",
@@ -1715,6 +1722,7 @@
     "maxTripsReached": "You have reached the maximum number of trips.",
     "unauthorized": "Please sign in to continue.",
     "aiSchemaError": "The AI response was incomplete. Please try again.",
+    "prerequisitesNotMet": "Prerequisites not met. Please complete the previous phases.",
     "boundary": {
       "title": "Something went wrong",
       "description": "An unexpected error occurred.",

@@ -223,10 +223,16 @@ describe("DashboardV2", () => {
     expect(screen.getByTestId("my-expeditions-section")).toBeInTheDocument();
   });
 
-  it("renders trip cards for expeditions", () => {
-    render(<DashboardV2 {...makeProps()} />);
+  it("renders trip cards for expeditions (excluding hero)", () => {
+    const expeditions = [
+      makeExpedition(), // active → hero
+      makeExpedition({ id: "trip-2", destination: "Paris", status: "planned", completedPhases: [] }),
+    ];
+    render(<DashboardV2 {...makeProps({ expeditions })} />);
     const tripCards = screen.getAllByTestId("trip-card");
     expect(tripCards.length).toBeGreaterThanOrEqual(1);
+    // The hero expedition should NOT appear in the grid
+    expect(tripCards[0]!.textContent).toContain("Paris");
   });
 
   it("renders new destination card", () => {
@@ -399,11 +405,10 @@ describe("DashboardV2", () => {
     ];
     render(<DashboardV2 {...makeProps({ expeditions })} />);
     const tripCards = screen.getAllByTestId("trip-card");
-    // Active (Tokyo) should appear first
+    // Hero = most recently created non-completed = Rome (Mar 15)
+    // Grid excludes hero, shows: active Tokyo (priority 0) → completed Paris (priority 2)
     expect(tripCards[0]!.textContent).toContain("Tokyo");
-    // Then planned (Rome)
-    expect(tripCards[1]!.textContent).toContain("Rome");
-    // Then completed (Paris)
-    expect(tripCards[2]!.textContent).toContain("Paris");
+    expect(tripCards[1]!.textContent).toContain("Paris");
+    expect(tripCards.length).toBe(2);
   });
 });

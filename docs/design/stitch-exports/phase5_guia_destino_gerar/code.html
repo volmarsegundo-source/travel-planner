@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Work+Sans:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary-fixed-dim": "#ffb77e",
+              "primary": "#914d00",
+              "surface-bright": "#f9f9ff",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f0f3ff",
+              "secondary-container": "#d6e0f4",
+              "secondary": "#555f70",
+              "outline-variant": "#dcc2b0",
+              "inverse-on-surface": "#ebf1ff",
+              "on-tertiary-fixed": "#00201d",
+              "on-error": "#ffffff",
+              "inverse-primary": "#ffb77e",
+              "surface-container-highest": "#d9e3f7",
+              "surface-container-high": "#dfe8fd",
+              "on-secondary-fixed-variant": "#3e4757",
+              "surface-dim": "#d1daef",
+              "inverse-surface": "#273140",
+              "tertiary-fixed-dim": "#92d2c9",
+              "secondary-fixed": "#d9e3f7",
+              "surface-tint": "#914d00",
+              "surface-container": "#e7eeff",
+              "tertiary": "#266861",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed": "#121c2a",
+              "error": "#ba1a1a",
+              "tertiary-container": "#7ab9b0",
+              "primary-container": "#fe932c",
+              "outline": "#887364",
+              "on-tertiary-container": "#004a43",
+              "on-secondary-container": "#596374",
+              "tertiary-fixed": "#aeefe5",
+              "surface": "#f9f9ff",
+              "secondary-fixed-dim": "#bdc7db",
+              "on-tertiary-fixed-variant": "#005049",
+              "on-error-container": "#93000a",
+              "on-background": "#121c2a",
+              "error-container": "#ffdad6",
+              "on-primary-fixed-variant": "#6e3900",
+              "background": "#f9f9ff",
+              "on-primary-fixed": "#2f1500",
+              "on-tertiary": "#ffffff",
+              "on-secondary": "#ffffff",
+              "on-surface": "#121c2a",
+              "on-primary-container": "#663400",
+              "surface-variant": "#d9e3f7",
+              "on-surface-variant": "#554336",
+              "primary-fixed": "#ffdcc3"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Work Sans"],
+              "label": ["Work Sans"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+        }
+        .topo-bg {
+            background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAcWxy3U6wX4BVvkih-DpPegO-vz27PRSEHqZrUtRrVnsgKnYLYJszMUWmbtJ7op3-L-oZHGNuWV9kBJlzuNOSMhZpJSJDYMqcxeERhG3s5EOrHXWtxOLWt10yisB1CT5RoEgHIFu87hl_-hL9VyozZYs95BBaBlFssN8Z6_Wzrr3kwj8txn8X_Yaa-qDO35fz2-P7IxxSlqxDRkVYGHebzNhXRcalU-yd_o71fQtenEd7XKo6POHT2RBEnDT2iJX-IQy3zkUT8MoTL);
+            opacity: 0.1
+        }
+    </style>
+</head>
+<body class="bg-surface font-body text-on-surface">
+<!-- SideNavBar -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#040d1b] flex flex-col py-6 shadow-[0px_24px_48px_rgba(4,13,27,0.06)] z-50">
+<div class="px-6 mb-8">
+<h1 class="text-2xl font-bold text-[#fe932c] mb-8 font-headline">Explorer AI</h1>
+</div>
+<nav class="flex-grow">
+<div class="bg-[#fe932c] text-[#040d1b] font-bold rounded-lg m-2 p-3 flex items-center gap-3 transition-all cursor-pointer translate-x-1">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+<span class="font-['Work_Sans'] text-sm">Explorar</span>
+</div>
+<div class="text-[#f9f9ff]/70 hover:bg-[#f9f9ff]/10 rounded-lg m-2 p-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined">favorite</span>
+<span class="font-['Work_Sans'] text-sm">Favoritos</span>
+</div>
+<div class="text-[#f9f9ff]/70 hover:bg-[#f9f9ff]/10 rounded-lg m-2 p-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined">event_available</span>
+<span class="font-['Work_Sans'] text-sm">Reservas</span>
+</div>
+<div class="text-[#f9f9ff]/70 hover:bg-[#f9f9ff]/10 rounded-lg m-2 p-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined">payments</span>
+<span class="font-['Work_Sans'] text-sm">Orçamento</span>
+</div>
+<div class="text-[#f9f9ff]/70 hover:bg-[#f9f9ff]/10 rounded-lg m-2 p-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined">description</span>
+<span class="font-['Work_Sans'] text-sm">Documentos</span>
+</div>
+<div class="text-[#f9f9ff]/70 hover:bg-[#f9f9ff]/10 rounded-lg m-2 p-3 flex items-center gap-3 transition-all cursor-pointer">
+<span class="material-symbols-outlined">map</span>
+<span class="font-['Work_Sans'] text-sm">Roteiro</span>
+</div>
+</nav>
+<div class="px-4 mt-auto">
+<button class="w-full bg-[#fe932c] text-[#040d1b] font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">add</span>
+                Novo Destino
+            </button>
+</div>
+</aside>
+<div class="ml-64 relative min-h-screen">
+<!-- TopNavBar -->
+<header class="w-full top-0 bg-[#f9f9ff] dark:bg-[#040d1b] flex justify-between items-center px-8 py-4 max-w-full z-40 sticky">
+<div class="flex items-center gap-4">
+<span class="text-xl font-bold tracking-tight text-[#040d1b] dark:text-[#f9f9ff] font-headline">Guia do Destino</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-[#554336] dark:text-[#d6e0f4] hover:text-[#fe932c] cursor-pointer transition-colors">notifications</span>
+<span class="material-symbols-outlined text-[#554336] dark:text-[#d6e0f4] hover:text-[#fe932c] cursor-pointer transition-colors">settings</span>
+</div>
+<div class="h-8 w-[2px] bg-[#f0f3ff] dark:bg-[#121c2a]"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-[#040d1b] dark:text-[#f9f9ff]">Explorador</p>
+<p class="text-[10px] text-[#554336] dark:text-[#d6e0f4]">Nível Concierge</p>
+</div>
+<img alt="Foto do perfil do usuário" class="w-10 h-10 rounded-full border-2 border-[#fe932c]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH0B4EaCiOM_PjH_9w5u6LglnS-VhFZk7kQvfX_t5qSBWfC5JXd30ngGDu79h0L4g7eMeYUZrsCdStYlokx54NYkYC9Ss0x5LCN__fP1bFgcD5EMf72Z7WTX1mjf7S8JpcNrMFgFEl6cPnZtfpcPPMi_weCaKMHmNaWiwVtD3QvuG4EYhpOcpkorNSSA32UmWk37t8l8bpo1zlOH-TGUKFc_2la5qeI6T8BljOEmMohXlXiTKVIVp-qAw7C-oT2qGE2lj6lUds2qn9"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="p-12 relative bg-[#f5f5f5]">
+<div class="absolute inset-x-0 bottom-0 h-48 topo-bg pointer-events-none"></div>
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-2 text-on-surface-variant text-sm mb-8 relative z-10">
+<span>Expedições</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span>Viagem Atual</span>
+<span class="material-symbols-outlined text-sm">chevron_right</span>
+<span class="font-bold text-primary">Guia do Destino</span>
+</nav>
+<!-- Progress Indicator -->
+<div class="mb-16 relative z-10">
+<div class="flex items-center justify-between max-w-4xl mx-auto">
+<!-- Steps 1-4 Completed -->
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant opacity-60">Fase 1</span>
+</div>
+<div class="flex-grow h-1 bg-tertiary mx-4 rounded-full opacity-30"></div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant opacity-60">Fase 2</span>
+</div>
+<div class="flex-grow h-1 bg-tertiary mx-4 rounded-full opacity-30"></div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant opacity-60">Fase 3</span>
+</div>
+<div class="flex-grow h-1 bg-tertiary mx-4 rounded-full opacity-30"></div>
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-full bg-tertiary flex items-center justify-center text-white">
+<span class="material-symbols-outlined text-sm">check</span>
+</div>
+<span class="text-xs font-medium text-on-surface-variant opacity-60">Fase 4</span>
+</div>
+<div class="flex-grow h-1 bg-on-surface-variant/10 mx-4 rounded-full"></div>
+<!-- Step 5 Active -->
+<div class="flex items-center gap-2">
+<div class="relative">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold animate-pulse">5</div>
+<div class="absolute -inset-1 border-2 border-primary-container rounded-full animate-ping opacity-25"></div>
+</div>
+<span class="text-sm font-bold text-on-surface">Guia do Destino</span>
+</div>
+</div>
+</div>
+<!-- Central Transition Card -->
+<div class="max-w-5xl mx-auto relative z-10">
+<div class="bg-surface-container-lowest rounded-xl shadow-[0px_24px_48px_rgba(4,13,27,0.06)] p-12 text-center border border-outline-variant/15">
+<!-- AI Icon & Sparkles -->
+<div class="relative inline-block mb-8">
+<div class="w-32 h-32 bg-surface-container-low rounded-full flex items-center justify-center mx-auto text-primary relative overflow-hidden">
+<span class="material-symbols-outlined text-6xl" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+</div>
+<span class="material-symbols-outlined absolute -top-2 -right-2 text-[#fe932c] text-3xl animate-bounce" style="font-variation-settings: 'FILL' 1;">sparkles</span>
+</div>
+<h2 class="text-4xl font-bold font-headline text-on-surface mb-4 tracking-tight leading-tight">
+                        Prepare-se para o seu guia personalizado
+                    </h2>
+<p class="text-on-surface-variant text-lg max-w-2xl mx-auto mb-16 leading-relaxed">
+                        Nossa inteligência artificial vai consolidar todas as informações essenciais para sua estadia em <span class="font-bold">Tóquio, Japão</span>.
+                    </p>
+<!-- Feature Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 text-left">
+<div class="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all cursor-default">
+<div class="w-10 h-10 bg-on-tertiary rounded-lg flex items-center justify-center text-tertiary mb-4 shadow-sm">
+<span class="material-symbols-outlined">device_thermostat</span>
+</div>
+<h3 class="font-headline font-bold text-on-surface mb-2">Clima e Moeda</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Previsões precisas e cotações em tempo real para planejar seus gastos e vestimentas.</p>
+</div>
+<div class="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all cursor-default">
+<div class="w-10 h-10 bg-on-tertiary rounded-lg flex items-center justify-center text-tertiary mb-4 shadow-sm">
+<span class="material-symbols-outlined">health_and_safety</span>
+</div>
+<h3 class="font-headline font-bold text-on-surface mb-2">Segurança e Saúde</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Orientações locais atualizadas, hospitais próximos e números de emergência essenciais.</p>
+</div>
+<div class="p-6 bg-surface-container-low rounded-xl border border-outline-variant/10 group hover:border-primary-container/30 transition-all cursor-default">
+<div class="w-10 h-10 bg-on-tertiary rounded-lg flex items-center justify-center text-tertiary mb-4 shadow-sm">
+<span class="material-symbols-outlined">theater_comedy</span>
+</div>
+<h3 class="font-headline font-bold text-on-surface mb-2">Dicas Culturais</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Costumes locais, etiqueta social e experiências imperdíveis selecionadas por nossa curadoria.</p>
+</div>
+</div>
+<!-- CTA Section -->
+<div class="flex flex-col items-center gap-6">
+<div class="bg-primary-fixed py-1.5 px-4 rounded-full flex items-center gap-2 border border-primary-container/20">
+<span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">token</span>
+<span class="text-on-primary-fixed-variant text-sm font-bold">Custo: 50 Pontos Atlas</span>
+</div>
+<div class="flex flex-col sm:flex-row items-center gap-4">
+<button class="bg-primary-container text-[#040d1b] font-bold py-4 px-10 rounded-lg text-lg flex items-center gap-3 shadow-lg hover:shadow-xl transition-all active:scale-95 group">
+                                Gerar Guia do Destino com IA
+                                <span class="material-symbols-outlined transition-transform group-hover:translate-x-1">auto_awesome</span>
+</button>
+<a class="text-on-surface-variant font-medium py-3 px-6 hover:text-on-surface transition-colors" href="#">
+                                Voltar para A Logística
+                            </a>
+</div>
+<p class="text-[10px] uppercase tracking-widest text-on-surface-variant/40 mt-4">
+                            Processamento de IA leva aproximadamente 10 segundos
+                        </p>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

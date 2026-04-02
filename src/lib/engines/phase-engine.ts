@@ -509,18 +509,8 @@ export class PhaseEngine {
       }
     }
 
-    if (phaseNumber === 5) {
-      const guide = await db.destinationGuide.findUnique({
-        where: { tripId },
-      });
-      if (!guide) {
-        throw new AppError(
-          "PHASE_PREREQUISITES_NOT_MET",
-          "errors.prerequisitesNotMet",
-          400
-        );
-      }
-    }
+    // Phase 5: no prerequisites — guide generation is optional.
+    // User can advance without generating a guide (phase marked as "pending").
   }
 
   /**

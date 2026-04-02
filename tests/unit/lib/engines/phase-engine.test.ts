@@ -1124,24 +1124,8 @@ describe("PhaseEngine.completePhase — prerequisites", () => {
     expect(result.phaseNumber).toBe(4);
   });
 
-  it("throws PHASE_PREREQUISITES_NOT_MET for phase 5 without destination guide", async () => {
-    const trip = createMockTrip({ currentPhase: 5 });
-    const phase = createMockPhase(5, "active");
-
-    prismaMock.trip.findFirst.mockResolvedValue(trip as never);
-    prismaMock.expeditionPhase.findUnique.mockResolvedValue(phase as never);
-    prismaMock.destinationGuide.findUnique.mockResolvedValue(null as never);
-
-    await expect(
-      PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 5)
-    ).rejects.toThrow(AppError);
-
-    try {
-      await PhaseEngine.completePhase(TEST_TRIP_ID, TEST_USER_ID, 5);
-    } catch (err) {
-      expect((err as AppError).code).toBe("PHASE_PREREQUISITES_NOT_MET");
-    }
-  });
+  // Phase 5 no longer requires destination guide — guide generation is optional.
+  // User can advance without generating (phase marked as "pending").
 
   it("succeeds for phase 5 with destination guide present", async () => {
     const trip = createMockTrip({ currentPhase: 5 });

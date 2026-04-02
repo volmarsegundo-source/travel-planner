@@ -425,8 +425,18 @@ function CostsCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
   );
 }
 
-/** B5 -- "O que nao perder" mustSee horizontal carousel */
-function MustSeeCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
+/** Category translation key map for mustSee items */
+const CATEGORY_I18N_KEYS: Record<string, string> = {
+  nature: "categoryNature",
+  culture: "categoryCulture",
+  food: "categoryFood",
+  nightlife: "categoryNightlife",
+  sport: "categorySport",
+  adventure: "categoryAdventure",
+};
+
+/** B5 -- "O que não perder" mustSee horizontal carousel */
+function MustSeeCardV2({ guide, t }: { guide: DestinationGuideContentV2; t: (key: string) => string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const mustSee = guide.mustSee;
   if (!mustSee || mustSee.length === 0) return null;
@@ -437,7 +447,7 @@ function MustSeeCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
       data-testid="attractions-card"
     >
       <h2 className="text-lg font-bold font-atlas-headline mb-4 text-atlas-on-surface">
-        {"O que nao perder"}
+        {t("mustSeeTitle")}
       </h2>
       <div
         ref={scrollRef}
@@ -458,7 +468,7 @@ function MustSeeCardV2({ guide }: { guide: DestinationGuideContentV2 }) {
               {/* Category chip */}
               <span className="absolute top-3 left-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-atlas-body flex items-center gap-1">
                 <span aria-hidden="true">{CATEGORY_ICONS[item.category] ?? "\u{1F4CD}"}</span>
-                {item.category}
+                {CATEGORY_I18N_KEYS[item.category] ? t(CATEGORY_I18N_KEYS[item.category]!) : item.category}
               </span>
             </div>
             <div className="p-4">
@@ -827,8 +837,8 @@ export function DestinationGuideV2({
             {/* B4 -- Custos Medios Diarios (5 cols) */}
             <CostsCardV2 guide={guideV2} />
 
-            {/* B5 -- O que nao perder (10 cols full width) */}
-            <MustSeeCardV2 guide={guideV2} />
+            {/* B5 -- O que não perder (10 cols full width) */}
+            <MustSeeCardV2 guide={guideV2} t={t} />
           </div>
 
           {/* AI disclaimer */}

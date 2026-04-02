@@ -167,20 +167,7 @@ describe("PhaseEngine — i18n error messages (TASK-S32-001)", () => {
       );
     });
 
-    it("throws errors.prerequisitesNotMet when Phase 5 has no guide", async () => {
-      prismaMock.trip.findFirst.mockResolvedValue(
-        createMockTrip({ currentPhase: 5 }) as never
-      );
-      prismaMock.expeditionPhase.findUnique.mockResolvedValue(
-        createMockPhase(5, "active") as never
-      );
-      prismaMock.destinationGuide.findUnique.mockResolvedValue(null as never);
-
-      await expectI18nError(
-        () => PhaseEngine.completePhase(TRIP_ID, USER_ID, 5),
-        "errors.prerequisitesNotMet"
-      );
-    });
+    // Phase 5 no longer requires guide — generation is optional
   });
 
   describe("advanceFromPhase", () => {

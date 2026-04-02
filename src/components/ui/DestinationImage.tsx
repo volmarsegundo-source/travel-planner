@@ -13,6 +13,8 @@ export interface DestinationImageProps {
   height?: number;
   fill?: boolean;
   priority?: boolean;
+  sizes?: string;
+  quality?: number;
 }
 
 const DEFAULT_WIDTH = 600;
@@ -23,6 +25,8 @@ const DEFAULT_HEIGHT = 400;
  * Shows a gradient placeholder while loading, then the resolved image
  * with optional photographer attribution (Unsplash requirement).
  */
+const DEFAULT_QUALITY = 75;
+
 export function DestinationImage({
   destination,
   alt,
@@ -31,6 +35,8 @@ export function DestinationImage({
   height = DEFAULT_HEIGHT,
   fill = false,
   priority = false,
+  sizes,
+  quality = DEFAULT_QUALITY,
 }: DestinationImageProps) {
   const [imageData, setImageData] = useState<DestinationImageActionResult | null>(
     null
@@ -68,6 +74,8 @@ export function DestinationImage({
           ? { fill: true, style: { objectFit: "cover" as const } }
           : { width, height })}
         priority={priority}
+        quality={quality}
+        {...(sizes ? { sizes } : {})}
       />
       {imageData.photographer && (
         <a

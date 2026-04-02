@@ -422,8 +422,10 @@ export function DashboardV2({
 
   // Sort expeditions for the grid
   const sortedExpeditions = useMemo(() => getSortedExpeditions(expeditions), [expeditions]);
-  const displayedExpeditions = sortedExpeditions.slice(0, MAX_TRIP_CARDS);
-  const hasMoreExpeditions = expeditions.length > MAX_TRIP_CARDS;
+  const displayedExpeditions = sortedExpeditions
+    .filter((e) => e.id !== activeTrip?.id)
+    .slice(0, MAX_TRIP_CARDS);
+  const hasMoreExpeditions = expeditions.length > (activeTrip ? MAX_TRIP_CARDS + 1 : MAX_TRIP_CARDS);
 
   // ─── Loading State ─────────────────────────────────────────────────────────
 
@@ -476,6 +478,9 @@ export function DashboardV2({
               destination={activeTrip.destination}
               alt={activeTrip.destination}
               fill
+              priority
+              sizes="100vw"
+              quality={85}
               className="object-cover"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary/90 via-atlas-primary/40 to-transparent" />
@@ -591,6 +596,7 @@ export function DashboardV2({
                       destination={exp.destination}
                       alt={exp.destination}
                       fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                       className="object-cover"
                     />
                     <div className="absolute left-3 top-3">

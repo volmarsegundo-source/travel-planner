@@ -287,7 +287,7 @@ describe("DestinationGuideV2", () => {
       />,
     );
     expect(screen.getByTestId("attractions-card")).toBeInTheDocument();
-    expect(screen.getByText("O que nao perder")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.mustSeeTitle")).toBeInTheDocument();
     expect(screen.getByText("Oceanario de Lisboa")).toBeInTheDocument();
     expect(screen.getByText("Torre de Belem")).toBeInTheDocument();
     expect(screen.getByText("Pasteis de Belem")).toBeInTheDocument();
