@@ -408,7 +408,7 @@ export function ExpeditionSummaryV2({
                         >
                           {visual.icon === "check" && <CheckIcon className="size-3.5 text-white" />}
                           {visual.icon === "number" && (
-                            <span className={`text-xs font-bold ${status === "in_progress" ? "text-atlas-primary" : "text-white"}`}>{phaseNum}</span>
+                            <span className="text-xs font-bold text-white">{phaseNum}</span>
                           )}
                           {visual.icon === "outline" && (
                             <span className="text-xs font-semibold text-atlas-on-surface-variant">{phaseNum}</span>
@@ -926,6 +926,18 @@ function PhaseContent({
     case 5: {
       const p = summary.phase5;
       if (!p) return null;
+
+      const SAFETY_BADGE_COLORS: Record<string, "success" | "warning" | "info"> = {
+        safe: "success",
+        moderate: "warning",
+        caution: "warning",
+      };
+      const SAFETY_LABEL_KEYS: Record<string, string> = {
+        safe: "phase5SafeSafe",
+        moderate: "phase5SafeModerate",
+        caution: "phase5SafeCaution",
+      };
+
       return (
         <div className="space-y-2" data-testid="phase-content-5">
           <div className="flex items-center gap-2">
@@ -934,7 +946,50 @@ function PhaseContent({
             </p>
             <AtlasBadge variant="ai-tip">AI</AtlasBadge>
           </div>
-          {p.highlights.length > 0 && (
+
+          {/* Safety level badge */}
+          {p.safetyLevel && (
+            <div className="flex items-center gap-2" data-testid="phase5-safety">
+              <span className={`${rowClasses} font-semibold`}>{t("phase5SafetyLevel")}:</span>
+              <AtlasBadge
+                variant="status"
+                color={SAFETY_BADGE_COLORS[p.safetyLevel] ?? "info"}
+                size="sm"
+              >
+                {t(SAFETY_LABEL_KEYS[p.safetyLevel] ?? "phase5SafeModerate")}
+              </AtlasBadge>
+            </div>
+          )}
+
+          {/* Key facts (one-line summary) */}
+          {p.keyFacts.length > 0 && (
+            <div data-testid="phase5-keyfacts">
+              <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant">
+                {t("phase5KeyFacts")}
+              </p>
+              <p className="text-xs font-atlas-body text-atlas-on-surface-variant mt-0.5">
+                {p.keyFacts.map((f) => `${f.label}: ${f.value}`).join(" | ")}
+              </p>
+            </div>
+          )}
+
+          {/* Top attractions */}
+          {p.topAttractions.length > 0 ? (
+            <div data-testid="phase5-attractions">
+              <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant">
+                {t("phase5Attractions")} ({t("phase5AttractionsCount", { count: p.topAttractions.length })})
+              </p>
+              <ul className="mt-1 space-y-0.5">
+                {p.topAttractions.map((a, idx) => (
+                  <li key={idx} className="text-xs font-atlas-body text-atlas-on-surface-variant flex items-center gap-1">
+                    <span aria-hidden="true">&middot;</span>
+                    <span className="font-semibold">{a.name}</span>
+                    {a.description && <span className="text-atlas-outline-variant">— {a.description}</span>}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : p.highlights.length > 0 ? (
             <div>
               <p className="text-xs font-semibold font-atlas-body text-atlas-on-surface-variant">
                 {t("phase5Highlights")}
@@ -948,7 +1003,7 @@ function PhaseContent({
                 ))}
               </ul>
             </div>
-          )}
+          ) : null}
         </div>
       );
     }

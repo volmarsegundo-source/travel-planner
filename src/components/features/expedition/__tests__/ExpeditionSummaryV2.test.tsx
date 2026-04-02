@@ -373,6 +373,39 @@ describe("ExpeditionSummaryV2", () => {
     expect(within(content).getByText("AI")).toBeInTheDocument();
   });
 
+  it("renders phase 5 safety badge when safetyLevel is available", () => {
+    render(<ExpeditionSummaryV2 {...defaultProps} />);
+    const content = screen.getByTestId("phase-content-5");
+    expect(within(content).getByTestId("phase5-safety")).toBeInTheDocument();
+    expect(within(content).getByText(/phase5SafeSafe/)).toBeInTheDocument();
+  });
+
+  it("renders phase 5 key facts when available", () => {
+    render(<ExpeditionSummaryV2 {...defaultProps} />);
+    const content = screen.getByTestId("phase-content-5");
+    expect(within(content).getByTestId("phase5-keyfacts")).toBeInTheDocument();
+    expect(within(content).getByText(/Clima: 18-25C/)).toBeInTheDocument();
+  });
+
+  it("renders phase 5 top attractions with count", () => {
+    render(<ExpeditionSummaryV2 {...defaultProps} />);
+    const content = screen.getByTestId("phase-content-5");
+    const attractions = within(content).getByTestId("phase5-attractions");
+    expect(attractions).toBeInTheDocument();
+    expect(within(attractions).getByText(/Torre Eiffel/)).toBeInTheDocument();
+    expect(within(attractions).getByText(/phase5AttractionsCount/)).toBeInTheDocument();
+  });
+
+  it("hides safety badge when safetyLevel is null", () => {
+    const noSafety = {
+      ...mockSummary,
+      phase5: { ...mockSummary.phase5!, safetyLevel: null },
+    } as unknown as ExpeditionSummaryData;
+    render(<ExpeditionSummaryV2 {...defaultProps} summary={noSafety} />);
+    const content = screen.getByTestId("phase-content-5");
+    expect(within(content).queryByTestId("phase5-safety")).not.toBeInTheDocument();
+  });
+
   it("falls back to highlight bullets when no top attractions", () => {
     const noAttractions = {
       ...mockSummary,
