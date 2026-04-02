@@ -5,7 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { PhaseShell } from "./PhaseShell";
-import { getDestinationImage } from "@/lib/utils/destination-images";
+import { DestinationImage } from "@/components/ui/DestinationImage";
 import { WizardFooter } from "./WizardFooter";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
@@ -192,17 +192,12 @@ function AboutDestinationCardV2({ guide, destination }: {
     >
       {/* Hero image area with gradient overlay */}
       <div className="h-64 relative bg-gradient-to-br from-atlas-primary to-atlas-secondary-container">
-        {(() => {
-          const imgUrl = getDestinationImage(destination);
-          return imgUrl ? (
-            <img
-              src={imgUrl}
-              alt={destination}
-              className="absolute inset-0 w-full h-full object-cover"
-              loading="lazy"
-            />
-          ) : null;
-        })()}
+        <DestinationImage
+          destination={destination}
+          alt={destination}
+          fill
+          className="object-cover"
+        />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent" />
         <div className="absolute bottom-4 left-6 text-white">
           <span className="font-atlas-headline font-bold text-base block">

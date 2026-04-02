@@ -7,7 +7,7 @@ import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasCard } from "@/components/ui/AtlasCard";
 import { AtlasBadge } from "@/components/ui/AtlasBadge";
 import { getNextRankProgress, RANK_THRESHOLDS } from "@/lib/gamification/rank-calculator";
-import { getDestinationImage } from "@/lib/utils/destination-images";
+import { DestinationImage } from "@/components/ui/DestinationImage";
 import type { Rank } from "@/types/gamification.types";
 import type { ExpeditionDTO } from "@/types/expedition.types";
 
@@ -472,12 +472,12 @@ export function DashboardV2({
         {activeTrip ? (
           <div className="group relative h-80 overflow-hidden rounded-atlas-xl bg-atlas-primary-container shadow-atlas-xl lg:h-[480px]">
             {/* Destination image (with gradient overlay for text legibility) */}
-            {(() => {
-              const featuredImg = getDestinationImage(activeTrip.destination);
-              return featuredImg ? (
-                <img src={featuredImg} alt={activeTrip.destination} className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-              ) : null;
-            })()}
+            <DestinationImage
+              destination={activeTrip.destination}
+              alt={activeTrip.destination}
+              fill
+              className="object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary/90 via-atlas-primary/40 to-transparent" />
             {/* View details link - top right */}
             <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
@@ -572,7 +572,6 @@ export function DashboardV2({
             const progressPercent = getTripProgressPercent(exp);
             const durationLabel = getTripDurationLabel(exp.startDate, exp.endDate);
             const gradient = CARD_GRADIENTS[idx % CARD_GRADIENTS.length]!;
-            const imageUrl = getDestinationImage(exp.destination);
             const statusKey = getStatusLabelKey(exp.status);
             const badgeColor = getStatusBadgeColor(exp.status);
 
@@ -586,20 +585,14 @@ export function DashboardV2({
                   className="group overflow-hidden rounded-atlas-xl bg-atlas-surface-container-lowest shadow-atlas-sm transition-transform hover:-translate-y-1 motion-reduce:hover:translate-y-0"
                   data-testid="trip-card"
                 >
-                  {/* Destination image with gradient+name fallback */}
-                  <div className={`h-[200px] relative overflow-hidden ${!imageUrl ? `bg-gradient-to-br ${gradient}` : ""}`}>
-                    {imageUrl ? (
-                      <img
-                        src={imageUrl}
-                        alt={exp.destination}
-                        className="absolute inset-0 h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-2xl font-bold font-atlas-headline text-white/30">{exp.destination}</span>
-                      </div>
-                    )}
+                  {/* Destination image */}
+                  <div className={`h-[200px] relative overflow-hidden bg-gradient-to-br ${gradient}`}>
+                    <DestinationImage
+                      destination={exp.destination}
+                      alt={exp.destination}
+                      fill
+                      className="object-cover"
+                    />
                     <div className="absolute left-3 top-3">
                       <AtlasBadge variant="status" color={badgeColor} size="sm">
                         {t(statusKey)}

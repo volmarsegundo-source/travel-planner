@@ -47,6 +47,27 @@ export interface ItineraryDayWithActivities {
   activities: Activity[];
 }
 
+// ─── Fetch itinerary days ─────────────────────────────────────────────────────
+
+export async function getItineraryDaysAction(
+  tripId: string,
+): Promise<ItineraryDayWithActivities[]> {
+  const session = await auth();
+  if (!session?.user?.id) return [];
+
+  const trip = await db.trip.findFirst({
+    where: { id: tripId, userId: session.user.id, deletedAt: null },
+    select: {
+      itineraryDays: {
+        orderBy: { dayNumber: "asc" },
+        include: { activities: { orderBy: { orderIndex: "asc" } } },
+      },
+    },
+  });
+
+  return (trip?.itineraryDays ?? []) as unknown as ItineraryDayWithActivities[];
+}
+
 // ─── Validation ───────────────────────────────────────────────────────────────
 
 const ActivityDataSchema = z.object({

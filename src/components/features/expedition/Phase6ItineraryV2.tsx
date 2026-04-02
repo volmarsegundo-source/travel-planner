@@ -25,6 +25,7 @@ import {
   updateActivityAction,
   deleteActivityAction,
 } from "@/server/actions/itinerary.actions";
+import { getItineraryDaysAction } from "@/server/actions/itinerary.actions";
 import type { ItineraryDayWithActivities, ActivityData } from "@/server/actions/itinerary.actions";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
@@ -1193,17 +1194,20 @@ export function Phase6ItineraryV2({
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const accumulatedRef = useRef("");
 
+  // ─── Local days state (updated after generation) ─────────────────────────
+  const [days, setDays] = useState(initialDays);
+
   // ─── Derived values ──────────────────────────────────────────────────────
   const effectiveStartDate = startDate || new Date().toISOString().split("T")[0]!;
   const effectiveEndDate = endDate || effectiveStartDate;
   const totalDays = calculateTotalDays(effectiveStartDate, effectiveEndDate);
   const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
-  const hasItinerary = initialDays.length > 0;
+  const hasItinerary = days.length > 0;
 
   // Convert DB days to V2 format
   const v2Days = useMemo(
-    () => (hasItinerary ? convertToV2Days(initialDays, effectiveStartDate) : []),
-    [initialDays, effectiveStartDate, hasItinerary],
+    () => (hasItinerary ? convertToV2Days(days, effectiveStartDate) : []),
+    [days, effectiveStartDate, hasItinerary],
   );
 
   const currentDay = v2Days.find((d) => d.dayNumber === selectedDay) ?? v2Days[0] ?? null;
@@ -1286,7 +1290,13 @@ export function Phase6ItineraryV2({
               stopProgressTimer();
               syncPhase6CompletionAction(tripId).catch(() => {});
               setIsGenerating(false);
-              router.refresh();
+              // Fetch fresh itinerary data and update local state
+              getItineraryDaysAction(tripId)
+                .then((freshDays) => {
+                  if (freshDays.length > 0) setDays(freshDays);
+                })
+                .catch(() => {})
+                .finally(() => router.refresh());
               return;
             }
             if (data.startsWith('{"error":')) {

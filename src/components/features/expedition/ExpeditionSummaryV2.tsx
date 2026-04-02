@@ -9,7 +9,7 @@ import { AtlasBadge } from "@/components/ui/AtlasBadge";
 import { AtlasChip } from "@/components/ui/AtlasChip";
 import { PointsAnimation } from "./PointsAnimation";
 import { TripCountdown } from "./TripCountdown";
-import { getDestinationImage } from "@/lib/utils/destination-images";
+import { DestinationImage } from "@/components/ui/DestinationImage";
 import { getPhaseStatusVisual, deriveCanonicalStatus, type PhaseStatus } from "@/lib/utils/phase-status";
 import { Link } from "@/i18n/navigation";
 import type { ExpeditionSummary as ExpeditionSummaryData } from "@/server/services/expedition-summary.service";
@@ -283,7 +283,7 @@ export function ExpeditionSummaryV2({
 
   const destination = summary.phase1?.destination ?? null;
   const origin = summary.phase1?.origin ?? null;
-  const coverImageUrl = destination ? getDestinationImage(destination) : null;
+  // coverImageUrl removed — DestinationImage component handles Unsplash API
   const duration = calculateDuration(
     summary.phase1?.startDate ?? null,
     summary.phase1?.endDate ?? null,
@@ -305,12 +305,13 @@ export function ExpeditionSummaryV2({
           className="relative h-[200px] md:h-[240px] lg:h-[280px] rounded-atlas-2xl overflow-hidden"
           data-testid="hero-cover"
         >
-          {coverImageUrl ? (
+          {destination ? (
             <>
-              <img
-                src={coverImageUrl}
-                alt={destination ? `Imagem de ${destination}` : ""}
-                className="absolute inset-0 h-full w-full object-cover"
+              <DestinationImage
+                destination={destination}
+                alt={`Imagem de ${destination}`}
+                fill
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
             </>
