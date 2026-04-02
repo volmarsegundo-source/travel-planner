@@ -56,7 +56,17 @@ npm-debug.log*
 # Eval reports (generated output)
 eval-report.json
 
+# Secrets & credentials — NEVER commit
+client_secret_*.json
+google-*.json
+serviceAccountKey*.json
+credentials/
+secrets/
+*.pem
+*.key
+*.p12
+*.pfx
+
 # Artifacts (external copies, not part of project)
 mnt/
 travel-planner/
-client_secret_*.json

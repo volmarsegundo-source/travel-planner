@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# ============================================================================
+# Pre-commit hook: Prevent secrets from being committed
+# ============================================================================
+# Install: git config core.hooksPath .githooks
+# Or copy to: .git/hooks/pre-commit
+# ============================================================================
+
+set -euo pipefail
+
+RED='\033[0;31m'
+NC='\033[0m' # No color
+
+# Patterns that should NEVER appear in committed files
+PATTERNS=(
+  'UNSPLASH_ACCESS_KEY=[^$"'"'"'{]'
+  'GOOGLE_CLIENT_SECRET=[^$"'"'"'{]'
+  'ANTHROPIC_API_KEY=sk-ant-'
+  'AUTH_SECRET=[^$"'"'"'{]'
+  'NEXTAUTH_SECRET=[^$"'"'"'{]'
+  'ENCRYPTION_KEY=[^$"'"'"'{]'
+  'APPLE_SECRET=[^$"'"'"'{]'
+  'SENTRY_AUTH_TOKEN=[^$"'"'"'{]'
+  'private_key.*BEGIN'
+  'sk-ant-[a-zA-Z0-9]'
+  'password\s*[:=]\s*["\x27][^$"'"'"']{8,}'
+)
+
+# File patterns to skip (these are expected to contain placeholder values)
+SKIP_FILES='.env.example|.gitignore|CLAUDE.md|README.md|docs/|.githooks/'
+
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM 2>/dev/null || true)
+
+if [ -z "$STAGED_FILES" ]; then
+  exit 0
+fi
+
+FOUND=0
+for pattern in "${PATTERNS[@]}"; do
+  while IFS= read -r file; do
+    # Skip allowed files
+    if echo "$file" | grep -qE "$SKIP_FILES"; then
+      continue
+    fi
+    # Skip binary files
+    if file "$file" 2>/dev/null | grep -qE 'binary|image|font'; then
+      continue
+    fi
+    if git diff --cached "$file" 2>/dev/null | grep -qE "$pattern"; then
+      echo -e "${RED}BLOCKED:${NC} Potential secret found in $file"
+      echo "  Pattern: $pattern"
+      FOUND=1
+    fi
+  done <<< "$STAGED_FILES"
+done
+
+# Check for secret-looking files
+for file in $STAGED_FILES; do
+  if echo "$file" | grep -qiE '\.pem$|\.key$|\.p12$|\.pfx$|client_secret.*\.json|serviceAccountKey.*\.json|google-.*\.json|credentials\.json'; then
+    echo -e "${RED}BLOCKED:${NC} Credential file detected: $file"
+    FOUND=1
+  fi
+done
+
+if [ $FOUND -ne 0 ]; then
+  echo ""
+  echo "Commit blocked. Remove secrets before committing."
+  echo "If this is a false positive, use: git commit --no-verify"
+  exit 1
+fi
+
+exit 0

@@ -3,6 +3,7 @@
   "version": "0.35.1",
   "private": true,
   "scripts": {
+    "prepare": "git config core.hooksPath .githooks 2>/dev/null || true",
     "predev": "node -e \"if(+process.version.slice(1).split('.')[0]<20){console.error('Node.js 20+ required');process.exit(1)}\"",
     "dev": "cross-env NODE_OPTIONS=--max-old-space-size=2048 next dev --turbopack",
     "prebuild": "prisma generate",
