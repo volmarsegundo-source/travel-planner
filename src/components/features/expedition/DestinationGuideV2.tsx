@@ -436,7 +436,7 @@ const CATEGORY_I18N_KEYS: Record<string, string> = {
 };
 
 /** B5 -- "O que não perder" mustSee horizontal carousel */
-function MustSeeCardV2({ guide, t }: { guide: DestinationGuideContentV2; t: (key: string) => string }) {
+function MustSeeCardV2({ guide, t, destination }: { guide: DestinationGuideContentV2; t: (key: string) => string; destination: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const mustSee = guide.mustSee;
   if (!mustSee || mustSee.length === 0) return null;
@@ -462,9 +462,15 @@ function MustSeeCardV2({ guide, t }: { guide: DestinationGuideContentV2; t: (key
             className="min-w-[280px] bg-white rounded-xl overflow-hidden shadow-sm group focus-visible:outline-2 focus-visible:outline-atlas-secondary-container focus-visible:outline-offset-2"
             tabIndex={0}
           >
-            {/* Gradient placeholder for image */}
+            {/* Attraction image via Unsplash */}
             <div className="h-40 relative overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-atlas-surface-container-high to-atlas-secondary-container/30 group-hover:scale-105 motion-reduce:group-hover:scale-100 transition-transform duration-500" />
+              <DestinationImage
+                destination={`${item.name} ${destination}`}
+                alt={item.name}
+                fill
+                className="object-cover group-hover:scale-105 motion-reduce:group-hover:scale-100 transition-transform duration-500"
+                sizes="280px"
+              />
               {/* Category chip */}
               <span className="absolute top-3 left-3 bg-black/50 text-white text-[10px] font-bold px-2 py-0.5 rounded-full font-atlas-body flex items-center gap-1">
                 <span aria-hidden="true">{CATEGORY_ICONS[item.category] ?? "\u{1F4CD}"}</span>
@@ -838,7 +844,7 @@ export function DestinationGuideV2({
             <CostsCardV2 guide={guideV2} />
 
             {/* B5 -- O que não perder (10 cols full width) */}
-            <MustSeeCardV2 guide={guideV2} t={t} />
+            <MustSeeCardV2 guide={guideV2} t={t} destination={destination} />
           </div>
 
           {/* AI disclaimer */}

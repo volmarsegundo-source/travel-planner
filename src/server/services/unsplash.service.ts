@@ -117,7 +117,7 @@ export class UnsplashService {
       const best = suitable[0] ?? photos[0];
 
       const result: DestinationImageResult = {
-        url: `${best.urls.raw}&w=${IMAGE_OUTPUT_WIDTH}&q=${IMAGE_QUALITY}&fit=crop&auto=format`,
+        url: `${best.urls.raw}&w=${IMAGE_OUTPUT_WIDTH}&q=${IMAGE_QUALITY}&fit=crop&auto=format&fm=webp`,
         photographerName: best.user.name,
         photographerUrl: `${best.user.links.html}?${UTM_PARAMS}`,
         unsplashUrl: `${best.links.html}?${UTM_PARAMS}`,

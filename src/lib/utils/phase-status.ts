@@ -66,7 +66,7 @@ const STATUS_VISUALS: Record<PhaseStatus, PhaseStatusVisual> = {
     showAlert: false,
   },
   in_progress: {
-    circleBg: "bg-atlas-primary",
+    circleBg: "bg-amber-500",
     circleText: "text-white",
     circleBorder: "",
     badgeColor: "warning",

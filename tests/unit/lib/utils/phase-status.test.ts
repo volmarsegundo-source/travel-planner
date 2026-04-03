@@ -37,7 +37,7 @@ describe("getPhaseStatusVisual", () => {
 
   it("in_progress has orange/primary styling", () => {
     const v = getPhaseStatusVisual("in_progress");
-    expect(v.circleBg).toBe("bg-atlas-primary");
+    expect(v.circleBg).toBe("bg-amber-500");
     expect(v.badgeColor).toBe("warning");
     expect(v.icon).toBe("number");
     expect(v.showPin).toBe(true);
