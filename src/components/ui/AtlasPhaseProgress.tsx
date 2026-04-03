@@ -91,7 +91,7 @@ function WizardSegment({
   onClick?: (phase: number) => void;
 }) {
   const { phase, label, state, href } = segment;
-  const isClickable = state === "completed" && (href || onClick);
+  const isClickable = state !== "locked" && (href || onClick);
 
   const circleClasses = cn(
     "relative flex items-center justify-center rounded-full shrink-0",

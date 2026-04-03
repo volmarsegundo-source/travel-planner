@@ -1526,7 +1526,7 @@ export function Phase6ItineraryV2({
                 </h1>
                 <p className="text-lg text-atlas-on-surface-variant font-medium font-atlas-body">
                   {totalDays} {t("days")} {travelers > 1 ? `\u2022 ${travelers} ${t("travelers")}` : ""}
-                  {travelStyle ? ` \u2022 ${travelStyle}` : ""}
+                  {travelStyle ? ` \u2022 ${t(`style_${travelStyle.toLowerCase()}`)}` : ""}
                 </p>
               </div>
               <div className="flex gap-4 flex-wrap">
@@ -1639,12 +1639,17 @@ export function Phase6ItineraryV2({
         paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
       />
 
-      {/* Standardized WizardFooter (Bloco 3 Fix #3) */}
+      {/* Standardized WizardFooter */}
       <WizardFooter
         onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
         onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
         primaryLabel={t("footerSummary")}
       />
+      <div className="flex justify-center pb-6">
+        <AtlasButton variant="ghost" size="sm" onClick={() => router.push("/expeditions")}>
+          {tExpedition("backToExpeditions")}
+        </AtlasButton>
+      </div>
     </PhaseShell>
   );
 }

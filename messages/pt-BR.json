@@ -1015,7 +1015,7 @@
       "mapNoLocations": "Localizações não disponíveis para este dia",
       "mapLoading": "Carregando mapa...",
       "footerBack": "Voltar para Guia",
-      "footerSummary": "Ver Minha Expedição",
+      "footerSummary": "Ver Relatório da Expedição",
       "viewByDay": "Por Dia",
       "viewContinuous": "Lista Corrida",
       "footerProgress": "Progresso Total",
@@ -1050,7 +1050,12 @@
       "featureChecklist": "Checklist Dinâmico",
       "featureChecklistDesc": "Sua lista de viagem inteligente baseada na jornada até seu destino.",
       "backToGuide": "Voltar para o Guia",
-      "processingNote": "Processamento de IA leva aproximadamente 10 segundos."
+      "processingNote": "Processamento de IA leva aproximadamente 10 segundos.",
+      "style_culture": "Cultura",
+      "style_adventure": "Aventura",
+      "style_relaxation": "Relaxamento",
+      "style_gastronomy": "Gastronomia",
+      "style_sports": "Esportes"
     },
     "hub": {
       "title": "Expedição",
@@ -1502,7 +1507,7 @@
       "processing": "Processando pagamento...",
       "successTitle": "Compra realizada!",
       "successMessage": "Seu novo saldo e {balance} PA",
-      "backToExpeditions": "Voltar para expedições",
+      "backToExpeditions": "Voltar para Minhas Expedições",
       "errorTitle": "Pagamento falhou",
       "error": "Algo deu errado. Tente novamente.",
       "paymentFailed": "O pagamento não pode ser processado. Tente novamente.",

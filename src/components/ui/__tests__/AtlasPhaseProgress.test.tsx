@@ -30,7 +30,7 @@ describe("AtlasPhaseProgress", () => {
   });
 
   // ─── Completed segments are clickable in wizard ────────────────────────────
-  it("renders completed segments as buttons in wizard layout", () => {
+  it("renders non-locked segments as buttons in wizard layout", () => {
     const onClick = vi.fn();
     render(
       <AtlasPhaseProgress
@@ -40,8 +40,8 @@ describe("AtlasPhaseProgress", () => {
       />,
     );
     const buttons = screen.getAllByRole("button");
-    // Phase 1 and 2 are completed, so 2 buttons
-    expect(buttons).toHaveLength(2);
+    // 4 non-locked phases (2 completed + 1 active + 1 pending)
+    expect(buttons).toHaveLength(4);
 
     fireEvent.click(buttons[0]);
     expect(onClick).toHaveBeenCalledWith(1);
@@ -50,8 +50,8 @@ describe("AtlasPhaseProgress", () => {
     expect(onClick).toHaveBeenCalledWith(2);
   });
 
-  // ─── Non-completed segments are NOT clickable ──────────────────────────────
-  it("does not render buttons for non-completed segments in wizard", () => {
+  // ─── Locked segments are NOT clickable ────────────────────────────────────
+  it("does not render buttons for locked segments in wizard", () => {
     render(
       <AtlasPhaseProgress
         segments={mockSegments}
@@ -59,8 +59,8 @@ describe("AtlasPhaseProgress", () => {
         onSegmentClick={vi.fn()}
       />,
     );
-    // Only 2 buttons (completed phases)
-    expect(screen.getAllByRole("button")).toHaveLength(2);
+    // 4 buttons (all non-locked), 2 locked phases are not buttons
+    expect(screen.getAllByRole("button")).toHaveLength(4);
   });
 
   // ─── Screen reader labels ──────────────────────────────────────────────────

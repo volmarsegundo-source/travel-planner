@@ -1015,7 +1015,7 @@
       "mapNoLocations": "Locations not available for this day",
       "mapLoading": "Loading map...",
       "footerBack": "Back to Guide",
-      "footerSummary": "View My Expedition",
+      "footerSummary": "View Expedition Report",
       "viewByDay": "By Day",
       "viewContinuous": "All Days",
       "footerProgress": "Total Progress",
@@ -1050,7 +1050,12 @@
       "featureChecklist": "Dynamic Checklist",
       "featureChecklistDesc": "Smart travel checklist based on your trip to your destination.",
       "backToGuide": "Back to Guide",
-      "processingNote": "AI processing takes approximately 10 seconds."
+      "processingNote": "AI processing takes approximately 10 seconds.",
+      "style_culture": "Culture",
+      "style_adventure": "Adventure",
+      "style_relaxation": "Relaxation",
+      "style_gastronomy": "Gastronomy",
+      "style_sports": "Sports"
     },
     "hub": {
       "title": "Expedition",
@@ -1502,7 +1507,7 @@
       "processing": "Processing payment...",
       "successTitle": "Purchase complete!",
       "successMessage": "Your new balance is {balance} PA",
-      "backToExpeditions": "Back to expeditions",
+      "backToExpeditions": "Back to My Expeditions",
       "errorTitle": "Payment failed",
       "error": "Something went wrong. Please try again.",
       "paymentFailed": "Payment could not be processed. Please try again.",

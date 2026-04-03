@@ -64,10 +64,23 @@ export function DestinationImage({
     );
   }
 
+  // Optimize Unsplash URL: resize to match display size (avoid loading 1200px for small cards)
+  const optimizedUrl = (() => {
+    let targetWidth = 1200;
+    if (!fill) {
+      targetWidth = Math.min(width * 2, 1200); // 2x for retina
+    } else if (sizes) {
+      // Parse sizes hint: "280px" → 560 (2x retina)
+      const match = sizes.match(/(\d+)px/);
+      if (match) targetWidth = Math.min(parseInt(match[1]!) * 2, 1200);
+    }
+    return imageData.url.replace(/&w=\d+/, `&w=${targetWidth}`);
+  })();
+
   return (
     <>
       <Image
-        src={imageData.url}
+        src={optimizedUrl}
         alt={alt ?? destination}
         className={className}
         {...(fill
