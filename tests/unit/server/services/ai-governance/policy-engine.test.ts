@@ -17,6 +17,9 @@ import {
 
 vi.mock("server-only", () => ({}));
 
+vi.unmock("@/server/services/ai-governance/policy-engine");
+vi.unmock("@/server/services/ai-governance/policies");
+
 const ctx: PolicyContext = { phase: "plan", userId: "user-1" };
 
 function makePolicy(

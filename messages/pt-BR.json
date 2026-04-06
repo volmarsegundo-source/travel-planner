@@ -1759,6 +1759,11 @@
     "unauthorized": "Faça login para continuar.",
     "aiSchemaError": "A resposta da IA ficou incompleta. Por favor, tente novamente.",
     "prerequisitesNotMet": "Pré-requisitos não atendidos. Complete as fases anteriores.",
+    "ai": {
+      "kill_switch": "Geração de IA temporariamente indisponível. Tente novamente mais tarde.",
+      "rate_limit": "Muitas requisições. Aguarde um momento antes de tentar novamente.",
+      "cost_budget": "Limite de uso de IA atingido para este período. Tente novamente mais tarde."
+    },
     "boundary": {
       "title": "Algo deu errado",
       "description": "Ocorreu um erro inesperado.",

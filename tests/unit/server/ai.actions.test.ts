@@ -52,10 +52,12 @@ vi.mock("@/lib/guards/age-guard", () => ({
   canUseAI: vi.fn().mockReturnValue(true),
 }));
 
-vi.mock("@/server/services/ai.service", () => ({
-  AiService: {
-    generateChecklist: vi.fn().mockResolvedValue({ categories: [] }),
-    generateTravelPlan: vi.fn().mockResolvedValue({ days: [], tips: [] }),
+vi.unmock("@/server/services/ai-gateway.service");
+vi.mock("@/server/services/ai-gateway.service", () => ({
+  AiGatewayService: {
+    generateChecklist: vi.fn().mockResolvedValue({ data: { categories: [] }, interaction: {} }),
+    generatePlan: vi.fn().mockResolvedValue({ data: { days: [], tips: [] }, interaction: {} }),
+    generateGuide: vi.fn().mockResolvedValue({ data: {}, interaction: {} }),
   },
 }));
 
@@ -294,10 +296,10 @@ describe("generateTravelPlanAction", () => {
       detectedTypes: ["email"],
     });
 
-    const { AiService } = await import("@/server/services/ai.service");
+    const { AiGatewayService: AiService } = await import("@/server/services/ai-gateway.service");
     await generateTravelPlanAction("trip-1", paramsWithPII);
 
-    expect(AiService.generateTravelPlan).toHaveBeenCalledWith(
+    expect(AiService.generatePlan).toHaveBeenCalledWith(
       expect.objectContaining({
         destination: "John Doe [EMAIL-REDACTED] Paris",
       })
@@ -346,10 +348,10 @@ describe("generateTravelPlanAction", () => {
         detectedTypes: ["cpf"],
       });
 
-    const { AiService } = await import("@/server/services/ai.service");
+    const { AiGatewayService: AiService } = await import("@/server/services/ai-gateway.service");
     await generateTravelPlanAction("trip-1", paramsWithPII);
 
-    expect(AiService.generateTravelPlan).toHaveBeenCalledWith(
+    expect(AiService.generatePlan).toHaveBeenCalledWith(
       expect.objectContaining({
         travelNotes: "My CPF is [CPF-REDACTED]",
       })

@@ -103,11 +103,12 @@ vi.mock("@/server/db", () => ({
   },
 }));
 
-vi.mock("@/server/services/ai.service", () => ({
-  AiService: {
-    generateTravelPlan: mockGenerateTravelPlan,
-    generateChecklist: mockGenerateChecklist,
-    generateDestinationGuide: mockGenerateDestinationGuide,
+vi.unmock("@/server/services/ai-gateway.service");
+vi.mock("@/server/services/ai-gateway.service", () => ({
+  AiGatewayService: {
+    generatePlan: vi.fn().mockImplementation((...args: unknown[]) => mockGenerateTravelPlan(...args).then((data: unknown) => ({ data, interaction: {} }))),
+    generateChecklist: vi.fn().mockImplementation((...args: unknown[]) => mockGenerateChecklist(...args).then((data: unknown) => ({ data, interaction: {} }))),
+    generateGuide: vi.fn().mockImplementation((...args: unknown[]) => mockGenerateDestinationGuide(...args).then((data: unknown) => ({ data, interaction: {} }))),
   },
 }));
 

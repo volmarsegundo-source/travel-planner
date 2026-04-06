@@ -19,6 +19,9 @@ const { mockLoggerWarn } = vi.hoisted(() => ({
 
 vi.mock("server-only", () => ({}));
 
+vi.unmock("@/server/services/ai-governance/policy-engine");
+vi.unmock("@/server/services/ai-governance/policies");
+
 vi.mock("@/server/db", () => ({
   db: mockDeep<PrismaClient>(),
 }));

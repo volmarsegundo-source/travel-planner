@@ -11,6 +11,8 @@ import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { travelPlanPrompt, PLAN_SYSTEM_PROMPT } from "@/lib/prompts";
 import { ClaudeProvider } from "@/server/services/providers/claude.provider";
+import { PolicyEngine } from "@/server/services/ai-governance/policy-engine";
+import "@/server/services/ai-governance/policies";
 import { AppError } from "@/lib/errors";
 import { GeneratePlanParamsSchema, TripIdSchema } from "@/lib/validations/ai.schema";
 import { calculateEstimatedCost } from "@/lib/cost-calculator";
@@ -67,6 +69,16 @@ export async function POST(request: NextRequest) {
 
   const hid = hashUserId(session.user.id);
   const userId = session.user.id;
+
+  // Policy check (kill-switch, rate limit, cost budget)
+  const policyResult = await PolicyEngine.evaluate({ phase: "plan", userId });
+  if (!policyResult.allowed) {
+    const status = policyResult.blockedBy === "rate_limit" ? 429 : 503;
+    return NextResponse.json(
+      { error: policyResult.blockedBy, reason: policyResult.reason },
+      { status },
+    );
+  }
 
   // Parse and validate body
   let body: unknown;

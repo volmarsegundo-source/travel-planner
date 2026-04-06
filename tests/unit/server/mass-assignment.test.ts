@@ -61,10 +61,12 @@ vi.mock("@/lib/guards/age-guard", () => ({
   canUseAI: vi.fn().mockReturnValue(true),
 }));
 
-vi.mock("@/server/services/ai.service", () => ({
-  AiService: {
-    generateChecklist: vi.fn().mockResolvedValue({ categories: [] }),
-    generateTravelPlan: vi.fn().mockResolvedValue({ days: [], tips: [] }),
+vi.unmock("@/server/services/ai-gateway.service");
+vi.mock("@/server/services/ai-gateway.service", () => ({
+  AiGatewayService: {
+    generateChecklist: vi.fn().mockResolvedValue({ data: { categories: [] }, interaction: {} }),
+    generatePlan: vi.fn().mockResolvedValue({ data: { days: [], tips: [] }, interaction: {} }),
+    generateGuide: vi.fn().mockResolvedValue({ data: {}, interaction: {} }),
   },
 }));
 
@@ -268,7 +270,7 @@ describe("Mass assignment protection (T-S17-001)", () => {
       prismaMock.trip.findFirst.mockResolvedValue({ id: "trip-1" } as never);
       prismaMock.userProfile.findUnique.mockResolvedValue(null);
 
-      const { AiService } = await import("@/server/services/ai.service");
+      const { AiGatewayService: AiService } = await import("@/server/services/ai-gateway.service");
 
       const maliciousParams = {
         destination: "Paris",
@@ -295,7 +297,7 @@ describe("Mass assignment protection (T-S17-001)", () => {
 
       await generateTravelPlanAction("trip-1", maliciousParams);
 
-      const callArgs = (AiService.generateTravelPlan as ReturnType<typeof vi.fn>)
+      const callArgs = (AiService.generatePlan as ReturnType<typeof vi.fn>)
         .mock.calls[0]?.[0];
       expect(callArgs).not.toHaveProperty("systemPrompt");
       expect(callArgs).not.toHaveProperty("adminOverride");
@@ -311,7 +313,7 @@ describe("Mass assignment protection (T-S17-001)", () => {
       prismaMock.trip.findFirst.mockResolvedValue({ id: "trip-1" } as never);
       prismaMock.userProfile.findUnique.mockResolvedValue(null);
 
-      const { AiService } = await import("@/server/services/ai.service");
+      const { AiGatewayService: AiService } = await import("@/server/services/ai-gateway.service");
 
       const maliciousParams = {
         destination: "Tokyo",

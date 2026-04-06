@@ -1759,6 +1759,11 @@
     "unauthorized": "Please sign in to continue.",
     "aiSchemaError": "The AI response was incomplete. Please try again.",
     "prerequisitesNotMet": "Prerequisites not met. Please complete the previous phases.",
+    "ai": {
+      "kill_switch": "AI generation is temporarily unavailable. Please try again later.",
+      "rate_limit": "Too many requests. Please wait a moment before trying again.",
+      "cost_budget": "AI usage limit reached for this period. Please try again later."
+    },
     "boundary": {
       "title": "Something went wrong",
       "description": "An unexpected error occurred.",

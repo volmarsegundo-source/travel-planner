@@ -14,7 +14,7 @@ import type { ActionResult } from "@/types/trip.types";
 import type { PhaseCompletionResult } from "@/types/gamification.types";
 import type { DestinationGuideContent, GuideSectionKey } from "@/types/ai.types";
 import { PointsEngine } from "@/lib/engines/points-engine";
-import { AiService } from "@/server/services/ai.service";
+import { AiGatewayService } from "@/server/services/ai-gateway.service";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { hashUserId } from "@/lib/hash";
@@ -794,7 +794,7 @@ export async function generateDestinationGuideAction(
     };
 
     // Generate guide via AI with full traveler context
-    const content = await AiService.generateDestinationGuide({
+    const { data: content } = await AiGatewayService.generateGuide({
       userId: session.user.id,
       destination: sanitizedDestination,
       language: locale.startsWith("pt") ? "pt-BR" : "en",

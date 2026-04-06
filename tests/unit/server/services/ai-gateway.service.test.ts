@@ -13,6 +13,11 @@ import type { PrismaClient } from "@prisma/client";
 
 vi.mock("server-only", () => ({}));
 
+// Unmock the global setup mocks so we test the real implementation
+vi.unmock("@/server/services/ai-gateway.service");
+vi.unmock("@/server/services/ai-governance/policy-engine");
+vi.unmock("@/server/services/ai-governance/policies");
+
 vi.mock("@/server/db", () => ({
   db: mockDeep<PrismaClient>(),
 }));

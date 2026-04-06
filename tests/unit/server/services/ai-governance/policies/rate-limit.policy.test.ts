@@ -10,6 +10,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
+vi.unmock("@/server/services/ai-governance/policy-engine");
+vi.unmock("@/server/services/ai-governance/policies");
+
 const mockCheckRateLimit = vi.fn();
 vi.mock("@/lib/rate-limit", () => ({
   checkRateLimit: (...args: unknown[]) => mockCheckRateLimit(...args),

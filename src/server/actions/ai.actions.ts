@@ -3,7 +3,7 @@ import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
-import { AiService } from "@/server/services/ai.service";
+import { AiGatewayService } from "@/server/services/ai-gateway.service";
 import { AppError, UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
@@ -150,7 +150,7 @@ export async function generateTravelPlanAction(
       sanitizedParams.expeditionContext = expeditionContext;
     }
 
-    const plan = await AiService.generateTravelPlan(sanitizedParams);
+    const { data: plan } = await AiGatewayService.generatePlan(sanitizedParams);
     await persistItinerary(tripId, plan);
 
     // Record generation on ItineraryPlan if it exists
@@ -242,7 +242,7 @@ export async function generateChecklistAction(
 
   try {
     // Mass assignment safe: explicit fields only
-    const result = await AiService.generateChecklist({
+    const { data: result } = await AiGatewayService.generateChecklist({
       userId: session.user.id,
       destination: sanitizedDestination,
       startDate: checklistParsed.data.startDate,
