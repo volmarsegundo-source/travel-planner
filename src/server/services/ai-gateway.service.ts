@@ -2,8 +2,13 @@ import "server-only";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
+import { AppError } from "@/lib/errors";
 import { AiService } from "./ai.service";
 import { PromptRegistryService } from "./prompt-registry.service";
+import { PolicyEngine } from "./ai-governance/policy-engine";
+
+// Side-effect import: registers all policies with PolicyEngine
+import "./ai-governance/policies";
 import type {
   GeneratePlanParams,
   ItineraryPlan,
@@ -85,6 +90,27 @@ export class AiGatewayService {
       templateSource = template.source;
     } catch {
       // Non-blocking — template metadata is for observability only
+    }
+
+    // Evaluate governance policies before calling AI
+    const policyResult = await PolicyEngine.evaluate({ phase, userId });
+    if (!policyResult.allowed) {
+      this.logInteraction({
+        userId: hid,
+        phase,
+        promptSlug,
+        status: "blocked",
+        errorCode: policyResult.blockedBy,
+        latencyMs: Date.now() - startMs,
+        templateSource,
+      }).catch((err) =>
+        logger.warn("ai-gateway.log.error", { error: String(err) }),
+      );
+      throw new AppError(
+        "AI_POLICY_BLOCKED",
+        `errors.ai.${policyResult.blockedBy}`,
+        policyResult.blockedBy === "rate_limit" ? 429 : 503,
+      );
     }
 
     try {

@@ -99,49 +99,49 @@ model User {
 // ─── Trip ────────────────────────────────────────────────────────────────────
 
 model Trip {
-  id          String         @id @default(cuid())
-  userId      String
+  id     String @id @default(cuid())
+  userId String
 
   // Dados principais
-  title       String         @db.VarChar(100)
-  destination String         @db.VarChar(150)
-  description String?        @db.VarChar(500)
+  title       String  @db.VarChar(100)
+  destination String  @db.VarChar(150)
+  description String? @db.VarChar(500)
 
   // Datas
-  startDate   DateTime?
-  endDate     DateTime?
+  startDate DateTime?
+  endDate   DateTime?
 
   // Capa (v1: nome do gradiente + emoji — sem URL de imagem)
-  coverGradient String       @default("sunset") @db.VarChar(50)
-  coverEmoji    String       @default("✈️")    @db.VarChar(10)
+  coverGradient String @default("sunset") @db.VarChar(50)
+  coverEmoji    String @default("✈️") @db.VarChar(10)
 
   // Estado
-  status      TripStatus     @default(PLANNING)
-  visibility  TripVisibility @default(PRIVATE)
+  status     TripStatus     @default(PLANNING)
+  visibility TripVisibility @default(PRIVATE)
 
   // Timestamps
-  createdAt   DateTime       @default(now())
-  updatedAt   DateTime       @updatedAt
-  deletedAt   DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   // Atlas Gamification
-  expeditionMode Boolean        @default(true)
-  currentPhase   Int            @default(1)
-  tripType       String         @default("international") @db.VarChar(20)
+  expeditionMode Boolean @default(true)
+  currentPhase   Int     @default(1)
+  tripType       String  @default("international") @db.VarChar(20)
 
   // Sprint 20: Passengers
-  passengers     Json?
+  passengers Json?
 
   // Sprint 20: Transport & Logistics
-  origin         String?        @db.VarChar(150)
-  localMobility  String[]       @default([])
+  origin        String?  @db.VarChar(150)
+  localMobility String[] @default([])
 
   // Sprint 29: Map pin coordinates
   destinationLat Float?
   destinationLon Float?
 
   // Relacoes
-  user              User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   itineraryDays     ItineraryDay[]
   checklist         ChecklistItem[]
   phases            ExpeditionPhase[]
@@ -161,11 +161,11 @@ model Trip {
 // ─── ItineraryDay ─────────────────────────────────────────────────────────────
 
 model ItineraryDay {
-  id        String   @id @default(cuid())
+  id        String    @id @default(cuid())
   tripId    String
   dayNumber Int
   date      DateTime?
-  notes     String?  @db.Text
+  notes     String?   @db.Text
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -181,14 +181,14 @@ model ItineraryDay {
 // ─── Activity ─────────────────────────────────────────────────────────────────
 
 model Activity {
-  id           String   @id @default(cuid())
+  id           String  @id @default(cuid())
   dayId        String
-  title        String   @db.VarChar(200)
-  notes        String?  @db.Text
-  startTime    String?  @db.VarChar(5)
-  endTime      String?  @db.VarChar(5)
-  orderIndex   Int      @default(0)
-  activityType String?  @db.VarChar(50)
+  title        String  @db.VarChar(200)
+  notes        String? @db.Text
+  startTime    String? @db.VarChar(5)
+  endTime      String? @db.VarChar(5)
+  orderIndex   Int     @default(0)
+  activityType String? @db.VarChar(50)
 
   // GPS coordinates (optional — populated by AI)
   latitude  Float?
@@ -206,12 +206,12 @@ model Activity {
 // ─── ChecklistItem ─────────────────────────────────────────────────────────────
 
 model ChecklistItem {
-  id       String  @id @default(cuid())
-  tripId   String
-  category String  @db.VarChar(50)
-  label    String  @db.VarChar(200)
-  checked  Boolean @default(false)
-  orderIndex Int   @default(0)
+  id         String  @id @default(cuid())
+  tripId     String
+  category   String  @db.VarChar(50)
+  label      String  @db.VarChar(200)
+  checked    Boolean @default(false)
+  orderIndex Int     @default(0)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -373,33 +373,33 @@ model ItineraryPlan {
 // ─── Transport Segment (Phase 4 — Logistics) ─────────────────────────────
 
 model TransportSegment {
-  id              String    @id @default(cuid())
-  tripId          String
-  segmentOrder    Int       @default(0)
+  id           String @id @default(cuid())
+  tripId       String
+  segmentOrder Int    @default(0)
 
   // Type: "flight" | "bus" | "train" | "car" | "ferry" | "other"
-  transportType   String    @db.VarChar(20)
+  transportType String @db.VarChar(20)
 
   // Route
-  departurePlace  String?   @db.VarChar(150)
-  arrivalPlace    String?   @db.VarChar(150)
+  departurePlace String? @db.VarChar(150)
+  arrivalPlace   String? @db.VarChar(150)
 
   // Times
-  departureAt     DateTime?
-  arrivalAt       DateTime?
+  departureAt DateTime?
+  arrivalAt   DateTime?
 
   // Details
-  provider        String?   @db.VarChar(100)
-  bookingCodeEnc  String?   @db.Text
-  estimatedCost   Decimal?  @db.Decimal(10, 2)
-  currency        String?   @db.VarChar(3)
-  notes           String?   @db.VarChar(500)
+  provider       String?  @db.VarChar(100)
+  bookingCodeEnc String?  @db.Text
+  estimatedCost  Decimal? @db.Decimal(10, 2)
+  currency       String?  @db.VarChar(3)
+  notes          String?  @db.VarChar(500)
 
   // Trip direction
-  isReturn        Boolean   @default(false)
+  isReturn Boolean @default(false)
 
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
 
@@ -411,30 +411,30 @@ model TransportSegment {
 // ─── Accommodation (Phase 4 — Logistics) ─────────────────────────────────
 
 model Accommodation {
-  id                String    @id @default(cuid())
-  tripId            String
+  id     String @id @default(cuid())
+  tripId String
 
   // Type: "hotel" | "hostel" | "airbnb" | "friends_house" | "camping" | "other"
-  accommodationType String    @db.VarChar(20)
+  accommodationType String @db.VarChar(20)
 
   // Details
-  name              String?   @db.VarChar(150)
-  address           String?   @db.VarChar(300)
-  bookingCodeEnc    String?   @db.Text
+  name           String? @db.VarChar(150)
+  address        String? @db.VarChar(300)
+  bookingCodeEnc String? @db.Text
 
   // Dates
-  checkIn           DateTime?
-  checkOut          DateTime?
+  checkIn  DateTime?
+  checkOut DateTime?
 
   // Cost
-  estimatedCost     Decimal?  @db.Decimal(10, 2)
-  currency          String?   @db.VarChar(3)
+  estimatedCost Decimal? @db.Decimal(10, 2)
+  currency      String?  @db.VarChar(3)
 
-  notes             String?   @db.VarChar(500)
-  orderIndex        Int       @default(0)
+  notes      String? @db.VarChar(500)
+  orderIndex Int     @default(0)
 
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
 
@@ -467,18 +467,18 @@ model Purchase {
 // ─── AI Governance ──────────────────────────────────────────────────────────
 
 model PromptTemplate {
-  id            String   @id @default(cuid())
-  slug          String   @unique @db.VarChar(50)
-  version       String   @db.VarChar(20)
-  modelType     String   @db.VarChar(20)
-  systemPrompt  String   @db.Text
-  userTemplate  String   @db.Text
-  maxTokens     Int      @default(2048)
-  cacheControl  Boolean  @default(true)
-  isActive      Boolean  @default(true)
-  metadata      Json?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  slug         String   @unique @db.VarChar(50)
+  version      String   @db.VarChar(20)
+  modelType    String   @db.VarChar(20)
+  systemPrompt String   @db.Text
+  userTemplate String   @db.Text
+  maxTokens    Int      @default(2048)
+  cacheControl Boolean  @default(true)
+  isActive     Boolean  @default(true)
+  metadata     Json?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([slug, isActive])
   @@map("prompt_templates")

@@ -48,6 +48,18 @@ vi.mock("@/lib/hash", () => ({
   hashUserId: vi.fn().mockReturnValue("hashed-user-id"),
 }));
 
+// Mock policy engine — default: all requests allowed
+vi.mock("@/server/services/ai-governance/policy-engine", () => ({
+  PolicyEngine: {
+    evaluate: vi.fn().mockResolvedValue({ allowed: true }),
+    register: vi.fn(),
+    _reset: vi.fn(),
+  },
+}));
+
+// Mock side-effect import (policy registration)
+vi.mock("@/server/services/ai-governance/policies", () => ({}));
+
 import { AiGatewayService } from "@/server/services/ai-gateway.service";
 import { db } from "@/server/db";
 import type { GeneratePlanParams, GenerateChecklistParams, GenerateGuideParams } from "@/types/ai.types";
