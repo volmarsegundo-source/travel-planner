@@ -991,6 +991,8 @@
       "errorAuth": "Erro de autenticação com a IA. Tente mais tarde.",
       "errorRateLimit": "Muitas requisições. Aguarde um momento.",
       "errorAgeRestricted": "Você precisa ter 18+ para usar recursos de IA.",
+      "errorKillSwitch": "Geração de IA temporariamente indisponível. Tente novamente mais tarde.",
+      "errorCostBudget": "Limite de uso de IA atingido para este período. Tente novamente mais tarde.",
       "cancelGeneration": "Cancelar",
       "aiDisclaimer": "Este roteiro foi gerado por inteligência artificial e pode conter imprecisões. Verifique horários, preços e disponibilidade antes de viajar.",
       "regenerateConfirmTitle": "Regerar roteiro?",
@@ -1551,7 +1553,7 @@
   },
   "admin": {
     "navDashboard": "Painel",
-    "navAiGovernance": "Governanca de IA",
+    "navAiGovernance": "Governança de IA",
     "dashboard": {
       "title": "Painel Administrativo",
       "subtitle": "Receita, usuários e métricas da plataforma",
@@ -1592,7 +1594,7 @@
         "checklist": "Checklist",
         "guide": "Guia",
         "itinerary": "Roteiro",
-        "levelDistribution": "Distribuicao de Niveis",
+        "levelDistribution": "Distribuição de Níveis",
         "topDestinations": "Destinos Mais Populares",
         "noData": "Nenhum dado disponível."
       },
@@ -1627,15 +1629,15 @@
       }
     },
     "aiGovernance": {
-      "title": "Governanca de IA",
-      "overview": "Visao Geral",
+      "title": "Governança de IA",
+      "overview": "Visão Geral",
       "perPhase": "Por Fase",
       "totalCalls": "Total de Chamadas",
       "totalCost": "Custo Total",
       "errorRate": "Taxa de Erro",
       "cacheHitRate": "Taxa de Cache Hit",
       "blockedCalls": "Chamadas Bloqueadas",
-      "avgLatency": "Latencia Media",
+      "avgLatency": "Latência Média",
       "callsByPhase": "Chamadas por Fase",
       "phase": "Fase",
       "calls": "Chamadas",
@@ -1646,14 +1648,20 @@
       "toggle": "Alternar",
       "reason": "Motivo",
       "topErrors": "Principais Erros",
-      "errorCode": "Codigo do Erro",
+      "errorCode": "Código do Erro",
       "count": "Quantidade",
-      "noData": "Sem dados para o periodo selecionado.",
+      "recentInteractions": "Interações Recentes",
+      "date": "Data",
+      "tokens": "Tokens",
+      "latency": "Latência",
+      "status": "Status",
+      "model": "Modelo",
+      "noData": "Sem dados para o período selecionado.",
       "plan": "Roteiro",
       "checklist": "Checklist",
       "guide": "Guia de Destino",
       "global": "Global",
-      "period": "Ultimos 30 dias"
+      "period": "Últimos 30 dias"
     }
   },
   "atlas": {

@@ -187,6 +187,7 @@ export async function POST(request: NextRequest) {
   });
 
   // Start streaming
+  const streamStartTime = Date.now();
   try {
     const provider = new ClaudeProvider();
     const { stream: aiStream, usage: usagePromise } = await provider.generateStreamingResponse(
@@ -290,23 +291,50 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Log token usage after stream completes (non-blocking)
-    usagePromise.then((usageData) => {
+    // Log token usage + create AiInteractionLog after stream completes (non-blocking)
+    usagePromise.then(async (usageData) => {
+      const inputTokens = usageData.inputTokens ?? 0;
+      const outputTokens = usageData.outputTokens ?? 0;
+      const cacheReadTokens = usageData.cacheReadInputTokens ?? 0;
+      const cacheWriteTokens = usageData.cacheCreationInputTokens ?? 0;
       const cost = calculateEstimatedCost(
         "claude-sonnet-4-6",
-        usageData.inputTokens ?? 0,
-        usageData.outputTokens ?? 0,
-        usageData.cacheReadInputTokens ?? 0,
-        usageData.cacheCreationInputTokens ?? 0,
+        inputTokens,
+        outputTokens,
+        cacheReadTokens,
+        cacheWriteTokens,
       );
       logger.info("ai.stream.tokens.usage", {
         userIdHash: hid,
         generationType: "plan",
         model: "claude",
-        inputTokens: usageData.inputTokens ?? 0,
-        outputTokens: usageData.outputTokens ?? 0,
+        inputTokens,
+        outputTokens,
         estimatedCostUSD: cost.totalCost,
       });
+
+      // Persist interaction log for governance dashboard
+      try {
+        await db.aiInteractionLog.create({
+          data: {
+            userId: hid,
+            phase: "plan",
+            provider: "claude",
+            model: "claude-sonnet-4-6",
+            promptSlug: "travel-plan",
+            inputTokens,
+            outputTokens,
+            cacheReadTokens,
+            cacheWriteTokens,
+            estimatedCostUsd: cost.totalCost,
+            status: "success",
+            latencyMs: Date.now() - streamStartTime,
+            metadata: { route: "stream" },
+          },
+        });
+      } catch (logErr) {
+        logger.warn("ai.stream.interaction-log.error", { error: String(logErr) });
+      }
     }).catch((err) => {
       logger.error("ai.stream.usage.error", err instanceof Error ? err : new Error(String(err)), { userIdHash: hid });
     });

@@ -179,6 +179,42 @@ export class AiGovernanceDashboardService {
   }
 
   /**
+   * Returns the most recent AI interaction logs for the overview table.
+   */
+  static async getRecentInteractions(
+    limit = 20,
+  ): Promise<
+    {
+      id: string;
+      createdAt: Date;
+      phase: string;
+      model: string;
+      inputTokens: number;
+      outputTokens: number;
+      estimatedCostUsd: number;
+      latencyMs: number;
+      status: string;
+    }[]
+  > {
+    const logs = await db.aiInteractionLog.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      select: {
+        id: true,
+        createdAt: true,
+        phase: true,
+        model: true,
+        inputTokens: true,
+        outputTokens: true,
+        estimatedCostUsd: true,
+        latencyMs: true,
+        status: true,
+      },
+    });
+    return logs;
+  }
+
+  /**
    * Toggle a kill switch for a specific AI phase.
    */
   static async toggleKillSwitch(

@@ -292,7 +292,12 @@ const PROGRESS_UPDATE_INTERVAL_MS = 1000;
 const PA_COST = AI_COSTS.ai_itinerary;
 const TOTAL_PHASES = 8;
 
-function mapStatusToErrorKey(status: number): string {
+function mapStatusToErrorKey(status: number, errorBody?: string): string {
+  // Check for specific AI policy error codes from the gateway
+  if (errorBody === "kill_switch") return "errorKillSwitch";
+  if (errorBody === "cost_budget") return "errorCostBudget";
+  if (errorBody === "rate_limit" && status === 429) return "errorRateLimit";
+
   const statusMap: Record<number, string> = {
     401: "errorAuth", 400: "errorGenerate", 403: "errorAgeRestricted",
     404: "errorGenerate", 409: "errorGenerate", 429: "errorRateLimit",
@@ -1264,7 +1269,12 @@ export function Phase6ItineraryV2({
       });
 
       if (!response.ok) {
-        setError(t(mapStatusToErrorKey(response.status)));
+        let errorBody: string | undefined;
+        try {
+          const body = await response.json() as { error?: string };
+          errorBody = body.error;
+        } catch { /* response may not be JSON */ }
+        setError(t(mapStatusToErrorKey(response.status, errorBody)));
         setIsGenerating(false);
         stopProgressTimer();
         return;

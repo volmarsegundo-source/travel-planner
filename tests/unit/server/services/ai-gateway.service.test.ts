@@ -26,6 +26,8 @@ const mockGenerateTravelPlan = vi.fn();
 const mockGenerateChecklist = vi.fn();
 const mockGenerateDestinationGuide = vi.fn();
 
+const mockGetLastTokenUsage = vi.fn();
+
 vi.mock("@/server/services/ai.service", () => ({
   AiService: {
     generateTravelPlan: (...args: unknown[]) => mockGenerateTravelPlan(...args),
@@ -33,6 +35,7 @@ vi.mock("@/server/services/ai.service", () => ({
     generateDestinationGuide: (...args: unknown[]) =>
       mockGenerateDestinationGuide(...args),
   },
+  getLastTokenUsage: (...args: unknown[]) => mockGetLastTokenUsage(...args),
 }));
 
 vi.mock("@/server/services/prompt-registry.service", () => ({

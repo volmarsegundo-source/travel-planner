@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
-import { AiService } from "./ai.service";
+import { AiService, getLastTokenUsage } from "./ai.service";
 import { PromptRegistryService } from "./prompt-registry.service";
 import { PolicyEngine } from "./ai-governance/policy-engine";
 
@@ -117,6 +117,9 @@ export class AiGatewayService {
       const data = await fn();
       const latencyMs = Date.now() - startMs;
 
+      // Read token usage stored by AiService.logTokenUsage()
+      const tokenUsage = getLastTokenUsage();
+
       // Log interaction (fire-and-forget)
       this.logInteraction({
         userId: hid,
@@ -125,6 +128,12 @@ export class AiGatewayService {
         status,
         latencyMs,
         templateSource,
+        inputTokens: tokenUsage?.inputTokens,
+        outputTokens: tokenUsage?.outputTokens,
+        cacheReadTokens: tokenUsage?.cacheReadTokens,
+        cacheWriteTokens: tokenUsage?.cacheWriteTokens,
+        estimatedCostUsd: tokenUsage?.costUsd,
+        model: tokenUsage?.model,
       }).catch((err) =>
         logger.warn("ai-gateway.log.error", {
           error: String(err),
@@ -135,7 +144,7 @@ export class AiGatewayService {
         data,
         interaction: {
           id: "",
-          costUsd: 0,
+          costUsd: tokenUsage?.costUsd ?? 0,
           latencyMs,
           source: templateSource,
         },
@@ -172,6 +181,12 @@ export class AiGatewayService {
     errorCode?: string;
     latencyMs: number;
     templateSource: string;
+    inputTokens?: number;
+    outputTokens?: number;
+    cacheReadTokens?: number;
+    cacheWriteTokens?: number;
+    estimatedCostUsd?: number;
+    model?: string;
   }): Promise<void> {
     try {
       await db.aiInteractionLog.create({
@@ -180,10 +195,16 @@ export class AiGatewayService {
           phase: data.phase,
           provider: "claude",
           model:
-            data.phase === "plan"
+            data.model ??
+            (data.phase === "plan"
               ? "claude-sonnet-4-6"
-              : "claude-haiku-4-5-20251001",
+              : "claude-haiku-4-5-20251001"),
           promptSlug: data.promptSlug,
+          inputTokens: data.inputTokens ?? 0,
+          outputTokens: data.outputTokens ?? 0,
+          cacheReadTokens: data.cacheReadTokens ?? 0,
+          cacheWriteTokens: data.cacheWriteTokens ?? 0,
+          estimatedCostUsd: data.estimatedCostUsd ?? 0,
           status: data.status,
           errorCode: data.errorCode,
           latencyMs: data.latencyMs,

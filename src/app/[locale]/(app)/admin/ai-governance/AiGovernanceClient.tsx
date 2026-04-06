@@ -11,6 +11,18 @@ import type {
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
+interface RecentInteraction {
+  id: string;
+  createdAt: string;
+  phase: string;
+  model: string;
+  inputTokens: number;
+  outputTokens: number;
+  estimatedCostUsd: number;
+  latencyMs: number;
+  status: string;
+}
+
 interface AiGovernanceClientProps {
   overview: AiGovernanceOverview;
   phases: {
@@ -18,6 +30,7 @@ interface AiGovernanceClientProps {
     checklist: AiPhaseDetail;
     guide: AiPhaseDetail;
   };
+  recentInteractions?: RecentInteraction[];
 }
 
 type TabKey = "overview" | "plan" | "checklist" | "guide";
@@ -215,6 +228,7 @@ function PhaseDetailPanel({
 export function AiGovernanceClient({
   overview,
   phases,
+  recentInteractions = [],
 }: AiGovernanceClientProps) {
   const t = useTranslations("admin.aiGovernance");
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
@@ -361,6 +375,82 @@ export function AiGovernanceClient({
               )}
             </div>
           </div>
+
+          {/* Recent Interactions Table */}
+          {recentInteractions.length > 0 && (
+            <AtlasCard>
+              <h3 className="mb-3 font-atlas-headline font-bold text-atlas-on-surface">
+                {t("recentInteractions")}
+              </h3>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm font-atlas-body">
+                  <thead>
+                    <tr className="border-b border-atlas-outline-variant/20">
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("date")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("phase")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("model")}
+                      </th>
+                      <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                        {t("tokens")}
+                      </th>
+                      <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                        {t("cost")}
+                      </th>
+                      <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                        {t("latency")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("status")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentInteractions.map((row) => (
+                      <tr
+                        key={row.id}
+                        className="border-b border-atlas-outline-variant/10"
+                      >
+                        <td className="py-2 text-atlas-on-surface whitespace-nowrap">
+                          {new Date(row.createdAt).toLocaleString()}
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          {t.has(row.phase as Parameters<typeof t>[0])
+                            ? t(row.phase as Parameters<typeof t>[0])
+                            : row.phase}
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          <code className="text-xs">{row.model}</code>
+                        </td>
+                        <td className="py-2 text-right text-atlas-on-surface">
+                          {row.inputTokens + row.outputTokens}
+                        </td>
+                        <td className="py-2 text-right text-atlas-on-surface">
+                          ${row.estimatedCostUsd.toFixed(4)}
+                        </td>
+                        <td className="py-2 text-right text-atlas-on-surface">
+                          {row.latencyMs}ms
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          <AtlasBadge
+                            variant="status"
+                            color={row.status === "success" ? "success" : row.status === "blocked" ? "warning" : "error"}
+                            size="sm"
+                          >
+                            {row.status}
+                          </AtlasBadge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </AtlasCard>
+          )}
         </div>
       )}
 

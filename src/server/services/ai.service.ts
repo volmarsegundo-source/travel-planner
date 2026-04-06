@@ -295,6 +295,31 @@ const MODEL_ID_MAP: Record<ModelType, string> = {
   guide: "claude-haiku-4-5-20251001",
 };
 
+// ─── Token usage sharing with gateway ─────────────────────────────────────────
+
+/**
+ * Module-level variable to share the last token usage data with AiGatewayService.
+ * Set by logTokenUsage(), consumed once by getLastTokenUsage().
+ */
+let _lastUsage: {
+  inputTokens: number;
+  outputTokens: number;
+  cacheReadTokens: number;
+  cacheWriteTokens: number;
+  costUsd: number;
+  model: string;
+} | null = null;
+
+/**
+ * Returns the last recorded token usage and clears the stored value.
+ * Called by AiGatewayService after fn() returns to populate AiInteractionLog.
+ */
+export function getLastTokenUsage() {
+  const usage = _lastUsage;
+  _lastUsage = null;
+  return usage;
+}
+
 // ─── Token usage logging ──────────────────────────────────────────────────────
 
 /**
@@ -335,6 +360,16 @@ function logTokenUsage(
     estimatedCostUSD: cost.totalCost,
     costBreakdown: cost,
   });
+
+  // Store usage for gateway to read after fn() returns
+  _lastUsage = {
+    inputTokens,
+    outputTokens,
+    cacheReadTokens,
+    cacheWriteTokens,
+    costUsd: cost.totalCost,
+    model: modelId,
+  };
 }
 
 // ─── AiService ────────────────────────────────────────────────────────────────
