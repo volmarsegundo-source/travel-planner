@@ -12,6 +12,7 @@ import {
   generateDestinationGuideAction,
   completePhase5Action,
   bulkViewGuideSectionsAction,
+  regenerateGuideAction,
 } from "@/server/actions/expedition.actions";
 import { spendPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
@@ -68,6 +69,24 @@ const QUICK_FACT_ICONS: Record<string, string> = {
   dialCode: "\u{1F4F1}",
 };
 
+/** Personalization categories (SPEC-GUIA-PERSONALIZACAO) */
+const GUIDE_CATEGORIES = [
+  { key: "festivals_events", emoji: "\uD83C\uDF89" },
+  { key: "nightlife_clubs", emoji: "\uD83C\uDF19" },
+  { key: "beaches", emoji: "\uD83C\uDFD6\uFE0F" },
+  { key: "shows_entertainment", emoji: "\uD83C\uDFAD" },
+  { key: "recommended_restaurants", emoji: "\uD83C\uDF7D\uFE0F" },
+  { key: "shopping_markets", emoji: "\uD83D\uDECD\uFE0F" },
+  { key: "museums_galleries", emoji: "\uD83C\uDFDB\uFE0F" },
+  { key: "parks_nature", emoji: "\uD83C\uDF3F" },
+  { key: "local_experiences", emoji: "\uD83C\uDF0D" },
+] as const;
+
+/** Maximum re-generations per expedition (BR-003) */
+const MAX_REGENS = 5;
+/** PA cost for re-generation (BR-001) */
+const REGEN_COST = 50;
+
 /** Bento card shared CSS */
 const BENTO_CARD_BASE =
   "bg-atlas-surface-container-lowest rounded-xl border border-atlas-outline-variant/15 shadow-[0px_24px_48px_rgba(4,13,27,0.06)]";
@@ -82,6 +101,9 @@ interface DestinationGuideV2Props {
     content: DestinationGuideContent;
     generationCount: number;
     viewedSections: string[];
+    regenCount?: number;
+    extraCategories?: string[];
+    personalNotes?: string | null;
   } | null;
   tripDataHash?: string | null;
   storedDataHash?: string | null;
@@ -541,7 +563,51 @@ export function DestinationGuideV2({
   const [paBalance, setPABalance] = useState(availablePoints);
   const [isSpending, setIsSpending] = useState(false);
 
+  // Personalization state (SPEC-GUIA-PERSONALIZACAO)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(
+    initialGuide?.extraCategories ?? []
+  );
+  const [personalNotes, setPersonalNotes] = useState(
+    initialGuide?.personalNotes ?? ""
+  );
+  const [regenCount, setRegenCount] = useState(initialGuide?.regenCount ?? 0);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [regenMessage, setRegenMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   const guideCost = AI_COSTS.ai_accommodation;
+
+  // Personalization handlers (SPEC-GUIA-PERSONALIZACAO)
+  const toggleCategory = useCallback((key: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
+    );
+  }, []);
+
+  const handleRegenerate = useCallback(async () => {
+    setIsRegenerating(true);
+    setRegenMessage(null);
+    setErrorMessage(null);
+    try {
+      const result = await regenerateGuideAction(
+        tripId,
+        locale,
+        selectedCategories,
+        personalNotes
+      );
+      if (result.success && result.data) {
+        setGuide(result.data.content);
+        setRegenCount(result.data.regenCount);
+        setPABalance((prev) => prev - REGEN_COST);
+        setRegenMessage({ type: "success", text: t("regenSuccess", { cost: REGEN_COST }) });
+      } else {
+        setRegenMessage({ type: "error", text: t("regenError") });
+      }
+    } catch {
+      setRegenMessage({ type: "error", text: t("regenError") });
+    } finally {
+      setIsRegenerating(false);
+    }
+  }, [tripId, locale, selectedCategories, personalNotes, t]);
 
   const handleRequestGenerate = useCallback(() => {
     setShowPAConfirm(true);
@@ -640,9 +706,17 @@ export function DestinationGuideV2({
     }
   }, [tripId, accessMode, completedPhases, router]);
 
+  const regenDisabled =
+    isRegenerating ||
+    (selectedCategories.length === 0 && !personalNotes.trim()) ||
+    regenCount >= MAX_REGENS ||
+    paBalance < REGEN_COST;
+
+  const regenDisabledReasonId = "regen-disabled-reason";
+
   // ─── Loading / Generating state ──────────────────────────────────────────
 
-  if (isGenerating) {
+  if (isGenerating || isRegenerating) {
     return (
       <PhaseShell
         tripId={tripId}
@@ -845,6 +919,105 @@ export function DestinationGuideV2({
 
             {/* B5 -- O que não perder (10 cols full width) */}
             <MustSeeCardV2 guide={guideV2} t={t} destination={destination} />
+          </div>
+
+          {/* Personalization section (SPEC-GUIA-PERSONALIZACAO) */}
+          <div
+            className="mt-8 p-6 bg-atlas-surface-container rounded-xl max-w-7xl"
+            data-testid="guide-personalization"
+          >
+            <h3 className="text-base font-bold font-atlas-headline text-atlas-primary mb-4">
+              {t("personalizeTitle")}
+            </h3>
+
+            {/* Category chips */}
+            <div className="flex flex-wrap gap-2 mb-4" role="group" aria-label={t("personalizeTitle")}>
+              {GUIDE_CATEGORIES.map((cat) => {
+                const isSelected = selectedCategories.includes(cat.key);
+                return (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    role="switch"
+                    aria-pressed={isSelected}
+                    aria-label={t(`category_${cat.key}`)}
+                    onClick={() => toggleCategory(cat.key)}
+                    className={`min-h-[44px] px-3 py-1.5 rounded-full text-sm font-atlas-body border transition-colors focus-visible:ring-2 ring-atlas-focus-ring ${
+                      isSelected
+                        ? "bg-atlas-secondary-container text-atlas-on-secondary-container border-transparent"
+                        : "bg-atlas-surface-variant text-atlas-on-surface-variant border-atlas-outline-variant hover:border-atlas-primary"
+                    }`}
+                  >
+                    <span aria-hidden="true">{cat.emoji}</span>{" "}
+                    {t(`category_${cat.key}`)}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Personal notes */}
+            <div className="mb-4">
+              <textarea
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value.slice(0, 500))}
+                placeholder={t("personalNotesPlaceholder")}
+                aria-label={t("personalNotesPlaceholder")}
+                className="w-full p-3 rounded-lg border border-atlas-outline-variant bg-white text-sm font-atlas-body resize-none h-24 focus-visible:ring-2 ring-atlas-focus-ring"
+                maxLength={500}
+              />
+              <p
+                className="text-xs text-atlas-on-surface-variant mt-1"
+                aria-live="polite"
+              >
+                {personalNotes.length}/500
+              </p>
+            </div>
+
+            {/* Re-generate button + counter */}
+            <div className="flex flex-wrap items-center gap-4">
+              <AtlasButton
+                onClick={handleRegenerate}
+                disabled={regenDisabled}
+                aria-describedby={regenDisabled ? regenDisabledReasonId : undefined}
+              >
+                {regenCount >= MAX_REGENS
+                  ? t("regenLimitReached")
+                  : paBalance < REGEN_COST
+                    ? t("insufficientPALabel")
+                    : t("regenerateGuideCta", { cost: REGEN_COST })}
+              </AtlasButton>
+              <span className="text-xs text-atlas-on-surface-variant">
+                {t("regenCounter", { used: regenCount, max: MAX_REGENS })}
+              </span>
+            </div>
+
+            {/* Disabled reason for screen readers */}
+            {regenDisabled && (
+              <p id={regenDisabledReasonId} className="sr-only">
+                {regenCount >= MAX_REGENS
+                  ? t("regenLimitReached")
+                  : paBalance < REGEN_COST
+                    ? t("insufficientPALabel")
+                    : selectedCategories.length === 0 && !personalNotes.trim()
+                      ? "Select a category or add personal notes"
+                      : ""}
+              </p>
+            )}
+
+            {/* Inline feedback messages */}
+            {regenMessage && (
+              <div
+                className={`mt-3 text-sm font-atlas-body ${
+                  regenMessage.type === "success"
+                    ? "text-atlas-on-tertiary-container"
+                    : "text-atlas-error"
+                }`}
+                role="alert"
+                aria-live="assertive"
+              >
+                {regenMessage.text}
+              </div>
+            )}
           </div>
 
           {/* AI disclaimer */}

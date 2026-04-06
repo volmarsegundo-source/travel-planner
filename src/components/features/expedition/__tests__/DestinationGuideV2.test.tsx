@@ -32,10 +32,13 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
+const mockRegenerateGuideAction = vi.hoisted(() => vi.fn());
+
 vi.mock("@/server/actions/expedition.actions", () => ({
   generateDestinationGuideAction: vi.fn(),
   completePhase5Action: vi.fn(),
   bulkViewGuideSectionsAction: vi.fn().mockResolvedValue({}),
+  regenerateGuideAction: mockRegenerateGuideAction,
 }));
 
 const mockSpendPAForAIAction = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true, data: { remainingBalance: 100 } }));
@@ -463,6 +466,264 @@ describe("DestinationGuideV2", () => {
     expect(disclaimer.className).not.toContain("blue-");
     const innerP = disclaimer.querySelector("p");
     expect(innerP?.className).not.toContain("blue-");
+  });
+
+  // ─── Personalization section (SPEC-GUIA-PERSONALIZACAO) ────────────────
+
+  const guideWithRegen = {
+    content: mockGuideV2,
+    generationCount: 1,
+    viewedSections: [] as string[],
+    regenCount: 0,
+    extraCategories: [] as string[],
+    personalNotes: null as string | null,
+  };
+
+  it("renders personalization section when v2 guide exists (AC-002)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    expect(screen.getByTestId("guide-personalization")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.personalizeTitle")).toBeInTheDocument();
+  });
+
+  it("does NOT render personalization section when no guide (AC-001)", () => {
+    render(<DestinationGuideV2 {...defaultProps} initialGuide={null} />);
+    expect(screen.queryByTestId("guide-personalization")).not.toBeInTheDocument();
+  });
+
+  it("renders all 9 category chips (AC-002)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    expect(screen.getByText("expedition.phase5.category_festivals_events")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_nightlife_clubs")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_beaches")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_shows_entertainment")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_recommended_restaurants")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_shopping_markets")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_museums_galleries")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_parks_nature")).toBeInTheDocument();
+    expect(screen.getByText("expedition.phase5.category_local_experiences")).toBeInTheDocument();
+  });
+
+  it("toggles category chip selection on click (AC-003, AC-004)", async () => {
+    const user = userEvent.setup();
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const beachesChip = screen.getByRole("switch", { name: "expedition.phase5.category_beaches" });
+    expect(beachesChip).toHaveAttribute("aria-pressed", "false");
+
+    await user.click(beachesChip);
+    expect(beachesChip).toHaveAttribute("aria-pressed", "true");
+
+    await user.click(beachesChip);
+    expect(beachesChip).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("disables regen button when no categories and no notes (AC-005)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenerateGuideCta/ });
+    expect(btn).toBeDisabled();
+  });
+
+  it("enables regen button when a category is selected (AC-006)", async () => {
+    const user = userEvent.setup();
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const beachesChip = screen.getByRole("switch", { name: "expedition.phase5.category_beaches" });
+    await user.click(beachesChip);
+
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenerateGuideCta/ });
+    expect(btn).not.toBeDisabled();
+  });
+
+  it("enables regen button when personal notes are typed (AC-006)", async () => {
+    const user = userEvent.setup();
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const textarea = screen.getByPlaceholderText("expedition.phase5.personalNotesPlaceholder");
+    await user.type(textarea, "Jazz festivals");
+
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenerateGuideCta/ });
+    expect(btn).not.toBeDisabled();
+  });
+
+  it("shows character counter for personal notes (AC-012)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    expect(screen.getByText("0/500")).toBeInTheDocument();
+  });
+
+  it("shows regen counter (AC-010)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    expect(screen.getByText("expedition.phase5.regenCounter")).toBeInTheDocument();
+  });
+
+  it("disables regen button when regenCount reaches max (AC-010)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{ ...guideWithRegen, regenCount: 5 }}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenLimitReached/ });
+    expect(btn).toBeDisabled();
+  });
+
+  it("disables regen button when PA insufficient (AC-011)", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        availablePoints={10}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.insufficientPALabel/ });
+    expect(btn).toBeDisabled();
+  });
+
+  it("calls regenerateGuideAction on regen click and shows success (AC-008)", async () => {
+    const user = userEvent.setup();
+    mockRegenerateGuideAction.mockResolvedValue({
+      success: true,
+      data: { content: mockGuideV2, regenCount: 1 },
+    });
+
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+
+    // Select a category to enable the button
+    const beachesChip = screen.getByRole("switch", { name: "expedition.phase5.category_beaches" });
+    await user.click(beachesChip);
+
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenerateGuideCta/ });
+    await user.click(btn);
+
+    // After regen completes, success message should appear
+    expect(mockRegenerateGuideAction).toHaveBeenCalledWith(
+      "trip-1",
+      "en",
+      ["beaches"],
+      "",
+    );
+  });
+
+  it("shows error message on regen failure (AC-009)", async () => {
+    const user = userEvent.setup();
+    mockRegenerateGuideAction.mockResolvedValue({
+      success: false,
+      error: "errors.generic",
+    });
+
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+
+    const beachesChip = screen.getByRole("switch", { name: "expedition.phase5.category_beaches" });
+    await user.click(beachesChip);
+
+    const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenerateGuideCta/ });
+    await user.click(btn);
+
+    // Error message appears
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("expedition.phase5.regenError");
+  });
+
+  it("pre-selects categories from initialGuide", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{
+          ...guideWithRegen,
+          extraCategories: ["beaches", "nightlife_clubs"],
+        }}
+      />,
+    );
+    const beachesChip = screen.getByRole("switch", { name: "expedition.phase5.category_beaches" });
+    const nightlifeChip = screen.getByRole("switch", { name: "expedition.phase5.category_nightlife_clubs" });
+    expect(beachesChip).toHaveAttribute("aria-pressed", "true");
+    expect(nightlifeChip).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("pre-fills personal notes from initialGuide", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={{
+          ...guideWithRegen,
+          personalNotes: "I love jazz",
+        }}
+      />,
+    );
+    const textarea = screen.getByPlaceholderText("expedition.phase5.personalNotesPlaceholder");
+    expect(textarea).toHaveValue("I love jazz");
+  });
+
+  it("category chips have aria-pressed attribute for accessibility", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const chips = screen.getAllByRole("switch");
+    chips.forEach((chip) => {
+      expect(chip).toHaveAttribute("aria-pressed");
+    });
+  });
+
+  it("category chips have minimum 44px touch target", () => {
+    render(
+      <DestinationGuideV2
+        {...defaultProps}
+        initialGuide={guideWithRegen}
+      />,
+    );
+    const chips = screen.getAllByRole("switch");
+    chips.forEach((chip) => {
+      expect(chip.className).toContain("min-h-[44px]");
+    });
   });
 
   // ─── Legacy v1 fallback ───────────────────────────────────────────────

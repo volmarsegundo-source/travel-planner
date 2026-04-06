@@ -75,6 +75,21 @@ export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
       lines.push("</traveler_context>");
     }
 
+    if (params.extraCategories && params.extraCategories.length > 0) {
+      lines.push("");
+      lines.push("<extra_categories>");
+      lines.push(`  The traveler has special interest in: ${params.extraCategories.join(", ")}`);
+      lines.push("  Prioritize detailed information about these categories in the guide.");
+      lines.push("</extra_categories>");
+    }
+
+    if (params.personalNotes) {
+      lines.push("");
+      lines.push("<personal_notes>");
+      lines.push(`  ${params.personalNotes}`);
+      lines.push("</personal_notes>");
+    }
+
     return lines.join("\n");
   },
 };

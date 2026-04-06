@@ -871,6 +871,191 @@ export async function generateDestinationGuideAction(
   }
 }
 
+// ─── regenerateGuideAction (SPEC-GUIA-PERSONALIZACAO) ──────────────────────
+
+const MAX_GUIDE_REGENS = 5;
+const REGEN_PA_COST = 50;
+
+export async function regenerateGuideAction(
+  tripId: string,
+  locale: string,
+  extraCategories: string[],
+  personalNotes: string,
+): Promise<ActionResult<{ content: DestinationGuideContent; regenCount: number }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  try {
+    // BOLA: verify trip belongs to user
+    const trip = await db.trip.findFirst({
+      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      select: {
+        id: true,
+        destination: true,
+        startDate: true,
+        endDate: true,
+        tripType: true,
+        passengers: true,
+        localMobility: true,
+        phases: {
+          where: { phaseNumber: { in: [2] } },
+          select: { metadata: true, phaseNumber: true },
+        },
+        transportSegments: {
+          select: { transportType: true },
+          distinct: ["transportType"],
+        },
+      },
+    });
+
+    if (!trip) {
+      return { success: false, error: "errors.notFound" };
+    }
+
+    // Check existing guide and regen limit (BR-003)
+    const guide = await db.destinationGuide.findUnique({ where: { tripId } });
+    if (!guide) {
+      return { success: false, error: "errors.notFound" };
+    }
+    if (guide.regenCount >= MAX_GUIDE_REGENS) {
+      return { success: false, error: "expedition.phase5.regenLimitReached" };
+    }
+
+    // Server-side PA balance check (AC-014)
+    const progress = await db.userProgress.findUnique({
+      where: { userId: session.user.id },
+      select: { availablePoints: true },
+    });
+    if (!progress || progress.availablePoints < REGEN_PA_COST) {
+      return { success: false, error: "expedition.phase5.insufficientPA" };
+    }
+
+    // Sanitize destination
+    let sanitizedDestination: string;
+    try {
+      const sanitized = sanitizeForPrompt(trip.destination, "destination", 200);
+      const { masked } = maskPII(sanitized, "destination");
+      sanitizedDestination = masked;
+    } catch (error) {
+      if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+        return { success: false, error: "errors.invalidInput" };
+      }
+      throw error;
+    }
+
+    // Sanitize personal notes (prompt injection guard)
+    let sanitizedNotes = "";
+    if (personalNotes && personalNotes.trim().length > 0) {
+      try {
+        sanitizedNotes = sanitizeForPrompt(personalNotes.slice(0, 500), "personalNotes", 500);
+      } catch (error) {
+        if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+          return { success: false, error: "errors.invalidInput" };
+        }
+        throw error;
+      }
+    }
+
+    // Build traveler context (same logic as generateDestinationGuideAction)
+    const phase2Meta = trip.phases?.find((p) => p.phaseNumber === 2)?.metadata as Record<string, unknown> | null;
+    const passengers = trip.passengers as Record<string, unknown> | null;
+    const totalTravelers = passengers
+      ? ((passengers.adults as number) ?? 1) +
+        ((passengers.children as { count: number })?.count ?? 0) +
+        ((passengers.seniors as number) ?? 0) +
+        ((passengers.infants as number) ?? 0)
+      : undefined;
+
+    let dietaryRestrictions: string | undefined;
+    let interests: string[] | undefined;
+    let fitnessLevel: string | undefined;
+    try {
+      const profile = await db.userProfile.findUnique({
+        where: { userId: session.user.id },
+        select: { dietaryRestrictions: true, preferences: true },
+      });
+      if (profile?.dietaryRestrictions) {
+        dietaryRestrictions = profile.dietaryRestrictions;
+      }
+      const prefs = profile?.preferences as Record<string, unknown> | null;
+      if (prefs) {
+        if (Array.isArray(prefs.interests) && prefs.interests.length > 0) {
+          interests = prefs.interests as string[];
+        }
+        if (typeof prefs.fitnessLevel === "string") {
+          fitnessLevel = prefs.fitnessLevel;
+        }
+      }
+    } catch {
+      // Non-critical — continue without profile data
+    }
+
+    const travelerContext: import("@/lib/prompts/types").GuideTravelerContext = {
+      startDate: trip.startDate?.toISOString().split("T")[0],
+      endDate: trip.endDate?.toISOString().split("T")[0],
+      travelers: totalTravelers,
+      travelerType: phase2Meta?.travelerType as string | undefined,
+      accommodationStyle: phase2Meta?.accommodationStyle as string | undefined,
+      travelPace: phase2Meta?.travelPace as number | undefined,
+      budget: phase2Meta?.budget as number | undefined,
+      budgetCurrency: phase2Meta?.currency as string | undefined,
+      dietaryRestrictions,
+      interests,
+      fitnessLevel,
+      transportTypes: trip.transportSegments?.map((s) => s.transportType),
+      tripType: trip.tripType,
+    };
+
+    // Generate guide via AI with extra categories + personal notes
+    const { data: content } = await AiGatewayService.generateGuide({
+      userId: session.user.id,
+      destination: sanitizedDestination,
+      language: locale.startsWith("pt") ? "pt-BR" : "en",
+      travelerContext,
+      extraCategories,
+      personalNotes: sanitizedNotes,
+    });
+
+    // Update guide + increment regenCount (BR-003, BR-004)
+    const updatedGuide = await db.destinationGuide.update({
+      where: { tripId },
+      data: {
+        content: JSON.parse(JSON.stringify(content)),
+        extraCategories,
+        personalNotes: sanitizedNotes || null,
+        regenCount: { increment: 1 },
+        generationCount: { increment: 1 },
+        generatedAt: new Date(),
+      },
+    });
+
+    // Debit PA AFTER success (BR-002)
+    await PointsEngine.earnPoints(
+      session.user.id,
+      -REGEN_PA_COST,
+      "ai_usage",
+      "Guide re-generation (personalization)",
+      tripId
+    );
+
+    revalidatePath(`/expedition/${tripId}`);
+
+    return {
+      success: true,
+      data: {
+        content,
+        regenCount: updatedGuide.regenCount,
+      },
+    };
+  } catch (error) {
+    logger.error("expedition.regenerateGuide.error", error, {
+      userId: hashUserId(session.user.id),
+      tripId,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
 // ─── getDestinationGuideAction ──────────────────────────────────────────────
 
 export async function getDestinationGuideAction(

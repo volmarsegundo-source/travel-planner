@@ -609,6 +609,8 @@ export class AiService {
       destination,
       language,
       travelerContext: params.travelerContext,
+      extraCategories: params.extraCategories,
+      personalNotes: params.personalNotes,
     });
 
     const provider = getProvider();

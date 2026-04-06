@@ -30,6 +30,9 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
         content: guide.content as unknown as DestinationGuideContent,
         generationCount: guide.generationCount,
         viewedSections: (guide.viewedSections as string[]) ?? [],
+        regenCount: guide.regenCount,
+        extraCategories: guide.extraCategories,
+        personalNotes: guide.personalNotes,
       }
     : null;
 

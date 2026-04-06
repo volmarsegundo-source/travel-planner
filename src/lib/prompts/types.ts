@@ -97,4 +97,8 @@ export interface GuideParams {
   language: "pt-BR" | "en";
   /** Optional traveler context for personalized guide */
   travelerContext?: GuideTravelerContext;
+  /** Extra interest categories selected for this trip (SPEC-GUIA-PERSONALIZACAO) */
+  extraCategories?: string[];
+  /** Free-text personal notes for guide personalization (SPEC-GUIA-PERSONALIZACAO) */
+  personalNotes?: string;
 }

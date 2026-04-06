@@ -244,4 +244,8 @@ export interface GenerateGuideParams {
   language: "pt-BR" | "en";
   /** Optional traveler context from Phases 1-4 for personalized guide */
   travelerContext?: import("@/lib/prompts/types").GuideTravelerContext;
+  /** Extra interest categories selected by the user for guide personalization (SPEC-GUIA-PERSONALIZACAO) */
+  extraCategories?: string[];
+  /** Free-text personal notes from the user for guide personalization (SPEC-GUIA-PERSONALIZACAO) */
+  personalNotes?: string;
 }
