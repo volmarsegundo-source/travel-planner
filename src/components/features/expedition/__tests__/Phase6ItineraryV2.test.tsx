@@ -50,6 +50,8 @@ vi.mock("@/server/actions/itinerary.actions", () => ({
   addActivityAction: vi.fn().mockResolvedValue({ success: true, data: { id: "new-act" } }),
   updateActivityAction: vi.fn().mockResolvedValue({ success: true }),
   deleteActivityAction: vi.fn().mockResolvedValue({ success: true }),
+  regenerateItineraryAction: vi.fn().mockResolvedValue({ success: true, data: { manualActivities: [] } }),
+  getItineraryDaysAction: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/server/actions/gamification.actions", () => ({
@@ -99,6 +101,7 @@ function makeActivity(overrides: Partial<{
   endTime: string | null;
   orderIndex: number;
   activityType: string | null;
+  isManual: boolean;
   createdAt: Date;
   updatedAt: Date;
 }> = {}) {
@@ -111,6 +114,7 @@ function makeActivity(overrides: Partial<{
     endTime: overrides.endTime ?? "12:00",
     orderIndex: overrides.orderIndex ?? 0,
     activityType: overrides.activityType ?? "culture",
+    isManual: overrides.isManual ?? false,
     createdAt: new Date(),
     updatedAt: new Date(),
   };
@@ -609,6 +613,165 @@ describe("Phase6ItineraryV2", () => {
       );
       const btn = screen.getByTestId("regenerate-btn");
       expect(btn).toHaveTextContent("80 PA");
+    });
+  });
+
+  // ─── Origin Badges (SPEC-ROTEIRO-REGEN-INTELIGENTE AC-002) ──────────────
+
+  describe("Origin badges", () => {
+    it("renders AI badge on AI-generated activities", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const badges = screen.getAllByTestId("origin-badge");
+      // All activities in twoDays have isManual=false (default)
+      expect(badges.length).toBeGreaterThan(0);
+      badges.forEach((badge) => {
+        expect(badge).toHaveTextContent("expedition.phase6.badgeAI");
+      });
+    });
+
+    it("renders Manual badge on manually added activities", () => {
+      const daysWithManual = [
+        makeDay({
+          activities: [
+            makeActivity({
+              id: "act-manual",
+              title: "Family Dinner",
+              isManual: true,
+            }),
+          ],
+        }),
+      ];
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={daysWithManual as never}
+        />,
+      );
+      const badges = screen.getAllByTestId("origin-badge");
+      expect(badges[0]).toHaveTextContent("expedition.phase6.badgeManual");
+    });
+
+    it("shows mixed badges when both AI and manual activities exist", () => {
+      const mixedDays = [
+        makeDay({
+          activities: [
+            makeActivity({ id: "act-ai", title: "AI Tour", isManual: false }),
+            makeActivity({ id: "act-man", title: "My Dinner", isManual: true }),
+          ],
+        }),
+      ];
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={mixedDays as never}
+        />,
+      );
+      const badges = screen.getAllByTestId("origin-badge");
+      expect(badges).toHaveLength(2);
+      expect(badges[0]).toHaveTextContent("expedition.phase6.badgeAI");
+      expect(badges[1]).toHaveTextContent("expedition.phase6.badgeManual");
+    });
+  });
+
+  // ─── Smart Regen Dialog (SPEC-ROTEIRO-REGEN-INTELIGENTE AC-003/004) ─────
+
+  describe("Smart regeneration dialog", () => {
+    const mixedDays = [
+      makeDay({
+        activities: [
+          makeActivity({ id: "act-ai", title: "AI Tour", isManual: false }),
+          makeActivity({ id: "act-man", title: "My Dinner", isManual: true }),
+        ],
+      }),
+    ];
+
+    it("AC-003: does NOT show regen dialog when no manual activities exist", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("regenerate-btn"));
+      // Should show the old confirm card, not the smart dialog
+      expect(screen.queryByTestId("regen-dialog")).not.toBeInTheDocument();
+    });
+
+    it("AC-004: shows regen dialog when manual activities exist", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={mixedDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("regenerate-btn"));
+      expect(screen.getByTestId("regen-dialog")).toBeInTheDocument();
+      expect(screen.getByText("expedition.phase6.regenDialogTitle")).toBeInTheDocument();
+    });
+
+    it("AC-004: shows manual activity count in dialog message", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={mixedDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("regenerate-btn"));
+      // count=1 (one manual activity)
+      expect(screen.getByText("expedition.phase6.regenDialogMessage")).toBeInTheDocument();
+    });
+
+    it("AC-004: dialog has Keep and Regenerate All buttons", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={mixedDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("regenerate-btn"));
+      expect(screen.getByTestId("regen-keep-manual-btn")).toBeInTheDocument();
+      expect(screen.getByTestId("regen-all-btn")).toBeInTheDocument();
+      expect(screen.getByTestId("regen-cancel-btn")).toBeInTheDocument();
+    });
+
+    it("AC-009: closing dialog does not trigger regeneration", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={mixedDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("regenerate-btn"));
+      expect(screen.getByTestId("regen-dialog")).toBeInTheDocument();
+
+      // Close via close button
+      await user.click(screen.getByTestId("regen-dialog-close"));
+      expect(screen.queryByTestId("regen-dialog")).not.toBeInTheDocument();
+    });
+
+    it("dialog has correct ARIA attributes", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={mixedDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("regenerate-btn"));
+      const dialog = screen.getByTestId("regen-dialog");
+      expect(dialog).toHaveAttribute("role", "dialog");
+      expect(dialog).toHaveAttribute("aria-modal", "true");
+      expect(dialog).toHaveAttribute("aria-labelledby", "regen-dialog-title");
     });
   });
 });

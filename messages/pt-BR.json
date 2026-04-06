@@ -1074,7 +1074,15 @@
       "style_adventure": "Aventura",
       "style_relaxation": "Relaxamento",
       "style_gastronomy": "Gastronomia",
-      "style_sports": "Esportes"
+      "style_sports": "Esportes",
+      "badgeManual": "Manual",
+      "badgeAI": "IA",
+      "regenDialogTitle": "Voce tem atividades adicionadas manualmente",
+      "regenDialogMessage": "Encontramos {count, plural, one {# atividade} other {# atividades}} que voce adicionou ao roteiro. O que voce prefere fazer?",
+      "regenKeepManual": "Manter minhas atividades",
+      "regenKeepManualDesc": "O AI vai gerar novos horarios e sugestoes ao redor das suas atividades.",
+      "regenAll": "Regenerar tudo",
+      "regenAllDesc": "O AI vai gerar um roteiro completamente novo. Suas atividades manuais serao removidas."
     },
     "hub": {
       "title": "Expedição",

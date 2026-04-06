@@ -190,6 +190,9 @@ model Activity {
   orderIndex   Int     @default(0)
   activityType String? @db.VarChar(50)
 
+  // Origin tracking (SPEC-ROTEIRO-REGEN-INTELIGENTE)
+  isManual Boolean @default(false)
+
   // GPS coordinates (optional — populated by AI)
   latitude  Float?
   longitude Float?

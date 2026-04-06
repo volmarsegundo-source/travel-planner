@@ -24,6 +24,7 @@ import {
   addActivityAction,
   updateActivityAction,
   deleteActivityAction,
+  regenerateItineraryAction,
 } from "@/server/actions/itinerary.actions";
 import { getItineraryDaysAction } from "@/server/actions/itinerary.actions";
 import type { ItineraryDayWithActivities, ActivityData } from "@/server/actions/itinerary.actions";
@@ -251,6 +252,8 @@ interface V2Activity {
   category: string;
   coordinates?: { lat: number; lng: number } | null;
   tip?: string | null;
+  /** True if the activity was manually added by the user (SPEC-ROTEIRO-REGEN-INTELIGENTE). */
+  isManual?: boolean;
 }
 
 /** V2 day shape from the AI-generated JSON. */
@@ -331,6 +334,7 @@ function convertToV2Days(
           ? { lat: act.latitude, lng: act.longitude }
           : null,
       tip: null,
+      isManual: act.isManual ?? false,
     }));
 
     return {
@@ -733,11 +737,24 @@ function ActivityCard({
       data-testid="activity-card"
       data-category={category}
     >
-      {/* Row 1: Time + Category chip + action buttons */}
+      {/* Row 1: Time + Origin badge + Category chip + action buttons */}
       <div className="flex justify-between items-start mb-2">
-        <span className={`text-sm font-bold font-atlas-body ${style.timeColor}`}>
-          {activity.time}
-        </span>
+        <div className="flex items-center gap-2">
+          <span className={`text-sm font-bold font-atlas-body ${style.timeColor}`}>
+            {activity.time}
+          </span>
+          {/* Origin badge — SPEC-ROTEIRO-REGEN-INTELIGENTE AC-002 */}
+          <span
+            className={
+              activity.isManual
+                ? "text-[10px] px-2 py-0.5 rounded-full font-bold font-atlas-body bg-atlas-primary-container text-atlas-on-primary-container"
+                : "text-[10px] px-2 py-0.5 rounded-full font-bold font-atlas-body bg-atlas-on-tertiary-container text-white"
+            }
+            data-testid="origin-badge"
+          >
+            {activity.isManual ? t("badgeManual") : t("badgeAI")}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <span
             className={`${style.chipBg} ${style.chipText} px-3 py-1 rounded-full text-xs font-bold font-atlas-body`}
@@ -1192,6 +1209,10 @@ export function Phase6ItineraryV2({
   const [showPAConfirm, setShowPAConfirm] = useState(false);
   const [paBalance, setPABalance] = useState(availablePoints);
   const [isSpending, setIsSpending] = useState(false);
+  // Smart regen dialog (SPEC-ROTEIRO-REGEN-INTELIGENTE)
+  const [showRegenDialog, setShowRegenDialog] = useState(false);
+  const [keepManual, setKeepManual] = useState(false);
+  const regenTriggerRef = useRef<HTMLButtonElement>(null);
 
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasTriggeredRef = useRef(false);
@@ -1208,6 +1229,13 @@ export function Phase6ItineraryV2({
   const totalDays = calculateTotalDays(effectiveStartDate, effectiveEndDate);
   const language = locale === "pt-BR" ? ("pt-BR" as const) : ("en" as const);
   const hasItinerary = days.length > 0;
+
+  // Manual activity detection (SPEC-ROTEIRO-REGEN-INTELIGENTE AC-003/004)
+  const manualActivityCount = useMemo(
+    () => days.reduce((count, d) => count + d.activities.filter((a) => a.isManual).length, 0),
+    [days],
+  );
+  const hasManualActivities = manualActivityCount > 0;
 
   // Convert DB days to V2 format
   const v2Days = useMemo(
@@ -1367,13 +1395,42 @@ export function Phase6ItineraryV2({
   function handleCancel() { abortControllerRef.current?.abort(); }
 
   function handleRegenerateClick() {
-    if (hasItinerary) setShowRegenerateConfirm(true);
-    else handleRequestGenerate();
+    if (!hasItinerary) {
+      handleRequestGenerate();
+      return;
+    }
+    // SPEC-ROTEIRO-REGEN-INTELIGENTE AC-003/004
+    if (hasManualActivities) {
+      setShowRegenDialog(true);
+    } else {
+      setShowRegenerateConfirm(true);
+    }
   }
 
   function handleRegenerateConfirm() {
     setShowRegenerateConfirm(false);
+    setKeepManual(false);
     handleRequestGenerate();
+  }
+
+  /** Smart regen: user chose "Keep my activities" */
+  function handleRegenKeepManual() {
+    setShowRegenDialog(false);
+    setKeepManual(true);
+    handleRequestGenerate();
+  }
+
+  /** Smart regen: user chose "Regenerate all" */
+  function handleRegenAll() {
+    setShowRegenDialog(false);
+    setKeepManual(false);
+    handleRequestGenerate();
+  }
+
+  /** Close regen dialog without action, return focus */
+  function handleRegenDialogClose() {
+    setShowRegenDialog(false);
+    regenTriggerRef.current?.focus();
   }
 
   /** Refresh page data after an activity add/edit/delete */
@@ -1541,6 +1598,7 @@ export function Phase6ItineraryV2({
               </div>
               <div className="flex gap-4 flex-wrap">
                 <AtlasButton
+                  ref={regenTriggerRef}
                   variant="secondary"
                   onClick={handleRegenerateClick}
                   disabled={isGenerating}
@@ -1617,7 +1675,7 @@ export function Phase6ItineraryV2({
             <p role="alert" className="mt-4 text-sm font-atlas-body text-atlas-error">{error}</p>
           )}
 
-          {/* Regenerate confirmation */}
+          {/* Regenerate confirmation (no manual activities) */}
           {showRegenerateConfirm && (
             <AtlasCard
               variant="base"
@@ -1632,6 +1690,75 @@ export function Phase6ItineraryV2({
                 <AtlasButton size="sm" variant="secondary" onClick={() => setShowRegenerateConfirm(false)}>{t("regenerateConfirmNo")}</AtlasButton>
               </div>
             </AtlasCard>
+          )}
+
+          {/* Smart regeneration dialog — SPEC-ROTEIRO-REGEN-INTELIGENTE AC-004 */}
+          {showRegenDialog && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="regen-dialog-title"
+              data-testid="regen-dialog"
+              onClick={(e) => { if (e.target === e.currentTarget) handleRegenDialogClose(); }}
+              onKeyDown={(e) => { if (e.key === "Escape") handleRegenDialogClose(); }}
+            >
+              <div className="bg-atlas-surface rounded-xl p-6 max-w-md mx-4 space-y-4 shadow-xl relative">
+                {/* Close button */}
+                <button
+                  type="button"
+                  onClick={handleRegenDialogClose}
+                  className="absolute top-4 right-4 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-atlas-on-surface-variant hover:bg-atlas-surface-container-high transition-colors motion-reduce:transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+                  aria-label={tExpedition("cta.viewExpeditions")}
+                  data-testid="regen-dialog-close"
+                >
+                  <XIcon />
+                </button>
+
+                <h3
+                  id="regen-dialog-title"
+                  className="font-bold font-atlas-headline text-lg text-atlas-on-surface pr-10"
+                >
+                  {t("regenDialogTitle")}
+                </h3>
+
+                <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
+                  {t("regenDialogMessage", { count: manualActivityCount })}
+                </p>
+
+                <div className="flex flex-col gap-2 pt-2">
+                  <AtlasButton
+                    onClick={handleRegenKeepManual}
+                    data-testid="regen-keep-manual-btn"
+                    aria-describedby="regen-keep-desc"
+                  >
+                    {t("regenKeepManual")}
+                  </AtlasButton>
+                  <p id="regen-keep-desc" className="text-xs text-atlas-on-surface-variant font-atlas-body -mt-1 mb-1">
+                    {t("regenKeepManualDesc")}
+                  </p>
+
+                  <AtlasButton
+                    variant="secondary"
+                    onClick={handleRegenAll}
+                    data-testid="regen-all-btn"
+                  >
+                    {t("regenAll")}
+                  </AtlasButton>
+                  <p className="text-xs text-atlas-on-surface-variant font-atlas-body -mt-1 mb-1">
+                    {t("regenAllDesc")}
+                  </p>
+
+                  <AtlasButton
+                    variant="ghost"
+                    onClick={handleRegenDialogClose}
+                    data-testid="regen-cancel-btn"
+                  >
+                    {t("regenerateConfirmNo")}
+                  </AtlasButton>
+                </div>
+              </div>
+            </div>
           )}
         </section>
 

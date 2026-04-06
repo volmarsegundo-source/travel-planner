@@ -1074,7 +1074,15 @@
       "style_adventure": "Adventure",
       "style_relaxation": "Relaxation",
       "style_gastronomy": "Gastronomy",
-      "style_sports": "Sports"
+      "style_sports": "Sports",
+      "badgeManual": "Manual",
+      "badgeAI": "AI",
+      "regenDialogTitle": "You have manually added activities",
+      "regenDialogMessage": "We found {count, plural, one {# activity} other {# activities}} that you added to the itinerary. What would you prefer to do?",
+      "regenKeepManual": "Keep my activities",
+      "regenKeepManualDesc": "AI will generate new suggestions around your activities.",
+      "regenAll": "Regenerate all",
+      "regenAllDesc": "AI will generate a completely new itinerary. Your manual activities will be removed."
     },
     "hub": {
       "title": "Expedition",

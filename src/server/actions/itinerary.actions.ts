@@ -30,6 +30,7 @@ export interface Activity {
   endTime: string | null;
   orderIndex: number;
   activityType: string | null;
+  isManual: boolean;
   latitude: number | null;
   longitude: number | null;
   createdAt: Date;
@@ -137,6 +138,7 @@ export async function addActivityAction(
         endTime: data.endTime ?? null,
         activityType: data.activityType ?? null,
         orderIndex: nextIndex,
+        isManual: true,
       },
     });
 
@@ -298,6 +300,74 @@ export async function addItineraryDayAction(
     return { success: true, data: day };
   } catch (error) {
     logger.error("itinerary.addItineraryDayAction.error", error, {
+      userId: session.user.id,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── regenerateItineraryAction ───────────────────────────────────────────────
+
+/**
+ * Prepares itinerary for regeneration. When keepManual is true,
+ * only AI-generated activities are deleted; manual activities are preserved.
+ * When keepManual is false, all days and activities are deleted (full regen).
+ *
+ * SPEC-ROTEIRO-REGEN-INTELIGENTE: Sections 5.4 and 5.5
+ */
+export async function regenerateItineraryAction(
+  tripId: string,
+  keepManual: boolean,
+): Promise<ActionResult<{ manualActivities: Activity[] }>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  // BOLA check
+  const owned = await verifyTripOwnership(tripId, session.user.id);
+  if (!owned) {
+    return { success: false, error: "trips.errors.notFound" };
+  }
+
+  try {
+    if (keepManual) {
+      // Collect manual activities before deleting AI ones
+      const manualActivities = await db.activity.findMany({
+        where: { day: { tripId }, isManual: true },
+      });
+
+      // Delete only AI-generated activities
+      await db.activity.deleteMany({
+        where: { day: { tripId }, isManual: false },
+      });
+
+      // Map to Activity interface
+      const mapped: Activity[] = manualActivities.map((a) => ({
+        id: a.id,
+        dayId: a.dayId,
+        title: a.title,
+        notes: a.notes,
+        startTime: a.startTime,
+        endTime: a.endTime,
+        orderIndex: a.orderIndex,
+        activityType: a.activityType,
+        isManual: a.isManual,
+        latitude: a.latitude,
+        longitude: a.longitude,
+        createdAt: a.createdAt,
+        updatedAt: a.updatedAt,
+      }));
+
+      revalidatePath(`/expedition/${tripId}/phase-6`);
+      return { success: true, data: { manualActivities: mapped } };
+    } else {
+      // Full regen: delete ALL days and activities
+      await db.itineraryDay.deleteMany({ where: { tripId } });
+
+      revalidatePath(`/expedition/${tripId}/phase-6`);
+      return { success: true, data: { manualActivities: [] } };
+    }
+  } catch (error) {
+    logger.error("itinerary.regenerateItineraryAction.error", error, {
       userId: session.user.id,
     });
     return { success: false, error: mapErrorToKey(error) };
