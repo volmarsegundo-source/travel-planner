@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { getDestinationImageAction } from "@/server/actions/image.actions";
 import type { DestinationImageActionResult } from "@/server/actions/image.actions";
@@ -23,7 +23,8 @@ const DEFAULT_HEIGHT = 400;
 /**
  * Client component that fetches a destination image via server action.
  * Shows a gradient placeholder while loading, then the resolved image
- * with optional photographer attribution (Unsplash requirement).
+ * with a smooth fade-in transition and optional photographer attribution
+ * (Unsplash requirement).
  */
 const DEFAULT_QUALITY = 75;
 
@@ -41,6 +42,7 @@ export function DestinationImage({
   const [imageData, setImageData] = useState<DestinationImageActionResult | null>(
     null
   );
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -53,6 +55,13 @@ export function DestinationImage({
       cancelled = true;
     };
   }, [destination]);
+
+  const handleImageLoad = useCallback(() => {
+    setImageLoaded(true);
+  }, []);
+
+  // Gradient placeholder — shown while fetching URL or while image is loading
+  const placeholderVisible = !imageData || !imageLoaded;
 
   if (!imageData) {
     return (
@@ -70,7 +79,7 @@ export function DestinationImage({
     if (!fill) {
       targetWidth = Math.min(width * 2, 1200); // 2x for retina
     } else if (sizes) {
-      // Parse sizes hint: "280px" → 560 (2x retina)
+      // Parse sizes hint: "280px" -> 560 (2x retina)
       const match = sizes.match(/(\d+)px/);
       if (match) targetWidth = Math.min(parseInt(match[1]!) * 2, 1200);
     }
@@ -79,16 +88,33 @@ export function DestinationImage({
 
   return (
     <>
+      {/* Gradient placeholder — fades out smoothly when image loads */}
+      <div
+        className={[
+          "bg-gradient-to-br from-atlas-secondary-container/70 to-atlas-primary/60",
+          "transition-opacity duration-500 ease-out motion-reduce:transition-none",
+          fill ? "absolute inset-0 z-[1]" : "absolute inset-0",
+          placeholderVisible ? "opacity-100" : "opacity-0 pointer-events-none",
+        ].join(" ")}
+        aria-hidden="true"
+      />
       <Image
         src={optimizedUrl}
         alt={alt ?? destination}
-        className={className}
+        className={[
+          className,
+          "transition-opacity duration-500 ease-out motion-reduce:transition-none",
+          imageLoaded ? "opacity-100" : "opacity-0",
+        ]
+          .filter(Boolean)
+          .join(" ")}
         {...(fill
           ? { fill: true, style: { objectFit: "cover" as const } }
           : { width, height })}
         priority={priority}
         quality={quality}
         {...(sizes ? { sizes } : {})}
+        onLoad={handleImageLoad}
       />
       {imageData.photographer && (
         <a

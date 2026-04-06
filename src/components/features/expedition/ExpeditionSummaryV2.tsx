@@ -576,15 +576,25 @@ export function ExpeditionSummaryV2({
         aria-label={t("actionsLabel")}
         data-testid="actions-bar"
       >
-        <AtlasButton
-          variant="primary"
-          size="lg"
-          className="w-full md:w-auto"
-          onClick={() => router.push("/expeditions")}
-          data-testid="back-to-dashboard"
-        >
-          {t("actionsBack")}
-        </AtlasButton>
+        <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
+          <AtlasButton
+            variant="ghost"
+            size="md"
+            onClick={() => router.push(`/expedition/${tripId}/phase-6`)}
+            data-testid="back-to-last-phase"
+          >
+            {t("actionsBackToPhase")}
+          </AtlasButton>
+          <AtlasButton
+            variant="primary"
+            size="lg"
+            className="w-full md:w-auto"
+            onClick={() => router.push("/expeditions")}
+            data-testid="back-to-dashboard"
+          >
+            {t("actionsBack")}
+          </AtlasButton>
+        </div>
 
         <div className="hidden md:flex items-center gap-2">
           <AtlasButton

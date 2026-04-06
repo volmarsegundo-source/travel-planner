@@ -15,6 +15,7 @@ interface RecentInteraction {
   id: string;
   createdAt: string;
   phase: string;
+  provider: string;
   model: string;
   inputTokens: number;
   outputTokens: number;
@@ -22,6 +23,12 @@ interface RecentInteraction {
   latencyMs: number;
   status: string;
 }
+
+const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
+  claude: "Anthropic",
+  gemini: "Google",
+  openai: "OpenAI",
+};
 
 interface AiGovernanceClientProps {
   overview: AiGovernanceOverview;
@@ -48,13 +55,15 @@ function KpiCard({
   label,
   value,
   unit,
+  tooltip,
 }: {
   label: string;
   value: string | number;
   unit?: string;
+  tooltip?: string;
 }) {
   return (
-    <AtlasCard>
+    <AtlasCard title={tooltip}>
       <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
         {label}
       </p>
@@ -281,29 +290,35 @@ export function AiGovernanceClient({
             <KpiCard
               label={t("totalCalls")}
               value={overview.totalCalls}
+              tooltip={t("tooltipTotalCalls")}
             />
             <KpiCard
               label={t("totalCost")}
               value={`$${overview.totalCostUsd.toFixed(2)}`}
+              tooltip={t("tooltipTotalCost")}
             />
             <KpiCard
               label={t("errorRate")}
               value={overview.errorRate}
               unit="%"
+              tooltip={t("tooltipErrorRate")}
             />
             <KpiCard
               label={t("cacheHitRate")}
               value={overview.cacheHitRate}
               unit="%"
+              tooltip={t("tooltipCacheHitRate")}
             />
             <KpiCard
               label={t("blockedCalls")}
               value={overview.blockedCalls}
+              tooltip={t("tooltipBlockedCalls")}
             />
             <KpiCard
               label={t("avgLatency")}
               value={overview.avgLatencyMs}
               unit="ms"
+              tooltip={t("tooltipAvgLatency")}
             />
           </div>
 
@@ -393,6 +408,9 @@ export function AiGovernanceClient({
                         {t("phase")}
                       </th>
                       <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("provider")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
                         {t("model")}
                       </th>
                       <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
@@ -422,6 +440,9 @@ export function AiGovernanceClient({
                           {t.has(row.phase as Parameters<typeof t>[0])
                             ? t(row.phase as Parameters<typeof t>[0])
                             : row.phase}
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          {PROVIDER_DISPLAY_NAMES[row.provider] ?? row.provider}
                         </td>
                         <td className="py-2 text-atlas-on-surface">
                           <code className="text-xs">{row.model}</code>

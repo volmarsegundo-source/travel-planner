@@ -188,6 +188,7 @@ export class AiGovernanceDashboardService {
       id: string;
       createdAt: Date;
       phase: string;
+      provider: string;
       model: string;
       inputTokens: number;
       outputTokens: number;
@@ -203,6 +204,7 @@ export class AiGovernanceDashboardService {
         id: true,
         createdAt: true,
         phase: true,
+        provider: true,
         model: true,
         inputTokens: true,
         outputTokens: true,

@@ -11,6 +11,11 @@ config({ path: resolve(process.cwd(), ".env.local") });
 
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
+import {
+  PLAN_SYSTEM_PROMPT,
+  CHECKLIST_SYSTEM_PROMPT,
+  GUIDE_SYSTEM_PROMPT,
+} from "../src/lib/prompts/system-prompts";
 
 const db = new PrismaClient();
 
@@ -48,7 +53,7 @@ async function main() {
       slug: "travel-plan",
       version: "1.1.0",
       modelType: "plan",
-      systemPrompt: "See src/lib/prompts/system-prompts.ts",
+      systemPrompt: PLAN_SYSTEM_PROMPT,
       userTemplate: "See src/lib/prompts/travel-plan.prompt.ts",
       maxTokens: 2048,
     },
@@ -56,7 +61,7 @@ async function main() {
       slug: "checklist",
       version: "1.0.0",
       modelType: "checklist",
-      systemPrompt: "See src/lib/prompts/system-prompts.ts",
+      systemPrompt: CHECKLIST_SYSTEM_PROMPT,
       userTemplate: "See src/lib/prompts/checklist.prompt.ts",
       maxTokens: 2048,
     },
@@ -64,7 +69,7 @@ async function main() {
       slug: "destination-guide",
       version: "2.0.0",
       modelType: "guide",
-      systemPrompt: "See src/lib/prompts/system-prompts.ts",
+      systemPrompt: GUIDE_SYSTEM_PROMPT,
       userTemplate: "See src/lib/prompts/destination-guide.prompt.ts",
       maxTokens: 4096,
     },
@@ -74,7 +79,7 @@ async function main() {
     await db.promptTemplate.upsert({
       where: { slug: pt.slug },
       create: pt,
-      update: { version: pt.version, maxTokens: pt.maxTokens },
+      update: { version: pt.version, maxTokens: pt.maxTokens, systemPrompt: pt.systemPrompt },
     });
   }
 
