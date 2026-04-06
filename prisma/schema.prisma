@@ -463,3 +463,61 @@ model Purchase {
   @@index([createdAt])
   @@map("purchases")
 }
+
+// ─── AI Governance ──────────────────────────────────────────────────────────
+
+model PromptTemplate {
+  id            String   @id @default(cuid())
+  slug          String   @unique @db.VarChar(50)
+  version       String   @db.VarChar(20)
+  modelType     String   @db.VarChar(20)
+  systemPrompt  String   @db.Text
+  userTemplate  String   @db.Text
+  maxTokens     Int      @default(2048)
+  cacheControl  Boolean  @default(true)
+  isActive      Boolean  @default(true)
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([slug, isActive])
+  @@map("prompt_templates")
+}
+
+model AiInteractionLog {
+  id               String   @id @default(cuid())
+  userId           String
+  phase            String   @db.VarChar(20)
+  provider         String   @db.VarChar(20)
+  model            String   @db.VarChar(50)
+  promptSlug       String?  @db.VarChar(50)
+  inputTokens      Int      @default(0)
+  outputTokens     Int      @default(0)
+  cacheReadTokens  Int      @default(0)
+  cacheWriteTokens Int      @default(0)
+  estimatedCostUsd Float    @default(0)
+  latencyMs        Int      @default(0)
+  status           String   @db.VarChar(20)
+  errorCode        String?  @db.VarChar(50)
+  cacheHit         Boolean  @default(false)
+  metadata         Json?
+  createdAt        DateTime @default(now())
+
+  @@index([phase, createdAt])
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@index([createdAt])
+  @@map("ai_interaction_logs")
+}
+
+model AiKillSwitch {
+  id        String   @id @default(cuid())
+  phase     String   @unique @db.VarChar(20)
+  isEnabled Boolean  @default(false)
+  reason    String?  @db.VarChar(500)
+  updatedBy String?  @db.VarChar(100)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@map("ai_kill_switches")
+}

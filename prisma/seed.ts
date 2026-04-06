@@ -38,6 +38,56 @@ async function main() {
 
   console.log(`✓ Test user ready: ${user.email} (id: ${user.id})`);
   console.log(`  password: ${password}`);
+
+  // ─── Seed AI Governance ─────────────────────────────────────────────────────
+  console.log("Seeding AI governance...");
+
+  // Prompt templates (from inline constants)
+  const promptTemplates = [
+    {
+      slug: "travel-plan",
+      version: "1.1.0",
+      modelType: "plan",
+      systemPrompt: "See src/lib/prompts/system-prompts.ts",
+      userTemplate: "See src/lib/prompts/travel-plan.prompt.ts",
+      maxTokens: 2048,
+    },
+    {
+      slug: "checklist",
+      version: "1.0.0",
+      modelType: "checklist",
+      systemPrompt: "See src/lib/prompts/system-prompts.ts",
+      userTemplate: "See src/lib/prompts/checklist.prompt.ts",
+      maxTokens: 2048,
+    },
+    {
+      slug: "destination-guide",
+      version: "2.0.0",
+      modelType: "guide",
+      systemPrompt: "See src/lib/prompts/system-prompts.ts",
+      userTemplate: "See src/lib/prompts/destination-guide.prompt.ts",
+      maxTokens: 4096,
+    },
+  ];
+
+  for (const pt of promptTemplates) {
+    await db.promptTemplate.upsert({
+      where: { slug: pt.slug },
+      create: pt,
+      update: { version: pt.version, maxTokens: pt.maxTokens },
+    });
+  }
+
+  // Kill switches (all disabled by default)
+  for (const phase of ["global", "plan", "checklist", "guide"]) {
+    await db.aiKillSwitch.upsert({
+      where: { phase },
+      create: { phase, isEnabled: false },
+      update: {},
+    });
+  }
+
+  console.log("AI governance seeded.");
 }
 
 main()
