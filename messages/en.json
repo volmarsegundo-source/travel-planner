@@ -1550,6 +1550,8 @@
     }
   },
   "admin": {
+    "navDashboard": "Dashboard",
+    "navAiGovernance": "AI Governance",
     "dashboard": {
       "title": "Admin Dashboard",
       "subtitle": "Revenue, users, and platform metrics",
@@ -1623,6 +1625,35 @@
         "prevPage": "Go to previous page",
         "nextPage": "Go to next page"
       }
+    },
+    "aiGovernance": {
+      "title": "AI Governance",
+      "overview": "Overview",
+      "perPhase": "Per Phase",
+      "totalCalls": "Total Calls",
+      "totalCost": "Total Cost",
+      "errorRate": "Error Rate",
+      "cacheHitRate": "Cache Hit Rate",
+      "blockedCalls": "Blocked Calls",
+      "avgLatency": "Avg Latency",
+      "callsByPhase": "Calls by Phase",
+      "phase": "Phase",
+      "calls": "Calls",
+      "cost": "Cost",
+      "killSwitch": "Kill Switch",
+      "enabled": "Enabled",
+      "disabled": "Disabled",
+      "toggle": "Toggle",
+      "reason": "Reason",
+      "topErrors": "Top Errors",
+      "errorCode": "Error Code",
+      "count": "Count",
+      "noData": "No data for the selected period.",
+      "plan": "Itinerary",
+      "checklist": "Checklist",
+      "guide": "Destination Guide",
+      "global": "Global",
+      "period": "Last 30 days"
     }
   },
   "atlas": {

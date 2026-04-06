@@ -1550,6 +1550,8 @@
     }
   },
   "admin": {
+    "navDashboard": "Painel",
+    "navAiGovernance": "Governanca de IA",
     "dashboard": {
       "title": "Painel Administrativo",
       "subtitle": "Receita, usuários e métricas da plataforma",
@@ -1623,6 +1625,35 @@
         "prevPage": "Ir para página anterior",
         "nextPage": "Ir para próxima página"
       }
+    },
+    "aiGovernance": {
+      "title": "Governanca de IA",
+      "overview": "Visao Geral",
+      "perPhase": "Por Fase",
+      "totalCalls": "Total de Chamadas",
+      "totalCost": "Custo Total",
+      "errorRate": "Taxa de Erro",
+      "cacheHitRate": "Taxa de Cache Hit",
+      "blockedCalls": "Chamadas Bloqueadas",
+      "avgLatency": "Latencia Media",
+      "callsByPhase": "Chamadas por Fase",
+      "phase": "Fase",
+      "calls": "Chamadas",
+      "cost": "Custo",
+      "killSwitch": "Kill Switch",
+      "enabled": "Ativado",
+      "disabled": "Desativado",
+      "toggle": "Alternar",
+      "reason": "Motivo",
+      "topErrors": "Principais Erros",
+      "errorCode": "Codigo do Erro",
+      "count": "Quantidade",
+      "noData": "Sem dados para o periodo selecionado.",
+      "plan": "Roteiro",
+      "checklist": "Checklist",
+      "guide": "Guia de Destino",
+      "global": "Global",
+      "period": "Ultimos 30 dias"
     }
   },
   "atlas": {

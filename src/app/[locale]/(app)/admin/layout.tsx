@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { AdminNav } from "./AdminNav";
 
 export default async function AdminLayout({
   children,
@@ -33,6 +34,7 @@ export default async function AdminLayout({
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </header>
+      <AdminNav />
       {children}
     </div>
   );
