@@ -1627,7 +1627,19 @@
         "conversionRate": "Taxa de Conversão",
         "grossMargin": "Margem Bruta",
         "paEmitted": "PA Emitidos",
-        "paConsumed": "PA Consumidos"
+        "paConsumed": "PA Consumidos",
+        "tooltipTotalUsers": "Total de usuários registrados (gratuitos + pagantes)",
+        "tooltipPayingUsers": "Usuários com assinatura paga ativa",
+        "tooltipConversionRate": "Percentual de usuários que converteram para plano pago",
+        "tooltipActiveUsers": "Usuários que fizeram login nos últimos 30 dias",
+        "tooltipTotalRevenue": "Receita total de todas as assinaturas pagas",
+        "tooltipEstimatedAiCost": "Custo estimado de API de IA baseado no uso de tokens",
+        "tooltipGrossMargin": "Receita menos custos de IA em percentual — meta é 80%+",
+        "tooltipArpu": "Receita Média por Usuário entre todos os pagantes",
+        "tooltipPaEmitted": "Total de Pontos Atlas emitidos aos usuários",
+        "tooltipPaConsumed": "Pontos Atlas gastos pelos usuários em funcionalidades de IA",
+        "tooltipPaInCirculation": "Pontos Atlas disponíveis nas carteiras dos usuários",
+        "tooltipTotalPurchases": "Número total de compras concluídas"
       },
       "charts": {
         "aiCalls": "Chamadas de IA",

@@ -251,7 +251,7 @@ describe("DashboardV2", () => {
     expect(card).toHaveAttribute("href", "/expedition/new");
   });
 
-  it("renders view all link when more than 3 expeditions", () => {
+  it("renders all expeditions without limit", () => {
     const expeditions = Array.from({ length: 5 }, (_, i) =>
       makeExpedition({
         id: `trip-${i}`,
@@ -260,11 +260,7 @@ describe("DashboardV2", () => {
       }),
     );
     render(<DashboardV2 {...makeProps({ expeditions })} />);
-    expect(screen.getByTestId("view-all-expeditions-link")).toBeInTheDocument();
-  });
-
-  it("does not render view all link when 3 or fewer expeditions", () => {
-    render(<DashboardV2 {...makeProps()} />);
+    // All non-active expeditions are displayed (no artificial limit)
     expect(screen.queryByTestId("view-all-expeditions-link")).not.toBeInTheDocument();
   });
 

@@ -15,8 +15,6 @@ import type { ExpeditionDTO } from "@/types/expedition.types";
 
 const TOTAL_EXPEDITION_PHASES = 8;
 const MAX_RECENT_BADGES = 3;
-const MAX_TRIP_CARDS = 3;
-
 const PHASE_NAMES_KEYS = [
   "theCalling",
   "theExplorer",
@@ -422,11 +420,8 @@ export function DashboardV2({
 
   // Sort expeditions for the grid
   const sortedExpeditions = useMemo(() => getSortedExpeditions(expeditions), [expeditions]);
-  const displayedExpeditions = sortedExpeditions
-    .filter((e) => e.id !== activeTrip?.id)
-    .slice(0, MAX_TRIP_CARDS);
   const otherExpeditions = sortedExpeditions.filter((e) => e.id !== activeTrip?.id);
-  const hasMoreExpeditions = otherExpeditions.length > MAX_TRIP_CARDS;
+  const displayedExpeditions = otherExpeditions;
 
   // ─── Loading State ─────────────────────────────────────────────────────────
 
@@ -651,18 +646,7 @@ export function DashboardV2({
           </Link>
         </div>
 
-        {/* View all link */}
-        {hasMoreExpeditions && (
-          <div className="mt-6 text-center">
-            <Link
-              href="/expeditions"
-              className="text-sm font-medium text-atlas-primary hover:underline font-atlas-body"
-              data-testid="view-all-expeditions-link"
-            >
-              {t("viewAllExpeditions")}
-            </Link>
-          </div>
-        )}
+        {/* All expeditions are now shown — no circular "view all" link needed */}
       </section>
 
       {/* ── Section 6: LEVEL & POINTS ─────────────────────────────────────── */}

@@ -11,6 +11,7 @@ import type {
   PaginatedPerUserProfit,
   MarginAlert,
 } from "@/server/services/admin-dashboard.service";
+import { Tooltip } from "@/components/ui/Tooltip";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -202,18 +203,22 @@ export function AdminDashboardClient({
             label={t("kpi.totalUsers")}
             value={kpis.totalUsers.toLocaleString()}
             subtitle={`${kpis.freeUsers} ${t("kpi.freeUsers")} / ${kpis.payingUsers} ${t("kpi.payingUsers")}`}
+            tooltip={t("kpi.tooltipTotalUsers")}
           />
           <KPICard
             label={t("kpi.payingUsers")}
             value={kpis.payingUsers.toLocaleString()}
+            tooltip={t("kpi.tooltipPayingUsers")}
           />
           <KPICard
             label={t("kpi.conversionRate")}
             value={`${kpis.conversionRate}%`}
+            tooltip={t("kpi.tooltipConversionRate")}
           />
           <KPICard
             label={t("activeUsers")}
             value={kpis.activeUsers.toLocaleString()}
+            tooltip={t("kpi.tooltipActiveUsers")}
           />
         </div>
       </section>
@@ -227,36 +232,44 @@ export function AdminDashboardClient({
           <KPICard
             label={t("totalRevenue")}
             value={formatCurrency(kpis.totalRevenueCents)}
+            tooltip={t("kpi.tooltipTotalRevenue")}
           />
           <KPICard
             label={t("estimatedAiCost")}
             value={formatCurrency(kpis.estimatedAiCostCents)}
+            tooltip={t("kpi.tooltipEstimatedAiCost")}
           />
           <KPICard
             label={t("kpi.grossMargin")}
             value={`${kpis.grossMarginPercent}%`}
             highlight={kpis.grossMarginPercent >= 80}
             warning={kpis.grossMarginPercent < 50}
+            tooltip={t("kpi.tooltipGrossMargin")}
           />
           <KPICard
             label={t("kpi.arpu")}
             value={formatCurrency(kpis.arpu)}
+            tooltip={t("kpi.tooltipArpu")}
           />
           <KPICard
             label={t("kpi.paEmitted")}
             value={kpis.paEmitted.toLocaleString()}
+            tooltip={t("kpi.tooltipPaEmitted")}
           />
           <KPICard
             label={t("kpi.paConsumed")}
             value={kpis.paConsumed.toLocaleString()}
+            tooltip={t("kpi.tooltipPaConsumed")}
           />
           <KPICard
             label={t("paInCirculation")}
             value={kpis.paInCirculation.toLocaleString()}
+            tooltip={t("kpi.tooltipPaInCirculation")}
           />
           <KPICard
             label={t("totalPurchases")}
             value={kpis.totalPurchases.toString()}
+            tooltip={t("kpi.tooltipTotalPurchases")}
           />
         </div>
       </section>
@@ -590,14 +603,16 @@ function KPICard({
   subtitle,
   highlight = false,
   warning = false,
+  tooltip,
 }: {
   label: string;
   value: string;
   subtitle?: string;
   highlight?: boolean;
   warning?: boolean;
+  tooltip?: string;
 }) {
-  return (
+  const card = (
     <div className="rounded-lg border bg-background p-4 shadow-sm">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p
@@ -616,6 +631,12 @@ function KPICard({
       )}
     </div>
   );
+
+  if (tooltip) {
+    return <Tooltip text={tooltip}>{card}</Tooltip>;
+  }
+
+  return card;
 }
 
 // ─── Sortable Header ─────────────────────────────────────────────────────────

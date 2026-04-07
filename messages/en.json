@@ -1627,7 +1627,19 @@
         "conversionRate": "Conversion Rate",
         "grossMargin": "Gross Margin",
         "paEmitted": "PA Emitted",
-        "paConsumed": "PA Consumed"
+        "paConsumed": "PA Consumed",
+        "tooltipTotalUsers": "Total registered users (free + paying)",
+        "tooltipPayingUsers": "Users with an active paid subscription",
+        "tooltipConversionRate": "Percentage of users who converted to a paid plan",
+        "tooltipActiveUsers": "Users who logged in during the last 30 days",
+        "tooltipTotalRevenue": "Total revenue from all paid subscriptions",
+        "tooltipEstimatedAiCost": "Estimated AI API cost based on token usage",
+        "tooltipGrossMargin": "Revenue minus AI costs as a percentage — target is 80%+",
+        "tooltipArpu": "Average Revenue Per User across all paying users",
+        "tooltipPaEmitted": "Total Pontos Atlas emitted to users",
+        "tooltipPaConsumed": "Pontos Atlas spent by users on AI features",
+        "tooltipPaInCirculation": "Pontos Atlas currently available in user wallets",
+        "tooltipTotalPurchases": "Total number of completed purchases"
       },
       "charts": {
         "aiCalls": "AI Calls",
