@@ -510,6 +510,7 @@
     }
   },
   "expedition": {
+    "backToExpeditions": "Back to My Expeditions",
     "phase1": {
       "title": "The Inspiration",
       "subtitle": "Where will your next adventure take you?",
@@ -1694,7 +1695,13 @@
       "checklist": "Checklist",
       "guide": "Destination Guide",
       "global": "Global",
-      "period": "Last 30 days"
+      "period": "Last 30 days",
+      "promptRegistry": "Prompt Registry",
+      "promptSlug": "Slug",
+      "promptVersion": "Version",
+      "promptMaxTokens": "Max Tokens",
+      "promptActive": "Active",
+      "promptInactive": "Inactive"
     }
   },
   "atlas": {

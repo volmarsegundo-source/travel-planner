@@ -93,7 +93,7 @@ export function DestinationImage({
         className={[
           "bg-gradient-to-br from-atlas-secondary-container/70 to-atlas-primary/60",
           "transition-opacity duration-500 ease-out motion-reduce:transition-none",
-          fill ? "absolute inset-0 z-[1]" : "absolute inset-0",
+          "absolute inset-0 z-[2]",
           placeholderVisible ? "opacity-100" : "opacity-0 pointer-events-none",
         ].join(" ")}
         aria-hidden="true"
@@ -103,7 +103,8 @@ export function DestinationImage({
         alt={alt ?? destination}
         className={[
           className,
-          "transition-opacity duration-500 ease-out motion-reduce:transition-none",
+          "transition-opacity duration-700 ease-in-out motion-reduce:transition-none",
+          fill ? "z-[1]" : "",
           imageLoaded ? "opacity-100" : "opacity-0",
         ]
           .filter(Boolean)

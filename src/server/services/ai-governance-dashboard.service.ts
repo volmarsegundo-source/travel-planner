@@ -217,6 +217,23 @@ export class AiGovernanceDashboardService {
   }
 
   /**
+   * Returns all prompt templates for the registry overview.
+   */
+  static async getPromptTemplates() {
+    return db.promptTemplate.findMany({
+      select: {
+        slug: true,
+        version: true,
+        modelType: true,
+        maxTokens: true,
+        isActive: true,
+        updatedAt: true,
+      },
+      orderBy: { slug: "asc" },
+    });
+  }
+
+  /**
    * Toggle a kill switch for a specific AI phase.
    */
   static async toggleKillSwitch(

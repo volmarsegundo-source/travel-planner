@@ -218,6 +218,7 @@ function AboutDestinationCardV2({ guide, destination }: {
           destination={destination}
           alt={destination}
           fill
+          sizes="(max-width: 768px) 100vw, 50vw"
           className="object-cover"
         />
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent" />

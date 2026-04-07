@@ -1609,6 +1609,23 @@ export function Phase6ItineraryV2({
               </div>
             </div>
 
+            {/* Regenerate confirmation (no manual activities) */}
+            {showRegenerateConfirm && (
+              <AtlasCard
+                variant="base"
+                className="!border-atlas-warning/30 !bg-atlas-warning-container/20"
+                role="alertdialog"
+                aria-label={t("regenerateConfirmTitle")}
+              >
+                <p className="text-sm font-atlas-headline font-bold text-atlas-on-surface">{t("regenerateConfirmTitle")}</p>
+                <p className="mt-1 text-sm font-atlas-body text-atlas-on-surface-variant">{t("regenerateConfirmMessage")}</p>
+                <div className="mt-3 flex gap-2">
+                  <AtlasButton size="sm" variant="danger" onClick={handleRegenerateConfirm}>{t("regenerateConfirmYes")}</AtlasButton>
+                  <AtlasButton size="sm" variant="secondary" onClick={() => setShowRegenerateConfirm(false)}>{t("regenerateConfirmNo")}</AtlasButton>
+                </div>
+              </AtlasCard>
+            )}
+
             {/* View Toggle + Day Selector */}
             <div className="flex items-center gap-3">
               <DaySelectorPills
@@ -1673,23 +1690,6 @@ export function Phase6ItineraryV2({
           {/* Error display */}
           {error && (
             <p role="alert" className="mt-4 text-sm font-atlas-body text-atlas-error">{error}</p>
-          )}
-
-          {/* Regenerate confirmation (no manual activities) */}
-          {showRegenerateConfirm && (
-            <AtlasCard
-              variant="base"
-              className="mt-4 !border-atlas-warning/30 !bg-atlas-warning-container/20"
-              role="alertdialog"
-              aria-label={t("regenerateConfirmTitle")}
-            >
-              <p className="text-sm font-atlas-headline font-bold text-atlas-on-surface">{t("regenerateConfirmTitle")}</p>
-              <p className="mt-1 text-sm font-atlas-body text-atlas-on-surface-variant">{t("regenerateConfirmMessage")}</p>
-              <div className="mt-3 flex gap-2">
-                <AtlasButton size="sm" variant="danger" onClick={handleRegenerateConfirm}>{t("regenerateConfirmYes")}</AtlasButton>
-                <AtlasButton size="sm" variant="secondary" onClick={() => setShowRegenerateConfirm(false)}>{t("regenerateConfirmNo")}</AtlasButton>
-              </div>
-            </AtlasCard>
           )}
 
           {/* Smart regeneration dialog — SPEC-ROTEIRO-REGEN-INTELIGENTE AC-004 */}

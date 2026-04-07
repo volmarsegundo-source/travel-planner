@@ -30,6 +30,15 @@ const PROVIDER_DISPLAY_NAMES: Record<string, string> = {
   openai: "OpenAI",
 };
 
+interface PromptTemplateRow {
+  slug: string;
+  version: string;
+  modelType: string;
+  maxTokens: number;
+  isActive: boolean;
+  updatedAt: string;
+}
+
 interface AiGovernanceClientProps {
   overview: AiGovernanceOverview;
   phases: {
@@ -38,6 +47,7 @@ interface AiGovernanceClientProps {
     guide: AiPhaseDetail;
   };
   recentInteractions?: RecentInteraction[];
+  promptTemplates?: PromptTemplateRow[];
 }
 
 type TabKey = "overview" | "plan" | "checklist" | "guide";
@@ -63,19 +73,21 @@ function KpiCard({
   tooltip?: string;
 }) {
   return (
-    <AtlasCard title={tooltip}>
-      <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
-        {label}
-      </p>
-      <p className="mt-1 text-2xl font-atlas-headline font-bold text-atlas-on-surface">
-        {value}
-        {unit && (
-          <span className="ml-1 text-sm font-normal text-atlas-on-surface-variant">
-            {unit}
-          </span>
-        )}
-      </p>
-    </AtlasCard>
+    <div title={tooltip}>
+      <AtlasCard>
+        <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
+          {label}
+        </p>
+        <p className="mt-1 text-2xl font-atlas-headline font-bold text-atlas-on-surface">
+          {value}
+          {unit && (
+            <span className="ml-1 text-sm font-normal text-atlas-on-surface-variant">
+              {unit}
+            </span>
+          )}
+        </p>
+      </AtlasCard>
+    </div>
   );
 }
 
@@ -238,6 +250,7 @@ export function AiGovernanceClient({
   overview,
   phases,
   recentInteractions = [],
+  promptTemplates = [],
 }: AiGovernanceClientProps) {
   const t = useTranslations("admin.aiGovernance");
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
@@ -472,6 +485,72 @@ export function AiGovernanceClient({
               </div>
             </AtlasCard>
           )}
+
+          {/* Prompt Registry */}
+          <AtlasCard>
+            <h3 className="mb-3 font-atlas-headline font-bold text-atlas-on-surface">
+              {t("promptRegistry")}
+            </h3>
+            {promptTemplates.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm font-atlas-body">
+                  <thead>
+                    <tr className="border-b border-atlas-outline-variant/20">
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("promptSlug")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("promptVersion")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("model")}
+                      </th>
+                      <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                        {t("promptMaxTokens")}
+                      </th>
+                      <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                        {t("status")}
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {promptTemplates.map((pt) => (
+                      <tr
+                        key={pt.slug}
+                        className="border-b border-atlas-outline-variant/10"
+                      >
+                        <td className="py-2 text-atlas-on-surface">
+                          <code className="text-xs">{pt.slug}</code>
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          {pt.version}
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          {pt.modelType}
+                        </td>
+                        <td className="py-2 text-right text-atlas-on-surface">
+                          {pt.maxTokens.toLocaleString()}
+                        </td>
+                        <td className="py-2 text-atlas-on-surface">
+                          <AtlasBadge
+                            variant="status"
+                            color={pt.isActive ? "success" : "error"}
+                            size="sm"
+                          >
+                            {pt.isActive ? t("promptActive") : t("promptInactive")}
+                          </AtlasBadge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <p className="text-sm text-atlas-on-surface-variant py-4">
+                {t("noData")}
+              </p>
+            )}
+          </AtlasCard>
         </div>
       )}
 

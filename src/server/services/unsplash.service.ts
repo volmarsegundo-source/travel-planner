@@ -51,13 +51,6 @@ export class UnsplashService {
   static async getDestinationImage(
     destination: string
   ): Promise<DestinationImageResult | null> {
-    // Temporary debug — remove after verifying staging
-    console.log("[UNSPLASH DEBUG]", {
-      hasKey: !!UNSPLASH_ACCESS_KEY,
-      keyPrefix: UNSPLASH_ACCESS_KEY?.slice(0, 8),
-      destination,
-    });
-
     if (!UNSPLASH_ACCESS_KEY) {
       logger.warn("unsplash.no-api-key");
       return null;
@@ -81,13 +74,16 @@ export class UnsplashService {
 
     // 2. Call Unsplash Search API
     try {
-      const query = encodeURIComponent(`${destination} travel landmark`);
+      // Extract city and country from destination (e.g., "Lima, Peru" -> "Lima Peru")
+      const cleanDest = destination.replace(/,/g, " ").trim();
+      const query = encodeURIComponent(`${cleanDest} landmark skyline`);
       const url =
         `https://api.unsplash.com/search/photos` +
         `?query=${query}` +
         `&per_page=${SEARCH_PER_PAGE}` +
         `&orientation=landscape` +
-        `&order_by=relevant`;
+        `&order_by=relevant` +
+        `&content_filter=high`;
 
       const response = await fetch(url, {
         headers: { Authorization: `Client-ID ${UNSPLASH_ACCESS_KEY}` },

@@ -299,7 +299,7 @@ describe("UnsplashService", () => {
 
       const calledUrl = fetchMock.mock.calls[0][0] as string;
       expect(calledUrl).toContain("S%C3%A3o%20Paulo");
-      expect(calledUrl).toContain("travel%20landmark");
+      expect(calledUrl).toContain("landmark%20skyline");
     });
   });
 });

@@ -311,6 +311,8 @@ export function ExpeditionSummaryV2({
                 destination={destination}
                 alt={`Imagem de ${destination}`}
                 fill
+                sizes="100vw"
+                priority
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
