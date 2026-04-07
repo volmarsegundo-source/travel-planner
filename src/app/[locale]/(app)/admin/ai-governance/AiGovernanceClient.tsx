@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { AtlasCard, AtlasButton, AtlasBadge } from "@/components/ui";
+import { AtlasCard, AtlasButton, AtlasBadge, Tooltip } from "@/components/ui";
 import { toggleKillSwitchAction } from "@/server/actions/ai-governance.actions";
 import type {
   AiGovernanceOverview,
@@ -72,23 +72,27 @@ function KpiCard({
   unit?: string;
   tooltip?: string;
 }) {
-  return (
-    <div title={tooltip}>
-      <AtlasCard>
-        <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
-          {label}
-        </p>
-        <p className="mt-1 text-2xl font-atlas-headline font-bold text-atlas-on-surface">
-          {value}
-          {unit && (
-            <span className="ml-1 text-sm font-normal text-atlas-on-surface-variant">
-              {unit}
-            </span>
-          )}
-        </p>
-      </AtlasCard>
-    </div>
+  const card = (
+    <AtlasCard>
+      <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
+        {label}
+      </p>
+      <p className="mt-1 text-2xl font-atlas-headline font-bold text-atlas-on-surface">
+        {value}
+        {unit && (
+          <span className="ml-1 text-sm font-normal text-atlas-on-surface-variant">
+            {unit}
+          </span>
+        )}
+      </p>
+    </AtlasCard>
   );
+
+  if (tooltip) {
+    return <Tooltip text={tooltip}>{card}</Tooltip>;
+  }
+
+  return card;
 }
 
 // ─── Kill Switch Card ───────────────────────────────────────────────────────

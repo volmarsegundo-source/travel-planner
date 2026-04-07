@@ -52,6 +52,10 @@ export interface TravelPlanParams {
   tokenBudget: number;
   travelNotes?: string;
   expeditionContext?: ExpeditionContext;
+  /** Extra interest categories selected for itinerary personalization */
+  extraCategories?: string[];
+  /** Free-text personal notes for itinerary personalization */
+  personalNotes?: string;
 }
 
 /** Parameters for the pre-trip checklist prompt */

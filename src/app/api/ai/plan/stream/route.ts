@@ -93,7 +93,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Validation failed" }, { status: 400 });
   }
 
-  const { tripId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext } = parsed.data;
+  const { tripId, destination, startDate, endDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, extraCategories, personalNotes } = parsed.data;
 
   // Validate tripId format
   const tripIdResult = TripIdSchema.safeParse(tripId);
@@ -167,6 +167,22 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  // Sanitize personalNotes (itinerary personalization)
+  let sanitizedPersonalNotes: string | undefined;
+  if (personalNotes) {
+    try {
+      const sanitized = sanitizeForPrompt(personalNotes, "personalNotes", 500);
+      const { masked } = maskPII(sanitized, "personalNotes");
+      sanitizedPersonalNotes = masked;
+    } catch (error) {
+      await releaseGenerationLock(tripIdResult.data, redis).catch(() => {});
+      if (error instanceof AppError && error.code === "PROMPT_INJECTION_DETECTED") {
+        return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+      }
+      throw error;
+    }
+  }
+
   // Build prompt
   const days = getDaysBetween(startDate, endDate);
   const tokenBudget = calculatePlanTokenBudget(days);
@@ -184,6 +200,8 @@ export async function POST(request: NextRequest) {
     tokenBudget,
     travelNotes: sanitizedTravelNotes,
     expeditionContext: expeditionContext as import("@/types/ai.types").ExpeditionContext | undefined,
+    extraCategories,
+    personalNotes: sanitizedPersonalNotes,
   });
 
   // Start streaming

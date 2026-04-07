@@ -849,6 +849,7 @@ export async function generateDestinationGuideAction(
     }
 
     revalidatePath(`/expedition/${tripId}`);
+    revalidatePath(`/expedition/${tripId}/summary`);
 
     // Fire-and-forget: check if expedition is now fully complete
     PhaseCompletionService.checkAndCompleteTrip(tripId, session.user.id).catch((err) => {
@@ -1039,6 +1040,7 @@ export async function regenerateGuideAction(
     );
 
     revalidatePath(`/expedition/${tripId}`);
+    revalidatePath(`/expedition/${tripId}/summary`);
 
     return {
       success: true,

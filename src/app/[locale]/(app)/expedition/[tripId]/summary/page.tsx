@@ -9,6 +9,9 @@ import { ExpeditionSummaryV2 } from "@/components/features/expedition/Expedition
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { getNextRankProgress } from "@/lib/gamification/rank-calculator";
 
+/** Ensure summary always reads fresh data (no static cache). */
+export const dynamic = "force-dynamic";
+
 interface SummaryPageProps {
   params: Promise<{ locale: string; tripId: string }>;
 }

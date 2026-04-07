@@ -10,6 +10,7 @@ export { AtlasChip } from "./AtlasChip";
 export { AtlasBadge } from "./AtlasBadge";
 export { AtlasPhaseProgress } from "./AtlasPhaseProgress";
 export { AtlasStepperInput } from "./AtlasStepperInput";
+export { Tooltip } from "./Tooltip";
 // DestinationImage: import directly from "@/components/ui/DestinationImage" (server-only dep)
 // Types
 export type { AtlasButtonProps } from "./AtlasButton";

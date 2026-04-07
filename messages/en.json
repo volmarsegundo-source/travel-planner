@@ -992,7 +992,8 @@
       "category_shopping_markets": "Shopping & Markets",
       "category_museums_galleries": "Museums & Galleries",
       "category_parks_nature": "Parks & Nature",
-      "category_local_experiences": "Local Experiences"
+      "category_local_experiences": "Local Experiences",
+      "personalizedWith": "Personalized with"
     },
     "phase6": {
       "title": "The Itinerary",
@@ -1083,7 +1084,20 @@
       "regenKeepManual": "Keep my activities",
       "regenKeepManualDesc": "AI will generate new suggestions around your activities.",
       "regenAll": "Regenerate all",
-      "regenAllDesc": "AI will generate a completely new itinerary. Your manual activities will be removed."
+      "regenAllDesc": "AI will generate a completely new itinerary. Your manual activities will be removed.",
+      "personalizeTitle": "Personalize Your Itinerary",
+      "personalNotesPlaceholder": "E.g., I want a day at the football stadium...",
+      "regenerateItineraryCta": "Re-generate Itinerary ({cost} PA)",
+      "regenCounter": "{used} of {max} re-generations used",
+      "category_gastronomic": "Gastronomic",
+      "category_cultural": "Cultural",
+      "category_adventure": "Adventure",
+      "category_relaxation": "Relaxation",
+      "category_nightlife": "Nightlife",
+      "category_family": "Family",
+      "category_shopping": "Shopping",
+      "category_sports": "Sports",
+      "category_religious": "Religious"
     },
     "hub": {
       "title": "Expedition",

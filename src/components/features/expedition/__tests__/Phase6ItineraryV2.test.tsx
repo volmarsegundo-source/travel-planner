@@ -774,4 +774,161 @@ describe("Phase6ItineraryV2", () => {
       expect(dialog).toHaveAttribute("aria-labelledby", "regen-dialog-title");
     });
   });
+
+  // ─── Itinerary Personalization (Phase 5 pattern) ─────────────────────────
+
+  describe("Itinerary personalization section", () => {
+    it("renders personalization section when itinerary is generated", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const section = screen.getByTestId("personalization-section");
+      expect(section).toBeInTheDocument();
+      expect(within(section).getByRole("heading", { level: 3 })).toHaveTextContent(
+        "expedition.phase6.personalizeTitle",
+      );
+    });
+
+    it("does NOT render personalization section in empty state", () => {
+      render(<Phase6ItineraryV2 {...defaultProps} />);
+      expect(screen.queryByTestId("personalization-section")).not.toBeInTheDocument();
+    });
+
+    it("renders 9 category chips", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const chips = screen.getByTestId("personalization-chips");
+      const buttons = within(chips).getAllByRole("button");
+      expect(buttons).toHaveLength(9);
+    });
+
+    it("category chips have aria-pressed=false by default", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const chip = screen.getByTestId("personalization-chip-gastronomic");
+      expect(chip).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("toggles category chip on click", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const chip = screen.getByTestId("personalization-chip-cultural");
+      expect(chip).toHaveAttribute("aria-pressed", "false");
+
+      await user.click(chip);
+      expect(chip).toHaveAttribute("aria-pressed", "true");
+
+      await user.click(chip);
+      expect(chip).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("renders personal notes textarea", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      expect(screen.getByTestId("personal-notes-textarea")).toBeInTheDocument();
+    });
+
+    it("personal notes textarea has maxLength 500", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const textarea = screen.getByTestId("personal-notes-textarea");
+      expect(textarea).toHaveAttribute("maxLength", "500");
+    });
+
+    it("renders re-generate button disabled when no selection", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const btn = screen.getByTestId("personalized-regen-btn");
+      expect(btn).toBeDisabled();
+    });
+
+    it("enables re-generate button when a category is selected", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      await user.click(screen.getByTestId("personalization-chip-adventure"));
+      const btn = screen.getByTestId("personalized-regen-btn");
+      expect(btn).not.toBeDisabled();
+    });
+
+    it("enables re-generate button when personal notes are typed", async () => {
+      const user = userEvent.setup();
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const textarea = screen.getByTestId("personal-notes-textarea");
+      await user.type(textarea, "I want a football stadium day");
+      const btn = screen.getByTestId("personalized-regen-btn");
+      expect(btn).not.toBeDisabled();
+    });
+
+    it("renders regen counter showing 0 of 5", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      expect(screen.getByTestId("regen-counter")).toHaveTextContent(
+        "expedition.phase6.regenCounter",
+      );
+    });
+
+    it("category chips meet 44px minimum touch target", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const chip = screen.getByTestId("personalization-chip-gastronomic");
+      expect(chip.className).toContain("min-h-[44px]");
+    });
+
+    it("personalization section has accessible heading", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          initialDays={twoDays as never}
+        />,
+      );
+      const section = screen.getByTestId("personalization-section");
+      expect(section).toHaveAttribute("aria-labelledby", "personalize-heading");
+    });
+  });
 });

@@ -294,6 +294,21 @@ interface Phase6ItineraryV2Props {
 const PROGRESS_UPDATE_INTERVAL_MS = 1000;
 const PA_COST = AI_COSTS.ai_itinerary;
 const TOTAL_PHASES = 8;
+const MAX_REGEN_COUNT = 5;
+const PERSONAL_NOTES_MAX_LENGTH = 500;
+
+/** Itinerary personalization categories — same pattern as Phase 5 guide. */
+const ITINERARY_CATEGORIES = [
+  { key: "gastronomic", emoji: "\uD83C\uDF7D\uFE0F" },
+  { key: "cultural", emoji: "\uD83C\uDFDB\uFE0F" },
+  { key: "adventure", emoji: "\uD83E\uDDD7" },
+  { key: "relaxation", emoji: "\uD83E\uDDD8" },
+  { key: "nightlife", emoji: "\uD83C\uDF19" },
+  { key: "family", emoji: "\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67" },
+  { key: "shopping", emoji: "\uD83D\uDECD\uFE0F" },
+  { key: "sports", emoji: "\u26BD" },
+  { key: "religious", emoji: "\uD83D\uDD4C" },
+] as const;
 
 function mapStatusToErrorKey(status: number, errorBody?: string): string {
   // Check for specific AI policy error codes from the gateway
@@ -1214,6 +1229,11 @@ export function Phase6ItineraryV2({
   const [keepManual, setKeepManual] = useState(false);
   const regenTriggerRef = useRef<HTMLButtonElement>(null);
 
+  // Itinerary personalization (same pattern as Phase 5 guide)
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [personalNotes, setPersonalNotes] = useState("");
+  const [regenCount, setRegenCount] = useState(0);
+
   const abortControllerRef = useRef<AbortController | null>(null);
   const hasTriggeredRef = useRef(false);
   const streamStartRef = useRef<number>(0);
@@ -1292,6 +1312,8 @@ export function Phase6ItineraryV2({
         body: JSON.stringify({
           tripId, destination, startDate: effectiveStartDate, endDate: effectiveEndDate,
           travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext,
+          ...(selectedCategories.length > 0 ? { extraCategories: selectedCategories } : {}),
+          ...(personalNotes.trim() ? { personalNotes: personalNotes.trim() } : {}),
         }),
         signal: abortController.signal,
       });
@@ -1362,7 +1384,7 @@ export function Phase6ItineraryV2({
       setIsGenerating(false);
       abortControllerRef.current = null;
     }
-  }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, t, totalDays, startProgressTimer, stopProgressTimer, router]);
+  }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, selectedCategories, personalNotes, t, totalDays, startProgressTimer, stopProgressTimer, router]);
 
   // Auto-trigger removed — generation is now manual per SPEC-PROD-055.
   // User must click "Gerar Roteiro com IA" in the empty state.
@@ -1432,6 +1454,22 @@ export function Phase6ItineraryV2({
     setShowRegenDialog(false);
     regenTriggerRef.current?.focus();
   }
+
+  /** Toggle a personalization category chip */
+  function handleToggleCategory(key: string) {
+    setSelectedCategories((prev) =>
+      prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key],
+    );
+  }
+
+  /** Personalized re-generation with categories + notes */
+  function handlePersonalizedRegen() {
+    setRegenCount((c) => c + 1);
+    handleRequestGenerate();
+  }
+
+  const hasPersonalizationInput = selectedCategories.length > 0 || personalNotes.trim().length > 0;
+  const isRegenLimitReached = regenCount >= MAX_REGEN_COUNT;
 
   /** Refresh page data after an activity add/edit/delete */
   function handleActivityMutate() {
@@ -1687,6 +1725,92 @@ export function Phase6ItineraryV2({
             <AiDisclaimer message={t("aiDisclaimer")} />
           </div>
 
+          {/* Itinerary personalization section — visible only when itinerary is generated */}
+          <section
+            className="mt-8 bg-atlas-surface-container p-6 md:p-8 rounded-xl border border-atlas-outline-variant/30"
+            aria-labelledby="personalize-heading"
+            data-testid="personalization-section"
+          >
+            <h3
+              id="personalize-heading"
+              className="text-xl font-bold font-atlas-headline text-atlas-on-surface mb-4"
+            >
+              {t("personalizeTitle")}
+            </h3>
+
+            {/* Category chips — multi-select */}
+            <div
+              className="flex flex-wrap gap-2 mb-4"
+              role="group"
+              aria-label={t("personalizeTitle")}
+              data-testid="personalization-chips"
+            >
+              {ITINERARY_CATEGORIES.map((cat) => {
+                const isSelected = selectedCategories.includes(cat.key);
+                return (
+                  <button
+                    key={cat.key}
+                    type="button"
+                    onClick={() => handleToggleCategory(cat.key)}
+                    aria-pressed={isSelected}
+                    className={[
+                      "min-h-[44px] px-4 py-2 rounded-full text-sm font-bold font-atlas-body",
+                      "transition-colors duration-150 motion-reduce:transition-none",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring focus-visible:ring-offset-2",
+                      isSelected
+                        ? "bg-atlas-secondary-container text-atlas-primary"
+                        : "bg-atlas-surface-container-lowest text-atlas-on-surface-variant border border-atlas-outline-variant/40 hover:bg-atlas-surface-container-low",
+                    ].join(" ")}
+                    data-testid={`personalization-chip-${cat.key}`}
+                  >
+                    <span aria-hidden="true">{cat.emoji}</span>{" "}
+                    {t(`category_${cat.key}`)}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Personal notes textarea */}
+            <div className="mb-4">
+              <label
+                htmlFor="personal-notes-textarea"
+                className="sr-only"
+              >
+                {t("personalizeTitle")}
+              </label>
+              <textarea
+                id="personal-notes-textarea"
+                value={personalNotes}
+                onChange={(e) => setPersonalNotes(e.target.value)}
+                maxLength={PERSONAL_NOTES_MAX_LENGTH}
+                rows={3}
+                placeholder={t("personalNotesPlaceholder")}
+                className="w-full rounded-lg border border-atlas-outline-variant/50 px-4 py-3 text-sm font-atlas-body bg-atlas-surface text-atlas-on-surface placeholder:text-atlas-on-surface-variant/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring resize-y"
+                data-testid="personal-notes-textarea"
+              />
+              <p className="mt-1 text-xs text-atlas-on-surface-variant/60 font-atlas-body text-right">
+                {personalNotes.length}/{PERSONAL_NOTES_MAX_LENGTH}
+              </p>
+            </div>
+
+            {/* Re-generate button + counter */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <AtlasButton
+                onClick={handlePersonalizedRegen}
+                disabled={!hasPersonalizationInput || isRegenLimitReached || isGenerating}
+                data-testid="personalized-regen-btn"
+              >
+                {t("regenerateItineraryCta", { cost: PA_COST })}
+              </AtlasButton>
+              <span
+                className="text-xs text-atlas-on-surface-variant/60 font-atlas-body"
+                data-testid="regen-counter"
+              >
+                {t("regenCounter", { used: regenCount, max: MAX_REGEN_COUNT })}
+              </span>
+            </div>
+          </section>
+
           {/* Error display */}
           {error && (
             <p role="alert" className="mt-4 text-sm font-atlas-body text-atlas-error">{error}</p>
@@ -1782,7 +1906,7 @@ export function Phase6ItineraryV2({
         onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
         primaryLabel={t("footerSummary")}
       />
-      <div className="flex justify-center pb-6">
+      <div className="flex justify-center pt-2 pb-6">
         <AtlasButton variant="ghost" size="sm" onClick={() => router.push("/expeditions")}>
           {tExpedition("backToExpeditions")}
         </AtlasButton>

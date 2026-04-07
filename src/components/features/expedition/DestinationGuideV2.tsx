@@ -508,7 +508,7 @@ function MustSeeCardV2({ guide, t, destination }: { guide: DestinationGuideConte
                 <span>{item.estimatedTime}</span>
                 <span>{item.costRange}</span>
               </div>
-              <p className="text-xs text-atlas-on-surface-variant font-atlas-body line-clamp-2">
+              <p className="text-xs text-atlas-on-surface-variant font-atlas-body">
                 {item.description}
               </p>
             </div>
@@ -902,6 +902,17 @@ export function DestinationGuideV2({
       {/* V2 Guide content -- bento grid layout */}
       {guideV2 && (
         <>
+          {/* Show selected categories if guide was personalized */}
+          {selectedCategories.length > 0 && (
+            <div className="mb-4 flex flex-wrap gap-2 max-w-7xl" data-testid="personalized-categories">
+              <span className="text-xs font-bold font-atlas-body text-atlas-on-surface-variant">{t("personalizedWith")}:</span>
+              {selectedCategories.map((cat) => (
+                <span key={cat} className="text-xs px-2 py-1 rounded-full bg-atlas-primary/10 text-atlas-primary font-atlas-body">
+                  {GUIDE_CATEGORIES.find(c => c.key === cat)?.emoji} {t(`category_${cat}`)}
+                </span>
+              ))}
+            </div>
+          )}
           <div
             className="grid grid-cols-1 md:grid-cols-10 gap-6 max-w-7xl"
             data-testid="guide-v2-bento"

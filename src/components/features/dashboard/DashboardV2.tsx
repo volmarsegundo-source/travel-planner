@@ -425,7 +425,8 @@ export function DashboardV2({
   const displayedExpeditions = sortedExpeditions
     .filter((e) => e.id !== activeTrip?.id)
     .slice(0, MAX_TRIP_CARDS);
-  const hasMoreExpeditions = expeditions.length > (activeTrip ? MAX_TRIP_CARDS + 1 : MAX_TRIP_CARDS);
+  const otherExpeditions = sortedExpeditions.filter((e) => e.id !== activeTrip?.id);
+  const hasMoreExpeditions = otherExpeditions.length > MAX_TRIP_CARDS;
 
   // ─── Loading State ─────────────────────────────────────────────────────────
 

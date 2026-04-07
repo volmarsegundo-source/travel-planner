@@ -992,7 +992,8 @@
       "category_shopping_markets": "Compras / Mercados",
       "category_museums_galleries": "Museus e Galerias",
       "category_parks_nature": "Parques e Natureza",
-      "category_local_experiences": "Experiencias Locais"
+      "category_local_experiences": "Experiencias Locais",
+      "personalizedWith": "Personalizado com"
     },
     "phase6": {
       "title": "O Roteiro",
@@ -1083,7 +1084,20 @@
       "regenKeepManual": "Manter minhas atividades",
       "regenKeepManualDesc": "O AI vai gerar novos horarios e sugestoes ao redor das suas atividades.",
       "regenAll": "Regenerar tudo",
-      "regenAllDesc": "O AI vai gerar um roteiro completamente novo. Suas atividades manuais serao removidas."
+      "regenAllDesc": "O AI vai gerar um roteiro completamente novo. Suas atividades manuais serao removidas.",
+      "personalizeTitle": "Personalize Seu Roteiro",
+      "personalNotesPlaceholder": "Ex: Quero incluir um dia no estádio de futebol...",
+      "regenerateItineraryCta": "Re-gerar Roteiro ({cost} PA)",
+      "regenCounter": "{used} de {max} re-gerações usadas",
+      "category_gastronomic": "Gastronômico",
+      "category_cultural": "Cultural",
+      "category_adventure": "Aventura",
+      "category_relaxation": "Relaxamento",
+      "category_nightlife": "Vida Noturna",
+      "category_family": "Família",
+      "category_shopping": "Compras",
+      "category_sports": "Esportes",
+      "category_religious": "Religioso"
     },
     "hub": {
       "title": "Expedição",

@@ -149,14 +149,35 @@ export const travelPlanPrompt: PromptTemplate<TravelPlanParams> = {
 
     const contextSection = buildTravelerContext(params);
 
-    return `Trip details:
-- Destination: ${params.destination}
-- Dates: ${params.startDate} to ${params.endDate} (${params.days} days)
-- Travel style: ${params.travelStyle}
-- Budget: ${params.budgetTotal} ${params.budgetCurrency}
-- Travelers: ${params.travelers} person(s)
-- Language: ${params.language}
-- Token budget: ${params.tokenBudget} (fit entire JSON within this limit)
-${notesSection}${contextSection}`;
+    const lines: string[] = [
+      `Trip details:`,
+      `- Destination: ${params.destination}`,
+      `- Dates: ${params.startDate} to ${params.endDate} (${params.days} days)`,
+      `- Travel style: ${params.travelStyle}`,
+      `- Budget: ${params.budgetTotal} ${params.budgetCurrency}`,
+      `- Travelers: ${params.travelers} person(s)`,
+      `- Language: ${params.language}`,
+      `- Token budget: ${params.tokenBudget} (fit entire JSON within this limit)`,
+    ];
+
+    if (notesSection) lines.push(notesSection);
+    if (contextSection) lines.push(contextSection);
+
+    if (params.extraCategories && params.extraCategories.length > 0) {
+      lines.push("");
+      lines.push("<itinerary_preferences>");
+      lines.push(`  The traveler wants the itinerary to prioritize: ${params.extraCategories.join(", ")}`);
+      lines.push("  Include activities and experiences related to these categories.");
+      lines.push("</itinerary_preferences>");
+    }
+
+    if (params.personalNotes) {
+      lines.push("");
+      lines.push("<personal_requests>");
+      lines.push(`  ${params.personalNotes}`);
+      lines.push("</personal_requests>");
+    }
+
+    return lines.join("\n");
   },
 };
