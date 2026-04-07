@@ -6,7 +6,6 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasCard } from "@/components/ui/AtlasCard";
-import { Button } from "@/components/ui/button";
 import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
@@ -1907,11 +1906,6 @@ export function Phase6ItineraryV2({
         onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
         primaryLabel={t("footerSummary")}
       />
-      <div className="flex justify-center pt-2 pb-6">
-        <Button variant="outline" onClick={() => router.push("/expeditions")}>
-          {tExpedition("backToExpeditions")}
-        </Button>
-      </div>
     </PhaseShell>
   );
 }
