@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui/AtlasButton";
@@ -15,6 +15,7 @@ import type { ExpeditionDTO } from "@/types/expedition.types";
 
 const TOTAL_EXPEDITION_PHASES = 8;
 const MAX_RECENT_BADGES = 3;
+const MAX_TRIP_CARDS = 3;
 const PHASE_NAMES_KEYS = [
   "theCalling",
   "theExplorer",
@@ -421,7 +422,11 @@ export function DashboardV2({
   // Sort expeditions for the grid
   const sortedExpeditions = useMemo(() => getSortedExpeditions(expeditions), [expeditions]);
   const otherExpeditions = sortedExpeditions.filter((e) => e.id !== activeTrip?.id);
-  const displayedExpeditions = otherExpeditions;
+  const hasMoreExpeditions = otherExpeditions.length > MAX_TRIP_CARDS;
+  const [showAllExpeditions, setShowAllExpeditions] = useState(false);
+  const displayedExpeditions = showAllExpeditions
+    ? otherExpeditions
+    : otherExpeditions.slice(0, MAX_TRIP_CARDS);
 
   // ─── Loading State ─────────────────────────────────────────────────────────
 
@@ -646,7 +651,19 @@ export function DashboardV2({
           </Link>
         </div>
 
-        {/* All expeditions are now shown — no circular "view all" link needed */}
+        {/* Expand inline to show remaining expeditions */}
+        {hasMoreExpeditions && !showAllExpeditions && (
+          <div className="mt-6 text-center">
+            <button
+              type="button"
+              onClick={() => setShowAllExpeditions(true)}
+              className="text-sm font-medium text-atlas-primary hover:underline font-atlas-body"
+              data-testid="view-all-expeditions-link"
+            >
+              {t("viewAllExpeditions")}
+            </button>
+          </div>
+        )}
       </section>
 
       {/* ── Section 6: LEVEL & POINTS ─────────────────────────────────────── */}

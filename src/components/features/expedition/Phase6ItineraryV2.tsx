@@ -1907,7 +1907,7 @@ export function Phase6ItineraryV2({
         onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
         primaryLabel={t("footerSummary")}
       />
-      <div className="flex justify-start pt-2 pb-6">
+      <div className="flex justify-center pt-2 pb-6">
         <Button variant="outline" onClick={() => router.push("/expeditions")}>
           {tExpedition("backToExpeditions")}
         </Button>

@@ -11,7 +11,6 @@ import type {
   PaginatedPerUserProfit,
   MarginAlert,
 } from "@/server/services/admin-dashboard.service";
-import { Tooltip } from "@/components/ui/Tooltip";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -612,8 +611,8 @@ function KPICard({
   warning?: boolean;
   tooltip?: string;
 }) {
-  const card = (
-    <div className="rounded-lg border bg-background p-4 shadow-sm">
+  return (
+    <div className="rounded-lg border bg-background p-4 shadow-sm" title={tooltip}>
       <p className="text-sm text-muted-foreground">{label}</p>
       <p
         className={`mt-1 text-2xl font-bold ${
@@ -631,12 +630,6 @@ function KPICard({
       )}
     </div>
   );
-
-  if (tooltip) {
-    return <Tooltip text={tooltip}>{card}</Tooltip>;
-  }
-
-  return card;
 }
 
 // ─── Sortable Header ─────────────────────────────────────────────────────────
