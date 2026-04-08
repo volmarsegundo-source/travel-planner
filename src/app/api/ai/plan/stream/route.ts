@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { travelPlanPrompt, PLAN_SYSTEM_PROMPT } from "@/lib/prompts";
-import { ClaudeProvider } from "@/server/services/providers/claude.provider";
+import { getProvider, getModelIdForType } from "@/server/services/ai.service";
 import { PolicyEngine } from "@/server/services/ai-governance/policy-engine";
 import "@/server/services/ai-governance/policies";
 import { AppError } from "@/lib/errors";
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest) {
   // Start streaming
   const streamStartTime = Date.now();
   try {
-    const provider = new ClaudeProvider();
+    const provider = getProvider();
     const { stream: aiStream, usage: usagePromise } = await provider.generateStreamingResponse(
       userMessage,
       tokenBudget,
@@ -238,7 +238,7 @@ export async function POST(request: NextRequest) {
           if (!plan && accumulated.length > 100) {
             logger.warn("ai.stream.parse.retry", { userIdHash: hid, tripId: validatedTripId, accumulatedLength: accumulated.length });
             try {
-              const retryProvider = new ClaudeProvider();
+              const retryProvider = getProvider();
               const retryResponse = await retryProvider.generateResponse(
                 userMessage,
                 tokenBudget,
@@ -315,8 +315,10 @@ export async function POST(request: NextRequest) {
       const outputTokens = usageData.outputTokens ?? 0;
       const cacheReadTokens = usageData.cacheReadInputTokens ?? 0;
       const cacheWriteTokens = usageData.cacheCreationInputTokens ?? 0;
+      const streamModelId = getModelIdForType("plan");
+      const streamProviderName = streamModelId.startsWith("gemini") ? "gemini" : "claude";
       const cost = calculateEstimatedCost(
-        "claude-sonnet-4-6",
+        streamModelId,
         inputTokens,
         outputTokens,
         cacheReadTokens,
@@ -325,7 +327,7 @@ export async function POST(request: NextRequest) {
       logger.info("ai.stream.tokens.usage", {
         userIdHash: hid,
         generationType: "plan",
-        model: "claude",
+        model: streamProviderName,
         inputTokens,
         outputTokens,
         estimatedCostUSD: cost.totalCost,
@@ -337,8 +339,8 @@ export async function POST(request: NextRequest) {
           data: {
             userId: hid,
             phase: "plan",
-            provider: "claude",
-            model: "claude-sonnet-4-6",
+            provider: streamProviderName,
+            model: streamModelId,
             promptSlug: "travel-plan",
             inputTokens,
             outputTokens,
