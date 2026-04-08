@@ -17,7 +17,7 @@ const GEMINI_TIMEOUT_MS = 90_000;
 function getGemini(): GoogleGenerativeAI {
   const g = globalThis as unknown as { _gemini?: GoogleGenerativeAI };
   if (!g._gemini) {
-    const apiKey = process.env.GOOGLE_AI_API_KEY;
+    const apiKey = process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY;
 
     if (!apiKey || apiKey.trim() === "") {
       throw new AppError(

@@ -6,7 +6,7 @@ import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } fro
 // ─── Fallback-eligible error codes ──────────────────────────────────────────
 
 /** Only infrastructure errors trigger fallback. Auth/model/parse errors do not. */
-const FALLBACK_ELIGIBLE_CODES = new Set(["AI_RATE_LIMIT", "AI_TIMEOUT"]);
+const FALLBACK_ELIGIBLE_CODES = new Set(["AI_RATE_LIMIT", "AI_TIMEOUT", "AI_CONFIG_ERROR"]);
 
 // ─── FallbackProvider ───────────────────────────────────────────────────────
 
