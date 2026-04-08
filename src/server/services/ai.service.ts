@@ -14,6 +14,8 @@ import {
   destinationGuidePrompt,
 } from "@/lib/prompts";
 import { ClaudeProvider } from "./providers/claude.provider";
+import { GeminiProvider } from "./providers/gemini.provider";
+import { FallbackProvider } from "./providers/fallback.provider";
 import type { AiProvider, AiProviderResponse, ModelType } from "./ai-provider.interface";
 import type {
   GeneratePlanParams,
@@ -281,19 +283,60 @@ function buildGuideCacheInput(
 
 // ─── Provider factory ─────────────────────────────────────────────────────────
 
-function getProvider(): AiProvider {
-  // For now, always returns Claude. In Sprint 9, this factory will accept
-  // a user tier parameter and return GeminiProvider for free-tier users.
-  return new ClaudeProvider();
-}
-
-// ─── Model ID resolution for cost tracking ───────────────────────────────────
-
-const MODEL_ID_MAP: Record<ModelType, string> = {
+const CLAUDE_MODEL_ID_MAP: Record<ModelType, string> = {
   plan: "claude-sonnet-4-6",
   checklist: "claude-haiku-4-5-20251001",
   guide: "claude-haiku-4-5-20251001",
 };
+
+const GEMINI_MODEL_ID_MAP: Record<ModelType, string> = {
+  plan: "gemini-2.0-flash",
+  checklist: "gemini-2.0-flash",
+  guide: "gemini-2.0-flash",
+};
+
+/**
+ * Resolves the current AI provider name from environment.
+ * Defaults to "anthropic" for backward compatibility.
+ */
+function resolveProviderName(): "anthropic" | "gemini" {
+  const provider = process.env.AI_PROVIDER;
+  if (provider === "gemini") return "gemini";
+  return "anthropic";
+}
+
+/**
+ * Creates the appropriate AiProvider based on environment configuration.
+ * If AI_FALLBACK_PROVIDER is set, wraps the primary in a FallbackProvider.
+ */
+export function getProvider(): AiProvider {
+  const providerName = resolveProviderName();
+  const primary: AiProvider = providerName === "gemini"
+    ? new GeminiProvider()
+    : new ClaudeProvider();
+
+  const fallbackName = process.env.AI_FALLBACK_PROVIDER as "anthropic" | "gemini" | undefined;
+  if (fallbackName && fallbackName !== providerName) {
+    const fallback: AiProvider = fallbackName === "gemini"
+      ? new GeminiProvider()
+      : new ClaudeProvider();
+    return new FallbackProvider(primary, fallback);
+  }
+
+  return primary;
+}
+
+// ─── Model ID resolution for cost tracking ───────────────────────────────────
+
+/**
+ * Returns the concrete model ID for a given ModelType, based on the active provider.
+ * Used for cost tracking and logging.
+ */
+export function getModelIdForType(type: ModelType): string {
+  const providerName = resolveProviderName();
+  const map = providerName === "gemini" ? GEMINI_MODEL_ID_MAP : CLAUDE_MODEL_ID_MAP;
+  return map[type];
+}
 
 // ─── Token usage sharing with gateway ─────────────────────────────────────────
 
@@ -340,7 +383,7 @@ function logTokenUsage(
   const cacheReadTokens = response.cacheReadInputTokens ?? 0;
   const cacheWriteTokens = response.cacheCreationInputTokens ?? 0;
 
-  const modelId = MODEL_ID_MAP[params.generationType];
+  const modelId = getModelIdForType(params.generationType);
   const cost = calculateEstimatedCost(
     modelId,
     inputTokens,

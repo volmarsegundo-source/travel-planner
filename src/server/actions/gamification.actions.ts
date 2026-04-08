@@ -1,5 +1,6 @@
 "use server";
 import "server-only";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -11,6 +12,14 @@ import { hashUserId } from "@/lib/hash";
 import { AI_COSTS } from "@/types/gamification.types";
 import type { AiSpendType } from "@/types/gamification.types";
 import type { ActionResult } from "@/types/trip.types";
+
+// ─── Validation Schemas ─────────────────────────────────────────────────────
+
+const TripIdSchema = z.string().cuid();
+const PaginationSchema = z.object({
+  page: z.number().int().positive().max(1000).default(1),
+  pageSize: z.number().int().positive().max(100).default(20),
+});
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -106,11 +115,16 @@ export async function getTransactionHistoryAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const parsed = PaginationSchema.safeParse({ page, pageSize });
+  if (!parsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   try {
     const history = await PointsEngine.getTransactionHistory(
       session.user.id,
-      page,
-      pageSize
+      parsed.data.page,
+      parsed.data.pageSize
     );
     return { success: true, data: history };
   } catch (error) {
@@ -143,6 +157,11 @@ export async function spendPAForAIAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   const cost = AI_COSTS[aiType];
   if (cost === undefined) {
     return { success: false, error: "errors.invalidAiType" };
@@ -151,7 +170,7 @@ export async function spendPAForAIAction(
   try {
     // Verify trip ownership (BOLA guard)
     const trip = await db.trip.findFirst({
-      where: { id: tripId, userId: session.user.id, deletedAt: null },
+      where: { id: tripIdParsed.data, userId: session.user.id, deletedAt: null },
       select: { id: true },
     });
 
@@ -175,7 +194,7 @@ export async function spendPAForAIAction(
       cost,
       "ai_usage",
       `AI: ${aiType}`,
-      tripId
+      tripIdParsed.data
     );
 
     logger.info("gamification.paSpentForAI", {
@@ -183,7 +202,7 @@ export async function spendPAForAIAction(
       aiType,
       cost,
       remaining: result.remainingPoints,
-      tripId,
+      tripId: tripIdParsed.data,
     });
 
     return {

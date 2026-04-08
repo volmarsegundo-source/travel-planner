@@ -315,13 +315,13 @@ export function ExpeditionSummaryV2({
                 priority
                 className="object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
             </>
           ) : (
             <div className="absolute inset-0 bg-atlas-surface-container-high" />
           )}
 
-          <div className="absolute bottom-0 left-0 right-0 p-6">
+          <div className="absolute bottom-0 left-0 right-0 z-20 p-6">
             {/* P0 #1: Trip title as H1, destination as subtitle */}
             <h1
               id="hero-heading"

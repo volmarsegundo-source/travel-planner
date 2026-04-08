@@ -3,7 +3,7 @@ import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
-import { AiService, getLastTokenUsage } from "./ai.service";
+import { AiService, getLastTokenUsage, getModelIdForType } from "./ai.service";
 import { PromptRegistryService } from "./prompt-registry.service";
 import { PolicyEngine } from "./ai-governance/policy-engine";
 
@@ -193,12 +193,10 @@ export class AiGatewayService {
         data: {
           userId: data.userId,
           phase: data.phase,
-          provider: "claude",
+          provider: data.model?.startsWith("gemini") ? "gemini" : "claude",
           model:
             data.model ??
-            (data.phase === "plan"
-              ? "claude-sonnet-4-6"
-              : "claude-haiku-4-5-20251001"),
+            getModelIdForType(data.phase as "plan" | "checklist" | "guide"),
           promptSlug: data.promptSlug,
           inputTokens: data.inputTokens ?? 0,
           outputTokens: data.outputTokens ?? 0,

@@ -484,9 +484,9 @@ export function DashboardV2({
               quality={85}
               className="object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-atlas-primary/90 via-atlas-primary/40 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent z-10" />
             {/* View details link - top right */}
-            <div className="absolute right-4 top-4 z-10 lg:right-6 lg:top-6">
+            <div className="absolute right-4 top-4 z-20 lg:right-6 lg:top-6">
               <Link
                 href={`/expedition/${activeTrip.id}`}
                 className="text-sm font-medium text-atlas-on-primary/80 underline-offset-4 hover:text-atlas-on-primary hover:underline font-atlas-body transition-colors"
@@ -496,7 +496,7 @@ export function DashboardV2({
               </Link>
             </div>
             {/* Content at bottom */}
-            <div className="absolute bottom-0 left-0 w-full p-6 lg:p-10">
+            <div className="absolute bottom-0 left-0 z-20 w-full p-6 lg:p-10">
               <div className="mb-4 flex items-center gap-3">
                 <AtlasBadge variant="status" color="warning" size="sm">
                   {t("nextStop")}

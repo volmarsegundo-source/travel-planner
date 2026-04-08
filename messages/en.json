@@ -510,7 +510,7 @@
     }
   },
   "expedition": {
-    "backToExpeditions": "Back to My Expeditions",
+    "backToExpeditions": "My Expeditions",
     "phase1": {
       "title": "The Inspiration",
       "subtitle": "Where will your next adventure take you?",
@@ -688,6 +688,12 @@
           "accommodationStyle": "Accommodation"
         },
         "prefValue": {
+          "business": "Business",
+          "solo": "Solo",
+          "couple": "Couple",
+          "family": "Family",
+          "group": "Group",
+          "student": "Student",
           "relaxed": "Relaxed",
           "moderate": "Moderate",
           "intense": "Intense",
@@ -761,7 +767,7 @@
       "advancePending": "Advance (checklist pending)",
       "advancePartial": "Advance ({count} items pending)",
       "advanceComplete": "Phase Complete — Advance →",
-      "addCustomItem": "+ Add custom item",
+      "addCustomItem": "Add custom item",
       "customItemPlaceholder": "Item name (e.g., Travel adapter)",
       "markAsRequired": "Mark as required",
       "addItem": "Add",
@@ -1245,8 +1251,8 @@
       "gamificationBadges": "{count, plural, one {# badge} other {# badges}}",
       "gamificationNextRank": "Next level: {rank} ({points} PA remaining)",
       "gamificationPhasesCompleted": "{count} phases completed",
-      "actionsBackToPhase": "Back to Phase 6",
-      "actionsBack": "Back to My Expeditions",
+      "actionsBackToPhase": "Back",
+      "actionsBack": "My Expeditions",
       "actionsExportPdf": "Export PDF",
       "actionsShare": "Share",
       "actionsComingSoon": "Coming soon",
@@ -1550,7 +1556,7 @@
       "processing": "Processing payment...",
       "successTitle": "Purchase complete!",
       "successMessage": "Your new balance is {balance} PA",
-      "backToExpeditions": "Back to My Expeditions",
+      "backToExpeditions": "My Expeditions",
       "errorTitle": "Payment failed",
       "error": "Something went wrong. Please try again.",
       "paymentFailed": "Payment could not be processed. Please try again.",
@@ -1727,7 +1733,32 @@
       "promptVersion": "Version",
       "promptMaxTokens": "Max Tokens",
       "promptActive": "Active",
-      "promptInactive": "Inactive"
+      "promptInactive": "Inactive",
+      "costAnalytics": {
+        "title": "Cost Analytics",
+        "avgCostPerExpedition": "Avg Cost per Expedition",
+        "currentMonthTotal": "Current Month Total",
+        "geminiComparison": "If Using Gemini",
+        "projected": "Projected (1000 users)",
+        "phaseCosts": "Cost by Phase",
+        "avgCost": "Avg Cost",
+        "totalCost": "Total Cost",
+        "geminiEquivalent": "Gemini Equivalent",
+        "users": "Users",
+        "expeditionsPerMonth": "Expeditions/mo",
+        "monthlyCostUsd": "Monthly Cost (USD)",
+        "monthlyCostBrl": "Monthly Cost (BRL)",
+        "projections": "Cost Projections",
+        "breakEven": "Break-even Analysis",
+        "breakEvenDescription": "At current costs, {users} paying users cover all AI expenses",
+        "noData": "No data",
+        "noDataExplanation": "No AI interactions recorded yet. Cost analytics will appear once expeditions start generating AI calls.",
+        "savingsPercent": "{percent}% savings",
+        "tooltipAvgCost": "Average cost of a single expedition across all AI phases",
+        "tooltipMonthTotal": "Total AI cost for the current calendar month",
+        "tooltipGemini": "What the same token usage would cost with Gemini 2.0 Flash",
+        "tooltipProjected": "Projected monthly cost at 1000 users with 2 expeditions/user/month"
+      }
     }
   },
   "atlas": {
@@ -2283,6 +2314,11 @@
       "copyright": "Atlas Travel Planner",
       "lgpd": "LGPD compliant. Your data is protected.",
       "newsletterSuccess": "Subscription registered! You will receive news soon."
+    },
+    "meta": {
+      "title": "Atlas — AI Travel Planner",
+      "description": "Transform your travel dreams into guided expeditions with AI-powered itineraries, checklists, and destination guides.",
+      "ogDescription": "Transform your travel dreams into guided expeditions with AI."
     }
   },
   "navV2": {

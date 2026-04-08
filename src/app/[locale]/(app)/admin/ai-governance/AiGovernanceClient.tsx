@@ -7,6 +7,7 @@ import { toggleKillSwitchAction } from "@/server/actions/ai-governance.actions";
 import type {
   AiGovernanceOverview,
   AiPhaseDetail,
+  CostAnalytics,
 } from "@/server/services/ai-governance-dashboard.service";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -48,15 +49,17 @@ interface AiGovernanceClientProps {
   };
   recentInteractions?: RecentInteraction[];
   promptTemplates?: PromptTemplateRow[];
+  costAnalytics?: CostAnalytics;
 }
 
-type TabKey = "overview" | "plan" | "checklist" | "guide";
+type TabKey = "overview" | "plan" | "checklist" | "guide" | "costAnalytics";
 
 const PHASE_TABS: { key: TabKey; i18nKey: string }[] = [
   { key: "overview", i18nKey: "overview" },
   { key: "plan", i18nKey: "plan" },
   { key: "checklist", i18nKey: "checklist" },
   { key: "guide", i18nKey: "guide" },
+  { key: "costAnalytics", i18nKey: "costAnalytics.title" },
 ];
 
 // ─── KPI Card ───────────────────────────────────────────────────────────────
@@ -250,11 +253,239 @@ function PhaseDetailPanel({
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
+// ─── Break-even calculation constants ───────────────────────────────────────
+
+/** Average revenue per paying user in BRL, based on PA package midpoint */
+const AVG_REVENUE_PER_USER_BRL =
+  (14.9 + 29.9 + 59.9 + 119.9) / 4; // R$ 56.15
+
+// ─── Cost Analytics Panel ──────────────────────────────────────────────────
+
+function CostAnalyticsPanel({
+  data,
+  t,
+}: {
+  data: CostAnalytics;
+  t: ReturnType<typeof useTranslations>;
+}) {
+  const hasData = data.phases.length > 0;
+
+  // Break-even: how many paying users needed to cover monthly AI costs at 1000-user projection
+  const projection1000 = data.projections.find((p) => p.users === 1000);
+  const monthlyCostBrl1000 = projection1000?.monthlyCostBrl ?? 0;
+  const breakEvenUsers =
+    monthlyCostBrl1000 > 0
+      ? Math.ceil(monthlyCostBrl1000 / AVG_REVENUE_PER_USER_BRL)
+      : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Row 1: 4 KPI Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label={t("costAnalytics.avgCostPerExpedition")}
+          value={
+            hasData
+              ? `$${data.avgCostPerExpedition.toFixed(4)}`
+              : t("costAnalytics.noData")
+          }
+          tooltip={t("costAnalytics.tooltipAvgCost")}
+        />
+        <KpiCard
+          label={t("costAnalytics.currentMonthTotal")}
+          value={`$${data.currentMonthTotalCostUsd.toFixed(2)}`}
+          tooltip={t("costAnalytics.tooltipMonthTotal")}
+        />
+        <Tooltip text={t("costAnalytics.tooltipGemini")}>
+          <AtlasCard>
+            <p className="text-sm text-atlas-on-surface-variant font-atlas-body">
+              {t("costAnalytics.geminiComparison")}
+            </p>
+            <div className="mt-1 flex items-center gap-2">
+              <p className="text-2xl font-atlas-headline font-bold text-atlas-on-surface">
+                ${data.geminiEquivalentCostUsd.toFixed(2)}
+              </p>
+              {data.savingsWithGemini > 0 && (
+                <AtlasBadge variant="status" color="success" size="sm">
+                  {t("costAnalytics.savingsPercent", {
+                    percent: data.savingsWithGemini,
+                  })}
+                </AtlasBadge>
+              )}
+            </div>
+          </AtlasCard>
+        </Tooltip>
+        <KpiCard
+          label={t("costAnalytics.projected")}
+          value={
+            hasData
+              ? `$${(projection1000?.monthlyCostUsd ?? 0).toFixed(2)}`
+              : t("costAnalytics.noData")
+          }
+          unit="/mo"
+          tooltip={t("costAnalytics.tooltipProjected")}
+        />
+      </div>
+
+      {/* Row 2: Per-Phase Cost Table */}
+      {hasData ? (
+        <AtlasCard>
+          <h3 className="mb-3 font-atlas-headline font-bold text-atlas-on-surface">
+            {t("costAnalytics.phaseCosts")}
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm font-atlas-body">
+              <thead>
+                <tr className="border-b border-atlas-outline-variant/20">
+                  <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                    {t("phase")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("calls")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.avgCost")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.totalCost")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.geminiEquivalent")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.phases.map((row) => {
+                  // Recalculate Gemini cost for this specific phase
+                  const geminiInput =
+                    (row.totalInputTokens * 0.10) / 1_000_000;
+                  const geminiOutput =
+                    (row.totalOutputTokens * 0.40) / 1_000_000;
+                  const geminiTotal = geminiInput + geminiOutput;
+
+                  return (
+                    <tr
+                      key={row.phase}
+                      className="border-b border-atlas-outline-variant/10"
+                    >
+                      <td className="py-2 text-atlas-on-surface">
+                        {t.has(row.phase as Parameters<typeof t>[0])
+                          ? t(row.phase as Parameters<typeof t>[0])
+                          : row.phase}
+                      </td>
+                      <td className="py-2 text-right text-atlas-on-surface">
+                        {row.calls}
+                      </td>
+                      <td className="py-2 text-right text-atlas-on-surface">
+                        ${row.avgCostUsd.toFixed(4)}
+                      </td>
+                      <td className="py-2 text-right text-atlas-on-surface">
+                        ${row.totalCostUsd.toFixed(2)}
+                      </td>
+                      <td className="py-2 text-right text-atlas-on-surface">
+                        ${geminiTotal.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </AtlasCard>
+      ) : (
+        <AtlasCard>
+          <p className="text-center text-sm text-atlas-on-surface-variant py-8">
+            {t("costAnalytics.noDataExplanation")}
+          </p>
+        </AtlasCard>
+      )}
+
+      {/* Row 3: Projection Table */}
+      {hasData && (
+        <AtlasCard>
+          <h3 className="mb-3 font-atlas-headline font-bold text-atlas-on-surface">
+            {t("costAnalytics.projections")}
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm font-atlas-body">
+              <thead>
+                <tr className="border-b border-atlas-outline-variant/20">
+                  <th className="pb-2 font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.users")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.expeditionsPerMonth")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.monthlyCostUsd")}
+                  </th>
+                  <th className="pb-2 text-right font-bold text-atlas-on-surface-variant">
+                    {t("costAnalytics.monthlyCostBrl")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.projections.map((row) => (
+                  <tr
+                    key={row.users}
+                    className="border-b border-atlas-outline-variant/10"
+                  >
+                    <td className="py-2 text-atlas-on-surface">
+                      {row.users.toLocaleString()}
+                    </td>
+                    <td className="py-2 text-right text-atlas-on-surface">
+                      {row.expeditionsPerMonth.toLocaleString()}
+                    </td>
+                    <td className="py-2 text-right text-atlas-on-surface">
+                      ${row.monthlyCostUsd.toFixed(2)}
+                    </td>
+                    <td className="py-2 text-right text-atlas-on-surface">
+                      R$ {row.monthlyCostBrl.toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </AtlasCard>
+      )}
+
+      {/* Row 4: Break-even info card */}
+      {hasData && breakEvenUsers > 0 && (
+        <AtlasCard>
+          <div className="flex items-start gap-3 py-2">
+            <span
+              className="text-xl"
+              role="img"
+              aria-hidden="true"
+            >
+              {/* info icon via text */}
+            </span>
+            <div>
+              <h3 className="font-atlas-headline font-bold text-atlas-on-surface">
+                {t("costAnalytics.breakEven")}
+              </h3>
+              <p className="mt-1 text-sm text-atlas-on-surface-variant font-atlas-body">
+                {t("costAnalytics.breakEvenDescription", {
+                  users: breakEvenUsers,
+                })}
+              </p>
+            </div>
+          </div>
+        </AtlasCard>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Component ─────────────────────────────────────────────────────────
+
 export function AiGovernanceClient({
   overview,
   phases,
   recentInteractions = [],
   promptTemplates = [],
+  costAnalytics,
 }: AiGovernanceClientProps) {
   const t = useTranslations("admin.aiGovernance");
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
@@ -572,6 +803,13 @@ export function AiGovernanceClient({
       {activeTab === "guide" && (
         <div id="panel-guide" role="tabpanel">
           <PhaseDetailPanel detail={phases.guide} t={t} />
+        </div>
+      )}
+
+      {/* Cost Analytics Panel */}
+      {activeTab === "costAnalytics" && costAnalytics && (
+        <div id="panel-costAnalytics" role="tabpanel">
+          <CostAnalyticsPanel data={costAnalytics} t={t} />
         </div>
       )}
     </div>

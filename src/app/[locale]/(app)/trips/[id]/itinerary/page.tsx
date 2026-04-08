@@ -3,7 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { AlertCircle } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
-import { ItineraryEditor } from "@/components/features/itinerary/ItineraryEditor";
+import { LazyItineraryEditor } from "@/components/features/itinerary/LazyItineraryEditor";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 
@@ -93,7 +93,7 @@ export default async function ItineraryPage({ params }: ItineraryPageProps) {
         </header>
 
         {/* Itinerary editor */}
-        <ItineraryEditor
+        <LazyItineraryEditor
           initialDays={trip.itineraryDays}
           tripId={trip.id}
           locale={locale}

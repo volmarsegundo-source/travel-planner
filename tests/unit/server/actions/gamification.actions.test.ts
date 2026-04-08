@@ -72,7 +72,7 @@ const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
 const USER_ID = "user-test-123";
-const TRIP_ID = "trip-test-456";
+const TRIP_ID = "cm1234567890abcdefghijklm";
 
 function mockAuthenticatedSession() {
   mockAuth.mockResolvedValue({

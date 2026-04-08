@@ -1,7 +1,7 @@
 /**
  * Token cost calculator for AI provider usage tracking.
  *
- * Pricing is based on Anthropic's current rates (2026).
+ * Pricing is based on Anthropic and Google AI current rates (2026).
  * All costs are returned in USD with 6 decimal places.
  */
 
@@ -12,7 +12,8 @@ interface ModelPricing {
   outputPerMillion: number;
 }
 
-const MODEL_PRICING: Record<string, ModelPricing> = {
+export const MODEL_PRICING: Record<string, ModelPricing> = {
+  // Anthropic models
   "claude-sonnet-4-6": {
     inputPerMillion: 3.0,
     outputPerMillion: 15.0,
@@ -20,6 +21,11 @@ const MODEL_PRICING: Record<string, ModelPricing> = {
   "claude-haiku-4-5-20251001": {
     inputPerMillion: 0.8,
     outputPerMillion: 4.0,
+  },
+  // Google AI models (no cache pricing equivalent)
+  "gemini-2.0-flash": {
+    inputPerMillion: 0.10,
+    outputPerMillion: 0.40,
   },
 };
 

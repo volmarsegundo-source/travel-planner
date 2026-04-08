@@ -1,6 +1,10 @@
 import "server-only";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
+import {
+  calculateEstimatedCost,
+  MODEL_PRICING,
+} from "@/lib/cost-calculator";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -29,11 +33,48 @@ export interface AiPhaseDetail {
   topErrors: { errorCode: string; count: number }[];
 }
 
+export interface CostAnalyticsPhase {
+  phase: string;
+  calls: number;
+  totalCostUsd: number;
+  avgCostUsd: number;
+  totalInputTokens: number;
+  totalOutputTokens: number;
+}
+
+export interface CostAnalyticsProjection {
+  users: number;
+  expeditionsPerMonth: number;
+  monthlyCostUsd: number;
+  monthlyCostBrl: number;
+}
+
+export interface CostAnalytics {
+  phases: CostAnalyticsPhase[];
+  avgCostPerExpedition: number;
+  currentMonthTotalCostUsd: number;
+  geminiEquivalentCostUsd: number;
+  savingsWithGemini: number;
+  projections: CostAnalyticsProjection[];
+}
+
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 const TOP_ERRORS_LIMIT = 5;
 const COST_PRECISION = 100; // 2 decimal places
 const PERCENTAGE_MULTIPLIER = 100;
+
+/** USD to BRL conversion rate — TODO: replace with live rate API */
+const USD_TO_BRL = 5.0;
+
+/** Gemini model used for cost comparison */
+const GEMINI_COMPARISON_MODEL = "gemini-2.0-flash";
+
+/** Assumed expeditions per user per month for projections */
+const EXPEDITIONS_PER_USER = 2;
+
+/** User count scenarios for projections */
+const PROJECTION_USER_COUNTS = [100, 500, 1000];
 
 // ─── Service ────────────────────────────────────────────────────────────────
 
@@ -231,6 +272,148 @@ export class AiGovernanceDashboardService {
       },
       orderBy: { slug: "asc" },
     });
+  }
+
+  /**
+   * Cost analytics: per-phase actuals, Gemini comparison, and user-count projections.
+   */
+  static async getCostAnalytics(
+    periodDays = 30,
+  ): Promise<CostAnalytics> {
+    const since = new Date();
+    since.setDate(since.getDate() - periodDays);
+
+    // Current month boundaries
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const [periodLogs, monthLogs] = await Promise.all([
+      db.aiInteractionLog.findMany({
+        where: { createdAt: { gte: since } },
+        select: {
+          phase: true,
+          inputTokens: true,
+          outputTokens: true,
+          estimatedCostUsd: true,
+        },
+      }),
+      db.aiInteractionLog.findMany({
+        where: { createdAt: { gte: monthStart } },
+        select: { estimatedCostUsd: true },
+      }),
+    ]);
+
+    // 1. Group by phase
+    const phaseMap = new Map<
+      string,
+      {
+        calls: number;
+        totalCostUsd: number;
+        totalInputTokens: number;
+        totalOutputTokens: number;
+      }
+    >();
+
+    for (const log of periodLogs) {
+      const existing = phaseMap.get(log.phase) ?? {
+        calls: 0,
+        totalCostUsd: 0,
+        totalInputTokens: 0,
+        totalOutputTokens: 0,
+      };
+      existing.calls++;
+      existing.totalCostUsd += log.estimatedCostUsd;
+      existing.totalInputTokens += log.inputTokens;
+      existing.totalOutputTokens += log.outputTokens;
+      phaseMap.set(log.phase, existing);
+    }
+
+    const phases: CostAnalyticsPhase[] = Array.from(
+      phaseMap.entries(),
+    ).map(([phase, data]) => ({
+      phase,
+      calls: data.calls,
+      totalCostUsd:
+        Math.round(data.totalCostUsd * COST_PRECISION) / COST_PRECISION,
+      avgCostUsd:
+        data.calls > 0
+          ? Math.round((data.totalCostUsd / data.calls) * 10000) / 10000
+          : 0,
+      totalInputTokens: data.totalInputTokens,
+      totalOutputTokens: data.totalOutputTokens,
+    }));
+
+    // 2. Average cost per expedition (sum of avg costs across all phases)
+    const avgCostPerExpedition =
+      phases.length > 0
+        ? Math.round(
+            phases.reduce((sum, p) => sum + p.avgCostUsd, 0) * 10000,
+          ) / 10000
+        : 0;
+
+    // 3. Current month total
+    const currentMonthTotalCostUsd =
+      Math.round(
+        monthLogs.reduce((sum, l) => sum + l.estimatedCostUsd, 0) *
+          COST_PRECISION,
+      ) / COST_PRECISION;
+
+    // 4. Gemini comparison — recalculate total cost with Gemini pricing
+    let geminiEquivalentCostUsd = 0;
+    if (MODEL_PRICING[GEMINI_COMPARISON_MODEL]) {
+      for (const phaseData of phaseMap.values()) {
+        const estimate = calculateEstimatedCost(
+          GEMINI_COMPARISON_MODEL,
+          phaseData.totalInputTokens,
+          phaseData.totalOutputTokens,
+        );
+        geminiEquivalentCostUsd += estimate.totalCost;
+      }
+    }
+    geminiEquivalentCostUsd =
+      Math.round(geminiEquivalentCostUsd * COST_PRECISION) /
+      COST_PRECISION;
+
+    const totalActualCost = periodLogs.reduce(
+      (sum, l) => sum + l.estimatedCostUsd,
+      0,
+    );
+    const savingsWithGemini =
+      totalActualCost > 0
+        ? Math.round(
+            ((totalActualCost - geminiEquivalentCostUsd) /
+              totalActualCost) *
+              PERCENTAGE_MULTIPLIER,
+          )
+        : 0;
+
+    // 5. Projections
+    const projections: CostAnalyticsProjection[] =
+      PROJECTION_USER_COUNTS.map((users) => {
+        const expeditionsPerMonth = users * EXPEDITIONS_PER_USER;
+        const monthlyCostUsd =
+          Math.round(
+            avgCostPerExpedition * expeditionsPerMonth * COST_PRECISION,
+          ) / COST_PRECISION;
+        const monthlyCostBrl =
+          Math.round(monthlyCostUsd * USD_TO_BRL * COST_PRECISION) /
+          COST_PRECISION;
+        return {
+          users,
+          expeditionsPerMonth,
+          monthlyCostUsd,
+          monthlyCostBrl,
+        };
+      });
+
+    return {
+      phases,
+      avgCostPerExpedition,
+      currentMonthTotalCostUsd,
+      geminiEquivalentCostUsd,
+      savingsWithGemini,
+      projections,
+    };
   }
 
   /**

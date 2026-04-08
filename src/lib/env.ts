@@ -12,6 +12,8 @@ export const env = createEnv({
     ).default("redis://localhost:6379"),
     ANTHROPIC_API_KEY: z.string().min(1, "ANTHROPIC_API_KEY cannot be empty").startsWith("sk-ant-").optional(),
     GOOGLE_AI_API_KEY: z.string().optional(),
+    AI_PROVIDER: z.enum(["anthropic", "gemini"]).default("anthropic"),
+    AI_FALLBACK_PROVIDER: z.enum(["anthropic", "gemini"]).optional(),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),
     // Auth.js v5 reads AUTH_SECRET; keep NEXTAUTH_SECRET as v4 alias
@@ -43,6 +45,8 @@ export const env = createEnv({
     REDIS_URL: process.env.REDIS_URL,
     ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
     GOOGLE_AI_API_KEY: process.env.GOOGLE_AI_API_KEY,
+    AI_PROVIDER: process.env.AI_PROVIDER,
+    AI_FALLBACK_PROVIDER: process.env.AI_FALLBACK_PROVIDER,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,

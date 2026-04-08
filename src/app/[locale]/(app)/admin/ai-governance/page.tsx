@@ -4,7 +4,7 @@ import { AiGovernanceClient } from "./AiGovernanceClient";
 const PERIOD_DAYS = 30;
 
 export default async function AiGovernancePage() {
-  const [overview, planDetail, checklistDetail, guideDetail, recentInteractions, promptTemplates] =
+  const [overview, planDetail, checklistDetail, guideDetail, recentInteractions, promptTemplates, costAnalytics] =
     await Promise.all([
       AiGovernanceDashboardService.getOverview(PERIOD_DAYS),
       AiGovernanceDashboardService.getPhaseDetail("plan", PERIOD_DAYS),
@@ -18,6 +18,7 @@ export default async function AiGovernancePage() {
       ),
       AiGovernanceDashboardService.getRecentInteractions(20),
       AiGovernanceDashboardService.getPromptTemplates(),
+      AiGovernanceDashboardService.getCostAnalytics(PERIOD_DAYS),
     ]);
 
   // Serialize dates for client component, include provider
@@ -41,6 +42,7 @@ export default async function AiGovernancePage() {
       }}
       recentInteractions={serializedInteractions}
       promptTemplates={serializedTemplates}
+      costAnalytics={costAnalytics}
     />
   );
 }

@@ -1,14 +1,19 @@
 "use server";
 
 import "server-only";
+import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { AiGovernanceDashboardService } from "@/server/services/ai-governance-dashboard.service";
 import type { ActionResult } from "@/types/trip.types";
 
-// ─── Constants ──────────────────────────────────────────────────────────────
+// ─── Validation ─────────────────────────────────────────────────────────────
 
-const VALID_PHASES = ["global", "plan", "checklist", "guide"] as const;
+const ToggleKillSwitchSchema = z.object({
+  phase: z.enum(["global", "plan", "checklist", "guide"]),
+  enabled: z.boolean(),
+  reason: z.string().min(1).max(500),
+});
 
 // ─── Actions ────────────────────────────────────────────────────────────────
 
@@ -26,14 +31,15 @@ export async function toggleKillSwitchAction(
     return { success: false, error: "errors.unauthorized" };
   }
 
-  if (!VALID_PHASES.includes(phase as (typeof VALID_PHASES)[number])) {
-    return { success: false, error: "errors.generic" };
+  const parsed = ToggleKillSwitchSchema.safeParse({ phase, enabled, reason });
+  if (!parsed.success) {
+    return { success: false, error: "errors.validation" };
   }
 
   await AiGovernanceDashboardService.toggleKillSwitch(
-    phase,
-    enabled,
-    reason,
+    parsed.data.phase,
+    parsed.data.enabled,
+    parsed.data.reason,
     session.user.id,
   );
 

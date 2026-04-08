@@ -252,7 +252,7 @@ export function PhaseShellV2({
               <p className="text-sm font-atlas-body text-atlas-info">
                 {t("editBanner", {
                   phase: viewingPhase,
-                  fallback: `Voce esta revisitando a Fase ${viewingPhase}. Suas alteracoes serao salvas quando voce confirmar.`,
+                  fallback: `Você está revisitando a Fase ${viewingPhase}. Suas alterações serão salvas quando você confirmar.`,
                 })}
               </p>
             </div>

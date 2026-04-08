@@ -248,6 +248,16 @@ export async function deleteActivityAction(
 
 // ─── reorderActivitiesAction ──────────────────────────────────────────────────
 
+const ReorderSchema = z.object({
+  tripId: z.string().cuid(),
+  activities: z.array(
+    z.object({
+      id: z.string().cuid(),
+      orderIndex: z.number().int().min(0).max(1000),
+    })
+  ).min(1).max(200),
+});
+
 export async function reorderActivitiesAction(
   tripId: string,
   activities: { id: string; orderIndex: number }[]
@@ -255,9 +265,14 @@ export async function reorderActivitiesAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const parsed = ReorderSchema.safeParse({ tripId, activities });
+  if (!parsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   try {
-    await TripService.reorderActivities(tripId, session.user.id, activities);
-    revalidatePath(`/trips/${tripId}/itinerary`);
+    await TripService.reorderActivities(parsed.data.tripId, session.user.id, parsed.data.activities);
+    revalidatePath(`/trips/${parsed.data.tripId}/itinerary`);
     return { success: true };
   } catch (error) {
     logger.error("itinerary.reorderActivitiesAction.error", error, {

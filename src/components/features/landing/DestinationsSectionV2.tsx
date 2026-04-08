@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 
 interface DestinationData {
@@ -92,10 +93,18 @@ export function DestinationsSectionV2() {
               >
                 {/* Destination image with gradient fallback */}
                 {imageUrl ? (
-                  <img
+                  <Image
                     src={imageUrl}
                     alt={t(`${i18nKey}.imageAlt`)}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 motion-reduce:group-hover:scale-100"
+                    fill
+                    sizes={
+                      size === "panoramic"
+                        ? "100vw"
+                        : size === "large"
+                          ? "(max-width: 1024px) 100vw, 58vw"
+                          : "(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 42vw"
+                    }
+                    className="object-cover transition-transform duration-700 group-hover:scale-110 motion-reduce:group-hover:scale-100"
                     loading="lazy"
                   />
                 ) : (

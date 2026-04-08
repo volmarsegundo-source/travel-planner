@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { Link } from "@/i18n/navigation";
 
@@ -48,9 +49,11 @@ export function UserMenu({ userName, userImage, userEmail, inline }: UserMenuPro
   const initials = userName.charAt(0).toUpperCase();
 
   const avatar = userImage ? (
-    <img
+    <Image
       src={userImage}
       alt={userName}
+      width={32}
+      height={32}
       className="h-8 w-8 rounded-full object-cover"
     />
   ) : (

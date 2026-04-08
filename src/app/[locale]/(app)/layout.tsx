@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
@@ -5,6 +6,10 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
 import { FooterV2 } from "@/components/features/landing/FooterV2";
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 interface AppShellLayoutProps {
   children: React.ReactNode;

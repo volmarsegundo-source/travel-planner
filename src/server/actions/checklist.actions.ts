@@ -10,6 +10,11 @@ import { mapErrorToKey } from "@/lib/action-utils";
 import type { ActionResult } from "@/types/trip.types";
 import type { ChecklistCategory } from "@/types/ai.types";
 
+// ─── Validation ──────────────────────────────────────────────────────────────
+
+const ItemIdSchema = z.string().cuid();
+const TripIdSchema = z.string().cuid();
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export interface ChecklistItem {
@@ -45,15 +50,21 @@ export async function toggleChecklistItemAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const itemIdParsed = ItemIdSchema.safeParse(itemId);
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!itemIdParsed.success || !tripIdParsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   // BOLA check: verify trip belongs to the user
-  const owned = await verifyTripOwnership(tripId, session.user.id);
+  const owned = await verifyTripOwnership(tripIdParsed.data, session.user.id);
   if (!owned) {
     return { success: false, error: "trips.errors.notFound" };
   }
 
   // Verify item belongs to the trip (BOLA)
   const item = await db.checklistItem.findFirst({
-    where: { id: itemId, tripId },
+    where: { id: itemIdParsed.data, tripId: tripIdParsed.data },
   });
   if (!item) {
     return { success: false, error: "trips.errors.notFound" };
@@ -61,11 +72,11 @@ export async function toggleChecklistItemAction(
 
   try {
     const updated = await db.checklistItem.update({
-      where: { id: itemId },
+      where: { id: itemIdParsed.data },
       data: { checked: !item.checked },
     });
 
-    revalidatePath(`/trips/${tripId}/checklist`);
+    revalidatePath(`/trips/${tripIdParsed.data}/checklist`);
     return { success: true, data: updated };
   } catch (error) {
     logger.error("checklist.toggleChecklistItemAction.error", error, {
@@ -85,6 +96,11 @@ export async function addChecklistItemAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   try {
     z.string().min(1).max(200).parse(label.trim());
   } catch {
@@ -92,7 +108,7 @@ export async function addChecklistItemAction(
   }
 
   // BOLA check
-  const owned = await verifyTripOwnership(tripId, session.user.id);
+  const owned = await verifyTripOwnership(tripIdParsed.data, session.user.id);
   if (!owned) {
     return { success: false, error: "trips.errors.notFound" };
   }
@@ -100,14 +116,14 @@ export async function addChecklistItemAction(
   try {
     // Get next orderIndex within this category
     const maxOrder = await db.checklistItem.aggregate({
-      where: { tripId, category },
+      where: { tripId: tripIdParsed.data, category },
       _max: { orderIndex: true },
     });
     const nextIndex = (maxOrder._max.orderIndex ?? -1) + 1;
 
     const item = await db.checklistItem.create({
       data: {
-        tripId,
+        tripId: tripIdParsed.data,
         category,
         label: label.trim(),
         checked: false,
@@ -115,7 +131,7 @@ export async function addChecklistItemAction(
       },
     });
 
-    revalidatePath(`/trips/${tripId}/checklist`);
+    revalidatePath(`/trips/${tripIdParsed.data}/checklist`);
     return { success: true, data: item };
   } catch (error) {
     logger.error("checklist.addChecklistItemAction.error", error, {
@@ -134,15 +150,21 @@ export async function deleteChecklistItemAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const itemIdParsed = ItemIdSchema.safeParse(itemId);
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!itemIdParsed.success || !tripIdParsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
   // BOLA check: verify trip belongs to the user
-  const owned = await verifyTripOwnership(tripId, session.user.id);
+  const owned = await verifyTripOwnership(tripIdParsed.data, session.user.id);
   if (!owned) {
     return { success: false, error: "trips.errors.notFound" };
   }
 
   // Verify item belongs to the trip (BOLA)
   const item = await db.checklistItem.findFirst({
-    where: { id: itemId, tripId },
+    where: { id: itemIdParsed.data, tripId: tripIdParsed.data },
     select: { id: true },
   });
   if (!item) {
@@ -150,8 +172,8 @@ export async function deleteChecklistItemAction(
   }
 
   try {
-    await db.checklistItem.delete({ where: { id: itemId } });
-    revalidatePath(`/trips/${tripId}/checklist`);
+    await db.checklistItem.delete({ where: { id: itemIdParsed.data } });
+    revalidatePath(`/trips/${tripIdParsed.data}/checklist`);
     return { success: true };
   } catch (error) {
     logger.error("checklist.deleteChecklistItemAction.error", error, {

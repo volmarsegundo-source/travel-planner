@@ -510,7 +510,7 @@
     }
   },
   "expedition": {
-    "backToExpeditions": "Voltar para Minhas Expedições",
+    "backToExpeditions": "Minhas Expedições",
     "phase1": {
       "title": "A Inspiração",
       "subtitle": "Para onde sua próxima aventura vai te levar?",
@@ -688,6 +688,12 @@
           "accommodationStyle": "Hospedagem"
         },
         "prefValue": {
+          "business": "Negócios",
+          "solo": "Solo",
+          "couple": "Casal",
+          "family": "Família",
+          "group": "Grupo",
+          "student": "Estudante",
           "relaxed": "Relaxado",
           "moderate": "Moderado",
           "intense": "Intenso",
@@ -761,7 +767,7 @@
       "advancePending": "Avançar (checklist pendente)",
       "advancePartial": "Avançar ({count} itens pendentes)",
       "advanceComplete": "Fase Completa — Avançar →",
-      "addCustomItem": "+ Adicionar item personalizado",
+      "addCustomItem": "Adicionar item personalizado",
       "customItemPlaceholder": "Nome do item (ex: Adaptador de tomada)",
       "markAsRequired": "Marcar como obrigatório",
       "addItem": "Adicionar",
@@ -1080,11 +1086,11 @@
       "badgeManual": "Manual",
       "badgeAI": "IA",
       "regenDialogTitle": "Voce tem atividades adicionadas manualmente",
-      "regenDialogMessage": "Encontramos {count, plural, one {# atividade} other {# atividades}} que voce adicionou ao roteiro. O que voce prefere fazer?",
+      "regenDialogMessage": "Encontramos {count, plural, one {# atividade} other {# atividades}} que você adicionou ao roteiro. O que você prefere fazer?",
       "regenKeepManual": "Manter minhas atividades",
       "regenKeepManualDesc": "O AI vai gerar novos horarios e sugestoes ao redor das suas atividades.",
       "regenAll": "Regenerar tudo",
-      "regenAllDesc": "O AI vai gerar um roteiro completamente novo. Suas atividades manuais serao removidas.",
+      "regenAllDesc": "O AI vai gerar um roteiro completamente novo. Suas atividades manuais serão removidas.",
       "personalizeTitle": "Personalize Seu Roteiro",
       "personalNotesPlaceholder": "Ex: Quero incluir um dia no estádio de futebol...",
       "regenerateItineraryCta": "Re-gerar Roteiro ({cost} PA)",
@@ -1245,8 +1251,8 @@
       "gamificationBadges": "{count, plural, one {# badge} other {# badges}}",
       "gamificationNextRank": "Próximo nível: {rank} ({points} PA restantes)",
       "gamificationPhasesCompleted": "{count} fases concluídas",
-      "actionsBackToPhase": "Voltar para Fase 6",
-      "actionsBack": "Voltar para Minhas Expedições",
+      "actionsBackToPhase": "Voltar",
+      "actionsBack": "Minhas Expedições",
       "actionsExportPdf": "Exportar PDF",
       "actionsShare": "Compartilhar",
       "actionsComingSoon": "Em breve",
@@ -1550,7 +1556,7 @@
       "processing": "Processando pagamento...",
       "successTitle": "Compra realizada!",
       "successMessage": "Seu novo saldo e {balance} PA",
-      "backToExpeditions": "Voltar para Minhas Expedições",
+      "backToExpeditions": "Minhas Expedições",
       "errorTitle": "Pagamento falhou",
       "error": "Algo deu errado. Tente novamente.",
       "paymentFailed": "O pagamento não pode ser processado. Tente novamente.",
@@ -1727,7 +1733,32 @@
       "promptVersion": "Versão",
       "promptMaxTokens": "Max Tokens",
       "promptActive": "Ativo",
-      "promptInactive": "Inativo"
+      "promptInactive": "Inativo",
+      "costAnalytics": {
+        "title": "Custos de IA",
+        "avgCostPerExpedition": "Custo Medio por Expedicao",
+        "currentMonthTotal": "Total do Mes Atual",
+        "geminiComparison": "Se Usando Gemini",
+        "projected": "Projetado (1000 usuarios)",
+        "phaseCosts": "Custo por Fase",
+        "avgCost": "Custo Medio",
+        "totalCost": "Custo Total",
+        "geminiEquivalent": "Equivalente Gemini",
+        "users": "Usuarios",
+        "expeditionsPerMonth": "Expedicoes/mes",
+        "monthlyCostUsd": "Custo Mensal (USD)",
+        "monthlyCostBrl": "Custo Mensal (BRL)",
+        "projections": "Projecoes de Custo",
+        "breakEven": "Analise de Break-even",
+        "breakEvenDescription": "No custo atual, {users} usuarios pagantes cobrem todas as despesas de IA",
+        "noData": "Sem dados",
+        "noDataExplanation": "Nenhuma interacao de IA registrada ainda. A analise de custos aparecera quando as expedicoes comecarem a gerar chamadas de IA.",
+        "savingsPercent": "{percent}% de economia",
+        "tooltipAvgCost": "Custo medio de uma unica expedicao em todas as fases de IA",
+        "tooltipMonthTotal": "Custo total de IA para o mes atual",
+        "tooltipGemini": "Quanto o mesmo uso de tokens custaria com Gemini 2.0 Flash",
+        "tooltipProjected": "Custo mensal projetado com 1000 usuarios e 2 expedicoes/usuario/mes"
+      }
     }
   },
   "atlas": {
@@ -1810,7 +1841,7 @@
         "family": "Família",
         "group": "Grupo",
         "student": "Estudante",
-        "business": "Negocios"
+        "business": "Negócios"
       },
       "accommodationStyle": {
         "budget": "Economico",
@@ -2283,6 +2314,11 @@
       "copyright": "Atlas Travel Planner",
       "lgpd": "Em conformidade com a LGPD. Seus dados estão protegidos.",
       "newsletterSuccess": "Inscricao registrada! Em breve você recebera novidades."
+    },
+    "meta": {
+      "title": "Atlas — Planejador de Viagens com IA",
+      "description": "Transforme seus sonhos de viagem em expedições guiadas com roteiros, checklists e guias de destino criados por IA.",
+      "ogDescription": "Transforme seus sonhos de viagem em expedições guiadas com IA."
     }
   },
   "navV2": {
@@ -2308,7 +2344,7 @@
   },
   "dashboardV2": {
     "greeting": "Ola, {name}!",
-    "subtitle": "Sua jornada de exploracao está apenas comecando. Onde sera seu próximo horizonte?",
+    "subtitle": "Sua jornada de exploração está apenas começando. Onde será seu próximo horizonte?",
     "recentBadges": "Conquistas Recentes",
     "noBadges": "Complete fases para desbloquear conquistas",
     "levelLabel": "Nível {level} - {rank}",
