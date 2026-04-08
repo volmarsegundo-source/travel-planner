@@ -193,7 +193,10 @@ export class AiGatewayService {
         data: {
           userId: data.userId,
           phase: data.phase,
-          provider: data.model?.startsWith("gemini") ? "gemini" : "claude",
+          provider: (() => {
+            const m = data.model ?? getModelIdForType(data.phase as "plan" | "checklist" | "guide");
+            return m.startsWith("gemini") ? "gemini" : "claude";
+          })(),
           model:
             data.model ??
             getModelIdForType(data.phase as "plan" | "checklist" | "guide"),
