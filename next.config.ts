@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from 'next-intl/plugin';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
@@ -49,4 +50,14 @@ if (config.experimental?.turbo) {
   delete config.experimental.turbo;
 }
 
-export default withAnalyze(config);
+export default withSentryConfig(withAnalyze(config), {
+  org: "atlas-travel",
+  project: "atlas-web",
+  silent: true,
+  sourcemaps: {
+    deleteSourcemapsAfterUpload: true,
+  },
+  widenClientFileUpload: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+});

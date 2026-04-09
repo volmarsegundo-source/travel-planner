@@ -29,6 +29,7 @@ export const env = createEnv({
     ENCRYPTION_KEY: z.string().length(64, "ENCRYPTION_KEY must be 64 hex chars (32 bytes)").optional(),
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
+    FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -62,6 +63,7 @@ export const env = createEnv({
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    FEEDBACK_WEBHOOK_URL: process.env.FEEDBACK_WEBHOOK_URL,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,

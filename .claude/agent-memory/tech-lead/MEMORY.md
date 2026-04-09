@@ -27,6 +27,9 @@
 - Sprint 39: PLANNED -- Landing Page + Login V2, 22+1 tasks, v0.34.0
   - See: [project_sprint39_plan.md](project_sprint39_plan.md)
   - Plan: docs/specs/sprint-39/SPRINT-39-EXECUTION-PLAN.md
+- Sprint 41: PLANNED -- Polish + Beta Launch, 26 tasks, v0.58.0
+  - See: [project_sprint41_plan.md](project_sprint41_plan.md)
+  - Plan: docs/specs/sprint-41/SPRINT-41-PLAN.md
 
 ## Key Docs Paths
 - docs/tasks.md -- backlog (large file, use offset/limit)

@@ -4,6 +4,7 @@ import { useState, useRef, useCallback, useEffect, useMemo, Suspense } from "rea
 import dynamic from "next/dynamic";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
+import { track } from "@vercel/analytics";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasCard } from "@/components/ui/AtlasCard";
 import { PhaseShell } from "./PhaseShell";
@@ -1215,7 +1216,6 @@ export function Phase6ItineraryV2({
   // ─── State ───────────────────────────────────────────────────────────────
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showRegenerateConfirm, setShowRegenerateConfirm] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const [daysGenerated, setDaysGenerated] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
@@ -1227,7 +1227,6 @@ export function Phase6ItineraryV2({
   // Smart regen dialog (SPEC-ROTEIRO-REGEN-INTELIGENTE)
   const [showRegenDialog, setShowRegenDialog] = useState(false);
   const [keepManual, setKeepManual] = useState(false);
-  const regenTriggerRef = useRef<HTMLButtonElement>(null);
 
   // Itinerary personalization (same pattern as Phase 5 guide)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -1296,7 +1295,6 @@ export function Phase6ItineraryV2({
   const handleGenerate = useCallback(async () => {
     setError(null);
     setIsGenerating(true);
-    setShowRegenerateConfirm(false);
     setDaysGenerated(0);
     setProgressPercent(0);
     accumulatedRef.current = "";
@@ -1304,6 +1302,7 @@ export function Phase6ItineraryV2({
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
     startProgressTimer();
+    track("ai_generation_triggered", { phase: 6, tripId });
 
     try {
       const response = await fetch("/api/ai/plan/stream", {
@@ -1348,16 +1347,18 @@ export function Phase6ItineraryV2({
             const data = line.slice(6);
             if (data === "[DONE]") {
               stopProgressTimer();
+              const durationMs = Date.now() - streamStartRef.current;
+              track("ai_generation_completed", { phase: 6, tripId, durationMs });
               syncPhase6CompletionAction(tripId).catch(() => {});
-              setIsGenerating(false);
-              // Fetch fresh itinerary data and update local state
-              getItineraryDaysAction(tripId)
-                .then((freshDays) => {
-                  if (freshDays.length > 0) setDays(freshDays);
-                })
-                .catch(() => {})
-                .finally(() => router.refresh());
-              return;
+              // Fetch fresh itinerary data BEFORE clearing isGenerating
+              // so the transition goes directly: progress → itinerary
+              // (avoids flashing the empty/generation screen)
+              try {
+                const freshDays = await getItineraryDaysAction(tripId);
+                if (freshDays.length > 0) setDays(freshDays);
+              } catch { /* ignore fetch error */ }
+              router.refresh();
+              return; // finally block sets isGenerating(false) after days are loaded
             }
             if (data.startsWith('{"error":')) {
               try {
@@ -1416,25 +1417,6 @@ export function Phase6ItineraryV2({
 
   function handleCancel() { abortControllerRef.current?.abort(); }
 
-  function handleRegenerateClick() {
-    if (!hasItinerary) {
-      handleRequestGenerate();
-      return;
-    }
-    // SPEC-ROTEIRO-REGEN-INTELIGENTE AC-003/004
-    if (hasManualActivities) {
-      setShowRegenDialog(true);
-    } else {
-      setShowRegenerateConfirm(true);
-    }
-  }
-
-  function handleRegenerateConfirm() {
-    setShowRegenerateConfirm(false);
-    setKeepManual(false);
-    handleRequestGenerate();
-  }
-
   /** Smart regen: user chose "Keep my activities" */
   function handleRegenKeepManual() {
     setShowRegenDialog(false);
@@ -1449,10 +1431,9 @@ export function Phase6ItineraryV2({
     handleRequestGenerate();
   }
 
-  /** Close regen dialog without action, return focus */
+  /** Close regen dialog without action */
   function handleRegenDialogClose() {
     setShowRegenDialog(false);
-    regenTriggerRef.current?.focus();
   }
 
   /** Toggle a personalization category chip */
@@ -1465,6 +1446,10 @@ export function Phase6ItineraryV2({
   /** Personalized re-generation with categories + notes */
   function handlePersonalizedRegen() {
     setRegenCount((c) => c + 1);
+    if (hasManualActivities) {
+      setShowRegenDialog(true);
+      return;
+    }
     handleRequestGenerate();
   }
 
@@ -1634,35 +1619,7 @@ export function Phase6ItineraryV2({
                   {travelStyle ? ` \u2022 ${t(`style_${travelStyle.toLowerCase()}`)}` : ""}
                 </p>
               </div>
-              <div className="flex gap-4 flex-wrap">
-                <AtlasButton
-                  ref={regenTriggerRef}
-                  variant="secondary"
-                  onClick={handleRegenerateClick}
-                  disabled={isGenerating}
-                  data-testid="regenerate-btn"
-                >
-                  {t("regenerateCta")} ({PA_COST} PA)
-                </AtlasButton>
-              </div>
             </div>
-
-            {/* Regenerate confirmation (no manual activities) */}
-            {showRegenerateConfirm && (
-              <AtlasCard
-                variant="base"
-                className="!border-atlas-warning/30 !bg-atlas-warning-container/20"
-                role="alertdialog"
-                aria-label={t("regenerateConfirmTitle")}
-              >
-                <p className="text-sm font-atlas-headline font-bold text-atlas-on-surface">{t("regenerateConfirmTitle")}</p>
-                <p className="mt-1 text-sm font-atlas-body text-atlas-on-surface-variant">{t("regenerateConfirmMessage")}</p>
-                <div className="mt-3 flex gap-2">
-                  <AtlasButton size="sm" variant="danger" onClick={handleRegenerateConfirm}>{t("regenerateConfirmYes")}</AtlasButton>
-                  <AtlasButton size="sm" variant="secondary" onClick={() => setShowRegenerateConfirm(false)}>{t("regenerateConfirmNo")}</AtlasButton>
-                </div>
-              </AtlasCard>
-            )}
 
             {/* View Toggle + Day Selector */}
             <div className="flex items-center gap-3">

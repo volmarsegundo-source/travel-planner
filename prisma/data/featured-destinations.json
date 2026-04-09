@@ -1,0 +1,92 @@
+[
+  {
+    "city": "Paris",
+    "country": "France",
+    "countryCode": "FR",
+    "lat": 48.8566,
+    "lon": 2.3522,
+    "unsplashQuery": "paris eiffel tower",
+    "tags": ["culture", "food", "romance"]
+  },
+  {
+    "city": "Tokyo",
+    "country": "Japan",
+    "countryCode": "JP",
+    "lat": 35.6762,
+    "lon": 139.6503,
+    "unsplashQuery": "tokyo shibuya",
+    "tags": ["culture", "food", "technology"]
+  },
+  {
+    "city": "New York",
+    "country": "United States",
+    "countryCode": "US",
+    "lat": 40.7128,
+    "lon": -74.006,
+    "unsplashQuery": "new york skyline",
+    "tags": ["culture", "nightlife", "shopping"]
+  },
+  {
+    "city": "Rio de Janeiro",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "lat": -22.9068,
+    "lon": -43.1729,
+    "unsplashQuery": "rio de janeiro christ redeemer",
+    "tags": ["beach", "culture", "nature"]
+  },
+  {
+    "city": "Barcelona",
+    "country": "Spain",
+    "countryCode": "ES",
+    "lat": 41.3874,
+    "lon": 2.1686,
+    "unsplashQuery": "barcelona sagrada familia",
+    "tags": ["culture", "food", "architecture"]
+  },
+  {
+    "city": "Rome",
+    "country": "Italy",
+    "countryCode": "IT",
+    "lat": 41.9028,
+    "lon": 12.4964,
+    "unsplashQuery": "rome colosseum",
+    "tags": ["culture", "food", "history"]
+  },
+  {
+    "city": "London",
+    "country": "United Kingdom",
+    "countryCode": "GB",
+    "lat": 51.5074,
+    "lon": -0.1278,
+    "unsplashQuery": "london big ben",
+    "tags": ["culture", "history", "shopping"]
+  },
+  {
+    "city": "Bangkok",
+    "country": "Thailand",
+    "countryCode": "TH",
+    "lat": 13.7563,
+    "lon": 100.5018,
+    "unsplashQuery": "bangkok temple",
+    "tags": ["culture", "food", "adventure"]
+  },
+  {
+    "city": "Cape Town",
+    "country": "South Africa",
+    "countryCode": "ZA",
+    "lat": -33.9249,
+    "lon": 18.4241,
+    "unsplashQuery": "cape town table mountain",
+    "tags": ["nature", "adventure", "beach"]
+  },
+  {
+    "city": "Sydney",
+    "country": "Australia",
+    "countryCode": "AU",
+    "lat": -33.8688,
+    "lon": 151.2093,
+    "unsplashQuery": "sydney opera house",
+    "tags": ["beach", "culture", "nature"]
+  }
+]

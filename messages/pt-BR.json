@@ -115,7 +115,18 @@
     "daysRemaining": "dias restantes",
     "percentReady": "pronto",
     "showPassword": "Mostrar senha",
-    "hidePassword": "Ocultar senha"
+    "hidePassword": "Ocultar senha",
+    "registerHeading": "Crie sua conta",
+    "registerSubtitle": "Comece a planejar sua próxima expedição com IA",
+    "confirmPasswordLabel": "Confirmar senha",
+    "confirmPasswordPlaceholder": "Digite sua senha novamente",
+    "nameLabel": "Seu nome",
+    "namePlaceholder": "Como devemos te chamar?",
+    "nameOptional": "(opcional)",
+    "registerSubmit": "Criar conta",
+    "alreadyHaveAccount": "Já tem uma conta?",
+    "signInLink": "Entrar",
+    "registerLegalText": "Ao criar uma conta, você concorda com nossos"
   },
   "trustSignals": {
     "badge": "Seus dados estão protegidos",
@@ -1600,7 +1611,10 @@
   },
   "admin": {
     "navDashboard": "Painel",
+    "navFeedback": "Feedback",
     "navAiGovernance": "Governança de IA",
+    "navAnalytics": "Analytics",
+    "navErrors": "Erros",
     "dashboard": {
       "title": "Painel Administrativo",
       "subtitle": "Receita, usuários e métricas da plataforma",
@@ -1759,6 +1773,41 @@
         "tooltipGemini": "Quanto o mesmo uso de tokens custaria com Gemini 2.0 Flash",
         "tooltipProjected": "Custo mensal projetado com 1000 usuarios e 2 expedicoes/usuario/mes"
       }
+    },
+    "adminFeedback": {
+      "title": "Feedback Beta",
+      "subtitle": "Feedback dos testadores beta",
+      "filterAll": "Todos",
+      "filterBug": "Bugs",
+      "filterSuggestion": "Sugestoes",
+      "filterPraise": "Elogios",
+      "statusNew": "Novo",
+      "statusRead": "Lido",
+      "statusResolved": "Resolvido",
+      "noFeedback": "Nenhum feedback ainda",
+      "markRead": "Marcar como lido",
+      "markResolved": "Marcar como resolvido",
+      "addNote": "Adicionar nota...",
+      "saveNote": "Salvar",
+      "screenshot": "Captura de tela",
+      "page": "Pagina",
+      "phase": "Fase",
+      "showing": "Exibindo {from}-{to} de {total}"
+    },
+    "adminAnalytics": {
+      "title": "Analytics",
+      "subtitle": "Comportamento dos usuarios e metricas da plataforma",
+      "vercelLink": "Abrir Vercel Analytics",
+      "vercelDescription": "Visualize page views, web vitals e eventos personalizados no painel do Vercel.",
+      "aiUsageTitle": "Resumo de Uso de IA",
+      "noData": "Nenhum dado disponivel"
+    },
+    "adminErrors": {
+      "title": "Monitoramento de Erros",
+      "subtitle": "Monitore e resolva erros da aplicacao",
+      "sentryLink": "Abrir Painel do Sentry",
+      "sentryDescription": "Visualize detalhes de erros, stack traces e alertas no painel do Sentry.",
+      "notConfigured": "Sentry nao esta configurado. Defina SENTRY_DSN para ativar o monitoramento de erros."
     }
   },
   "atlas": {
@@ -2377,5 +2426,23 @@
     "buyPA": "Comprar PA",
     "buyPADesc": "Adquira Pontos Atlas para desbloquear recursos.",
     "loading": "Carregando dashboard..."
+  },
+  "feedback": {
+    "buttonLabel": "Feedback",
+    "modalTitle": "Enviar Feedback",
+    "typeBug": "Bug",
+    "typeSuggestion": "Sugestao",
+    "typePraise": "Elogio",
+    "messagePlaceholder": "Descreva seu feedback... (minimo 10 caracteres)",
+    "screenshotLabel": "Anexar captura de tela",
+    "screenshotCapturing": "Capturando...",
+    "screenshotCaptured": "Captura anexada",
+    "submit": "Enviar Feedback",
+    "sending": "Enviando...",
+    "success": "Obrigado pelo seu feedback!",
+    "errorGeneric": "Falha ao enviar feedback. Tente novamente.",
+    "errorRateLimit": "Muitos feedbacks. Aguarde antes de enviar outro.",
+    "errorTooShort": "Mensagem deve ter pelo menos 10 caracteres.",
+    "close": "Fechar"
   }
 }

@@ -3,6 +3,8 @@ import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { cormorantGaramond, dmSans, spaceMono, plusJakartaSans, workSans } from "@/lib/fonts";
@@ -43,6 +45,8 @@ export default async function LocaleLayout({
             <QueryProvider>{children}</QueryProvider>
           </NextIntlClientProvider>
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

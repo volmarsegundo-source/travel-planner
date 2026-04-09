@@ -6,6 +6,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
 import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
 import { FooterV2 } from "@/components/features/landing/FooterV2";
+import { FeedbackWidgetLoader } from "@/components/features/feedback/FeedbackWidgetLoader";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -77,6 +78,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
         {children}
       </main>
       <FooterV2 />
+      <FeedbackWidgetLoader />
     </div>
   );
 }

@@ -90,6 +90,7 @@ model User {
   pointTransactions PointTransaction[]
   profile           UserProfile?
   purchases         Purchase[]
+  feedbacks         BetaFeedback[]
 
   @@index([email])
   @@index([deletedAt])
@@ -528,4 +529,28 @@ model AiKillSwitch {
   createdAt DateTime @default(now())
 
   @@map("ai_kill_switches")
+}
+
+// ─── Beta Feedback ──────────────────────────────────────────────────────────
+
+model BetaFeedback {
+  id            String   @id @default(cuid())
+  userId        String
+  type          String   @db.VarChar(20)   // "bug" | "suggestion" | "praise"
+  message       String   @db.Text
+  page          String   @db.VarChar(200)
+  userAgent     String?  @db.VarChar(500)
+  screenshotData String? @db.Text          // base64 encoded screenshot
+  currentPhase  Int?
+  status        String   @default("new") @db.VarChar(20) // "new" | "read" | "resolved"
+  adminNotes    String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@map("beta_feedbacks")
 }

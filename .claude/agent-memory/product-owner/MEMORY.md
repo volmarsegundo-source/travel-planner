@@ -22,7 +22,7 @@
 - Product version: v0.34.0 (Sprint 39 in progress -- Landing + Login V2) / v0.35.0 in planning (Sprint 40)
 - Sprints 1-39 in progress
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-055
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-056
 - Sprint 38 backlog: `docs/specs/sprint-38/SPRINT-38-PRIORITIES.md`
 - Sprint 39 backlog: `docs/specs/sprint-39/SPRINT-39-PRIORITIES.md`
 - Sprint 40 backlog: `docs/specs/sprint-40/SPRINT-40-PRIORITIES.md`
@@ -35,6 +35,9 @@
 - Sprint 40 Phase 6 redesign brief: SPEC-PHASE6-REDESIGN-BRIEF (44 ACs from Stitch prototype analysis, split 60/40 layout, day selector, timeline, map, footer) -- `docs/specs/sprint-40/SPEC-PHASE6-REDESIGN-BRIEF.md`
 - Sprint 40 Phase 6 full product spec: SPEC-PROD-PHASE6-REDESIGN (93 ACs in 15 blocks: layout, header, stepper, actions, pills, timeline, categories, day summary, map, footer, states, personalization, a11y, regression, performance) -- `docs/specs/sprint-40/SPEC-PROD-PHASE6-REDESIGN.md`
 - Sprint 40 Summary content spec: SPEC-SUMARIO-CONTEUDO (content contract for Expedition Summary -- all 6 phases + gamification + actions, 60+ ACs, 4 product debts identified) -- `docs/specs/sprint-40/SPEC-SUMARIO-CONTEUDO.md`
+- SPEC-PROD-055 (Manual AI Generation): Phase 5 (50 PA) and Phase 6 (80 PA) changed from auto-generation to manual trigger. PA deducted only on success. Applies to both V1 and V2 (flag-independent). Stored in `docs/specs/SPEC-PROD-055.md`
+- SPEC-GUIA-PERSONALIZACAO (Guide Personalization): Phase 5 post-generation personalization. 9 category chips (festivals_events, nightlife_clubs, beaches, shows_entertainment, recommended_restaurants, shopping_markets, museums_galleries, parks_nature, local_experiences) + 500-char personal notes field + Re-generate button (50 PA). Max 5 re-generations per expedition. Saved to DestinationGuide.metadata. Sprint 41. Stored in `docs/specs/SPEC-GUIA-PERSONALIZACAO.md`
+- SPEC-ROTEIRO-REGEN-INTELIGENTE (Smart Itinerary Regeneration): Phase 6 regeneration with manual activity preservation. Activity.isManual Boolean field (DB migration needed). Confirmation dialog (Keep my activities / Regenerate all). Manual activities as fixed points in AI prompt. IA/Manual badges on all activity cards. 80 PA, max 5 regenerations. Sprint 41. Stored in `docs/specs/SPEC-ROTEIRO-REGEN-INTELIGENTE.md`
 - Staging: travel-planner-eight-navy.vercel.app
 
 ### Sprint 29 Planning

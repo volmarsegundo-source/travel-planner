@@ -1,5 +1,7 @@
 "use client";
 
+import * as Sentry from "@sentry/nextjs";
+import { useEffect } from "react";
 import { ErrorBoundaryCard } from "@/components/features/error/ErrorBoundaryCard";
 
 interface ErrorProps {
@@ -7,6 +9,10 @@ interface ErrorProps {
   reset: () => void;
 }
 
-export default function TripError({ error: _error, reset }: ErrorProps) {
+export default function TripError({ error, reset }: ErrorProps) {
+  useEffect(() => {
+    Sentry.captureException(error);
+  }, [error]);
+
   return <ErrorBoundaryCard reset={reset} />;
 }

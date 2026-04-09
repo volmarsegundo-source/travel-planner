@@ -28,20 +28,71 @@ export async function GET(request: NextRequest) {
     db.$queryRaw`SELECT 1`,
     redis.ping(),
   ]);
+
+  const aiCheck = checkAiProvider();
+
   const status =
     dbStatus.status === "fulfilled" && redisStatus.status === "fulfilled"
       ? "ok"
       : "degraded";
+
   return NextResponse.json(
     {
       status,
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? "unknown",
+      environment:
+        process.env.VERCEL_ENV ?? process.env.NODE_ENV ?? "unknown",
       services: {
         database: dbStatus.status === "fulfilled" ? "ok" : "error",
         redis: redisStatus.status === "fulfilled" ? "ok" : "error",
+        ai: aiCheck,
       },
     },
     { status: status === "ok" ? 200 : 503 }
   );
+}
+
+type AiStatus = "ok" | "degraded" | "unconfigured";
+
+interface AiCheck {
+  status: AiStatus;
+  provider: string;
+  fallback: string | null;
+}
+
+function hasKeyForProvider(provider: string): boolean {
+  switch (provider) {
+    case "gemini":
+      return !!(
+        process.env.GOOGLE_AI_API_KEY || process.env.GEMINI_API_KEY
+      );
+    case "anthropic":
+      return !!process.env.ANTHROPIC_API_KEY;
+    default:
+      return false;
+  }
+}
+
+function checkAiProvider(): AiCheck {
+  const primary = process.env.AI_PROVIDER ?? "anthropic";
+  const fallback = process.env.AI_FALLBACK_PROVIDER ?? null;
+
+  const primaryOk = hasKeyForProvider(primary);
+  const fallbackOk = fallback ? hasKeyForProvider(fallback) : false;
+
+  let status: AiStatus;
+  if (primaryOk) {
+    status = "ok";
+  } else if (fallbackOk) {
+    status = "degraded";
+  } else {
+    status = "unconfigured";
+  }
+
+  return {
+    status,
+    provider: primary,
+    fallback,
+  };
 }

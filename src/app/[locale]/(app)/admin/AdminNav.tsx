@@ -6,7 +6,10 @@ import { cn } from "@/lib/utils";
 
 const ADMIN_LINKS = [
   { href: "/admin/dashboard", i18nKey: "navDashboard" },
+  { href: "/admin/feedback", i18nKey: "navFeedback" },
   { href: "/admin/ai-governance", i18nKey: "navAiGovernance" },
+  { href: "/admin/analytics", i18nKey: "navAnalytics" },
+  { href: "/admin/errors", i18nKey: "navErrors" },
 ] as const;
 
 export function AdminNav() {

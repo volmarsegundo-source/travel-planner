@@ -103,7 +103,7 @@ function GitHubIcon() {
   );
 }
 
-function ExploreIcon() {
+export function ExploreIcon() {
   return (
     <svg
       className="size-8"
@@ -133,7 +133,7 @@ function PlaneIcon() {
  * Brand Panel (Left side — desktop only)
  * ──────────────────────────────────────────────────────────────────────────── */
 
-function BrandPanel({ t }: { t: (key: string) => string }) {
+export function BrandPanel({ t }: { t: (key: string) => string }) {
   return (
     <div
       className="hidden lg:flex w-[60%] bg-atlas-primary relative overflow-hidden flex-col items-center justify-center"

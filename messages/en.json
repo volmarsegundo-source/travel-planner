@@ -115,7 +115,18 @@
     "daysRemaining": "days remaining",
     "percentReady": "ready",
     "showPassword": "Show password",
-    "hidePassword": "Hide password"
+    "hidePassword": "Hide password",
+    "registerHeading": "Create your account",
+    "registerSubtitle": "Start planning your next expedition with AI",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "nameLabel": "Your name",
+    "namePlaceholder": "How should we call you?",
+    "nameOptional": "(optional)",
+    "registerSubmit": "Create account",
+    "alreadyHaveAccount": "Already have an account?",
+    "signInLink": "Sign in",
+    "registerLegalText": "By creating an account, you agree to our"
   },
   "trustSignals": {
     "badge": "Your data is protected",
@@ -1600,7 +1611,10 @@
   },
   "admin": {
     "navDashboard": "Dashboard",
+    "navFeedback": "Feedback",
     "navAiGovernance": "AI Governance",
+    "navAnalytics": "Analytics",
+    "navErrors": "Errors",
     "dashboard": {
       "title": "Admin Dashboard",
       "subtitle": "Revenue, users, and platform metrics",
@@ -1759,6 +1773,41 @@
         "tooltipGemini": "What the same token usage would cost with Gemini 2.0 Flash",
         "tooltipProjected": "Projected monthly cost at 1000 users with 2 expeditions/user/month"
       }
+    },
+    "adminFeedback": {
+      "title": "Beta Feedback",
+      "subtitle": "Feedback from beta testers",
+      "filterAll": "All",
+      "filterBug": "Bugs",
+      "filterSuggestion": "Suggestions",
+      "filterPraise": "Praise",
+      "statusNew": "New",
+      "statusRead": "Read",
+      "statusResolved": "Resolved",
+      "noFeedback": "No feedback yet",
+      "markRead": "Mark as read",
+      "markResolved": "Mark as resolved",
+      "addNote": "Add note...",
+      "saveNote": "Save",
+      "screenshot": "Screenshot",
+      "page": "Page",
+      "phase": "Phase",
+      "showing": "Showing {from}-{to} of {total}"
+    },
+    "adminAnalytics": {
+      "title": "Analytics",
+      "subtitle": "User behavior and platform metrics",
+      "vercelLink": "Open Vercel Analytics",
+      "vercelDescription": "View page views, web vitals, and custom events in the Vercel dashboard.",
+      "aiUsageTitle": "AI Usage Summary",
+      "noData": "No data available"
+    },
+    "adminErrors": {
+      "title": "Error Tracking",
+      "subtitle": "Monitor and resolve application errors",
+      "sentryLink": "Open Sentry Dashboard",
+      "sentryDescription": "View error details, stack traces, and alerts in the Sentry dashboard.",
+      "notConfigured": "Sentry is not configured. Set SENTRY_DSN to enable error tracking."
     }
   },
   "atlas": {
@@ -2377,5 +2426,23 @@
     "buyPA": "Buy PA",
     "buyPADesc": "Get Atlas Points to unlock features.",
     "loading": "Loading dashboard..."
+  },
+  "feedback": {
+    "buttonLabel": "Feedback",
+    "modalTitle": "Send Feedback",
+    "typeBug": "Bug",
+    "typeSuggestion": "Suggestion",
+    "typePraise": "Praise",
+    "messagePlaceholder": "Describe your feedback... (min 10 characters)",
+    "screenshotLabel": "Attach screenshot",
+    "screenshotCapturing": "Capturing...",
+    "screenshotCaptured": "Screenshot attached",
+    "submit": "Send Feedback",
+    "sending": "Sending...",
+    "success": "Thank you for your feedback!",
+    "errorGeneric": "Failed to send feedback. Please try again.",
+    "errorRateLimit": "Too many feedbacks. Please wait before sending another.",
+    "errorTooShort": "Message must be at least 10 characters.",
+    "close": "Close"
   }
 }
