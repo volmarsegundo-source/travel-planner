@@ -674,12 +674,18 @@ export class AiService {
 
     const provider = getProvider("guide");
     const MAX_ATTEMPTS = 2;
+    // Skip retry if first attempt already consumed the Vercel 60s budget.
+    // Provider timeout is 50s, so if elapsed > 25s we cannot safely retry.
+    const RETRY_BUDGET_MS = 25_000;
+    const startedAt = Date.now();
     let lastError: unknown;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const attemptStart = Date.now();
       logger.info("ai.guide.attempt", {
         userId: hid, attempt, maxTokens: destinationGuidePrompt.maxTokens,
         model: destinationGuidePrompt.model, destination,
+        elapsedMs: attemptStart - startedAt,
       });
 
       const response = await provider.generateResponse(
@@ -688,11 +694,13 @@ export class AiService {
         destinationGuidePrompt.model,
         { systemPrompt: destinationGuidePrompt.system },
       );
+      const aiLatencyMs = Date.now() - attemptStart;
 
       logTokenUsage(response, { userId, generationType: "guide", provider: provider.name });
 
       logger.info("ai.guide.response", {
-        userId: hid, attempt, textLength: response.text.length,
+        userId: hid, attempt, aiLatencyMs,
+        textLength: response.text.length,
         wasTruncated: response.wasTruncated,
         preview: response.text.substring(0, 200),
       });
@@ -707,19 +715,22 @@ export class AiService {
           responseTail: response.text.substring(response.text.length - 200),
         });
         lastError = error;
-        if (attempt < MAX_ATTEMPTS) continue;
+        if (attempt < MAX_ATTEMPTS && Date.now() - startedAt < RETRY_BUDGET_MS) continue;
         throw new AppError("AI_PARSE_ERROR", "errors.aiSchemaError", 502);
       }
 
+      const parseStart = Date.now();
       const parsed = DestinationGuideContentSchema.safeParse(rawJson);
+      const parseMs = Date.now() - parseStart;
+
       if (!parsed.success) {
         const failedPaths = parsed.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`);
         logger.warn("ai.guide.schema.error", {
-          userId: hid, attempt, errorCount: parsed.error.errors.length,
+          userId: hid, attempt, parseMs, errorCount: parsed.error.errors.length,
           failedPaths: failedPaths.slice(0, 10),
         });
         lastError = parsed.error;
-        if (attempt < MAX_ATTEMPTS) continue;
+        if (attempt < MAX_ATTEMPTS && Date.now() - startedAt < RETRY_BUDGET_MS) continue;
         throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
       }
 
@@ -732,7 +743,10 @@ export class AiService {
         logger.warn("ai.guide.cache.set.error", { userId: hid });
       }
 
-      logger.info("ai.guide.generated", { userId: hid, destination });
+      logger.info("ai.guide.generated", {
+        userId: hid, destination, attempt,
+        aiLatencyMs, parseMs, totalMs: Date.now() - startedAt,
+      });
       return result;
     }
 
