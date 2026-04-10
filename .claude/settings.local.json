@@ -258,7 +258,9 @@
       "Bash(DATABASE_URL=\"postgresql://neondb_owner:npg_16HjwCoKspGB@ep-lively-smoke-ac5tvs2g.sa-east-1.aws.neon.tech/neondb?sslmode=require\" npx tsx prisma/promote-admin.ts volmarsegundo@gmail.com)",
       "Bash(gh repo:*)",
       "Bash(cross-env NODE_OPTIONS=--max-old-space-size=3072 npx next build)",
-      "Bash(NODE_OPTIONS=--max-old-space-size=3072 npx next build)"
+      "Bash(NODE_OPTIONS=--max-old-space-size=3072 npx next build)",
+      "Bash(/c/Program Files/Git/bin/git.exe log:*)",
+      "Bash(/c/Windows/System32/cmd.exe:*)"
     ]
   }
 }

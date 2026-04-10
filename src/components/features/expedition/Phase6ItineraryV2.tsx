@@ -1364,6 +1364,9 @@ export function Phase6ItineraryV2({
               try {
                 const errorObj = JSON.parse(data) as { error: string };
                 if (errorObj.error === "persist_failed") setError(t("errorPersistFailed"));
+                else if (errorObj.error === "parse_failed" || errorObj.error === "stream_failed") {
+                  setError(t("errorTimeout"));
+                }
               } catch { /* ignore */ }
               continue;
             }

@@ -198,16 +198,43 @@ export function FeedbackWidget() {
     setIsCapturing(true);
     try {
       const html2canvas = (await import("html2canvas")).default;
-      const canvas = await html2canvas(document.body);
+      // Capture the viewport, ignoring the modal itself so the screenshot
+      // reflects the page the user was on — not the feedback UI.
+      const canvas = await html2canvas(document.body, {
+        useCORS: true,
+        logging: false,
+        ignoreElements: (el) => el.getAttribute("role") === "dialog" || el.getAttribute("role") === "presentation",
+      });
       const dataUrl = canvas.toDataURL("image/png");
       setScreenshotData(dataUrl);
-    } catch {
-      // Screenshot capture is non-critical
+    } catch (err) {
+      // Screenshot capture is non-critical — log to console in dev
+      if (process.env.NODE_ENV !== "production") {
+        // eslint-disable-next-line no-console
+        console.warn("[FeedbackWidget] screenshot capture failed:", err);
+      }
       setScreenshotData(null);
     } finally {
       setIsCapturing(false);
     }
   }, []);
+
+  // Auto-capture screenshot when the modal opens.
+  // We capture BEFORE the dialog is painted by delaying via a microtask,
+  // and ignoreElements above filters out the modal anyway.
+  const hasAutoCapturedRef = useRef(false);
+  useEffect(() => {
+    if (isOpen && !hasAutoCapturedRef.current && !screenshotData) {
+      hasAutoCapturedRef.current = true;
+      // Small delay so any opening animation/overlay is present but the
+      // ignoreElements filter will exclude the modal and backdrop.
+      const timer = setTimeout(() => { void handleCapture(); }, 50);
+      return () => clearTimeout(timer);
+    }
+    if (!isOpen) {
+      hasAutoCapturedRef.current = false;
+    }
+  }, [isOpen, screenshotData, handleCapture]);
 
   const handleSubmit = useCallback(async () => {
     if (message.length < MESSAGE_MIN_LENGTH) {

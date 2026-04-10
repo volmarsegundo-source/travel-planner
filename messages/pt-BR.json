@@ -1800,7 +1800,17 @@
       "vercelLink": "Abrir Vercel Analytics",
       "vercelDescription": "Visualize page views, web vitals e eventos personalizados no painel do Vercel.",
       "aiUsageTitle": "Resumo de Uso de IA",
-      "noData": "Nenhum dado disponivel"
+      "noData": "Nenhum dado disponivel",
+      "metricsTitle": "Metricas da Plataforma",
+      "totalUsers": "Usuarios totais",
+      "totalExpeditions": "Expedicoes totais",
+      "totalFeedback": "Feedbacks recebidos",
+      "aiTotalCalls": "Chamadas de IA (total)",
+      "aiTotalCost": "Custo IA (USD)",
+      "aiByPhase": "Chamadas IA por fase",
+      "phasePlan": "Roteiro (Fase 6)",
+      "phaseGuide": "Guia (Fase 5)",
+      "phaseChecklist": "Checklist"
     },
     "adminErrors": {
       "title": "Monitoramento de Erros",

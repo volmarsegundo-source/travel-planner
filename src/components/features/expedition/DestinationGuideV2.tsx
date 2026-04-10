@@ -624,18 +624,34 @@ export function DestinationGuideV2({
         setIsGenerating(false);
         return;
       }
+      // Update local state BEFORE router.refresh so UI shows guide immediately.
+      // router.refresh() syncs the RSC payload so navigating away/back also works.
       setGuide(result.data!.content);
       setGenerationCount(result.data!.generationCount);
+      setIsGenerating(false);
+      router.refresh();
+      return;
     } catch {
       setErrorMessage("errors.generic");
     } finally {
       setIsGenerating(false);
     }
-  }, [tripId, locale]);
+  }, [tripId, locale, router]);
 
   // Stable ref for handleGenerate to use in effects without dependency issues
   const handleGenerateRef = useRef(handleGenerate);
   handleGenerateRef.current = handleGenerate;
+
+  // Sync server-provided initialGuide into local state when it changes
+  // (e.g. after router.refresh() following a successful generation).
+  // Prevents the "empty state flash" where RSC refresh lands before setGuide
+  // would otherwise reset the UI back to the generation CTA.
+  useEffect(() => {
+    if (initialGuide?.content) {
+      setGuide((prev) => prev ?? initialGuide.content);
+      setGenerationCount((prev) => prev || initialGuide.generationCount);
+    }
+  }, [initialGuide]);
 
   const insufficientPA = paBalance < guideCost;
 

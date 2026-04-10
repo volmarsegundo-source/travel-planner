@@ -1800,7 +1800,17 @@
       "vercelLink": "Open Vercel Analytics",
       "vercelDescription": "View page views, web vitals, and custom events in the Vercel dashboard.",
       "aiUsageTitle": "AI Usage Summary",
-      "noData": "No data available"
+      "noData": "No data available",
+      "metricsTitle": "Platform Metrics",
+      "totalUsers": "Total users",
+      "totalExpeditions": "Total expeditions",
+      "totalFeedback": "Feedback received",
+      "aiTotalCalls": "AI calls (total)",
+      "aiTotalCost": "AI cost (USD)",
+      "aiByPhase": "AI calls by phase",
+      "phasePlan": "Itinerary (Phase 6)",
+      "phaseGuide": "Guide (Phase 5)",
+      "phaseChecklist": "Checklist"
     },
     "adminErrors": {
       "title": "Error Tracking",

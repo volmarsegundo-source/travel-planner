@@ -300,8 +300,71 @@ export async function POST(request: NextRequest) {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (error) {
-          logger.error("ai.stream.sse.error", error instanceof Error ? error : new Error(String(error)), { userIdHash: hid });
-          controller.error(error);
+          logger.error("ai.stream.sse.error", error instanceof Error ? error : new Error(String(error)), {
+            userIdHash: hid,
+            tripId: validatedTripId,
+            accumulatedLength: accumulated.length,
+          });
+
+          // Mid-flight failure: attempt non-streaming recovery via the
+          // FallbackProvider chain. This handles cases where Gemini starts
+          // streaming then fails (quota cut, mid-stream timeout, network drop)
+          // — scenarios that the initial-call FallbackProvider can't catch
+          // because the primary already returned a stream handle.
+          try {
+            const recoveryProvider = getProvider();
+            const recoveryResponse = await recoveryProvider.generateResponse(
+              userMessage,
+              tokenBudget,
+              "plan",
+              { systemPrompt: PLAN_SYSTEM_PROMPT },
+            );
+            const recoveryPlan = parseItineraryJson(recoveryResponse.text);
+            if (recoveryPlan) {
+              controller.enqueue(encoder.encode(`data: ${recoveryResponse.text}\n\n`));
+              try {
+                await persistItinerary(validatedTripId, recoveryPlan);
+                try { await ItineraryPlanService.recordGeneration(validatedTripId); } catch { /* non-blocking */ }
+                try {
+                  await PointsEngine.earnPoints(
+                    userId,
+                    50,
+                    "ai_usage",
+                    "Itinerary generation (stream recovery)",
+                    validatedTripId,
+                  );
+                } catch { /* non-blocking */ }
+                logger.info("ai.stream.recovery.success", { userIdHash: hid, tripId: validatedTripId });
+              } catch (persistErr) {
+                logger.error("ai.stream.recovery.persist.error",
+                  persistErr instanceof Error ? persistErr : new Error(String(persistErr)),
+                  { userIdHash: hid, tripId: validatedTripId },
+                );
+                controller.enqueue(encoder.encode(`data: {"error":"persist_failed"}\n\n`));
+              }
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+              controller.close();
+              return;
+            }
+            // Recovery produced no parseable plan — fall through to error response
+            controller.enqueue(encoder.encode(`data: {"error":"stream_failed"}\n\n`));
+            controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+            controller.close();
+          } catch (recoveryError) {
+            logger.error("ai.stream.recovery.failed",
+              recoveryError instanceof Error ? recoveryError : new Error(String(recoveryError)),
+              { userIdHash: hid, tripId: validatedTripId },
+            );
+            // Emit a structured error the client can parse instead of
+            // aborting with "failed to pipe response".
+            try {
+              controller.enqueue(encoder.encode(`data: {"error":"stream_failed"}\n\n`));
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+              controller.close();
+            } catch {
+              // If the controller is already closed/errored, nothing we can do
+            }
+          }
         } finally {
           // Release the generation lock
           await releaseGenerationLock(validatedTripId, redis).catch(() => {});
