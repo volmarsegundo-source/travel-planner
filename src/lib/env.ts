@@ -15,6 +15,12 @@ export const env = createEnv({
     GEMINI_API_KEY: z.string().optional(),
     AI_PROVIDER: z.enum(["anthropic", "gemini"]).default("anthropic"),
     AI_FALLBACK_PROVIDER: z.enum(["anthropic", "gemini"]).optional(),
+    // Per-type provider overrides. If set, take precedence over AI_PROVIDER
+    // for that specific ModelType. Useful for beta-gating expensive models
+    // (e.g. Claude Sonnet for Phase 5 & 6 only). See SPEC-PROD-AI-PROGRESS.
+    AI_PROVIDER_PLAN: z.enum(["anthropic", "gemini"]).optional(),
+    AI_PROVIDER_GUIDE: z.enum(["anthropic", "gemini"]).optional(),
+    AI_PROVIDER_CHECKLIST: z.enum(["anthropic", "gemini"]).optional(),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),
     // Auth.js v5 reads AUTH_SECRET; keep NEXTAUTH_SECRET as v4 alias
@@ -50,6 +56,9 @@ export const env = createEnv({
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     AI_PROVIDER: process.env.AI_PROVIDER,
     AI_FALLBACK_PROVIDER: process.env.AI_FALLBACK_PROVIDER,
+    AI_PROVIDER_PLAN: process.env.AI_PROVIDER_PLAN,
+    AI_PROVIDER_GUIDE: process.env.AI_PROVIDER_GUIDE,
+    AI_PROVIDER_CHECKLIST: process.env.AI_PROVIDER_CHECKLIST,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,

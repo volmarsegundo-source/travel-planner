@@ -200,6 +200,11 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Migration plan (REVISED 2026-03-24): Sprint 38 (infrastructure) -> Sprint 39 (Landing + Login) -> Sprint 40 (CONSOLIDATED: Shell + ALL Phases 1-6 + Summary + Dashboard) -> Sprint 41 (Design V2 staging rollout) -> Sprint 42 (Design V2 production rollout)
 - Sprint 40 consolidates original Sprints 40-42 into one sprint (50h, 2-track parallel). Rationale: shell is shared dependency; visual fragmentation of partial migration is unacceptable for staging demo; Component Library Sprint 38 makes the work tractable.
 
+### AI Progress Component (2026-04-09)
+- SPEC-PROD-AI-PROGRESS: componente compartilhado de feedback de geracao AI, Fases 5 e 6. Status: Approved.
+- Path: `docs/specs/SPEC-PROD-AI-PROGRESS.md` (21 ACs em 7 blocos: inicio, mensagens, cancelamento, conclusao/erro, reutilizacao, a11y, performance)
+- Provider decision (Decisao 1): Anthropic primario para Fases 5+6 durante beta. Condicao: reavalia se custo AI >$50/mes OU apos upgrade Vercel Pro.
+
 ### Pending Debts (as of Sprint 29)
 - Accumulated LOW debt: DEBT-S7-002/003, DEBT-S8-005 (deferred to Sprint 30+)
 - BUG-S7-001: Raw userId in logger.info (LOW)

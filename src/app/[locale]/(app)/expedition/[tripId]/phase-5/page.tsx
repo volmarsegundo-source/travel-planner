@@ -1,5 +1,6 @@
-// Allow AI generation requests up to 120s (Anthropic SDK timeout is 90s)
-export const maxDuration = 120;
+// Vercel Hobby hard limit: serverless functions cap at 60s.
+// See: docs/architecture.md ADR-028.
+export const maxDuration = 60;
 
 import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";

@@ -10,7 +10,10 @@ import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } fro
 const PLAN_MODEL = "gemini-2.0-flash";
 const CHECKLIST_MODEL = "gemini-2.0-flash";
 const GUIDE_MODEL = "gemini-2.0-flash";
-const GEMINI_TIMEOUT_MS = 90_000;
+// Vercel Hobby serverless routes have a hard 60s limit; keep provider timeout
+// comfortably below that to leave headroom for mid-stream recovery + persistence.
+// See: docs/architecture.md ADR-028.
+const GEMINI_TIMEOUT_MS = 35_000;
 
 // ─── Google AI singleton (lazy) ──────────────────────────────────────────────
 

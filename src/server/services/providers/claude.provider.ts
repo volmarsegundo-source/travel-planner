@@ -10,7 +10,10 @@ const PLAN_MODEL = "claude-sonnet-4-6";
 const CHECKLIST_MODEL = "claude-haiku-4-5-20251001";
 /** Guide uses Haiku — intentional cost optimization. Factual structured output does not require Sonnet. */
 const GUIDE_MODEL = "claude-haiku-4-5-20251001";
-const CLAUDE_TIMEOUT_MS = 90_000;
+// Vercel Hobby serverless routes have a hard 60s limit; keep provider timeout
+// comfortably below that to leave headroom for mid-stream recovery + persistence.
+// See: docs/architecture.md ADR-028.
+const CLAUDE_TIMEOUT_MS = 20_000;
 
 // ─── Anthropic singleton (lazy) ───────────────────────────────────────────────
 

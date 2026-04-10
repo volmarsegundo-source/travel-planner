@@ -260,7 +260,18 @@
       "Bash(cross-env NODE_OPTIONS=--max-old-space-size=3072 npx next build)",
       "Bash(NODE_OPTIONS=--max-old-space-size=3072 npx next build)",
       "Bash(/c/Program Files/Git/bin/git.exe log:*)",
-      "Bash(/c/Windows/System32/cmd.exe:*)"
+      "Bash(/c/Windows/System32/cmd.exe:*)",
+      "Bash(/usr/bin/find:*)",
+      "WebFetch(domain:)",
+      "Bash(/usr/bin/grep -i \"guide\\\\|ai\")",
+      "Bash(/usr/bin/grep -i \"guide\\\\|ai\\\\|phase5\")",
+      "Bash(/usr/bin/grep:*)",
+      "Bash(/usr/bin/head -50)",
+      "Bash(/usr/bin/ls \"C:/travel-planner/docs/specs\")",
+      "Bash(/usr/bin/head)",
+      "Bash(where.exe powershell:*)",
+      "Read(//c/Windows/System32/WindowsPowerShell/v1.0/**)",
+      "Bash(/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe:*)"
     ]
   }
 }

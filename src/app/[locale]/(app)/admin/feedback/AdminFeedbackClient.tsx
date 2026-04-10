@@ -331,11 +331,19 @@ export function AdminFeedbackClient({ initialData }: AdminFeedbackClientProps) {
                         <p className="text-xs font-bold text-atlas-on-surface-variant mb-1">
                           {t("screenshot")}
                         </p>
-                        <img
-                          src={item.screenshotData}
-                          alt={t("screenshot")}
-                          className="max-w-full max-h-64 rounded-atlas-md border border-atlas-outline-variant/20"
-                        />
+                        <a
+                          href={item.screenshotData}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring rounded-atlas-md"
+                          title={t("screenshot")}
+                        >
+                          <img
+                            src={item.screenshotData}
+                            alt={t("screenshot")}
+                            className="max-w-full max-h-64 rounded-atlas-md border border-atlas-outline-variant/20 hover:opacity-90 transition-opacity cursor-zoom-in"
+                          />
+                        </a>
                       </div>
                     )}
 

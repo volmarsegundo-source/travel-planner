@@ -25,8 +25,11 @@ import {
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { PointsEngine } from "@/lib/engines/points-engine";
 
-// Allow up to 120s for streaming responses (Vercel Pro)
-export const maxDuration = 120;
+// Vercel Hobby hard limit: serverless functions cap at 60s.
+// Provider timeouts (Claude 20s, Gemini 35s) leave headroom for mid-stream
+// recovery + persistence. Bump to 120 when upgrading to Vercel Pro.
+// See: docs/architecture.md ADR-028.
+export const maxDuration = 60;
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
@@ -35,7 +38,10 @@ const TOKENS_PER_DAY = 600;
 // enriched traveler context added by SPEC-AI-004 (TASK-S33-012).
 const TOKENS_OVERHEAD = 1100;
 const MIN_PLAN_TOKENS = 2048;
-const MAX_PLAN_TOKENS = 16000;
+// Clamped to 8000 for streaming under Vercel Hobby's 60s limit. Larger budgets
+// routinely exceed the serverless timeout before the stream completes.
+// See: docs/architecture.md ADR-028.
+const MAX_PLAN_TOKENS = 8000;
 
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_SECONDS = 3600;
@@ -207,7 +213,7 @@ export async function POST(request: NextRequest) {
   // Start streaming
   const streamStartTime = Date.now();
   try {
-    const provider = getProvider();
+    const provider = getProvider("plan");
     const { stream: aiStream, usage: usagePromise } = await provider.generateStreamingResponse(
       userMessage,
       tokenBudget,
@@ -238,7 +244,7 @@ export async function POST(request: NextRequest) {
           if (!plan && accumulated.length > 100) {
             logger.warn("ai.stream.parse.retry", { userIdHash: hid, tripId: validatedTripId, accumulatedLength: accumulated.length });
             try {
-              const retryProvider = getProvider();
+              const retryProvider = getProvider("plan");
               const retryResponse = await retryProvider.generateResponse(
                 userMessage,
                 tokenBudget,
@@ -312,7 +318,7 @@ export async function POST(request: NextRequest) {
           // — scenarios that the initial-call FallbackProvider can't catch
           // because the primary already returned a stream handle.
           try {
-            const recoveryProvider = getProvider();
+            const recoveryProvider = getProvider("plan");
             const recoveryResponse = await recoveryProvider.generateResponse(
               userMessage,
               tokenBudget,

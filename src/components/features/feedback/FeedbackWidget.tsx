@@ -196,23 +196,49 @@ export function FeedbackWidget() {
 
   const handleCapture = useCallback(async () => {
     setIsCapturing(true);
+    // eslint-disable-next-line no-console
+    const log = (...args: unknown[]) => console.info("[FeedbackWidget]", ...args);
     try {
-      const html2canvas = (await import("html2canvas")).default;
-      // Capture the viewport, ignoring the modal itself so the screenshot
-      // reflects the page the user was on — not the feedback UI.
-      const canvas = await html2canvas(document.body, {
-        useCORS: true,
-        logging: false,
-        ignoreElements: (el) => el.getAttribute("role") === "dialog" || el.getAttribute("role") === "presentation",
+      log("capture:start", { url: window.location.href });
+      // Use html-to-image: robust against modern CSS (oklch, color-mix,
+      // backdrop-filter) that html2canvas silently fails to parse. html2canvas
+      // was producing blank/null screenshots on Atlas V2 pages because the
+      // Tailwind v4 theme emits oklch() colors which it cannot interpret.
+      const { toPng } = await import("html-to-image");
+      log("capture:module-loaded");
+
+      const filter = (node: HTMLElement): boolean => {
+        // Skip the feedback widget itself + any dialog overlays so the
+        // screenshot reflects the page the user was looking at, not the modal.
+        if (!(node instanceof HTMLElement)) return true;
+        const role = node.getAttribute?.("role");
+        if (role === "dialog" || role === "presentation") return false;
+        // Skip the floating feedback trigger / success toast
+        if (node.dataset?.feedbackWidget === "true") return false;
+        return true;
+      };
+
+      const dataUrl = await toPng(document.body, {
+        cacheBust: true,
+        pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
+        filter,
+        // Fallback background to avoid transparent PNGs when body has no bg
+        backgroundColor: "#ffffff",
       });
-      const dataUrl = canvas.toDataURL("image/png");
+      log("capture:success", { length: dataUrl?.length ?? 0, prefix: dataUrl?.slice(0, 32) });
+
+      if (!dataUrl || !dataUrl.startsWith("data:image/")) {
+        log("capture:invalid-dataurl", { dataUrl: String(dataUrl).slice(0, 64) });
+        setScreenshotData(null);
+        return;
+      }
+
       setScreenshotData(dataUrl);
     } catch (err) {
-      // Screenshot capture is non-critical — log to console in dev
-      if (process.env.NODE_ENV !== "production") {
-        // eslint-disable-next-line no-console
-        console.warn("[FeedbackWidget] screenshot capture failed:", err);
-      }
+      // Screenshot capture is non-critical — log always (prod + dev) so users
+      // can diagnose. Prefixed for easy filter in DevTools console.
+      // eslint-disable-next-line no-console
+      console.error("[FeedbackWidget] capture:failed", err);
       setScreenshotData(null);
     } finally {
       setIsCapturing(false);
@@ -291,6 +317,7 @@ export function FeedbackWidget() {
         <div
           role="status"
           aria-live="polite"
+          data-feedback-widget="true"
           className="fixed bottom-20 right-6 z-50 rounded-atlas-md bg-atlas-tertiary-container px-4 py-3 text-sm font-atlas-body text-atlas-on-tertiary-container shadow-atlas-md motion-reduce:transition-none"
         >
           {t("success")}
@@ -310,6 +337,7 @@ export function FeedbackWidget() {
         aria-label={t("buttonLabel")}
         aria-haspopup="dialog"
         aria-expanded={isOpen}
+        data-feedback-widget="true"
       >
         <ChatBubbleIcon />
         {t("buttonLabel")}

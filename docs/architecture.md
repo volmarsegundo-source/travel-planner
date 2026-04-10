@@ -888,6 +888,117 @@ Mover `LanguageSwitcher.tsx` de `components/landing/` para `components/layout/`.
 
 ---
 
+### ADR-028: AI Timeout Strategy for Vercel Hobby
+
+**Status**: Accepted
+**Date**: 2026-04-09
+**Deciders**: architect, tech-lead, product-owner
+**Related specs**: SPEC-ARCH-AI-PROGRESS (Analysis 1), SPEC-PROD-AI-PROGRESS
+
+**Context**:
+The Travel Planner is deployed on Vercel Hobby during the beta. Hobby
+serverless functions have a hard 60-second execution ceiling — any request
+longer than that is terminated by the platform with `FUNCTION_INVOCATION_TIMEOUT`
+before our own code can run its error handlers or mid-stream recovery path.
+
+Prior configuration:
+- `maxDuration = 120` on both the `/api/ai/plan/stream` route and on the
+  Phase 5/6 page segments (leftover from a Vercel Pro assumption).
+- Provider timeouts of `90_000 ms` in both `ClaudeProvider` and
+  `GeminiProvider`.
+- `MAX_PLAN_TOKENS = 16_000` in the streaming route.
+
+In practice, Gemini 2.0 Flash routinely needed 45-90s to stream the larger
+itinerary plans, and the 60s platform cut killed the request mid-stream
+before the server-side recovery fallback (`getProvider().generateResponse`)
+could produce a persisted result. The client observed an opaque
+`failed to pipe response` error and the itinerary was lost.
+
+**Decision**:
+
+1. **Route/page `maxDuration = 60`** across all AI entry points
+   (`/api/ai/plan/stream`, `phase-5/page.tsx`, `phase-6/page.tsx`). The
+   constant is commented to document the Hobby limit and the upgrade path
+   to Pro.
+
+2. **Provider timeouts strictly below 60s** with headroom for the recovery
+   and persistence steps:
+   - `CLAUDE_TIMEOUT_MS = 20_000`
+   - `GEMINI_TIMEOUT_MS = 35_000`
+
+   Claude's timeout is lower because Sonnet reliably finishes plan
+   generation in <15s and we want fast failure so the FallbackProvider
+   can retry on Gemini within the 60s window if needed.
+
+3. **Streaming token budget clamp**: `MAX_PLAN_TOKENS` in the stream route
+   is reduced from `16_000` to `8_000`. The larger budget is retained for
+   non-streaming paths (where retry-with-doubling still has time to
+   succeed), but on the streaming path 8K tokens is the empirically safe
+   ceiling for completion inside 60s.
+
+4. **Per-type provider overrides** via `AI_PROVIDER_PLAN`,
+   `AI_PROVIDER_GUIDE`, `AI_PROVIDER_CHECKLIST`. The `getProvider(type)`
+   factory consults these before falling back to the global `AI_PROVIDER`.
+   This unblocks the product decision to gate Claude to Phases 5 & 6
+   during beta while keeping other phases on Gemini (cost ceiling: $50/mo
+   up to 500 active users or Vercel Pro upgrade).
+
+5. **Mid-stream recovery path is preserved**. The `controller.start()`
+   catch-block in `/api/ai/plan/stream` still attempts a non-streaming
+   recovery against the (possibly-fallback) provider chain when the
+   primary stream fails part-way. With the tightened timeouts above, the
+   recovery now has real runway to complete.
+
+**Alternatives considered**:
+
+- **Upgrade to Vercel Pro immediately** (`maxDuration = 300`). Rejected
+  until beta completes — not a technical blocker, just cost discipline.
+- **Skip streaming entirely and use synchronous generation**. Rejected —
+  degrades UX significantly for 6+ day itineraries where users value the
+  live day-by-day progress.
+- **Split the plan into per-day function calls**. Rejected as premature
+  architecture: possible future optimization but too invasive for a
+  staging fix.
+
+**Consequences**:
+
+**Positive**:
+- No more platform-level timeouts on the streaming path — the server
+  always returns a structured result (success, parse_failed, or
+  stream_failed) to the client.
+- Product can beta-gate Claude to expensive phases only without code
+  changes in each call site.
+- Recovery fallback has predictable runway (60 − 35 = 25s minimum).
+
+**Negative / Trade-offs**:
+- Very long itineraries (>10 days with heavy personalization) may still
+  hit the 8K token ceiling and require a retry. Acceptable during beta.
+- Two sources of truth for `MAX_PLAN_TOKENS` (ai.service.ts uses 16K,
+  stream route uses 8K). Documented via code comments; consolidation
+  is tracked as follow-up tech debt.
+
+**Risks**:
+- Claude's 20s timeout is aggressive. If Anthropic's median latency
+  regresses, we may see elevated 504s and increased fallback activation.
+  Mitigation: monitor `ai.provider.claude.error` in Sentry and
+  `ai.fallback.activated` in logs during rollout.
+
+**Environment variables (set manually in Vercel staging)**:
+```
+AI_PROVIDER=gemini
+AI_FALLBACK_PROVIDER=anthropic
+AI_PROVIDER_PLAN=anthropic     # Phase 6 — itinerary
+AI_PROVIDER_GUIDE=anthropic    # Phase 5 — destination guide
+```
+
+**Upgrade path to Vercel Pro** (reversal trigger: cost > $50/mo or >500
+active users): bump `maxDuration` back to 300 on all three entry points,
+restore `MAX_PLAN_TOKENS = 16_000`, relax provider timeouts to
+`90_000 ms`. Leave the per-type provider override in place; it's a good
+abstraction regardless of platform.
+
+---
+
 ## Document Revision History
 
 | Version | Date | Author | Changes |
@@ -895,3 +1006,4 @@ Mover `LanguageSwitcher.tsx` de `components/landing/` para `components/layout/`.
 | 1.0.0 | 2026-02-23 | architect | Initial architecture — ADR-001, ADR-002, system design, conventions |
 | 1.1.0 | 2026-02-26 | architect | Added ADR-003 (Claude AI), ADR-004 (next-intl), ADR-005 (Auth.js database sessions) |
 | 1.2.0 | 2026-03-01 | architect | Added ADR-006 (route group for authenticated layout), ADR-007 (shared LanguageSwitcher) |
+| 1.3.0 | 2026-04-09 | tech-lead | Added ADR-028 (AI timeout strategy for Vercel Hobby — per-type provider override, tightened timeouts, streaming token clamp) |

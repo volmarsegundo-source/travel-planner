@@ -298,8 +298,21 @@ const GEMINI_MODEL_ID_MAP: Record<ModelType, string> = {
 /**
  * Resolves the current AI provider name from environment.
  * Defaults to "anthropic" for backward compatibility.
+ *
+ * Per-type overrides (SPEC-ARCH-AI-TIMEOUT #7-9):
+ *   AI_PROVIDER_PLAN, AI_PROVIDER_GUIDE, AI_PROVIDER_CHECKLIST
+ * take precedence over AI_PROVIDER when present.
  */
-function resolveProviderName(): "anthropic" | "gemini" {
+function resolveProviderName(type?: ModelType): "anthropic" | "gemini" {
+  if (type) {
+    const typeEnvKey =
+      type === "plan" ? "AI_PROVIDER_PLAN" :
+      type === "guide" ? "AI_PROVIDER_GUIDE" :
+      "AI_PROVIDER_CHECKLIST";
+    const typeOverride = process.env[typeEnvKey];
+    if (typeOverride === "gemini") return "gemini";
+    if (typeOverride === "anthropic") return "anthropic";
+  }
   const provider = process.env.AI_PROVIDER;
   if (provider === "gemini") return "gemini";
   return "anthropic";
@@ -308,9 +321,12 @@ function resolveProviderName(): "anthropic" | "gemini" {
 /**
  * Creates the appropriate AiProvider based on environment configuration.
  * If AI_FALLBACK_PROVIDER is set, wraps the primary in a FallbackProvider.
+ *
+ * @param type Optional ModelType — when provided, a per-type override
+ *   (AI_PROVIDER_<TYPE>) is consulted before the global AI_PROVIDER.
  */
-export function getProvider(): AiProvider {
-  const providerName = resolveProviderName();
+export function getProvider(type?: ModelType): AiProvider {
+  const providerName = resolveProviderName(type);
   const primary: AiProvider = providerName === "gemini"
     ? new GeminiProvider()
     : new ClaudeProvider();
@@ -333,7 +349,7 @@ export function getProvider(): AiProvider {
  * Used for cost tracking and logging.
  */
 export function getModelIdForType(type: ModelType): string {
-  const providerName = resolveProviderName();
+  const providerName = resolveProviderName(type);
   const map = providerName === "gemini" ? GEMINI_MODEL_ID_MAP : CLAUDE_MODEL_ID_MAP;
   return map[type];
 }
@@ -491,7 +507,7 @@ export class AiService {
     tokenBudget: number,
     userId: string,
   ): Promise<ItineraryPlan> {
-    const provider = getProvider();
+    const provider = getProvider("plan");
     const hid = hashUserId(userId);
     const maxAttempts = 2;
 
@@ -581,7 +597,7 @@ export class AiService {
       language,
     });
 
-    const provider = getProvider();
+    const provider = getProvider("checklist");
     const response = await provider.generateResponse(
       userMessage,
       checklistPrompt.maxTokens,
@@ -656,7 +672,7 @@ export class AiService {
       personalNotes: params.personalNotes,
     });
 
-    const provider = getProvider();
+    const provider = getProvider("guide");
     const MAX_ATTEMPTS = 2;
     let lastError: unknown;
 
