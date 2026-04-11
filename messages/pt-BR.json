@@ -2473,5 +2473,18 @@
     "errorRateLimit": "Muitos feedbacks. Aguarde antes de enviar outro.",
     "errorTooShort": "Mensagem deve ter pelo menos 10 caracteres.",
     "close": "Fechar"
+  },
+  "limits": {
+    "expeditionCap": "Você atingiu o limite de expedições ativas do plano gratuito. Atualize para Premium para criar mais.",
+    "destinationCap": "Você atingiu o limite de destinos para esta expedição. Atualize para Premium para adicionar até 4 cidades.",
+    "insufficientPa": "Você não tem PA suficiente para esta ação. Compre um pacote ou assine o Premium."
+  },
+  "subscription": {
+    "conflict": {
+      "alreadyActive": "Você já possui uma assinatura ativa.",
+      "alreadyTrialing": "Você já está em período de teste.",
+      "notActive": "Não há uma assinatura ativa para esta operação."
+    },
+    "trialAlreadyUsed": "Você já utilizou o período de teste gratuito."
   }
 }

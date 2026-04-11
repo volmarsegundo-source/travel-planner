@@ -2473,5 +2473,18 @@
     "errorRateLimit": "Too many feedbacks. Please wait before sending another.",
     "errorTooShort": "Message must be at least 10 characters.",
     "close": "Close"
+  },
+  "limits": {
+    "expeditionCap": "You have reached the free plan limit for active expeditions. Upgrade to Premium to create more.",
+    "destinationCap": "You have reached the destination limit for this expedition. Upgrade to Premium to add up to 4 cities.",
+    "insufficientPa": "You don't have enough PA for this action. Purchase a package or subscribe to Premium."
+  },
+  "subscription": {
+    "conflict": {
+      "alreadyActive": "You already have an active subscription.",
+      "alreadyTrialing": "You are already in a trial period.",
+      "notActive": "There is no active subscription for this operation."
+    },
+    "trialAlreadyUsed": "You have already used the free trial."
   }
 }

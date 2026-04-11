@@ -25,6 +25,7 @@ import { classifyTrip } from "@/lib/travel/trip-classifier";
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
 import { PhaseCompletionService } from "@/server/services/phase-completion.service";
+import { EntitlementService } from "@/server/services/entitlement.service";
 
 // ─── Ownership helper ────────────────────────────────────────────────────────
 
@@ -50,6 +51,15 @@ export async function createExpeditionAction(
     return {
       success: false,
       error: firstError?.message ?? "errors.generic",
+    };
+  }
+
+  // Sprint 43 Wave 5: entitlement gate for active-trip cap (FREE = 3).
+  const entitlement = await EntitlementService.canCreateExpedition(session.user.id);
+  if (!entitlement.allowed) {
+    return {
+      success: false,
+      error: entitlement.reason ?? "limits.expeditionCap",
     };
   }
 

@@ -642,6 +642,79 @@ export class AdminDashboardService {
       totalPages: Math.ceil(total / pageSize),
     };
   }
+
+  // ─── Sprint 43 Wave 5: Subscription/MRR read-only surfaces ──────────────
+  //
+  // These read-only methods back a future admin UI (not in this wave). They
+  // are kept here so the dashboard service stays the single entry point for
+  // KPI data.
+
+  /**
+   * Counts of currently-paying subscribers plus rough MRR in cents. MRR is
+   * computed from the Premium plan prices defined in SPEC-PROD-PREMIUM:
+   * PREMIUM_MONTHLY = R$ 29,90; PREMIUM_ANNUAL = R$ 299,00 → R$ 24,92/mo.
+   */
+  static async getActiveSubscribers(): Promise<{
+    count: number;
+    mrrCents: number;
+    byPlan: Record<string, number>;
+  }> {
+    const rows = await db.subscription.groupBy({
+      by: ["plan"],
+      where: { status: { in: ["ACTIVE", "TRIALING"] } },
+      _count: { _all: true },
+    });
+
+    const byPlan: Record<string, number> = {};
+    let count = 0;
+    let mrrCents = 0;
+
+    for (const row of rows) {
+      const n = row._count._all;
+      byPlan[row.plan] = n;
+      count += n;
+      if (row.plan === "PREMIUM_MONTHLY") {
+        mrrCents += n * 2990;
+      } else if (row.plan === "PREMIUM_ANNUAL") {
+        // Amortised monthly: 29900 / 12 = 2491.67 → round to nearest cent.
+        mrrCents += Math.round(n * (29900 / 12));
+      }
+    }
+
+    return { count, mrrCents, byPlan };
+  }
+
+  /** Recent subscription events for audit drill-down. */
+  static async getRecentSubscriptionEvents(limit = 50) {
+    return db.subscriptionEvent.findMany({
+      orderBy: { createdAt: "desc" },
+      take: Math.min(limit, 200),
+    });
+  }
+
+  /**
+   * Rough 30-day churn snapshot. Numerator: CANCELED_IMMEDIATELY + expired
+   * period-end cancellations in the last 30d. Denominator: total subscriptions
+   * that have ever been ACTIVE. Returns a ratio (0..1).
+   */
+  static async getChurnMock(): Promise<{ last30d: number }> {
+    const since = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const [canceled, everActive] = await Promise.all([
+      db.subscriptionEvent.count({
+        where: {
+          type: {
+            in: ["CANCELED_IMMEDIATELY", "CANCELED_AT_PERIOD_END"],
+          },
+          createdAt: { gte: since },
+        },
+      }),
+      db.subscription.count({
+        where: { plan: { not: "FREE" } },
+      }),
+    ]);
+    const ratio = everActive === 0 ? 0 : canceled / everActive;
+    return { last30d: Math.round(ratio * 10000) / 10000 };
+  }
 }
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
