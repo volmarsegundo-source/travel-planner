@@ -38,6 +38,18 @@ export interface PromptTemplate<TParams = Record<string, unknown>> {
 
 // ─── Parameter Types ───────────────────────────────────────────────────────
 
+/** Multi-city destination entry (Sprint 43 Wave 4) */
+export interface TravelPlanDestination {
+  /** City name as it should appear in day.city */
+  city: string;
+  /** Optional country label for disambiguation */
+  country?: string;
+  /** How many nights the traveler sleeps in this city */
+  nights?: number;
+  /** Ordered position in the trip (0-indexed) */
+  order: number;
+}
+
 /** Parameters for the travel plan (itinerary) prompt */
 export interface TravelPlanParams {
   destination: string;
@@ -56,6 +68,13 @@ export interface TravelPlanParams {
   extraCategories?: string[];
   /** Free-text personal notes for itinerary personalization */
   personalNotes?: string;
+  /**
+   * Sprint 43 Wave 4: when set with more than one entry, the prompt switches
+   * to multi-city mode and instructs the AI to insert transit days and tag
+   * every day with its city. For single-city trips this field may be omitted
+   * (the prompt falls back to the legacy single-destination flow).
+   */
+  destinations?: TravelPlanDestination[];
 }
 
 /** Parameters for the pre-trip checklist prompt */
@@ -64,6 +83,16 @@ export interface ChecklistParams {
   month: string;
   travelers: number;
   language: "pt-BR" | "en";
+}
+
+/** Sibling-city context for multi-city guides (Sprint 43 Wave 4). */
+export interface GuideTripContext {
+  /** Full ordered list of city names in the trip (including the target) */
+  siblingCities: string[];
+  /** Position of this guide's city in the sequence (0-indexed) */
+  order: number;
+  /** Total number of cities in the trip */
+  totalCities: number;
 }
 
 /** Traveler context from Phases 1-4 for richer guide personalization */
@@ -105,4 +134,11 @@ export interface GuideParams {
   extraCategories?: string[];
   /** Free-text personal notes for guide personalization (SPEC-GUIA-PERSONALIZACAO) */
   personalNotes?: string;
+  /**
+   * Sprint 43 Wave 4: sibling-city awareness for multi-city trips. When the
+   * trip has more than one destination, this tells the guide what other
+   * cities the traveler is visiting so it can avoid duplicating attractions
+   * and align budget/pace estimates across guides.
+   */
+  tripContext?: GuideTripContext;
 }

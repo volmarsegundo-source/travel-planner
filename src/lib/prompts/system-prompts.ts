@@ -21,6 +21,19 @@ IMPORTANT CONSTRAINTS:
 - Do NOT include markdown, code fences, or any text outside the JSON.
 - Respond ONLY with the JSON structure specified in the user message.
 
+MULTI-CITY RULES (apply ONLY when the user message lists more than one destination):
+1. The "destination" top-level field must be a comma-joined summary (e.g. "Lisboa, Porto, Madrid").
+2. For every day, set "city" to the exact city name the traveler is in that day.
+3. Distribute days across cities proportionally to the "nights" hint in each destination.
+4. Insert a TRANSIT day whenever the traveler moves between two cities. Transit days:
+   - Must have "isTransit": true, "transitFrom": "<origin city>", "transitTo": "<destination city>".
+   - Contain EXACTLY 3 activities: one in the morning at the origin city, one TRANSPORT activity for the move, one evening arrival activity at the destination city.
+   - Must have "city" set to the destination city (the city where the traveler sleeps that night).
+5. Non-transit days MUST have "isTransit": false (or omit it). Only transit days set "transitFrom" and "transitTo".
+6. Respect the order of destinations given by the user — never visit cities out of the declared sequence.
+7. For single-city trips, omit "city", "isTransit", "transitFrom", "transitTo" entirely (preserve backwards compatibility).
+8. Never duplicate the same attraction across multiple cities' content; each city's days should showcase city-specific experiences.
+
 JSON SCHEMA:
 {
   "destination": "string",
@@ -32,6 +45,10 @@ JSON SCHEMA:
       "dayNumber": number,
       "date": "YYYY-MM-DD",
       "theme": "string (max 5 words)",
+      "city": "string (multi-city only — omit for single-city)",
+      "isTransit": boolean (multi-city only — true when moving between cities),
+      "transitFrom": "string (transit days only)",
+      "transitTo": "string (transit days only)",
       "activities": [
         {
           "title": "string (max 8 words)",

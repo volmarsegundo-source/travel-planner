@@ -149,6 +149,9 @@ export const travelPlanPrompt: PromptTemplate<TravelPlanParams> = {
 
     const contextSection = buildTravelerContext(params);
 
+    const isMultiCity =
+      Array.isArray(params.destinations) && params.destinations.length > 1;
+
     const lines: string[] = [
       `Trip details:`,
       `- Destination: ${params.destination}`,
@@ -159,6 +162,22 @@ export const travelPlanPrompt: PromptTemplate<TravelPlanParams> = {
       `- Language: ${params.language}`,
       `- Token budget: ${params.tokenBudget} (fit entire JSON within this limit)`,
     ];
+
+    if (isMultiCity) {
+      const sorted = [...params.destinations!].sort((a, b) => a.order - b.order);
+      lines.push("");
+      lines.push("<destinations_multi_city>");
+      lines.push("  The traveler is visiting MULTIPLE cities in this order:");
+      for (const d of sorted) {
+        const country = d.country ? `, ${d.country}` : "";
+        const nights = typeof d.nights === "number" ? ` — ${d.nights} nights` : "";
+        lines.push(`  ${d.order + 1}. ${d.city}${country}${nights}`);
+      }
+      lines.push("  Follow the MULTI-CITY RULES in the system prompt: tag every");
+      lines.push("  day with its city, insert transit days between cities, and");
+      lines.push("  respect the declared sequence.");
+      lines.push("</destinations_multi_city>");
+    }
 
     if (notesSection) lines.push(notesSection);
     if (contextSection) lines.push(contextSection);

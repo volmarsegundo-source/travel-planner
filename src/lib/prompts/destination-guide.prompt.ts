@@ -90,6 +90,34 @@ export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
       lines.push("</personal_notes>");
     }
 
+    // Sprint 43 Wave 4: sibling-city awareness for multi-city trips.
+    // Emitted only when tripContext has more than one city — single-city
+    // trips see no change in prompt shape.
+    if (
+      params.tripContext &&
+      params.tripContext.totalCities > 1 &&
+      params.tripContext.siblingCities.length > 0
+    ) {
+      const others = params.tripContext.siblingCities.filter(
+        (c, i) => i !== params.tripContext!.order,
+      );
+      lines.push("");
+      lines.push("<trip_context>");
+      lines.push(
+        `  This guide covers ${params.destination} — city ${params.tripContext.order + 1} of ${params.tripContext.totalCities} in a multi-city trip.`,
+      );
+      if (others.length > 0) {
+        lines.push(`  Other cities in the same trip: ${others.join(", ")}.`);
+      }
+      lines.push(
+        "  Do NOT duplicate attractions that clearly belong to other cities on the list.",
+      );
+      lines.push(
+        "  Keep budget estimates consistent with sibling guides (same currency, similar magnitude).",
+      );
+      lines.push("</trip_context>");
+    }
+
     return lines.join("\n");
   },
 };

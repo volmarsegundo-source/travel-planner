@@ -67,6 +67,11 @@ const DayPlanSchema = z.object({
   date: z.string(),
   theme: z.string(),
   activities: z.array(DayActivitySchema),
+  // Sprint 43 Wave 4: multi-city optional fields
+  city: z.string().optional(),
+  isTransit: z.boolean().optional(),
+  transitFrom: z.string().optional(),
+  transitTo: z.string().optional(),
 });
 
 const ItineraryPlanSchema = z.object({

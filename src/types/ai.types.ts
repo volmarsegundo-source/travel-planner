@@ -87,6 +87,12 @@ export interface DayPlan {
   date: string;
   theme: string;
   activities: DayActivity[];
+  // Sprint 43 Wave 4: multi-city fields. All optional — single-city plans
+  // omit these entirely and stay fully backwards compatible.
+  city?: string;
+  isTransit?: boolean;
+  transitFrom?: string;
+  transitTo?: string;
 }
 
 export interface ItineraryPlan {

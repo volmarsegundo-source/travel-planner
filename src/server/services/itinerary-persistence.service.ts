@@ -30,6 +30,12 @@ const DayPlanSchema = z.object({
   date: z.string(),
   theme: z.string(),
   activities: z.array(DayActivitySchema),
+  // Sprint 43 Wave 4: multi-city fields. All optional — single-city plans
+  // omit them entirely and stay fully backwards compatible.
+  city: z.string().optional(),
+  isTransit: z.boolean().optional(),
+  transitFrom: z.string().optional(),
+  transitTo: z.string().optional(),
 });
 
 const ItineraryPlanSchema = z.object({
@@ -56,17 +62,45 @@ export async function persistItinerary(
   tripId: string,
   plan: ItineraryPlan
 ): Promise<void> {
+  // Sprint 43 Wave 4: resolve city names to Destination IDs for multi-city
+  // plans. Single-city plans get null and the legacy Trip↔ItineraryDay path
+  // is preserved.
+  const destinations = await db.destination.findMany({
+    where: { tripId },
+    select: { id: true, city: true, order: true },
+    orderBy: { order: "asc" },
+  });
+  const cityToId = new Map<string, string>();
+  for (const dest of destinations) {
+    cityToId.set(normalizeCity(dest.city), dest.id);
+  }
+  // Fallback: if only one destination exists, unlabeled days belong to it.
+  const fallbackDestinationId =
+    destinations.length === 1 ? destinations[0]!.id : null;
+
   await db.$transaction(async (tx) => {
     // Delete existing days and activities first (re-generation replaces everything)
     await tx.itineraryDay.deleteMany({ where: { tripId } });
 
     for (const day of plan.days) {
+      const isTransit = day.isTransit === true;
+      let destinationId: string | null = null;
+      if (!isTransit) {
+        const key = day.city ? normalizeCity(day.city) : null;
+        destinationId =
+          (key && cityToId.get(key)) ?? fallbackDestinationId ?? null;
+      }
+
       const createdDay = await tx.itineraryDay.create({
         data: {
           tripId,
           dayNumber: day.dayNumber,
           date: day.date ? new Date(day.date) : null,
           notes: day.theme,
+          destinationId,
+          isTransit,
+          transitFrom: isTransit ? day.transitFrom ?? null : null,
+          transitTo: isTransit ? day.transitTo ?? null : null,
         },
       });
 
@@ -87,6 +121,10 @@ export async function persistItinerary(
       }
     }
   });
+}
+
+function normalizeCity(city: string): string {
+  return city.trim().toLowerCase();
 }
 
 /**
