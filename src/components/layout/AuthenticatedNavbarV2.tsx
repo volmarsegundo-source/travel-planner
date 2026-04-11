@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Compass } from "lucide-react";
+import { Compass, ShoppingBag } from "lucide-react";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 // ThemeToggle removed — light mode forced for beta (dark mode redesign post-beta)
 import { UserMenu } from "@/components/layout/UserMenu";
@@ -20,6 +20,7 @@ interface AuthenticatedNavbarV2Props {
     phaseName: string;
     rank: "novato" | "desbravador" | "navegador" | "capitao" | "aventureiro" | "lendario";
   };
+  isPremium?: boolean;
 }
 
 export function AuthenticatedNavbarV2({
@@ -27,6 +28,7 @@ export function AuthenticatedNavbarV2({
   userImage,
   userEmail,
   gamification,
+  isPremium = false,
 }: AuthenticatedNavbarV2Props) {
   const t = useTranslations();
   const tNav = useTranslations("navV2");
@@ -122,6 +124,23 @@ export function AuthenticatedNavbarV2({
             </span>
           )}
 
+          <Link
+            href="/loja"
+            data-testid="store-icon"
+            aria-label={tNavLegacy("store")}
+            className="relative inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg p-2 text-[#D4AF37] transition-colors hover:bg-atlas-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring motion-reduce:transition-none"
+          >
+            <ShoppingBag className="size-5" aria-hidden="true" />
+            {isPremium && (
+              <span
+                className="absolute -top-0.5 -right-0.5 rounded-full bg-[#D4AF37] px-1.5 py-px text-[9px] font-bold leading-none text-[#1A3C5E]"
+                aria-label={tNavLegacy("premiumBadge")}
+              >
+                {tNavLegacy("premiumShort")}
+              </span>
+            )}
+          </Link>
+
           <UserMenu
             userName={userName}
             userImage={userImage}
@@ -182,6 +201,20 @@ export function AuthenticatedNavbarV2({
                 />
               </div>
             )}
+            <Link
+              href="/loja"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 rounded-lg p-2 text-[#D4AF37] hover:bg-atlas-surface-container-low focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+              aria-label={tNavLegacy("store")}
+            >
+              <ShoppingBag className="size-5" aria-hidden="true" />
+              <span className="text-sm font-medium">{tNavLegacy("store")}</span>
+              {isPremium && (
+                <span className="ml-auto rounded-full bg-[#D4AF37] px-2 py-0.5 text-[10px] font-bold text-[#1A3C5E]">
+                  {tNavLegacy("premiumShort")}
+                </span>
+              )}
+            </Link>
             <div className="border-t border-atlas-outline-variant/20 pt-2 flex gap-2">
               {/* ThemeToggle removed — light mode forced for beta */}
               <LanguageSwitcher />

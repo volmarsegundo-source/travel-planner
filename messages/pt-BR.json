@@ -45,7 +45,10 @@
       "atlas": "Meu Atlas",
       "profile": "Perfil",
       "expedition": "Expedição"
-    }
+    },
+    "store": "Loja",
+    "premiumShort": "PRO",
+    "premiumBadge": "Premium ativo"
   },
   "auth": {
     "signIn": "Entrar",
@@ -744,10 +747,8 @@
           "beaches": "Praias",
           "architecture": "Arquitetura",
           "wildlife": "Vida selvagem",
-          "solo": "Solo",
           "meet_travelers": "Conhecer viajantes",
           "group_activities": "Atividades em grupo",
-          "family": "Família",
           "romantic_couple": "Casal romântico",
           "hostel": "Hostel",
           "hotel": "Hotel",
@@ -2485,6 +2486,152 @@
       "alreadyTrialing": "Você já está em período de teste.",
       "notActive": "Não há uma assinatura ativa para esta operação."
     },
-    "trialAlreadyUsed": "Você já utilizou o período de teste gratuito."
+    "trialAlreadyUsed": "Voce ja usou seu trial gratuito nesta conta.",
+    "trialFailed": "Nao foi possivel iniciar o trial. Tente novamente.",
+    "checkoutFailed": "Nao foi possivel iniciar o checkout. Tente novamente.",
+    "confirmFailed": "Nao foi possivel confirmar o pagamento. Tente novamente.",
+    "sessionNotFound": "Sessao de checkout nao encontrada.",
+    "notFound": "Nenhuma assinatura encontrada.",
+    "cancelFailed": "Nao foi possivel cancelar a assinatura. Tente novamente.",
+    "statusFailed": "Nao foi possivel carregar o status da assinatura."
+  },
+  "loja": {
+    "title": "Loja Atlas",
+    "subtitle": "Pontos Atlas e Premium — tudo o que voce precisa para ir mais longe.",
+    "tabsLabel": "Secoes da loja",
+    "tabs": {
+      "packages": "Pacotes",
+      "premium": "Premium",
+      "myPlan": "Meu Plano"
+    },
+    "packages": {
+      "currentBalance": "Seu saldo atual",
+      "recommendedBadge": "Recomendado",
+      "recommendedBadgeAria": "Pacote recomendado",
+      "buy": "Comprar",
+      "buying": "Processando...",
+      "buyAria": "Comprar pacote {name}",
+      "purchaseSuccess": "Compra confirmada — PA creditados na sua conta.",
+      "purchaseError": "Nao conseguimos concluir sua compra. Tente novamente."
+    }
+  },
+  "premium": {
+    "planName": "Atlas Premium",
+    "yearShort": "ano",
+    "monthShort": "mes",
+    "alreadyPremium": "Voce ja e Atlas Premium.",
+    "goToMyPlan": "Ir para Meu Plano",
+    "billingToggleLabel": "Escolha a periodicidade",
+    "toggleMonthly": "Mensal",
+    "toggleAnnual": "Anual",
+    "annualSavings": "Economize {percent}%",
+    "equivalentMonthly": "cerca de {value} / mes",
+    "stayFree": "Continuar no Free",
+    "confetti": {
+      "success": "Bem-vindo ao Atlas Premium!"
+    },
+    "trial": {
+      "start": "Iniciar 7 dias gratis",
+      "starting": "Iniciando trial...",
+      "disclaimer": "Sem compromisso. Cancele quando quiser. Cobranca apos o trial.",
+      "alreadyUsed": "Voce ja usou seu trial gratuito nesta conta.",
+      "cardRequired": "Um cartao valido e necessario para iniciar o trial.",
+      "error": "Nao foi possivel iniciar seu trial agora. Tente novamente."
+    },
+    "checkout": {
+      "mock": {
+        "title": "Simulacao de pagamento",
+        "planLabel": "Plano",
+        "priceLabel": "Valor",
+        "planMonthly": "Atlas Premium — Mensal",
+        "planAnnual": "Atlas Premium — Anual",
+        "approve": "Simular aprovacao",
+        "cancel": "Simular cancelamento",
+        "processing": "Processando...",
+        "disclaimer": "Esta e uma simulacao. Em producao voce seria redirecionado para o Mercado Pago.",
+        "confirmError": "Nao foi possivel confirmar o pagamento. Tente novamente.",
+        "missingSession": "Sessao de checkout nao encontrada."
+      }
+    },
+    "comparison": {
+      "caption": "Comparacao entre Free e Premium",
+      "unlimited": "Ilimitado",
+      "limited": "Padrao",
+      "priority": "Prioritaria",
+      "optIn": "Opt-in",
+      "community": "Comunidade",
+      "email": "E-mail",
+      "standard": "Padrao",
+      "exclusive": "Exclusivas",
+      "partnerDiscounts": "Descontos em parceiros",
+      "headers": {
+        "feature": "Recurso",
+        "free": "Free",
+        "premium": "Premium"
+      },
+      "rows": {
+        "destinations": "Destinos por expedicao",
+        "activeExpeditions": "Expedicoes ativas",
+        "monthlyPA": "PA mensais",
+        "regen": "Regeneracao de IA",
+        "sonnet": "Modelo Sonnet (qualidade+)",
+        "support": "Suporte",
+        "badges": "Badges",
+        "discounts": "Descontos em parceiros"
+      }
+    },
+    "myPlan": {
+      "planMonthly": "Atlas Premium (Mensal)",
+      "planAnnual": "Atlas Premium (Anual)",
+      "statusLabel": "Status",
+      "status": {
+        "active": "Ativo",
+        "trialing": "Trial",
+        "past_due": "Pagamento pendente",
+        "canceled": "Cancelado",
+        "expired": "Expirado"
+      },
+      "nextRenewal": "Proxima renovacao",
+      "trialEnds": "Trial termina em",
+      "cancellationLabel": "Cancelamento",
+      "cancelScheduled": "Cancela ao final do periodo atual",
+      "cancelCta": "Cancelar assinatura",
+      "paAllowance": "Cota mensal de PA",
+      "seePremium": "Ver planos Premium",
+      "emptyState": "Voce ainda nao tem um plano Premium ativo.",
+      "cancelError": "Nao foi possivel cancelar a assinatura. Tente novamente.",
+      "cancelDialog": {
+        "title": "Cancelar Premium?",
+        "body": "Sua assinatura permanece ativa ate o final do periodo atual. Voce nao sera cobrado novamente.",
+        "keepPlan": "Manter meu plano",
+        "confirm": "Cancelar assinatura",
+        "canceling": "Cancelando..."
+      }
+    },
+    "upsell": {
+      "close": "Fechar",
+      "primaryCta": "Iniciar 7 dias gratis",
+      "secondaryCta": "Continuar no Free",
+      "title": {
+        "multi-city": "Voce esta pronto para o Premium",
+        "expeditions-limit": "Ja em 3 expedicoes",
+        "sonnet-toggle": "Quer mais qualidade na IA?",
+        "pa-insufficient": "Saldo PA insuficiente",
+        "generic": "Desbloqueie o Atlas Premium"
+      },
+      "context": {
+        "multi-city": "Voce tentou adicionar um segundo destino na sua expedicao. Multi destinos e um recurso Premium.",
+        "expeditions-limit": "No Premium voce planeja quantas expedicoes quiser, sem precisar arquivar.",
+        "sonnet-toggle": "O modelo Sonnet esta disponivel para Premium.",
+        "pa-insufficient": "Recarregue ou assine Premium para ganhar 1.500 PA por mes.",
+        "generic": "Premium libera multi-city, expedicoes ilimitadas e mais PA todo mes."
+      },
+      "benefits": {
+        "multiDest": "Ate 4 destinos por expedicao",
+        "unlimitedExpeditions": "Expedicoes ativas ilimitadas",
+        "monthlyPA": "1.500 PA todo mes",
+        "sonnet": "Modelo Sonnet (qualidade+)"
+      }
+    }
   }
 }

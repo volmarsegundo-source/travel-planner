@@ -4,6 +4,7 @@ import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { db } from "@/server/db";
 import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
 import { FooterV2 } from "@/components/features/landing/FooterV2";
 import { FeedbackWidgetLoader } from "@/components/features/feedback/FeedbackWidgetLoader";
@@ -60,6 +61,21 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     // Gamification data is non-critical — badge simply won't render
   }
 
+  // Premium flag for StoreIcon — failure is non-critical, defaults to false.
+  let isPremium = false;
+  try {
+    const sub = await db.subscription.findUnique({
+      where: { userId: user.id! },
+      select: { plan: true, status: true },
+    });
+    isPremium =
+      !!sub &&
+      sub.plan !== "FREE" &&
+      (sub.status === "ACTIVE" || sub.status === "TRIALING");
+  } catch {
+    // Non-critical — defaults to false
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -73,6 +89,7 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
         userImage={user.image ?? null}
         userEmail={user.email ?? ""}
         gamification={gamification}
+        isPremium={isPremium}
       />
       <main id="main-content" className="flex-1">
         {children}
