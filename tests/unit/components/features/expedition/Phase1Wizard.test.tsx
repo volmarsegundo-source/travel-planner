@@ -78,6 +78,19 @@ vi.mock("@/lib/travel/trip-classifier", () => ({
   classifyTrip: vi.fn().mockReturnValue(null),
 }));
 
+// Sprint 43 Wave 3: Phase1Wizard re-exports V2, which now pulls in
+// useIsPremium → subscription.actions → next-auth. Stub the client hook,
+// the multi-city selector, and the upsell modal to keep the test pure.
+vi.mock("@/hooks/useIsPremium", () => ({
+  useIsPremium: () => ({ isPremium: false, isTrialing: false, loading: false }),
+}));
+vi.mock("@/components/features/expedition/MultiCitySelector", () => ({
+  MultiCitySelector: () => null,
+}));
+vi.mock("@/components/features/premium/UpsellModal", () => ({
+  UpsellModal: () => null,
+}));
+
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import { Phase1Wizard } from "@/components/features/expedition/Phase1Wizard";

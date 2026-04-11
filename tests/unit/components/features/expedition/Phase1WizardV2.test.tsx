@@ -59,6 +59,19 @@ vi.mock("@/lib/travel/trip-classifier", () => ({
   classifyTrip: () => null,
 }));
 
+// Sprint 43 Wave 3: Phase1WizardV2 now reads the premium flag via
+// useIsPremium → getSubscriptionStatusAction → next-auth. Stub both the
+// hook and the MultiCitySelector so the test stays pure client-side.
+vi.mock("@/hooks/useIsPremium", () => ({
+  useIsPremium: () => ({ isPremium: false, isTrialing: false, loading: false }),
+}));
+vi.mock("@/components/features/expedition/MultiCitySelector", () => ({
+  MultiCitySelector: () => null,
+}));
+vi.mock("@/components/features/premium/UpsellModal", () => ({
+  UpsellModal: () => null,
+}));
+
 vi.mock("@/lib/utils/phone", () => ({
   formatBrazilianPhone: (v: string) => v,
   isValidBrazilianPhone: () => true,

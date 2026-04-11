@@ -44,6 +44,12 @@ vi.mock("@/server/db", () => ({
   db: {
     trip: { findFirst: mockFindFirst },
     userProfile: { findUnique: mockProfileFindUnique },
+    // Sprint 42: generateChecklistAction detects regeneration by looking
+    // up an existing checklist. Default to "no checklist yet" so legacy
+    // tests exercise the first-generation path (no PA debit, no regen).
+    checklistItem: { findFirst: vi.fn().mockResolvedValue(null) },
+    // Sprint 43 Wave 4: persistItinerary now pre-fetches destinations.
+    destination: { findMany: vi.fn().mockResolvedValue([]) },
     $transaction: vi.fn(),
   },
 }));

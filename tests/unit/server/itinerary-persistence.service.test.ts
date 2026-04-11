@@ -125,6 +125,14 @@ describe("itinerary-persistence.service", () => {
   // ─── persistItinerary ──────────────────────────────────────────────────
 
   describe("persistItinerary", () => {
+    beforeEach(() => {
+      // Wave 4: persistItinerary pre-fetches destinations so day.city can be
+      // resolved to a Destination.id. Tests that don't care about multi-city
+      // default to an empty list — the implementation falls back to null
+      // destinationId and preserves the legacy single-city behavior.
+      prismaMock.destination.findMany.mockResolvedValue([] as never);
+    });
+
     it("creates days and activities in a transaction", async () => {
       const mockTx = {
         itineraryDay: {

@@ -247,11 +247,14 @@ export async function generateChecklistAction(
   // Detect regeneration: if a checklist already exists for this trip, this is a
   // paid re-generation (Sprint 42 FinOps). First-time generation remains free —
   // the initial 180 PA onboarding covers it.
+  //
+  // NOTE: `!= null` intentionally covers both null AND undefined so mocks that
+  // don't stub findFirst don't trip the regen path and charge PA.
   const existingChecklist = await db.checklistItem.findFirst({
     where: { tripId },
     select: { id: true },
   });
-  const isRegeneration = existingChecklist !== null;
+  const isRegeneration = existingChecklist != null;
 
   if (isRegeneration) {
     const progress = await db.userProgress.findUnique({
