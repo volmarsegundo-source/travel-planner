@@ -1,6 +1,25 @@
 import { z } from "zod";
 import { PassengersSchema } from "./trip.schema";
 
+// ─── Destination (Sprint 43 Wave 3 — multi-city) ────────────────────────────
+
+/**
+ * Per-destination input accepted by Phase1 when the user enables multi-city
+ * mode. Free users may send at most 1 entry; Premium users up to 4. The
+ * server enforces the plan cap again (defense in depth).
+ */
+export const DestinationInputSchema = z.object({
+  city: z.string().min(1).max(150),
+  country: z.string().max(100).optional(),
+  latitude: z.number().min(-90).max(90).optional(),
+  longitude: z.number().min(-180).max(180).optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  nights: z.number().int().positive().max(365).optional(),
+});
+
+export type DestinationInput = z.infer<typeof DestinationInputSchema>;
+
 // ─── Phase 1: Trip Planning Basics ──────────────────────────────────────────
 
 export const Phase1Schema = z.object({
@@ -16,6 +35,17 @@ export const Phase1Schema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   flexibleDates: z.boolean().default(false),
+  /**
+   * Sprint 43 Wave 3: optional ordered list of destinations. When omitted,
+   * the legacy single-city flow is used. When provided, the server persists
+   * into the new `destinations` table and mirrors `[0]` back to
+   * `Trip.destination*` for backwards compatibility.
+   */
+  destinations: z
+    .array(DestinationInputSchema)
+    .min(1, "At least one destination is required")
+    .max(4, "expedition.phase1.errors.tooManyDestinations")
+    .optional(),
   profileFields: z.object({
     name: z.string().max(100).optional(),
     birthDate: z.string().optional(),

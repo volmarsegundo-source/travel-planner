@@ -9,6 +9,12 @@ import { AtlasButton, AtlasInput, AtlasCard } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
 import { DestinationAutocomplete } from "./DestinationAutocomplete";
 import {
+  MultiCitySelector,
+  type DestinationDraft,
+} from "./MultiCitySelector";
+import { UpsellModal } from "@/components/features/premium/UpsellModal";
+import { useIsPremium } from "@/hooks/useIsPremium";
+import {
   createExpeditionAction,
   updatePhase1Action,
 } from "@/server/actions/expedition.actions";
@@ -17,6 +23,10 @@ import { formatBrazilianPhone, isValidBrazilianPhone } from "@/lib/utils/phone";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 const TOTAL_STEPS = 4;
+
+// Sprint 43 Wave 3: multi-city plan caps.
+const FREE_MAX_CITIES = 1;
+const PREMIUM_MAX_CITIES = 4;
 
 const TRIP_TYPE_BADGES: Record<TripType, { emoji: string; key: string }> = {
   domestic: { emoji: "\u{1F3E0}", key: "domestic" },
@@ -120,6 +130,23 @@ export function Phase1WizardV2({
   const [endDate, setEndDate] = useState(savedEndDate ?? "");
   const [flexibleDates, setFlexibleDates] = useState(false);
 
+  // Sprint 43 Wave 3: multi-city state. When `multiCityEnabled` is true the
+  // destination single-field is hidden and `<MultiCitySelector>` owns the
+  // list of destinations. The single-field value stays mirrored with
+  // `destinations[0].city` for backwards compatibility.
+  const { isPremium } = useIsPremium();
+  const [multiCityEnabled, setMultiCityEnabled] = useState(false);
+  const [destinations, setDestinations] = useState<DestinationDraft[]>(() => [
+    {
+      order: 0,
+      city: savedDestination ?? "",
+      startDate: savedStartDate || undefined,
+      endDate: savedEndDate || undefined,
+    },
+  ]);
+  const [isUpsellOpen, setIsUpsellOpen] = useState(false);
+  const maxCities = isPremium ? PREMIUM_MAX_CITIES : FREE_MAX_CITIES;
+
   // Profile fields
   const [birthDate, setBirthDate] = useState(userProfile?.birthDate ?? "");
   const [phone, setPhone] = useState(userProfile?.phone ?? "");
@@ -141,6 +168,36 @@ export function Phase1WizardV2({
   const { isDirty: formDirty, markClean } = useFormDirty(formValues);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
+  // Sprint 43: Build a serializable `destinations` array for the server
+  // action. Always returns at least one item. In single-city mode, derives
+  // from the current form state so the server's dual-write stays consistent.
+  const buildDestinationsPayload = useCallback((): DestinationDraft[] => {
+    if (multiCityEnabled) {
+      return destinations
+        .filter((row) => row.city.trim().length > 0)
+        .map((row, idx) => ({ ...row, order: idx }));
+    }
+    return [
+      {
+        order: 0,
+        city: destination.trim(),
+        country: undefined,
+        latitude: destinationLat,
+        longitude: destinationLon,
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+      },
+    ];
+  }, [
+    multiCityEnabled,
+    destinations,
+    destination,
+    destinationLat,
+    destinationLon,
+    startDate,
+    endDate,
+  ]);
+
   async function handleSave() {
     if (!isEditMode || !_tripId) return;
     const profileFields: Record<string, string | undefined> = {};
@@ -151,8 +208,11 @@ export function Phase1WizardV2({
     if (bio) profileFields.bio = bio;
     if (name) profileFields.name = name;
 
+    const destList = buildDestinationsPayload();
+    const primaryCity = destList[0]?.city ?? destination.trim();
+
     const payload = {
-      destination: destination.trim(),
+      destination: primaryCity,
       origin: origin.trim() || undefined,
       destinationCountryCode: destinationCountryCode ?? undefined,
       originCountryCode: originCountryCode ?? undefined,
@@ -161,6 +221,7 @@ export function Phase1WizardV2({
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       flexibleDates,
+      destinations: destList,
       profileFields: Object.keys(profileFields).length > 0 ? profileFields : undefined,
     };
 
@@ -179,7 +240,9 @@ export function Phase1WizardV2({
   }
 
   async function handleSaveDraft() {
-    if (!destination.trim()) {
+    const destList = buildDestinationsPayload();
+    const primaryCity = destList[0]?.city ?? destination.trim();
+    if (!primaryCity) {
       setErrorMessage(t("errors.destinationRequired"));
       return;
     }
@@ -195,7 +258,7 @@ export function Phase1WizardV2({
     if (name) profileFields.name = name;
 
     const payload = {
-      destination: destination.trim(),
+      destination: primaryCity,
       origin: origin.trim() || undefined,
       destinationCountryCode: destinationCountryCode ?? undefined,
       originCountryCode: originCountryCode ?? undefined,
@@ -204,6 +267,7 @@ export function Phase1WizardV2({
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       flexibleDates,
+      destinations: destList,
       profileFields: Object.keys(profileFields).length > 0 ? profileFields : undefined,
     };
 
@@ -306,7 +370,13 @@ export function Phase1WizardV2({
   }
 
   function handleStep2Next() {
-    if (!destination.trim()) {
+    if (multiCityEnabled) {
+      const hasAtLeastOne = destinations.some((row) => row.city.trim().length > 0);
+      if (!hasAtLeastOne) {
+        setErrorMessage(t("errors.destinationRequired"));
+        return;
+      }
+    } else if (!destination.trim()) {
       setErrorMessage(t("errors.destinationRequired"));
       return;
     }
@@ -361,8 +431,11 @@ export function Phase1WizardV2({
     if (bio) profileFields.bio = bio;
     if (name) profileFields.name = name;
 
+    const destList = buildDestinationsPayload();
+    const primaryCity = destList[0]?.city ?? destination.trim();
+
     const payload = {
-      destination: destination.trim(),
+      destination: primaryCity,
       origin: origin.trim() || undefined,
       destinationCountryCode: destinationCountryCode ?? undefined,
       originCountryCode: originCountryCode ?? undefined,
@@ -371,6 +444,7 @@ export function Phase1WizardV2({
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       flexibleDates,
+      destinations: destList,
       profileFields: Object.keys(profileFields).length > 0 ? profileFields : undefined,
     };
 
@@ -689,33 +763,110 @@ export function Phase1WizardV2({
         {currentStep === 2 && (
           <AtlasCard variant="base">
             <div className="flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="step2-fields-grid">
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
-                    {t("step2.title")}
+              {/* Sprint 43: multi-city toggle */}
+              <div className="flex items-start justify-between gap-3 rounded-lg bg-atlas-surface-container-low px-4 py-3">
+                <div className="flex-1">
+                  <label
+                    htmlFor="multi-city-toggle"
+                    className={`flex items-center gap-2 font-atlas-body text-sm font-medium ${
+                      isPremium
+                        ? "text-atlas-on-surface cursor-pointer"
+                        : "text-atlas-on-surface-variant"
+                    }`}
+                  >
+                    <input
+                      id="multi-city-toggle"
+                      type="checkbox"
+                      checked={multiCityEnabled}
+                      disabled={!isPremium}
+                      aria-disabled={!isPremium}
+                      onChange={(event) => {
+                        if (!isPremium) {
+                          setIsUpsellOpen(true);
+                          return;
+                        }
+                        setMultiCityEnabled(event.target.checked);
+                      }}
+                      onClick={(event) => {
+                        if (!isPremium) {
+                          event.preventDefault();
+                          setIsUpsellOpen(true);
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-atlas-outline-variant focus-visible:ring-2 focus-visible:ring-atlas-focus-ring"
+                      data-testid="multi-city-toggle"
+                    />
+                    {t("multiCityToggle")}
+                    {!isPremium && (
+                      <span
+                        aria-label={t("premiumOnlyLabel")}
+                        title={t("premiumOnlyLabel")}
+                        className="inline-flex items-center gap-1 rounded-full bg-atlas-secondary-container/40 px-2 py-0.5 text-xs font-semibold text-atlas-primary"
+                      >
+                        <span aria-hidden="true">{"\u{1F512}"}</span>
+                        <span>{t("premiumBadge")}</span>
+                      </span>
+                    )}
                   </label>
-                  <DestinationAutocomplete
-                    value={destination}
-                    onChange={handleDestinationChange}
-                    onSelect={handleDestinationSelect}
-                    placeholder={t("step2.placeholder")}
-                  />
-                </div>
-                <div>
-                  <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
-                    {t("step2.origin")}
-                  </label>
-                  <DestinationAutocomplete
-                    value={origin}
-                    onChange={handleOriginChange}
-                    onSelect={handleOriginSelect}
-                    placeholder={t("step2.originPlaceholder")}
-                  />
-                  <p className="mt-1 text-xs font-atlas-body text-atlas-on-surface-variant">
-                    {t("step2.originHint")}
+                  <p className="mt-1 font-atlas-body text-xs text-atlas-on-surface-variant">
+                    {t("multiCityHint")}
                   </p>
                 </div>
               </div>
+
+              {multiCityEnabled ? (
+                <div data-testid="multi-city-container">
+                  <MultiCitySelector
+                    value={destinations}
+                    onChange={setDestinations}
+                    maxCities={maxCities}
+                    isPremium={isPremium}
+                    onUpsellRequested={() => setIsUpsellOpen(true)}
+                  />
+                  <div className="mt-4">
+                    <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
+                      {t("step2.origin")}
+                    </label>
+                    <DestinationAutocomplete
+                      value={origin}
+                      onChange={handleOriginChange}
+                      onSelect={handleOriginSelect}
+                      placeholder={t("step2.originPlaceholder")}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  data-testid="step2-fields-grid"
+                >
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
+                      {t("step2.title")}
+                    </label>
+                    <DestinationAutocomplete
+                      value={destination}
+                      onChange={handleDestinationChange}
+                      onSelect={handleDestinationSelect}
+                      placeholder={t("step2.placeholder")}
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-sm font-medium text-atlas-on-surface-variant">
+                      {t("step2.origin")}
+                    </label>
+                    <DestinationAutocomplete
+                      value={origin}
+                      onChange={handleOriginChange}
+                      onSelect={handleOriginSelect}
+                      placeholder={t("step2.originPlaceholder")}
+                    />
+                    <p className="mt-1 text-xs font-atlas-body text-atlas-on-surface-variant">
+                      {t("step2.originHint")}
+                    </p>
+                  </div>
+                </div>
+              )}
               {tripType && (
                 <div className="flex items-center gap-2 rounded-lg bg-atlas-secondary-container/10 px-3 py-2 text-sm font-atlas-body text-atlas-primary">
                   <span>{TRIP_TYPE_BADGES[tripType].emoji}</span>
@@ -885,6 +1036,10 @@ export function Phase1WizardV2({
           </AtlasCard>
         )}
       </div>
+      <UpsellModal
+        open={isUpsellOpen}
+        onClose={() => setIsUpsellOpen(false)}
+      />
     </PhaseShell>
   );
 }

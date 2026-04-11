@@ -26,6 +26,93 @@ import { ExpeditionSummaryService } from "@/server/services/expedition-summary.s
 import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
 import { PhaseCompletionService } from "@/server/services/phase-completion.service";
 import { EntitlementService } from "@/server/services/entitlement.service";
+import type { DestinationInput } from "@/lib/validations/expedition.schema";
+
+// Sprint 43 Wave 3: multi-city plan caps. Free users may only persist a
+// single destination per expedition; Premium users up to 4. Zod also caps
+// at 4 in Phase1Schema (defense in depth).
+const FREE_MAX_DESTINATIONS = 1;
+const PREMIUM_MAX_DESTINATIONS = 4;
+
+/**
+ * Replace the destinations for a trip and mirror `destinations[0]` back to
+ * the legacy `Trip.destination*` scalars. Runs inside a transaction so the
+ * denormalized fields never drift from the authoritative table.
+ *
+ * Callers MUST enforce the per-user cap BEFORE calling this helper.
+ */
+async function persistDestinations(
+  tripId: string,
+  list: DestinationInput[]
+): Promise<void> {
+  const primary = list[0];
+  if (!primary) return;
+  await db.$transaction(async (tx) => {
+    await tx.destination.deleteMany({ where: { tripId } });
+    await tx.destination.createMany({
+      data: list.map((d, idx) => ({
+        tripId,
+        order: idx,
+        city: d.city,
+        country: d.country ?? null,
+        latitude: d.latitude ?? null,
+        longitude: d.longitude ?? null,
+        startDate: d.startDate ? new Date(d.startDate) : null,
+        endDate: d.endDate ? new Date(d.endDate) : null,
+        nights: d.nights ?? null,
+      })),
+    });
+    // Mirror first destination back to legacy Trip scalars for BC.
+    await tx.trip.update({
+      where: { id: tripId },
+      data: {
+        destination: primary.city,
+        destinationLat: primary.latitude ?? null,
+        destinationLon: primary.longitude ?? null,
+        ...(primary.startDate
+          ? { startDate: new Date(primary.startDate) }
+          : {}),
+        ...(primary.endDate ? { endDate: new Date(primary.endDate) } : {}),
+      },
+    });
+  });
+}
+
+/**
+ * Upsert a single `Destination` row (order=0) derived from the legacy
+ * single-city payload. Used when a legacy caller does NOT send a
+ * `destinations` array — we still keep the new table in sync so Phase 5/6
+ * readers always find at least one row per trip.
+ */
+async function upsertLegacyDestination(
+  tripId: string,
+  payload: {
+    destination: string;
+    destinationLat?: number;
+    destinationLon?: number;
+    startDate?: string;
+    endDate?: string;
+  }
+): Promise<void> {
+  const existing = await db.destination.findFirst({
+    where: { tripId, order: 0 },
+    select: { id: true },
+  });
+  const data = {
+    city: payload.destination,
+    latitude: payload.destinationLat ?? null,
+    longitude: payload.destinationLon ?? null,
+    startDate: payload.startDate ? new Date(payload.startDate) : null,
+    endDate: payload.endDate ? new Date(payload.endDate) : null,
+  };
+  if (existing) {
+    await db.destination.update({ where: { id: existing.id }, data });
+  } else {
+    await db.destination.create({
+      data: { ...data, tripId, order: 0 },
+    });
+  }
+}
 
 // ─── Ownership helper ────────────────────────────────────────────────────────
 
@@ -63,11 +150,37 @@ export async function createExpeditionAction(
     };
   }
 
+  // Sprint 43 Wave 3: enforce destinations-per-expedition cap BEFORE mutating
+  // state. Zod already caps at 4 in Phase1Schema; here we only need to gate
+  // Free users to 1.
+  if (parsed.data.destinations && parsed.data.destinations.length > 1) {
+    const tier = await EntitlementService.getPlanTier(session.user.id);
+    const cap = tier === "PREMIUM" ? PREMIUM_MAX_DESTINATIONS : FREE_MAX_DESTINATIONS;
+    if (parsed.data.destinations.length > cap) {
+      return { success: false, error: "limits.destinationCap" };
+    }
+  }
+
   try {
     const result = await ExpeditionService.createExpedition(
       session.user.id,
       parsed.data
     );
+
+    // Sprint 43 Wave 3: persist the destinations array (if provided) or
+    // upsert a single Destination row from the legacy fields. Either way,
+    // the new `destinations` table stays in sync with Trip.destination*.
+    if (parsed.data.destinations && parsed.data.destinations.length > 0) {
+      await persistDestinations(result.tripId, parsed.data.destinations);
+    } else {
+      await upsertLegacyDestination(result.tripId, {
+        destination: parsed.data.destination,
+        destinationLat: parsed.data.destinationLat,
+        destinationLon: parsed.data.destinationLon,
+        startDate: parsed.data.startDate,
+        endDate: parsed.data.endDate,
+      });
+    }
 
     // Save profile fields if provided
     if (parsed.data.profileFields) {
@@ -141,6 +254,15 @@ export async function updatePhase1Action(
     };
   }
 
+  // Sprint 43 Wave 3: destinations-per-expedition cap (Free=1, Premium=4).
+  if (parsed.data.destinations && parsed.data.destinations.length > 1) {
+    const tier = await EntitlementService.getPlanTier(session.user.id);
+    const cap = tier === "PREMIUM" ? PREMIUM_MAX_DESTINATIONS : FREE_MAX_DESTINATIONS;
+    if (parsed.data.destinations.length > cap) {
+      return { success: false, error: "limits.destinationCap" };
+    }
+  }
+
   try {
     // BOLA: verify trip belongs to user
     const ownedTrip = await assertTripOwnership(tripId, session.user.id);
@@ -171,6 +293,19 @@ export async function updatePhase1Action(
         ...(tripType ? { tripType } : {}),
       },
     });
+
+    // Sprint 43 Wave 3: keep the new destinations table in sync.
+    if (parsed.data.destinations && parsed.data.destinations.length > 0) {
+      await persistDestinations(tripId, parsed.data.destinations);
+    } else {
+      await upsertLegacyDestination(tripId, {
+        destination: parsed.data.destination,
+        destinationLat: parsed.data.destinationLat,
+        destinationLon: parsed.data.destinationLon,
+        startDate: parsed.data.startDate,
+        endDate: parsed.data.endDate,
+      });
+    }
 
     // Save profile fields if provided
     if (parsed.data.profileFields) {

@@ -592,8 +592,25 @@
         "dateInPast": "Departure date must be in the future",
         "sameDates": "Trip must be at least 1 night",
         "startAfterEnd": "Return date must be after departure",
-        "dateRequired": "Date required"
-      }
+        "dateRequired": "Date required",
+        "tooManyDestinations": "You can add at most 4 cities per expedition."
+      },
+      "multiCityToggle": "Travel to multiple cities",
+      "multiCityHint": "Add up to 4 cities to a single expedition.",
+      "premiumBadge": "Premium",
+      "premiumOnlyLabel": "Available on Premium",
+      "addCity": "Add city",
+      "removeCity": "Remove city {index}",
+      "removeCityShort": "Remove",
+      "unlockPremium": "Unlock with Premium",
+      "citiesSummary": "{count} city(s) - {nights} total nights",
+      "citiesListLabel": "Expedition cities list",
+      "cityOrdinal": "City {index}",
+      "cityFieldLabel": "City",
+      "nights": "Nights",
+      "moveUp": "Move city {index} up",
+      "moveDown": "Move city {index} down",
+      "maxCitiesReached": "Maximum {max} cities per expedition."
     },
     "phase2": {
       "title": "The Profile",
@@ -2477,7 +2494,7 @@
   },
   "limits": {
     "expeditionCap": "You have reached the free plan limit for active expeditions. Upgrade to Premium to create more.",
-    "destinationCap": "You have reached the destination limit for this expedition. Upgrade to Premium to add up to 4 cities.",
+    "destinationCap": "Your current plan does not allow adding more cities to this expedition.",
     "insufficientPa": "You don't have enough PA for this action. Purchase a package or subscribe to Premium."
   },
   "subscription": {
