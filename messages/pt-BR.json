@@ -1010,7 +1010,13 @@
       "category_museums_galleries": "Museus e Galerias",
       "category_parks_nature": "Parques e Natureza",
       "category_local_experiences": "Experiencias Locais",
-      "personalizedWith": "Personalizado com"
+      "personalizedWith": "Personalizado com",
+      "streaming": {
+        "starting": "Preparando seu guia...",
+        "inProgress": "Gerando conteúdo personalizado...",
+        "finalizing": "Finalizando...",
+        "error": "Erro ao gerar guia. Tente novamente."
+      }
     },
     "phase6": {
       "title": "O Roteiro",
@@ -1607,6 +1613,19 @@
       "progress": "{current} de {target}",
       "newBadge": "Novo badge desbloqueado!",
       "closeToast": "Fechar notificação"
+    }
+  },
+  "ai": {
+    "service": {
+      "paused": {
+        "title": "Serviço de IA temporariamente indisponível",
+        "body": "Nosso serviço de IA está temporariamente indisponível. Tente novamente mais tarde.",
+        "buttonDisabled": "Serviço de IA em pausa"
+      },
+      "warning": {
+        "title": "Serviço de IA perto do limite",
+        "body": "O uso está se aproximando do limite mensal. Novas gerações podem ser pausadas em breve."
+      }
     }
   },
   "admin": {

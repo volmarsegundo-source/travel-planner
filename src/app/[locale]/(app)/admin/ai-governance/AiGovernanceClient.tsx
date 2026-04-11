@@ -40,6 +40,14 @@ interface PromptTemplateRow {
   updatedAt: string;
 }
 
+interface BudgetStatusProp {
+  available: boolean;
+  warning: boolean;
+  paused: boolean;
+  highestRatio: number;
+  highestScope: "global" | "anthropic" | "gemini";
+}
+
 interface AiGovernanceClientProps {
   overview: AiGovernanceOverview;
   phases: {
@@ -50,6 +58,7 @@ interface AiGovernanceClientProps {
   recentInteractions?: RecentInteraction[];
   promptTemplates?: PromptTemplateRow[];
   costAnalytics?: CostAnalytics;
+  budgetStatus?: BudgetStatusProp;
 }
 
 type TabKey = "overview" | "plan" | "checklist" | "guide" | "costAnalytics";
@@ -480,12 +489,43 @@ function CostAnalyticsPanel({
 
 // ─── Main Component ─────────────────────────────────────────────────────────
 
+function BudgetAlertBanner({ status }: { status: BudgetStatusProp }) {
+  if (!status.warning && !status.paused) return null;
+
+  const percent = Math.round(status.highestRatio * 100);
+  const scopeLabel = status.highestScope === "global" ? "Global" : status.highestScope;
+  const isBlocked = status.paused;
+
+  return (
+    <div
+      role="alert"
+      className={
+        isBlocked
+          ? "rounded-xl border border-red-300 bg-red-50 p-4 text-sm text-red-900 dark:border-red-900/50 dark:bg-red-950/40 dark:text-red-200"
+          : "rounded-xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200"
+      }
+    >
+      <p className="font-semibold">
+        {isBlocked
+          ? `AI budget kill switch active — ${scopeLabel} at ${percent}%`
+          : `AI budget warning — ${scopeLabel} at ${percent}%`}
+      </p>
+      <p className="mt-1 opacity-90">
+        {isBlocked
+          ? "Generation is paused until next billing cycle or ceiling adjustment. Review AI_MONTHLY_BUDGET_* env vars."
+          : "Spend is approaching the monthly cap. Consider prompt optimization or raising the ceiling."}
+      </p>
+    </div>
+  );
+}
+
 export function AiGovernanceClient({
   overview,
   phases,
   recentInteractions = [],
   promptTemplates = [],
   costAnalytics,
+  budgetStatus,
 }: AiGovernanceClientProps) {
   const t = useTranslations("admin.aiGovernance");
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
@@ -501,6 +541,9 @@ export function AiGovernanceClient({
           {t("period")}
         </p>
       </div>
+
+      {/* Budget ceiling alert (Sprint 42) */}
+      {budgetStatus && <BudgetAlertBanner status={budgetStatus} />}
 
       {/* Tab Navigation */}
       <nav

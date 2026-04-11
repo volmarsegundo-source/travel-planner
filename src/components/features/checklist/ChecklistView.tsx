@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ChecklistCategorySection } from "./ChecklistCategorySection";
 import { ChecklistGeneratingSkeleton } from "./ChecklistGeneratingSkeleton";
 import { generateChecklistAction } from "@/server/actions/ai.actions";
+import { useAiServiceStatus } from "@/hooks/useAiServiceStatus";
+import { AiServicePausedBanner } from "@/components/features/ai/AiServicePausedBanner";
 import type { ChecklistItem } from "@/server/actions/checklist.actions";
 import type { ChecklistCategory } from "@/types/ai.types";
 
@@ -36,6 +38,8 @@ export function ChecklistView({
   initialItems,
 }: ChecklistViewProps) {
   const t = useTranslations("checklist");
+  const tAi = useTranslations("ai.service");
+  const aiStatus = useAiServiceStatus();
   const [isPending, startTransition] = useTransition();
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
   const [error, setError] = useState<string | null>(null);
@@ -100,6 +104,8 @@ export function ChecklistView({
 
   return (
     <div className="space-y-4">
+      <AiServicePausedBanner />
+
       {/* Generate button or generating skeleton */}
       {!hasItems && !isPending && (
         <div className="rounded-xl border bg-card p-8 text-center space-y-4">
@@ -107,10 +113,11 @@ export function ChecklistView({
           <p className="text-sm text-muted-foreground">{t("noItemsSubtitle")}</p>
           <Button
             onClick={handleGenerate}
-            disabled={isPending}
+            disabled={isPending || aiStatus.paused}
             className="min-h-[44px]"
+            aria-label={aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
           >
-            {t("generate")}
+            {aiStatus.paused ? tAi("paused.buttonDisabled") : t("generate")}
           </Button>
         </div>
       )}
@@ -125,10 +132,15 @@ export function ChecklistView({
               variant="outline"
               size="sm"
               onClick={handleGenerate}
-              disabled={isPending}
+              disabled={isPending || aiStatus.paused}
               className="min-h-[44px]"
+              aria-label={aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
             >
-              {isPending ? t("generating") : t("generate")}
+              {aiStatus.paused
+                ? tAi("paused.buttonDisabled")
+                : isPending
+                  ? t("generating")
+                  : t("generate")}
             </Button>
           </div>
 

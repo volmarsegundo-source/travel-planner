@@ -10,7 +10,7 @@ import { logger } from "@/lib/logger";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { travelPlanPrompt, PLAN_SYSTEM_PROMPT } from "@/lib/prompts";
-import { getProvider, getModelIdForType } from "@/server/services/ai.service";
+import { getProvider, getModelIdForType, resolveProviderName } from "@/server/services/ai.service";
 import { PolicyEngine } from "@/server/services/ai-governance/policy-engine";
 import "@/server/services/ai-governance/policies";
 import { AppError } from "@/lib/errors";
@@ -76,8 +76,10 @@ export async function POST(request: NextRequest) {
   const hid = hashUserId(session.user.id);
   const userId = session.user.id;
 
-  // Policy check (kill-switch, rate limit, cost budget)
-  const policyResult = await PolicyEngine.evaluate({ phase: "plan", userId });
+  // Policy check (kill-switch, rate limit, cost budget).
+  // Resolve provider so per-provider budget ceilings apply (Sprint 42 FinOps).
+  const resolvedProvider = resolveProviderName("plan");
+  const policyResult = await PolicyEngine.evaluate({ phase: "plan", userId, provider: resolvedProvider });
   if (!policyResult.allowed) {
     const status = policyResult.blockedBy === "rate_limit" ? 429 : 503;
     return NextResponse.json(

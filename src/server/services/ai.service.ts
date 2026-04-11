@@ -144,7 +144,7 @@ const LocalTransportSchema = z.object({
   tips: z.array(z.string()).min(1).max(10),
 });
 
-const DestinationGuideContentSchema = z.object({
+export const DestinationGuideContentSchema = z.object({
   destination: z.object({
     name: z.string(),
     nickname: z.string().optional().default(""),
@@ -220,7 +220,7 @@ function repairTruncatedJson(text: string): string {
   return repaired;
 }
 
-function extractJsonFromResponse(text: string): unknown {
+export function extractJsonFromResponse(text: string): unknown {
   try {
     return JSON.parse(text);
   } catch {
@@ -255,7 +255,7 @@ function extractJsonFromResponse(text: string): unknown {
  * Fields are serialized in a fixed order so that identical contexts
  * always produce the same hash regardless of JS object key order.
  */
-function buildGuideCacheInput(
+export function buildGuideCacheInput(
   destination: string,
   language: string,
   ctx?: import("@/lib/prompts/types").GuideTravelerContext,
@@ -303,7 +303,7 @@ const GEMINI_MODEL_ID_MAP: Record<ModelType, string> = {
  *   AI_PROVIDER_PLAN, AI_PROVIDER_GUIDE, AI_PROVIDER_CHECKLIST
  * take precedence over AI_PROVIDER when present.
  */
-function resolveProviderName(type?: ModelType): "anthropic" | "gemini" {
+export function resolveProviderName(type?: ModelType): "anthropic" | "gemini" {
   if (type) {
     const typeEnvKey =
       type === "plan" ? "AI_PROVIDER_PLAN" :
@@ -386,7 +386,7 @@ export function getLastTokenUsage() {
  * Enables FinOps monitoring and cost tracking without PII exposure.
  * Includes estimated cost in USD for FinOps dashboards.
  */
-function logTokenUsage(
+export function logTokenUsage(
   response: AiProviderResponse,
   params: {
     userId: string;

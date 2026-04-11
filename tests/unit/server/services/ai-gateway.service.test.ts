@@ -37,6 +37,7 @@ vi.mock("@/server/services/ai.service", () => ({
   },
   getLastTokenUsage: (...args: unknown[]) => mockGetLastTokenUsage(...args),
   getModelIdForType: vi.fn().mockReturnValue("claude-sonnet-4-6"),
+  resolveProviderName: vi.fn().mockReturnValue("anthropic"),
 }));
 
 vi.mock("@/server/services/prompt-registry.service", () => ({

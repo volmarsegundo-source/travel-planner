@@ -33,6 +33,7 @@ const {
   mockActivityCreateMany,
   mockChecklistItemDeleteMany,
   mockChecklistItemCreateMany,
+  mockChecklistItemFindFirst,
   mockDestinationGuideUpsert,
   mockDestinationGuideFindUnique,
   mockGetExpeditionContext,
@@ -52,6 +53,7 @@ const {
   mockActivityCreateMany: vi.fn(),
   mockChecklistItemDeleteMany: vi.fn(),
   mockChecklistItemCreateMany: vi.fn(),
+  mockChecklistItemFindFirst: vi.fn().mockResolvedValue(null),
   mockDestinationGuideUpsert: vi.fn(),
   mockDestinationGuideFindUnique: vi.fn(),
   mockGetExpeditionContext: vi.fn(),
@@ -95,6 +97,7 @@ vi.mock("@/server/db", () => ({
     checklistItem: {
       deleteMany: mockChecklistItemDeleteMany,
       createMany: mockChecklistItemCreateMany,
+      findFirst: mockChecklistItemFindFirst,
     },
     destinationGuide: {
       upsert: mockDestinationGuideUpsert,

@@ -1,20 +1,15 @@
 /**
  * Unit tests for CostBudgetPolicy.
  *
- * Tests cover:
- * - Under budget -> allowed
- * - At 95% threshold -> blocked
- * - At 80% threshold -> allowed with warning log
- * - Default budget when env var not set
- * - Custom budget from env var
- * - DB failure -> fail-open (allowed)
+ * Covers global ceiling + per-provider segmented ceilings (Sprint 42 FinOps).
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { mockDeep, DeepMockProxy } from "vitest-mock-extended";
 import type { PrismaClient } from "@prisma/client";
 
-const { mockLoggerWarn } = vi.hoisted(() => ({
+const { mockLoggerWarn, mockLoggerError } = vi.hoisted(() => ({
   mockLoggerWarn: vi.fn(),
+  mockLoggerError: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
@@ -27,7 +22,7 @@ vi.mock("@/server/db", () => ({
 }));
 
 vi.mock("@/lib/logger", () => ({
-  logger: { warn: mockLoggerWarn, info: vi.fn() },
+  logger: { warn: mockLoggerWarn, error: mockLoggerError, info: vi.fn() },
 }));
 
 import { db } from "@/server/db";
@@ -37,51 +32,65 @@ import {
 } from "@/server/services/ai-governance/policies/cost-budget.policy";
 
 const prismaMock = db as unknown as DeepMockProxy<PrismaClient>;
-const originalBudget = process.env.AI_MONTHLY_BUDGET_USD;
+
+const BUDGET_ENV_VARS = [
+  "AI_MONTHLY_BUDGET_USD",
+  "AI_MONTHLY_BUDGET_GEMINI_USD",
+  "AI_MONTHLY_BUDGET_ANTHROPIC_USD",
+] as const;
+
+const snapshotEnv: Record<string, string | undefined> = {};
 
 beforeEach(() => {
   vi.clearAllMocks();
   _clearCostBudgetCache();
-  delete process.env.AI_MONTHLY_BUDGET_USD;
-});
-
-afterEach(() => {
-  if (originalBudget !== undefined) {
-    process.env.AI_MONTHLY_BUDGET_USD = originalBudget;
-  } else {
-    delete process.env.AI_MONTHLY_BUDGET_USD;
+  for (const key of BUDGET_ENV_VARS) {
+    snapshotEnv[key] = process.env[key];
+    delete process.env[key];
   }
 });
 
-function mockSpend(amount: number): void {
-  prismaMock.aiInteractionLog.aggregate.mockResolvedValue({
-    _sum: { estimatedCostUsd: amount },
-    _count: 0,
-    _avg: { estimatedCostUsd: null },
-    _min: { estimatedCostUsd: null },
-    _max: { estimatedCostUsd: null },
-  } as Awaited<ReturnType<typeof prismaMock.aiInteractionLog.aggregate>>);
+afterEach(() => {
+  for (const key of BUDGET_ENV_VARS) {
+    const v = snapshotEnv[key];
+    if (v !== undefined) {
+      process.env[key] = v;
+    } else {
+      delete process.env[key];
+    }
+  }
+});
+
+/**
+ * Mock groupBy to return per-provider spend.
+ * Each row represents the total for that provider.
+ */
+function mockSpendByProvider(anthropic: number, gemini: number): void {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (prismaMock.aiInteractionLog.groupBy as any).mockResolvedValue([
+    { provider: "anthropic", _sum: { estimatedCostUsd: anthropic } },
+    { provider: "gemini", _sum: { estimatedCostUsd: gemini } },
+  ]);
 }
 
-describe("CostBudgetPolicy", () => {
-  it("allows when under budget", async () => {
-    mockSpend(50); // 50% of default $100
+function mockTotalSpend(total: number): void {
+  // Place the whole amount on a single provider for convenience
+  mockSpendByProvider(total, 0);
+}
 
-    const result = await costBudgetPolicy.evaluate({
-      phase: "plan",
-      userId: "u1",
-    });
+describe("CostBudgetPolicy — global ceiling", () => {
+  it("allows when under budget", async () => {
+    mockTotalSpend(50); // 50% of default $100
+
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
 
     expect(result.allowed).toBe(true);
   });
 
-  it("blocks at 95% of budget", async () => {
-    mockSpend(96); // 96% of default $100
+  it("blocks at 95% of global budget", async () => {
+    mockTotalSpend(96);
 
-    const result = await costBudgetPolicy.evaluate({
-      phase: "plan",
-      userId: "u1",
-    });
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
 
     expect(result.allowed).toBe(false);
     expect(result.blockedBy).toBe("cost_budget");
@@ -90,17 +99,15 @@ describe("CostBudgetPolicy", () => {
   });
 
   it("allows at 80% but logs a warning", async () => {
-    mockSpend(85); // 85% of default $100
+    mockTotalSpend(85);
 
-    const result = await costBudgetPolicy.evaluate({
-      phase: "plan",
-      userId: "u1",
-    });
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
 
     expect(result.allowed).toBe(true);
     expect(mockLoggerWarn).toHaveBeenCalledWith(
       "cost-budget.threshold.warning",
       expect.objectContaining({
+        scope: "global",
         spend: "85.00",
         budget: "100.00",
       }),
@@ -108,12 +115,9 @@ describe("CostBudgetPolicy", () => {
   });
 
   it("uses default budget of $100 when env var is not set", async () => {
-    mockSpend(96); // 96% -> blocked at $100 default
+    mockTotalSpend(96);
 
-    const result = await costBudgetPolicy.evaluate({
-      phase: "plan",
-      userId: "u1",
-    });
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
 
     expect(result.allowed).toBe(false);
     expect(result.reason).toContain("$100");
@@ -122,43 +126,130 @@ describe("CostBudgetPolicy", () => {
   it("uses custom budget from env var", async () => {
     process.env.AI_MONTHLY_BUDGET_USD = "200";
     _clearCostBudgetCache();
-    mockSpend(96); // 48% of $200 -> allowed
+    mockTotalSpend(96); // 48% of $200 -> allowed
 
-    const result = await costBudgetPolicy.evaluate({
-      phase: "plan",
-      userId: "u1",
-    });
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
 
     expect(result.allowed).toBe(true);
   });
 
   it("allows (fail-open) when DB query throws", async () => {
-    prismaMock.aiInteractionLog.aggregate.mockRejectedValue(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (prismaMock.aiInteractionLog.groupBy as any).mockRejectedValue(
       new Error("Connection refused"),
     );
+
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
+
+    expect(result.allowed).toBe(true);
+  });
+
+  it("handles null sums gracefully", async () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (prismaMock.aiInteractionLog.groupBy as any).mockResolvedValue([
+      { provider: "anthropic", _sum: { estimatedCostUsd: null } },
+      { provider: "gemini", _sum: { estimatedCostUsd: null } },
+    ]);
+
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
+
+    expect(result.allowed).toBe(true);
+  });
+});
+
+describe("CostBudgetPolicy — per-provider ceiling (Sprint 42)", () => {
+  it("blocks when gemini spend exceeds gemini ceiling", async () => {
+    mockSpendByProvider(0, 39); // 97.5% of default $40 gemini
 
     const result = await costBudgetPolicy.evaluate({
       phase: "plan",
       userId: "u1",
+      provider: "gemini",
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.blockedBy).toBe("cost_budget");
+    expect(result.reason).toContain("gemini");
+  });
+
+  it("blocks when anthropic spend exceeds anthropic ceiling", async () => {
+    mockSpendByProvider(39, 0); // 97.5% of default $40 anthropic
+
+    const result = await costBudgetPolicy.evaluate({
+      phase: "plan",
+      userId: "u1",
+      provider: "anthropic",
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain("anthropic");
+  });
+
+  it("allows when one provider is saturated but the other is requested", async () => {
+    // Gemini saturated, request is for Anthropic — must still be allowed
+    mockSpendByProvider(10, 39);
+
+    const result = await costBudgetPolicy.evaluate({
+      phase: "plan",
+      userId: "u1",
+      provider: "anthropic",
     });
 
     expect(result.allowed).toBe(true);
   });
 
-  it("handles null sum gracefully", async () => {
-    prismaMock.aiInteractionLog.aggregate.mockResolvedValue({
-      _sum: { estimatedCostUsd: null },
-      _count: 0,
-      _avg: { estimatedCostUsd: null },
-      _min: { estimatedCostUsd: null },
-      _max: { estimatedCostUsd: null },
-    } as Awaited<ReturnType<typeof prismaMock.aiInteractionLog.aggregate>>);
+  it("uses custom per-provider ceilings when env vars are set", async () => {
+    process.env.AI_MONTHLY_BUDGET_GEMINI_USD = "20";
+    _clearCostBudgetCache();
+    mockSpendByProvider(0, 19.5); // 97.5% of $20
 
     const result = await costBudgetPolicy.evaluate({
       phase: "plan",
       userId: "u1",
+      provider: "gemini",
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain("$20");
+  });
+
+  it("emits warn when provider spend reaches 80% threshold", async () => {
+    mockSpendByProvider(0, 33); // 82.5% of default $40 gemini
+
+    const result = await costBudgetPolicy.evaluate({
+      phase: "plan",
+      userId: "u1",
+      provider: "gemini",
     });
 
     expect(result.allowed).toBe(true);
+    expect(mockLoggerWarn).toHaveBeenCalledWith(
+      "cost-budget.threshold.warning",
+      expect.objectContaining({ scope: "gemini" }),
+    );
+  });
+
+  it("skips per-provider check when ctx.provider is omitted", async () => {
+    // Gemini saturated at provider level but no provider in context
+    mockSpendByProvider(0, 39);
+
+    const result = await costBudgetPolicy.evaluate({ phase: "plan", userId: "u1" });
+
+    // Total spend $39 is well under global $100 -> allowed
+    expect(result.allowed).toBe(true);
+  });
+
+  it("global block takes precedence over provider check", async () => {
+    // Global at 96%, gemini at 50% of its budget
+    mockSpendByProvider(76, 20);
+
+    const result = await costBudgetPolicy.evaluate({
+      phase: "plan",
+      userId: "u1",
+      provider: "gemini",
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.reason).toContain("$100");
   });
 });

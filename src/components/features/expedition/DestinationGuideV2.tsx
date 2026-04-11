@@ -9,11 +9,10 @@ import { DestinationImage } from "@/components/ui/DestinationImage";
 import { WizardFooter } from "./WizardFooter";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
-  generateDestinationGuideAction,
   completePhase5Action,
   bulkViewGuideSectionsAction,
-  regenerateGuideAction,
 } from "@/server/actions/expedition.actions";
+import { streamDestinationGuide } from "@/lib/ai/guide-stream-client";
 import { spendPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
 import { isGuideV2 } from "@/types/ai.types";
@@ -574,6 +573,10 @@ export function DestinationGuideV2({
   const [regenCount, setRegenCount] = useState(initialGuide?.regenCount ?? 0);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenMessage, setRegenMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [streamingPhase, setStreamingPhase] = useState<
+    "idle" | "starting" | "in_progress" | "finalizing"
+  >("idle");
+  const streamAbortRef = useRef<AbortController | null>(null);
 
   const guideCost = AI_COSTS.ai_accommodation;
 
@@ -588,16 +591,27 @@ export function DestinationGuideV2({
     setIsRegenerating(true);
     setRegenMessage(null);
     setErrorMessage(null);
+    setStreamingPhase("starting");
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
     try {
-      const result = await regenerateGuideAction(
+      const result = await streamDestinationGuide({
         tripId,
+        destination,
+        language: locale.startsWith("pt") ? "pt-BR" : "en",
         locale,
-        selectedCategories,
-        personalNotes
-      );
-      if (result.success && result.data) {
-        setGuide(result.data.content);
-        setRegenCount(result.data.regenCount);
+        regen: true,
+        extraCategories: selectedCategories,
+        personalNotes,
+        signal: controller.signal,
+        onStart: () => setStreamingPhase("in_progress"),
+        onChunk: () => setStreamingPhase("in_progress"),
+      });
+
+      if (result.kind === "complete") {
+        setStreamingPhase("finalizing");
+        setGuide(result.content);
+        setRegenCount(result.regenCount ?? regenCount + 1);
         setPABalance((prev) => prev - REGEN_COST);
         setRegenMessage({ type: "success", text: t("regenSuccess", { cost: REGEN_COST }) });
       } else {
@@ -607,8 +621,10 @@ export function DestinationGuideV2({
       setRegenMessage({ type: "error", text: t("regenError") });
     } finally {
       setIsRegenerating(false);
+      setStreamingPhase("idle");
+      streamAbortRef.current = null;
     }
-  }, [tripId, locale, selectedCategories, personalNotes, t]);
+  }, [tripId, destination, locale, selectedCategories, personalNotes, regenCount, t]);
 
   const handleRequestGenerate = useCallback(() => {
     setShowPAConfirm(true);
@@ -617,26 +633,44 @@ export function DestinationGuideV2({
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     setErrorMessage(null);
+    setStreamingPhase("starting");
+    const controller = new AbortController();
+    streamAbortRef.current = controller;
     try {
-      const result = await generateDestinationGuideAction(tripId, locale);
-      if (!result.success) {
-        setErrorMessage(result.error);
-        setIsGenerating(false);
-        return;
+      const result = await streamDestinationGuide({
+        tripId,
+        destination,
+        language: locale.startsWith("pt") ? "pt-BR" : "en",
+        locale,
+        regen: false,
+        signal: controller.signal,
+        onStart: () => setStreamingPhase("in_progress"),
+        onChunk: () => setStreamingPhase("in_progress"),
+      });
+
+      if (result.kind === "complete") {
+        setStreamingPhase("finalizing");
+        setGuide(result.content);
+        setGenerationCount(result.generationCount ?? 1);
+        router.refresh();
+      } else {
+        setErrorMessage(result.errorCode ?? "errors.generic");
       }
-      // Update local state BEFORE router.refresh so UI shows guide immediately.
-      // router.refresh() syncs the RSC payload so navigating away/back also works.
-      setGuide(result.data!.content);
-      setGenerationCount(result.data!.generationCount);
-      setIsGenerating(false);
-      router.refresh();
-      return;
     } catch {
       setErrorMessage("errors.generic");
     } finally {
       setIsGenerating(false);
+      setStreamingPhase("idle");
+      streamAbortRef.current = null;
     }
-  }, [tripId, locale, router]);
+  }, [tripId, destination, locale, router]);
+
+  // Cancel any in-flight stream when the component unmounts
+  useEffect(() => {
+    return () => {
+      streamAbortRef.current?.abort();
+    };
+  }, []);
 
   // Stable ref for handleGenerate to use in effects without dependency issues
   const handleGenerateRef = useRef(handleGenerate);
@@ -734,6 +768,12 @@ export function DestinationGuideV2({
   // ─── Loading / Generating state ──────────────────────────────────────────
 
   if (isGenerating || isRegenerating) {
+    const streamingMsgKey =
+      streamingPhase === "starting"
+        ? "streaming.starting"
+        : streamingPhase === "finalizing"
+        ? "streaming.finalizing"
+        : "streaming.inProgress";
     return (
       <PhaseShell
         tripId={tripId}
@@ -746,8 +786,12 @@ export function DestinationGuideV2({
       >
         <HeaderSkeleton />
         <BentoSkeleton />
-        <p className="mt-4 text-center text-sm font-atlas-body text-atlas-on-surface-variant">
-          {t("generateHint")}
+        <p
+          className="mt-4 text-center text-sm font-atlas-body text-atlas-on-surface-variant"
+          aria-live="polite"
+          data-testid="guide-streaming-status"
+        >
+          {t(streamingMsgKey)}
         </p>
       </PhaseShell>
     );

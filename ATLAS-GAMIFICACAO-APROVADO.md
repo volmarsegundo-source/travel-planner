@@ -295,30 +295,55 @@ A comunicação sobre consumo de PA é **crítica para a confiança do usuário*
 
 ### 11.2 Análise de Margem — Meta de 100% de Lucro
 
-O **Prompt Engineer (agente #11)** e o **FinOps Engineer (agente #13)** devem revisar conjuntamente os custos reais da IA e validar que as regras de pontuação geram margem sustentável.
+> **Atualizado no Sprint 42** — ver `docs/finops/SPRINT-42-FINOPS-REVIEW.md` para análise completa.
+> Autores da revisão: `prompt-engineer` + `finops-engineer` + `tech-lead`
 
-**Análise requerida:**
+O **Prompt Engineer (agente #11)** e o **FinOps Engineer (agente #13)** revisam conjuntamente os custos reais da IA e validam que as regras de pontuação geram margem sustentável.
 
-| Item | Responsável | Entregável |
-|------|-------------|------------|
-| Custo médio real por chamada de IA (checklist, guia, roteiro) | FinOps + Prompt Engineer | Relatório com custo em USD por geração, incluindo prompt caching |
-| Custo médio por regeneração | FinOps + Prompt Engineer | Comparativo: geração vs regeneração (tokens in/out) |
-| Custo de onboarding por usuário (180 PA grátis = 1 expedição IA) | FinOps | Custo real em USD do "presente" ao usuário novo |
-| Mapeamento PA → USD | FinOps | Tabela de conversão: 1 PA = X centavos de custo real |
-| Margem por pacote vendido | FinOps | Para cada pacote (R$14,90 a R$119,90): custo estimado vs receita |
-| Projeção de break-even | FinOps | Quantos usuários pagantes para cobrir custos fixos + variáveis |
+**Custos reais por geração (fonte: `src/lib/cost-calculator.ts:15-30`, Sprint 42):**
 
-**Meta de margem bruta: ~100% sobre o custo de IA.**
+| Fase | Função | Output médio | Gemini Flash | Haiku 4.5 | Sonnet 4.6 |
+|---|---|---:|---:|---:|---:|
+| 3 | Checklist | ~1.200 tok | $0,00052 | $0,0051 | $0,0192 |
+| 5 | Guide | ~3.500 tok | $0,00153 | $0,0150 | $0,0564 |
+| 6 | Plan (7 dias) | ~6.500 tok | $0,00274 | $0,0271 | $0,1017 |
+| **Total expedição** | | | **$0,00479** | **$0,0472** | **$0,1773** |
 
-Exemplo de validação esperada:
-```
-Pacote Navegador: R$ 29,90 = 500 PA
-Se 500 PA ≈ 3 expedições completas com IA (3 × 160 PA = 480 PA)
-Custo real de 3 expedições (9 chamadas API): ~US$ X.XX = ~R$ Y.YY
-Margem: (R$ 29,90 - R$ Y.YY) / R$ Y.YY × 100 = ???%
-→ Se < 100%, ajustar preço dos pacotes ou custo em PA
-→ Se > 150%, há espaço para promoções e bônus
-```
+**Conversão PA → USD** (câmbio R$5,00 = $1,00, média ponderada dos pacotes): **1 PA ≈ $0,00489**.
+
+**Receita por expedição**: 160 PA × $0,00489 = **$0,783**.
+
+**Margem bruta real (Sprint 42):**
+
+| Stack | Custo | Receita | Margem |
+|---|---:|---:|---:|
+| **Gemini Flash (primário)** | $0,00479 | $0,783 | **16.254 %** |
+| Haiku 4.5 (fallback) | $0,047 | $0,783 | 1.565 % |
+| Sonnet 4.6 (premium opt-in) | $0,177 | $0,783 | 342 % |
+| Hybrid Haiku+Sonnet forçado | $0,123 | $0,783 | 537 % |
+
+**Meta de margem bruta: ~100% sobre o custo de IA — ATENDIDA com folga em todos os cenários.** Decisão Sprint 42: manter preços atuais de pacotes (R$14,90–R$119,90) e custos de 30/50/80 PA por fase.
+
+**Custo de onboarding (180 PA grátis = 1 expedição IA completa):**
+
+| Stack | CAC técnico por usuário novo |
+|---|---:|
+| Gemini Flash | $0,005 |
+| Haiku fallback | $0,047 |
+| Sonnet premium | $0,177 |
+
+**Break-even**: com stack Gemini primário, cada usuário pago cobre ~**560 usuários free** — conversão necessária de apenas **0,2%** para sustentar o modelo freemium. Amplamente viável.
+
+**Ceilings mensais aprovados (Sprint 42):**
+
+| Env var | Valor | Capacidade (expedições/mês) |
+|---|---:|---:|
+| `AI_MONTHLY_BUDGET_USD` (global) | $100 | — |
+| `AI_MONTHLY_BUDGET_GEMINI_USD` | $40 | ~8.350 |
+| `AI_MONTHLY_BUDGET_ANTHROPIC_USD` | $40 | ~850 (Haiku) / ~226 (Sonnet) |
+| Buffer | $20 | Picos/premium |
+
+Validação por sprint: se ceiling exceder 70% em 2 sprints consecutivos, acionar revisão FinOps extraordinária.
 
 **Otimizações do Prompt Engineer para maximizar margem:**
 - Garantir que **prompt caching** está ativo em todas as gerações (reduz custo ~50-90%)

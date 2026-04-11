@@ -5,6 +5,8 @@ import "server-only";
 export interface PolicyContext {
   phase: string; // "plan" | "checklist" | "guide"
   userId: string;
+  /** Resolved provider for this request — optional; enables per-provider budget checks. */
+  provider?: "anthropic" | "gemini";
 }
 
 export interface PolicyResult {

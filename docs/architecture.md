@@ -999,6 +999,135 @@ abstraction regardless of platform.
 
 ---
 
+### ADR-031: Gemini Flash como primário, Anthropic Haiku como fallback automático
+
+**Status**: Accepted — Sprint 42 (2026-04-11)
+**Driver**: tech-lead + finops-engineer + architect
+**Related**: SPRINT-42-FINOPS-REVIEW.md, ADR-028, RISK-ASSESSMENT-EDGE-RUNTIME.md
+
+#### Contexto
+
+Durante a Sprint 41, a conta Anthropic ficou sem crédito. Gemini foi adotado
+como primário em caráter emergencial. A Sprint 42 formaliza a decisão baseada
+em dados de custo reais (medidos em `src/lib/cost-calculator.ts`) e em análise
+de margem no ATLAS §11.2.
+
+Os timeouts das Fases 5 e 6 no Vercel Hobby (60s) foram o gatilho inicial,
+mas a análise financeira mostrou que Gemini 2.0 Flash é a escolha correta
+mesmo sem a restrição de timeout.
+
+#### Decisão
+
+**Primário**: `gemini-2.0-flash` nas 3 fases de IA (checklist / guide / plan).
+**Fallback automático**: `claude-haiku-4-5` via `AI_FALLBACK_PROVIDER=anthropic`
+e `FallbackProvider` wrapper em `src/server/services/ai.service.ts`.
+**Premium opt-in** (futuro): `claude-sonnet-4-6` exclusivo na Fase 6 para
+usuários que pagarem +50 PA por "Roteiro Premium".
+
+#### Custos reais por geração (per 1M tok: fonte `cost-calculator.ts:15-30`)
+
+| Modelo | Input | Output | Custo/expedição (3 fases) |
+|---|---:|---:|---:|
+| gemini-2.0-flash | $0.10/MTok | $0.40/MTok | **$0.00479** |
+| claude-haiku-4-5 | $0.80/MTok | $4.00/MTok | $0.0472 |
+| claude-sonnet-4-6 | $3.00/MTok | $15.00/MTok | $0.1773 |
+
+Gemini é **10x mais barato que Haiku** e **37x mais barato que Sonnet** no
+eixo que domina o custo (output tokens). Em volumes operacionais, a diferença
+anual é de $10k+ entre os cenários "all Gemini" e "all Sonnet".
+
+#### Receita e margem (fonte ATLAS §11.2)
+
+Receita por expedição: 160 PA × $0.00489/PA ≈ **$0.783**.
+
+| Stack | Custo | Margem bruta |
+|---|---:|---:|
+| All Gemini Flash | $0.00479 | **16.254%** |
+| Haiku fallback (10%) | $0.008 | 9.700% |
+| All Haiku | $0.047 | 1.565% |
+| Hybrid Haiku+Sonnet | $0.123 | 537% |
+| All Sonnet | $0.177 | 342% |
+
+A meta Atlas de "~100% de margem bruta" é atendida por ordem de grandeza em
+todos os cenários. A decisão por Gemini não é sobre margem — é sobre
+**cash outlay** no freemium (180 PA onboarding grátis) e sobre o ceiling
+operacional de $100/mês (`AI_MONTHLY_BUDGET_USD`).
+
+#### Trade-offs aceitos
+
+| Dimensão | Gemini Flash | Haiku 4.5 | Sonnet 4.6 |
+|---|---|---|---|
+| Velocidade (Fase 6 streaming) | 25-35s | 20-30s | 40-55s |
+| Qualidade geral | Boa (Lnh avaliada 8/10) | Muito boa (9/10) | Excelente (9.5/10) |
+| Custo por expedição | $0.005 | $0.047 | $0.177 |
+| Prompt caching | Não suporta | Sim (ephemeral) | Sim (ephemeral) |
+| Rate limit free tier | 15 req/min | 50 req/min | 50 req/min |
+| Residência de dados | US | US | US |
+| Cenário de uso | Padrão | Fallback + regen | Premium opt-in |
+
+**Desvantagens conhecidas do Gemini Flash aceitas pelo time**:
+1. Roteiros 7+ dias podem ter menos criatividade que Sonnet — mitigado com
+   `travelNotes` e `expeditionContext` enriquecidos.
+2. Prompt caching não disponível — impacto marginal ($0.001/expedição) e
+   cacheamento Redis aplicativo compensa.
+3. Rate limit free tier menor (15 vs 50 req/min) — previsto para multi-city
+   Sprint 43 paralelizar no máximo 4 chamadas (dentro do limite).
+
+#### Implementação
+
+**Ativação em produção** (fim da Sprint 42):
+```bash
+AI_PROVIDER=gemini
+AI_PROVIDER_PLAN=gemini
+AI_PROVIDER_GUIDE=gemini
+AI_PROVIDER_CHECKLIST=gemini
+AI_FALLBACK_PROVIDER=anthropic
+AI_MONTHLY_BUDGET_USD=100
+AI_MONTHLY_BUDGET_GEMINI_USD=40
+AI_MONTHLY_BUDGET_ANTHROPIC_USD=40
+```
+
+**Comportamento do FallbackProvider** (`src/server/services/ai.service.ts`):
+- Primary call (Gemini) timeout: 50s (`GEMINI_TIMEOUT_MS`)
+- Se primary lança `AI_TIMEOUT`, `AI_RATE_LIMIT` ou `AI_MODEL_ERROR` → fallback
+- Fallback call (Haiku) timeout: 45s restantes do orçamento Vercel 60s
+- Ambos os providers compartilham a mesma instância de sanitização, PII masking,
+  logging e persistência
+
+#### Cenários de escalabilidade
+
+| Usuários ativos/mês | Expedições/mês | Custo Gemini | Custo Haiku-only | Pro tier? |
+|---:|---:|---:|---:|---|
+| 100 | 300 | $1.44 | $14.16 | Não |
+| 1.000 | 3.000 | $14.37 | $141.60 | Recomendado |
+| 10.000 | 30.000 | $143.70 | $1.416 | Obrigatório |
+| 100.000 | 300.000 | $1.437 | $14.160 | Enterprise |
+
+**Trigger para reavaliação**:
+- Volume > 20.000 expedições/mês → reavaliar prompt caching com Haiku
+- Volume > 100.000 exp/mês → considerar contrato direto Google Cloud (preços
+  negociados)
+- Queda sustentada de trust score Gemini abaixo de 0.80 → migrar Fase 6 para Haiku
+
+#### Observabilidade
+
+- `logger.info("ai.*.generated")` com campos `provider`, `latencyMs`, `inputTokens`, `outputTokens`
+- `logger.error("cost-budget.threshold.block")` quando kill switch dispara
+- Dashboard admin: `getAiServiceStatus()` expõe `highestScope` para diferenciar
+  saturação global vs Gemini-only vs Anthropic-only
+- Sentry captura fallback events para rastrear taxa de fallback automático
+
+#### Referências
+
+- `docs/finops/SPRINT-42-FINOPS-REVIEW.md` — análise completa de margens
+- `docs/RISK-ASSESSMENT-EDGE-RUNTIME.md` — por que Edge Runtime foi rejeitado
+- `src/server/services/providers/gemini.provider.ts` — implementação
+- `src/server/services/providers/claude.provider.ts` — implementação
+- `src/server/services/ai-governance/policies/cost-budget.policy.ts` — ceilings segmentados
+- ATLAS-GAMIFICACAO-APROVADO.md §11.2 — análise de margem Atlas
+
+---
+
 ## Document Revision History
 
 | Version | Date | Author | Changes |
@@ -1007,3 +1136,4 @@ abstraction regardless of platform.
 | 1.1.0 | 2026-02-26 | architect | Added ADR-003 (Claude AI), ADR-004 (next-intl), ADR-005 (Auth.js database sessions) |
 | 1.2.0 | 2026-03-01 | architect | Added ADR-006 (route group for authenticated layout), ADR-007 (shared LanguageSwitcher) |
 | 1.3.0 | 2026-04-09 | tech-lead | Added ADR-028 (AI timeout strategy for Vercel Hobby — per-type provider override, tightened timeouts, streaming token clamp) |
+| 1.4.0 | 2026-04-11 | tech-lead + architect | Added ADR-031 (Gemini Flash primário, Haiku fallback automático, ceilings segmentados por provider) |

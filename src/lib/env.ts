@@ -21,6 +21,11 @@ export const env = createEnv({
     AI_PROVIDER_PLAN: z.enum(["anthropic", "gemini"]).optional(),
     AI_PROVIDER_GUIDE: z.enum(["anthropic", "gemini"]).optional(),
     AI_PROVIDER_CHECKLIST: z.enum(["anthropic", "gemini"]).optional(),
+    // Per-provider monthly budget ceilings (Sprint 42 FinOps review).
+    // When unset, the global AI_MONTHLY_BUDGET_USD governs both providers.
+    AI_MONTHLY_BUDGET_USD: z.coerce.number().positive().optional(),
+    AI_MONTHLY_BUDGET_GEMINI_USD: z.coerce.number().positive().optional(),
+    AI_MONTHLY_BUDGET_ANTHROPIC_USD: z.coerce.number().positive().optional(),
     NEXTAUTH_SECRET: z.string().min(32),
     NEXTAUTH_URL: z.string().url().default("http://localhost:3000"),
     // Auth.js v5 reads AUTH_SECRET; keep NEXTAUTH_SECRET as v4 alias
@@ -59,6 +64,9 @@ export const env = createEnv({
     AI_PROVIDER_PLAN: process.env.AI_PROVIDER_PLAN,
     AI_PROVIDER_GUIDE: process.env.AI_PROVIDER_GUIDE,
     AI_PROVIDER_CHECKLIST: process.env.AI_PROVIDER_CHECKLIST,
+    AI_MONTHLY_BUDGET_USD: process.env.AI_MONTHLY_BUDGET_USD,
+    AI_MONTHLY_BUDGET_GEMINI_USD: process.env.AI_MONTHLY_BUDGET_GEMINI_USD,
+    AI_MONTHLY_BUDGET_ANTHROPIC_USD: process.env.AI_MONTHLY_BUDGET_ANTHROPIC_USD,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,

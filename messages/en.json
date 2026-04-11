@@ -1010,7 +1010,13 @@
       "category_museums_galleries": "Museums & Galleries",
       "category_parks_nature": "Parks & Nature",
       "category_local_experiences": "Local Experiences",
-      "personalizedWith": "Personalized with"
+      "personalizedWith": "Personalized with",
+      "streaming": {
+        "starting": "Preparing your guide...",
+        "inProgress": "Generating personalized content...",
+        "finalizing": "Finalizing...",
+        "error": "Error generating guide. Please try again."
+      }
     },
     "phase6": {
       "title": "The Itinerary",
@@ -1607,6 +1613,19 @@
       "progress": "{current} of {target}",
       "newBadge": "New badge unlocked!",
       "closeToast": "Close notification"
+    }
+  },
+  "ai": {
+    "service": {
+      "paused": {
+        "title": "AI service temporarily unavailable",
+        "body": "Our AI service is temporarily unavailable. Please try again later.",
+        "buttonDisabled": "AI service paused"
+      },
+      "warning": {
+        "title": "AI service near capacity",
+        "body": "Usage is approaching the monthly cap. New generations may be paused soon."
+      }
     }
   },
   "admin": {

@@ -14,6 +14,8 @@ import {
   bulkViewGuideSectionsAction,
 } from "@/server/actions/expedition.actions";
 import { spendPAForAIAction } from "@/server/actions/gamification.actions";
+import { useAiServiceStatus } from "@/hooks/useAiServiceStatus";
+import { AiServicePausedBanner } from "@/components/features/ai/AiServicePausedBanner";
 import { AI_COSTS } from "@/types/gamification.types";
 import type { DestinationGuideContentV1, GuideSectionKey } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
@@ -80,6 +82,8 @@ export function DestinationGuideWizard({
   const t = useTranslations("expedition.phase5");
   const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
+  const tAi = useTranslations("ai.service");
+  const aiStatus = useAiServiceStatus();
   const tErrors = useTranslations("errors");
   const router = useRouter();
 
@@ -340,17 +344,18 @@ export function DestinationGuideWizard({
       {/* Generate button + back (when no guide) */}
       {!guide && (
         <>
-          <div className="mt-8 text-center">
-            <p className="mb-4 text-sm text-muted-foreground">
+          <div className="mt-8 space-y-4">
+            <AiServicePausedBanner />
+            <p className="text-center text-sm text-muted-foreground">
               {t("generateHint")}
             </p>
           </div>
           <WizardFooter
             onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
             onPrimary={handleRequestGenerate}
-            primaryLabel={t("generateCta")}
+            primaryLabel={aiStatus.paused ? tAi("paused.buttonDisabled") : t("generateCta")}
             isLoading={isGenerating}
-            isDisabled={isGenerating}
+            isDisabled={isGenerating || aiStatus.paused}
           />
         </>
       )}

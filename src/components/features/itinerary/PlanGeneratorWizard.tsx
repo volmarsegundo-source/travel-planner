@@ -7,6 +7,8 @@ import { Slider } from "@/components/ui/slider";
 import { LoadingPlanAnimation } from "./LoadingPlanAnimation";
 import { generateTravelPlanAction } from "@/server/actions/ai.actions";
 import { updateTripAction } from "@/server/actions/trip.actions";
+import { useAiServiceStatus } from "@/hooks/useAiServiceStatus";
+import { AiServicePausedBanner } from "@/components/features/ai/AiServicePausedBanner";
 import type { Trip } from "@/types/trip.types";
 import type { TravelStyle } from "@/types/ai.types";
 import { getDefaultCurrency } from "@/lib/utils/currency";
@@ -60,6 +62,8 @@ interface PlanGeneratorWizardProps {
 
 export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) {
   const t = useTranslations("itinerary.wizard");
+  const tAi = useTranslations("ai.service");
+  const aiStatus = useAiServiceStatus();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
@@ -351,6 +355,8 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
             {t("stepBudget")}
           </h1>
 
+          <AiServicePausedBanner />
+
           <div className="space-y-4">
             {/* Currency selector */}
             <div className="space-y-2">
@@ -424,10 +430,11 @@ export function PlanGeneratorWizard({ trip, locale }: PlanGeneratorWizardProps) 
             </Button>
             <Button
               onClick={handleGenerate}
-              disabled={isPending}
+              disabled={isPending || aiStatus.paused}
               className="flex-1 min-h-[44px]"
+              aria-label={aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
             >
-              {t("generatePlan")}
+              {aiStatus.paused ? tAi("paused.buttonDisabled") : t("generatePlan")}
             </Button>
           </div>
         </section>

@@ -3,7 +3,8 @@ import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
-import { AiService, getLastTokenUsage, getModelIdForType } from "./ai.service";
+import { AiService, getLastTokenUsage, getModelIdForType, resolveProviderName } from "./ai.service";
+import type { ModelType } from "./ai-provider.interface";
 import { PromptRegistryService } from "./prompt-registry.service";
 import { PolicyEngine } from "./ai-governance/policy-engine";
 
@@ -92,8 +93,10 @@ export class AiGatewayService {
       // Non-blocking — template metadata is for observability only
     }
 
-    // Evaluate governance policies before calling AI
-    const policyResult = await PolicyEngine.evaluate({ phase, userId });
+    // Evaluate governance policies before calling AI.
+    // Resolve provider so per-provider budget ceilings apply (Sprint 42 FinOps).
+    const provider = resolveProviderName(phase as ModelType);
+    const policyResult = await PolicyEngine.evaluate({ phase, userId, provider });
     if (!policyResult.allowed) {
       this.logInteraction({
         userId: hid,

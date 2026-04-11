@@ -6,10 +6,14 @@ import { auth } from "@/lib/auth";
 import { db } from "@/server/db";
 import { UnauthorizedError } from "@/lib/errors";
 import { TripService } from "@/server/services/trip.service";
+import { PointsEngine } from "@/lib/engines/points-engine";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import type { ActionResult } from "@/types/trip.types";
 import type { ActivityType } from "@/types/ai.types";
+
+// PA cost for regenerating an itinerary (ATLAS-GAMIFICACAO §4, Sprint 42 FinOps).
+const ITINERARY_REGEN_PA_COST = 80;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -343,7 +347,19 @@ export async function regenerateItineraryAction(
     return { success: false, error: "trips.errors.notFound" };
   }
 
+  // Server-side PA balance check (Sprint 42 FinOps — ATLAS §4 cost).
+  // Regeneration is a NEW AI call that consumes tokens; must be charged.
+  const progress = await db.userProgress.findUnique({
+    where: { userId: session.user.id },
+    select: { availablePoints: true },
+  });
+  if (!progress || progress.availablePoints < ITINERARY_REGEN_PA_COST) {
+    return { success: false, error: "expedition.phase6.insufficientPA" };
+  }
+
   try {
+    let mapped: Activity[] = [];
+
     if (keepManual) {
       // Collect manual activities before deleting AI ones
       const manualActivities = await db.activity.findMany({
@@ -355,8 +371,7 @@ export async function regenerateItineraryAction(
         where: { day: { tripId }, isManual: false },
       });
 
-      // Map to Activity interface
-      const mapped: Activity[] = manualActivities.map((a) => ({
+      mapped = manualActivities.map((a) => ({
         id: a.id,
         dayId: a.dayId,
         title: a.title,
@@ -371,16 +386,30 @@ export async function regenerateItineraryAction(
         createdAt: a.createdAt,
         updatedAt: a.updatedAt,
       }));
-
-      revalidatePath(`/expedition/${tripId}/phase-6`);
-      return { success: true, data: { manualActivities: mapped } };
     } else {
       // Full regen: delete ALL days and activities
       await db.itineraryDay.deleteMany({ where: { tripId } });
-
-      revalidatePath(`/expedition/${tripId}/phase-6`);
-      return { success: true, data: { manualActivities: [] } };
     }
+
+    // Debit PA after successful preparation (Sprint 42 FinOps).
+    // Non-blocking: don't fail the regen on a transient ledger write error.
+    try {
+      await PointsEngine.earnPoints(
+        session.user.id,
+        -ITINERARY_REGEN_PA_COST,
+        "ai_usage",
+        "Itinerary re-generation",
+        tripId,
+      );
+    } catch (err) {
+      logger.warn("itinerary.regenerateItineraryAction.debit.error", {
+        userId: session.user.id,
+        error: String(err),
+      });
+    }
+
+    revalidatePath(`/expedition/${tripId}/phase-6`);
+    return { success: true, data: { manualActivities: mapped } };
   } catch (error) {
     logger.error("itinerary.regenerateItineraryAction.error", error, {
       userId: session.user.id,

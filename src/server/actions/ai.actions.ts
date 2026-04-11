@@ -29,6 +29,10 @@ import type {
   ChecklistResult,
 } from "@/types/ai.types";
 
+// PA cost for regenerating (not first-time generating) a checklist.
+// ATLAS-GAMIFICACAO §4 + Sprint 42 FinOps review.
+const CHECKLIST_REGEN_PA_COST = 30;
+
 // ─── persistChecklist ─────────────────────────────────────────────────────────
 
 async function persistChecklist(
@@ -240,6 +244,25 @@ export async function generateChecklistAction(
     throw error;
   }
 
+  // Detect regeneration: if a checklist already exists for this trip, this is a
+  // paid re-generation (Sprint 42 FinOps). First-time generation remains free —
+  // the initial 180 PA onboarding covers it.
+  const existingChecklist = await db.checklistItem.findFirst({
+    where: { tripId },
+    select: { id: true },
+  });
+  const isRegeneration = existingChecklist !== null;
+
+  if (isRegeneration) {
+    const progress = await db.userProgress.findUnique({
+      where: { userId: session.user.id },
+      select: { availablePoints: true },
+    });
+    if (!progress || progress.availablePoints < CHECKLIST_REGEN_PA_COST) {
+      return { success: false, error: "expedition.phase3.insufficientPA" };
+    }
+  }
+
   try {
     // Mass assignment safe: explicit fields only
     const { data: result } = await AiGatewayService.generateChecklist({
@@ -250,6 +273,25 @@ export async function generateChecklistAction(
       language: checklistParsed.data.language,
     });
     await persistChecklist(tripId, result);
+
+    // Debit PA on successful regeneration only (Sprint 42 FinOps).
+    if (isRegeneration) {
+      try {
+        await PointsEngine.earnPoints(
+          session.user.id,
+          -CHECKLIST_REGEN_PA_COST,
+          "ai_usage",
+          "Checklist re-generation",
+          tripId,
+        );
+      } catch (err) {
+        logger.warn("ai.generateChecklistAction.debit.error", {
+          userId: hashUserId(session.user.id),
+          error: String(err),
+        });
+      }
+    }
+
     revalidatePath(`/trips/${tripId}`);
     revalidatePath(`/trips/${tripId}/checklist`);
     return { success: true, data: result };

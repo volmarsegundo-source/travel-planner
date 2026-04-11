@@ -32,13 +32,15 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
-const mockRegenerateGuideAction = vi.hoisted(() => vi.fn());
+const mockStreamDestinationGuide = vi.hoisted(() => vi.fn());
 
 vi.mock("@/server/actions/expedition.actions", () => ({
-  generateDestinationGuideAction: vi.fn(),
   completePhase5Action: vi.fn(),
   bulkViewGuideSectionsAction: vi.fn().mockResolvedValue({}),
-  regenerateGuideAction: mockRegenerateGuideAction,
+}));
+
+vi.mock("@/lib/ai/guide-stream-client", () => ({
+  streamDestinationGuide: mockStreamDestinationGuide,
 }));
 
 const mockSpendPAForAIAction = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true, data: { remainingBalance: 100 } }));
@@ -615,11 +617,12 @@ describe("DestinationGuideV2", () => {
     expect(btn).toBeDisabled();
   });
 
-  it("calls regenerateGuideAction on regen click and shows success (AC-008)", async () => {
+  it("calls streamDestinationGuide on regen click and shows success (AC-008)", async () => {
     const user = userEvent.setup();
-    mockRegenerateGuideAction.mockResolvedValue({
-      success: true,
-      data: { content: mockGuideV2, regenCount: 1 },
+    mockStreamDestinationGuide.mockResolvedValue({
+      kind: "complete",
+      content: mockGuideV2,
+      regenCount: 1,
     });
 
     render(
@@ -636,20 +639,22 @@ describe("DestinationGuideV2", () => {
     const btn = screen.getByRole("button", { name: /expedition\.phase5\.regenerateGuideCta/ });
     await user.click(btn);
 
-    // After regen completes, success message should appear
-    expect(mockRegenerateGuideAction).toHaveBeenCalledWith(
-      "trip-1",
-      "en",
-      ["beaches"],
-      "",
+    // After regen completes, the streaming client should have been invoked
+    expect(mockStreamDestinationGuide).toHaveBeenCalledWith(
+      expect.objectContaining({
+        tripId: "trip-1",
+        regen: true,
+        extraCategories: ["beaches"],
+        personalNotes: "",
+      }),
     );
   });
 
   it("shows error message on regen failure (AC-009)", async () => {
     const user = userEvent.setup();
-    mockRegenerateGuideAction.mockResolvedValue({
-      success: false,
-      error: "errors.generic",
+    mockStreamDestinationGuide.mockResolvedValue({
+      kind: "error",
+      errorCode: "errors.generic",
     });
 
     render(
