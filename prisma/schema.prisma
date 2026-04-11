@@ -24,6 +24,34 @@ enum TripVisibility {
   SHARED
 }
 
+// ─── Premium / Subscription Enums (Sprint 43) ────────────────────────────────
+
+enum SubscriptionPlan {
+  FREE
+  PREMIUM_MONTHLY
+  PREMIUM_ANNUAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum PaymentGateway {
+  MERCADO_PAGO
+  STRIPE
+}
+
+enum PaEntitlementSource {
+  PREMIUM_MONTHLY
+  PACKAGE_PURCHASE
+  ONBOARDING
+  ADMIN_GRANT
+}
+
 // ─── Auth.js required models ─────────────────────────────────────────────────
 
 model Account {
@@ -91,6 +119,8 @@ model User {
   profile           UserProfile?
   purchases         Purchase[]
   feedbacks         BetaFeedback[]
+  subscription      Subscription?
+  paEntitlements    PaEntitlement[]
 
   @@index([email])
   @@index([deletedAt])
@@ -151,6 +181,7 @@ model Trip {
   itineraryPlan     ItineraryPlan?
   transportSegments TransportSegment[]
   accommodations    Accommodation[]
+  destinations      Destination[]
 
   // Indexes
   @@index([userId, deletedAt])
@@ -168,14 +199,26 @@ model ItineraryDay {
   date      DateTime?
   notes     String?   @db.Text
 
+  // Sprint 43: multi-city support. NULL means transit day (movement between
+  // cities). For single-destination trips and during the Wave 1 backfill, all
+  // rows point to the trip's first Destination. Wave 4 fills transit days.
+  destinationId String?
+
+  // Sprint 43: transit-day metadata (populated only when destinationId IS NULL)
+  isTransit    Boolean @default(false)
+  transitFrom  String? @db.VarChar(150)
+  transitTo    String? @db.VarChar(150)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  trip       Trip       @relation(fields: [tripId], references: [id], onDelete: Cascade)
-  activities Activity[]
+  trip        Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  destination Destination? @relation(fields: [destinationId], references: [id], onDelete: SetNull)
+  activities  Activity[]
 
   @@unique([tripId, dayNumber])
   @@index([tripId])
+  @@index([destinationId])
   @@map("itinerary_days")
 }
 
@@ -343,7 +386,14 @@ model UserProfile {
 
 model DestinationGuide {
   id              String   @id @default(cuid())
+  // NOTE (Sprint 43 Wave 1): `tripId` remains @unique during Wave 1 to preserve
+  // backwards compatibility with 15+ callers that use `findUnique({where: {tripId}})`.
+  // Wave 4 will drop this constraint and enforce per-destination uniqueness when
+  // multi-city guide generation goes live. See SPEC-ARCH-MULTIDESTINOS §3.
   tripId          String   @unique
+  // Sprint 43: FK to the Destination this guide covers. Nullable during the
+  // backwards-compat window; Wave 4 makes it NOT NULL + unique.
+  destinationId   String?
   content         Json
   destination     String   @db.VarChar(200)
   locale          String   @db.VarChar(10)
@@ -358,8 +408,10 @@ model DestinationGuide {
   personalNotes   String?   @db.Text
   regenCount      Int       @default(0)
 
-  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  trip            Trip         @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  destinationRef  Destination? @relation(fields: [destinationId], references: [id], onDelete: SetNull)
 
+  @@index([destinationId])
   @@map("destination_guides")
 }
 
@@ -553,4 +605,110 @@ model BetaFeedback {
   @@index([userId, createdAt])
   @@index([type, createdAt])
   @@map("beta_feedbacks")
+}
+
+// ─── Destination (Sprint 43 — multi-city support) ────────────────────────────
+//
+// A Trip can have 1..4 Destinations. Free plan: exactly 1. Premium: 1..4
+// ordered cities. The legacy `Trip.destination` scalar remains as a read-only
+// denormalization of `destinations[0].city` for backwards compatibility.
+model Destination {
+  id        String   @id @default(cuid())
+  tripId    String
+  order     Int      @default(0)
+  city      String   @db.VarChar(150)
+  country   String?  @db.VarChar(100)
+  latitude  Float?
+  longitude Float?
+  startDate DateTime?
+  endDate   DateTime?
+  nights    Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trip             Trip               @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  itineraryDays    ItineraryDay[]
+  destinationGuides DestinationGuide[]
+
+  @@unique([tripId, order])
+  @@index([tripId, order])
+  @@map("destinations")
+}
+
+// ─── Subscription (Sprint 43 — Premium plan) ─────────────────────────────────
+//
+// 1:1 with User. A user without a row is effectively FREE. The row is created
+// on first Premium checkout or trial start.
+model Subscription {
+  id                    String             @id @default(cuid())
+  userId                String             @unique
+  plan                  SubscriptionPlan   @default(FREE)
+  status                SubscriptionStatus @default(ACTIVE)
+  gateway               PaymentGateway?
+  gatewaySubscriptionId String?            @db.VarChar(200)
+  gatewayCustomerId     String?            @db.VarChar(200)
+
+  // Billing periods
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  trialEndsAt        DateTime?
+  cancelAtPeriodEnd  Boolean   @default(false)
+  canceledAt         DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  events SubscriptionEvent[]
+  paEntitlements PaEntitlement[]
+
+  @@index([status, currentPeriodEnd])
+  @@index([plan, status])
+  @@map("subscriptions")
+}
+
+// ─── SubscriptionEvent (immutable audit log) ─────────────────────────────────
+//
+// Every state change to a Subscription is recorded here. `gatewayEventId` is
+// unique to guarantee webhook idempotency (the same webhook delivered twice
+// will be rejected on the second insert attempt).
+model SubscriptionEvent {
+  id              String   @id @default(cuid())
+  subscriptionId  String
+  type            String   @db.VarChar(50) // CREATED | TRIAL_STARTED | TRIAL_ENDED | RENEWED | CANCELED | PAYMENT_FAILED | REFUNDED | REACTIVATED
+  gatewayEventId  String?  @unique @db.VarChar(200)
+  payload         Json?
+  createdAt       DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Restrict)
+
+  @@index([subscriptionId, createdAt])
+  @@index([type, createdAt])
+  @@map("subscription_events")
+}
+
+// ─── PaEntitlement (Sprint 43 — PA buckets with expiry) ──────────────────────
+//
+// PA credits are tracked in buckets so the Premium monthly refresh (1.500 PA
+// with no rollover) can be expired without touching purchased or onboarding PA.
+// Consumption order (see EntitlementService): expiring-soonest first, then
+// onboarding, then package purchases (never expire).
+model PaEntitlement {
+  id             String              @id @default(cuid())
+  userId         String
+  source         PaEntitlementSource
+  amount         Int
+  consumed       Int                 @default(0)
+  expiresAt      DateTime?
+  subscriptionId String?
+
+  createdAt DateTime @default(now())
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subscription Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+
+  @@index([userId, expiresAt])
+  @@index([userId, source])
+  @@map("pa_entitlements")
 }
