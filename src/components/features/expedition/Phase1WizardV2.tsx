@@ -91,6 +91,7 @@ export function Phase1WizardV2({
   const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
   const tErrors = useTranslations("errors");
+  const tRoot = useTranslations();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -579,9 +580,22 @@ export function Phase1WizardV2({
             role="alert"
             className="rounded-lg bg-atlas-error-container px-4 py-3 text-sm font-atlas-body text-atlas-error border border-atlas-error/30"
           >
-            {errorMessage.startsWith("errors.")
-              ? tErrors(errorMessage.replace("errors.", ""))
-              : errorMessage}
+            {(() => {
+              // Server actions may return either a pre-translated string or a
+              // dotted i18n key (e.g. "limits.expeditionCap", "errors.generic").
+              // Try root translator for any dotted key; fall back to raw text.
+              if (errorMessage.startsWith("errors.")) {
+                return tErrors(errorMessage.replace("errors.", ""));
+              }
+              if (/^[a-z][a-zA-Z0-9]*(\.[a-zA-Z0-9]+)+$/.test(errorMessage)) {
+                try {
+                  return tRoot(errorMessage);
+                } catch {
+                  return errorMessage;
+                }
+              }
+              return errorMessage;
+            })()}
           </div>
         )}
 

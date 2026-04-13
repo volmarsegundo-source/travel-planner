@@ -2493,7 +2493,7 @@
     "close": "Fechar"
   },
   "limits": {
-    "expeditionCap": "Você atingiu o limite de expedições ativas do plano gratuito. Atualize para Premium para criar mais.",
+    "expeditionCap": "Você atingiu o limite de 3 expedições do plano gratuito. Faça upgrade para o Premium para expedições ilimitadas.",
     "destinationCap": "Seu plano atual não permite adicionar mais cidades a esta expedição.",
     "insufficientPa": "Você não tem PA suficiente para esta ação. Compre um pacote ou assine o Premium."
   },
