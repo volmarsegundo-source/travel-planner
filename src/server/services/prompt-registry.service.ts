@@ -25,7 +25,7 @@ export interface ResolvedPromptTemplate {
 const INLINE_TEMPLATES: Record<string, ResolvedPromptTemplate> = {
   "travel-plan": {
     slug: "travel-plan",
-    version: "1.1.0",
+    version: "1.2.0",
     modelType: "plan",
     systemPrompt: PLAN_SYSTEM_PROMPT,
     maxTokens: 2048,
@@ -43,7 +43,7 @@ const INLINE_TEMPLATES: Record<string, ResolvedPromptTemplate> = {
   },
   "destination-guide": {
     slug: "destination-guide",
-    version: "2.0.0",
+    version: "2.1.0",
     modelType: "guide",
     systemPrompt: GUIDE_SYSTEM_PROMPT,
     maxTokens: 4096,

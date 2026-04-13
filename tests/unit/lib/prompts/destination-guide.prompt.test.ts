@@ -108,8 +108,8 @@ describe("destinationGuidePrompt", () => {
     expect(result).toContain("stroller-friendly places");
   });
 
-  it("has version 2.0.0", () => {
-    expect(destinationGuidePrompt.version).toBe("2.0.0");
+  it("has version 2.1.0", () => {
+    expect(destinationGuidePrompt.version).toBe("2.1.0");
   });
 
   it("has maxTokens 4096", () => {
@@ -118,5 +118,33 @@ describe("destinationGuidePrompt", () => {
 
   it("has cacheControl enabled", () => {
     expect(destinationGuidePrompt.cacheControl).toBe(true);
+  });
+
+  // ─── Sprint 43 QA critical fix (GUIDE_SYSTEM_PROMPT v2.1.0) ───────────
+  describe("Sprint 43 QA emergency-number rule", () => {
+    const system = destinationGuidePrompt.system;
+
+    it("enforces Brazilian emergency numbers (Fix #1)", () => {
+      // 190 police, 192 ambulance (SAMU), 193 fire — actual Brazil numbers.
+      expect(system).toContain("Brazil use 190");
+      expect(system).toContain("192");
+      expect(system).toContain("193");
+    });
+
+    it("still covers US/Canada (911) and EU (112)", () => {
+      expect(system).toContain("US/Canada use 911");
+      expect(system).toContain("EU use 112");
+    });
+
+    it("removes the buggy fallback that assigned 911 to all Americas", () => {
+      // The pre-v2.1.0 rule said: 'use "911" (Americas) as appropriate'
+      // which was wrong for Brazil (and the rest of Latin America).
+      expect(system).not.toContain("(Americas) as appropriate");
+    });
+
+    it("instructs to null-out unknown emergency numbers instead of inventing", () => {
+      expect(system).toContain("do NOT invent");
+      expect(system).toContain("set the field to null");
+    });
   });
 });

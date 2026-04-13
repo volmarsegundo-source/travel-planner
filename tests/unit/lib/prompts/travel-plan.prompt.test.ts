@@ -49,11 +49,34 @@ describe("travelPlanPrompt", () => {
   });
 
   it("has correct version", () => {
-    expect(travelPlanPrompt.version).toBe("1.1.0");
+    expect(travelPlanPrompt.version).toBe("1.2.0");
   });
 
   it("uses plan model type", () => {
     expect(travelPlanPrompt.model).toBe("plan");
+  });
+
+  // ─── Sprint 43 QA prompt fixes (PLAN_SYSTEM_PROMPT v1.2.0) ─────────────
+  describe("Sprint 43 QA rules in PLAN_SYSTEM_PROMPT", () => {
+    const system = travelPlanPrompt.system;
+
+    it("binds the top-level currency to the user's budget currency (Fix #2)", () => {
+      expect(system).toContain("top-level \"currency\" field MUST match");
+      expect(system).toContain("\"estimatedCost\" values MUST be in that same currency");
+    });
+
+    it("requires realistic local hours and Brazil Monday closures (Fix #3)", () => {
+      expect(system).toContain("lunch 12:00-14:00");
+      expect(system).toContain("dinner 19:00-21:00");
+      expect(system).toContain("close on Mondays");
+      expect(system).toContain("30 minutes");
+    });
+
+    it("adds an anti-hallucination hedge for small-city venues (Fix #4)", () => {
+      expect(system).toContain("not confident");
+      expect(system).toContain("descriptive title");
+      expect(system).toContain("Never fabricate addresses");
+    });
   });
 });
 

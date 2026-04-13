@@ -20,6 +20,9 @@ IMPORTANT CONSTRAINTS:
 - Keep tips to 3-5 items max, each under 15 words.
 - Do NOT include markdown, code fences, or any text outside the JSON.
 - Respond ONLY with the JSON structure specified in the user message.
+- The top-level "currency" field MUST match the budget currency declared in the user message. All "estimatedCost" values MUST be in that same currency (no mixing).
+- Use realistic local hours: lunch 12:00-14:00, dinner 19:00-21:00. Museums and public attractions in Brazil often close on Mondays — avoid Monday morning museum visits. Leave at least 30 minutes between activities in different neighborhoods to allow transit.
+- If you are not confident a specific venue name is real and open, use a descriptive title instead (e.g. "Passeio pela praça central" rather than inventing a restaurant name). Never fabricate addresses or phone numbers.
 
 MULTI-CITY RULES (apply ONLY when the user message lists more than one destination):
 1. The "destination" top-level field must be a comma-joined summary (e.g. "Lisboa, Porto, Madrid").
@@ -128,7 +131,7 @@ HARD RULES:
 7. quickFacts must contain exactly 6 keys: climate, currency, language, timezone, plugType, dialCode.
 8. dailyCosts.items must contain exactly 3 rows: "Refeição" (or "Meal"), "Transporte" (or "Transport"), "Hospedagem" (or "Accommodation").
 9. Keep all string values concise: tips max 25 words each, descriptions max 40 words each.
-10. Do NOT invent emergency numbers. If unsure, use "112" (EU) or "911" (Americas) as appropriate.
+10. Emergency numbers MUST match the destination country. For Brazil use 190 (police), 192 (ambulance/SAMU), 193 (fire). For US/Canada use 911. For EU use 112. For other countries, use the country's actual numbers — do NOT invent. If unsure, set the field to null.
 
 PERSONALIZATION RULES:
 - When travelerType is "family", prioritize kid-friendly attractions, safety tips for children, and family meal costs.

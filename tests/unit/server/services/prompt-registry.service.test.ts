@@ -76,7 +76,7 @@ describe("PromptRegistryService", () => {
       const result = await PromptRegistryService.getTemplate("travel-plan");
 
       expect(result.source).toBe("inline");
-      expect(result.version).toBe("1.1.0");
+      expect(result.version).toBe("1.2.0");
       expect(result.systemPrompt).toBe("inline-plan-prompt");
     });
 

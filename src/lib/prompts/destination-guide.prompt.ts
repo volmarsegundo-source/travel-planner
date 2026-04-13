@@ -11,16 +11,21 @@
  * - XML-tagged user prompt for better context parsing
  * - maxTokens set to 4096 for reliable schema completion
  *
- * @version 2.0.0
+ * @version 2.1.0
  * @see docs/specs/sprint-40/PROMPT-GUIA-DESTINO-PERSONALIZADO.md (SPEC-AI-005)
+ *
+ * v2.1.0 — Sprint 43 QA critical fix: emergency-number rule now enforces
+ * correct country codes (Brazil 190/192/193, US/CA 911, EU 112) instead
+ * of the buggy "911 for Americas" fallback that emitted wrong numbers
+ * for Brazilian destinations.
  */
 
 import { GUIDE_SYSTEM_PROMPT } from "./system-prompts";
 import type { PromptTemplate, GuideParams } from "./types";
 
-/** Destination guide prompt template v2.0.0 */
+/** Destination guide prompt template v2.1.0 */
 export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
-  version: "2.0.0",
+  version: "2.1.0",
   model: "guide",
   maxTokens: 4096,
   cacheControl: true,

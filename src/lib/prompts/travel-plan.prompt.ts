@@ -5,9 +5,15 @@
  * for optimal Claude instruction adherence. System prompt is sourced
  * from system-prompts.ts to maintain a single source of truth.
  *
- * @version 1.1.0
+ * @version 1.2.0
  * @see docs/prompts/OPTIMIZATION-BACKLOG.md (OPT-006, OPT-007)
  * @see SPEC-AI-004 (traveler context enrichment)
+ *
+ * v1.2.0 — Sprint 43 QA fixes: binds currency/estimatedCost to user
+ * budgetCurrency, adds realistic local-schedule guidance (Brazil meal
+ * times, Monday museum closures, inter-activity transit), and adds an
+ * anti-hallucination hedge for weak-knowledge small cities. Paired with
+ * GUIDE_SYSTEM_PROMPT v2.1.0 emergency-number correctness fix.
  */
 
 import { PLAN_SYSTEM_PROMPT } from "./system-prompts";
@@ -134,9 +140,9 @@ export function buildTravelerContext(params: TravelPlanParams): string {
   return `\nTraveler context (use to personalize the itinerary):\n<traveler_context>\n${sections.join("\n")}\n</traveler_context>\n`;
 }
 
-/** Travel plan prompt template v1.1.0 */
+/** Travel plan prompt template v1.2.0 */
 export const travelPlanPrompt: PromptTemplate<TravelPlanParams> = {
-  version: "1.1.0",
+  version: "1.2.0",
   model: "plan",
   maxTokens: 2048, // Dynamic — overridden by calculatePlanTokenBudget in ai.service.ts
   cacheControl: true,
