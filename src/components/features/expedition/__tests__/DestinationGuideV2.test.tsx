@@ -52,7 +52,18 @@ vi.mock("@/server/actions/gamification.actions", () => ({
 }));
 
 vi.mock("../PhaseShell", () => ({
-  PhaseShell: ({ children }: { children: React.ReactNode }) => <div data-testid="phase-shell">{children}</div>,
+  PhaseShell: ({
+    children,
+    isEditMode,
+  }: {
+    children: React.ReactNode;
+    isEditMode?: boolean;
+  }) => (
+    <div data-testid="phase-shell" data-edit-mode={isEditMode ? "true" : "false"}>
+      {isEditMode && <div data-testid="edit-mode-banner">revisit banner</div>}
+      {children}
+    </div>
+  ),
 }));
 
 vi.mock("../WizardFooter", () => ({
@@ -760,5 +771,44 @@ describe("DestinationGuideV2", () => {
     expect(screen.queryByTestId("guide-v2-bento")).not.toBeInTheDocument();
     expect(screen.getByText(/versao anterior/)).toBeInTheDocument();
     expect(screen.getByText("Regenerar Guia")).toBeInTheDocument();
+  });
+
+  // ─── Revisit banner (Sprint 43 QA UX) ─────────────────────────────────────
+
+  describe("Revisit banner", () => {
+    it("does NOT render the revisit banner on first visit with no existing guide", () => {
+      render(
+        <DestinationGuideV2
+          {...defaultProps}
+          initialGuide={null}
+          accessMode="first_visit"
+        />,
+      );
+      expect(screen.queryByTestId("edit-mode-banner")).toBeNull();
+    });
+
+    it("renders the revisit banner on genuine revisit (accessMode revisit + not just generated)", () => {
+      render(
+        <DestinationGuideV2
+          {...defaultProps}
+          initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+          accessMode="revisit"
+          isJustGenerated={false}
+        />,
+      );
+      expect(screen.getByTestId("edit-mode-banner")).toBeInTheDocument();
+    });
+
+    it("suppresses the revisit banner when isJustGenerated is true (post-gen remount)", () => {
+      render(
+        <DestinationGuideV2
+          {...defaultProps}
+          initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
+          accessMode="revisit"
+          isJustGenerated={true}
+        />,
+      );
+      expect(screen.queryByTestId("edit-mode-banner")).toBeNull();
+    });
   });
 });

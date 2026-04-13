@@ -110,6 +110,12 @@ interface DestinationGuideV2Props {
   tripCurrentPhase?: number;
   completedPhases?: number[];
   availablePoints?: number;
+  /**
+   * True when the server detects the guide was generated within a short
+   * window before the current render (post-generation remount). Suppresses
+   * the revisit banner on the first-time generation flow. Sprint 43 QA UX.
+   */
+  isJustGenerated?: boolean;
 }
 
 // ─── Skeleton Sub-components ─────────────────────────────────────────────────
@@ -547,6 +553,7 @@ export function DestinationGuideV2({
   tripCurrentPhase = 5,
   completedPhases = [],
   availablePoints = 0,
+  isJustGenerated = false,
 }: DestinationGuideV2Props) {
   const t = useTranslations("expedition.phase5");
   const tExpedition = useTranslations("expedition");
@@ -840,7 +847,7 @@ export function DestinationGuideV2({
       completedPhases={completedPhases}
       phaseTitle={t("title")}
       phaseSubtitle={t("subtitle")}
-      isEditMode={accessMode === "revisit"}
+      isEditMode={accessMode === "revisit" && !isJustGenerated}
       showFooter={false}
     >
       {/* V2 Page Header — only shown when guide exists (empty state has its own title) */}

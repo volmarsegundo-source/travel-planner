@@ -46,6 +46,16 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
     // Non-critical — defaults to 0
   }
 
+  // Sprint 43 QA UX — same as Phase 6: suppress the revisit banner on the
+  // post-generation remount. completePhase5 flips phase 5 to "completed",
+  // making accessMode "revisit" seconds after the user's first successful
+  // generation. If the guide was generated within the last 90s we treat it
+  // as "just generated" and keep the banner hidden.
+  const JUST_GENERATED_WINDOW_MS = 90_000;
+  const isJustGenerated =
+    !!guide?.generatedAt &&
+    Date.now() - guide.generatedAt.getTime() < JUST_GENERATED_WINDOW_MS;
+
   return (
     <DestinationGuideV2
       tripId={tripId}
@@ -56,6 +66,7 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
       tripCurrentPhase={trip.currentPhase}
       completedPhases={completedPhases}
       availablePoints={availablePoints}
+      isJustGenerated={isJustGenerated}
     />
   );
 }
