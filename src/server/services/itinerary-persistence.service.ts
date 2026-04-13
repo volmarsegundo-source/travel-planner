@@ -49,7 +49,10 @@ const ItineraryPlanSchema = z.object({
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const GENERATION_LOCK_TTL_SECONDS = 300;
+// TTL sized to just over one Vercel Hobby maxDuration window (60s). If a
+// prior attempt got killed mid-stream without releasing the lock, the user
+// can retry within ~90s instead of waiting 5 minutes (Sprint 43 QA Bug 4).
+const GENERATION_LOCK_TTL_SECONDS = 90;
 
 // ─── Public API ──────────────────────────────────────────────────────────────
 

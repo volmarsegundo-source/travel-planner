@@ -614,6 +614,10 @@ export function DestinationGuideV2({
         setRegenCount(result.regenCount ?? regenCount + 1);
         setPABalance((prev) => prev - REGEN_COST);
         setRegenMessage({ type: "success", text: t("regenSuccess", { cost: REGEN_COST }) });
+        // Invalidate RSC so the navbar PA balance reflects the debit.
+        // Without this, the header stays stale until the user changes
+        // screens (Bug 1, Sprint 43 QA).
+        router.refresh();
       } else {
         setRegenMessage({ type: "error", text: t("regenError") });
       }
@@ -727,6 +731,10 @@ export function DestinationGuideV2({
       if (spendResult.data && "remainingBalance" in spendResult.data) {
         setPABalance(spendResult.data.remainingBalance);
       }
+      // Refresh the RSC so the navbar PA badge updates immediately.
+      // Sprint 43 QA Bug 1 — without this the header stays stale if
+      // streaming fails mid-way after PA has been debited server-side.
+      router.refresh();
       setShowPAConfirm(false);
       setIsSpending(false);
       await handleGenerate();

@@ -235,7 +235,7 @@ describe("itinerary-persistence.service", () => {
         "lock:plan:trip-1",
         "1",
         "EX",
-        300,
+        90,
         "NX",
       );
     });

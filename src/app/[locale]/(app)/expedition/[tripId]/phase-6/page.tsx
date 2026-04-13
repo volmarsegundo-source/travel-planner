@@ -8,6 +8,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { Phase6ItineraryV2 } from "@/components/features/expedition/Phase6ItineraryV2";
 import { deriveAgeRange } from "@/server/services/expedition-summary.service";
+import { logger } from "@/lib/logger";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { DestinationGuideContent } from "@/types/ai.types";
 import { isGuideV2 } from "@/types/ai.types";
@@ -202,8 +203,20 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
     }
   );
 
-  // Ensure ItineraryPlan exists
-  await ItineraryPlanService.getOrCreateItineraryPlan(tripId, userId, locale);
+  // Ensure ItineraryPlan exists. Wrap in try so a transient Prisma error
+  // here doesn't take down the whole page load (Sprint 43 QA Bug 2 —
+  // "Avançar da Fase 5 para Fase 6 dá erro" showed as a generic boundary
+  // without logs; this surfaces the real cause in Sentry).
+  try {
+    await ItineraryPlanService.getOrCreateItineraryPlan(tripId, userId, locale);
+  } catch (err) {
+    logger.error(
+      "expedition.phase6.itineraryPlan.error",
+      err instanceof Error ? err : new Error(String(err)),
+      { tripId },
+    );
+    throw err;
+  }
 
   // Fetch Phase 2 metadata for default budget/style
   const phase2 = await db.expeditionPhase.findUnique({
@@ -216,13 +229,30 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
       ? (phase2.metadata as Record<string, unknown> | null)
       : null;
 
-  // Collect enriched expedition context from phases 1-5 (TASK-S33-011)
-  const expeditionContext = await collectExpeditionContext(
-    tripId,
-    userId,
-    trip as unknown as Record<string, unknown>,
-    phase2Meta,
-  );
+  // Collect enriched expedition context from phases 1-5 (TASK-S33-011).
+  // Degrade gracefully: an empty context is far better than a crashed page.
+  let expeditionContext: ExpeditionContext;
+  try {
+    expeditionContext = await collectExpeditionContext(
+      tripId,
+      userId,
+      trip as unknown as Record<string, unknown>,
+      phase2Meta,
+    );
+  } catch (err) {
+    logger.error(
+      "expedition.phase6.context.error",
+      err instanceof Error ? err : new Error(String(err)),
+      { tripId },
+    );
+    expeditionContext = {
+      tripType: (trip.tripType as string) ?? undefined,
+      personal: {},
+      trip: { destination: typeof trip.destination === "string" ? trip.destination : undefined },
+      preferences: {},
+      logistics: {},
+    };
+  }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const itineraryDays = (trip.itineraryDays ?? []) as any;

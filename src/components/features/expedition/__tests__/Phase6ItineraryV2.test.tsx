@@ -77,7 +77,18 @@ vi.mock("../WizardFooter", () => ({
 }));
 
 vi.mock("@/components/features/gamification/PAConfirmationModal", () => ({
-  PAConfirmationModal: () => null,
+  PAConfirmationModal: ({
+    isOpen,
+    onConfirm,
+  }: {
+    isOpen: boolean;
+    onConfirm: () => void;
+  }) =>
+    isOpen ? (
+      <button data-testid="pa-confirm" onClick={onConfirm}>
+        Confirm
+      </button>
+    ) : null,
 }));
 
 vi.mock("@/lib/utils/stream-progress", () => ({
@@ -598,6 +609,63 @@ describe("Phase6ItineraryV2", () => {
         />,
       );
       expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+    });
+  });
+
+  // ─── Streaming [DONE] detection (Sprint 43 QA Bug 3) ───────────────────
+
+  describe("Stream resilience", () => {
+    /**
+     * Helper: build a mock fetch Response whose body yields the given chunks
+     * in order. Each chunk is a raw string (caller controls SSE framing).
+     */
+    function makeStreamResponse(chunks: string[]) {
+      const encoder = new TextEncoder();
+      let i = 0;
+      return {
+        ok: true,
+        status: 200,
+        body: {
+          getReader: () => ({
+            read: vi.fn().mockImplementation(async () => {
+              if (i >= chunks.length) return { done: true, value: undefined };
+              const chunk = chunks[i++];
+              return { done: false, value: encoder.encode(chunk!) };
+            }),
+          }),
+        },
+      };
+    }
+
+    it("detects [DONE] even when the marker is split across TCP chunks (Bug 3)", async () => {
+      const itineraryMod = await import("@/server/actions/itinerary.actions");
+      const getItineraryDaysMock = itineraryMod.getItineraryDaysAction as unknown as ReturnType<typeof vi.fn>;
+      getItineraryDaysMock.mockResolvedValueOnce(twoDays);
+
+      // [DONE] marker deliberately split across two reads to reproduce the
+      // regression from the naive split-by-line parser. The fix must still
+      // detect it via line-buffered parsing.
+      globalThis.fetch = vi.fn().mockResolvedValue(
+        makeStreamResponse([
+          'data: {"destination":"Tokyo","totalDays":2,"days":[]}\n\ndata: [DO',
+          "NE]\n\n",
+        ]),
+      );
+
+      const user = userEvent.setup();
+      render(<Phase6ItineraryV2 {...defaultProps} />);
+      const ctaButton = screen.getByText(/expedition\.phase6\.generateCta/);
+      await user.click(ctaButton);
+      // Bypass PA confirmation modal (mocked to a button)
+      const confirmBtn = await screen.findByTestId("pa-confirm");
+      await user.click(confirmBtn);
+
+      // The component eventually pulls fresh days via getItineraryDaysAction
+      // once [DONE] is seen. If line-buffering is broken, this mock is never
+      // called because the code takes the error branch instead.
+      await vi.waitFor(() => {
+        expect(getItineraryDaysMock).toHaveBeenCalledWith("trip-1");
+      });
     });
   });
 

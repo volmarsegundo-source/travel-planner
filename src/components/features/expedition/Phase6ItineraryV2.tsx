@@ -1337,49 +1337,77 @@ export function Phase6ItineraryV2({
         return;
       }
 
+      // Line-buffered SSE reader — TCP chunks can split `data: [DONE]` or any
+      // other line across reads. The previous naive split("\n") dropped half-
+      // lines and sometimes never detected [DONE], leaving the UI stuck on
+      // the empty state after a successful generation (Bug 3, Sprint 43 QA).
       const decoder = new TextDecoder();
-      while (true) {
+      let buffer = "";
+      let streamError: string | null = null;
+      let doneReceived = false;
+
+      outer: while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        for (const line of chunk.split("\n")) {
-          if (line.startsWith("data: ")) {
-            const data = line.slice(6);
-            if (data === "[DONE]") {
-              stopProgressTimer();
-              const durationMs = Date.now() - streamStartRef.current;
-              track("ai_generation_completed", { phase: 6, tripId, durationMs });
-              syncPhase6CompletionAction(tripId).catch(() => {});
-              // Fetch fresh itinerary data BEFORE clearing isGenerating
-              // so the transition goes directly: progress → itinerary
-              // (avoids flashing the empty/generation screen)
-              try {
-                const freshDays = await getItineraryDaysAction(tripId);
-                if (freshDays.length > 0) setDays(freshDays);
-              } catch { /* ignore fetch error */ }
-              router.refresh();
-              return; // finally block sets isGenerating(false) after days are loaded
-            }
-            if (data.startsWith('{"error":')) {
-              try {
-                const errorObj = JSON.parse(data) as { error: string };
-                if (errorObj.error === "persist_failed") setError(t("errorPersistFailed"));
-                else if (errorObj.error === "parse_failed" || errorObj.error === "stream_failed") {
-                  setError(t("errorTimeout"));
-                }
-              } catch { /* ignore */ }
-              continue;
-            }
-            accumulatedRef.current += data;
-            const dayCount = countDaysInStream(accumulatedRef.current);
-            if (dayCount > 0) {
-              setDaysGenerated(dayCount);
-              setProgressPercent(calculateProgressPercent(dayCount, totalDays));
-            }
+        buffer += decoder.decode(value, { stream: true });
+
+        // Process every complete line in the buffer; carry the trailing
+        // partial line over to the next iteration.
+        let nlIdx: number;
+        while ((nlIdx = buffer.indexOf("\n")) !== -1) {
+          const line = buffer.slice(0, nlIdx);
+          buffer = buffer.slice(nlIdx + 1);
+          if (!line.startsWith("data: ")) continue;
+          const data = line.slice(6);
+
+          if (data === "[DONE]") {
+            doneReceived = true;
+            break outer;
+          }
+          if (data.startsWith('{"error":')) {
+            try {
+              const errorObj = JSON.parse(data) as { error: string };
+              if (errorObj.error === "persist_failed") streamError = "errorPersistFailed";
+              else if (errorObj.error === "parse_failed" || errorObj.error === "stream_failed") {
+                streamError = "errorTimeout";
+              }
+            } catch { /* ignore malformed error payload */ }
+            continue;
+          }
+          accumulatedRef.current += data;
+          const dayCount = countDaysInStream(accumulatedRef.current);
+          if (dayCount > 0) {
+            setDaysGenerated(dayCount);
+            setProgressPercent(calculateProgressPercent(dayCount, totalDays));
           }
         }
       }
       stopProgressTimer();
+
+      // Post-stream resolution. After [DONE] OR a natural stream end, ask
+      // the server for the persisted itinerary. If it's there, render it;
+      // if not, surface an explicit error instead of silently bouncing the
+      // user back to the empty state.
+      const durationMs = Date.now() - streamStartRef.current;
+      track("ai_generation_completed", { phase: 6, tripId, durationMs, doneReceived });
+      syncPhase6CompletionAction(tripId).catch(() => {});
+
+      let freshDays: ItineraryDayWithActivities[] = [];
+      try {
+        freshDays = await getItineraryDaysAction(tripId);
+      } catch { /* ignore fetch error */ }
+
+      if (freshDays.length > 0) {
+        setDays(freshDays);
+        router.refresh();
+        return;
+      }
+
+      // No persisted itinerary: either an upstream error already surfaced,
+      // or the stream died silently. Either way, keep the user on a clear
+      // error state rather than flashing back to the generation screen.
+      setError(t(streamError ?? "errorTimeout"));
+      return;
     } catch (err) {
       stopProgressTimer();
       if (err instanceof DOMException && err.name === "AbortError") { /* cancelled */ }
@@ -1409,6 +1437,10 @@ export function Phase6ItineraryV2({
       if (spendResult.data && "remainingBalance" in spendResult.data) {
         setPABalance(spendResult.data.remainingBalance);
       }
+      // Refresh the RSC so the navbar PA badge reflects the debit before
+      // streaming starts. Without this, Bug 1 reappears if the stream
+      // subsequently fails (debit applied server-side, navbar stale).
+      router.refresh();
       setShowPAConfirm(false);
       setIsSpending(false);
       handleGenerate();
