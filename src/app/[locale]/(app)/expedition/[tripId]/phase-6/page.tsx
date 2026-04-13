@@ -207,8 +207,11 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
   // here doesn't take down the whole page load (Sprint 43 QA Bug 2 —
   // "Avançar da Fase 5 para Fase 6 dá erro" showed as a generic boundary
   // without logs; this surfaces the real cause in Sentry).
+  let itineraryPlan: Awaited<
+    ReturnType<typeof ItineraryPlanService.getOrCreateItineraryPlan>
+  > | null = null;
   try {
-    await ItineraryPlanService.getOrCreateItineraryPlan(tripId, userId, locale);
+    itineraryPlan = await ItineraryPlanService.getOrCreateItineraryPlan(tripId, userId, locale);
   } catch (err) {
     logger.error(
       "expedition.phase6.itineraryPlan.error",
@@ -217,6 +220,18 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
     );
     throw err;
   }
+
+  // Sprint 43 QA UX Bug — the revisit banner was firing on first successful
+  // generation because completePhase5 + syncPhase6Completion flip phase 6 to
+  // "completed" (so accessMode becomes "revisit") seconds before the RSC
+  // remount happens. Signal "just generated" if the plan's generatedAt is
+  // within the last 90s so the component can suppress the banner on that
+  // post-generation remount. On genuine revisits (minutes/days later), the
+  // timestamp is old and the banner renders normally.
+  const JUST_GENERATED_WINDOW_MS = 90_000;
+  const isJustGenerated =
+    !!itineraryPlan?.generatedAt &&
+    Date.now() - itineraryPlan.generatedAt.getTime() < JUST_GENERATED_WINDOW_MS;
 
   // Fetch Phase 2 metadata for default budget/style
   const phase2 = await db.expeditionPhase.findUnique({
@@ -296,6 +311,7 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
       tripCurrentPhase={trip.currentPhase}
       completedPhases={completedPhases}
       availablePoints={availablePoints}
+      isJustGenerated={isJustGenerated}
     />
   );
 }

@@ -288,6 +288,14 @@ interface Phase6ItineraryV2Props {
   tripCurrentPhase?: number;
   completedPhases?: number[];
   availablePoints?: number;
+  /**
+   * True when the server detects the itinerary was generated within a short
+   * window before the current page render (post-generation remount). When
+   * set, the revisit banner is suppressed so users who just generated for
+   * the first time don't see "você está revisitando" seconds after success.
+   * Sprint 43 QA UX bug.
+   */
+  isJustGenerated?: boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -1207,6 +1215,7 @@ export function Phase6ItineraryV2({
   tripCurrentPhase = 6,
   completedPhases = [],
   availablePoints = 0,
+  isJustGenerated = false,
 }: Phase6ItineraryV2Props) {
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
@@ -1668,7 +1677,7 @@ export function Phase6ItineraryV2({
     <PhaseShell
       tripId={tripId} viewingPhase={6} tripCurrentPhase={tripCurrentPhase}
       completedPhases={completedPhases} phaseTitle={t("title")}
-      isEditMode={accessMode === "revisit"} showFooter={false} contentMaxWidth="4xl"
+      isEditMode={accessMode === "revisit" && !isJustGenerated} showFooter={false} contentMaxWidth="4xl"
     >
       {/* Main split layout */}
       <div className="flex flex-col md:flex-row min-h-screen -mx-4 sm:-mx-6">

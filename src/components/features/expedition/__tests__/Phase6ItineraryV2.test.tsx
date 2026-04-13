@@ -64,8 +64,17 @@ vi.mock("@/server/actions/gamification.actions", () => ({
 }));
 
 vi.mock("../PhaseShell", () => ({
-  PhaseShell: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="phase-shell">{children}</div>
+  PhaseShell: ({
+    children,
+    isEditMode,
+  }: {
+    children: React.ReactNode;
+    isEditMode?: boolean;
+  }) => (
+    <div data-testid="phase-shell" data-edit-mode={isEditMode ? "true" : "false"}>
+      {isEditMode && <div data-testid="edit-mode-banner">revisit banner</div>}
+      {children}
+    </div>
   ),
 }));
 
@@ -669,6 +678,49 @@ describe("Phase6ItineraryV2", () => {
       await vi.waitFor(() => {
         expect(getItineraryDaysMock).toHaveBeenCalledWith("trip-1");
       });
+    });
+  });
+
+  // ─── Revisit banner (Sprint 43 QA UX Bug) ──────────────────────────────
+
+  describe("Revisit banner", () => {
+    it("does NOT render the revisit banner on genuine first visit (first_visit + empty)", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          accessMode="first_visit"
+          initialDays={[]}
+        />,
+      );
+      expect(screen.queryByTestId("edit-mode-banner")).toBeNull();
+    });
+
+    it("renders the revisit banner when accessMode is 'revisit' and itinerary is old", () => {
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          accessMode="revisit"
+          initialDays={twoDays as never}
+          isJustGenerated={false}
+        />,
+      );
+      expect(screen.getByTestId("edit-mode-banner")).toBeInTheDocument();
+    });
+
+    it("suppresses the revisit banner when isJustGenerated is true (post-generation remount)", () => {
+      // Scenario: user just completed their first generation. The RSC
+      // remounted Phase6 with accessMode='revisit' (because phase 6 is now
+      // marked completed), but the server flagged it as a just-generated
+      // state so the banner must stay hidden.
+      render(
+        <Phase6ItineraryV2
+          {...defaultProps}
+          accessMode="revisit"
+          initialDays={twoDays as never}
+          isJustGenerated={true}
+        />,
+      );
+      expect(screen.queryByTestId("edit-mode-banner")).toBeNull();
     });
   });
 
