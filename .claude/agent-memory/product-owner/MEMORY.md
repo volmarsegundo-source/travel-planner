@@ -200,6 +200,17 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Migration plan (REVISED 2026-03-24): Sprint 38 (infrastructure) -> Sprint 39 (Landing + Login) -> Sprint 40 (CONSOLIDATED: Shell + ALL Phases 1-6 + Summary + Dashboard) -> Sprint 41 (Design V2 staging rollout) -> Sprint 42 (Design V2 production rollout)
 - Sprint 40 consolidates original Sprints 40-42 into one sprint (50h, 2-track parallel). Rationale: shell is shared dependency; visual fragmentation of partial migration is unacceptable for staging demo; Component Library Sprint 38 makes the work tractable.
 
+### Sprint 43 — Premium Subscription (2026-04-10)
+- Spec: SPEC-PROD-043-001 (Premium + Loja Atlas) -- `docs/specs/sprint-43/SPEC-PROD-PREMIUM.md`
+- Free limits: 1 destino/expedicao, 3 expedicoes ativas, 180 PA onboarding (nao repoe)
+- Premium: R$29,90/mes ou R$299/ano (17% off); 1.500 PA/mes (ceiling, sem rollover); multidestinos ate 4 cidades; expedicoes ilimitadas
+- PA recarga Premium: availablePoints only (NAO incrementa totalPoints/lifetime/rank)
+- Trial: 7 dias sem cartao, uma vez por conta/email
+- Gateway Phase 1: Mercado Pago (SAQ A PCI-DSS); Stripe = Phase 2 (Sprint 44+)
+- 7 open questions: OQ-001 (PA lifetime), OQ-002 (trial anti-abuse), OQ-003 (badge PA bonus), OQ-004 (Sonnet opt-in PA source), OQ-005 (anual downsell), OQ-006 (multidestino hard/soft limit), OQ-007 (desconto fidelidade Lendario)
+- Specs a criar: SPEC-ARCH-PREMIUM, SPEC-UX-LOJA, SPEC-ARCH-MULTIDESTINOS, SPEC-AI-MULTIDESTINOS, SPEC-SEC-PREMIUM
+- KPIs: conversao Free→Premium >= 3% MAU; trial→pago >= 40%; churn <= 5%; MRR > R$1.000 em 60 dias
+
 ### AI Progress Component (2026-04-09)
 - SPEC-PROD-AI-PROGRESS: componente compartilhado de feedback de geracao AI, Fases 5 e 6. Status: Approved.
 - Path: `docs/specs/SPEC-PROD-AI-PROGRESS.md` (21 ACs em 7 blocos: inicio, mensagens, cancelamento, conclusao/erro, reutilizacao, a11y, performance)

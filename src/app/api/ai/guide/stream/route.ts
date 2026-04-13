@@ -33,7 +33,8 @@ import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { destinationGuidePrompt } from "@/lib/prompts";
 import {
-  getProvider,
+  getProviderWithForcedFallback,
+  getSecondaryProvider,
   getModelIdForType,
   resolveProviderName,
   extractJsonFromResponse,
@@ -257,7 +258,13 @@ export async function POST(request: NextRequest) {
   });
 
   const streamStartTime = Date.now();
-  const provider = getProvider("guide");
+  const provider = getProviderWithForcedFallback("guide");
+  logger.info("ai.guide.stream.provider.initial", {
+    userId: hid,
+    tripId: validatedTripId,
+    provider: provider.name,
+    primary: resolvedProvider,
+  });
 
   try {
     const { stream: aiStream, usage: usagePromise } =
@@ -424,11 +431,146 @@ export async function POST(request: NextRequest) {
 
           controller.close();
         } catch (streamErr) {
+          const isTimeout =
+            streamErr instanceof AppError && streamErr.code === "AI_TIMEOUT";
           logger.error(
             "ai.guide.stream.sse.error",
             streamErr instanceof Error ? streamErr : new Error(String(streamErr)),
-            { userId: hid, tripId: validatedTripId },
+            {
+              userId: hid,
+              tripId: validatedTripId,
+              accumulatedLength: accumulated.length,
+              isTimeout,
+            },
           );
+
+          // Mid-flight recovery: if the primary (likely Gemini) died mid-stream,
+          // the initial-call FallbackProvider can't help anymore. Explicitly
+          // retry the request against the opposite provider (Anthropic) in
+          // non-streaming mode so the user still gets a guide.
+          logger.warn("ai.guide.stream.fallback.attempt", {
+            userId: hid,
+            tripId: validatedTripId,
+            reason: streamErr instanceof AppError ? streamErr.code : "unknown",
+          });
+
+          try {
+            const recoveryProvider = getSecondaryProvider("guide");
+            const recoveryResponse = await recoveryProvider.generateResponse(
+              userMessage,
+              destinationGuidePrompt.maxTokens,
+              "guide",
+              { systemPrompt: destinationGuidePrompt.system },
+            );
+
+            let recoveryJson: unknown;
+            try {
+              recoveryJson = extractJsonFromResponse(recoveryResponse.text);
+            } catch (parseErr) {
+              logger.warn("ai.guide.stream.fallback.parse.error", {
+                userId: hid,
+                tripId: validatedTripId,
+                error: String(parseErr),
+              });
+              controller.enqueue(
+                encoder.encode(`event: error\ndata: ${JSON.stringify({ error: "AI_PARSE_ERROR" })}\n\n`),
+              );
+              controller.close();
+              return;
+            }
+
+            const recoveryValidated = DestinationGuideContentSchema.safeParse(recoveryJson);
+            if (!recoveryValidated.success) {
+              logger.warn("ai.guide.stream.fallback.schema.error", {
+                userId: hid,
+                tripId: validatedTripId,
+              });
+              controller.enqueue(
+                encoder.encode(`event: error\ndata: ${JSON.stringify({ error: "AI_SCHEMA_ERROR" })}\n\n`),
+              );
+              controller.close();
+              return;
+            }
+
+            const content = recoveryValidated.data as DestinationGuideContentV2;
+
+            const updatedGuide = await db.destinationGuide.upsert({
+              where: { tripId: validatedTripId },
+              create: {
+                tripId: validatedTripId,
+                content: JSON.parse(JSON.stringify(content)),
+                destination: trip.destination,
+                locale: locale ?? (language === "pt-BR" ? "pt-BR" : "en"),
+                generationCount: 1,
+                viewedSections: DEFAULT_VIEWED_SECTIONS,
+                extraCategories: extraCategories ?? [],
+                personalNotes: sanitizedNotes ?? null,
+              },
+              update: regen
+                ? {
+                    content: JSON.parse(JSON.stringify(content)),
+                    extraCategories: extraCategories ?? [],
+                    personalNotes: sanitizedNotes ?? null,
+                    regenCount: { increment: 1 },
+                    generationCount: { increment: 1 },
+                    generatedAt: new Date(),
+                  }
+                : {
+                    content: JSON.parse(JSON.stringify(content)),
+                    locale: locale ?? (language === "pt-BR" ? "pt-BR" : "en"),
+                    generationCount: { increment: 1 },
+                    viewedSections: DEFAULT_VIEWED_SECTIONS,
+                    generatedAt: new Date(),
+                  },
+            });
+
+            if (regen) {
+              try {
+                await PointsEngine.earnPoints(
+                  userId,
+                  -REGEN_PA_COST,
+                  "ai_usage",
+                  "Guide re-generation (stream recovery)",
+                  validatedTripId,
+                );
+              } catch { /* non-blocking */ }
+            } else if (!existingGuide) {
+              try {
+                await PointsEngine.earnPoints(
+                  userId,
+                  30,
+                  "phase_connectivity",
+                  "Generated destination guide for phase 5 (stream recovery)",
+                  validatedTripId,
+                );
+              } catch { /* non-blocking */ }
+            }
+
+            controller.enqueue(
+              encoder.encode(
+                `event: complete\ndata: ${JSON.stringify({
+                  content,
+                  generationCount: updatedGuide.generationCount,
+                  regenCount: updatedGuide.regenCount,
+                })}\n\n`,
+              ),
+            );
+
+            logger.info("ai.guide.stream.fallback.success", {
+              userId: hid,
+              tripId: validatedTripId,
+              recoveryProvider: recoveryProvider.name,
+            });
+            controller.close();
+            return;
+          } catch (recoveryErr) {
+            logger.error(
+              "ai.guide.stream.fallback.failed",
+              recoveryErr instanceof Error ? recoveryErr : new Error(String(recoveryErr)),
+              { userId: hid, tripId: validatedTripId },
+            );
+          }
+
           try {
             controller.enqueue(
               encoder.encode(`event: error\ndata: ${JSON.stringify({ error: "AI_TIMEOUT" })}\n\n`),

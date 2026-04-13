@@ -1,5 +1,8 @@
 # Architect Memory — Travel Planner
 
+## Sprint 43 (current)
+- [Sprint 43 Multidestinos + Premium](sprint_43_multidestinos.md) — SPEC-ARCH-043-001 Draft, ADR-032/033/034, ~52h
+
 ## Project State
 - Sprint 20 architecture designed 2026-03-10: ITEM-A/C/D/E — docs/architecture/SPRINT-20-ARCHITECTURE.md
 - Sprint 15 review done 2026-03-09; APPROVED WITH NOTES

@@ -347,6 +347,40 @@ export function getProvider(type?: ModelType): AiProvider {
   return primary;
 }
 
+/**
+ * Returns a provider that ALWAYS wraps the primary in a FallbackProvider with
+ * the opposite provider, regardless of AI_FALLBACK_PROVIDER env var.
+ *
+ * Use this in streaming routes where a missing Vercel env var would otherwise
+ * silently disable fallback and cause 504s. The route stays resilient even if
+ * ops forgets to set AI_FALLBACK_PROVIDER.
+ *
+ * Requires BOTH ANTHROPIC_API_KEY and GOOGLE_AI_API_KEY to be set. If only
+ * one key is available the opposite provider will throw AI_CONFIG_ERROR at
+ * call time — caller should log and fall through to error response.
+ */
+export function getProviderWithForcedFallback(type?: ModelType): AiProvider {
+  const primaryName = resolveProviderName(type);
+  const primary: AiProvider = primaryName === "gemini"
+    ? new GeminiProvider()
+    : new ClaudeProvider();
+  const fallback: AiProvider = primaryName === "gemini"
+    ? new ClaudeProvider()
+    : new GeminiProvider();
+  return new FallbackProvider(primary, fallback);
+}
+
+/**
+ * Returns a fresh instance of the *opposite* provider for mid-flight recovery.
+ * Used when a stream started but failed partway — at that point the
+ * FallbackProvider wrapper can't help (it only wraps the initial call), so
+ * the route needs to retry the request against the other provider explicitly.
+ */
+export function getSecondaryProvider(type?: ModelType): AiProvider {
+  const primaryName = resolveProviderName(type);
+  return primaryName === "gemini" ? new ClaudeProvider() : new GeminiProvider();
+}
+
 // ─── Model ID resolution for cost tracking ───────────────────────────────────
 
 /**

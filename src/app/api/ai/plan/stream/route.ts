@@ -10,7 +10,12 @@ import { logger } from "@/lib/logger";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { travelPlanPrompt, PLAN_SYSTEM_PROMPT } from "@/lib/prompts";
-import { getProvider, getModelIdForType, resolveProviderName } from "@/server/services/ai.service";
+import {
+  getProviderWithForcedFallback,
+  getSecondaryProvider,
+  getModelIdForType,
+  resolveProviderName,
+} from "@/server/services/ai.service";
 import { PolicyEngine } from "@/server/services/ai-governance/policy-engine";
 import "@/server/services/ai-governance/policies";
 import { AppError } from "@/lib/errors";
@@ -215,7 +220,12 @@ export async function POST(request: NextRequest) {
   // Start streaming
   const streamStartTime = Date.now();
   try {
-    const provider = getProvider("plan");
+    const provider = getProviderWithForcedFallback("plan");
+    logger.info("ai.plan.stream.provider.initial", {
+      userIdHash: hid,
+      provider: provider.name,
+      primary: resolveProviderName("plan"),
+    });
     const { stream: aiStream, usage: usagePromise } = await provider.generateStreamingResponse(
       userMessage,
       tokenBudget,
@@ -246,7 +256,13 @@ export async function POST(request: NextRequest) {
           if (!plan && accumulated.length > 100) {
             logger.warn("ai.stream.parse.retry", { userIdHash: hid, tripId: validatedTripId, accumulatedLength: accumulated.length });
             try {
-              const retryProvider = getProvider("plan");
+              // Use secondary (opposite) provider for the non-streaming retry so
+              // we don't hammer Gemini again when it just failed.
+              const retryProvider = getSecondaryProvider("plan");
+              logger.info("ai.plan.stream.retry.provider", {
+                userIdHash: hid,
+                provider: retryProvider.name,
+              });
               const retryResponse = await retryProvider.generateResponse(
                 userMessage,
                 tokenBudget,
@@ -320,7 +336,15 @@ export async function POST(request: NextRequest) {
           // — scenarios that the initial-call FallbackProvider can't catch
           // because the primary already returned a stream handle.
           try {
-            const recoveryProvider = getProvider("plan");
+            // Mid-flight recovery MUST target the opposite provider explicitly.
+            // getProvider() would return Gemini again (same instance that just
+            // failed), so use getSecondaryProvider to force Anthropic.
+            const recoveryProvider = getSecondaryProvider("plan");
+            logger.warn("ai.plan.stream.fallback.attempt", {
+              userIdHash: hid,
+              tripId: validatedTripId,
+              provider: recoveryProvider.name,
+            });
             const recoveryResponse = await recoveryProvider.generateResponse(
               userMessage,
               tokenBudget,
@@ -342,7 +366,11 @@ export async function POST(request: NextRequest) {
                     validatedTripId,
                   );
                 } catch { /* non-blocking */ }
-                logger.info("ai.stream.recovery.success", { userIdHash: hid, tripId: validatedTripId });
+                logger.info("ai.stream.recovery.success", {
+                  userIdHash: hid,
+                  tripId: validatedTripId,
+                  provider: recoveryProvider.name,
+                });
               } catch (persistErr) {
                 logger.error("ai.stream.recovery.persist.error",
                   persistErr instanceof Error ? persistErr : new Error(String(persistErr)),

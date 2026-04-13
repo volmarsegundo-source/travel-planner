@@ -271,7 +271,19 @@
       "Bash(/usr/bin/head)",
       "Bash(where.exe powershell:*)",
       "Read(//c/Windows/System32/WindowsPowerShell/v1.0/**)",
-      "Bash(/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe:*)"
+      "Bash(/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe:*)",
+      "Bash(cp -r .claude/worktrees/agent-a960c854/src/app/\\\\[locale\\\\]/\\\\\\(app\\\\\\)/loja src/app/\\\\[locale\\\\]/\\\\\\(app\\\\\\)/loja)",
+      "Bash(cp -r .claude/worktrees/agent-a960c854/src/components/features/premium src/components/features/premium)",
+      "Bash(cp .claude/worktrees/agent-a960c854/src/server/actions/subscription.actions.ts src/server/actions/subscription.actions.ts)",
+      "Bash(cp .claude/worktrees/agent-a960c854/tests/unit/server/actions/subscription.actions.test.ts tests/unit/server/actions/subscription.actions.test.ts)",
+      "Bash(cp .claude/worktrees/agent-a960c854/src/app/\\\\[locale\\\\]/\\\\\\(app\\\\\\)/layout.tsx src/app/\\\\[locale\\\\]/\\\\\\(app\\\\\\)/layout.tsx)",
+      "Bash(cp .claude/worktrees/agent-a9d58974/src/components/features/expedition/MultiCitySelector.tsx src/components/features/expedition/MultiCitySelector.tsx)",
+      "Bash(cp .claude/worktrees/agent-a9d58974/src/hooks/useIsPremium.ts src/hooks/useIsPremium.ts)",
+      "Bash(mkdir -p tests/unit/components/features/expedition)",
+      "Bash(cp .claude/worktrees/agent-a9d58974/tests/unit/components/features/expedition/MultiCitySelector.test.tsx tests/unit/components/features/expedition/MultiCitySelector.test.tsx)",
+      "Bash(cp .claude/worktrees/agent-a9d58974/tests/unit/server/actions/updatePhase1.multicity.test.ts tests/unit/server/actions/updatePhase1.multicity.test.ts)",
+      "Bash(cp .claude/worktrees/agent-a9d58974/src/lib/validations/expedition.schema.ts src/lib/validations/expedition.schema.ts)",
+      "Bash(cp .claude/worktrees/agent-a9d58974/src/components/features/expedition/Phase1WizardV2.tsx src/components/features/expedition/Phase1WizardV2.tsx)"
     ]
   }
 }
