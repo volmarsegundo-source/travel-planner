@@ -44,9 +44,11 @@ vi.mock("@/lib/ai/guide-stream-client", () => ({
 }));
 
 const mockSpendPAForAIAction = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true, data: { remainingBalance: 100 } }));
+const mockRefundPAForAIAction = vi.hoisted(() => vi.fn().mockResolvedValue({ success: true, data: { refunded: 50, newBalance: 150 } }));
 
 vi.mock("@/server/actions/gamification.actions", () => ({
   spendPAForAIAction: mockSpendPAForAIAction,
+  refundPAForAIAction: mockRefundPAForAIAction,
 }));
 
 vi.mock("../PhaseShell", () => ({

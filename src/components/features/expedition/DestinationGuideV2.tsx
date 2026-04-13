@@ -13,7 +13,7 @@ import {
   bulkViewGuideSectionsAction,
 } from "@/server/actions/expedition.actions";
 import { streamDestinationGuide } from "@/lib/ai/guide-stream-client";
-import { spendPAForAIAction } from "@/server/actions/gamification.actions";
+import { spendPAForAIAction, refundPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
 import { isGuideV2 } from "@/types/ai.types";
 import type { DestinationGuideContent, DestinationGuideContentV2 } from "@/types/ai.types";
@@ -634,6 +634,24 @@ export function DestinationGuideV2({
     setShowPAConfirm(true);
   }, []);
 
+  /**
+   * Refund the upfront PA debit when a guide generation ultimately fails
+   * (Sprint 43 QA Bug 2). Idempotent server-side within 10 minutes, so
+   * re-fires from retries are safe.
+   */
+  const refundGuideGeneration = useCallback(
+    async (reason: "timeout" | "stream_failed" | "generation_failed") => {
+      try {
+        const result = await refundPAForAIAction(tripId, "ai_accommodation", reason);
+        if (result.success && result.data) {
+          setPABalance(result.data.newBalance);
+          router.refresh();
+        }
+      } catch { /* non-critical — server logs the error */ }
+    },
+    [tripId, router],
+  );
+
   const handleGenerate = useCallback(async () => {
     setIsGenerating(true);
     setErrorMessage(null);
@@ -659,15 +677,17 @@ export function DestinationGuideV2({
         router.refresh();
       } else {
         setErrorMessage(result.errorCode ?? "errors.generic");
+        refundGuideGeneration("stream_failed");
       }
     } catch {
       setErrorMessage("errors.generic");
+      refundGuideGeneration("timeout");
     } finally {
       setIsGenerating(false);
       setStreamingPhase("idle");
       streamAbortRef.current = null;
     }
-  }, [tripId, destination, locale, router]);
+  }, [tripId, destination, locale, router, refundGuideGeneration]);
 
   // Cancel any in-flight stream when the component unmounts
   useEffect(() => {

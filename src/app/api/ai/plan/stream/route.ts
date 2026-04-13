@@ -324,10 +324,15 @@ export async function POST(request: NextRequest) {
           controller.enqueue(encoder.encode("data: [DONE]\n\n"));
           controller.close();
         } catch (error) {
+          const elapsedSinceStart = Date.now() - streamStartTime;
+          const remainingBudgetMs = 60_000 - elapsedSinceStart - 2_000; // 2s safety margin
           logger.error("ai.stream.sse.error", error instanceof Error ? error : new Error(String(error)), {
             userIdHash: hid,
             tripId: validatedTripId,
             accumulatedLength: accumulated.length,
+            elapsedSinceStartMs: elapsedSinceStart,
+            remainingBudgetMs,
+            errorCode: error instanceof AppError ? error.code : "unknown",
           });
 
           // Mid-flight failure: attempt non-streaming recovery via the
@@ -335,6 +340,22 @@ export async function POST(request: NextRequest) {
           // streaming then fails (quota cut, mid-stream timeout, network drop)
           // — scenarios that the initial-call FallbackProvider can't catch
           // because the primary already returned a stream handle.
+          // Budget guard: if Vercel is about to kill us, skip recovery and
+          // return the error immediately so the client's refund flow fires.
+          if (remainingBudgetMs < 5_000) {
+            logger.warn("ai.plan.stream.fallback.skipped.budget", {
+              userIdHash: hid,
+              tripId: validatedTripId,
+              remainingBudgetMs,
+            });
+            try {
+              controller.enqueue(encoder.encode(`data: {"error":"stream_failed"}\n\n`));
+              controller.enqueue(encoder.encode("data: [DONE]\n\n"));
+              controller.close();
+            } catch { /* already closed */ }
+            return;
+          }
+
           try {
             // Mid-flight recovery MUST target the opposite provider explicitly.
             // getProvider() would return Gemini again (same instance that just
@@ -344,13 +365,21 @@ export async function POST(request: NextRequest) {
               userIdHash: hid,
               tripId: validatedTripId,
               provider: recoveryProvider.name,
+              remainingBudgetMs,
             });
+            const recoveryStartTime = Date.now();
             const recoveryResponse = await recoveryProvider.generateResponse(
               userMessage,
               tokenBudget,
               "plan",
               { systemPrompt: PLAN_SYSTEM_PROMPT },
             );
+            logger.info("ai.plan.stream.fallback.response", {
+              userIdHash: hid,
+              tripId: validatedTripId,
+              recoveryDurationMs: Date.now() - recoveryStartTime,
+              textLength: recoveryResponse.text.length,
+            });
             const recoveryPlan = parseItineraryJson(recoveryResponse.text);
             if (recoveryPlan) {
               controller.enqueue(encoder.encode(`data: ${recoveryResponse.text}\n\n`));

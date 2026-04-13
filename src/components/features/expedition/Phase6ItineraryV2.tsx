@@ -19,7 +19,7 @@ import {
   calculateProgressPercent,
 } from "@/lib/utils/stream-progress";
 import { syncPhase6CompletionAction } from "@/server/actions/expedition.actions";
-import { spendPAForAIAction } from "@/server/actions/gamification.actions";
+import { spendPAForAIAction, refundPAForAIAction } from "@/server/actions/gamification.actions";
 import { AI_COSTS } from "@/types/gamification.types";
 import {
   addActivityAction,
@@ -1292,6 +1292,25 @@ export function Phase6ItineraryV2({
   }, []);
 
   // ─── Generation logic ────────────────────────────────────────────────────
+  //
+  // PA refund contract (Sprint 43 QA Bug 2): PA is debited upfront by
+  // `handlePAConfirmAndGenerate`. If the stream ultimately does not produce
+  // a persisted itinerary, we call `refundPAForAIAction` to credit the cost
+  // back. The refund action is idempotent within a 10-minute window so even
+  // if two failure paths both fire, the user only gets one refund.
+  const refundGeneration = useCallback(
+    async (reason: "timeout" | "stream_failed" | "persist_failed" | "generation_failed") => {
+      try {
+        const result = await refundPAForAIAction(tripId, "ai_itinerary", reason);
+        if (result.success && result.data) {
+          setPABalance(result.data.newBalance);
+          router.refresh();
+        }
+      } catch { /* non-critical — log is server-side */ }
+    },
+    [tripId, router],
+  );
+
   const handleGenerate = useCallback(async () => {
     setError(null);
     setIsGenerating(true);
@@ -1326,6 +1345,7 @@ export function Phase6ItineraryV2({
         setError(t(mapStatusToErrorKey(response.status, errorBody)));
         setIsGenerating(false);
         stopProgressTimer();
+        refundGeneration("generation_failed");
         return;
       }
 
@@ -1334,6 +1354,7 @@ export function Phase6ItineraryV2({
         setError(t("errorGenerate"));
         setIsGenerating(false);
         stopProgressTimer();
+        refundGeneration("generation_failed");
         return;
       }
 
@@ -1407,16 +1428,30 @@ export function Phase6ItineraryV2({
       // or the stream died silently. Either way, keep the user on a clear
       // error state rather than flashing back to the generation screen.
       setError(t(streamError ?? "errorTimeout"));
+      // Refund the upfront PA debit. Uses the specific failure reason when
+      // the server reported one so FinOps can track which path burned PA.
+      refundGeneration(
+        streamError === "errorPersistFailed"
+          ? "persist_failed"
+          : streamError === "errorTimeout"
+          ? "stream_failed"
+          : "timeout",
+      );
       return;
     } catch (err) {
       stopProgressTimer();
-      if (err instanceof DOMException && err.name === "AbortError") { /* cancelled */ }
-      else setError(t("errorTimeout"));
+      if (err instanceof DOMException && err.name === "AbortError") {
+        // User cancelled — refund so an abort doesn't cost PA.
+        refundGeneration("generation_failed");
+      } else {
+        setError(t("errorTimeout"));
+        refundGeneration("timeout");
+      }
     } finally {
       setIsGenerating(false);
       abortControllerRef.current = null;
     }
-  }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, selectedCategories, personalNotes, t, totalDays, startProgressTimer, stopProgressTimer, router]);
+  }, [tripId, destination, effectiveStartDate, effectiveEndDate, travelStyle, budgetTotal, budgetCurrency, travelers, language, travelNotes, expeditionContext, selectedCategories, personalNotes, t, totalDays, startProgressTimer, stopProgressTimer, router, refundGeneration]);
 
   // Auto-trigger removed — generation is now manual per SPEC-PROD-055.
   // User must click "Gerar Roteiro com IA" in the empty state.

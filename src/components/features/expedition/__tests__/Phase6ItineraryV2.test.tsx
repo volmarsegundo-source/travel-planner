@@ -58,6 +58,9 @@ vi.mock("@/server/actions/gamification.actions", () => ({
   spendPAForAIAction: vi
     .fn()
     .mockResolvedValue({ success: true, data: { remainingBalance: 100 } }),
+  refundPAForAIAction: vi
+    .fn()
+    .mockResolvedValue({ success: true, data: { refunded: 80, newBalance: 180 } }),
 }));
 
 vi.mock("../PhaseShell", () => ({

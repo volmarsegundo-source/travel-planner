@@ -222,6 +222,139 @@ export async function spendPAForAIAction(
   }
 }
 
+// ─── refundPAForAIAction ─────────────────────────────────────────────────────
+
+export type RefundReason =
+  | "generation_failed"
+  | "stream_failed"
+  | "persist_failed"
+  | "timeout";
+
+export interface RefundPAResult {
+  refunded: number;
+  newBalance: number;
+}
+
+/**
+ * Refunds PA previously debited by spendPAForAIAction when an AI generation
+ * ultimately failed. Called by phase clients from their error branches so
+ * the user is never charged for a generation that didn't produce output.
+ *
+ * The refund is recorded as a positive PointTransaction with type "ai_refund"
+ * and is idempotent per (userId, tripId, aiType, reason) within a short
+ * window — repeated client calls for the same failure won't double-refund.
+ *
+ * Trust boundary: the client is the source of the failure signal. The refund
+ * amount is server-bounded to AI_COSTS[aiType] so a hostile client can
+ * recover at most the amount they just spent. A short-window idempotency
+ * check further limits abuse.
+ */
+export async function refundPAForAIAction(
+  tripId: string,
+  aiType: AiSpendType,
+  reason: RefundReason,
+): Promise<ActionResult<RefundPAResult>> {
+  const session = await auth();
+  if (!session?.user?.id) throw new UnauthorizedError();
+
+  const tripIdParsed = TripIdSchema.safeParse(tripId);
+  if (!tripIdParsed.success) {
+    return { success: false, error: "errors.validation" };
+  }
+
+  const cost = AI_COSTS[aiType];
+  if (cost === undefined) {
+    return { success: false, error: "errors.invalidAiType" };
+  }
+
+  try {
+    // BOLA guard
+    const trip = await db.trip.findFirst({
+      where: { id: tripIdParsed.data, userId: session.user.id, deletedAt: null },
+      select: { id: true },
+    });
+    if (!trip) {
+      return { success: false, error: "errors.tripNotFound" };
+    }
+
+    // Idempotency: refuse to double-refund the same failure. We look for
+    // a recent spend of the same aiType on this trip that has not already
+    // been refunded, and only refund in that case.
+    const sinceMs = 10 * 60 * 1000; // 10 min
+    const since = new Date(Date.now() - sinceMs);
+    const [recentSpend, recentRefund] = await Promise.all([
+      db.pointTransaction.findFirst({
+        where: {
+          userId: session.user.id,
+          tripId: tripIdParsed.data,
+          type: "ai_usage",
+          amount: { lt: 0 },
+          description: { contains: aiType },
+          createdAt: { gte: since },
+        },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, createdAt: true },
+      }),
+      db.pointTransaction.findFirst({
+        where: {
+          userId: session.user.id,
+          tripId: tripIdParsed.data,
+          type: "ai_refund",
+          description: { contains: aiType },
+          createdAt: { gte: since },
+        },
+        orderBy: { createdAt: "desc" },
+        select: { id: true, createdAt: true },
+      }),
+    ]);
+
+    if (!recentSpend) {
+      // Nothing to refund — client over-reported a failure.
+      return { success: false, error: "errors.noRecentSpend" };
+    }
+    if (recentRefund && recentRefund.createdAt > recentSpend.createdAt) {
+      // Already refunded this spend.
+      const balance = await PointsEngine.getBalance(session.user.id);
+      return {
+        success: true,
+        data: { refunded: 0, newBalance: balance.availablePoints },
+      };
+    }
+
+    await PointsEngine.earnPoints(
+      session.user.id,
+      cost,
+      "ai_refund",
+      `Refund ${aiType}: ${reason}`,
+      tripIdParsed.data,
+    );
+
+    const balance = await PointsEngine.getBalance(session.user.id);
+
+    logger.info("pa.refund", {
+      userIdHash: hashUserId(session.user.id),
+      tripId: tripIdParsed.data,
+      aiType,
+      reason,
+      refunded: cost,
+      newBalance: balance.availablePoints,
+    });
+
+    return {
+      success: true,
+      data: { refunded: cost, newBalance: balance.availablePoints },
+    };
+  } catch (error) {
+    logger.error("gamification.refundPAForAI.error", error, {
+      userIdHash: hashUserId(session.user.id),
+      aiType,
+      tripId,
+      reason,
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
 // ─── completeTutorialAction ──────────────────────────────────────────────────
 
 const TUTORIAL_BONUS_POINTS = 100;
