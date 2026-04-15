@@ -1128,6 +1128,226 @@ AI_MONTHLY_BUDGET_ANTHROPIC_USD=40
 
 ---
 
+### ADR-029: Phase Reorder Strategy — Semantic Flip of Phase Numbers
+
+**Status**: Accepted — Sprint 44 (2026-04-15)
+**Deciders**: architect, product-owner, tech-lead
+**Related specs**: SPEC-ARCH-REORDER-PHASES §3.2, SPEC-PROD-REORDER-PHASES §3
+
+**Context**:
+
+The Travel Planner wizard had 6 active phases in an order driven by early
+implementation constraints rather than traveler psychology:
+Inspiration → Profile → Checklist → Logistics → Guide → Itinerary.
+This forced users to make packing and logistics decisions before seeing any
+AI-generated content about their destination. Usage data showed high
+abandonment between phases 3 and 5 ("bureaucracy before adventure").
+
+The new ordering — Inspiration → Profile → Guide → Itinerary → Logistics
+→ Checklist — mirrors the natural mental flow of trip planning and
+enables each AI phase to receive richer context from its predecessors
+(Guide feeds Itinerary; both feed Checklist).
+
+Two implementation approaches were evaluated:
+
+**Option 1 — Stable integer contract**: keep `Trip.currentPhase` /
+`ExpeditionPhase.phaseNumber` stable (1..6) and remap semantic meaning
+via a configuration table (`PHASE_DEFINITIONS`). Engine APIs, server
+actions, and client URL slugs (`/phase-3`) continue to refer to the same
+integers; only the **configuration** changes which name/AI-type/badge maps
+to each slot.
+
+**Option 2 — Rename integers everywhere**: keep semantic meaning stable
+and rename all stored integers. Every call site, URL, DB row, and
+analytics event must be rewritten to reflect the new slot numbers.
+
+**Decision**: Option 1 — semantic flip via configuration only.
+
+`Trip.currentPhase` and `ExpeditionPhase.phaseNumber` continue to be
+ordinal positions 1..6. The mapping from position to semantics lives
+exclusively in `PHASE_DEFINITIONS` (in `src/lib/engines/phase-config.ts`)
+and is gated by the `isPhaseReorderEnabled()` feature flag. All engine
+public APIs remain signature-stable. A data migration (see ADR-030)
+rewrites the stored integer values for existing rows so that the data
+matches the new semantic assignment after the flag goes to ON.
+
+**Consequences**:
+
+Positive:
+- Minimal churn: server actions, client components, and URL slugs do not
+  change. The `PHASE_DEFINITIONS` array is the single source of truth.
+- Feature flag (`NEXT_PUBLIC_PHASE_REORDER_ENABLED`) gates the switch
+  cleanly; flag OFF preserves legacy behaviour for all existing trips.
+- Rollback is a one-step flag flip, not a reverse data migration.
+
+Negative / trade-offs:
+- Historical `point_transactions.description` strings that read
+  "Completed phase 3: O Preparo" become ambiguous after the remap.
+  Accepted: these are human-readable audit records, not machine-parsed
+  fields. The convention "rows created before `DEPLOY_TS` use the old
+  mapping" is documented in the admin runbook.
+- Raw integer comparisons scattered in old code (e.g., `if phase === 3`)
+  must be made flag-aware. Existing violations are tracked as Wave 4/5
+  cleanup items (BUG-S44-W4-002 was exactly this pattern in
+  `next-steps-engine.ts`).
+
+---
+
+### ADR-030: In-Place Big-Bang Migration for Phase Reorder Data
+
+**Status**: Accepted — Sprint 44 (2026-04-15)
+**Deciders**: product-owner, architect
+**Related specs**: SPEC-ARCH-REORDER-PHASES §5, SPEC-RELEASE-REORDER-PHASES
+
+**Context**:
+
+The phase reorder (ADR-029) requires existing `ExpeditionPhase.phaseNumber`
+and `Trip.currentPhase` rows to be updated so that stored integers match the
+new semantic assignment. Four migration strategies were evaluated:
+
+| Strategy | Summary | Why rejected |
+|---|---|---|
+| Lazy / on-access | Migrate each row when first read | Dual-read logic in all engines; engines aggregating "all trips in phase 3" mix Guide with Checklist |
+| Dual-write shadow columns | Write both old and new columns | 2× complexity; requires a follow-up drop-column migration |
+| `phaseSchemaVersion` discriminator | Per-row version flag in DB | Every engine and analytics query must branch on version; PO explicitly rejected |
+| **In-place big-bang** (chosen) | Single-transaction SQL remap | See below |
+
+**Decision**: In-place big-bang SQL migration in a single transaction.
+
+Rationale:
+- The Travel Planner is in **beta** with a small trip count. The UPDATE
+  window is O(tens of milliseconds).
+- Rollback path is a **pre-migration pg_dump snapshot + feature flag OFF**.
+  Shadow columns add no recovery value when a full snapshot is available.
+- A pre-migration audit SQL runs inside a ROLLBACK transaction before the
+  real migration, surfacing trips whose completion state will be incoherent
+  post-remap (e.g., old Phase-3 Checklist done but old Phase-5 Guide not).
+  Product-owner reviews the audit CSV before approving the migration run.
+
+Migration pivot (via negative integers to avoid `(tripId, phaseNumber)`
+unique-constraint collisions during the multi-step UPDATE):
+
+```
+old → new
+ 3   →  6   (O Preparo / Checklist — now last)
+ 4   →  5   (A Logística — now second-to-last)
+ 5   →  3   (Guia do Destino — now third)
+ 6   →  4   (O Roteiro — now fourth)
+```
+
+Safe pivot steps:
+```
+Step A: 3 → -3,  4 → -4   (park in negatives)
+Step B: 5 →  3,  6 →  4   (write new positions)
+Step C: -3 →  6, -4 →  5  (finalize from negatives)
+```
+
+Migration scripts: `scripts/db/migrate-phase-reorder.sql` (forward),
+`scripts/db/reverse-phase-reorder.sql` (emergency rollback).
+
+**Consequences**:
+
+Positive:
+- Zero schema changes — no new columns, no follow-up migrations.
+- Single code path in engines after flag flip — no dual-read branching.
+- Historical `point_transactions.description` strings are **not rewritten**
+  (they are audit records). Admin UI uses `createdAt < DEPLOY_TS` to
+  interpret pre-migration rows under the old mapping.
+
+Negative / trade-offs:
+- Migration must run atomically with a DB snapshot taken immediately
+  before. Operational discipline required.
+- `admin_feedback.currentPhase` snapshots taken before the migration are
+  permanently ambiguous for trips that were in-flight at deploy time.
+  Acceptable: beta dataset is small; the ambiguity window is minutes.
+
+---
+
+### ADR-032: ExpeditionAiContextService as Centralised AI Context Assembler
+
+**Status**: Accepted — Sprint 44 (2026-04-15)
+**Deciders**: architect, prompt-engineer, security-specialist
+**Related specs**: SPEC-AI-REORDER-PHASES §1.3–1.5, SPEC-QA-REORDER-PHASES §4.4
+
+**Context**:
+
+Prior to Sprint 44, each AI service method (`generateGuide`, `generateItinerary`,
+`generateChecklist`) assembled its own prompt context by issuing separate
+Prisma queries and hand-crafting string excerpts inline. This pattern had
+several compounding problems:
+
+1. **Injection surface fragmentation**: Sanitisation was applied
+   inconsistently — some paths called `sanitizeForPrompt`, others did not.
+   The injected GUIDE category bug (TC-AI-006) and the markdown data-exfil
+   via `localMobility` (BUG-S44-W4-001 / INJ-S44-05) were both caused by
+   user-originated strings bypassing the guard on a specific path.
+
+2. **N+1 Prisma queries**: Each generation method issued 3–5 independent
+   queries to fetch guide, itinerary days, transport segments, etc. No
+   single place enforced the "fetch everything in one JOIN" policy.
+
+3. **Untestable context logic**: The mapping from raw DB rows to prompt
+   strings was entangled with HTTP/streaming concerns, making it impossible
+   to unit-test the context assembly without a real database.
+
+4. **Context drift between phases**: Itinerary prompts used a different
+   subset of guide data than the checklist prompt, inconsistently — leading
+   to quality variance between AI generations.
+
+**Decision**: Introduce `ExpeditionAiContextService` at
+`src/server/services/expedition-ai-context.service.ts` as the **single
+entry point for all AI prompt context assembly**.
+
+Key design properties:
+
+- **Single Prisma call** (`trip.findUnique` with full includes) — enforced
+  by the service; no callers may issue additional queries.
+- **Centralised injection guard**: all user-originated strings pass through
+  `sanitizeForPrompt` (from `src/lib/prompts/injection-guard.ts`) exactly
+  once, at the boundary where raw DB data enters the digest builders.
+  No caller bypasses this.
+- **Digest builders are pure functions** (`buildGuideDigest`,
+  `buildItineraryDigest`, `buildLogisticsDigest` in
+  `src/lib/prompts/digest.ts`) — zero I/O, fully unit-testable, bounded
+  token budgets (≤400 / ≤300 / ≤200 tokens respectively).
+- **BOLA guard**: `assembleFor(tripId, targetPhase, userId?)` validates
+  `trip.userId === userId` before returning any context. Server-to-server
+  callers (action layer that already authenticated) may pass `userId`
+  omitted.
+- **Graceful degradation**: if upstream data is absent (guide not yet
+  generated, itinerary empty), the corresponding digest is `undefined`
+  rather than throwing. Callers check for presence before including in
+  the prompt.
+- **Flag-aware**: digest inclusion respects `isPhaseReorderEnabled()` so
+  the same service works for both old and new phase ordering during rollout.
+
+**Callers** (enforced via security review in Wave 5):
+- `ai.service.ts` → `generateChecklist` and `generateItinerary` use
+  `assembleFor` exclusively.
+- `digest.ts` pure functions may only be imported by
+  `ExpeditionAiContextService` — not by any other service or action.
+
+**Consequences**:
+
+Positive:
+- The injection surface is reduced to one auditable module.
+- Context tests (`expedition-ai-context.service.test.ts`) cover all three
+  digest types, BOLA, degradation, and injection payloads in 23 test cases
+  with zero real DB or HTTP I/O.
+- A single `findUnique` with deep includes is cache-friendly (Redis key
+  derived from `tripId + targetPhase`).
+
+Negative / trade-offs:
+- The deep `findUnique` with all includes is heavier than targeted queries
+  for phases that need only a subset of data. Acceptable: the full include
+  is O(1) joins and the result is cached. Optimising per-phase query
+  shapes is tracked as a post-flag-ON refinement.
+- Callers that previously assembled context inline must be migrated.
+  Legacy code paths are deprecated-aliased during rollout and removed in
+  Wave 5 / Sprint 45.
+
+---
+
 ## Document Revision History
 
 | Version | Date | Author | Changes |
@@ -1137,3 +1357,4 @@ AI_MONTHLY_BUDGET_ANTHROPIC_USD=40
 | 1.2.0 | 2026-03-01 | architect | Added ADR-006 (route group for authenticated layout), ADR-007 (shared LanguageSwitcher) |
 | 1.3.0 | 2026-04-09 | tech-lead | Added ADR-028 (AI timeout strategy for Vercel Hobby — per-type provider override, tightened timeouts, streaming token clamp) |
 | 1.4.0 | 2026-04-11 | tech-lead + architect | Added ADR-031 (Gemini Flash primário, Haiku fallback automático, ceilings segmentados por provider) |
+| 1.5.0 | 2026-04-15 | architect | Added ADR-029 (Phase Reorder Strategy — semantic flip), ADR-030 (In-Place Big-Bang Migration), ADR-032 (ExpeditionAiContextService as centralised assembler) |
