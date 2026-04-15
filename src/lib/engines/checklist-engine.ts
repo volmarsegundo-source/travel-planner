@@ -6,20 +6,54 @@ import { PointsEngine } from "./points-engine";
 import { PHASE3_CHECKLIST } from "@/lib/travel/checklist-rules";
 import type { TripType } from "@/lib/travel/trip-classifier";
 import { AppError, ForbiddenError } from "@/lib/errors";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 // ─── Points per item type ─────────────────────────────────────────────────
 
 const POINTS_REQUIRED = 15;
 const POINTS_RECOMMENDED = 8;
 
+/**
+ * Returns the active phase number for checklist items, flag-aware.
+ *
+ * - Flag OFF (original order): Checklist = Phase 3
+ * - Flag ON  (new order):      Checklist = Phase 6
+ *
+ * Spec ref: SPEC-ARCH-REORDER-PHASES §3.1 (phase mapping)
+ */
+function getChecklistPhaseNumber(): number {
+  return isPhaseReorderEnabled() ? 6 : 3;
+}
+
 // ─── Checklist Engine ─────────────────────────────────────────────────────
 
 export class ChecklistEngine {
   /**
-   * Initialize Phase 3 checklist items for a trip based on tripType.
+   * Initialize checklist items for a trip based on tripType.
    * Calculates deadlines from startDate. Idempotent.
+   *
+   * Flag-aware: uses phaseNumber=6 when PHASE_REORDER_ENABLED, else 3.
+   *
+   * @deprecated Prefer `initializeChecklistItems` for new code.
+   *   This alias is kept to avoid breaking callers during Wave 3.
    */
   static async initializePhase3Checklist(
+    tripId: string,
+    userId: string,
+    tripType: TripType,
+    startDate: Date | null
+  ): Promise<void> {
+    return ChecklistEngine.initializeChecklistItems(tripId, userId, tripType, startDate);
+  }
+
+  /**
+   * Initialize checklist items for a trip based on tripType.
+   * Calculates deadlines from startDate. Idempotent.
+   *
+   * Flag-aware: uses phaseNumber 6 when PHASE_REORDER_ENABLED, else 3.
+   * Spec ref: SPEC-ARCH-REORDER-PHASES §3.1
+   */
+  static async initializeChecklistItems(
     tripId: string,
     userId: string,
     tripType: TripType,
@@ -30,8 +64,10 @@ export class ChecklistEngine {
     });
     if (!trip) throw new ForbiddenError();
 
+    const phaseNumber = getChecklistPhaseNumber();
+
     const existing = await db.phaseChecklistItem.count({
-      where: { tripId, phaseNumber: 3 },
+      where: { tripId, phaseNumber },
     });
     if (existing > 0) return;
 
@@ -45,7 +81,7 @@ export class ChecklistEngine {
         const isRequired = rule.requiredFor.includes(tripType);
         return {
           tripId,
-          phaseNumber: 3,
+          phaseNumber,
           itemKey: rule.key,
           required: isRequired,
           pointsValue: isRequired ? POINTS_REQUIRED : POINTS_RECOMMENDED,
@@ -61,9 +97,10 @@ export class ChecklistEngine {
       await db.phaseChecklistItem.createMany({ data: items });
     }
 
-    logger.info("checklist.phase3Initialized", {
+    logger.info("checklist.initialized", {
       tripId,
       tripType,
+      phaseNumber,
       itemCount: items.length,
     });
   }
@@ -146,6 +183,14 @@ export class ChecklistEngine {
   }
 
   /**
+   * Get all checklist items for the active checklist phase (flag-aware).
+   * Prefer this over `getPhaseChecklist(tripId, 3)` in new code.
+   */
+  static async getChecklistItems(tripId: string) {
+    return ChecklistEngine.getPhaseChecklist(tripId, getChecklistPhaseNumber());
+  }
+
+  /**
    * Check if all required items in a phase are completed.
    */
   static async isPhaseChecklistComplete(
@@ -161,5 +206,13 @@ export class ChecklistEngine {
       },
     });
     return requiredIncomplete === 0;
+  }
+
+  /**
+   * Check if all required checklist items are completed (flag-aware).
+   * Prefer this over `isPhaseChecklistComplete(tripId, 3)` in new code.
+   */
+  static async isChecklistComplete(tripId: string): Promise<boolean> {
+    return ChecklistEngine.isPhaseChecklistComplete(tripId, getChecklistPhaseNumber());
   }
 }

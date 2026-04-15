@@ -170,13 +170,15 @@ export const PHASE_DEFINITIONS_REORDERED: readonly PhaseDefinition[] = [
   },
   {
     // OLD phase 4 — A Logística — now position 5
+    // Badge "detalhista" awarded on Logistics completion (PO decision §14.1.4 —
+    // keyed by semantic content "Logística", not ordinal position).
     phaseNumber: 5,
     name: "A Logística",
     nameKey: "phases.theLogistics",
     isFree: true,
     pointsReward: 50,
     aiCost: 0,
-    badgeKey: null,
+    badgeKey: "detalhista",
     rankPromotion: null,
     nonBlocking: true,
   },

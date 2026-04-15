@@ -20,8 +20,13 @@ export type ChecklistCategory =
   | "HEALTH"
   | "CURRENCY"
   | "WEATHER"
-  | "TECHNOLOGY";
+  | "TECHNOLOGY"
+  // v2.0.0 additions (Sprint 44 Wave 2)
+  | "CLOTHING"
+  | "ACTIVITIES"
+  | "LOGISTICS";
 export type Priority = "HIGH" | "MEDIUM" | "LOW";
+export type ChecklistSourcePhase = "guide" | "itinerary" | "logistics" | "profile" | "general";
 
 export interface ExpeditionContext {
   tripType?: string;
@@ -110,11 +115,21 @@ export interface GenerateChecklistParams {
   startDate: string;
   travelers: number;
   language: "pt-BR" | "en";
+  /**
+   * Sprint 44 Wave 2: optional tripId used when PHASE_REORDER_ENABLED is ON
+   * to fetch upstream phase context (Guide, Itinerary, Logistics digests) from
+   * `ExpeditionAiContextService`. When absent, falls back to v1 minimal prompt.
+   */
+  tripId?: string;
 }
 
 export interface ChecklistItemData {
   label: string;
   priority: Priority;
+  /** v2.0.0: 1-sentence explanation of why this item is specific to this trip */
+  reason?: string;
+  /** v2.0.0: which upstream phase sourced this item */
+  sourcePhase?: ChecklistSourcePhase;
 }
 
 export interface ChecklistCategoryData {
@@ -124,6 +139,12 @@ export interface ChecklistCategoryData {
 
 export interface ChecklistResult {
   categories: ChecklistCategoryData[];
+  /** v2.0.0: summary block with personalization metadata */
+  summary?: {
+    totalItems?: number;
+    highPriorityCount?: number;
+    personalizationNotes?: string;
+  };
 }
 
 // ─── Destination Guide (Phase 5) — v1 (DEPRECATED, kept for cached data) ────
