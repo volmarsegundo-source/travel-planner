@@ -23,6 +23,20 @@ import { maskPII } from "@/lib/prompts/pii-masker";
  * Match triggers immediate rejection.
  */
 const HIGH_CONFIDENCE_PATTERNS: readonly RegExp[] = [
+  // ─── Markdown data-exfiltration patterns (INJ-S44-05, BUG-S44-W4-001) ───────
+  // Markdown image syntax `![alt](url)` with HTTP/HTTPS URLs.
+  // User-controlled strings (e.g. localMobility items) must never carry live URLs
+  // into AI prompts — a remote endpoint could be used to exfiltrate PII that the
+  // model interpolates into the alt text or URL template.
+  // Matches: ![anything](http://...) and ![anything](https://...)
+  /!\[.*?\]\(https?:\/\//i,
+
+  // Bare HTTP/HTTPS URLs in user-controlled fields are also blocked.
+  // Legitimate travel data (mobility modes, notes) never needs raw URLs.
+  // Only applied to user-originated fields; system-generated content should
+  // not be routed through sanitizeForPrompt in the first place.
+  /https?:\/\/[^\s)>"']+/i,
+
   // Direct role override attempts (EN)
   /\bignore\s+(all\s+)?previous\s+(instructions?|prompts?|rules?)\b/i,
   /\byou\s+are\s+now\b/i,
