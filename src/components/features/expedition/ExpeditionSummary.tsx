@@ -11,10 +11,24 @@ import type { TripReadinessResult } from "@/server/services/trip-readiness.servi
 import type { NextStep } from "@/lib/engines/next-steps-engine";
 import type { BadgeKey } from "@/types/gamification.types";
 import { Link } from "@/i18n/navigation";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 // ─── Phase Icons ─────────────────────────────────────────────────────────────
 
-const PHASE_ICONS = ["\uD83E\uDDED", "\uD83D\uDD0D", "\uD83D\uDCCB", "\uD83D\uDE97", "\uD83D\uDDFA\uFE0F", "\uD83D\uDC8E"];
+// Original order: compass, magnifier, clipboard, car, map, gem
+// (Inspiration, Profile, Checklist, Logistics, Guide, Itinerary)
+const PHASE_ICONS_ORIGINAL = ["\uD83E\uDDED", "\uD83D\uDD0D", "\uD83D\uDCCB", "\uD83D\uDE97", "\uD83D\uDDFA\uFE0F", "\uD83D\uDC8E"];
+
+// New order (Sprint 44): compass, magnifier, book, map, car, clipboard
+// (Inspiration, Profile, Guide, Itinerary, Logistics, Checklist) — SPEC-UX §7.1
+const PHASE_ICONS_REORDERED = ["\uD83E\uDDED", "\uD83D\uDD0D", "\uD83D\uDCDA", "\uD83D\uDDFA\uFE0F", "\uD83D\uDE97", "\uD83D\uDCCB"];
+
+// Flag-aware accessor — resolves at render time so flag changes take effect
+// without a module reload.
+function getPhaseIcons(): readonly string[] {
+  return isPhaseReorderEnabled() ? PHASE_ICONS_REORDERED : PHASE_ICONS_ORIGINAL;
+}
+
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -93,14 +107,27 @@ export function ExpeditionSummary({
     return `/expedition/${tripId}/phase-${phaseNum}`;
   }
 
-  const phaseNames = [
-    tPhases("theCalling"),
-    tPhases("theExplorer"),
-    tPhases("thePreparation"),
-    tPhases("theLogistics"),
-    tPhases("theDestinationGuide"),
-    tPhases("theItinerary"),
-  ];
+  // Phase names in positional order (index 0 = phase 1).
+  // Flag OFF: Inspiration, Profile, Checklist, Logistics, Guide, Itinerary
+  // Flag ON:  Inspiration, Profile, Guide, Itinerary, Logistics, Checklist
+  // SPEC-UX-REORDER-PHASES §7
+  const phaseNames = isPhaseReorderEnabled()
+    ? [
+        tPhases("theCalling"),
+        tPhases("theExplorer"),
+        tPhases("theDestinationGuide"),
+        tPhases("theItinerary"),
+        tPhases("theLogistics"),
+        tPhases("thePreparation"),
+      ]
+    : [
+        tPhases("theCalling"),
+        tPhases("theExplorer"),
+        tPhases("thePreparation"),
+        tPhases("theLogistics"),
+        tPhases("theDestinationGuide"),
+        tPhases("theItinerary"),
+      ];
 
   const readinessPercent = readiness?.readinessPercent ?? 0;
   const completionPercentage = summary.completionPercentage;
@@ -259,7 +286,7 @@ export function ExpeditionSummary({
         <div className="grid gap-4 sm:grid-cols-2" data-testid="phase-cards">
           {[1, 2, 3, 4, 5, 6].map((phaseNum) => {
             const status = getPhaseStatus(phaseNum);
-            const icon = PHASE_ICONS[phaseNum - 1];
+            const icon = getPhaseIcons()[phaseNum - 1];
             const name = phaseNames[phaseNum - 1];
 
             return (
