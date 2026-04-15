@@ -7,7 +7,18 @@
 // Works in both server (service) and client (optimistic UI) contexts.
 // NO server-only imports — pure TypeScript.
 //
+// Sprint 44: flag-aware dispatch added.
+// - Flag OFF (default): original mapping (phase3=Checklist, phase4=Logistics,
+//   phase5=Guide, phase6=Itinerary)
+// - Flag ON: new mapping (phase3=Guide, phase4=Itinerary, phase5=Logistics,
+//   phase6=Checklist)
+//
+// `PhaseDataSnapshot` keys (`phase3..phase6`) are position-based, NOT
+// semantic — the CALLER is responsible for placing the correct data under
+// the correct key according to the active flag.
+//
 // Spec refs: SPEC-ARCH-016 §5, SPEC-PROD-023
+// Spec refs: SPEC-ARCH-REORDER-PHASES §3.1
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -66,6 +77,8 @@ export interface ExpeditionCompletionSummary {
   totalPhases: number;
   isComplete: boolean;
 }
+
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -210,10 +223,13 @@ function evaluatePhase6(
 // ─── Core Engine Functions ──────────────────────────────────────────────────
 
 /**
- * Evaluate completion status for a single phase.
- * Pure function — no DB access, no side effects.
+ * Dispatch table for the ORIGINAL phase ordering (flag OFF):
+ *   phase 3 → Checklist evaluator (snapshot.phase3 has checklist data)
+ *   phase 4 → Logistics evaluator (snapshot.phase4 has logistics data)
+ *   phase 5 → Guide evaluator     (snapshot.phase5 has guide data)
+ *   phase 6 → Itinerary evaluator (snapshot.phase6 has itinerary data)
  */
-export function evaluatePhaseCompletion(
+function evaluatePhaseOriginal(
   phaseNumber: number,
   snapshot: PhaseDataSnapshot
 ): PhaseCompletionResult {
@@ -231,6 +247,75 @@ export function evaluatePhaseCompletion(
         requirements: [],
       };
   }
+}
+
+/**
+ * Dispatch table for the NEW phase ordering (flag ON — Sprint 44):
+ *   phase 3 → Guide evaluator     (snapshot.phase3 has guide data)
+ *   phase 4 → Itinerary evaluator (snapshot.phase4 has itinerary data)
+ *   phase 5 → Logistics evaluator (snapshot.phase5 has logistics data)
+ *   phase 6 → Checklist evaluator (snapshot.phase6 has checklist data)
+ *
+ * The CALLER must place the correct data under each key per the new ordering.
+ * Spec ref: SPEC-ARCH-REORDER-PHASES §3.1
+ */
+function evaluatePhaseReordered(
+  phaseNumber: number,
+  snapshot: PhaseDataSnapshot
+): PhaseCompletionResult {
+  switch (phaseNumber) {
+    case 1: return evaluatePhase1(snapshot.phase1);
+    case 2: return evaluatePhase2(snapshot.phase2);
+    // New phase 3 = Guide (snapshot.phase3 must contain hasGuide)
+    case 3: {
+      const guideData = snapshot.phase3 as unknown as PhaseDataSnapshot["phase5"];
+      return { ...evaluatePhase5(guideData), phase: 3 };
+    }
+    // New phase 4 = Itinerary (snapshot.phase4 must contain itineraryDayCount)
+    case 4: {
+      const itineraryData = snapshot.phase4 as unknown as PhaseDataSnapshot["phase6"];
+      return { ...evaluatePhase6(itineraryData), phase: 4 };
+    }
+    // New phase 5 = Logistics (snapshot.phase5 must contain transportSegmentCount, etc.)
+    case 5: {
+      const logisticsData = snapshot.phase5 as unknown as PhaseDataSnapshot["phase4"];
+      return { ...evaluatePhase4(logisticsData), phase: 5 };
+    }
+    // New phase 6 = Checklist (snapshot.phase6 must contain totalRequired, etc.)
+    case 6: {
+      const checklistData = snapshot.phase6 as unknown as PhaseDataSnapshot["phase3"];
+      return { ...evaluatePhase3(checklistData), phase: 6 };
+    }
+    default:
+      return {
+        phase: phaseNumber,
+        status: "pending",
+        requirements: [],
+      };
+  }
+}
+
+/**
+ * Evaluate completion status for a single phase.
+ * Flag-aware — delegates to original or reordered dispatch table.
+ *
+ * - Flag OFF: original ordering (Checklist=3, Logistics=4, Guide=5, Itinerary=6)
+ * - Flag ON:  new ordering (Guide=3, Itinerary=4, Logistics=5, Checklist=6)
+ *
+ * IMPORTANT: `snapshot` keys are position-based. The CALLER must ensure that
+ * `snapshot.phase3` contains data appropriate for the active phase ordering:
+ * - Flag OFF: phase3 key → checklist data
+ * - Flag ON:  phase3 key → guide data
+ *
+ * Pure function — no DB access, no side effects.
+ */
+export function evaluatePhaseCompletion(
+  phaseNumber: number,
+  snapshot: PhaseDataSnapshot
+): PhaseCompletionResult {
+  return isPhaseReorderEnabled()
+    ? evaluatePhaseReordered(phaseNumber, snapshot)
+    : evaluatePhaseOriginal(phaseNumber, snapshot);
 }
 
 /**
