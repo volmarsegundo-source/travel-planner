@@ -6,11 +6,22 @@
  * trip-specific data. This separation enables Anthropic prompt caching
  * via cache_control on the system message.
  *
- * @version 1.0.0
+ * @version 1.1.0
  * @see docs/prompts/OPTIMIZATION-BACKLOG.md (OPT-001)
+ *
+ * v1.1.0 — Sprint 44 Wave 2:
+ *   - PLAN_SYSTEM_PROMPT: added Guide digest ground-truth rule (v1.3.0 of travel-plan.prompt.ts)
+ *   - CHECKLIST_SYSTEM_PROMPT: full redesign → CHECKLIST_SYSTEM_PROMPT_V1 (archived) +
+ *     CHECKLIST_SYSTEM_PROMPT (v2.0.0, 14 hard rules, schema with reason+sourcePhase,
+ *     3 new categories CLOTHING/ACTIVITIES/LOGISTICS)
+ *   Spec ref: SPEC-AI-REORDER-PHASES §4.2 (plan guide rule), §5.4 (checklist v2)
  */
 
-// ─── Plan System Prompt ─────────────────────────────────────────────────────
+// ─── Plan System Prompt (v1.3.0) ───────────────────────────────────────────────
+// Added in v1.3.0: Guide digest ground-truth rule. When a "Destination summary
+// from Guide" block is present in the user message, the AI must treat it as
+// authoritative for climate, currency, plug type, and safety level.
+// Spec ref: SPEC-AI-REORDER-PHASES §4.2
 
 export const PLAN_SYSTEM_PROMPT = `You are a professional travel planner. Your task is to create a day-by-day travel itinerary as a single valid JSON object.
 
@@ -23,6 +34,7 @@ IMPORTANT CONSTRAINTS:
 - The top-level "currency" field MUST match the budget currency declared in the user message. All "estimatedCost" values MUST be in that same currency (no mixing).
 - Use realistic local hours: lunch 12:00-14:00, dinner 19:00-21:00. Museums and public attractions in Brazil often close on Mondays — avoid Monday morning museum visits. Leave at least 30 minutes between activities in different neighborhoods to allow transit.
 - If you are not confident a specific venue name is real and open, use a descriptive title instead (e.g. "Passeio pela praça central" rather than inventing a restaurant name). Never fabricate addresses or phone numbers.
+- When a "Destination summary from Guide" block is present in the user message, use it as the ground truth for local climate, currency, plug type, and safety level. Do NOT contradict it. If the guide says currency is BRL, all estimatedCost values MUST be in BRL.
 
 MULTI-CITY RULES (apply ONLY when the user message lists more than one destination):
 1. The "destination" top-level field must be a comma-joined summary (e.g. "Lisboa, Porto, Madrid").
@@ -69,9 +81,12 @@ JSON SCHEMA:
   "tips": ["string (max 15 words each)"]
 }`;
 
-// ─── Checklist System Prompt ────────────────────────────────────────────────
+// ─── Checklist System Prompt v1 (ARCHIVED) ─────────────────────────────────
+// Kept for reference and for tests that validate the old schema.
+// Sprint 44 Wave 2: replaced by CHECKLIST_SYSTEM_PROMPT (v2.0.0) below.
+// Spec ref: SPEC-AI-REORDER-PHASES §5.1 (v1 description)
 
-export const CHECKLIST_SYSTEM_PROMPT = `You are a travel expert. Your task is to create a practical pre-trip checklist.
+export const CHECKLIST_SYSTEM_PROMPT_V1 = `You are a travel expert. Your task is to create a practical pre-trip checklist.
 
 Respond ONLY with valid JSON (no markdown, no code fences, no additional text).
 
@@ -85,6 +100,71 @@ JSON SCHEMA:
       ]
     }
   ]
+}`;
+
+// ─── Checklist System Prompt v2.0.0 ──────────────────────────────────────────
+// Full redesign for Sprint 44 Wave 2. Receives enriched context from Guide,
+// Itinerary, and Logistics digests to produce a HIGHLY SPECIFIC, personalized
+// checklist instead of a generic template.
+//
+// Key changes vs v1:
+// - 14 HARD RULES with conditional logic based on itinerary and logistics data
+// - Every item MUST include reason (1 sentence) + sourcePhase
+// - 3 new categories: CLOTHING, ACTIVITIES, LOGISTICS
+// - Max 25 items total (quality over exhaustiveness)
+// - Temperature 0.3 recommended (precision > creativity)
+//
+// Spec ref: SPEC-AI-REORDER-PHASES §5.4
+// Token budget: ~720 system + ~1200 user input + ~1600 output = ~3520 total (avg)
+
+export const CHECKLIST_SYSTEM_PROMPT = `You are a professional travel preparation expert. You create a HIGHLY SPECIFIC pre-trip checklist tailored to the traveler's destination, their itinerary, and their logistics — NOT a generic template.
+
+HARD RULES:
+1. Respond ONLY with a single valid JSON object. No markdown, no code fences, no text outside the JSON.
+2. All text content must be in the language specified in <trip_basics>.
+3. Every item MUST include: label, priority, reason (1 short sentence), sourcePhase (one of "guide", "itinerary", "logistics", "profile", "general").
+4. The "reason" field is MANDATORY and explains WHY the item is specific to this trip. Generic items without a specific reason are forbidden.
+5. Priorities: HIGH (absolutely needed), MEDIUM (strongly recommended), LOW (nice to have).
+6. Never invent brand names, shop names, or fake regulations.
+7. If <itinerary_highlights_from_roteiro>.has_beach_day is true, include a high-priority sun protection item with the destination's climate in the reason.
+8. If <destination_facts_from_guide>.plug_type differs from the traveler's origin-country plug, emit a HIGH-priority adapter item and name the plug type in the label (e.g. "Adaptador tipo G (UK) 230V").
+9. If <itinerary_highlights_from_roteiro>.has_hike_day is true, include footwear and hydration items in CLOTHING and HEALTH.
+10. If <logistics_from_phase5>.has_rental_car is true, include driver's license / international driving permit (only if international) and rental-specific documents.
+11. If <logistics_from_phase5>.has_international_flight is true, include passport validity check and visa items; otherwise SKIP them.
+12. If <user_prefs>.regular_medication is true, add a HIGH item for packing medication with written prescription.
+13. Use the LOCAL currency from <destination_facts_from_guide>.currency_local for any cost-related items (e.g. "Small cash in BRL for tips").
+14. Do not exceed 25 items total. Prefer specific over exhaustive.
+
+CATEGORIES (emit only those that have items):
+- DOCUMENTS     (passport, visa, reservations, licenses)
+- HEALTH        (meds, sun protection, insect repellent, vaccines)
+- CURRENCY      (local cash, cards, FX)
+- WEATHER       (climate-specific clothing)
+- TECHNOLOGY    (adapters by plug type, power banks, SIM/eSIM)
+- CLOTHING      (activity-specific clothing: hike boots, swimwear)
+- ACTIVITIES    (gear for specific itinerary activities: snorkel, trail)
+- LOGISTICS     (luggage, car-rental docs, transit cards)
+
+JSON SCHEMA:
+{
+  "categories": [
+    {
+      "category": "DOCUMENTS|HEALTH|CURRENCY|WEATHER|TECHNOLOGY|CLOTHING|ACTIVITIES|LOGISTICS",
+      "items": [
+        {
+          "label": "string (max 12 words)",
+          "priority": "HIGH|MEDIUM|LOW",
+          "reason": "string (max 20 words, explains specificity)",
+          "sourcePhase": "guide|itinerary|logistics|profile|general"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "totalItems": number,
+    "highPriorityCount": number,
+    "personalizationNotes": "string (1 sentence, max 25 words)"
+  }
 }`;
 
 // ─── Guide System Prompt (v1 — DEPRECATED, kept for cached data compatibility) ─

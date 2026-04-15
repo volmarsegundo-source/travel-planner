@@ -77,12 +77,67 @@ export interface TravelPlanParams {
   destinations?: TravelPlanDestination[];
 }
 
-/** Parameters for the pre-trip checklist prompt */
+/** Parameters for the pre-trip checklist prompt (v1 — legacy) */
 export interface ChecklistParams {
   destination: string;
   month: string;
   travelers: number;
   language: "pt-BR" | "en";
+}
+
+/**
+ * Parameters for the v2.0.0 checklist prompt.
+ *
+ * Sprint 44 Wave 2: enriched with Guide, Itinerary, and Logistics digests
+ * so the AI can produce a HIGHLY SPECIFIC packing list instead of a generic
+ * template.
+ *
+ * All digest fields are optional — the prompt degrades gracefully when upstream
+ * phases have not been completed.
+ *
+ * Spec ref: SPEC-AI-REORDER-PHASES §5.3 (user prompt format), §5.4 (system prompt)
+ */
+export interface ChecklistV2Params {
+  /** Trip destination name (e.g. "Fernando de Noronha, PE, Brazil") */
+  destination: string;
+  /** Trip type (domestic | regional | international) */
+  tripType: string;
+  /** ISO date range (e.g. "2026-07-10 to 2026-07-17 (7 days)") */
+  dates: string;
+  /** Human-readable traveler count (e.g. "2 adults") */
+  travelers: string;
+  language: "pt-BR" | "en";
+
+  // Digests from upstream phases (all optional — graceful degradation)
+  destinationFactsFromGuide?: {
+    climate?: string;
+    plugType?: string;
+    currencyLocal?: string;
+    safetyLevel?: "safe" | "moderate" | "caution";
+    vaccines?: string;
+  };
+  itineraryHighlightsFromRoteiro?: {
+    totalDays?: number;
+    activityTypes?: string[];
+    hasBeachDay?: boolean;
+    hasHikeDay?: boolean;
+    hasNightlifeEvening?: boolean;
+    hasReligiousSite?: boolean;
+    hasMuseumDay?: boolean;
+    intensity?: "low" | "moderate" | "high";
+  };
+  logisticsFromPhase5?: {
+    transportModes?: string[];
+    accommodationTypes?: string[];
+    mobility?: string[];
+    hasRentalCar?: boolean;
+    hasInternationalFlight?: boolean;
+  };
+  userPrefs?: {
+    dietary?: string;
+    allergies?: string;
+    regularMedication?: boolean;
+  };
 }
 
 /** Sibling-city context for multi-city guides (Sprint 43 Wave 4). */

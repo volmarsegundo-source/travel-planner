@@ -5,6 +5,9 @@ import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import type { DestinationGuideContent } from "@/types/ai.types";
 import { isGuideV2 } from "@/types/ai.types";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { ExpeditionAiContextService } from "@/server/services/expedition-ai-context.service";
+import { formatGuideDigest } from "@/lib/prompts/digest";
 
 // ─── ItineraryPlanService ────────────────────────────────────────────────────
 
@@ -154,5 +157,60 @@ export class ItineraryPlanService {
       currency: phase2Meta?.currency as string | undefined,
       destinationGuideContext: guideContext,
     };
+  }
+
+  /**
+   * Returns expedition context for Itinerary generation using the canonical
+   * `ExpeditionAiContextService` assembler. Populates `destinationGuideContext`
+   * with a sanitized, bounded guide digest via `formatGuideDigest`.
+   *
+   * Flag-aware:
+   * - Flag ON (new order): uses ExpeditionAiContextService to assemble context.
+   *   Guide digest (Phase 3 in new order) is injected as plain text.
+   * - Flag OFF: falls back to the legacy `getExpeditionContext` method.
+   *
+   * Spec ref: SPEC-AI-REORDER-PHASES §1.4 (example of itinerary service integration)
+   */
+  static async getExpeditionContextForItinerary(
+    tripId: string,
+    userId: string
+  ) {
+    if (!isPhaseReorderEnabled()) {
+      return ItineraryPlanService.getExpeditionContext(tripId, userId);
+    }
+
+    try {
+      const ctx = await ExpeditionAiContextService.assembleFor(
+        tripId,
+        "itinerary",
+        userId
+      );
+
+      // Extract phase 2 traveler-profile fields from preferences
+      const prefs = ctx.preferences.raw as Record<string, unknown>;
+
+      let destinationGuideContext: string | undefined;
+      if (ctx.guideDigest) {
+        destinationGuideContext = formatGuideDigest(ctx.guideDigest);
+      }
+
+      return {
+        tripType: ctx.trip.tripType,
+        travelerType: prefs.travelerType as string | undefined,
+        accommodationStyle: prefs.accommodationStyle as string | undefined,
+        travelPace: prefs.travelPace as number | undefined,
+        budget: prefs.budget as number | undefined,
+        currency: prefs.currency as string | undefined,
+        destinationGuideContext,
+      };
+    } catch (err) {
+      // Graceful degradation: fall back to legacy if assembler fails
+      logger.warn("itineraryPlan.getContextForItinerary.assemblerFallback", {
+        tripId,
+        userIdHash: hashUserId(userId),
+        error: (err as Error).message,
+      });
+      return ItineraryPlanService.getExpeditionContext(tripId, userId);
+    }
   }
 }

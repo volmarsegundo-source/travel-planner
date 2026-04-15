@@ -21,12 +21,40 @@ import { hashUserId } from "@/lib/hash";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { classifyTrip } from "@/lib/travel/trip-classifier";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
 import { PhaseCompletionService } from "@/server/services/phase-completion.service";
 import { EntitlementService } from "@/server/services/entitlement.service";
 import type { DestinationInput } from "@/lib/validations/expedition.schema";
+
+// ─── Sprint 44 Wave 2: semantic phase-number helpers ─────────────────────────
+//
+// Rather than scattering `phaseNumber: isPhaseReorderEnabled() ? 6 : 3` everywhere,
+// we centralise the flag dispatch into these two helpers. All checklist-related
+// DB queries must use `checklistPhaseNumber()`, all logistics-related queries
+// must use `logisticsPhaseNumber()`.
+//
+// Spec ref: SPEC-ARCH-REORDER-PHASES §6.2
+
+/**
+ * Active phase number for the Checklist content, flag-aware.
+ * Flag OFF (original): Checklist = Phase 3
+ * Flag ON  (new order): Checklist = Phase 6
+ */
+function checklistPhaseNumber(): number {
+  return isPhaseReorderEnabled() ? 6 : 3;
+}
+
+/**
+ * Active phase number for the Itinerary content, flag-aware.
+ * Flag OFF (original): Itinerary = Phase 6
+ * Flag ON  (new order): Itinerary = Phase 4
+ */
+function itineraryPhaseNumber(): number {
+  return isPhaseReorderEnabled() ? 4 : 6;
+}
 
 // Sprint 43 Wave 3: multi-city plan caps. Free users may only persist a
 // single destination per expedition; Premium users up to 4. Zod also caps
@@ -519,39 +547,54 @@ export async function updatePhase2Action(
   }
 }
 
-// ─── togglePhase3ItemAction ──────────────────────────────────────────────────
+// ─── toggleChecklistItemAction ───────────────────────────────────────────────
+//
+// Semantic name (Sprint 44 Wave 2). Flag-aware: uses checklistPhaseNumber()
+// instead of the hard-coded literal 3.
+// Spec ref: SPEC-ARCH-REORDER-PHASES §6.2
 
-export async function togglePhase3ItemAction(
+export async function toggleChecklistItemAction(
   tripId: string,
   itemKey: string
 ): Promise<ActionResult<{ completed: boolean; pointsAwarded: number }>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  const phaseNum = checklistPhaseNumber();
+
   try {
     const result = await ChecklistEngine.toggleItem(
       tripId,
       session.user.id,
-      3,
+      phaseNum,
       itemKey
     );
 
-    // Sync Phase 3 completion status based on current checklist state
-    PhaseCompletionService.syncPhaseStatus(tripId, session.user.id, 3).catch((err) => {
-      logger.warn("phase3.sync.failed", { tripId, error: (err as Error).message });
+    // Sync checklist phase completion status based on current checklist state
+    PhaseCompletionService.syncPhaseStatus(tripId, session.user.id, phaseNum).catch((err) => {
+      logger.warn("checklist.sync.failed", { tripId, phaseNum, error: (err as Error).message });
     });
 
     revalidatePath(`/expedition/${tripId}`);
     return { success: true, data: result };
   } catch (error) {
-    logger.error("expedition.togglePhase3Item.error", error, {
+    logger.error("expedition.toggleChecklistItem.error", error, {
       userId: hashUserId(session.user.id),
       tripId,
       itemKey,
+      phaseNum,
     });
     return { success: false, error: mapErrorToKey(error) };
   }
 }
+
+/**
+ * @deprecated Renamed to `toggleChecklistItemAction` in Sprint 44 Wave 2.
+ *   Kept as an alias during Wave 3 to avoid breaking frontend callers until
+ *   they are updated. Remove after Wave 3 is merged.
+ * Spec ref: SPEC-ARCH-REORDER-PHASES §6.2
+ */
+export const togglePhase3ItemAction = toggleChecklistItemAction;
 
 // ─── addCustomChecklistItemAction ───────────────────────────────────────────
 
@@ -576,7 +619,7 @@ export async function addCustomChecklistItemAction(
     const item = await db.phaseChecklistItem.create({
       data: {
         tripId,
-        phaseNumber: 3,
+        phaseNumber: checklistPhaseNumber(),
         itemKey,
         required,
         completed: false,
@@ -611,7 +654,7 @@ export async function removeCustomChecklistItemAction(
 
   try {
     await db.phaseChecklistItem.deleteMany({
-      where: { tripId, phaseNumber: 3, itemKey },
+      where: { tripId, phaseNumber: checklistPhaseNumber(), itemKey },
     });
 
     revalidatePath(`/expedition/${tripId}`);
@@ -1399,10 +1442,12 @@ export async function advanceFromPhaseAction(
       return { success: false, error: "errors.tripNotFound" };
     }
 
-    // Mass assignment safe: explicit fields only for phase 4 metadata
-    if (phaseNumber === 4 && metadata) {
+    // Mass assignment safe: explicit fields only for Logistics phase metadata.
+    // Flag-aware: Logistics is phase 4 (flag OFF) or phase 5 (flag ON).
+    const logisticsPhaseNum = isPhaseReorderEnabled() ? 5 : 4;
+    if (phaseNumber === logisticsPhaseNum && metadata) {
       const phase = await db.expeditionPhase.findUnique({
-        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+        where: { tripId_phaseNumber: { tripId, phaseNumber: logisticsPhaseNum } },
       });
       if (phase) {
         await db.expeditionPhase.update({
@@ -1421,7 +1466,7 @@ export async function advanceFromPhaseAction(
     }
 
     // Sync phase completion status in DB based on actual data
-    // This ensures Phase 4 status reflects transport/accommodation presence
+    // This ensures Logistics phase status reflects transport/accommodation presence
     await PhaseCompletionService.syncPhaseStatus(tripId, session.user.id, phaseNumber).catch((err) => {
       logger.warn("phase.sync.pre-advance.failed", { tripId, phaseNumber, error: (err as Error).message });
     });
@@ -1429,14 +1474,19 @@ export async function advanceFromPhaseAction(
     // Check if prerequisites are met
     let prerequisitesMet = false;
 
-    if (phaseNumber === 3) {
+    // Semantic phase number for Logistics: flag OFF = 4, flag ON = 5
+    const logisticsNum = isPhaseReorderEnabled() ? 5 : 4;
+
+    if (phaseNumber === checklistPhaseNumber()) {
+      // Checklist phase: all required items must be complete
       const requiredIncomplete = await db.phaseChecklistItem.count({
-        where: { tripId, phaseNumber: 3, required: true, completed: false },
+        where: { tripId, phaseNumber: checklistPhaseNumber(), required: true, completed: false },
       });
       prerequisitesMet = requiredIncomplete === 0;
-    } else if (phaseNumber === 4) {
+    } else if (phaseNumber === logisticsNum) {
+      // Logistics phase: metadata prerequisites (car rental / CNH)
       const phase = await db.expeditionPhase.findUnique({
-        where: { tripId_phaseNumber: { tripId, phaseNumber: 4 } },
+        where: { tripId_phaseNumber: { tripId, phaseNumber: logisticsNum } },
       });
       const phaseMeta = phase?.metadata as Record<string, unknown> | null;
 
@@ -1638,12 +1688,24 @@ export async function completeExpeditionAction(
 
 // ─── syncPhase6CompletionAction ──────────────────────────────────────────────
 
+// ─── syncItineraryCompletionAction ───────────────────────────────────────────
+//
+// Semantic name (Sprint 44 Wave 2). Flag-aware: uses itineraryPhaseNumber()
+// instead of the hard-coded literal 6.
+// Spec ref: SPEC-ARCH-REORDER-PHASES §6.2
+//
+// Old name was `syncPhase6CompletionAction` (phase 6 = Itinerary in old order).
+// In the new order, Itinerary is phase 4 — so `syncPhase6CompletionAction` would
+// be misleading. We rename to the content-semantic name.
+
 /**
- * Syncs Phase 6 completion based on itinerary presence.
- * If itinerary days exist and Phase 6 is not completed, completes it via PhaseEngine.
- * Then checks if all 6 phases are complete and marks trip as COMPLETED.
+ * Syncs Itinerary phase completion based on itinerary day presence.
+ * If itinerary days exist and the Itinerary phase is not completed, completes it.
+ * Then checks if all 6 phases are complete and marks the trip as COMPLETED.
+ *
+ * Flag-aware: operates on phaseNumber 4 (flag ON) or 6 (flag OFF).
  */
-export async function syncPhase6CompletionAction(
+export async function syncItineraryCompletionAction(
   tripId: string
 ): Promise<ActionResult<{ completed: boolean; tripCompleted: boolean }>> {
   const session = await auth();
@@ -1655,6 +1717,8 @@ export async function syncPhase6CompletionAction(
     return { success: false, error: "errors.tripNotFound" };
   }
 
+  const itinPhaseNum = itineraryPhaseNumber();
+
   try {
     // Check if itinerary days exist
     const itineraryDayCount = await db.itineraryDay.count({ where: { tripId } });
@@ -1663,25 +1727,30 @@ export async function syncPhase6CompletionAction(
       return { success: true, data: { completed: false, tripCompleted: false } };
     }
 
-    // Check if Phase 6 is already completed
-    const phase6 = await db.expeditionPhase.findUnique({
-      where: { tripId_phaseNumber: { tripId, phaseNumber: 6 } },
+    // Check if the itinerary phase is already completed
+    const itinPhase = await db.expeditionPhase.findUnique({
+      where: { tripId_phaseNumber: { tripId, phaseNumber: itinPhaseNum } },
     });
 
-    let phase6Completed = false;
-    if (phase6 && phase6.status !== "completed") {
+    let itinCompleted = false;
+    if (itinPhase && itinPhase.status !== "completed") {
       try {
-        await PhaseEngine.completePhase(tripId, session.user.id, 6);
-        phase6Completed = true;
-      } catch (error) {
-        // Phase may not be active yet or other constraint -- log and continue
-        logger.warn("phase6.auto-complete.failed", {
+        await PhaseEngine.completePhase(
           tripId,
+          session.user.id,
+          itinPhaseNum as 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8
+        );
+        itinCompleted = true;
+      } catch (error) {
+        // Phase may not be active yet or other constraint — log and continue
+        logger.warn("itinerary.auto-complete.failed", {
+          tripId,
+          itinPhaseNum,
           error: (error as Error).message,
         });
       }
-    } else if (phase6?.status === "completed") {
-      phase6Completed = true;
+    } else if (itinPhase?.status === "completed") {
+      itinCompleted = true;
     }
 
     // Check if expedition is fully complete
@@ -1695,16 +1764,24 @@ export async function syncPhase6CompletionAction(
 
     return {
       success: true,
-      data: { completed: phase6Completed, tripCompleted },
+      data: { completed: itinCompleted, tripCompleted },
     };
   } catch (error) {
-    logger.error("expedition.syncPhase6.error", error, {
+    logger.error("expedition.syncItineraryCompletion.error", error, {
       userId: hashUserId(session.user.id),
       tripId,
     });
     return { success: false, error: mapErrorToKey(error) };
   }
 }
+
+/**
+ * @deprecated Renamed to `syncItineraryCompletionAction` in Sprint 44 Wave 2.
+ *   Kept as an alias during Wave 3 to avoid breaking frontend callers until
+ *   they are updated. Remove after Wave 3 is merged.
+ * Spec ref: SPEC-ARCH-REORDER-PHASES §6.2
+ */
+export const syncPhase6CompletionAction = syncItineraryCompletionAction;
 
 // ─── getExpeditionSummaryAction ─────────────────────────────────────────────
 

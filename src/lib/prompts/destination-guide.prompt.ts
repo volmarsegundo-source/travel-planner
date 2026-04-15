@@ -1,6 +1,14 @@
 /**
  * Versioned prompt template for destination guide generation (v2).
  *
+ * Phase 3 of 6 — first AI phase of the expedition chain (Sprint 44 reorder).
+ *
+ * IMPORTANT (Sprint 44): the output of this prompt feeds the Itinerary (Phase 4)
+ * and Checklist (Phase 6) prompts via `buildGuideDigest` in
+ * `src/lib/prompts/digest.ts`. Any breaking change to the JSON schema of the
+ * guide output (quickFacts, safety, mustSee fields) MUST be accompanied by a
+ * synchronized update to `buildGuideDigest`.
+ *
  * Converts dynamic trip parameters into XML-tagged user prompts
  * for optimal Claude instruction adherence. System prompt is sourced
  * from system-prompts.ts to maintain a single source of truth.
@@ -11,21 +19,25 @@
  * - XML-tagged user prompt for better context parsing
  * - maxTokens set to 4096 for reliable schema completion
  *
- * @version 2.1.0
+ * @version 2.1.1
  * @see docs/specs/sprint-40/PROMPT-GUIA-DESTINO-PERSONALIZADO.md (SPEC-AI-005)
+ * @see SPEC-AI-REORDER-PHASES §3.2 (patch bump notes)
  *
+ * v2.1.1 — Sprint 44 Wave 2: docblock updated to reflect new position (Phase 3 of 6).
+ *   Added note that guide output feeds downstream prompts via buildGuideDigest.
+ *   No functional change to buildUserPrompt or GUIDE_SYSTEM_PROMPT.
  * v2.1.0 — Sprint 43 QA critical fix: emergency-number rule now enforces
- * correct country codes (Brazil 190/192/193, US/CA 911, EU 112) instead
- * of the buggy "911 for Americas" fallback that emitted wrong numbers
- * for Brazilian destinations.
+ *   correct country codes (Brazil 190/192/193, US/CA 911, EU 112) instead
+ *   of the buggy "911 for Americas" fallback that emitted wrong numbers
+ *   for Brazilian destinations.
  */
 
 import { GUIDE_SYSTEM_PROMPT } from "./system-prompts";
 import type { PromptTemplate, GuideParams } from "./types";
 
-/** Destination guide prompt template v2.1.0 */
+/** Destination guide prompt template v2.1.1 */
 export const destinationGuidePrompt: PromptTemplate<GuideParams> = {
-  version: "2.1.0",
+  version: "2.1.1",
   model: "guide",
   maxTokens: 4096,
   cacheControl: true,

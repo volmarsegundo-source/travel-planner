@@ -145,8 +145,10 @@ export async function generateTravelPlanAction(
   };
 
   try {
-    // Enrich with expedition context (Phase 2 preferences + Phase 5 guide)
-    const expeditionContext = await ItineraryPlanService.getExpeditionContext(
+    // Enrich with expedition context (Phase 2 preferences + Guide digest).
+    // Sprint 44 Wave 2: when PHASE_REORDER_ENABLED, uses ExpeditionAiContextService
+    // to assemble context including the formatted Guide digest (Phase 3).
+    const expeditionContext = await ItineraryPlanService.getExpeditionContextForItinerary(
       tripId,
       session.user.id
     );
@@ -267,13 +269,16 @@ export async function generateChecklistAction(
   }
 
   try {
-    // Mass assignment safe: explicit fields only
+    // Mass assignment safe: explicit fields only.
+    // Sprint 44 Wave 2: pass tripId so ai.service can assemble enriched context
+    // when PHASE_REORDER_ENABLED is ON.
     const { data: result } = await AiGatewayService.generateChecklist({
       userId: session.user.id,
       destination: sanitizedDestination,
       startDate: checklistParsed.data.startDate,
       travelers: checklistParsed.data.travelers,
       language: checklistParsed.data.language,
+      tripId: checklistTripIdResult.data,
     });
     await persistChecklist(tripId, result);
 

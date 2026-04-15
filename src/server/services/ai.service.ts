@@ -11,8 +11,11 @@ import { calculateEstimatedCost } from "@/lib/cost-calculator";
 import {
   travelPlanPrompt,
   checklistPrompt,
+  checklistPromptV1,
   destinationGuidePrompt,
 } from "@/lib/prompts";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { ExpeditionAiContextService } from "@/server/services/expedition-ai-context.service";
 import { ClaudeProvider } from "./providers/claude.provider";
 import { GeminiProvider } from "./providers/gemini.provider";
 import { FallbackProvider } from "./providers/fallback.provider";
@@ -83,18 +86,38 @@ const ItineraryPlanSchema = z.object({
   tips: z.array(z.string()),
 });
 
+// ─── Checklist schema (v1 + v2 combined) ─────────────────────────────────────
+// v1: items have { label, priority } only.
+// v2: items add optional { reason, sourcePhase } fields; v2 output also
+//     includes a top-level `summary` block and 3 new categories.
+// The combined schema accepts both shapes — callers that only care about
+// v1 fields (label + priority) are unaffected.
+
 const ChecklistItemSchema = z.object({
   label: z.string(),
   priority: z.enum(["HIGH", "MEDIUM", "LOW"]),
+  // v2.0.0 additions (optional for backward compat)
+  reason: z.string().optional(),
+  sourcePhase: z.enum(["guide", "itinerary", "logistics", "profile", "general"]).optional(),
 });
 
 const ChecklistCategorySchema = z.object({
-  category: z.enum(["DOCUMENTS", "HEALTH", "CURRENCY", "WEATHER", "TECHNOLOGY"]),
+  // v2 adds CLOTHING, ACTIVITIES, LOGISTICS categories alongside v1's 5
+  category: z.enum([
+    "DOCUMENTS", "HEALTH", "CURRENCY", "WEATHER", "TECHNOLOGY",
+    "CLOTHING", "ACTIVITIES", "LOGISTICS",
+  ]),
   items: z.array(ChecklistItemSchema),
 });
 
 const ChecklistResultSchema = z.object({
   categories: z.array(ChecklistCategorySchema),
+  // v2.0.0 summary block (optional for backward compat)
+  summary: z.object({
+    totalItems: z.number().optional(),
+    highPriorityCount: z.number().optional(),
+    personalizationNotes: z.string().optional(),
+  }).optional(),
 });
 
 const QuickFactSchema = z.object({
@@ -605,6 +628,15 @@ export class AiService {
    * Generates a pre-trip checklist using AI (cheaper/faster model).
    * Cache key uses month instead of exact date for better reuse.
    * Never logs PII — only userId is logged.
+   *
+   * Sprint 44 Wave 2: flag-aware.
+   * - Flag OFF: uses checklistPromptV1 (v1.0.0) — minimal context
+   *   (destination + month + travelers).
+   * - Flag ON: uses checklistPrompt (v2.0.0) — enriched context assembled by
+   *   `ExpeditionAiContextService` (guide + itinerary + logistics digests).
+   *
+   * Temperature 0.3 for v2 (precision > creativity per SPEC-AI §2).
+   * Spec ref: SPEC-AI-REORDER-PHASES §5 (redesign), §1.4 (service integration)
    */
   static async generateChecklist(
     params: GenerateChecklistParams
@@ -613,7 +645,11 @@ export class AiService {
     const hid = hashUserId(userId);
 
     const month = getMonthFromDate(startDate);
-    const cacheInput = `${destination}:${month}:${travelers}:${language}`;
+    const reorderEnabled = isPhaseReorderEnabled();
+
+    // Cache key includes flag version so v1/v2 caches don't collide
+    const cacheVersion = reorderEnabled ? "v2" : "v1";
+    const cacheInput = `${cacheVersion}:${destination}:${month}:${travelers}:${language}`;
     const cacheHash = md5(cacheInput);
     const cacheKey = CacheKeys.aiChecklist(cacheHash);
 
@@ -625,23 +661,104 @@ export class AiService {
       logger.warn("ai.checklist.cache.error", { userId: hid, error: String(err) });
     }
     if (cached) {
-      logger.info("ai.checklist.cache.hit", { userId: hid });
+      logger.info("ai.checklist.cache.hit", { userId: hid, cacheVersion });
       return JSON.parse(cached) as ChecklistResult;
     }
 
-    const userMessage = checklistPrompt.buildUserPrompt({
-      destination,
-      month,
-      travelers,
-      language,
-    });
+    let userMessage: string;
+    let promptMaxTokens: number;
+    let promptModel: string;
+    let promptSystem: string;
+
+    if (reorderEnabled && params.tripId) {
+      // v2.0.0: assemble enriched context from upstream phases
+      let assembledCtx;
+      try {
+        assembledCtx = await ExpeditionAiContextService.assembleFor(
+          params.tripId,
+          "checklist",
+          userId
+        );
+      } catch (err) {
+        logger.warn("ai.checklist.assembler.fallback", {
+          userId: hid,
+          error: (err as Error).message,
+        });
+        assembledCtx = null;
+      }
+
+      // Build v2 params, degrading gracefully if upstream data is missing
+      const travelers_str = typeof travelers === "number" ? `${travelers} traveler(s)` : String(travelers);
+      const guide = assembledCtx?.guideDigest;
+      const itin = assembledCtx?.itineraryDigest;
+      const log = assembledCtx?.logisticsDigest;
+      const prefs = assembledCtx?.preferences.raw as Record<string, unknown> | undefined;
+
+      userMessage = checklistPrompt.buildUserPrompt({
+        destination,
+        tripType: assembledCtx?.trip.tripType ?? "domestic",
+        dates: startDate ?? month,
+        travelers: travelers_str,
+        language,
+        ...(guide && {
+          destinationFactsFromGuide: {
+            climate: guide.climate ?? undefined,
+            plugType: guide.plugType ?? undefined,
+            currencyLocal: guide.currencyLocal ?? undefined,
+            safetyLevel: guide.safetyLevel,
+            vaccines: guide.vaccinesRequired ?? undefined,
+          },
+        }),
+        ...(itin && {
+          itineraryHighlightsFromRoteiro: {
+            totalDays: itin.totalDays,
+            activityTypes: itin.activityTypesUsed,
+            hasBeachDay: itin.hasBeachDay,
+            hasHikeDay: itin.hasHikeDay,
+            hasNightlifeEvening: itin.hasNightlifeEvening,
+            hasReligiousSite: itin.hasReligiousSite,
+            hasMuseumDay: itin.hasMuseumDay,
+            intensity: itin.highestIntensity,
+          },
+        }),
+        ...(log && {
+          logisticsFromPhase5: {
+            transportModes: log.transportModes,
+            accommodationTypes: log.accommodationTypes,
+            mobility: log.mobility,
+            hasRentalCar: log.hasRentalCar,
+            hasInternationalFlight: log.hasInternationalFlight,
+          },
+        }),
+        ...(prefs && {
+          userPrefs: {
+            dietary: typeof prefs.dietaryRestrictions === "string" ? prefs.dietaryRestrictions : undefined,
+            regularMedication: typeof prefs.regularMedication === "boolean" ? prefs.regularMedication : false,
+          },
+        }),
+      });
+      promptMaxTokens = checklistPrompt.maxTokens;
+      promptModel = checklistPrompt.model;
+      promptSystem = checklistPrompt.system;
+    } else {
+      // v1.0.0: minimal context (backward compatible)
+      userMessage = checklistPromptV1.buildUserPrompt({
+        destination,
+        month,
+        travelers,
+        language,
+      });
+      promptMaxTokens = checklistPromptV1.maxTokens;
+      promptModel = checklistPromptV1.model;
+      promptSystem = checklistPromptV1.system;
+    }
 
     const provider = getProvider("checklist");
     const response = await provider.generateResponse(
       userMessage,
-      checklistPrompt.maxTokens,
-      checklistPrompt.model,
-      { systemPrompt: checklistPrompt.system },
+      promptMaxTokens,
+      promptModel as Parameters<typeof provider.generateResponse>[2],
+      { systemPrompt: promptSystem },
     );
 
     logTokenUsage(response, { userId, generationType: "checklist", provider: provider.name });

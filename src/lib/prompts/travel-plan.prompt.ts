@@ -1,19 +1,32 @@
 /**
  * Versioned prompt template for travel plan (itinerary) generation.
  *
+ * Phase 4 of 6 — second AI phase, receives Guide digest as context (Sprint 44).
+ *
  * Converts dynamic trip parameters into XML-tagged user prompts
  * for optimal Claude instruction adherence. System prompt is sourced
  * from system-prompts.ts to maintain a single source of truth.
  *
- * @version 1.2.0
+ * @version 1.3.0
  * @see docs/prompts/OPTIMIZATION-BACKLOG.md (OPT-006, OPT-007)
  * @see SPEC-AI-004 (traveler context enrichment)
+ * @see SPEC-AI-REORDER-PHASES §4.2 (guide digest integration)
  *
+ * v1.3.0 — Sprint 44 Wave 2: when the expedition's Guide (Phase 3) has been
+ *   generated, the service layer passes `expeditionContext.destinationGuideContext`
+ *   as a plain-text digest (via `formatGuideDigest`) built by
+ *   `ExpeditionAiContextService.assembleFor(tripId, "itinerary")`. The system
+ *   prompt (PLAN_SYSTEM_PROMPT) now includes a ground-truth rule: if the Guide
+ *   digest is present, the AI MUST use it as authoritative for climate, currency,
+ *   plug type, and safety level — eliminating hallucinated currency mismatches.
+ *   No change to `buildUserPrompt` — the digest is passed through the existing
+ *   `expeditionContext.destinationGuideContext` field which `buildTravelerContext`
+ *   already emits as `<destination_insights>`.
  * v1.2.0 — Sprint 43 QA fixes: binds currency/estimatedCost to user
- * budgetCurrency, adds realistic local-schedule guidance (Brazil meal
- * times, Monday museum closures, inter-activity transit), and adds an
- * anti-hallucination hedge for weak-knowledge small cities. Paired with
- * GUIDE_SYSTEM_PROMPT v2.1.0 emergency-number correctness fix.
+ *   budgetCurrency, adds realistic local-schedule guidance (Brazil meal
+ *   times, Monday museum closures, inter-activity transit), and adds an
+ *   anti-hallucination hedge for weak-knowledge small cities. Paired with
+ *   GUIDE_SYSTEM_PROMPT v2.1.0 emergency-number correctness fix.
  */
 
 import { PLAN_SYSTEM_PROMPT } from "./system-prompts";
@@ -140,9 +153,9 @@ export function buildTravelerContext(params: TravelPlanParams): string {
   return `\nTraveler context (use to personalize the itinerary):\n<traveler_context>\n${sections.join("\n")}\n</traveler_context>\n`;
 }
 
-/** Travel plan prompt template v1.2.0 */
+/** Travel plan prompt template v1.3.0 */
 export const travelPlanPrompt: PromptTemplate<TravelPlanParams> = {
-  version: "1.2.0",
+  version: "1.3.0",
   model: "plan",
   maxTokens: 2048, // Dynamic — overridden by calculatePlanTokenBudget in ai.service.ts
   cacheControl: true,
