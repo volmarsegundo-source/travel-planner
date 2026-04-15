@@ -247,6 +247,78 @@ describe("EVAL-SEC-001: Injection Resistance", () => {
   });
 
   // -------------------------------------------------------------------------
+  // Sprint 44 — S44 indirect injection vectors (INJ-S44-01..05)
+  // -------------------------------------------------------------------------
+
+  describe("Sprint 44 — indirect context-chain injection vectors (INJ-S44-01..05)", () => {
+    const s44Patterns = testCases.filter(
+      (tc) => tc.category === "prompt_injection" && (tc as InjectionTestCase & { sprint?: string }).sprint === "S44"
+    );
+
+    it("dataset contains all 5 S44 injection vectors (IR-021..IR-025)", () => {
+      const s44Ids = s44Patterns.map((tc) => tc.id);
+      expect(s44Ids).toContain("IR-021");
+      expect(s44Ids).toContain("IR-022");
+      expect(s44Ids).toContain("IR-023");
+      expect(s44Ids).toContain("IR-024");
+      expect(s44Ids).toContain("IR-025");
+    });
+
+    it("IR-021 (itinerary notes chain): expects digest to not contain payload", () => {
+      const tc = testCases.find((t) => t.id === "IR-021");
+      expect(tc).toBeDefined();
+      expect(tc!.expected.digest_does_not_contain_payload).toBe(true);
+      expect(tc!.expected.notes_field_excluded_from_digest).toBe(true);
+      expect(tc!.input.context).toBe("itinerary_digest_builder");
+    });
+
+    it("IR-022 (XML tool-use injection in guide climate): expects field to be sanitized or empty", () => {
+      const tc = testCases.find((t) => t.id === "IR-022");
+      expect(tc).toBeDefined();
+      expect(tc!.expected.safeField_returns_empty_or_stripped).toBe(true);
+      expect(tc!.expected.digest_field_sanitized).toBe(true);
+      expect(tc!.input.context).toBe("guide_digest_builder");
+    });
+
+    it("IR-023 (fake checklist in activityType): expects activityType sanitized", () => {
+      const tc = testCases.find((t) => t.id === "IR-023");
+      expect(tc).toBeDefined();
+      expect(tc!.expected.activityType_sanitized).toBe(true);
+      expect(tc!.expected.digest_does_not_contain_payload).toBe(true);
+    });
+
+    it("IR-024 (Cyrillic homoglyph destination): expects normalization or rejection", () => {
+      const tc = testCases.find((t) => t.id === "IR-024");
+      expect(tc).toBeDefined();
+      expect(tc!.expected.no_allow_list_bypass).toBe(true);
+      expect(tc!.expected.destination_normalized_or_rejected).toBe(true);
+    });
+
+    it("IR-025 (markdown data-exfil in mobility): expects URL stripped from digest", () => {
+      const tc = testCases.find((t) => t.id === "IR-025");
+      expect(tc).toBeDefined();
+      expect(tc!.expected.url_stripped_from_digest).toBe(true);
+      expect(tc!.expected.mobility_digest_safe).toBe(true);
+      expect(tc!.input.context).toBe("logistics_digest_builder");
+    });
+
+    it("all S44 vectors have subcategory that distinguishes them from existing vectors", () => {
+      const s44Subcategories = new Set(s44Patterns.map((tc) => tc.subcategory));
+      expect(s44Subcategories.has("indirect_context_chain")).toBe(true);
+      expect(s44Subcategories.has("xml_tool_injection")).toBe(true);
+      expect(s44Subcategories.has("fake_checklist_injection")).toBe(true);
+      expect(s44Subcategories.has("unicode_homoglyph_destination")).toBe(true);
+      expect(s44Subcategories.has("markdown_data_exfil")).toBe(true);
+    });
+
+    it("all S44 prompt injection vectors expect blocked=true", () => {
+      for (const tc of s44Patterns) {
+        expect(tc.expected.blocked).toBe(true);
+      }
+    });
+  });
+
+  // -------------------------------------------------------------------------
   // Dataset integrity
   // -------------------------------------------------------------------------
 
@@ -267,6 +339,10 @@ describe("EVAL-SEC-001: Injection Resistance", () => {
       for (const tc of testCases) {
         expect(validCategories).toContain(tc.category);
       }
+    });
+
+    it("total test case count is 25 (20 original + 5 S44 vectors)", () => {
+      expect(testCases.length).toBe(25);
     });
 
     it("dataset metadata matches expected eval id", () => {

@@ -330,3 +330,198 @@ describe("buildLogisticsDigest", () => {
     expect(digest.hasInternationalFlight).toBe(false);
   });
 });
+
+// ─── Sprint 44 Wave 4 — S44 context-chain & sanitization invariant ────────────
+//
+// These tests verify the invariant that digest output fields only contain
+// benign values when the inputs are benign. The injection-guard is mocked
+// to a pass-through in this file (see top), so the intent here is:
+//   1. Benign inputs → benign outputs (structural invariant)
+//   2. Output shape guarantees (no raw JSON, token-bounded fields)
+//
+// Full real-pipeline injection tests (where sanitizeForPrompt is NOT mocked)
+// live in expedition-ai-context.service.test.ts and injection-resistance.eval.ts
+//
+// Spec ref: SPEC-QA-REORDER-PHASES §4.6, TC-AI-006
+
+describe("Sprint 44 — digest sanitization structure invariant (TC-AI-006)", () => {
+  it("buildGuideDigest: output fields are all strings (no objects or undefined leaked)", () => {
+    const content: RawGuideContent = {
+      quickFacts: { climate: "Sunny 25°C", plugType: "Type G", currency: "GBP", dialCode: "+44" },
+      safety: { level: "safe", vaccines: "None" },
+      mustSee: [{ category: "History", name: "Tower of London" }],
+    };
+    const digest = buildGuideDigest(content);
+
+    // All scalar fields must be strings
+    expect(typeof digest.climate).toBe("string");
+    expect(typeof digest.plugType).toBe("string");
+    expect(typeof digest.currencyLocal).toBe("string");
+    expect(typeof digest.dialCode).toBe("string");
+    expect(typeof digest.vaccinesRequired).toBe("string");
+    expect(Array.isArray(digest.topCategories)).toBe(true);
+    digest.topCategories.forEach((c) => expect(typeof c).toBe("string"));
+  });
+
+  it("buildGuideDigest: output fields are non-empty strings for non-empty inputs", () => {
+    // Note: sanitizeForPrompt is mocked to pass-through in this file.
+    // Token budget enforcement (maxLen) is validated by safeField() with the REAL guard.
+    // This test confirms that non-empty inputs produce non-empty string outputs.
+    const content: RawGuideContent = {
+      quickFacts: { climate: "Sunny 25°C", plugType: "Type G", currency: "GBP" },
+      safety: { vaccines: "None required" },
+      mustSee: [{ category: "History" }],
+    };
+    const digest = buildGuideDigest(content);
+
+    expect(digest.climate).toBe("Sunny 25°C");
+    expect(digest.vaccinesRequired).toBe("None required");
+    expect(digest.topCategories).toContain("History");
+  });
+
+  it("buildItineraryDigest: activityTypesUsed entries are all strings (no objects or nulls)", () => {
+    // Note: sanitizeForPrompt is mocked to pass-through in this file.
+    // The length cap (50) is enforced by safeField() only when the REAL guard runs.
+    // This test confirms the type guarantee only — length is validated in integration tests.
+    const days: RawItineraryDay[] = [
+      {
+        isTransit: false,
+        activities: [{ activityType: "BEACH", title: null, notes: null }],
+      },
+    ];
+    const digest = buildItineraryDigest(days);
+    digest.activityTypesUsed.forEach((t) => {
+      expect(typeof t).toBe("string");
+      expect(t.length).toBeGreaterThan(0);
+    });
+  });
+
+  it("buildItineraryDigest: activityTypesUsed has no duplicate entries", () => {
+    const days: RawItineraryDay[] = [
+      {
+        isTransit: false,
+        activities: [
+          { activityType: "BEACH", title: null, notes: null },
+          { activityType: "BEACH", title: null, notes: null }, // duplicate
+          { activityType: "MUSEUM", title: null, notes: null },
+        ],
+      },
+    ];
+    const digest = buildItineraryDigest(days);
+    const unique = new Set(digest.activityTypesUsed);
+    expect(unique.size).toBe(digest.activityTypesUsed.length);
+  });
+
+  it("buildLogisticsDigest: transportModes has no duplicate entries", () => {
+    const transport: RawTransportSegment[] = [
+      { transportType: "flight", isReturn: false, departurePlace: null, arrivalPlace: null },
+      { transportType: "flight", isReturn: true, departurePlace: null, arrivalPlace: null }, // duplicate
+      { transportType: "hotel", isReturn: false, departurePlace: null, arrivalPlace: null },
+    ];
+    const digest = buildLogisticsDigest(transport, [], []);
+    const unique = new Set(digest.transportModes);
+    expect(unique.size).toBe(digest.transportModes.length);
+  });
+
+  it("buildLogisticsDigest: mobility entries are all strings (type guarantee)", () => {
+    // Note: sanitizeForPrompt is mocked to pass-through in this file.
+    // The 30-char cap is enforced by safeField() only when the REAL guard runs.
+    // This test confirms the type guarantee — "walking" and "metro" survive as strings.
+    const digest = buildLogisticsDigest([], [], ["walking", "metro", "uber"]);
+    digest.mobility.forEach((m) => expect(typeof m).toBe("string"));
+  });
+
+  it("formatGuideDigest: output contains no JSON syntax characters ({}[])", () => {
+    const digest = buildGuideDigest({
+      quickFacts: { climate: "Sunny", plugType: "Type G", currency: "USD", dialCode: "+1" },
+      safety: { level: "safe", vaccines: "None" },
+      mustSee: [{ category: "Beaches" }],
+    });
+    const formatted = formatGuideDigest(digest);
+
+    expect(formatted).not.toContain("{");
+    expect(formatted).not.toContain("}");
+    expect(formatted).not.toContain("[");
+    expect(formatted).not.toContain("]");
+  });
+
+  it("digest pipeline is pure: same input → same output (deterministic)", () => {
+    const content: RawGuideContent = {
+      quickFacts: { climate: "Mild 20°C", plugType: "Type F", currency: "EUR", dialCode: "+49" },
+      safety: { level: "safe", vaccines: "None required" },
+      mustSee: [{ category: "Art", name: "Gallery" }],
+    };
+
+    const digest1 = buildGuideDigest(content);
+    const digest2 = buildGuideDigest(content);
+    expect(digest1).toEqual(digest2);
+  });
+});
+
+// ─── Sprint 44 Wave 4 — context-chain phase dependency coverage ──────────────
+//
+// Verifies the "checklist consumes itinerary" chain at the digest layer:
+// itinerary details that should influence checklist generation are captured.
+// Spec ref: SPEC-QA-REORDER-PHASES §4.4, TC-AI-001, TC-AI-002
+
+describe("Sprint 44 — context-chain digest captures itinerary signals (TC-AI-001, TC-AI-002)", () => {
+  it("beach day → hasBeachDay flag propagates to checklist context", () => {
+    const days: RawItineraryDay[] = [
+      {
+        isTransit: false,
+        activities: [{ activityType: "BEACH", title: "Ipanema", notes: null }],
+      },
+    ];
+    const digest = buildItineraryDigest(days);
+    // This flag is what the checklist prompt uses to add sunscreen/swimwear
+    expect(digest.hasBeachDay).toBe(true);
+  });
+
+  it("UK/Europe trip with no beach → hasBeachDay is false, hiking possible", () => {
+    const days: RawItineraryDay[] = [
+      {
+        isTransit: false,
+        activities: [
+          { activityType: "MUSEUM", title: "British Museum", notes: null },
+          { activityType: "HIKING", title: "Lake District", notes: null },
+        ],
+      },
+    ];
+    const digest = buildItineraryDigest(days);
+    expect(digest.hasBeachDay).toBe(false);
+    expect(digest.hasHikeDay).toBe(true);
+  });
+
+  it("guide digest for UK includes type G plug — adapter flag surfaces", () => {
+    // TC-AI-002 assertion: checklist prompt receives plug type for adapter suggestion
+    const content: RawGuideContent = {
+      quickFacts: { plugType: "Type G, 230V", currency: "GBP", dialCode: "+44" },
+      safety: { level: "safe" },
+    };
+    const digest = buildGuideDigest(content);
+    expect(digest.plugType).toContain("Type G");
+  });
+
+  it("flight in logistics → hasInternationalFlight flag surfaces for checklist (adapter, visa, etc.)", () => {
+    const transport: RawTransportSegment[] = [
+      { transportType: "flight", isReturn: false, departurePlace: "GRU", arrivalPlace: "LHR" },
+    ];
+    const digest = buildLogisticsDigest(transport, [], []);
+    expect(digest.hasInternationalFlight).toBe(true);
+  });
+
+  it("high-intensity itinerary surfaces in digest for packing context", () => {
+    const days: RawItineraryDay[] = [
+      {
+        isTransit: false,
+        activities: [
+          { activityType: "HIKING", title: "Snowdon Trek", notes: null },
+          { activityType: "TREKKING", title: "Brecon Beacons", notes: null },
+        ],
+      },
+    ];
+    const digest = buildItineraryDigest(days);
+    expect(digest.highestIntensity).toBe("high");
+    expect(digest.hasHikeDay).toBe(true);
+  });
+});
