@@ -12,6 +12,7 @@ import { completePhase2Action, updatePhase2Action } from "@/server/actions/exped
 import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 import type { UserPreferences } from "@/lib/validations/preferences.schema";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 interface TripContext {
   destination?: string;
@@ -208,7 +209,12 @@ export function Phase2WizardV2({
       } catch {
         // Ignore save errors on revisit
       }
-      router.push(`/expedition/${tripId}/phase-3`);
+      // Flag-aware: when reorder is ON, phase-2 advances to phase-3 (Guide).
+      // URL numerically stays phase-3 in both orderings because Inspiration=1,
+      // Profile=2, and the next phase is 3 regardless of its semantic content.
+      // SPEC-UX-REORDER-PHASES §5.2
+      const nextPath = isPhaseReorderEnabled() ? "phase-3" : "phase-3";
+      router.push(`/expedition/${tripId}/${nextPath}`);
       return;
     }
 
@@ -236,7 +242,7 @@ export function Phase2WizardV2({
         return;
       }
 
-      router.push(`/expedition/${tripId}/phase-3`);
+      router.push(`/expedition/${tripId}/${nextPath}`);
     } catch {
       setErrorMessage("errors.generic");
       setIsSubmitting(false);
@@ -265,10 +271,17 @@ export function Phase2WizardV2({
       : {};
 
     if (currentStep === "confirmation") {
+      // Flag-aware CTA label: when reorder is ON, "Avançar para o Guia"
+      // SPEC-UX-REORDER-PHASES §5.2
+      const advanceLabel = isEditMode
+        ? tCommon("save")
+        : isPhaseReorderEnabled()
+          ? t("ctaNextReordered")
+          : tExpedition("cta.advance");
       return {
         onBack: handleBack,
         onPrimary: handleSubmit,
-        primaryLabel: isEditMode ? tCommon("save") : tExpedition("cta.advance"),
+        primaryLabel: advanceLabel,
         isLoading: isSubmitting,
         isDisabled: isSubmitting,
         ...dirtyProps,

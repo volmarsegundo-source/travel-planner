@@ -18,6 +18,7 @@ import { AI_COSTS } from "@/types/gamification.types";
 import { isGuideV2 } from "@/types/ai.types";
 import type { DestinationGuideContent, DestinationGuideContentV2 } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -774,8 +775,12 @@ export function DestinationGuideV2({
   const handleComplete = useCallback(async () => {
     setIsCompleting(true);
     setErrorMessage(null);
+    // Flag-aware: Guide is phase-5 URL (flag OFF) or phase-3 URL (flag ON).
+    // After Guide, the next phase is Itinerary: phase-6 (flag OFF) or phase-4 (flag ON).
+    // SPEC-UX-REORDER-PHASES §5.2
+    const nextPath = isPhaseReorderEnabled() ? "phase-4" : "phase-6";
     if (accessMode === "revisit" && completedPhases.includes(5)) {
-      router.push(`/expedition/${tripId}/phase-6`);
+      router.push(`/expedition/${tripId}/${nextPath}`);
       return;
     }
     try {
@@ -785,7 +790,7 @@ export function DestinationGuideV2({
         setIsCompleting(false);
         return;
       }
-      router.push(`/expedition/${tripId}/phase-6`);
+      router.push(`/expedition/${tripId}/${nextPath}`);
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
@@ -797,6 +802,14 @@ export function DestinationGuideV2({
     (selectedCategories.length === 0 && !personalNotes.trim()) ||
     regenCount >= MAX_REGENS ||
     paBalance < REGEN_COST;
+
+  // Flag-aware navigation paths for WizardFooter (SPEC-UX-REORDER-PHASES §5.2)
+  // Back: flag OFF = Logistics (phase-4), flag ON = Profile (phase-2)
+  // Next: flag OFF = Itinerary (phase-6), flag ON = Itinerary (phase-4)
+  const guideBackPath = isPhaseReorderEnabled() ? "phase-2" : "phase-4";
+  const guideAdvanceLabel = isPhaseReorderEnabled()
+    ? t("ctaNextReordered")
+    : tExpedition("cta.advance");
 
   const regenDisabledReasonId = "regen-disabled-reason";
 
@@ -816,7 +829,7 @@ export function DestinationGuideV2({
         tripCurrentPhase={tripCurrentPhase}
         completedPhases={completedPhases}
         phaseTitle={t("title")}
-        phaseSubtitle={t("subtitle")}
+        phaseSubtitle={isPhaseReorderEnabled() ? t("subtitleReordered") : t("subtitle")}
         showFooter={false}
       >
         <HeaderSkeleton />
@@ -970,9 +983,9 @@ export function DestinationGuideV2({
           {/* Navigation: Back / Advance (skip guide) */}
           <div className="mt-8 w-full">
             <WizardFooter
-              onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+              onBack={() => router.push(`/expedition/${tripId}/${guideBackPath}`)}
               onPrimary={handleComplete}
-              primaryLabel={tExpedition("cta.advance")}
+              primaryLabel={guideAdvanceLabel}
             />
           </div>
         </div>
@@ -984,9 +997,9 @@ export function DestinationGuideV2({
           <LegacyGuideFallback onRegenerate={handleRequestGenerate} />
           <div className="mt-3">
             <WizardFooter
-              onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+              onBack={() => router.push(`/expedition/${tripId}/${guideBackPath}`)}
               onPrimary={handleComplete}
-              primaryLabel={tExpedition("cta.advance")}
+              primaryLabel={guideAdvanceLabel}
               isLoading={isCompleting}
               isDisabled={isCompleting}
             />
@@ -1137,9 +1150,9 @@ export function DestinationGuideV2({
           {/* Navigation footer */}
           <div className="mt-3">
             <WizardFooter
-              onBack={() => router.push(`/expedition/${tripId}/phase-4`)}
+              onBack={() => router.push(`/expedition/${tripId}/${guideBackPath}`)}
               onPrimary={handleComplete}
-              primaryLabel={tExpedition("cta.advance")}
+              primaryLabel={guideAdvanceLabel}
               isLoading={isCompleting}
               isDisabled={isCompleting}
             />

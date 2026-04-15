@@ -23,6 +23,7 @@ import {
 } from "@/server/actions/transport.actions";
 import type { TransportSegmentInput, AccommodationInput } from "@/lib/validations/transport.schema";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -361,7 +362,7 @@ export function Phase4WizardV2({
         return;
       }
 
-      router.push(`/expedition/${tripId}/phase-5`);
+      router.push(`/expedition/${tripId}/${logisticsNextPath}`);
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
@@ -369,6 +370,15 @@ export function Phase4WizardV2({
   }
 
   const isSaving = savingTransport || savingAccommodation || savingMobility;
+
+  // Flag-aware navigation paths (SPEC-UX-REORDER-PHASES §5.2)
+  // Flag OFF: Logistics is phase-4. Back = Checklist (phase-3), Next = Guide (phase-5)
+  // Flag ON:  Logistics is phase-5. Back = Itinerary (phase-4), Next = Checklist (phase-6)
+  const logisticsBackPath = isPhaseReorderEnabled() ? "phase-4" : "phase-3";
+  const logisticsNextPath = isPhaseReorderEnabled() ? "phase-6" : "phase-5";
+  const logisticsAdvanceLabel = isPhaseReorderEnabled()
+    ? t("ctaNextReordered")
+    : tExpedition("cta.advance");
 
   // Step indicator items
   const stepItems = [
@@ -384,7 +394,7 @@ export function Phase4WizardV2({
       tripCurrentPhase={tripCurrentPhase}
       completedPhases={completedPhases}
       phaseTitle={t("title")}
-      phaseSubtitle={t("subtitle")}
+      phaseSubtitle={isPhaseReorderEnabled() ? t("subtitleReordered") : t("subtitle")}
       currentStep={currentStep}
       totalSteps={TOTAL_STEPS}
       isEditMode={isRevisiting}
@@ -468,7 +478,7 @@ export function Phase4WizardV2({
                 onChange={handleTransportChange}
               />
               <WizardFooter
-                onBack={() => router.push(`/expedition/${tripId}/phase-3`)}
+                onBack={() => router.push(`/expedition/${tripId}/${logisticsBackPath}`)}
                 onPrimary={() => handleStepNext(2)}
                 primaryLabel={tCommon("next")}
                 onSave={handleSaveCurrentStep}
@@ -628,8 +638,8 @@ export function Phase4WizardV2({
 
               <WizardFooter
                 onBack={() => goToStep(2)}
-                onPrimary={isRevisiting ? () => router.push(`/expedition/${tripId}/phase-5`) : handleAdvance}
-                primaryLabel={tExpedition("cta.advance")}
+                onPrimary={isRevisiting ? () => router.push(`/expedition/${tripId}/${logisticsNextPath}`) : handleAdvance}
+                primaryLabel={logisticsAdvanceLabel}
                 isLoading={isCompleting}
                 isDisabled={isCompleting || (allSectionsEmpty && !allUndecided)}
                 onSave={handleSaveCurrentStep}

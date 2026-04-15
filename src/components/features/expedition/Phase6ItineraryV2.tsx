@@ -31,6 +31,7 @@ import { getItineraryDaysAction } from "@/server/actions/itinerary.actions";
 import type { ItineraryDayWithActivities, ActivityData } from "@/server/actions/itinerary.actions";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 const ItineraryMap = dynamic(() => import("./ItineraryMap"), { ssr: false });
 
@@ -1535,6 +1536,15 @@ export function Phase6ItineraryV2({
   const hasPersonalizationInput = selectedCategories.length > 0 || personalNotes.trim().length > 0;
   const isRegenLimitReached = regenCount >= MAX_REGEN_COUNT;
 
+  // Flag-aware navigation paths for WizardFooter (SPEC-UX-REORDER-PHASES §5.2)
+  // Back: flag OFF = Guide (phase-5), flag ON = Guide (phase-3)
+  // Next: flag OFF = summary (end), flag ON = Logistics (phase-5)
+  const itineraryBackPath = isPhaseReorderEnabled() ? "phase-3" : "phase-5";
+  const itineraryNextPath = isPhaseReorderEnabled() ? "phase-5" : null; // null → summary
+  const itineraryAdvanceLabel = isPhaseReorderEnabled()
+    ? t("ctaNextReordered")
+    : t("footerSummary");
+
   /** Refresh page data after an activity add/edit/delete */
   function handleActivityMutate() {
     router.refresh();
@@ -1593,7 +1603,7 @@ export function Phase6ItineraryV2({
     return (
       <PhaseShell
         tripId={tripId} viewingPhase={6} tripCurrentPhase={tripCurrentPhase}
-        completedPhases={completedPhases} phaseTitle={t("title")} phaseSubtitle={t("subtitle")}
+        completedPhases={completedPhases} phaseTitle={t("title")} phaseSubtitle={isPhaseReorderEnabled() ? t("subtitleReordered") : t("subtitle")}
         showFooter={false} contentMaxWidth="4xl"
       >
         <div className="flex flex-col items-center justify-center py-12 px-6 text-center max-w-3xl mx-auto">
@@ -1662,9 +1672,15 @@ export function Phase6ItineraryV2({
           {/* Navigation: Back / Advance (skip itinerary) */}
           <div className="mt-8 w-full">
             <WizardFooter
-              onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
-              onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
-              primaryLabel={tExpedition("cta.advance")}
+              onBack={() => router.push(`/expedition/${tripId}/${itineraryBackPath}`)}
+              onPrimary={() =>
+                router.push(
+                  itineraryNextPath
+                    ? `/expedition/${tripId}/${itineraryNextPath}`
+                    : `/expedition/${tripId}/summary`
+                )
+              }
+              primaryLabel={itineraryAdvanceLabel}
             />
           </div>
         </div>
@@ -1936,11 +1952,17 @@ export function Phase6ItineraryV2({
         paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
       />
 
-      {/* Standardized WizardFooter */}
+      {/* Standardized WizardFooter — flag-aware navigation (SPEC-UX-REORDER-PHASES §5.2) */}
       <WizardFooter
-        onBack={() => router.push(`/expedition/${tripId}/phase-5`)}
-        onPrimary={() => router.push(`/expedition/${tripId}/summary`)}
-        primaryLabel={t("footerSummary")}
+        onBack={() => router.push(`/expedition/${tripId}/${itineraryBackPath}`)}
+        onPrimary={() =>
+          router.push(
+            itineraryNextPath
+              ? `/expedition/${tripId}/${itineraryNextPath}`
+              : `/expedition/${tripId}/summary`
+          )
+        }
+        primaryLabel={itineraryAdvanceLabel}
       />
     </PhaseShell>
   );

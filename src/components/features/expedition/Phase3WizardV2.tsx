@@ -13,6 +13,7 @@ import {
   advanceFromPhaseAction,
 } from "@/server/actions/expedition.actions";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 interface ChecklistItemData {
   id: string;
@@ -190,7 +191,13 @@ export function Phase3WizardV2({
         return;
       }
 
-      router.push(`/expedition/${tripId}/phase-4`);
+      // Flag ON: checklist is last planning phase → go to summary
+      // Flag OFF: checklist is phase-3 → advance to logistics (phase-4)
+      router.push(
+        checklistNextIsReordered
+          ? `/expedition/${tripId}/summary`
+          : `/expedition/${tripId}/phase-4`
+      );
     } catch {
       setErrorMessage("errors.generic");
       setIsCompleting(false);
@@ -215,6 +222,15 @@ export function Phase3WizardV2({
     ? Math.round((requiredCompleted / requiredItems.length) * 100)
     : 100;
 
+  // Flag-aware navigation paths (SPEC-UX-REORDER-PHASES §5.2)
+  // Flag OFF: Checklist is phase-3. Back = Profile (phase-2), Next = Logistics (phase-4)
+  // Flag ON:  Checklist is phase-6. Back = Logistics (phase-5), Next = summary (final phase)
+  const checklistBackPath = isPhaseReorderEnabled() ? "phase-5" : "phase-2";
+  const checklistNextIsReordered = isPhaseReorderEnabled();
+  const checklistAdvanceLabel = isPhaseReorderEnabled()
+    ? t("ctaNextReordered")
+    : tExpedition("cta.advance");
+
   return (
     <PhaseShell
       tripId={tripId}
@@ -222,15 +238,20 @@ export function Phase3WizardV2({
       tripCurrentPhase={tripCurrentPhase}
       completedPhases={completedPhases}
       phaseTitle={t("title")}
-      phaseSubtitle={t("subtitle")}
+      phaseSubtitle={checklistNextIsReordered ? t("subtitleReordered") : t("subtitle")}
       isEditMode={isEditMode}
       showFooter={true}
       footerProps={{
-        onBack: () => router.push(`/expedition/${tripId}/phase-2`),
+        onBack: () => router.push(`/expedition/${tripId}/${checklistBackPath}`),
         onPrimary: isRevisiting
-          ? () => router.push(`/expedition/${tripId}/phase-4`)
+          ? () =>
+              router.push(
+                checklistNextIsReordered
+                  ? `/expedition/${tripId}/summary`
+                  : `/expedition/${tripId}/phase-4`
+              )
           : handleAdvance,
-        primaryLabel: tExpedition("cta.advance"),
+        primaryLabel: checklistAdvanceLabel,
         isLoading: isCompleting,
         isDisabled: isCompleting,
         onSave: handleSaveChecklist,
