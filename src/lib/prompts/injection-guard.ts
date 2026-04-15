@@ -166,7 +166,6 @@ function normalizeText(text: string): string {
   //    e.g., "c\u0327" -> "c", "e\u0302" -> "e", enabling ASCII-only regex patterns
   // 3. Transliterate Cyrillic homoglyphs that survive NFKD
   //    e.g., "а" (U+0430 Cyrillic) -> "a" (Latin)
-  // eslint-disable-next-line no-control-regex
   const nfkd = text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
   return transliterateCyrillicHomoglyphs(nfkd);
 }
