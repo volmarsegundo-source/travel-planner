@@ -53,6 +53,13 @@ export const env = createEnv({
       .url()
       .default("http://localhost:3000"),
     NEXT_PUBLIC_SENTRY_DSN: z.string().url().optional(),
+    // Sprint 44: Phase reorder feature flag (Wave 1). Default OFF — set to "true"
+    // to activate the new phase ordering (Guide→Itinerary→Logistics→Checklist).
+    // Rollback: set to "false" or remove; DB snapshot restores data consistency.
+    NEXT_PUBLIC_PHASE_REORDER_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
   },
   runtimeEnv: {
     DATABASE_URL: process.env.DATABASE_URL,
@@ -87,6 +94,7 @@ export const env = createEnv({
     NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
     NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    NEXT_PUBLIC_PHASE_REORDER_ENABLED: process.env.NEXT_PUBLIC_PHASE_REORDER_ENABLED,
   },
   skipValidation: process.env.SKIP_ENV_VALIDATION === "true",
 });
