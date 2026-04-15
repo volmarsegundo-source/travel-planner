@@ -4,13 +4,39 @@
 // guard logic. Works in both server (page.tsx) and client (wizard) contexts.
 // NO server-only imports — pure TypeScript.
 //
+// Sprint 44: flag-aware helpers added (getNonBlockingPhases).
+// When PHASE_REORDER_ENABLED is OFF: NON_BLOCKING_PHASES = {3, 4} (old).
+// When PHASE_REORDER_ENABLED is ON:  NON_BLOCKING_PHASES = {5, 6} (new).
+//
 // Spec refs: SPEC-ARCH-010 §3, SPEC-PROD-016 §2, SPEC-UX-019 §5
+// Spec refs: SPEC-ARCH-REORDER-PHASES §3.3
+
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 /** Total implemented/active phases (phases 7-8 are "coming soon") */
 export const TOTAL_ACTIVE_PHASES = 6;
 
-/** Phases that can be accessed regardless of linear progression */
+/**
+ * Phases that can be accessed regardless of linear progression (original order).
+ * Old: Checklist (3) and Logistics (4) are non-blocking.
+ * Preserved as a named constant for backward-compat and tests.
+ */
 export const NON_BLOCKING_PHASES = new Set([3, 4]);
+
+/**
+ * Non-blocking phases in the new phase ordering (Sprint 44).
+ * New: Logistics (5) and Checklist (6) are non-blocking.
+ * Spec ref: SPEC-ARCH-REORDER-PHASES §3.3
+ */
+export const NON_BLOCKING_PHASES_REORDERED = new Set([5, 6]);
+
+/**
+ * Returns the active non-blocking phases set based on the PHASE_REORDER flag.
+ * Use this in any code that must handle both orderings.
+ */
+export function getNonBlockingPhases(): Set<number> {
+  return isPhaseReorderEnabled() ? NON_BLOCKING_PHASES_REORDERED : NON_BLOCKING_PHASES;
+}
 
 /** Canonical route map — THE single source of truth for phase URLs */
 export const PHASE_ROUTE_MAP: Record<number, string> = {
@@ -61,7 +87,7 @@ export function resolveAccess(
   requestedPhase: number,
   tripCurrentPhase: number,
   completedPhases: number[],
-  nonBlockingPhases: Set<number> = NON_BLOCKING_PHASES
+  nonBlockingPhases: Set<number> = getNonBlockingPhases()
 ): PhaseAccessResult {
   // Out of range
   if (requestedPhase < 1 || requestedPhase > TOTAL_ACTIVE_PHASES) {
@@ -115,7 +141,9 @@ export function resolveAccess(
     };
   }
 
-  // Non-blocking phase (3 or 4) — always accessible if past phase 1
+  // Non-blocking phase — always accessible if past phase 1.
+  // The caller may pass an explicit set (e.g. in tests). Otherwise fall
+  // through to the flag-resolved default via the parameter default value.
   if (nonBlockingPhases.has(requestedPhase) && tripCurrentPhase >= 2) {
     return {
       allowed: true,
@@ -156,7 +184,7 @@ export function canNavigateToPhase(
   if (targetPhase < currentPhase) return true;
 
   // Can navigate to non-blocking phases if past phase 1
-  if (NON_BLOCKING_PHASES.has(targetPhase) && currentPhase >= 2) return true;
+  if (getNonBlockingPhases().has(targetPhase) && currentPhase >= 2) return true;
 
   return false;
 }
@@ -256,7 +284,7 @@ export function getPhaseState(
   if (phaseNumber < tripCurrentPhase) return "available";
 
   // Non-blocking phase accessible
-  if (NON_BLOCKING_PHASES.has(phaseNumber) && tripCurrentPhase >= 2) return "available";
+  if (getNonBlockingPhases().has(phaseNumber) && tripCurrentPhase >= 2) return "available";
 
   // Everything else is locked
   return "locked";
