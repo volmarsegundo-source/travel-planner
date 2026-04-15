@@ -244,8 +244,11 @@ describe("ChecklistEngine.initializePhase3Checklist", () => {
       null
     );
 
+    // Wave 2: log key renamed from "checklist.phase3Initialized" to
+    // "checklist.initialized" when initializePhase3Checklist delegates to
+    // the new flag-aware initializeChecklistItems.
     expect(logger.info).toHaveBeenCalledWith(
-      "checklist.phase3Initialized",
+      "checklist.initialized",
       expect.objectContaining({
         tripId: TEST_TRIP_ID,
         tripType: "international",

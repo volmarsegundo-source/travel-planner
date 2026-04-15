@@ -49,7 +49,8 @@ describe("travelPlanPrompt", () => {
   });
 
   it("has correct version", () => {
-    expect(travelPlanPrompt.version).toBe("1.2.0");
+    // v1.3.0: bumped in Sprint 44 Wave 2 (guide digest ground-truth rule)
+    expect(travelPlanPrompt.version).toBe("1.3.0");
   });
 
   it("uses plan model type", () => {

@@ -78,6 +78,8 @@ vi.mock("@/lib/action-utils", () => ({
 vi.mock("@/server/services/itinerary-plan.service", () => ({
   ItineraryPlanService: {
     getExpeditionContext: vi.fn().mockResolvedValue(null),
+    // Wave 2: ai.actions.ts now calls getExpeditionContextForItinerary
+    getExpeditionContextForItinerary: vi.fn().mockResolvedValue(null),
     recordGeneration: vi.fn().mockResolvedValue(undefined),
   },
 }));

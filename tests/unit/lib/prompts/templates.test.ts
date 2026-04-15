@@ -9,10 +9,15 @@
  */
 import { describe, it, expect } from "vitest";
 import { travelPlanPrompt } from "@/lib/prompts/travel-plan.prompt";
-import { checklistPrompt } from "@/lib/prompts/checklist.prompt";
+import { checklistPrompt, checklistPromptV1 } from "@/lib/prompts/checklist.prompt";
 import { destinationGuidePrompt } from "@/lib/prompts/destination-guide.prompt";
-import { PLAN_SYSTEM_PROMPT, CHECKLIST_SYSTEM_PROMPT, GUIDE_SYSTEM_PROMPT } from "@/lib/prompts/system-prompts";
-import type { TravelPlanParams, ChecklistParams, GuideParams } from "@/lib/prompts/types";
+import {
+  PLAN_SYSTEM_PROMPT,
+  CHECKLIST_SYSTEM_PROMPT,
+  CHECKLIST_SYSTEM_PROMPT_V1,
+  GUIDE_SYSTEM_PROMPT,
+} from "@/lib/prompts/system-prompts";
+import type { TravelPlanParams, ChecklistParams, ChecklistV2Params, GuideParams } from "@/lib/prompts/types";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -29,10 +34,18 @@ const BASE_PLAN_PARAMS: TravelPlanParams = {
   tokenBudget: 3500,
 };
 
-const BASE_CHECKLIST_PARAMS: ChecklistParams = {
+const BASE_CHECKLIST_PARAMS_V1: ChecklistParams = {
   destination: "London, UK",
   month: "2026-08",
   travelers: 1,
+  language: "pt-BR",
+};
+
+const BASE_CHECKLIST_PARAMS_V2: ChecklistV2Params = {
+  destination: "London, UK",
+  tripType: "international",
+  dates: "2026-08-10 to 2026-08-20",
+  travelers: "1 adult",
   language: "pt-BR",
 };
 
@@ -45,7 +58,8 @@ const BASE_GUIDE_PARAMS: GuideParams = {
 
 describe("travelPlanPrompt", () => {
   it("has correct metadata", () => {
-    expect(travelPlanPrompt.version).toBe("1.2.0");
+    // v1.3.0: bumped in Sprint 44 Wave 2 (guide digest ground-truth rule)
+    expect(travelPlanPrompt.version).toBe("1.3.0");
     expect(travelPlanPrompt.model).toBe("plan");
     expect(travelPlanPrompt.cacheControl).toBe(true);
   });
@@ -143,34 +157,69 @@ describe("travelPlanPrompt", () => {
   });
 });
 
-// ─── Checklist Template ──────────────────────────────────────────────────────
+// ─── Checklist Template v2.0.0 (Sprint 44 Wave 2) ───────────────────────────
 
 describe("checklistPrompt", () => {
-  it("has correct metadata", () => {
-    expect(checklistPrompt.version).toBe("1.0.0");
+  it("has correct v2 metadata", () => {
+    // v2.0.0: redesigned in Sprint 44 Wave 2 with enriched context chain
+    expect(checklistPrompt.version).toBe("2.0.0");
     expect(checklistPrompt.model).toBe("checklist");
     expect(checklistPrompt.maxTokens).toBe(2048);
     expect(checklistPrompt.cacheControl).toBe(true);
   });
 
-  it("uses CHECKLIST_SYSTEM_PROMPT as system field", () => {
+  it("uses v2 CHECKLIST_SYSTEM_PROMPT as system field", () => {
     expect(checklistPrompt.system).toBe(CHECKLIST_SYSTEM_PROMPT);
+    expect(checklistPrompt.system).toContain("travel preparation expert");
   });
 
-  it("builds user prompt with trip details", () => {
-    const prompt = checklistPrompt.buildUserPrompt(BASE_CHECKLIST_PARAMS);
+  it("builds user prompt with trip basics in XML", () => {
+    const prompt = checklistPrompt.buildUserPrompt(BASE_CHECKLIST_PARAMS_V2);
+
+    expect(prompt).toContain("<trip_basics>");
+    expect(prompt).toContain("<destination>London, UK</destination>");
+    expect(prompt).toContain("<trip_type>international</trip_type>");
+    expect(prompt).toContain("<language>pt-BR</language>");
+    expect(prompt).toContain("</trip_basics>");
+  });
+
+  it("omits optional sections when not provided", () => {
+    const prompt = checklistPrompt.buildUserPrompt(BASE_CHECKLIST_PARAMS_V2);
+
+    expect(prompt).not.toContain("<destination_facts_from_guide>");
+    expect(prompt).not.toContain("<itinerary_highlights_from_roteiro>");
+    expect(prompt).not.toContain("<logistics_from_phase5>");
+  });
+
+  it("does not include system instructions in user prompt", () => {
+    const prompt = checklistPrompt.buildUserPrompt(BASE_CHECKLIST_PARAMS_V2);
+
+    expect(prompt).not.toContain("HARD RULES");
+    expect(prompt).not.toContain("JSON SCHEMA");
+  });
+});
+
+// ─── Checklist Template v1.0.0 (legacy — kept for backward compat) ───────────
+
+describe("checklistPromptV1", () => {
+  it("has correct v1 metadata", () => {
+    expect(checklistPromptV1.version).toBe("1.0.0");
+    expect(checklistPromptV1.model).toBe("checklist");
+    expect(checklistPromptV1.maxTokens).toBe(2048);
+    expect(checklistPromptV1.cacheControl).toBe(true);
+  });
+
+  it("uses CHECKLIST_SYSTEM_PROMPT_V1 as system field", () => {
+    expect(checklistPromptV1.system).toBe(CHECKLIST_SYSTEM_PROMPT_V1);
+  });
+
+  it("builds legacy user prompt with trip details", () => {
+    const prompt = checklistPromptV1.buildUserPrompt(BASE_CHECKLIST_PARAMS_V1);
 
     expect(prompt).toContain("London, UK");
     expect(prompt).toContain("2026-08");
     expect(prompt).toContain("1 traveler(s)");
     expect(prompt).toContain("Language: pt-BR");
-  });
-
-  it("does not include system instructions in user prompt", () => {
-    const prompt = checklistPrompt.buildUserPrompt(BASE_CHECKLIST_PARAMS);
-
-    expect(prompt).not.toContain("travel expert");
-    expect(prompt).not.toContain("JSON SCHEMA");
   });
 });
 
@@ -178,7 +227,8 @@ describe("checklistPrompt", () => {
 
 describe("destinationGuidePrompt", () => {
   it("has correct v2 metadata", () => {
-    expect(destinationGuidePrompt.version).toBe("2.1.0");
+    // v2.1.1: bumped in Sprint 44 Wave 2 (docblock — feeds downstream guide digest)
+    expect(destinationGuidePrompt.version).toBe("2.1.1");
     expect(destinationGuidePrompt.model).toBe("guide");
     expect(destinationGuidePrompt.maxTokens).toBe(4096);
     expect(destinationGuidePrompt.cacheControl).toBe(true);

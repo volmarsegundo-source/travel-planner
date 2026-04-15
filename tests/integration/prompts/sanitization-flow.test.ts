@@ -123,6 +123,8 @@ vi.mock("@/server/services/ai-gateway.service", () => ({
 vi.mock("@/server/services/itinerary-plan.service", () => ({
   ItineraryPlanService: {
     getExpeditionContext: mockGetExpeditionContext,
+    // Wave 2: ai.actions.ts now calls getExpeditionContextForItinerary
+    getExpeditionContextForItinerary: mockGetExpeditionContext,
     recordGeneration: mockRecordGeneration,
   },
 }));

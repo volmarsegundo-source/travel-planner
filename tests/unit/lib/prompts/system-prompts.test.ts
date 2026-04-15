@@ -46,8 +46,9 @@ describe("CHECKLIST_SYSTEM_PROMPT", () => {
     expect(CHECKLIST_SYSTEM_PROMPT.length).toBeGreaterThan(50);
   });
 
-  it("contains the travel expert role", () => {
-    expect(CHECKLIST_SYSTEM_PROMPT).toContain("travel expert");
+  it("contains the travel preparation expert role (v2.0.0)", () => {
+    // v2.0.0 redesigned the role from "travel expert" to "professional travel preparation expert"
+    expect(CHECKLIST_SYSTEM_PROMPT).toContain("travel preparation expert");
   });
 
   it("contains JSON schema for checklist categories", () => {

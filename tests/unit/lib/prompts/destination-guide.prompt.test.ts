@@ -108,8 +108,9 @@ describe("destinationGuidePrompt", () => {
     expect(result).toContain("stroller-friendly places");
   });
 
-  it("has version 2.1.0", () => {
-    expect(destinationGuidePrompt.version).toBe("2.1.0");
+  it("has version 2.1.1", () => {
+    // v2.1.1: bumped in Sprint 44 Wave 2 (docblock — feeds downstream guide digest)
+    expect(destinationGuidePrompt.version).toBe("2.1.1");
   });
 
   it("has maxTokens 4096", () => {

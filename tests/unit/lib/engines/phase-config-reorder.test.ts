@@ -150,6 +150,26 @@ describe("PHASE_DEFINITIONS_REORDERED", () => {
       expect(reordered).toEqual(original);
     }
   });
+
+  // ─── Sprint 44 Wave 2: detalhista badge (SPEC-ARCH-REORDER-PHASES §14.1.4) ──
+
+  it("phase 5 (Logistics) has badgeKey 'detalhista' in reordered set", () => {
+    // Spec: badge keyed to Logistics content, not position — so it follows
+    // the Logistics phase to position 5 when the reorder flag is ON.
+    const p5 = PHASE_DEFINITIONS_REORDERED.find((p) => p.phaseNumber === 5);
+    expect(p5).toBeDefined();
+    expect(p5!.name).toBe("A Logística");
+    expect(p5!.badgeKey).toBe("detalhista");
+  });
+
+  it("original Logistics (phase 4) does NOT have badgeKey in old order", () => {
+    // The original phase-4 (Logistics) had badgeKey=null before Wave 2.
+    // After Wave 2, it was added only to PHASE_DEFINITIONS_REORDERED.
+    // PHASE_DEFINITIONS is intentionally not changed — flag OFF = no badge.
+    const p4 = PHASE_DEFINITIONS.find((p) => p.phaseNumber === 4);
+    expect(p4).toBeDefined();
+    expect(p4!.badgeKey).toBeNull();
+  });
 });
 
 // ─── getPhaseDefinitions (flag-aware) ────────────────────────────────────────
