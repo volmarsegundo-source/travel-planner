@@ -1,5 +1,6 @@
 // ─── Next Steps Suggestion Engine ────────────────────────────────────────────
 
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 import type { PhaseReadiness } from "@/server/services/trip-readiness.service";
 
 export interface NextStep {
@@ -29,6 +30,11 @@ export function getNextStepsSuggestions(
     return suggestions;
   }
 
+  // Determine which phase number holds the Checklist depending on flag state.
+  // Flag OFF (default): original order — Checklist is at phase 3.
+  // Flag ON  (Sprint 44): new order — Checklist is at phase 6.
+  const checklistPhase = isPhaseReorderEnabled() ? 6 : 3;
+
   // Find first incomplete phase and suggest it
   for (const phase of phases) {
     if (suggestions.length >= 3) break;
@@ -41,16 +47,16 @@ export function getNextStepsSuggestions(
         priority: phase.phase,
       });
     } else if (phase.status === "partial") {
-      // Special case for checklist (phase 3)
-      if (phase.phase === 3 && phase.dataSnapshot.total) {
+      // Special case for checklist — show progress-aware CTA instead of generic "continue"
+      if (phase.phase === checklistPhase && phase.dataSnapshot.total) {
         suggestions.push({
           labelKey: "expedition.nextSteps.completeChecklist",
           labelValues: {
             done: phase.dataSnapshot.done as number,
             total: phase.dataSnapshot.total as number,
           },
-          targetUrl: phaseUrl(tripId, 3),
-          priority: 3,
+          targetUrl: phaseUrl(tripId, checklistPhase),
+          priority: checklistPhase,
         });
       } else {
         suggestions.push({

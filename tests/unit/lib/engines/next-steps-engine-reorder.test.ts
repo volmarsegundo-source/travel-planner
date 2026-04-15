@@ -92,7 +92,7 @@ describe("TC-NAV-E07: flag ON — phase 3 = Guide (not Checklist)", () => {
   // Priority: P2 — Should fix before flag retirement
   // Location: src/lib/engines/next-steps-engine.ts — make checklist phase detection flag-aware
   // TODO: un-skip this test after BUG-S44-W4-002 is fixed in next-steps-engine.ts
-  it.skip("phase 6 partial with flag ON recommends completeChecklist (Checklist is at slot 6) [BUG-S44-W4-002]", () => {
+  it("phase 6 partial with flag ON recommends completeChecklist (Checklist is at slot 6) [BUG-S44-W4-002]", () => {
     const phases = [
       makePhase({
         phase: 6,
