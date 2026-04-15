@@ -292,3 +292,42 @@ npm run sprint:finish 8      → finaliza sprint (changelog, tag)
   Test plan generated!
   ℹ 63 test cases across 8 sections
 ```
+
+---
+
+## Feature Flags
+
+### NEXT_PUBLIC_PHASE_REORDER_ENABLED (Sprint 44+)
+
+Controla a reordenacao das 6 fases da expedicao (Sprint 44).
+
+| Estado | Ordem das fases |
+|--------|----------------|
+| `false` (default) | 1 Inspiracao, 2 Perfil, 3 Checklist, 4 Logistica, 5 Guia, 6 Roteiro |
+| `true` | 1 Inspiracao, 2 Perfil, 3 Guia, 4 Roteiro, 5 Logistica, 6 Checklist |
+
+**Default**: `false` em todos os ambientes (incluindo producao) ate rollout completo.
+
+**Para testar a nova ordem localmente**, adicione ao `.env.local`:
+
+```env
+NEXT_PUBLIC_PHASE_REORDER_ENABLED=true
+```
+
+**ATENCAO**: Ao habilitar a flag localmente, voce deve tambem rodar o script de migracao de dados para que expedicoes existentes reflitam a nova ordem:
+
+```bash
+# Apenas em banco de desenvolvimento local — NAO rodar em staging/producao sem aprovacao
+psql $DATABASE_URL -f scripts/db/migrate-phase-reorder.sql
+```
+
+Para reverter o banco local apos testes:
+
+```bash
+psql $DATABASE_URL -f scripts/db/reverse-phase-reorder.sql
+```
+
+**Nao habilite** em staging ou producao sem seguir o checklist de go/no-go de SPEC-RELEASE-REORDER-PHASES §6.
+
+**Spec de referencia**: `docs/specs/SPEC-PROD-REORDER-PHASES.md`, `docs/specs/SPEC-ARCH-REORDER-PHASES.md`
+**ADRs**: ADR-029 (estrategia), ADR-030 (migracao big-bang), ADR-032 (ExpeditionAiContextService)
