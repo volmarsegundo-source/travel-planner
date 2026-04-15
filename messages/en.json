@@ -782,7 +782,8 @@
         "budgetMin": "Budget must be at least 100.",
         "budgetMax": "Budget must be at most 100,000.",
         "groupSizeMin": "At least 2 travelers required."
-      }
+      },
+      "ctaNextReordered": "Continue to Guide"
     },
     "phase3": {
       "title": "The Preparation",
@@ -819,7 +820,10 @@
         "emergency_contacts": "Emergency contacts registered",
         "copies_documents": "Copies of important documents",
         "local_currency": "Local currency exchanged"
-      }
+      },
+      "subtitleReordered": "Complete your travel preparation checklist once logistics and itinerary are ready.",
+      "ctaNextReordered": "Complete planning",
+      "ctaBackReordered": "Back to Logistics"
     },
     "phase4": {
       "title": "The Logistics",
@@ -964,7 +968,10 @@
           "camping": "Camping",
           "other": "Other"
         }
-      }
+      },
+      "subtitleReordered": "Plan your days based on what you learned in the guide.",
+      "ctaNextReordered": "Continue to Preparation",
+      "ctaBackReordered": "Back to Itinerary"
     },
     "phase5": {
       "title": "Destination Guide",
@@ -1034,7 +1041,10 @@
         "inProgress": "Generating personalized content...",
         "finalizing": "Finalizing...",
         "error": "Error generating guide. Please try again."
-      }
+      },
+      "subtitleReordered": "Now that you have an itinerary, organize transport and accommodation.",
+      "ctaNextReordered": "Continue to Itinerary",
+      "ctaBackReordered": "Back to Profile"
     },
     "phase6": {
       "title": "The Itinerary",
@@ -1138,7 +1148,10 @@
       "category_family": "Family",
       "category_shopping": "Shopping",
       "category_sports": "Sports",
-      "category_religious": "Religious"
+      "category_religious": "Religious",
+      "subtitleReordered": "Final checklist: luggage, documents, details you cannot leave behind.",
+      "ctaNextReordered": "Continue to Logistics",
+      "ctaBackReordered": "Back to Guide"
     },
     "hub": {
       "title": "Expedition",
@@ -2650,5 +2663,12 @@
         "sonnet": "Sonnet model (higher quality)"
       }
     }
+  },
+  "phaseReorderBanner": {
+    "message": "We have reorganized the phases for a more natural journey. Your progress is preserved — pick up where you left off.",
+    "dismiss": "Got it",
+    "dismissAriaLabel": "Got it, close the phase reorganization notice",
+    "learnMore": "See what changed",
+    "learnMoreHref": "/help/phase-reorder"
   }
 }
