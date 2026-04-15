@@ -7,12 +7,14 @@ import {
   UserRound,
   ClipboardCheck,
   Map,
-  Compass,
+  BookOpen,
   CalendarDays,
+  Plane,
   Headset,
   Images,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 /** Total number of expedition phases displayed */
 const TOTAL_PHASES = 8;
@@ -20,20 +22,42 @@ const TOTAL_PHASES = 8;
 /** Phases that are not yet available */
 const COMING_SOON_PHASES = new Set([7, 8]);
 
-/** Lucide icon components mapped to each phase number */
-const PHASE_ICONS: Record<number, React.ComponentType<{ className?: string }>> = {
+/** Lucide icon components: original phase order (flag OFF) */
+const PHASE_ICONS_ORIGINAL: Record<number, React.ComponentType<{ className?: string }>> = {
   1: Sparkles,
   2: UserRound,
   3: ClipboardCheck,
   4: Map,
-  5: Compass,
+  5: BookOpen,
   6: CalendarDays,
   7: Headset,
   8: Images,
 };
 
+/** Lucide icon components: new phase order (flag ON) — SPEC-UX-REORDER-PHASES §4.2 */
+const PHASE_ICONS_REORDERED: Record<number, React.ComponentType<{ className?: string }>> = {
+  1: Sparkles,
+  2: UserRound,
+  3: BookOpen,
+  4: Map,
+  5: Plane,
+  6: ClipboardCheck,
+  7: Headset,
+  8: Images,
+};
+
+/** i18n key suffix for phases that change content when the flag is ON */
+const REORDERED_PHASE_KEYS: Record<number, string> = {
+  3: "phase3Reordered",
+  4: "phase4Reordered",
+  5: "phase5Reordered",
+  6: "phase6Reordered",
+};
+
 export function PhasesSectionV2() {
   const t = useTranslations("landingV2.phases");
+  const reordered = isPhaseReorderEnabled();
+  const phaseIcons = reordered ? PHASE_ICONS_REORDERED : PHASE_ICONS_ORIGINAL;
 
   return (
     <section id="fases" className="py-24 bg-atlas-surface">
@@ -53,8 +77,12 @@ export function PhasesSectionV2() {
           {Array.from({ length: TOTAL_PHASES }, (_, i) => i + 1).map(
             (phaseNumber) => {
               const isComingSoon = COMING_SOON_PHASES.has(phaseNumber);
-              const Icon = PHASE_ICONS[phaseNumber];
-              const phaseKey = `phase${phaseNumber}` as const;
+              const Icon = phaseIcons[phaseNumber];
+              // Flag-aware i18n key: phases 3-6 use reordered keys when flag ON
+              // SPEC-UX-REORDER-PHASES §10
+              const phaseKey = (reordered && REORDERED_PHASE_KEYS[phaseNumber])
+                ? REORDERED_PHASE_KEYS[phaseNumber]
+                : `phase${phaseNumber}`;
 
               return (
                 <div

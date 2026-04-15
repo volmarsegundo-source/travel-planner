@@ -2332,6 +2332,22 @@
       "phase8": {
         "name": "The Legacy",
         "description": "Digital journal and automatic organization of your best moments."
+      },
+      "phase3Reordered": {
+        "name": "Destination Guide",
+        "description": "Discover the destination in depth: culture, climate, safety, and local tips."
+      },
+      "phase4Reordered": {
+        "name": "The Itinerary",
+        "description": "AI-optimized day-by-day schedule, using the guide as the foundation for your activities."
+      },
+      "phase5Reordered": {
+        "name": "The Logistics",
+        "description": "Connections, transfers, and accommodation planned after knowing your itinerary."
+      },
+      "phase6Reordered": {
+        "name": "The Preparation",
+        "description": "Smart final checklist: luggage, documents, and everything that cannot be left behind."
       }
     },
     "ai": {
