@@ -7,6 +7,7 @@ import { TripCountdownInline } from "./TripCountdownInline";
 import type { ExpeditionDTO, ExpeditionStatus } from "@/types/expedition.types";
 import { deriveExpeditionStatus } from "@/types/expedition.types";
 import { TOTAL_ACTIVE_PHASES } from "@/lib/engines/phase-navigation.engine";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 // ─── Status accent config (SPEC-UX-026 4-state colors) ─────────────────────
 
@@ -217,34 +218,70 @@ function buildQuickAccessLinks(
 ): QuickAccessLink[] {
   const links: QuickAccessLink[] = [];
 
-  if (exp.hasChecklist) {
-    links.push({
-      key: "checklist",
-      label: t("quickAccessChecklist"),
-      href: `/expedition/${exp.id}/phase-3`,
-      icon: "\u2611\uFE0F",
-    });
+  // Phase paths depend on the active order (flag-aware).
+  // Flag OFF: Guide=phase-5, Itinerary=phase-6, Checklist=phase-3
+  // Flag ON:  Guide=phase-3, Itinerary=phase-4, Checklist=phase-6
+  // SPEC-UX-REORDER-PHASES §6.2
+  const reordered = isPhaseReorderEnabled();
+  const guidePath = reordered ? "phase-3" : "phase-5";
+  const itineraryPath = reordered ? "phase-4" : "phase-6";
+  const checklistPath = reordered ? "phase-6" : "phase-3";
+
+  if (reordered) {
+    // New order: Guide > Itinerary > Checklist > Report (SPEC-UX §6.2)
+    if (exp.hasGuide) {
+      links.push({
+        key: "guide",
+        label: t("quickAccessGuide"),
+        href: `/expedition/${exp.id}/${guidePath}`,
+        icon: "\uD83E\uDDED",
+      });
+    }
+    if (exp.hasItineraryPlan) {
+      links.push({
+        key: "itinerary",
+        label: t("quickAccessItinerary"),
+        href: `/expedition/${exp.id}/${itineraryPath}`,
+        icon: "\uD83D\uDDFA\uFE0F",
+      });
+    }
+    if (exp.hasChecklist) {
+      links.push({
+        key: "checklist",
+        label: t("quickAccessChecklist"),
+        href: `/expedition/${exp.id}/${checklistPath}`,
+        icon: "\u2611\uFE0F",
+      });
+    }
+  } else {
+    // Original order: Checklist > Guide > Itinerary
+    if (exp.hasChecklist) {
+      links.push({
+        key: "checklist",
+        label: t("quickAccessChecklist"),
+        href: `/expedition/${exp.id}/${checklistPath}`,
+        icon: "\u2611\uFE0F",
+      });
+    }
+    if (exp.hasGuide) {
+      links.push({
+        key: "guide",
+        label: t("quickAccessGuide"),
+        href: `/expedition/${exp.id}/${guidePath}`,
+        icon: "\uD83E\uDDED",
+      });
+    }
+    if (exp.hasItineraryPlan) {
+      links.push({
+        key: "itinerary",
+        label: t("quickAccessItinerary"),
+        href: `/expedition/${exp.id}/${itineraryPath}`,
+        icon: "\uD83D\uDDFA\uFE0F",
+      });
+    }
   }
 
-  if (exp.hasGuide) {
-    links.push({
-      key: "guide",
-      label: t("quickAccessGuide"),
-      href: `/expedition/${exp.id}/phase-5`,
-      icon: "\uD83E\uDDED",
-    });
-  }
-
-  if (exp.hasItineraryPlan) {
-    links.push({
-      key: "itinerary",
-      label: t("quickAccessItinerary"),
-      href: `/expedition/${exp.id}/phase-6`,
-      icon: "\uD83D\uDDFA\uFE0F",
-    });
-  }
-
-  // Report link: only when phases 3+5+6 all have content
+  // Report link: only when all AI content phases have content
   if (exp.hasChecklist && exp.hasGuide && exp.hasItineraryPlan) {
     links.push({
       key: "report",
