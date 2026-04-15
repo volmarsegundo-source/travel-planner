@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 
 interface ChecklistProgressMiniProps {
   tripId: string;
@@ -42,10 +43,14 @@ export function ChecklistProgressMini({
     recommended: recommendedPending,
   });
 
+  // Checklist lives at phase-3 (flag OFF) or phase-6 (flag ON)
+  // SPEC-UX-REORDER-PHASES §6.2
+  const checklistPath = isPhaseReorderEnabled() ? "phase-6" : "phase-3";
+
   function handleClick(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    router.push(`/expedition/${tripId}/phase-3`);
+    router.push(`/expedition/${tripId}/${checklistPath}`);
   }
 
   return (
@@ -55,7 +60,7 @@ export function ChecklistProgressMini({
       className="mt-3 flex items-center gap-2 rounded-md border border-border px-2.5 py-1.5 text-xs transition-colors hover:border-atlas-gold/40 hover:bg-atlas-gold/5"
       title={tooltipText}
       aria-label={t("ariaLabel", { done: requiredDone, total: requiredTotal })}
-      data-href={`/expedition/${tripId}/phase-3`}
+      data-href={`/expedition/${tripId}/${checklistPath}`}
     >
       {/* Icon */}
       <span className={textColor} aria-hidden="true">
