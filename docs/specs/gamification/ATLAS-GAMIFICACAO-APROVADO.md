@@ -1,7 +1,7 @@
 # Atlas Gamificacao — Documento Aprovado
 
-**Versao**: 1.1.0
-**Data de aprovacao**: 2026-03-21
+**Versao**: 2.0.0
+**Data de aprovacao**: 2026-04-15
 **Autor**: product-owner
 **Status**: APROVADO — fonte da verdade para a economia de PA
 **Proxima revisao**: Sprint 37 (antes da integracao de pagamento)
@@ -31,9 +31,9 @@ Pontos Atlas (PA) e a moeda virtual do Atlas Travel Planner. PA representa o pro
 | Constante | Valor |
 |---|---|
 | `WELCOME_BONUS` | 180 PA |
-| `AI_COSTS.ai_itinerary` (Fase 6 — O Roteiro) | 80 PA |
-| `AI_COSTS.ai_route` (Fase 3 — Checklist) | 30 PA |
-| `AI_COSTS.ai_accommodation` (Fase 5 — Guia do Destino) | 50 PA |
+| `AI_COSTS.ai_itinerary` (Fase 4 — O Roteiro) | 80 PA |
+| `AI_COSTS.ai_route` (Fase 6 — O Preparo / Checklist) | 30 PA |
+| `AI_COSTS.ai_accommodation` (Fase 3 — Guia do Destino) | 50 PA |
 | Regeneracao | Mesmo custo da geracao original (30/50/80 PA) — sem constante separada |
 | `EARNING_AMOUNTS.daily_login` | 10 PA |
 | `EARNING_AMOUNTS.checklist` | 20 PA |
@@ -54,10 +54,10 @@ Pontos Atlas (PA) e a moeda virtual do Atlas Travel Planner. PA representa o pro
 | Bonus de boas-vindas (registro) | 180 | `purchase` | Unico | Sim |
 | Completar Fase 1 — O Chamado | 100 | `phase_complete` | Por expedicao | Sim (por trip) |
 | Completar Fase 2 — O Explorador | 150 | `phase_complete` | Por expedicao | Sim (por trip) |
-| Completar Fase 3 — O Preparo | 75 | `phase_checklist` | Por expedicao | Sim (por trip) |
-| Completar Fase 4 — A Logistica | 50 | `phase_accommodation` | Por expedicao | Sim (por trip) |
-| Completar Fase 5 — Guia do Destino | 40 | `phase_complete` | Por expedicao | Sim (por trip) |
-| Completar Fase 6 — O Roteiro | 250 | `phase_complete` | Por expedicao | Sim (por trip) |
+| Completar Fase 3 — Guia do Destino | 40 | `phase_complete` | Por expedicao | Sim (por trip) |
+| Completar Fase 4 — O Roteiro | 250 | `phase_complete` | Por expedicao | Sim (por trip) |
+| Completar Fase 5 — A Logistica | 50 | `phase_accommodation` | Por expedicao | Sim (por trip) |
+| Completar Fase 6 — O Preparo | 75 | `phase_checklist` | Por expedicao | Sim (por trip) |
 | Completar Fase 7 — A Expedicao (*) | 400 | `phase_complete` | Por expedicao | Sim (por trip) |
 | Completar Fase 8 — O Legado (*) | 500 | `phase_complete` | Por expedicao | Sim (por trip) |
 | Login diario | 10 | `daily_login` | Uma vez por dia UTC | Sim (por dia) |
@@ -89,9 +89,9 @@ PA e gasto exclusivamente em funcionalidades de IA. Cada gasto requer confirmaca
 
 | Funcionalidade de IA | PA | Tipo de Transacao | Fase |
 |---|---|---|---|
-| Gerar Checklist (ai_route) | 30 | `ai_usage` | Fase 3 — O Preparo |
-| Gerar Guia do Destino (ai_accommodation) | 50 | `ai_usage` | Fase 5 — Guia do Destino |
-| Gerar O Roteiro (ai_itinerary) | 80 | `ai_usage` | Fase 6 — O Roteiro |
+| Gerar Guia do Destino (ai_accommodation) | 50 | `ai_usage` | Fase 3 — Guia do Destino |
+| Gerar O Roteiro (ai_itinerary) | 80 | `ai_usage` | Fase 4 — O Roteiro |
+| Gerar Checklist (ai_route) | 30 | `ai_usage` | Fase 6 — O Preparo |
 | **Total por expedicao** | **160** | | |
 
 > Regeneracao custa o mesmo que a geracao original (30/50/80 PA). Nao existe custo flat separado.
@@ -139,7 +139,7 @@ O rank e calculado com base no `totalPoints` acumulado (pontos ganhos por ativid
 | Novato | `novato` | 0 | Registro |
 | Desbravador | `desbravador` | 300 | Conclusao da Fase 2 |
 | Navegador | `navegador` | 700 | — |
-| Capitao | `capitao` | 1.500 | Conclusao da Fase 5 |
+| Capitao | `capitao` | 1.500 | Conclusao da Fase 3 — Guia do Destino |
 | Aventureiro | `aventureiro` | 3.500 | Conclusao da Fase 7 (*) |
 | Lendario | `lendario` | 7.000 | — |
 
@@ -332,3 +332,4 @@ O saldo e historico de PA sao dados pessoais do usuario. Devem ser incluidos no 
 |---|---|---|---|
 | 1.0.0 | 2026-03-21 | product-owner | Documento inicial aprovado |
 | 1.1.0 | 2026-03-21 | product-owner | Correcoes PO: welcome bonus 500->180 PA, AI costs 350->160 PA (30/50/80), ranks RPG (novato/desbravador/navegador/capitao/aventureiro/lendario), 16 badges em 4 categorias, regeneracao = custo original |
+| 2.0.0 | 2026-04-15 | product-owner | Reordenacao de fases (Sprint 44): Guia (5->3), Roteiro (6->4), Logistica (4->5), Preparo (3->6). Valores de PA sem mudanca. Atualiza Sec 1.3, 2.1, 2.2, 3.1. Delta conforme SPEC-PROD-REORDER-PHASES §11. |
