@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -46,16 +47,12 @@ export function PhaseTransition({
   const countdownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const newPhaseRef = useRef<HTMLHeadingElement>(null);
 
-  const phaseNameKeys: Record<number, string> = {
-    1: "theCalling",
-    2: "theExplorer",
-    3: "thePreparation",
-    4: "theLogistics",
-    5: "theDayMap",
-    6: "theTreasure",
-    7: "theExpedition",
-    8: "theLegacy",
-  };
+  const phaseNameKeys: Record<number, string> = Object.fromEntries(
+    getPhaseDefinitions().map((p) => [
+      p.phaseNumber,
+      p.nameKey.replace("phases.", ""),
+    ])
+  );
 
   // Check for prefers-reduced-motion
   const prefersReducedMotion =

@@ -10,22 +10,23 @@ import { getNextRankProgress, RANK_THRESHOLDS } from "@/lib/gamification/rank-ca
 import { DestinationImage } from "@/components/ui/DestinationImage";
 import type { Rank } from "@/types/gamification.types";
 import type { ExpeditionDTO } from "@/types/expedition.types";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const TOTAL_EXPEDITION_PHASES = 8;
 const MAX_RECENT_BADGES = 3;
 const MAX_TRIP_CARDS = 3;
-const PHASE_NAMES_KEYS = [
-  "theCalling",
-  "theExplorer",
-  "thePreparation",
-  "theLogistics",
-  "theDestinationGuide",
-  "theItinerary",
-  "theExpedition",
-  "theLegacy",
-] as const;
+
+/**
+ * Derive phase name keys dynamically from the active phase definitions
+ * so they respect the phase reorder feature flag.
+ */
+function getPhaseNameKeys(): string[] {
+  return getPhaseDefinitions().map(
+    (p) => p.nameKey.replace("phases.", "")
+  );
+}
 
 // Status-to-sort priority: IN_PROGRESS (active) → DRAFT (planned) → PLANNED (completed/other)
 const STATUS_SORT_PRIORITY: Record<string, number> = {
@@ -320,13 +321,14 @@ function PhaseProgressSection({
   t: (key: string, values?: Record<string, string | number>) => string;
   tPhases: (key: string) => string;
 }) {
+  const nameKeys = getPhaseNameKeys();
   const phaseSegments = Array.from({ length: TOTAL_EXPEDITION_PHASES }, (_, i) => {
     const phase = i + 1;
     const completed = activeTrip.completedPhases.includes(phase);
     const active = phase === activeTrip.currentPhase;
     return {
       phase,
-      label: tPhases(PHASE_NAMES_KEYS[i] ?? "theCalling"),
+      label: tPhases(nameKeys[i] ?? "theCalling"),
       state: completed ? "completed" : active ? "active" : "pending",
     };
   });
@@ -341,7 +343,7 @@ function PhaseProgressSection({
           <h2 className="text-2xl font-extrabold text-atlas-primary font-atlas-headline lg:text-3xl">
             {t("phaseLabel", {
               number: activeTrip.currentPhase,
-              name: tPhases(PHASE_NAMES_KEYS[activeTrip.currentPhase - 1] ?? "theCalling"),
+              name: tPhases(nameKeys[activeTrip.currentPhase - 1] ?? "theCalling"),
             })}
           </h2>
         </div>
@@ -407,13 +409,14 @@ export function DashboardV2({
   // Build phase segments for active trip — now 8 phases
   const phaseSegments = useMemo(() => {
     if (!activeTrip) return [];
+    const keys = getPhaseNameKeys();
     return Array.from({ length: TOTAL_EXPEDITION_PHASES }, (_, i) => {
       const phase = i + 1;
       const isCompleted = activeTrip.completedPhases.includes(phase);
       const isActive = phase === activeTrip.currentPhase && !isCompleted;
       return {
         phase,
-        label: tPhases(PHASE_NAMES_KEYS[i]!),
+        label: tPhases(keys[i]!),
         state: isCompleted ? "completed" as const : isActive ? "active" as const : "pending" as const,
       };
     });
