@@ -81,27 +81,30 @@ export function PhaseShell({
 }: PhaseShellProps) {
   const t = useTranslations("expedition");
   const tShell = useTranslations("phaseShellV2");
+  const tPhases = useTranslations("gamification.phases");
   const router = useRouter();
 
   const widthClass = contentMaxWidth === "4xl" ? "max-w-4xl" : "max-w-2xl";
   const showStepIndicator =
     currentStep !== undefined && totalSteps !== undefined && totalSteps > 1;
 
-  // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always locked)
+  // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always coming_soon)
   // Flag-aware: uses getPhaseDefinitions() to show correct names per ordering
   const phaseDefinitions = getPhaseDefinitions();
+  const lockedTooltip = tPhases("lockedTooltip");
   const segments: PhaseSegment[] = Array.from(
     { length: phaseDefinitions.length },
     (_, i) => {
       const phase = i + 1;
       const phaseDef = phaseDefinitions[i];
 
-      // Phases 7-8 are always locked (coming soon)
+      // Phases 7-8 are always "coming soon" (not locked — they are future, not blocked)
       if (phase > TOTAL_ACTIVE_PHASES) {
         return {
           phase,
           label: phaseDef?.name ?? `Phase ${phase}`,
-          state: "locked" as SegmentState,
+          state: "coming_soon" as SegmentState,
+          tooltip: tPhases("comingSoon"),
         };
       }
 
@@ -119,11 +122,14 @@ export function PhaseShell({
         viewing: "active",
       };
 
+      const mappedState = stateMap[phaseState] ?? "locked";
+
       return {
         phase,
         label: phaseDef?.name ?? `Phase ${phase}`,
-        state: stateMap[phaseState] ?? "locked",
+        state: mappedState,
         href: getPhaseUrl(tripId, phase),
+        tooltip: (mappedState === "pending" || mappedState === "locked") ? lockedTooltip : undefined,
       };
     }
   );

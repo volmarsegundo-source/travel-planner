@@ -111,8 +111,8 @@ function WizardSegment({
 }) {
   const { phase, label, state, href } = segment;
   const isComingSoon = state === "coming_soon";
-  const isClickable = state !== "locked" && !isComingSoon && (href || onClick);
-  const comingSoonTooltip = isComingSoon ? segment.tooltip : undefined;
+  const isClickable = (state === "completed" || state === "active") && (href || onClick);
+  const nonClickableTooltip = segment.tooltip ?? (isComingSoon ? undefined : undefined);
 
   const circleClasses = cn(
     "relative flex items-center justify-center rounded-full shrink-0",
@@ -176,9 +176,9 @@ function WizardSegment({
             {circleContent}
           </button>
         ) : (
-          <div aria-hidden="true" title={comingSoonTooltip}>{circleContent}</div>
+          <div aria-hidden="true" title={nonClickableTooltip}>{circleContent}</div>
         )}
-        <span className={labelClasses} aria-hidden="true" title={comingSoonTooltip}>
+        <span className={labelClasses} aria-hidden="true" title={nonClickableTooltip}>
           {label}
         </span>
       </div>
@@ -245,7 +245,7 @@ function DashboardLayout({
       className={cn("flex items-center", className)}
     >
       {segments.map((segment, i) => {
-        const isClickable = segment.state !== "locked" && segment.state !== "coming_soon" && onSegmentClick;
+        const isClickable = (segment.state === "completed" || segment.state === "active") && onSegmentClick;
         const isSegmentComingSoon = segment.state === "coming_soon";
 
         // Circle styles matching sidebar (wizard) layout
@@ -305,7 +305,7 @@ function DashboardLayout({
           <div
             key={segment.phase}
             className={circleStyle}
-            title={isSegmentComingSoon && segment.tooltip ? segment.tooltip : `Phase ${segment.phase}: ${segment.label} - ${stateAriaLabels[segment.state]}`}
+            title={segment.tooltip ?? `Phase ${segment.phase}: ${segment.label} - ${stateAriaLabels[segment.state]}`}
           >
             {circleContent}
           </div>

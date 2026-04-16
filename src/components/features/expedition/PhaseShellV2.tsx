@@ -88,6 +88,7 @@ export function PhaseShellV2({
 
   // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always coming_soon)
   const phaseDefs = getPhaseDefinitions();
+  const lockedTooltip = tPhases("lockedTooltip");
   const segments: PhaseSegment[] = Array.from(
     { length: phaseDefs.length },
     (_, i) => {
@@ -118,11 +119,14 @@ export function PhaseShellV2({
         viewing: "active",
       };
 
+      const mappedState = stateMap[phaseState] ?? "locked";
+
       return {
         phase,
         label: phaseDef?.name ?? `Phase ${phase}`,
-        state: stateMap[phaseState] ?? "locked",
+        state: mappedState,
         href: getPhaseUrl(tripId, phase),
+        tooltip: (mappedState === "pending" || mappedState === "locked") ? lockedTooltip : undefined,
       };
     }
   );
