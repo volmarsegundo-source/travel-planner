@@ -279,13 +279,16 @@ export function Phase2WizardV2({
         : isPhaseReorderEnabled()
           ? t("ctaNextReordered")
           : tExpedition("cta.advance");
+      const confirmProps = isEditMode
+        ? { isDirty: formDirty, saveSuccess }
+        : {};
       return {
         onBack: handleBack,
         onPrimary: handleSubmit,
         primaryLabel: advanceLabel,
         isLoading: isSubmitting,
         isDisabled: isSubmitting,
-        ...dirtyProps,
+        ...confirmProps,
       };
     }
     return {
