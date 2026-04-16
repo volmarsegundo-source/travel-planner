@@ -278,7 +278,7 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
       {SECTIONS.map((section) => (
         <div
           key={section.key}
-          className="rounded-xl border border-border bg-card overflow-hidden"
+          className="rounded-xl border border-border bg-card overflow-visible"
         >
           <button
             type="button"
