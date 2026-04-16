@@ -8,7 +8,7 @@
 **Status**: **Approved** -- PO aprovou 15 decisoes em 2026-04-15 (ver Secao 11 e Change History)
 **Versao alvo**: **v0.59.0** (merge flag OFF) -> **v0.60.0** (flip) -> **v0.61.0** (cleanup)
 **Versao atual (tag)**: v0.58.0
-**Feature flag**: `PHASE_REORDER_ENABLED` -- **env-only** (nao ha feature-flag service), default OFF em producao
+**Feature flag**: `NEXT_PUBLIC_PHASE_REORDER_ENABLED` -- **env-only** (nao ha feature-flag service), default OFF em producao
 **CIA**: CIA-008 -- Sprint 44 Phase Reorder
 **ADR**: requer ADR-0XX (a ser criada pelo architect) -- registro da decisao de reordenacao
 **Specs dependentes** (devem estar "Approved" antes da execucao): SPEC-PROD-REORDER-PHASES, SPEC-ARCH-REORDER-PHASES, SPEC-UX-REORDER-PHASES, SPEC-AI-REORDER-PHASES, SPEC-QA-REORDER-PHASES, SPEC-DEVOPS-REORDER-PHASES
@@ -54,7 +54,7 @@ A mudanca **quebra a semantica do campo `Trip.currentPhase`** (inteiro 1..6) par
 
 ### 1.2 Recomendacao de versionamento (SemVer pre-1.0)
 
-**Etapa A -- v0.59.0 (MINOR)**: merge do codigo com feature flag `PHASE_REORDER_ENABLED=false`. Produto nao muda de comportamento para o usuario final. Novo codigo fica dormente.
+**Etapa A -- v0.59.0 (MINOR)**: merge do codigo com feature flag `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false`. Produto nao muda de comportamento para o usuario final. Novo codigo fica dormente.
 
 - Justificativa: sob SemVer pre-1.0 do projeto, adicionar novo comportamento atras de flag e **backward-compatible** porque o contrato publico vigente (flag OFF) continua identico. MINOR.
 
@@ -76,7 +76,7 @@ A mudanca **quebra a semantica do campo `Trip.currentPhase`** (inteiro 1..6) par
 > A migracao de dados e **big-bang in-place** (Opcao D, ver Secao 3), rodada **uma unica vez** por ambiente, sempre **antes** do flip da flag naquele ambiente.
 
 ### Etapa 1 -- Merge com flag OFF (Sprint 44, D0) -- v0.59.0
-- Merge para `master` atras de `PHASE_REORDER_ENABLED=false` (env-only) em producao.
+- Merge para `master` atras de `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false` (env-only) em producao.
 - Codigo novo fica **dormente** em producao: shim `lib/phases/phase-mapping.ts` ainda le da `phase-config.v1.ts` porque flag e OFF e os dados em prod ainda estao no schema v1.
 - Produ cao continua exatamente como antes. Zero impacto runtime, zero migracao de dados.
 - Tag: **v0.59.0** (MINOR). Inclui bump corrigindo RISK-017 (`package.json` 0.35.1 -> 0.59.0).
@@ -84,7 +84,7 @@ A mudanca **quebra a semantica do campo `Trip.currentPhase`** (inteiro 1..6) par
 
 ### Etapa 2 -- Staging com flag ON (Sprint 44, D+1 a D+3)
 - Em staging: rodar a **migracao big-bang SQL** (script `scripts/db/migrate-phase-reorder.sql`) sobre o DB de staging **apos snapshot**.
-- Depois da migracao: setar `PHASE_REORDER_ENABLED=true` e re-deploy.
+- Depois da migracao: setar `NEXT_PUBLIC_PHASE_REORDER_ENABLED=true` e re-deploy.
 - QA executa suite E2E completa + cenarios apos migracao sobre dataset sintetico realista (seed com expedicoes em cada uma das 6 fases) + validacao manual interna.
 - finops-engineer monitora gasto de tokens AI (nao deve mudar; se mudar >10% e alarme).
 - **Janela de observacao em staging: 7 dias** para acomodar tolerancia de trust score (ver 6.2).
@@ -95,7 +95,7 @@ A mudanca **quebra a semantica do campo `Trip.currentPhase`** (inteiro 1..6) par
 2. **Pre-canary (T-30min)**: freeze de merges em escopo sensivel entra em vigor (ver Secao 2.6).
 3. **T-0 (10:00 BRT quarta)**: roda `migrate-phase-reorder.sql` em prod. Transacional, idempotente, janela de manutencao curta (<5 min esperada).
 4. **T+5min**: validacao pos-migracao (script de checksum). Contagem total de Trips inalterada; distribuicao por fase coerente com mapeamento.
-5. **T+10min**: deploy com `PHASE_REORDER_ENABLED=true` restringido a cohort canary:
+5. **T+10min**: deploy com `NEXT_PUBLIC_PHASE_REORDER_ENABLED=true` restringido a cohort canary:
    - **Equipe interna** (~10 contas identificadas por allowlist de email em `CANARY_ALLOWLIST` env).
    - **5% de beta testers opt-in** via `/labs` (gate dentro do shim: hash userId mod 100 < 5 && usuario opt-in).
 6. **T+10min -> T+48h**: janela de canary e **freeze de merges** em escopo sensivel (ver 2.6).
@@ -122,7 +122,7 @@ A mudanca **quebra a semantica do campo `Trip.currentPhase`** (inteiro 1..6) par
 
 ### Etapa 5 -- Remocao do codigo legacy (Sprint 45 ou 46) -- v0.61.0
 - Baking period minimo: **2 sprints apos 100% beta** sem issues.
-- Remover `phase-config.v1.ts`, remover branch legacy do shim `phase-mapping.ts`, remover flag `PHASE_REORDER_ENABLED` do env, remover marcador de metadata de migracao.
+- Remover `phase-config.v1.ts`, remover branch legacy do shim `phase-mapping.ts`, remover flag `NEXT_PUBLIC_PHASE_REORDER_ENABLED` do env, remover marcador de metadata de migracao.
 - Tag: **v0.61.0** (MINOR -- limpeza).
 - **Go-criteria**: zero references a legacy no codigo (verificado via grep), zero testes em legacy, CHANGELOG registra a remocao.
 
@@ -174,12 +174,12 @@ Em uma unica transacao:
 ### O que o codigo faz
 
 - `phase-config.ts` (unico, sem `.v1`/`.v2`) -- ja reflete a nova ordem.
-- `phase-mapping.ts` (shim) -- **apenas** para consumir a flag `PHASE_REORDER_ENABLED` para gating de **UI/labels** (Etapa 4 beta rollout), nao para decidir qual schema ler. Leitura de dados assume sempre schema novo pos-Etapa 3.
+- `phase-mapping.ts` (shim) -- **apenas** para consumir a flag `NEXT_PUBLIC_PHASE_REORDER_ENABLED` para gating de **UI/labels** (Etapa 4 beta rollout), nao para decidir qual schema ler. Leitura de dados assume sempre schema novo pos-Etapa 3.
 - Constantes semanticas (`PHASE_GUIDE=3`, `PHASE_ITINERARY=4`, `PHASE_LOGISTICS=5`, `PHASE_CHECKLIST=6`) devem ser usadas em toda parte. grep fail em PR com numero literal (linter rule adicionado pela dev-fullstack-*).
 
 ### Constraint critico de rollback
 
-**O codigo pos-v0.60.0 nao sabe ler dados pre-migracao (v1).** Apos a migracao rodar em prod, `PHASE_REORDER_ENABLED=false` **nao restaura** o comportamento antigo para dados ja migrados -- uma leitura da fase 6 apos o flag OFF retornaria "Checklist" na tabela, mas o codigo v1 interpretaria aquilo como "Roteiro" semanticamente errado. Portanto:
+**O codigo pos-v0.60.0 nao sabe ler dados pre-migracao (v1).** Apos a migracao rodar em prod, `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false` **nao restaura** o comportamento antigo para dados ja migrados -- uma leitura da fase 6 apos o flag OFF retornaria "Checklist" na tabela, mas o codigo v1 interpretaria aquilo como "Roteiro" semanticamente errado. Portanto:
 
 > **Flag OFF apos migracao = estado inconsistente. Nao usar como rollback confiavel em producao.**
 
@@ -298,7 +298,7 @@ O rollback confiavel pos-migracao e **DB snapshot restore** (ver Secao 5.2). Fla
 ## [0.59.0] - 2026-04-XX
 
 ### Added
-- [SPEC-RELEASE-REORDER-PHASES] Feature flag env-only `PHASE_REORDER_ENABLED` (default OFF) como gate de UI/labels do rollout gradual da reordenacao das fases da expedicao
+- [SPEC-RELEASE-REORDER-PHASES] Feature flag env-only `NEXT_PUBLIC_PHASE_REORDER_ENABLED` (default OFF) como gate de UI/labels do rollout gradual da reordenacao das fases da expedicao
 - [SPEC-ARCH-REORDER-PHASES] Shim `lib/phases/phase-mapping.ts` para centralizar acesso a config de fases
 - [SPEC-UX-REORDER-PHASES] Banner e modal de notificacao da nova ordem das fases para expedicoes em andamento
 - [SPEC-DEVOPS-REORDER-PHASES] Script de migracao big-bang `scripts/db/migrate-phase-reorder.sql` (transacional, idempotente) e script break-glass `scripts/db/reverse-phase-reorder.sql`
@@ -334,7 +334,7 @@ Com a Opcao D (big-bang in-place), o rollback nao e mais trivial como era com sc
 **Tempo de execucao**: <2 minutos. Disponivel a qualquer hora.
 
 **Procedimento**:
-1. devops-engineer seta `PHASE_REORDER_ENABLED=false` e dispara re-deploy rolling.
+1. devops-engineer seta `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false` e dispara re-deploy rolling.
 2. Invalida cache Redis relacionado a fase.
 
 **CONSTRAINT CRITICO -- ler antes de usar**:
@@ -353,7 +353,7 @@ Apos migracao ter rodado, o que "Nivel 1 -- flag OFF" consegue e desligar o gate
 **Procedimento**:
 1. devops-engineer para writes em `Trip` (deploy modo maintenance ou bloqueio de server actions de fase).
 2. Restore da `Trip` (e tabelas dependentes migradas) a partir do snapshot `pre-phase-reorder-S44` tirado em T-60min da Etapa 3.
-3. Deploy com `PHASE_REORDER_ENABLED=false` e imagem v0.59.0 (ou imagem atual com flag OFF -- ambas funcionam pois os dados agora sao v1).
+3. Deploy com `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false` e imagem v0.59.0 (ou imagem atual com flag OFF -- ambas funcionam pois os dados agora sao v1).
 4. Invalida caches.
 5. Validacao: checksum de contagem por fase igual ao pre-migracao.
 6. Libera writes.
@@ -414,7 +414,7 @@ E incidente de dados/logica (pontos errados, fase errada, PA mismatch)?
 - [ ] ADR-0XX assinada pelo architect
 - [ ] security-specialist sign-off (revisao de PII hash, BOLA guards no novo phase-config)
 - [ ] SPEC-PROD, SPEC-ARCH, SPEC-UX, SPEC-AI, SPEC-QA, SPEC-DEVOPS em status "Approved"
-- [ ] Flag `PHASE_REORDER_ENABLED` documentada em `.env.example` e `docs/infrastructure.md`
+- [ ] Flag `NEXT_PUBLIC_PHASE_REORDER_ENABLED` documentada em `.env.example` e `docs/infrastructure.md`
 - [ ] Shim `phase-mapping.ts` com coverage >=90%
 - [ ] CHANGELOG draft escrito e revisado
 
@@ -455,7 +455,7 @@ E incidente de dados/logica (pontos errados, fase errada, PA mismatch)?
 
 ### 6.5 Checklist antes de **remocao de legacy** (fim Etapa 5) -- v0.61.0
 - [ ] 100% beta por >=2 sprints sem issues
-- [ ] grep em codigo nao retorna branch legacy do shim nem `PHASE_REORDER_ENABLED`
+- [ ] grep em codigo nao retorna branch legacy do shim nem `NEXT_PUBLIC_PHASE_REORDER_ENABLED`
 - [ ] Marcador de metadata `_phase_reorder_migration` dropado
 - [ ] Testes legacy removidos
 - [ ] CHANGELOG da versao da remocao registra como cleanup
@@ -524,7 +524,7 @@ Todas as decisoes abaixo foram aprovadas pelo PO. Este bloco e historico -- serv
 | # | Decisao                             | Resultado aprovado                                                    |
 |---|-------------------------------------|-----------------------------------------------------------------------|
 | 1 | Estrategia de migracao              | **Opcao D** (big-bang in-place SQL, sem phaseSchemaVersion)           |
-| 2 | Feature flag                        | **Env-only** (`PHASE_REORDER_ENABLED`), default OFF, sem flag service |
+| 2 | Feature flag                        | **Env-only** (`NEXT_PUBLIC_PHASE_REORDER_ENABLED`), default OFF, sem flag service |
 | 3 | Cohort de canary                    | **Equipe interna + 5% beta testers opt-in**                           |
 | 4 | Janela de deploy                    | **Quarta-feira, 10:00 BRT**                                           |
 | 5 | Comunicacao beta                    | **2 emails (T-7 e T-0) + in-app modal**                               |

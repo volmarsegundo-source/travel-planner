@@ -7,7 +7,7 @@
 **Date**: 2026-04-15
 **Status**: Draft — pending PO / architect / prompt-engineer decisions
 **Related Specs** (to be produced): SPEC-PROD-S44-REORDER, SPEC-UX-S44-REORDER, SPEC-ARCH-S44-REORDER, SPEC-SEC-S44-REORDER, SPEC-AI-S44-REORDER
-**Feature Flag**: `PHASE_REORDER_ENABLED` (boolean, default OFF during sprint)
+**Feature Flag**: `NEXT_PUBLIC_PHASE_REORDER_ENABLED` (boolean, default OFF during sprint)
 
 ---
 
@@ -64,7 +64,7 @@ Sprint 44 reorders phases 3–6 of the Atlas expedition. Phases 1, 2, 7, 8 uncha
 
 | File | Change required | Priority |
 |---|---|---|
-| `tests/e2e/phase-navigation.e2e.spec.ts` | Complete rewrite of phase order assertions. Add two describe blocks gated on `process.env.PHASE_REORDER_ENABLED`. | **P0** |
+| `tests/e2e/phase-navigation.e2e.spec.ts` | Complete rewrite of phase order assertions. Add two describe blocks gated on `process.env.NEXT_PUBLIC_PHASE_REORDER_ENABLED`. | **P0** |
 | `tests/e2e/phase-completion.spec.ts` | Update phase-3 completion asserts → Guide completion. Update phase-6 completion asserts → Checklist completion. Update PA award amounts. | **P0** |
 | `tests/e2e/expedition.spec.ts` | Update full international flow. Add assertion that Checklist step, when reached, shows items derived from Itinerary. | **P0** |
 | `tests/e2e/expedition-domestic.spec.ts` | Same as above for domestic trip type; verify `tripType` does not re-regress (see BUG-A from QA-E2E-001). | **P0** |
@@ -264,7 +264,7 @@ Sign-off blockers (any one open → release held):
 
 - [ ] All P0 unit + integration tests (listed §2, §3, §4) green under both flag states
 - [ ] Migration tests TC-MIG-001..007 green against a 10 000-row synthetic dataset in CI
-- [ ] E2E suite green in CI for both `PHASE_REORDER_ENABLED=true` and `=false`
+- [ ] E2E suite green in CI for both `NEXT_PUBLIC_PHASE_REORDER_ENABLED=true` and `=false`
 - [ ] Visual regression baseline accepted by UX designer (no un-reviewed diffs)
 - [ ] Eval trust score ≥ **0.90 in staging** against the new S44 baseline
 - [ ] Injection resistance eval — 100 % pass on INJ-S44-01..05 and existing vectors
@@ -304,10 +304,10 @@ CI implementation: parameterized Vitest projects `phase-flag-on` / `phase-flag-o
 ## 11. BDD Scenarios (Given / When / Then)
 
 ```gherkin
-Feature: Phase reordering (PHASE_REORDER_ENABLED)
+Feature: Phase reordering (NEXT_PUBLIC_PHASE_REORDER_ENABLED)
 
   Background:
-    Given feature flag PHASE_REORDER_ENABLED is ON
+    Given feature flag NEXT_PUBLIC_PHASE_REORDER_ENABLED is ON
     And a user "Ana" with a verified account and a Desbravador rank
 
   Scenario: Ana starts a new international expedition and reaches phase 3
@@ -340,7 +340,7 @@ Feature: Phase reordering (PHASE_REORDER_ENABLED)
     And the injection-resistance eval records a pass
 
   Scenario: Flag OFF preserves legacy behavior
-    Given feature flag PHASE_REORDER_ENABLED is OFF
+    Given feature flag NEXT_PUBLIC_PHASE_REORDER_ENABLED is OFF
     When Ana starts a new expedition
     Then phase 3 is titled "O Preparo"
     And phase 6 is titled "O Roteiro"
@@ -378,7 +378,7 @@ Rule of thumb for S44: authors run the unit + mocked-Prisma integration suite fr
 
 2. **Trust score gate exception** (§8.3) — approve temporary relaxation?
 
-3. **Feature flag retirement date** — when does `PHASE_REORDER_ENABLED` become permanently ON and the flag removed? QA recommends: two weeks after stable prod deploy, after which one CI variant is dropped.
+3. **Feature flag retirement date** — when does `NEXT_PUBLIC_PHASE_REORDER_ENABLED` become permanently ON and the flag removed? QA recommends: two weeks after stable prod deploy, after which one CI variant is dropped.
 
 4. **Tolerate visual diffs in landing page `PhasesSectionV2`** or require a marketing copy refresh as part of the sprint?
 

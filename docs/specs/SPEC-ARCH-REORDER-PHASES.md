@@ -353,7 +353,7 @@ restore**, not a reversible migration:
    production DB (runbook: `docs/runbooks/phase-reorder-rollback.md`).
 2. Snapshot is stored in the standard backup bucket with a 30-day retention.
 3. If the migration goes wrong:
-   - **First response**: flip `PHASE_REORDER_ENABLED=off` so the app stops
+   - **First response**: flip `NEXT_PUBLIC_PHASE_REORDER_ENABLED=off` so the app stops
      exercising new-layout engine code against the remapped data. This
      buys time for diagnosis without touching the DB.
    - **If data corruption is confirmed**: restore from the pre-migration
@@ -652,14 +652,14 @@ the absence gracefully — prompt-engineer updates templates to say
 
 ---
 
-## 11. Feature Flag: `PHASE_REORDER_ENABLED`
+## 11. Feature Flag: `NEXT_PUBLIC_PHASE_REORDER_ENABLED`
 
 ### 11.1 Architectural shape — env-only, boolean semantics
 
 Add to `src/lib/env.ts`:
 
 ```ts
-PHASE_REORDER_ENABLED: z.coerce.boolean().default(false),
+NEXT_PUBLIC_PHASE_REORDER_ENABLED: z.coerce.boolean().default(false),
 ```
 
 **Env-only** — no DB-backed flag, no per-user flag, no LaunchDarkly
@@ -674,7 +674,7 @@ Two states:
 
 ### 11.2 Deploy choreography
 
-- **Day 1** — deploy code with `PHASE_REORDER_ENABLED=false`. New code
+- **Day 1** — deploy code with `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false`. New code
   is inert; old layout remains in effect. Smoke test prod.
 - **Day 1 + Nh (low-traffic window)** — devops takes `pg_dump` snapshot,
   applies migration SQL (§5.5), flips env var to `true`, restarts app.
@@ -725,7 +725,7 @@ DB-snapshot rollback**. No shadow columns, no `phaseSchemaVersion`
 discriminator, no dual-write, no lazy migration. A single transactional
 UPDATE remaps all rows using a negative-offset pivot to avoid
 `(tripId, phaseNumber)` unique-key collisions. Rollback is a `pg_dump`
-restore paired with `PHASE_REORDER_ENABLED=false`.
+restore paired with `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false`.
 
 **Consequences**:
 - **Positive**: minimal schema churn (zero new columns); no follow-up
@@ -898,7 +898,7 @@ comparison uses the existing `createdAt` column.
 | # | Risk | Severity | Likelihood | Mitigation |
 |---|---|---|---|---|
 | R1 | Migration runs on partially-complete expedition and produces a logically incoherent state (completed Checklist without Guide) | **HIGH** | Medium | **Pre-migration audit SQL (§5.3)** surfaces incoherent trips BEFORE commit; PO reviews audit output; §5.5 re-coherence pass pulls `currentPhase` back to lowest incomplete phase; graceful degradation in AI prompts |
-| R2 | Two deploys (code + migration) run out of order → code expects new layout but DB is still old | **HIGH** | Medium | Deploy code with `PHASE_REORDER_ENABLED=false`; snapshot + migrate DB; then flip flag `true` — devops runbook |
+| R2 | Two deploys (code + migration) run out of order → code expects new layout but DB is still old | **HIGH** | Medium | Deploy code with `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false`; snapshot + migrate DB; then flip flag `true` — devops runbook |
 | R4 | `PhaseChecklistItem` rows orphaned if checklist feature-gates on old phase 3 elsewhere | MEDIUM | Low | Grep all `phaseNumber: 3` constants pre-deploy |
 | R5 | Analytics dashboards break silently for 1 sprint | MEDIUM | High | Coordinate with data-engineer in Sprint 44 kickoff; partition by `event.ts < DEPLOY_TS` and migrate dashboards to stable `phase_key` strings (§13) |
 | R6 | Phase 6 AI context exceeds token budget → cost blow-up or truncation bugs | MEDIUM | Medium | prompt-engineer reviews before merge; finops-engineer monitors post-deploy |
@@ -917,7 +917,7 @@ coherent v1 state.
 ## 17. Rollout Plan
 
 1. **Sprint 44 Day 1** — architect spec approved; ADRs 029, 030, 032 written.
-2. **Sprint 44 Day 2–3** — dev implements engine changes behind `PHASE_REORDER_ENABLED=false`.
+2. **Sprint 44 Day 2–3** — dev implements engine changes behind `NEXT_PUBLIC_PHASE_REORDER_ENABLED=false`.
 3. **Sprint 44 Day 4** — qa runs full E2E on staging with flag `true` +
    migration applied to a staging DB clone. Pre-migration audit (§5.3)
    run against a prod-data snapshot; PO reviews output.
@@ -947,7 +947,7 @@ coherent v1 state.
 - [ ] Migration SQL (§5.5) reviewed by devops + security; runbook includes pg_dump step
 - [ ] Pre-migration audit SQL (§5.3) executed against prod snapshot; PO reviews output
 - [ ] Prisma schema is **unchanged** (no `phaseSchemaVersion` column)
-- [ ] Feature flag `PHASE_REORDER_ENABLED` (boolean env-only) wired in env validation
+- [ ] Feature flag `NEXT_PUBLIC_PHASE_REORDER_ENABLED` (boolean env-only) wired in env validation
 - [ ] Server actions renamed to feature names (not phase numbers)
 - [ ] Admin feedback rendering uses `getPhaseLabel(phase, createdAt)` with `DEPLOY_TS` comparison
 - [ ] Analytics dashboards migrated to `phase_key` warehouse view — data-engineer sign-off
