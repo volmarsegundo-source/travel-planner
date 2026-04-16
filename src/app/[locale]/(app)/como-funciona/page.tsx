@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 import {
   AI_COSTS,
   WELCOME_BONUS,
@@ -87,7 +87,7 @@ export default async function ComoFuncionaPage() {
                   <td className="py-2 text-muted-foreground">{t("earnTable.dailyLogin")}</td>
                   <td className="py-2 text-right font-medium text-atlas-gold">+{EARNING_AMOUNTS.daily_login}</td>
                 </tr>
-                {PHASE_DEFINITIONS.filter((p) => p.pointsReward > 0).map((phase) => (
+                {getPhaseDefinitions().filter((p) => p.pointsReward > 0).map((phase) => (
                   <tr key={phase.phaseNumber} className="border-b border-border/50">
                     <td className="py-2 text-muted-foreground">
                       {t(`earnTable.phase${phase.phaseNumber}`)}

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { auth } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { PointsEngine } from "@/lib/engines/points-engine";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
@@ -43,9 +43,9 @@ export async function getGamificationSummaryAction(): Promise<
     const progress = await PointsEngine.getProgressSummary(session.user.id);
     const currentLevel = Math.min(
       Math.floor(progress.totalPoints / 100) + 1,
-      PHASE_DEFINITIONS.length
+      getPhaseDefinitions().length
     );
-    const phaseDef = PHASE_DEFINITIONS[currentLevel - 1];
+    const phaseDef = getPhaseDefinitions()[currentLevel - 1];
     const phaseName = phaseDef?.name ?? `Phase ${currentLevel}`;
 
     return {

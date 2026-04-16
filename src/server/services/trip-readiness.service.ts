@@ -4,7 +4,7 @@ import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
 import { AppError } from "@/lib/errors";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -106,7 +106,7 @@ export class TripReadinessService {
     const phases: PhaseReadiness[] = [];
 
     for (let i = 1; i <= EXPEDITION_PHASE_COUNT; i++) {
-      const phaseDef = PHASE_DEFINITIONS.find((d) => d.phaseNumber === i);
+      const phaseDef = getPhaseDefinitions().find((d) => d.phaseNumber === i);
       const phaseRecord = phaseMap.get(i);
 
       let status: PhaseStatus = "not_started";

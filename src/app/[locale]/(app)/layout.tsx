@@ -3,7 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { PointsEngine } from "@/lib/engines/points-engine";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 import { db } from "@/server/db";
 import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
 import { FooterV2 } from "@/components/features/landing/FooterV2";
@@ -47,9 +47,9 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     const progress = await PointsEngine.getBalance(user.id!);
     const currentLevel = Math.min(
       Math.floor(progress.totalPoints / 100) + 1,
-      PHASE_DEFINITIONS.length
+      getPhaseDefinitions().length
     );
-    const phaseDef = PHASE_DEFINITIONS[currentLevel - 1];
+    const phaseDef = getPhaseDefinitions()[currentLevel - 1];
     gamification = {
       totalPoints: progress.totalPoints,
       availablePoints: progress.availablePoints,

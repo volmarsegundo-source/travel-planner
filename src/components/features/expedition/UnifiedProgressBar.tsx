@@ -10,7 +10,7 @@ import {
   TOTAL_ACTIVE_PHASES,
   type PhaseState,
 } from "@/lib/engines/phase-navigation.engine";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 
 interface UnifiedProgressBarProps {
   tripId: string;
@@ -92,7 +92,7 @@ export function UnifiedProgressBar({
     >
       {phases.map((phaseNum, index) => {
         const state = getPhaseState(phaseNum, tripCurrentPhase, completedPhases);
-        const definition = PHASE_DEFINITIONS[phaseNum - 1];
+        const definition = getPhaseDefinitions()[phaseNum - 1];
         const phaseName = definition ? t(definition.nameKey) : `Phase ${phaseNum}`;
         const stateLabel = getStateLabel(state);
         const isNavigable = canNavigateToPhase(tripCurrentPhase, phaseNum, completedPhases);

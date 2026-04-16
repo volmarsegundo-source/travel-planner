@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Check } from "lucide-react";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 
 // Import canonical route map from navigation engine (single source of truth)
 import { PHASE_ROUTE_MAP, TOTAL_ACTIVE_PHASES, canNavigateToPhase } from "@/lib/engines/phase-navigation.engine";
@@ -28,7 +28,7 @@ export function DashboardPhaseProgressBar({
   const router = useRouter();
 
   // Only render implemented phases (1-6); phases 7-8 are "coming soon" and hidden
-  const activePhases = PHASE_DEFINITIONS.filter(
+  const activePhases = getPhaseDefinitions().filter(
     (p) => p.phaseNumber <= TOTAL_ACTIVE_PHASES
   );
 
