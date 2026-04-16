@@ -471,6 +471,8 @@
       "fields": {
         "birthDate": "Date of birth",
         "phone": "Phone number",
+        "location": "City, Country",
+        "locationPlaceholder": "Search for your city…",
         "country": "Country",
         "city": "City",
         "address": "Address",

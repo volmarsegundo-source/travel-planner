@@ -471,6 +471,8 @@
       "fields": {
         "birthDate": "Data de nascimento",
         "phone": "Telefone",
+        "location": "Cidade, País",
+        "locationPlaceholder": "Busque sua cidade…",
         "country": "País",
         "city": "Cidade",
         "address": "Endereço",

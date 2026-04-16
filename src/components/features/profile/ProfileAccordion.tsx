@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { updateProfileFieldAction } from "@/server/actions/profile.actions";
+import { DestinationAutocomplete } from "@/components/features/expedition/DestinationAutocomplete";
 
 interface ProfileData {
   birthDate: string | null;
@@ -35,12 +36,18 @@ interface SectionConfig {
 interface FieldConfig {
   key: string;
   labelKey: string;
-  type: "text" | "date" | "tel" | "textarea";
+  type: "text" | "date" | "tel" | "textarea" | "location";
   masked?: boolean;
   maxLength?: number;
   placeholder?: string;
 }
 
+// Sprint 44: the `location` pseudo-field replaces the two free-text inputs
+// (country, city) with a single Nominatim-powered autocomplete. Under the
+// hood, it still persists `country` and `city` as separate UserProfile columns
+// to preserve backwards compatibility with existing data, gamification scoring
+// (PROFILE_FIELD_POINTS awards both independently), and downstream callers
+// (trip classifier, expedition summary) that read them individually.
 const SECTIONS: SectionConfig[] = [
   {
     key: "personal",
@@ -48,8 +55,7 @@ const SECTIONS: SectionConfig[] = [
     fields: [
       { key: "birthDate", labelKey: "fields.birthDate", type: "date" },
       { key: "phone", labelKey: "fields.phone", type: "tel", maxLength: 20 },
-      { key: "country", labelKey: "fields.country", type: "text", maxLength: 100 },
-      { key: "city", labelKey: "fields.city", type: "text", maxLength: 100 },
+      { key: "location", labelKey: "fields.location", type: "location" },
       { key: "address", labelKey: "fields.address", type: "text", maxLength: 300 },
     ],
   },
@@ -79,6 +85,29 @@ const SECTIONS: SectionConfig[] = [
   },
 ];
 
+/** Format a "City, Country" string from the stored profile columns. */
+function formatLocation(city: string | null, country: string | null): string {
+  if (city && country) return `${city}, ${country}`;
+  if (city) return city;
+  if (country) return country;
+  return "";
+}
+
+/** Fallback parser: when the user types free text like "Paris, France" and
+ *  clicks save without selecting an autocomplete result. */
+function parseFreeTextLocation(
+  text: string
+): { city: string | null; country: string | null } {
+  const trimmed = text.trim();
+  if (!trimmed) return { city: null, country: null };
+  const parts = trimmed.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    // Last segment = country; everything before = city (drop state in between)
+    return { city: parts[0], country: parts[parts.length - 1] };
+  }
+  return { city: parts[0], country: null };
+}
+
 export function ProfileAccordion({ profile }: ProfileAccordionProps) {
   const t = useTranslations("profile.accordion");
   const [openSection, setOpenSection] = useState<string | null>(null);
@@ -86,10 +115,17 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
     const values: Record<string, string> = {};
     for (const section of SECTIONS) {
       for (const field of section.fields) {
-        const profileValue = profile[field.key as keyof ProfileData];
-        values[field.key] = typeof profileValue === "string" ? profileValue : "";
+        if (field.key === "location") {
+          values.location = formatLocation(profile.city, profile.country);
+        } else {
+          const profileValue = profile[field.key as keyof ProfileData];
+          values[field.key] = typeof profileValue === "string" ? profileValue : "";
+        }
       }
     }
+    // Keep hidden country/city tracked too, so progress reflects saved state.
+    values.country = profile.country ?? "";
+    values.city = profile.city ?? "";
     return values;
   });
   const [savingField, setSavingField] = useState<string | null>(null);
@@ -106,7 +142,77 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
     setErrorField(null);
   }
 
+  /** Called when the user picks a result from the autocomplete dropdown. */
+  function handleLocationSelect(result: {
+    city: string | null;
+    country: string | null;
+  }) {
+    const city = result.city ?? null;
+    const country = result.country ?? null;
+    setFieldValues((prev) => ({
+      ...prev,
+      location: formatLocation(city, country),
+      city: city ?? prev.city,
+      country: country ?? prev.country,
+    }));
+    setErrorField(null);
+  }
+
+  function flashSaved(key: string) {
+    setSavedFields((prev) => new Set(prev).add(key));
+    setTimeout(() => {
+      setSavedFields((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }, 2000);
+  }
+
+  function handleSaveLocation() {
+    const display = fieldValues.location?.trim() ?? "";
+    if (!display) return;
+
+    // Prefer the structured values set by the autocomplete; fall back to a
+    // best-effort parse for users who typed and skipped selection.
+    let city = fieldValues.city?.trim() ?? "";
+    let country = fieldValues.country?.trim() ?? "";
+    if (!city && !country) {
+      const parsed = parseFreeTextLocation(display);
+      city = parsed.city ?? "";
+      country = parsed.country ?? "";
+    }
+
+    if (!city && !country) {
+      setErrorField("location");
+      return;
+    }
+
+    setSavingField("location");
+    setErrorField(null);
+
+    startTransition(async () => {
+      const results = await Promise.all([
+        city ? updateProfileFieldAction("city", city) : Promise.resolve({ success: true } as const),
+        country ? updateProfileFieldAction("country", country) : Promise.resolve({ success: true } as const),
+      ]);
+      setSavingField(null);
+      const ok = results.every((r) => r.success);
+      if (ok) {
+        // Sync the persisted values back into local state so progress counts them.
+        setFieldValues((prev) => ({ ...prev, city, country }));
+        flashSaved("location");
+      } else {
+        setErrorField("location");
+      }
+    });
+  }
+
   function handleSaveField(fieldKey: string) {
+    if (fieldKey === "location") {
+      handleSaveLocation();
+      return;
+    }
     const value = fieldValues[fieldKey]?.trim();
     if (!value) return;
 
@@ -117,23 +223,32 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
       const result = await updateProfileFieldAction(fieldKey, value);
       setSavingField(null);
       if (result.success) {
-        setSavedFields((prev) => new Set(prev).add(fieldKey));
-        setTimeout(() => {
-          setSavedFields((prev) => {
-            const next = new Set(prev);
-            next.delete(fieldKey);
-            return next;
-          });
-        }, 2000);
+        flashSaved(fieldKey);
       } else {
         setErrorField(fieldKey);
       }
     });
   }
 
-  // Progress bar
-  const filledCount = Object.values(fieldValues).filter((v) => v.trim().length > 0).length;
-  const totalFields = 11;
+  // Progress bar — still counts the underlying 11 persisted fields so the
+  // scoring stays consistent with PROFILE_FIELD_POINTS and completionScore.
+  const progressFields = [
+    "birthDate",
+    "phone",
+    "country",
+    "city",
+    "address",
+    "passportNumber",
+    "passportExpiry",
+    "nationalId",
+    "bio",
+    "dietaryRestrictions",
+    "accessibility",
+  ];
+  const filledCount = progressFields.filter(
+    (k) => (fieldValues[k] ?? "").trim().length > 0
+  ).length;
+  const totalFields = progressFields.length;
   const progressPercent = Math.round((filledCount / totalFields) * 100);
 
   return (
@@ -193,6 +308,32 @@ export function ProfileAccordion({ profile }: ProfileAccordionProps) {
                           rows={3}
                           className="flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-ring focus:outline-none focus:ring-2 focus:ring-ring/30"
                         />
+                      ) : field.type === "location" ? (
+                        <div className="flex-1">
+                          <DestinationAutocomplete
+                            id={`profile-${field.key}`}
+                            name="profile-location"
+                            value={fieldValues.location ?? ""}
+                            onChange={(v) => {
+                              // Typing manually — clear stale structured values
+                              // so the save flow falls back to parsing.
+                              setFieldValues((prev) => ({
+                                ...prev,
+                                location: v,
+                                city: "",
+                                country: "",
+                              }));
+                              setErrorField(null);
+                            }}
+                            onSelect={(r) =>
+                              handleLocationSelect({
+                                city: r.city,
+                                country: r.country,
+                              })
+                            }
+                            placeholder={t("fields.locationPlaceholder")}
+                          />
+                        </div>
                       ) : (
                         <Input
                           id={`profile-${field.key}`}
