@@ -38,11 +38,27 @@ const LockIcon = () => (
   </svg>
 );
 
+const ClockIcon = () => (
+  <svg
+    className="size-4"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <circle cx="12" cy="12" r="10" />
+    <polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+
 /* ────────────────────────────────────────────────────────────────────────────
  * Types
  * ──────────────────────────────────────────────────────────────────────────── */
 
-type SegmentState = "completed" | "active" | "pending" | "locked";
+type SegmentState = "completed" | "active" | "pending" | "locked" | "coming_soon";
 
 interface PhaseSegment {
   /** Phase number (1-based) */
@@ -53,6 +69,8 @@ interface PhaseSegment {
   state: SegmentState;
   /** Navigation URL for completed segments */
   href?: string;
+  /** Tooltip text (e.g. "Coming soon" for future phases) */
+  tooltip?: string;
 }
 
 interface AtlasPhaseProgressProps {
@@ -75,6 +93,7 @@ const stateAriaLabels: Record<SegmentState, string> = {
   active: "current",
   pending: "pending",
   locked: "locked",
+  coming_soon: "coming soon",
 };
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -91,7 +110,9 @@ function WizardSegment({
   onClick?: (phase: number) => void;
 }) {
   const { phase, label, state, href } = segment;
-  const isClickable = state !== "locked" && (href || onClick);
+  const isComingSoon = state === "coming_soon";
+  const isClickable = state !== "locked" && !isComingSoon && (href || onClick);
+  const comingSoonTooltip = isComingSoon ? segment.tooltip : undefined;
 
   const circleClasses = cn(
     "relative flex items-center justify-center rounded-full shrink-0",
@@ -105,6 +126,7 @@ function WizardSegment({
     ],
     state === "pending" && "bg-white border-2 border-atlas-outline-variant text-atlas-outline-variant",
     state === "locked" && "bg-atlas-surface-container-low text-atlas-disabled",
+    isComingSoon && "bg-atlas-surface-container-low text-atlas-disabled opacity-60 cursor-default",
   );
 
   const labelClasses = cn(
@@ -113,6 +135,7 @@ function WizardSegment({
     state === "active" && "text-atlas-on-surface font-bold",
     state === "pending" && "text-atlas-outline-variant",
     state === "locked" && "text-atlas-disabled",
+    isComingSoon && "text-atlas-disabled opacity-60",
   );
 
   const lineClasses = cn(
@@ -129,6 +152,7 @@ function WizardSegment({
       {state === "active" && <span>{phase}</span>}
       {state === "pending" && <span>{phase}</span>}
       {state === "locked" && <LockIcon />}
+      {isComingSoon && <ClockIcon />}
     </div>
   );
 
@@ -152,9 +176,9 @@ function WizardSegment({
             {circleContent}
           </button>
         ) : (
-          <div aria-hidden="true">{circleContent}</div>
+          <div aria-hidden="true" title={comingSoonTooltip}>{circleContent}</div>
         )}
-        <span className={labelClasses} aria-hidden="true">
+        <span className={labelClasses} aria-hidden="true" title={comingSoonTooltip}>
           {label}
         </span>
       </div>
@@ -222,6 +246,7 @@ function DashboardLayout({
     >
       {segments.map((segment, i) => {
         const isClickable = segment.state === "completed" && onSegmentClick;
+        const isSegmentComingSoon = segment.state === "coming_soon";
 
         // Circle styles matching sidebar (wizard) layout
         const circleBase = "size-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-300 motion-reduce:transition-none";
@@ -231,6 +256,7 @@ function DashboardLayout({
           segment.state === "active" && "bg-atlas-secondary-container text-atlas-on-secondary-container shadow-atlas-glow-amber animate-pulse motion-reduce:animate-none",
           segment.state === "pending" && "bg-atlas-surface-container-high text-atlas-on-surface-variant",
           segment.state === "locked" && "bg-atlas-surface-container-high/50 text-atlas-disabled",
+          isSegmentComingSoon && "bg-atlas-surface-container-high/50 text-atlas-disabled opacity-60 cursor-default",
         );
 
         // Connector line between circles
@@ -246,10 +272,15 @@ function DashboardLayout({
           />
         );
 
-        // Circle content: check for completed, number for others, lock for locked
+        // Circle content: check for completed, clock for coming_soon, lock for locked, number for others
         const circleContent = segment.state === "completed" ? (
           <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" aria-hidden="true">
             <polyline points="20 6 9 17 4 12" />
+          </svg>
+        ) : isSegmentComingSoon ? (
+          <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
           </svg>
         ) : segment.state === "locked" ? (
           <svg className="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
@@ -274,7 +305,7 @@ function DashboardLayout({
           <div
             key={segment.phase}
             className={circleStyle}
-            title={`Phase ${segment.phase}: ${segment.label} - ${stateAriaLabels[segment.state]}`}
+            title={isSegmentComingSoon && segment.tooltip ? segment.tooltip : `Phase ${segment.phase}: ${segment.label} - ${stateAriaLabels[segment.state]}`}
           >
             {circleContent}
           </div>

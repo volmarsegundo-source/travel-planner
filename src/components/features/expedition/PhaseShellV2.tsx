@@ -79,13 +79,14 @@ export function PhaseShellV2({
 }: PhaseShellV2Props) {
   const t = useTranslations("expedition");
   const tShell = useTranslations("phaseShellV2");
+  const tPhases = useTranslations("gamification.phases");
   const router = useRouter();
 
   const widthClass = contentMaxWidth === "4xl" ? "max-w-4xl" : "max-w-2xl";
   const showStepIndicator =
     currentStep !== undefined && totalSteps !== undefined && totalSteps > 1;
 
-  // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always locked)
+  // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always coming_soon)
   const phaseDefs = getPhaseDefinitions();
   const segments: PhaseSegment[] = Array.from(
     { length: phaseDefs.length },
@@ -93,12 +94,13 @@ export function PhaseShellV2({
       const phase = i + 1;
       const phaseDef = phaseDefs[i];
 
-      // Phases 7-8 are always locked (coming soon)
+      // Phases 7-8 are always "coming soon" (not locked — they are future, not blocked)
       if (phase > TOTAL_ACTIVE_PHASES) {
         return {
           phase,
           label: phaseDef?.name ?? `Phase ${phase}`,
-          state: "locked" as SegmentState,
+          state: "coming_soon" as SegmentState,
+          tooltip: tPhases("comingSoon"),
         };
       }
 

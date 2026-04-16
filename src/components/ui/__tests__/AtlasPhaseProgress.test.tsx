@@ -11,6 +11,17 @@ const mockSegments: PhaseSegment[] = [
   { phase: 6, label: "The Itinerary", state: "locked" },
 ];
 
+const mockSegmentsWithComingSoon: PhaseSegment[] = [
+  { phase: 1, label: "The Calling", state: "completed", href: "/phase/1" },
+  { phase: 2, label: "The Explorer", state: "completed", href: "/phase/2" },
+  { phase: 3, label: "The Preparation", state: "active" },
+  { phase: 4, label: "The Logistics", state: "pending" },
+  { phase: 5, label: "Destination Guide", state: "pending" },
+  { phase: 6, label: "The Itinerary", state: "pending" },
+  { phase: 7, label: "The Treasure", state: "coming_soon", tooltip: "Coming Soon" },
+  { phase: 8, label: "The Legacy", state: "coming_soon", tooltip: "Coming Soon" },
+];
+
 describe("AtlasPhaseProgress", () => {
   // ─── Wizard layout renders ─────────────────────────────────────────────────
   it("renders wizard layout with all 6 segments", () => {
@@ -123,5 +134,41 @@ describe("AtlasPhaseProgress", () => {
     expect(
       screen.getByRole("button", { name: /Go to phase 1: The Calling/ }),
     ).toBeInTheDocument();
+  });
+
+  // ─── Coming soon segments show clock icon, not lock ───────────────────────
+  it("renders coming_soon segments with clock icon and tooltip in wizard", () => {
+    render(
+      <AtlasPhaseProgress
+        segments={mockSegmentsWithComingSoon}
+        layout="wizard"
+        onSegmentClick={vi.fn()}
+      />,
+    );
+    // 8 segments total
+    const items = screen.getAllByRole("listitem");
+    expect(items).toHaveLength(8);
+
+    // coming_soon segments are NOT clickable
+    const buttons = screen.getAllByRole("button");
+    // 2 completed + 1 active + 3 pending = 6 non-locked/coming_soon
+    expect(buttons).toHaveLength(6);
+
+    // SR text says "coming soon"
+    expect(screen.getByText(/Phase 7: The Treasure - coming soon/)).toBeInTheDocument();
+    expect(screen.getByText(/Phase 8: The Legacy - coming soon/)).toBeInTheDocument();
+  });
+
+  it("renders coming_soon segments with tooltip in dashboard", () => {
+    render(
+      <AtlasPhaseProgress
+        segments={mockSegmentsWithComingSoon}
+        layout="dashboard"
+        onSegmentClick={vi.fn()}
+      />,
+    );
+    // coming_soon segments should have tooltip title
+    const comingSoonDivs = document.querySelectorAll('[title="Coming Soon"]');
+    expect(comingSoonDivs.length).toBe(2);
   });
 });
