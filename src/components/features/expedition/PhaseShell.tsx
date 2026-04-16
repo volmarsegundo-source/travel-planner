@@ -10,7 +10,7 @@ import {
   getPhaseUrl,
   TOTAL_ACTIVE_PHASES,
 } from "@/lib/engines/phase-navigation.engine";
-import { PHASE_DEFINITIONS } from "@/lib/engines/phase-config";
+import { getPhaseDefinitions } from "@/lib/engines/phase-config";
 import type { PhaseSegment, SegmentState } from "@/components/ui";
 
 interface PhaseShellProps {
@@ -88,11 +88,13 @@ export function PhaseShell({
     currentStep !== undefined && totalSteps !== undefined && totalSteps > 1;
 
   // Build phase segments for AtlasPhaseProgress (all 8 phases, 7-8 always locked)
+  // Flag-aware: uses getPhaseDefinitions() to show correct names per ordering
+  const phaseDefinitions = getPhaseDefinitions();
   const segments: PhaseSegment[] = Array.from(
-    { length: PHASE_DEFINITIONS.length },
+    { length: phaseDefinitions.length },
     (_, i) => {
       const phase = i + 1;
-      const phaseDef = PHASE_DEFINITIONS[i];
+      const phaseDef = phaseDefinitions[i];
 
       // Phases 7-8 are always locked (coming soon)
       if (phase > TOTAL_ACTIVE_PHASES) {
