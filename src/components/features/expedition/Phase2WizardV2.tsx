@@ -13,6 +13,7 @@ import { getDefaultCurrency, formatCurrency } from "@/lib/utils/currency";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 import type { UserPreferences } from "@/lib/validations/preferences.schema";
 import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { PhaseFooter } from "./PhaseFooter";
 
 interface TripContext {
   destination?: string;
@@ -323,8 +324,8 @@ export function Phase2WizardV2({
       currentStep={currentStepIndex + 1}
       totalSteps={totalSteps}
       isEditMode={isEditMode}
-      showFooter={currentStep !== "passengers"}
-      footerProps={currentStep !== "passengers" ? getFooterProps() : undefined}
+      showFooter={currentStep !== "passengers" && currentStep !== "confirmation"}
+      footerProps={currentStep !== "passengers" && currentStep !== "confirmation" ? getFooterProps() : undefined}
     >
       <div
         ref={stepContentRef}
@@ -537,6 +538,7 @@ export function Phase2WizardV2({
 
         {/* Confirmation */}
         {currentStep === "confirmation" && (
+          <>
           <AtlasCard variant="base">
             <h2 className="font-atlas-headline text-lg font-bold text-atlas-on-surface mb-4">
               {t("step5.title")}
@@ -662,6 +664,16 @@ export function Phase2WizardV2({
               </dl>
             </div>
           </AtlasCard>
+
+          <PhaseFooter
+            onNext={handleSubmit}
+            onBack={handleBack}
+            isSubmitting={isSubmitting}
+            canAdvance={!isSubmitting}
+            isDirty={formDirty}
+            onSave={isEditMode ? handleSavePhase2 : undefined}
+          />
+          </>
         )}
       </div>
     </PhaseShell>

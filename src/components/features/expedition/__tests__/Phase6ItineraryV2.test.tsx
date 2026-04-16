@@ -88,6 +88,10 @@ vi.mock("../WizardFooter", () => ({
   WizardFooter: () => <div data-testid="wizard-footer">WizardFooter</div>,
 }));
 
+vi.mock("../PhaseFooter", () => ({
+  PhaseFooter: () => <div data-testid="phase-footer">PhaseFooter</div>,
+}));
+
 vi.mock("@/components/features/gamification/PAConfirmationModal", () => ({
   PAConfirmationModal: ({
     isOpen,
@@ -257,7 +261,7 @@ describe("Phase6ItineraryV2", () => {
       render(<Phase6ItineraryV2 {...defaultProps} />);
       expect(screen.getByText(/expedition\.phase6\.generateCta/)).toBeInTheDocument();
       // WizardFooter provides navigation
-      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+      expect(screen.getByTestId("phase-footer")).toBeInTheDocument();
     });
   });
 
@@ -317,7 +321,7 @@ describe("Phase6ItineraryV2", () => {
         />,
       );
       // WizardFooter is now used instead of custom footer
-      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+      expect(screen.getByTestId("phase-footer")).toBeInTheDocument();
     });
   });
 
@@ -620,7 +624,7 @@ describe("Phase6ItineraryV2", () => {
           initialDays={twoDays as never}
         />,
       );
-      expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+      expect(screen.getByTestId("phase-footer")).toBeInTheDocument();
     });
   });
 

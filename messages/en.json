@@ -2685,6 +2685,19 @@
       }
     }
   },
+  "phaseFooter": {
+    "next": "Next",
+    "back": "Back",
+    "finish": "Finish",
+    "saving": "Saving...",
+    "unsavedChanges": {
+      "title": "Unsaved changes",
+      "message": "You have unsaved changes. What would you like to do?",
+      "saveAndExit": "Save and exit",
+      "exitWithoutSaving": "Exit without saving",
+      "cancel": "Cancel"
+    }
+  },
   "phaseReorderBanner": {
     "message": "We have reorganized the phases for a more natural journey. Your progress is preserved — pick up where you left off.",
     "dismiss": "Got it",

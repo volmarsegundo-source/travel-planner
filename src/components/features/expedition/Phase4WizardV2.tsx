@@ -24,6 +24,7 @@ import {
 import type { TransportSegmentInput, AccommodationInput } from "@/lib/validations/transport.schema";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { PhaseFooter } from "./PhaseFooter";
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
@@ -636,15 +637,13 @@ export function Phase4WizardV2({
                 </>
               )}
 
-              <WizardFooter
+              <PhaseFooter
+                onNext={isRevisiting ? () => router.push(`/expedition/${tripId}/${logisticsNextPath}`) : handleAdvance}
                 onBack={() => goToStep(2)}
-                onPrimary={isRevisiting ? () => router.push(`/expedition/${tripId}/${logisticsNextPath}`) : handleAdvance}
-                primaryLabel={logisticsAdvanceLabel}
-                isLoading={isCompleting}
-                isDisabled={isCompleting || (allSectionsEmpty && !allUndecided)}
-                onSave={handleSaveCurrentStep}
+                isSubmitting={isCompleting}
+                canAdvance={!isCompleting && (!allSectionsEmpty || allUndecided)}
                 isDirty={isDirty}
-                saveSuccess={!!saveSuccess}
+                onSave={handleSaveCurrentStep}
               />
             </div>
           )}

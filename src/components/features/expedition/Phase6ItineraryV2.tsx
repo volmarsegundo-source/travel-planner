@@ -10,6 +10,7 @@ import { AtlasCard } from "@/components/ui/AtlasCard";
 import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
+import { PhaseFooter } from "./PhaseFooter";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
   getProgressPhase,
@@ -1671,16 +1672,15 @@ export function Phase6ItineraryV2({
 
           {/* Navigation: Back / Advance (skip itinerary) */}
           <div className="mt-8 w-full">
-            <WizardFooter
-              onBack={() => router.push(`/expedition/${tripId}/${itineraryBackPath}`)}
-              onPrimary={() =>
+            <PhaseFooter
+              onNext={() =>
                 router.push(
                   itineraryNextPath
                     ? `/expedition/${tripId}/${itineraryNextPath}`
                     : `/expedition/${tripId}/summary`
                 )
               }
-              primaryLabel={itineraryAdvanceLabel}
+              onBack={() => router.push(`/expedition/${tripId}/${itineraryBackPath}`)}
             />
           </div>
         </div>
@@ -1952,17 +1952,16 @@ export function Phase6ItineraryV2({
         paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
       />
 
-      {/* Standardized WizardFooter — flag-aware navigation (SPEC-UX-REORDER-PHASES §5.2) */}
-      <WizardFooter
-        onBack={() => router.push(`/expedition/${tripId}/${itineraryBackPath}`)}
-        onPrimary={() =>
+      {/* Standardized PhaseFooter — flag-aware navigation (SPEC-UX-REORDER-PHASES §5.2) */}
+      <PhaseFooter
+        onNext={() =>
           router.push(
             itineraryNextPath
               ? `/expedition/${tripId}/${itineraryNextPath}`
               : `/expedition/${tripId}/summary`
           )
         }
-        primaryLabel={itineraryAdvanceLabel}
+        onBack={() => router.push(`/expedition/${tripId}/${itineraryBackPath}`)}
       />
     </PhaseShell>
   );

@@ -7,6 +7,7 @@ import { AtlasButton } from "@/components/ui/AtlasButton";
 import { PhaseShell } from "./PhaseShell";
 import { DestinationImage } from "@/components/ui/DestinationImage";
 import { WizardFooter } from "./WizardFooter";
+import { PhaseFooter } from "./PhaseFooter";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
   completePhase5Action,
@@ -982,10 +983,9 @@ export function DestinationGuideV2({
 
           {/* Navigation: Back / Advance (skip guide) */}
           <div className="mt-8 w-full">
-            <WizardFooter
+            <PhaseFooter
+              onNext={handleComplete}
               onBack={() => router.push(`/expedition/${tripId}/${guideBackPath}`)}
-              onPrimary={handleComplete}
-              primaryLabel={guideAdvanceLabel}
             />
           </div>
         </div>
@@ -996,12 +996,11 @@ export function DestinationGuideV2({
         <>
           <LegacyGuideFallback onRegenerate={handleRequestGenerate} />
           <div className="mt-3">
-            <WizardFooter
+            <PhaseFooter
+              onNext={handleComplete}
               onBack={() => router.push(`/expedition/${tripId}/${guideBackPath}`)}
-              onPrimary={handleComplete}
-              primaryLabel={guideAdvanceLabel}
-              isLoading={isCompleting}
-              isDisabled={isCompleting}
+              isSubmitting={isCompleting}
+              canAdvance={!isCompleting}
             />
           </div>
         </>
@@ -1149,12 +1148,11 @@ export function DestinationGuideV2({
 
           {/* Navigation footer */}
           <div className="mt-3">
-            <WizardFooter
+            <PhaseFooter
+              onNext={handleComplete}
               onBack={() => router.push(`/expedition/${tripId}/${guideBackPath}`)}
-              onPrimary={handleComplete}
-              primaryLabel={guideAdvanceLabel}
-              isLoading={isCompleting}
-              isDisabled={isCompleting}
+              isSubmitting={isCompleting}
+              canAdvance={!isCompleting}
             />
           </div>
         </>

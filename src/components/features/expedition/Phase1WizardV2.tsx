@@ -20,6 +20,7 @@ import {
 } from "@/server/actions/expedition.actions";
 import { classifyTrip, type TripType } from "@/lib/travel/trip-classifier";
 import { formatBrazilianPhone, isValidBrazilianPhone } from "@/lib/utils/phone";
+import { PhaseFooter } from "./PhaseFooter";
 import type { PhaseAccessMode } from "@/lib/engines/phase-navigation.engine";
 
 const TOTAL_STEPS = 4;
@@ -564,8 +565,8 @@ export function Phase1WizardV2({
       currentStep={currentStep}
       totalSteps={TOTAL_STEPS}
       isEditMode={isEditMode}
-      showFooter={currentStep > 1}
-      footerProps={getFooterProps()}
+      showFooter={currentStep > 1 && currentStep < 4}
+      footerProps={currentStep > 1 && currentStep < 4 ? getFooterProps() : undefined}
     >
       <div
         ref={stepContentRef}
@@ -964,6 +965,7 @@ export function Phase1WizardV2({
 
         {/* Step 4: Confirmation */}
         {currentStep === 4 && (
+          <>
           <AtlasCard variant="base">
             <div className="flex flex-col gap-4">
               <h2 className="font-atlas-headline text-lg font-bold text-atlas-on-surface">
@@ -1048,6 +1050,17 @@ export function Phase1WizardV2({
               </div>
             </div>
           </AtlasCard>
+
+          <PhaseFooter
+            onNext={handleSubmit}
+            onBack={() => goToStep(3)}
+            isSubmitting={isSubmitting}
+            canAdvance={!isSubmitting}
+            showBackButton={true}
+            isDirty={isEditMode && _tripId ? formDirty : false}
+            onSave={isEditMode && _tripId ? handleSave : undefined}
+          />
+          </>
         )}
       </div>
       <UpsellModal

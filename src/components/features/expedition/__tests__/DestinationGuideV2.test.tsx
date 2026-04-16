@@ -74,6 +74,14 @@ vi.mock("../WizardFooter", () => ({
   ),
 }));
 
+vi.mock("../PhaseFooter", () => ({
+  PhaseFooter: ({ onNext }: { onNext?: () => void }) => (
+    <div data-testid="phase-footer">
+      <button onClick={onNext}>PhaseFooter</button>
+    </div>
+  ),
+}));
+
 vi.mock("@/components/features/gamification/PAConfirmationModal", () => ({
   PAConfirmationModal: () => null,
 }));
@@ -361,16 +369,16 @@ describe("DestinationGuideV2", () => {
     expect(disclaimer).toHaveAttribute("role", "note");
   });
 
-  // ─── Wizard footer ────────────────────────────────────────────────────
+  // ─── Phase footer ────────────────────────────────────────────────────
 
-  it("renders wizard footer when guide exists", () => {
+  it("renders phase footer when guide exists", () => {
     render(
       <DestinationGuideV2
         {...defaultProps}
         initialGuide={{ content: mockGuideV2, generationCount: 1, viewedSections: [] }}
       />,
     );
-    expect(screen.getByTestId("wizard-footer")).toBeInTheDocument();
+    expect(screen.getByTestId("phase-footer")).toBeInTheDocument();
   });
 
   // ─── Auto-regenerate ──────────────────────────────────────────────────

@@ -2684,5 +2684,18 @@
         "sonnet": "Modelo Sonnet (qualidade+)"
       }
     }
+  },
+  "phaseFooter": {
+    "next": "Avancar",
+    "back": "Voltar",
+    "finish": "Concluir",
+    "saving": "Salvando...",
+    "unsavedChanges": {
+      "title": "Alteracoes nao salvas",
+      "message": "Voce tem alteracoes nao salvas. O que deseja fazer?",
+      "saveAndExit": "Salvar e sair",
+      "exitWithoutSaving": "Sair sem salvar",
+      "cancel": "Cancelar"
+    }
   }
 }

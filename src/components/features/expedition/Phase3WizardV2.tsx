@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
 import { AtlasCard, AtlasBadge } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
+import { PhaseFooter } from "./PhaseFooter";
 import {
   togglePhase3ItemAction,
   addCustomChecklistItemAction,
@@ -240,23 +241,7 @@ export function Phase3WizardV2({
       phaseTitle={t("title")}
       phaseSubtitle={checklistNextIsReordered ? t("subtitleReordered") : t("subtitle")}
       isEditMode={isEditMode}
-      showFooter={true}
-      footerProps={{
-        onBack: () => router.push(`/expedition/${tripId}/${checklistBackPath}`),
-        onPrimary: isRevisiting
-          ? () =>
-              router.push(
-                checklistNextIsReordered
-                  ? `/expedition/${tripId}/summary`
-                  : `/expedition/${tripId}/phase-4`
-              )
-          : handleAdvance,
-        primaryLabel: checklistAdvanceLabel,
-        isLoading: isCompleting,
-        isDisabled: isCompleting,
-        onSave: handleSaveChecklist,
-        isDirty: formDirty,
-      }}
+      showFooter={false}
     >
       <div className="flex flex-col gap-6" data-testid="phase3-v2">
         {/* Trip context */}
@@ -409,6 +394,25 @@ export function Phase3WizardV2({
             </AtlasCard>
           )}
         </div>
+
+        <PhaseFooter
+          onNext={
+            isRevisiting
+              ? () =>
+                  router.push(
+                    checklistNextIsReordered
+                      ? `/expedition/${tripId}/summary`
+                      : `/expedition/${tripId}/phase-4`
+                  )
+              : handleAdvance
+          }
+          onBack={() => router.push(`/expedition/${tripId}/${checklistBackPath}`)}
+          isSubmitting={isCompleting}
+          canAdvance={!isCompleting}
+          isLastPhase={checklistNextIsReordered}
+          isDirty={formDirty}
+          onSave={handleSaveChecklist}
+        />
       </div>
     </PhaseShell>
   );
