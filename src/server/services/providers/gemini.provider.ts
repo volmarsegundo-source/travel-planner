@@ -12,12 +12,8 @@ const CHECKLIST_MODEL = "gemini-2.0-flash";
 const GUIDE_MODEL = "gemini-2.0-flash";
 // Vercel Hobby serverless routes have a hard 60s limit. With the previous
 // 50s budget, Gemini mid-stream failures left only ~10s for the Anthropic
-// fallback — Claude non-streaming needs 30-40s for a full itinerary, so the
-// recovery path itself always timed out (Sprint 43 QA Bug 1). Tightened to
-// 25s: Gemini fails faster when unreliable, Claude gets ~30s to recover,
-// ~5s buffer for parse/persist/serialization.
-// See: docs/architecture.md ADR-028.
-const GEMINI_TIMEOUT_MS = 25_000;
+// Gemini 15s + Claude 20s + 25s buffer = 60s (Vercel hard limit).
+const GEMINI_TIMEOUT_MS = 15_000;
 
 // ─── Google AI singleton (lazy) ──────────────────────────────────────────────
 
