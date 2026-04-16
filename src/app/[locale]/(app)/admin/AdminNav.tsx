@@ -10,6 +10,7 @@ const ADMIN_LINKS = [
   { href: "/admin/ai-governance", i18nKey: "navAiGovernance" },
   { href: "/admin/analytics", i18nKey: "navAnalytics" },
   { href: "/admin/errors", i18nKey: "navErrors" },
+  { href: "/admin/prompts", i18nKey: "navPrompts" },
 ] as const;
 
 export function AdminNav() {

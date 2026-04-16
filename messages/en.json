@@ -1435,7 +1435,8 @@
       "stateCurrent": "current",
       "stateComingSoon": "coming soon",
       "stateUpcoming": "upcoming",
-      "stateLocked": "locked"
+      "stateLocked": "locked",
+      "lockedTooltip": "Complete previous phases to unlock"
     },
     "points": "pts",
     "badge": {
@@ -1871,6 +1872,43 @@
       "sentryLink": "Open Sentry Dashboard",
       "sentryDescription": "View error details, stack traces, and alerts in the Sentry dashboard.",
       "notConfigured": "Sentry is not configured. Set SENTRY_DSN to enable error tracking."
+    },
+    "navPrompts": "AI Prompts",
+    "prompts": {
+      "title": "AI Prompt Viewer",
+      "subtitle": "AI model interaction history",
+      "systemPrompt": "System Prompt",
+      "userPrompt": "User Prompt",
+      "response": "Response",
+      "model": "Model",
+      "provider": "Provider",
+      "tokens": "Tokens",
+      "inputTokens": "Tokens (input)",
+      "outputTokens": "Tokens (output)",
+      "totalCost": "Estimated cost",
+      "responseTime": "Response time",
+      "phase": "Phase",
+      "status": "Status",
+      "promptSlug": "Prompt Slug",
+      "cacheHit": "Cache",
+      "cacheHitYes": "Hit",
+      "cacheHitNo": "Miss",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "noResults": "No interactions found",
+      "filterByPhase": "Filter by phase",
+      "filterByModel": "Filter by model",
+      "filterByStatus": "Filter by status",
+      "allPhases": "All phases",
+      "allModels": "All models",
+      "allStatuses": "All statuses",
+      "metadata": "Metadata",
+      "interactionId": "ID",
+      "createdAt": "Date/Time",
+      "userId": "User",
+      "templateNotFound": "Template not found",
+      "viewTemplate": "View template",
+      "showingCount": "Showing {count} interactions"
     }
   },
   "atlas": {
