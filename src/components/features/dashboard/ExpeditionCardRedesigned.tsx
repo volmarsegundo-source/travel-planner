@@ -144,6 +144,21 @@ export function ExpeditionCardRedesigned({ expedition }: ExpeditionCardRedesigne
           </p>
         </div>
 
+        {/* View Report button — shown when all AI content phases are complete */}
+        {exp.hasChecklist && exp.hasGuide && exp.hasItineraryPlan && (
+          <div className="mt-3">
+            <Link
+              href={`/expedition/${exp.id}/report`}
+              className="pointer-events-auto inline-flex min-h-[44px] items-center gap-1.5 rounded-md border border-border/60 px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              data-testid="card-view-report"
+            >
+              <span aria-hidden="true">{"\uD83D\uDCCB"}</span>
+              <span>{t("viewReport")}</span>
+            </Link>
+          </div>
+        )}
+
         {/* CTA */}
         <div className="mt-3 flex justify-end">
           <span

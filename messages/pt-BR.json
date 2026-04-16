@@ -447,7 +447,8 @@
       "quickAccessItinerary": "Roteiro",
       "quickAccessReport": "Relatório",
       "quickAccessLabel": "Acesso rápido — {destination}",
-      "quickAccessSummary": "Resumo"
+      "quickAccessSummary": "Resumo",
+      "viewReport": "Ver Relatório"
     }
   },
   "profile": {
