@@ -1985,7 +1985,9 @@
       "description": "An unexpected error occurred.",
       "tryAgain": "Try again",
       "goBack": "Go back"
-    }
+    },
+    "phaseNotSkippable": "This phase cannot be skipped. Please complete it to continue.",
+    "phaseNotActive": "This phase is not yet available. Please complete the previous phases first."
   },
   "legal": {
     "terms": {

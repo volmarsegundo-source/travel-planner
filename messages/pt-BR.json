@@ -1985,7 +1985,9 @@
       "description": "Ocorreu um erro inesperado.",
       "tryAgain": "Tentar novamente",
       "goBack": "Voltar"
-    }
+    },
+    "phaseNotSkippable": "Esta fase nao pode ser pulada. Complete-a para continuar.",
+    "phaseNotActive": "Esta fase ainda nao esta disponivel. Complete as fases anteriores primeiro."
   },
   "legal": {
     "terms": {
