@@ -92,8 +92,8 @@ describe("AtlasPhaseProgress", () => {
     );
   });
 
-  // ─── Dashboard clickable completed segments ────────────────────────────────
-  it("renders clickable bars for completed phases in dashboard", () => {
+  // ─── Dashboard clickable non-locked segments ───────────────────────────────
+  it("renders clickable bars for non-locked phases in dashboard", () => {
     const onClick = vi.fn();
     render(
       <AtlasPhaseProgress
@@ -103,7 +103,7 @@ describe("AtlasPhaseProgress", () => {
       />,
     );
     const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(2);
+    expect(buttons).toHaveLength(4);
 
     fireEvent.click(buttons[0]);
     expect(onClick).toHaveBeenCalledWith(1);

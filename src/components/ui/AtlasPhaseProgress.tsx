@@ -245,7 +245,7 @@ function DashboardLayout({
       className={cn("flex items-center", className)}
     >
       {segments.map((segment, i) => {
-        const isClickable = segment.state === "completed" && onSegmentClick;
+        const isClickable = segment.state !== "locked" && segment.state !== "coming_soon" && onSegmentClick;
         const isSegmentComingSoon = segment.state === "coming_soon";
 
         // Circle styles matching sidebar (wizard) layout
