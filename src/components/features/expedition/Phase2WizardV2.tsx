@@ -242,6 +242,7 @@ export function Phase2WizardV2({
         return;
       }
 
+      const nextPath = isPhaseReorderEnabled() ? "phase-3" : "phase-3";
       router.push(`/expedition/${tripId}/${nextPath}`);
     } catch {
       setErrorMessage("errors.generic");

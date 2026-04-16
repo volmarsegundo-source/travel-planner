@@ -15,6 +15,9 @@ const CATEGORY_ICONS: Record<ChecklistCategory, string> = {
   CURRENCY: "💰",
   WEATHER: "🌤️",
   TECHNOLOGY: "📱",
+  CLOTHING: "👕",
+  ACTIVITIES: "🎯",
+  LOGISTICS: "🚗",
 };
 
 interface ChecklistCategorySectionProps {
