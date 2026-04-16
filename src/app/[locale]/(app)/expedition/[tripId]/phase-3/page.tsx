@@ -1,7 +1,15 @@
 import { ChecklistEngine } from "@/lib/engines/checklist-engine";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { Phase3Wizard } from "@/components/features/expedition/Phase3Wizard";
+import { DestinationGuideV2 } from "@/components/features/expedition/DestinationGuideV2";
+import { PointsEngine } from "@/lib/engines/points-engine";
+import { db } from "@/server/db";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 import type { TripType } from "@/lib/travel/trip-classifier";
+import type { DestinationGuideContent } from "@/types/ai.types";
+
+// Vercel Hobby hard limit: serverless functions cap at 60s (needed for guide generation).
+export const maxDuration = 60;
 
 interface Phase3PageProps {
   params: Promise<{ locale: string; tripId: string }>;
@@ -9,8 +17,61 @@ interface Phase3PageProps {
 
 export default async function Phase3Page({ params }: Phase3PageProps) {
   const { locale, tripId } = await params;
+  const reordered = isPhaseReorderEnabled();
 
-  // Phase access guard — also provides userId (no need for a second auth() call)
+  if (reordered) {
+    // ── Flag ON: phase-3 = Guia do Destino (DestinationGuideV2) ──────────
+    const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
+      tripId, 3, locale,
+      { destination: true }
+    );
+
+    // Fetch existing guide if any
+    const guide = await db.destinationGuide.findUnique({
+      where: { tripId },
+    });
+
+    const initialGuide = guide
+      ? {
+          content: guide.content as unknown as DestinationGuideContent,
+          generationCount: guide.generationCount,
+          viewedSections: (guide.viewedSections as string[]) ?? [],
+          regenCount: guide.regenCount,
+          extraCategories: guide.extraCategories,
+          personalNotes: guide.personalNotes,
+        }
+      : null;
+
+    // Fetch PA balance for cost gate
+    let availablePoints = 0;
+    try {
+      const balance = await PointsEngine.getBalance(userId);
+      availablePoints = balance.availablePoints;
+    } catch {
+      // Non-critical — defaults to 0
+    }
+
+    const JUST_GENERATED_WINDOW_MS = 90_000;
+    const isJustGenerated =
+      !!guide?.generatedAt &&
+      Date.now() - guide.generatedAt.getTime() < JUST_GENERATED_WINDOW_MS;
+
+    return (
+      <DestinationGuideV2
+        tripId={tripId}
+        destination={trip.destination as string}
+        locale={locale}
+        initialGuide={initialGuide}
+        accessMode={accessMode}
+        tripCurrentPhase={trip.currentPhase}
+        completedPhases={completedPhases}
+        availablePoints={availablePoints}
+        isJustGenerated={isJustGenerated}
+      />
+    );
+  }
+
+  // ── Flag OFF (original): phase-3 = O Preparo (Checklist) ────────────────
   const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
     tripId, 3, locale,
     { tripType: true, startDate: true, destination: true }

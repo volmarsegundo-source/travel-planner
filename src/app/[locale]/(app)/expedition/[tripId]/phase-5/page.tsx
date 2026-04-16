@@ -6,6 +6,8 @@ import { db } from "@/server/db";
 import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { DestinationGuideV2 } from "@/components/features/expedition/DestinationGuideV2";
+import { Phase4WizardV2 } from "@/components/features/expedition/Phase4WizardV2";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
 interface Phase5PageProps {
@@ -14,8 +16,32 @@ interface Phase5PageProps {
 
 export default async function Phase5Page({ params }: Phase5PageProps) {
   const { locale, tripId } = await params;
+  const reordered = isPhaseReorderEnabled();
 
-  // Phase access guard (replaces inline currentPhase < 5 check)
+  if (reordered) {
+    // ── Flag ON: phase-5 = A Logistica (Phase4WizardV2) ──────────────────
+    const { trip, accessMode, completedPhases } = await guardPhaseAccess(
+      tripId, 5, locale,
+      { tripType: true, startDate: true, endDate: true, destination: true, origin: true }
+    );
+
+    const sharedProps = {
+      tripId,
+      tripType: typeof trip.tripType === "string" ? trip.tripType : "international",
+      origin: typeof trip.origin === "string" ? trip.origin : null,
+      destination: typeof trip.destination === "string" ? trip.destination : "",
+      startDate: trip.startDate instanceof Date ? trip.startDate.toISOString() : typeof trip.startDate === "string" ? trip.startDate : null,
+      endDate: trip.endDate instanceof Date ? trip.endDate.toISOString() : typeof trip.endDate === "string" ? trip.endDate : null,
+      currentPhase: trip.currentPhase,
+      accessMode,
+      tripCurrentPhase: trip.currentPhase,
+      completedPhases,
+    };
+
+    return <Phase4WizardV2 {...sharedProps} />;
+  }
+
+  // ── Flag OFF (original): phase-5 = Guia do Destino (DestinationGuideV2) ─
   const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
     tripId, 5, locale,
     { destination: true }

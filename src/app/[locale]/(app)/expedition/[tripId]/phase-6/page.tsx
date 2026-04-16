@@ -7,8 +7,12 @@ import { guardPhaseAccess } from "@/lib/guards/phase-access.guard";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { Phase6ItineraryV2 } from "@/components/features/expedition/Phase6ItineraryV2";
+import { Phase3Wizard } from "@/components/features/expedition/Phase3Wizard";
+import { ChecklistEngine } from "@/lib/engines/checklist-engine";
 import { deriveAgeRange } from "@/server/services/expedition-summary.service";
+import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
 import { logger } from "@/lib/logger";
+import type { TripType } from "@/lib/travel/trip-classifier";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { DestinationGuideContent } from "@/types/ai.types";
 import { isGuideV2 } from "@/types/ai.types";
@@ -180,8 +184,52 @@ async function collectExpeditionContext(
 
 export default async function Phase6Page({ params }: Phase6PageProps) {
   const { locale, tripId } = await params;
+  const reordered = isPhaseReorderEnabled();
 
-  // Phase access guard (replaces inline currentPhase < 6 check)
+  if (reordered) {
+    // ── Flag ON: phase-6 = O Preparo (Checklist / Phase3Wizard) ──────────
+    const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
+      tripId, 6, locale,
+      { tripType: true, startDate: true, destination: true }
+    );
+
+    try {
+      await ChecklistEngine.initializePhase3Checklist(
+        tripId,
+        userId,
+        trip.tripType as TripType,
+        trip.startDate as Date | null
+      );
+    } catch (error) {
+      console.error("[Phase6Page] initializePhase3Checklist failed:", error);
+    }
+
+    const items = await ChecklistEngine.getPhaseChecklist(tripId, 3);
+
+    const serializedItems = items.map((item: (typeof items)[number]) => ({
+      id: item.id,
+      itemKey: item.itemKey,
+      required: item.required,
+      completed: item.completed,
+      deadline: item.deadline?.toISOString() ?? null,
+      pointsValue: item.pointsValue,
+    }));
+
+    return (
+      <Phase3Wizard
+        tripId={tripId}
+        items={serializedItems}
+        tripType={trip.tripType as string}
+        destination={trip.destination as string}
+        currentPhase={trip.currentPhase}
+        accessMode={accessMode}
+        tripCurrentPhase={trip.currentPhase}
+        completedPhases={completedPhases}
+      />
+    );
+  }
+
+  // ── Flag OFF (original): phase-6 = O Roteiro (Phase6ItineraryV2) ────────
   const { trip, userId, accessMode, completedPhases } = await guardPhaseAccess(
     tripId, 6, locale,
     {
@@ -205,7 +253,7 @@ export default async function Phase6Page({ params }: Phase6PageProps) {
 
   // Ensure ItineraryPlan exists. Wrap in try so a transient Prisma error
   // here doesn't take down the whole page load (Sprint 43 QA Bug 2 —
-  // "Avançar da Fase 5 para Fase 6 dá erro" showed as a generic boundary
+  // "Avancar da Fase 5 para Fase 6 da erro" showed as a generic boundary
   // without logs; this surfaces the real cause in Sentry).
   let itineraryPlan: Awaited<
     ReturnType<typeof ItineraryPlanService.getOrCreateItineraryPlan>
