@@ -784,7 +784,8 @@
         "budgetMin": "O orçamento deve ser pelo menos 100.",
         "budgetMax": "O orçamento deve ser no máximo 100.000.",
         "groupSizeMin": "Mínimo de 2 viajantes."
-      }
+      },
+      "ctaNextReordered": "Avançar para o Guia"
     },
     "phase3": {
       "title": "O Preparo",
@@ -821,7 +822,10 @@
         "emergency_contacts": "Contatos de emergência cadastrados",
         "copies_documents": "Cópias de documentos importantes",
         "local_currency": "Moeda local trocada"
-      }
+      },
+      "subtitleReordered": "Complete o checklist de preparação após definir logística e roteiro.",
+      "ctaNextReordered": "Concluir planejamento",
+      "ctaBackReordered": "Voltar para Logística"
     },
     "phase4": {
       "title": "A Logística",
@@ -966,7 +970,10 @@
           "camping": "Camping",
           "other": "Outro"
         }
-      }
+      },
+      "subtitleReordered": "Com o roteiro pronto, organize transporte e hospedagem.",
+      "ctaNextReordered": "Avançar para o Preparo",
+      "ctaBackReordered": "Voltar para o Roteiro"
     },
     "phase5": {
       "title": "Guia do Destino",
@@ -1036,7 +1043,10 @@
         "inProgress": "Gerando conteúdo personalizado...",
         "finalizing": "Finalizando...",
         "error": "Erro ao gerar guia. Tente novamente."
-      }
+      },
+      "subtitleReordered": "Descubra informações essenciais sobre o destino antes de planejar o roteiro.",
+      "ctaNextReordered": "Avançar para o Roteiro",
+      "ctaBackReordered": "Voltar para o Perfil"
     },
     "phase6": {
       "title": "O Roteiro",
@@ -1140,7 +1150,10 @@
       "category_family": "Família",
       "category_shopping": "Compras",
       "category_sports": "Esportes",
-      "category_religious": "Religioso"
+      "category_religious": "Religioso",
+      "subtitleReordered": "Planeje seus dias com base no que aprendeu no guia.",
+      "ctaNextReordered": "Avançar para a Logística",
+      "ctaBackReordered": "Voltar para o Guia"
     },
     "hub": {
       "title": "Expedição",
@@ -2321,6 +2334,22 @@
       "phase8": {
         "name": "O Legado",
         "description": "Diário digital e organização automática dos melhores momentos."
+      },
+      "phase3Reordered": {
+        "name": "Guia do Destino",
+        "description": "Descubra o destino em profundidade: cultura, clima, segurança e dicas locais."
+      },
+      "phase4Reordered": {
+        "name": "O Roteiro",
+        "description": "Cronograma dia a dia otimizado por IA, usando o guia como base para as atividades."
+      },
+      "phase5Reordered": {
+        "name": "A Logística",
+        "description": "Conexões, traslados e hospedagem planejados após conhecer o roteiro."
+      },
+      "phase6Reordered": {
+        "name": "O Preparo",
+        "description": "Checklist final inteligente: bagagem, documentos e tudo que não pode ficar para trás."
       }
     },
     "ai": {

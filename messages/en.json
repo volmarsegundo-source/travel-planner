@@ -971,7 +971,7 @@
           "other": "Other"
         }
       },
-      "subtitleReordered": "Plan your days based on what you learned in the guide.",
+      "subtitleReordered": "Now that you have an itinerary, organize transport and accommodation.",
       "ctaNextReordered": "Continue to Preparation",
       "ctaBackReordered": "Back to Itinerary"
     },
@@ -1044,7 +1044,7 @@
         "finalizing": "Finalizing...",
         "error": "Error generating guide. Please try again."
       },
-      "subtitleReordered": "Now that you have an itinerary, organize transport and accommodation.",
+      "subtitleReordered": "Discover essential information about your destination before planning your itinerary.",
       "ctaNextReordered": "Continue to Itinerary",
       "ctaBackReordered": "Back to Profile"
     },
@@ -1151,7 +1151,7 @@
       "category_shopping": "Shopping",
       "category_sports": "Sports",
       "category_religious": "Religious",
-      "subtitleReordered": "Final checklist: luggage, documents, details you cannot leave behind.",
+      "subtitleReordered": "Plan your days based on what you learned in the guide.",
       "ctaNextReordered": "Continue to Logistics",
       "ctaBackReordered": "Back to Guide"
     },
