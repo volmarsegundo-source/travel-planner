@@ -37,7 +37,20 @@ export const env = createEnv({
     APPLE_SECRET: z.string().optional(),
     MAPBOX_SECRET_TOKEN: z.string().startsWith("sk.").optional(),
     UNSPLASH_ACCESS_KEY: z.string().min(1).optional(),
-    ENCRYPTION_KEY: z.string().length(64, "ENCRYPTION_KEY must be 64 hex chars (32 bytes)").optional(),
+    // ENCRYPTION_KEY protects AES-256-GCM encryption of PII fields
+    // (passport, bookingCode, etc.). Must be 64 hex chars (32 bytes).
+    // Mandatory in production — fails fast on boot if missing to prevent
+    // silent downgrade to an insecure state. Optional in dev/test so local
+    // setups without the key still boot.
+    ENCRYPTION_KEY: z
+      .string()
+      .length(64, "ENCRYPTION_KEY must be 64 hex chars (32 bytes)")
+      .regex(/^[0-9a-fA-F]+$/, "ENCRYPTION_KEY must be hexadecimal")
+      .optional()
+      .refine(
+        (val) => process.env.NODE_ENV !== "production" || (val !== undefined && val.length === 64),
+        { message: "ENCRYPTION_KEY is required in production (64 hex chars)" }
+      ),
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
     FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
