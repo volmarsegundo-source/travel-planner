@@ -86,9 +86,9 @@
       "generic": "Algo deu errado. Por favor, tente novamente.",
       "rateLimitExceeded": "Muitas requisições. Por favor, tente novamente mais tarde.",
       "oauthError": "Não foi possível autenticar. Tente novamente.",
-      "oauthTitle": "Erro de Autenticacao",
-      "oauthConfiguration": "Ha um problema com a configuração do servidor.",
-      "oauthAccessDenied": "Você não tem permissao para fazer login.",
+      "oauthTitle": "Erro de Autenticação",
+      "oauthConfiguration": "Há um problema com a configuração do servidor.",
+      "oauthAccessDenied": "Você não tem permissão para fazer login.",
       "oauthVerification": "O link de verificação expirou ou já foi utilizado.",
       "oauthAccountNotLinked": "Este e-mail já está associado a outro método de login.",
       "backToLogin": "Voltar ao login"
@@ -339,7 +339,7 @@
     "footer": {
       "copyright": "© 2026 Travel Planner. Todos os direitos reservados.",
       "terms": "Termos de uso",
-      "privacy": "Politica de privacidade",
+      "privacy": "Política de privacidade",
       "support": "Suporte"
     }
   },
@@ -2507,7 +2507,7 @@
       "company": "Empresa",
       "about": "Sobre Nós",
       "contact": "Contato",
-      "privacy": "Politica de Privacidade",
+      "privacy": "Política de Privacidade",
       "terms": "Termos de Uso",
       "newsletter": "Novidades",
       "newsletterDescription": "Inscreva-se para roteiros exclusivos.",
