@@ -113,6 +113,7 @@ export class GeminiProvider implements AiProvider {
         streamDone = resolve;
       });
 
+      const mapErr = this.mapError.bind(this);
       const readableStream = new ReadableStream<string>({
         async start(controller) {
           try {
@@ -123,7 +124,7 @@ export class GeminiProvider implements AiProvider {
             }
             controller.close();
           } catch (error) {
-            controller.error(error);
+            controller.error(error instanceof AppError ? error : mapErr(error));
           } finally {
             streamDone!();
           }
