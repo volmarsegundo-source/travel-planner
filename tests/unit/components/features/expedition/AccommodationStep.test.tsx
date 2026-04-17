@@ -197,53 +197,13 @@ describe("AccommodationStep", () => {
     ).not.toBeInTheDocument();
   });
 
-  // ─── T-S34: Undecided checkbox ────────────────────────────────────────
+  // ─── Required asterisks ───────────────────────────────────────────────
 
-  it("renders undecided checkbox", () => {
-    renderStep();
-
-    expect(screen.getByTestId("accommodation-undecided")).toBeInTheDocument();
-    expect(screen.getByText("expedition.phase4.undecided")).toBeInTheDocument();
-  });
-
-  it("applies opacity-50 to fields when undecided is checked", () => {
-    const { container } = renderStep();
-
-    const checkbox = screen.getByTestId("accommodation-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    // The entries container should have opacity-50
-    const entriesContainer = container.querySelector(".opacity-50");
-    expect(entriesContainer).toBeInTheDocument();
-  });
-
-  it("calls onUndecidedChange when checkbox is toggled", () => {
-    const onUndecidedChange = vi.fn();
-    renderStep({ onUndecidedChange });
-
-    const checkbox = screen.getByTestId("accommodation-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    expect(onUndecidedChange).toHaveBeenCalledWith(true);
-  });
-
-  // ─── T-S34: Required asterisks ────────────────────────────────────────
-
-  it("shows required asterisks when not undecided", () => {
+  it("shows required asterisks on mandatory fields", () => {
     const { container } = renderStep();
 
     const asterisks = container.querySelectorAll(".text-destructive");
     expect(asterisks.length).toBeGreaterThan(0);
-  });
-
-  it("hides required asterisks when undecided is checked", () => {
-    const { container } = renderStep();
-
-    const checkbox = screen.getByTestId("accommodation-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    const asterisks = container.querySelectorAll(".text-destructive");
-    expect(asterisks.length).toBe(0);
   });
 
   // ─── FIX #4: Date validation with trip boundaries ─────────────────────

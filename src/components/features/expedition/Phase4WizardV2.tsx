@@ -12,7 +12,7 @@ import { WizardFooter } from "./WizardFooter";
 import { TransportStep } from "./TransportStep";
 import { AccommodationStep } from "./AccommodationStep";
 import { MobilityStep } from "./MobilityStep";
-import { advanceFromPhaseAction, getPhaseMetadataAction } from "@/server/actions/expedition.actions";
+import { advanceFromPhaseAction } from "@/server/actions/expedition.actions";
 import {
   saveTransportSegmentsAction,
   getTransportSegmentsAction,
@@ -110,21 +110,16 @@ export function Phase4WizardV2({
   const [mobility, setMobility] = useState<string[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
-  // Undecided states
-  const [transportUndecided, setTransportUndecided] = useState(false);
-  const [accommodationUndecided, setAccommodationUndecided] = useState(false);
-  const [mobilityUndecided, setMobilityUndecided] = useState(false);
-
   // Dirty tracking
   const stepFormValues = useMemo(() => {
     if (currentStep === 1) {
-      return { transportSegments: JSON.stringify(transportSegments), transportUndecided };
+      return { transportSegments: JSON.stringify(transportSegments) };
     }
     if (currentStep === 2) {
-      return { accommodations: JSON.stringify(accommodations), accommodationUndecided };
+      return { accommodations: JSON.stringify(accommodations) };
     }
-    return { mobility: JSON.stringify(mobility), mobilityUndecided };
-  }, [currentStep, transportSegments, accommodations, mobility, transportUndecided, accommodationUndecided, mobilityUndecided]);
+    return { mobility: JSON.stringify(mobility) };
+  }, [currentStep, transportSegments, accommodations, mobility]);
 
   const { isDirty: rawDirty, markClean } = useFormDirty(stepFormValues);
   const [userEdited, setUserEdited] = useState(false);
@@ -178,19 +173,19 @@ export function Phase4WizardV2({
   /** Validate the current step before navigating forward */
   function validateCurrentStep(): string[] {
     const errors: string[] = [];
-    if (currentStep === 1 && !transportUndecided) {
+    if (currentStep === 1) {
       const hasValid = transportSegments.some(
         (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
       );
       if (!hasValid) errors.push(tValidation("transportRequired"));
     }
-    if (currentStep === 2 && !accommodationUndecided) {
+    if (currentStep === 2) {
       const hasValid = accommodations.some(
         (a) => a.accommodationType && a.checkIn && a.checkOut,
       );
       if (!hasValid) errors.push(tValidation("accommodationRequired"));
     }
-    if (currentStep === 3 && !mobilityUndecided && mobility.length === 0) {
+    if (currentStep === 3 && mobility.length === 0) {
       errors.push(tValidation("mobilityRequired"));
     }
     return errors;
@@ -207,12 +202,11 @@ export function Phase4WizardV2({
   const loadData = useCallback(async () => {
     setLoadingData(true);
     try {
-      const [transportResult, accommodationResult, mobilityResult, metadataResult] =
+      const [transportResult, accommodationResult, mobilityResult] =
         await Promise.all([
           getTransportSegmentsAction(tripId),
           getAccommodationsAction(tripId),
           getLocalMobilityAction(tripId),
-          getPhaseMetadataAction(tripId, 4),
         ]);
 
       if (transportResult.success && transportResult.data) {
@@ -223,13 +217,6 @@ export function Phase4WizardV2({
       }
       if (mobilityResult.success && mobilityResult.data) {
         setMobility(mobilityResult.data.mobility);
-      }
-      // Restore undecided flags from saved metadata (SPEC-FASE4-AND-001)
-      if (metadataResult.success && metadataResult.data) {
-        const meta = metadataResult.data;
-        if (meta.transportUndecided) setTransportUndecided(true);
-        if (meta.accommodationUndecided) setAccommodationUndecided(true);
-        if (meta.mobilityUndecided) setMobilityUndecided(true);
       }
     } catch {
       // Silently fail
@@ -315,35 +302,26 @@ export function Phase4WizardV2({
 
   function validatePhase4(): string[] {
     const errors: string[] = [];
-    if (!transportUndecided) {
-      const hasValid = transportSegments.some(
-        (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
-      );
-      if (!hasValid) errors.push(tValidation("transportRequired"));
-    }
-    if (!accommodationUndecided) {
-      const hasValid = accommodations.some(
-        (a) => a.accommodationType && a.checkIn && a.checkOut,
-      );
-      if (!hasValid) errors.push(tValidation("accommodationRequired"));
-    }
-    if (!mobilityUndecided && mobility.length === 0) {
+    const hasValidTransport = transportSegments.some(
+      (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
+    );
+    if (!hasValidTransport) errors.push(tValidation("transportRequired"));
+
+    const hasValidAccommodation = accommodations.some(
+      (a) => a.accommodationType && a.checkIn && a.checkOut,
+    );
+    if (!hasValidAccommodation) errors.push(tValidation("accommodationRequired"));
+
+    if (mobility.length === 0) {
       errors.push(tValidation("mobilityRequired"));
     }
     return errors;
   }
 
-  const allSectionsEmpty = transportSegments.length === 0 && accommodations.length === 0 && mobility.length === 0;
-  const allUndecided = transportUndecided && accommodationUndecided && mobilityUndecided;
-
   async function handleAdvance() {
-    if (!allUndecided) {
-      const errors = validatePhase4();
-      setValidationErrors(errors);
-      if (errors.length > 0) return;
-    } else {
-      setValidationErrors([]);
-    }
+    const errors = validatePhase4();
+    setValidationErrors(errors);
+    if (errors.length > 0) return;
 
     setIsCompleting(true);
     setErrorMessage(null);
@@ -352,9 +330,9 @@ export function Phase4WizardV2({
       const result = await advanceFromPhaseAction(tripId, 4, {
         needsCarRental: needsCarRental ?? false,
         cnhResolved: needsCarRental ? (needsCinh ? cnhConfirmed : true) : true,
-        transportUndecided,
-        accommodationUndecided,
-        mobilityUndecided,
+        transportUndecided: false,
+        accommodationUndecided: false,
+        mobilityUndecided: false,
       });
 
       if (!result.success) {
@@ -474,8 +452,6 @@ export function Phase4WizardV2({
                 prefillOrigin={origin}
                 prefillDestination={destination}
                 prefillStartDate={startDate}
-                onUndecidedChange={setTransportUndecided}
-                initialUndecided={transportUndecided}
                 onChange={handleTransportChange}
               />
               <WizardFooter
@@ -498,8 +474,6 @@ export function Phase4WizardV2({
                 initialAccommodations={accommodations}
                 onSave={handleSaveAccommodation}
                 saving={savingAccommodation}
-                onUndecidedChange={setAccommodationUndecided}
-                initialUndecided={accommodationUndecided}
                 onChange={handleAccommodationChange}
                 tripStartDate={startDate}
                 tripEndDate={endDate}
@@ -524,13 +498,11 @@ export function Phase4WizardV2({
                 initialMobility={mobility}
                 onSave={handleSaveMobility}
                 saving={savingMobility}
-                onUndecidedChange={setMobilityUndecided}
-                initialUndecided={mobilityUndecided}
                 onChange={handleMobilityChange}
               />
 
               {/* Car rental prerequisites */}
-              {mobility.includes("car_rental") && !mobilityUndecided && (
+              {mobility.includes("car_rental") && (
                 <>
                   <AtlasCard variant="base">
                     <h2 className="text-lg font-atlas-headline font-bold text-atlas-on-surface">
@@ -641,7 +613,7 @@ export function Phase4WizardV2({
                 onNext={isRevisiting ? () => router.push(`/expedition/${tripId}/${logisticsNextPath}`) : handleAdvance}
                 onBack={() => goToStep(2)}
                 isSubmitting={isCompleting}
-                canAdvance={!isCompleting && (!allSectionsEmpty || allUndecided)}
+                canAdvance={!isCompleting}
                 isDirty={isDirty}
                 onSave={handleSaveCurrentStep}
               />

@@ -2,7 +2,7 @@
  * Unit tests for MobilityStep component.
  *
  * Tests cover: rendering all options, toggle on/off, initial values,
- * accessibility (aria-pressed), undecided checkbox.
+ * accessibility (aria-pressed), required asterisks.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
@@ -151,52 +151,12 @@ describe("MobilityStep", () => {
     ).not.toBeInTheDocument();
   });
 
-  // ─── T-S34: Undecided checkbox ────────────────────────────────────────
+  // ─── Required asterisks ───────────────────────────────────────────────
 
-  it("renders undecided checkbox", () => {
-    renderMobilityStep();
-
-    expect(screen.getByTestId("mobility-undecided")).toBeInTheDocument();
-    expect(screen.getByText("expedition.phase4.undecided")).toBeInTheDocument();
-  });
-
-  it("applies opacity-50 to options grid when undecided is checked", () => {
-    renderMobilityStep();
-
-    const checkbox = screen.getByTestId("mobility-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    // The grid with options should have opacity-50
-    const group = screen.getByRole("group", { name: /expedition\.phase4\.mobility\.title/ });
-    expect(group.className).toContain("opacity-50");
-  });
-
-  it("calls onUndecidedChange when checkbox is toggled", () => {
-    const onUndecidedChange = vi.fn();
-    renderMobilityStep({ onUndecidedChange });
-
-    const checkbox = screen.getByTestId("mobility-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    expect(onUndecidedChange).toHaveBeenCalledWith(true);
-  });
-
-  // ─── T-S34: Required asterisk ─────────────────────────────────────────
-
-  it("shows required asterisk when not undecided", () => {
+  it("shows required asterisks on mandatory fields", () => {
     const { container } = renderMobilityStep();
 
     const asterisks = container.querySelectorAll(".text-destructive");
     expect(asterisks.length).toBeGreaterThan(0);
-  });
-
-  it("hides required asterisk when undecided is checked", () => {
-    const { container } = renderMobilityStep();
-
-    const checkbox = screen.getByTestId("mobility-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    const asterisks = container.querySelectorAll(".text-destructive");
-    expect(asterisks.length).toBe(0);
   });
 });

@@ -832,7 +832,6 @@
     "phase4": {
       "title": "A Logística",
       "subtitle": "Planeje como chegar e se locomover no destino",
-      "undecided": "Ainda não decidi, vou definir depois.",
       "carRentalQuestion": "Você vai precisar alugar um carro?",
       "carRentalHint": "Isso determina se você precisa de documentação especial para dirigir.",
       "carRentalYes": "Sim, vou",
@@ -2026,7 +2025,7 @@
       "tryAgain": "Tentar novamente",
       "goBack": "Voltar"
     },
-    "phaseNotSkippable": "Esta fase nao pode ser pulada. Complete-a para continuar.",
+    "phaseNotSkippable": "Esta fase nao pode ser pulada. Complete-a para continuar. Voce podera retornar a esta fase depois para fazer ajustes, se necessario.",
     "phaseNotActive": "Esta fase ainda nao esta disponivel. Complete as fases anteriores primeiro.",
     "AI_TIMEOUT": "O servico de IA esta demorando mais que o esperado. Por favor, tente novamente em alguns instantes.",
     "AI_PARSE_ERROR": "A resposta da IA nao pode ser processada. Por favor, tente novamente.",

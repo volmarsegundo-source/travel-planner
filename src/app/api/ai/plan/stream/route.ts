@@ -31,8 +31,8 @@ import { ItineraryPlanService } from "@/server/services/itinerary-plan.service";
 import { PointsEngine } from "@/lib/engines/points-engine";
 
 // Vercel Hobby hard limit: serverless functions cap at 60s.
-// Provider timeouts (Claude 20s, Gemini 35s) leave headroom for mid-stream
-// recovery + persistence. Bump to 120 when upgrading to Vercel Pro.
+// Provider timeouts: Gemini 30s + Claude 20s mid-flight recovery + 2s margin
+// fit the 60s budget. Bump to 120 when upgrading to Vercel Pro.
 // See: docs/architecture.md ADR-028.
 export const maxDuration = 60;
 
@@ -43,10 +43,12 @@ const TOKENS_PER_DAY = 600;
 // enriched traveler context added by SPEC-AI-004 (TASK-S33-012).
 const TOKENS_OVERHEAD = 1100;
 const MIN_PLAN_TOKENS = 2048;
-// Clamped to 8000 for streaming under Vercel Hobby's 60s limit. Larger budgets
-// routinely exceed the serverless timeout before the stream completes.
+// Clamped to 6000 for streaming under Vercel Hobby's 60s limit.
+// Gemini Flash streams at ~200-250 tok/s, so 6000 tokens ≈ 24-30s which
+// fits inside the 30s Gemini timeout with headroom. Previous cap (8000)
+// routinely exceeded the timeout on long trips, triggering fallback/failure.
 // See: docs/architecture.md ADR-028.
-const MAX_PLAN_TOKENS = 8000;
+const MAX_PLAN_TOKENS = 6000;
 
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_SECONDS = 3600;

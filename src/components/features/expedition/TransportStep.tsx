@@ -35,10 +35,6 @@ interface TransportStepProps {
   prefillDestination?: string | null;
   /** Pre-fill the first segment's departure date when no data is loaded */
   prefillStartDate?: string | null;
-  /** Callback when undecided state changes */
-  onUndecidedChange?: (undecided: boolean) => void;
-  /** Initial undecided state */
-  initialUndecided?: boolean;
   /** Callback when segments change (for parent state sync) */
   onChange?: (segments: TransportSegmentInput[]) => void;
 }
@@ -78,15 +74,11 @@ export function TransportStep({
   prefillOrigin,
   prefillDestination,
   prefillStartDate,
-  onUndecidedChange,
-  initialUndecided = false,
   onChange,
 }: TransportStepProps) {
   const t = useTranslations("expedition.phase4.transport");
-  const tPhase4 = useTranslations("expedition.phase4");
   const baseId = useId();
 
-  const [undecided, setUndecided] = useState(initialUndecided);
   const [isRoundTrip, setIsRoundTrip] = useState(true);
   const [segments, setSegments] = useState<TransportSegmentInput[]>(() => {
     if (initialSegments.length > 0) return initialSegments;
@@ -104,11 +96,6 @@ export function TransportStep({
     }
     return [first];
   });
-
-  function handleUndecidedChange(checked: boolean) {
-    setUndecided(checked);
-    onUndecidedChange?.(checked);
-  }
 
   function handleRoundTripChange(roundTrip: boolean) {
     setIsRoundTrip(roundTrip);
@@ -158,7 +145,6 @@ export function TransportStep({
   }
 
   const isMaxReached = segments.length >= MAX_TRANSPORT_SEGMENTS;
-  const fadedClass = undecided ? "opacity-50" : "";
 
   return (
     <section aria-labelledby={`transport-title-${tripId}`}>
@@ -170,19 +156,8 @@ export function TransportStep({
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
-      {/* Undecided checkbox */}
-      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm" data-testid="transport-undecided">
-        <input
-          type="checkbox"
-          checked={undecided}
-          onChange={(e) => handleUndecidedChange(e.target.checked)}
-          className="rounded border-border"
-        />
-        {tPhase4("undecided")}
-      </label>
-
       {/* Round trip toggle */}
-      <div className={`mt-4 flex gap-3 ${fadedClass}`} role="radiogroup" aria-label={t("roundTrip")} data-testid="round-trip-toggle">
+      <div className="mt-4 flex gap-3" role="radiogroup" aria-label={t("roundTrip")} data-testid="round-trip-toggle">
         <button
           type="button"
           role="radio"
@@ -215,7 +190,7 @@ export function TransportStep({
         </button>
       </div>
 
-      <div className={`mt-4 space-y-6 ${fadedClass}`}>
+      <div className="mt-4 space-y-6">
         {segments.map((segment, index) => {
           const segId = `${baseId}-seg-${index}`;
           return (
@@ -246,7 +221,7 @@ export function TransportStep({
               {/* Transport type selector */}
               <div className="mb-4">
                 <Label className="mb-2 block text-sm font-medium">
-                  {t("transportType")} {!undecided && <RequiredAsterisk />}
+                  {t("transportType")} <RequiredAsterisk />
                 </Label>
                 <div
                   className="grid grid-cols-3 gap-2 sm:grid-cols-6"
@@ -284,7 +259,7 @@ export function TransportStep({
                 {/* Departure place */}
                 <div>
                   <Label htmlFor={`${segId}-departure`}>
-                    {t("departurePlace")} {!undecided && <RequiredAsterisk />}
+                    {t("departurePlace")} <RequiredAsterisk />
                   </Label>
                   <Input
                     id={`${segId}-departure`}
@@ -299,7 +274,7 @@ export function TransportStep({
                 {/* Arrival place */}
                 <div>
                   <Label htmlFor={`${segId}-arrival`}>
-                    {t("arrivalPlace")} {!undecided && <RequiredAsterisk />}
+                    {t("arrivalPlace")} <RequiredAsterisk />
                   </Label>
                   <Input
                     id={`${segId}-arrival`}
@@ -314,7 +289,7 @@ export function TransportStep({
                 {/* Departure datetime */}
                 <div>
                   <Label htmlFor={`${segId}-departureAt`}>
-                    {t("departureAt")} {!undecided && <RequiredAsterisk />}
+                    {t("departureAt")} <RequiredAsterisk />
                   </Label>
                   <Input
                     id={`${segId}-departureAt`}
@@ -338,7 +313,7 @@ export function TransportStep({
                 {isRoundTrip && (
                   <div>
                     <Label htmlFor={`${segId}-arrivalAt`}>
-                      {t("arrivalAt")} {!undecided && <RequiredAsterisk />}
+                      {t("arrivalAt")} <RequiredAsterisk />
                     </Label>
                     <Input
                       id={`${segId}-arrivalAt`}
@@ -454,7 +429,7 @@ export function TransportStep({
       </div>
 
       {/* Add segment button */}
-      <div className={`mt-4 ${fadedClass}`}>
+      <div className="mt-4">
         <Button
           type="button"
           variant="outline"

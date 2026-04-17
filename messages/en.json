@@ -832,7 +832,6 @@
     "phase4": {
       "title": "The Logistics",
       "subtitle": "Plan how to get there and move around at your destination",
-      "undecided": "I haven't decided yet, I'll define this later.",
       "carRentalQuestion": "Will you need a rental car?",
       "carRentalHint": "This determines if you need any special driving documentation.",
       "carRentalYes": "Yes, I will",
@@ -2026,7 +2025,7 @@
       "tryAgain": "Try again",
       "goBack": "Go back"
     },
-    "phaseNotSkippable": "This phase cannot be skipped. Please complete it to continue.",
+    "phaseNotSkippable": "This phase cannot be skipped. Please complete it to continue. You can return to this phase later to make adjustments if needed.",
     "phaseNotActive": "This phase is not yet available. Please complete the previous phases first.",
     "AI_TIMEOUT": "The AI service is taking longer than expected. Please try again in a few moments.",
     "AI_PARSE_ERROR": "The AI response could not be processed. Please try again.",

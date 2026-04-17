@@ -29,10 +29,6 @@ interface AccommodationStepProps {
   initialAccommodations?: AccommodationInput[];
   onSave: (accommodations: AccommodationInput[]) => Promise<void>;
   saving?: boolean;
-  /** Callback when undecided state changes */
-  onUndecidedChange?: (undecided: boolean) => void;
-  /** Initial undecided state */
-  initialUndecided?: boolean;
   /** Callback when entries change (for parent state sync) */
   onChange?: (accommodations: AccommodationInput[]) => void;
   /** Trip start date (ISO string) for date validation and pre-fill */
@@ -82,14 +78,11 @@ export function AccommodationStep({
   initialAccommodations = [],
   onSave: _onSave,
   saving: _saving = false,
-  onUndecidedChange,
-  initialUndecided = false,
   onChange,
   tripStartDate,
   tripEndDate,
 }: AccommodationStepProps) {
   const t = useTranslations("expedition.phase4.accommodation");
-  const tPhase4 = useTranslations("expedition.phase4");
   const tValidation = useTranslations("expedition.phase4.validation");
   const baseId = useId();
 
@@ -97,18 +90,12 @@ export function AccommodationStep({
   const tripStartDateStr = tripStartDate ? toDateString(tripStartDate) : null;
   const tripEndDateStr = tripEndDate ? toDateString(tripEndDate) : null;
 
-  const [undecided, setUndecided] = useState(initialUndecided);
   const [dateErrors, setDateErrors] = useState<Record<number, string>>({});
   const [entries, setEntries] = useState<AccommodationInput[]>(
     initialAccommodations.length > 0
       ? initialAccommodations
       : [createEmptyEntry(0, tripStartDate, tripEndDate)]
   );
-
-  function handleUndecidedChange(checked: boolean) {
-    setUndecided(checked);
-    onUndecidedChange?.(checked);
-  }
 
   function handleAddEntry() {
     if (entries.length >= MAX_ACCOMMODATIONS) return;
@@ -185,7 +172,6 @@ export function AccommodationStep({
   }
 
   const isMaxReached = entries.length >= MAX_ACCOMMODATIONS;
-  const fadedClass = undecided ? "opacity-50" : "";
 
   return (
     <section aria-labelledby={`accommodation-title-${tripId}`}>
@@ -197,18 +183,7 @@ export function AccommodationStep({
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
-      {/* Undecided checkbox */}
-      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm" data-testid="accommodation-undecided">
-        <input
-          type="checkbox"
-          checked={undecided}
-          onChange={(e) => handleUndecidedChange(e.target.checked)}
-          className="rounded border-border"
-        />
-        {tPhase4("undecided")}
-      </label>
-
-      <div className={`mt-4 space-y-6 ${fadedClass}`}>
+      <div className="mt-4 space-y-6">
         {entries.map((entry, index) => {
           const entryId = `${baseId}-entry-${index}`;
           return (
@@ -239,7 +214,7 @@ export function AccommodationStep({
               {/* Accommodation type selector */}
               <div className="mb-4">
                 <Label className="mb-2 block text-sm font-medium">
-                  {t("accommodationType")} {!undecided && <RequiredAsterisk />}
+                  {t("accommodationType")} <RequiredAsterisk />
                 </Label>
                 <div
                   className="grid grid-cols-3 gap-2 sm:grid-cols-6"
@@ -317,7 +292,7 @@ export function AccommodationStep({
                 {/* Check-in */}
                 <div>
                   <Label htmlFor={`${entryId}-checkIn`}>
-                    {t("checkIn")} {!undecided && <RequiredAsterisk />}
+                    {t("checkIn")} <RequiredAsterisk />
                   </Label>
                   <Input
                     id={`${entryId}-checkIn`}
@@ -342,7 +317,7 @@ export function AccommodationStep({
                 {/* Check-out */}
                 <div>
                   <Label htmlFor={`${entryId}-checkOut`}>
-                    {t("checkOut")} {!undecided && <RequiredAsterisk />}
+                    {t("checkOut")} <RequiredAsterisk />
                   </Label>
                   <Input
                     id={`${entryId}-checkOut`}
@@ -435,7 +410,7 @@ export function AccommodationStep({
       </div>
 
       {/* Add entry button */}
-      <div className={`mt-4 ${fadedClass}`}>
+      <div className="mt-4">
         <Button
           type="button"
           variant="outline"

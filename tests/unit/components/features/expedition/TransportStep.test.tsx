@@ -295,55 +295,13 @@ describe("TransportStep", () => {
     expect(screen.getByLabelText(/expedition\.phase4\.transport\.arrivalAt/)).toBeInTheDocument();
   });
 
-  // ─── T-S34: Undecided checkbox ────────────────────────────────────────
+  // ─── Required asterisks ───────────────────────────────────────────────
 
-  it("renders undecided checkbox", () => {
-    render(<TransportStep {...defaultProps} />);
-
-    expect(screen.getByTestId("transport-undecided")).toBeInTheDocument();
-    expect(screen.getByText("expedition.phase4.undecided")).toBeInTheDocument();
-  });
-
-  it("applies opacity-50 when undecided is checked", () => {
-    render(<TransportStep {...defaultProps} />);
-
-    const checkbox = screen.getByTestId("transport-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    // The segments container and toggle should have opacity-50
-    const roundTripToggle = screen.getByTestId("round-trip-toggle");
-    expect(roundTripToggle.className).toContain("opacity-50");
-  });
-
-  it("calls onUndecidedChange when checkbox is toggled", () => {
-    const onUndecidedChange = vi.fn();
-    render(<TransportStep {...defaultProps} onUndecidedChange={onUndecidedChange} />);
-
-    const checkbox = screen.getByTestId("transport-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    expect(onUndecidedChange).toHaveBeenCalledWith(true);
-  });
-
-  // ─── T-S34: Required asterisks ────────────────────────────────────────
-
-  it("shows required asterisks on mandatory fields when not undecided", () => {
+  it("shows required asterisks on mandatory fields", () => {
     const { container } = render(<TransportStep {...defaultProps} />);
 
-    // All asterisks should be present
     const asterisks = container.querySelectorAll(".text-destructive");
     expect(asterisks.length).toBeGreaterThan(0);
-  });
-
-  it("hides required asterisks when undecided is checked", () => {
-    const { container } = render(<TransportStep {...defaultProps} />);
-
-    const checkbox = screen.getByTestId("transport-undecided").querySelector("input")!;
-    fireEvent.click(checkbox);
-
-    // Asterisks should be gone (undecided removes required indicators)
-    const asterisks = container.querySelectorAll(".text-destructive");
-    expect(asterisks.length).toBe(0);
   });
 
   // ─── No step-level save button (removed per T-S34-001d) ──────────────

@@ -23,10 +23,6 @@ interface MobilityStepProps {
   initialMobility?: string[];
   onSave: (mobility: string[]) => Promise<void>;
   saving?: boolean;
-  /** Callback when undecided state changes */
-  onUndecidedChange?: (undecided: boolean) => void;
-  /** Initial undecided state */
-  initialUndecided?: boolean;
   /** Callback when selection changes (for parent state sync) */
   onChange?: (mobility: string[]) => void;
 }
@@ -44,19 +40,10 @@ export function MobilityStep({
   initialMobility = [],
   onSave: _onSave,
   saving: _saving = false,
-  onUndecidedChange,
-  initialUndecided = false,
   onChange,
 }: MobilityStepProps) {
   const t = useTranslations("expedition.phase4.mobility");
-  const tPhase4 = useTranslations("expedition.phase4");
   const [selected, setSelected] = useState<string[]>(initialMobility);
-  const [undecided, setUndecided] = useState(initialUndecided);
-
-  function handleUndecidedChange(checked: boolean) {
-    setUndecided(checked);
-    onUndecidedChange?.(checked);
-  }
 
   function handleToggle(option: string) {
     setSelected((prev) => {
@@ -68,8 +55,6 @@ export function MobilityStep({
     });
   }
 
-  const fadedClass = undecided ? "opacity-50" : "";
-
   return (
     <section aria-labelledby={`mobility-title-${tripId}`}>
       <h3
@@ -80,23 +65,12 @@ export function MobilityStep({
       </h3>
       <p className="mt-1 text-sm text-muted-foreground">{t("subtitle")}</p>
 
-      {/* Undecided checkbox */}
-      <label className="mt-3 flex cursor-pointer items-center gap-2 text-sm" data-testid="mobility-undecided">
-        <input
-          type="checkbox"
-          checked={undecided}
-          onChange={(e) => handleUndecidedChange(e.target.checked)}
-          className="rounded border-border"
-        />
-        {tPhase4("undecided")}
-      </label>
-
       <p className="mt-2 text-xs text-muted-foreground">
-        {t("hint")} {!undecided && <RequiredAsterisk />}
+        {t("hint")} <RequiredAsterisk />
       </p>
 
       <div
-        className={`mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 ${fadedClass}`}
+        className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4"
         role="group"
         aria-label={t("title")}
       >
