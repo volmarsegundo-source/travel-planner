@@ -1170,7 +1170,7 @@
     "transition": {
       "phaseCompleted": "Phase {phase} completed!",
       "advancingTo": "Advancing to Phase {phase}...",
-      "continue": "Continue",
+      "continue": "Next",
       "autoAdvance": "Auto-advancing in {seconds}s...",
       "autoAdvanceCancelled": "Auto-advance cancelled.",
       "nowOnPhase": "Now on Phase {phase}"
@@ -2030,6 +2030,8 @@
     "phaseNotActive": "This phase is not yet available. Please complete the previous phases first.",
     "AI_TIMEOUT": "The AI service is taking longer than expected. Please try again in a few moments.",
     "AI_PARSE_ERROR": "The AI response could not be processed. Please try again.",
+    "AI_SCHEMA_ERROR": "The AI response returned in an unexpected format. Please try again.",
+    "PERSIST_FAILED": "We couldn't save the result. Please try again.",
     "network": "Network error. Please check your connection and try again.",
     "aborted": "The request was cancelled.",
     "timeout": "The request timed out. Please try again."

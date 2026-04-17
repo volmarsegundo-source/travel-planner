@@ -7,7 +7,7 @@
     "delete": "Excluir",
     "edit": "Editar",
     "back": "Voltar",
-    "next": "Próximo",
+    "next": "Avançar",
     "skip": "Pular",
     "finish": "Concluir",
     "confirm": "Confirmar",
@@ -145,7 +145,7 @@
     "step2": {
       "title": "Para onde você vai?",
       "subtitle": "Diga seu destino e datas — a IA faz o resto.",
-      "cta": "Próximo",
+      "cta": "Avançar",
       "destination": "Destino",
       "destinationPlaceholder": "ex: Paris, Tóquio, Nova York",
       "startDate": "Data de ida",
@@ -251,7 +251,7 @@
       "currency": "Moeda",
       "travelers": "Viajantes",
       "generatePlan": "Gerar plano",
-      "next": "Próximo",
+      "next": "Avançar",
       "back": "Voltar",
       "loadingAnalyzing": "Analisando destino...",
       "loadingBuilding": "Montando itinerário...",
@@ -1170,7 +1170,7 @@
     "transition": {
       "phaseCompleted": "Fase {phase} concluída!",
       "advancingTo": "Avançando para a Fase {phase}...",
-      "continue": "Continuar",
+      "continue": "Avançar",
       "autoAdvance": "Avançando em {seconds}s...",
       "autoAdvanceCancelled": "Avanço automático cancelado.",
       "nowOnPhase": "Agora na Fase {phase}"
@@ -1466,7 +1466,7 @@
       "step2Description": "Gaste pontos para gerar checklists, guias e roteiros com IA",
       "step3Title": "Suba de Nível",
       "step3Description": "Suba de nível e desbloqueie conquistas",
-      "next": "Próximo",
+      "next": "Avançar",
       "skip": "Pular",
       "finish": "Entendi!",
       "stepIndicator": "Passo {current} de {total}"
@@ -1751,7 +1751,7 @@
         "search": "Buscar por email ou nome...",
         "noResults": "Nenhum usuário encontrado.",
         "prev": "Anterior",
-        "next": "Próximo",
+        "next": "Avançar",
         "prevPage": "Ir para página anterior",
         "nextPage": "Ir para próxima página"
       }
@@ -2030,6 +2030,8 @@
     "phaseNotActive": "Esta fase ainda nao esta disponivel. Complete as fases anteriores primeiro.",
     "AI_TIMEOUT": "O servico de IA esta demorando mais que o esperado. Por favor, tente novamente em alguns instantes.",
     "AI_PARSE_ERROR": "A resposta da IA nao pode ser processada. Por favor, tente novamente.",
+    "AI_SCHEMA_ERROR": "A resposta da IA veio em um formato inesperado. Por favor, tente novamente.",
+    "PERSIST_FAILED": "Nao foi possivel salvar o resultado. Por favor, tente novamente.",
     "network": "Erro de rede. Verifique sua conexao e tente novamente.",
     "aborted": "A requisicao foi cancelada.",
     "timeout": "A requisicao expirou. Por favor, tente novamente."
@@ -2149,7 +2151,7 @@
     "saveError": "Não foi possível salvar. Tente novamente.",
     "saving": "Salvando...",
     "pointsPerCategory": "+5 pts",
-    "next": "Próximo",
+    "next": "Avançar",
     "previous": "Anterior",
     "pageIndicator": "Página {current} de {total}",
     "pageChanged": "Página {current} de {total}",

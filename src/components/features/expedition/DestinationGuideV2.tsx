@@ -10,6 +10,7 @@ import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
+  completePhase3Action,
   completePhase5Action,
   bulkViewGuideSectionsAction,
 } from "@/server/actions/expedition.actions";
@@ -597,6 +598,26 @@ export function DestinationGuideV2({
   }, []);
 
   const handleRegenerate = useCallback(async () => {
+    // Map specific stream error codes (AI_TIMEOUT, AI_PARSE_ERROR,
+    // PERSIST_FAILED, aborted, network) to their own i18n strings so the
+    // user sees what actually went wrong — not the generic "try again".
+    // Sprint 44.
+    const knownErrorKeys = new Set([
+      "AI_TIMEOUT",
+      "AI_PARSE_ERROR",
+      "AI_SCHEMA_ERROR",
+      "PERSIST_FAILED",
+      "network",
+      "aborted",
+    ]);
+    const resolveRegenErrorText = (errorCode: string | undefined): string => {
+      if (!errorCode) return t("regenError");
+      const key = errorCode.startsWith("errors.")
+        ? errorCode.slice("errors.".length)
+        : errorCode;
+      return knownErrorKeys.has(key) ? tErrors(key) : t("regenError");
+    };
+
     setIsRegenerating(true);
     setRegenMessage(null);
     setErrorMessage(null);
@@ -628,16 +649,19 @@ export function DestinationGuideV2({
         // screens (Bug 1, Sprint 43 QA).
         router.refresh();
       } else {
-        setRegenMessage({ type: "error", text: t("regenError") });
+        setRegenMessage({
+          type: "error",
+          text: resolveRegenErrorText(result.errorCode),
+        });
       }
     } catch {
-      setRegenMessage({ type: "error", text: t("regenError") });
+      setRegenMessage({ type: "error", text: resolveRegenErrorText(undefined) });
     } finally {
       setIsRegenerating(false);
       setStreamingPhase("idle");
       streamAbortRef.current = null;
     }
-  }, [tripId, destination, locale, selectedCategories, personalNotes, regenCount, t]);
+  }, [tripId, destination, locale, selectedCategories, personalNotes, regenCount, t, tErrors, router]);
 
   const handleRequestGenerate = useCallback(() => {
     setShowPAConfirm(true);
@@ -778,14 +802,21 @@ export function DestinationGuideV2({
     setErrorMessage(null);
     // Flag-aware: Guide is phase-5 URL (flag OFF) or phase-3 URL (flag ON).
     // After Guide, the next phase is Itinerary: phase-6 (flag OFF) or phase-4 (flag ON).
+    // The engine's internal phaseNumber for Guide differs per ordering —
+    // 5 when flag OFF (original), 3 when flag ON (reordered) — so we must
+    // call the matching completePhaseN action, otherwise PHASE_ORDER_VIOLATION
+    // is swallowed and trip.currentPhase never advances.
     // SPEC-UX-REORDER-PHASES §5.2
-    const nextPath = isPhaseReorderEnabled() ? "phase-4" : "phase-6";
-    if (accessMode === "revisit" && completedPhases.includes(5)) {
+    const reordered = isPhaseReorderEnabled();
+    const nextPath = reordered ? "phase-4" : "phase-6";
+    const guidePhaseNumber = reordered ? 3 : 5;
+    const completeAction = reordered ? completePhase3Action : completePhase5Action;
+    if (accessMode === "revisit" && completedPhases.includes(guidePhaseNumber)) {
       router.push(`/expedition/${tripId}/${nextPath}`);
       return;
     }
     try {
-      const result = await completePhase5Action(tripId);
+      const result = await completeAction(tripId);
       if (!result.success) {
         setErrorMessage(result.error);
         setIsCompleting(false);
