@@ -1,0 +1,102 @@
+# Dataset: Pre-trip Checklist (EVAL-AI-003)
+# See: docs/specs/SPEC-EVALS-V1.md §5.3
+
+- description: "CK-01: Bonito doméstico — solo adulto"
+  vars:
+    destination: "Bonito, MS, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    travelers: "1 adulto"
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+    profile: "solo-adult"
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "CK-02: Lisboa internacional — casal"
+  vars:
+    destination: "Lisboa, Portugal"
+    language: "pt-BR"
+    tripType: "international"
+    country: "PT"
+    travelers: "2 adultos"
+    expectedCurrency: "EUR"
+    expectedEmergency: ["112"]
+    profile: "couple"
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "CK-03: Orlando internacional — família com crianças"
+  vars:
+    destination: "Orlando, FL, USA"
+    language: "pt-BR"
+    tripType: "international"
+    country: "US"
+    travelers: "2 adultos, 2 crianças"
+    expectedCurrency: "USD"
+    expectedEmergency: ["911"]
+    profile: "family-children"
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "CK-04: Gramado doméstico — idosos"
+  vars:
+    destination: "Gramado, RS, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    travelers: "2 adultos (65+)"
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+    profile: "elderly"
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "CK-05: Tokyo internacional — restrições alimentares"
+  vars:
+    destination: "Tokyo, Japan"
+    language: "en"
+    tripType: "international"
+    country: "JP"
+    travelers: "1 adult"
+    expectedCurrency: "JPY"
+    expectedEmergency: ["110", "119"]
+    profile: "dietary-restrictions"
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"

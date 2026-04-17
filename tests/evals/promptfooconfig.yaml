@@ -1,0 +1,34 @@
+# Promptfoo configuration for Atlas Travel Planner eval suite
+# See: docs/specs/SPEC-EVALS-V1.md
+# Run: npx promptfoo eval -c tests/evals/promptfooconfig.yaml
+
+description: "Atlas Travel Planner — Composite Trust Score Evals"
+
+providers:
+  - id: file://providers/mock-provider.js
+    label: mock-atlas
+
+prompts:
+  - id: "guide"
+    raw: "Generate a destination guide for {{destination}} in {{language}}"
+  - id: "plan"
+    raw: "Generate a travel itinerary for {{destination}}, {{days}} days, budget {{budget}} {{currency}}, {{travelers}} traveler(s), language {{language}}"
+  - id: "checklist"
+    raw: "Generate a pre-trip checklist for {{destination}}, trip type {{tripType}}, {{travelers}}, language {{language}}"
+
+tests:
+  # --- Guide Dataset ---
+  - file://datasets/guide.yaml
+
+  # --- Plan Dataset ---
+  - file://datasets/plan.yaml
+
+  # --- Checklist Dataset ---
+  - file://datasets/checklist.yaml
+
+defaultTest:
+  options:
+    provider:
+      id: file://providers/mock-provider.js
+
+outputPath: ./eval-results.json

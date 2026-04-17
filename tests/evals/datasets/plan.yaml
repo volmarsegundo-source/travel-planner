@@ -1,0 +1,157 @@
+# Dataset: Travel Plan / Itinerary (EVAL-AI-001)
+# See: docs/specs/SPEC-EVALS-V1.md §5.2
+
+- description: "PL-01: Piracicaba 3 dias — weekend trip doméstica"
+  vars:
+    destination: "Piracicaba, SP, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    days: 3
+    budget: 1500
+    currency: "BRL"
+    travelers: 1
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/performance.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "PL-02: Bonito 5 dias — ecoturismo"
+  vars:
+    destination: "Bonito, MS, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    days: 5
+    budget: 3000
+    currency: "BRL"
+    travelers: 2
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/performance.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "PL-03: Lisboa 7 dias — internacional EUR"
+  vars:
+    destination: "Lisboa, Portugal"
+    language: "pt-BR"
+    tripType: "international"
+    country: "PT"
+    days: 7
+    budget: 2000
+    currency: "EUR"
+    travelers: 2
+    expectedCurrency: "EUR"
+    expectedEmergency: ["112"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/performance.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "PL-04: Tokyo 10 dias — longa duração internacional"
+  vars:
+    destination: "Tokyo, Japan"
+    language: "en"
+    tripType: "international"
+    country: "JP"
+    days: 10
+    budget: 3000
+    currency: "USD"
+    travelers: 1
+    expectedCurrency: "USD"
+    expectedEmergency: ["110", "119"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/performance.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "PL-05: Jacutinga 2 dias — ultra-curto cidade pequena"
+  vars:
+    destination: "Jacutinga, MG, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    days: 2
+    budget: 800
+    currency: "BRL"
+    travelers: 1
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/performance.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "PL-06: SP->Rio->Floripa 9 dias — multi-city"
+  vars:
+    destination: "Sao Paulo -> Rio de Janeiro -> Florianopolis"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    days: 9
+    budget: 5000
+    currency: "BRL"
+    travelers: 2
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+    multiCity: true
+    destinations:
+      - city: "Sao Paulo"
+        nights: 3
+        order: 0
+      - city: "Rio de Janeiro"
+        nights: 3
+        order: 1
+      - city: "Florianopolis"
+        nights: 3
+        order: 2
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/performance.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"

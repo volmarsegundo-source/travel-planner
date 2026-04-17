@@ -1,0 +1,92 @@
+# Dataset: Destination Guide (EVAL-AI-002)
+# See: docs/specs/SPEC-EVALS-V1.md §5.1
+
+- description: "GD-01: Piracicaba SP — cidade pequena doméstica pt-BR"
+  vars:
+    destination: "Piracicaba, SP, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "GD-02: Bonito MS — ecoturismo doméstico pt-BR"
+  vars:
+    destination: "Bonito, MS, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "GD-03: Lisboa Portugal — internacional pt-BR"
+  vars:
+    destination: "Lisboa, Portugal"
+    language: "pt-BR"
+    tripType: "international"
+    country: "PT"
+    expectedCurrency: "EUR"
+    expectedEmergency: ["112"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "GD-04: Tokyo Japan — internacional en"
+  vars:
+    destination: "Tokyo, Japan"
+    language: "en"
+    tripType: "international"
+    country: "JP"
+    expectedCurrency: "JPY"
+    expectedEmergency: ["110", "119"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
+
+- description: "GD-05: Jacutinga MG — cidade pequena, teste anti-alucinação"
+  vars:
+    destination: "Jacutinga, MG, Brasil"
+    language: "pt-BR"
+    tripType: "domestic"
+    country: "BR"
+    expectedCurrency: "BRL"
+    expectedEmergency: ["190", "192", "193"]
+  assert:
+    - type: javascript
+      value: "file://graders/safety.js"
+    - type: javascript
+      value: "file://graders/accuracy.js"
+    - type: javascript
+      value: "file://graders/ux.js"
+    - type: javascript
+      value: "file://graders/i18n.js"
