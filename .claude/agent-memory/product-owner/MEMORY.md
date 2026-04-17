@@ -200,6 +200,14 @@ Score = Pain Severity (30%) + Revenue Impact (25%) + Effort inv. (20%) + Strateg
 - Migration plan (REVISED 2026-03-24): Sprint 38 (infrastructure) -> Sprint 39 (Landing + Login) -> Sprint 40 (CONSOLIDATED: Shell + ALL Phases 1-6 + Summary + Dashboard) -> Sprint 41 (Design V2 staging rollout) -> Sprint 42 (Design V2 production rollout)
 - Sprint 40 consolidates original Sprints 40-42 into one sprint (50h, 2-track parallel). Rationale: shell is shared dependency; visual fragmentation of partial migration is unacceptable for staging demo; Component Library Sprint 38 makes the work tractable.
 
+### Sprint 44 — Reordenacao das Fases (2026-04-15)
+- SPEC-PROD-REORDER-PHASES criado em `docs/specs/SPEC-PROD-REORDER-PHASES.md`
+- Nova ordem: 1-A Inspiracao, 2-O Perfil, 3-Guia Destino (era 5), 4-O Roteiro (era 6), 5-A Logistica (era 4), 6-O Preparo (era 3)
+- Valores de PA inalterados (custos 160 PA total; ganhos 665 PA total por expedicao)
+- 5 decisoes pendentes aprovacao do PO: DP-001 (Checklist manual spec), DP-002 (validacao token engineer), DP-003 (rank Capitao gatilho), DP-004 (politica migracao expedicoes), DP-005 (badge detalhista)
+- Recomendacao de migracao: Opcao D (in-place com banner informativo + preservacao de dados)
+- Recomendacao rank Capitao: mover gatilho para "Guia do Destino" (posicao 3), nao posicao 5
+
 ### Sprint 43 — Premium Subscription (2026-04-10)
 - Spec: SPEC-PROD-043-001 (Premium + Loja Atlas) -- `docs/specs/sprint-43/SPEC-PROD-PREMIUM.md`
 - Free limits: 1 destino/expedicao, 3 expedicoes ativas, 180 PA onboarding (nao repoe)

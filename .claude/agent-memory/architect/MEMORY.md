@@ -1,6 +1,9 @@
 # Architect Memory — Travel Planner
 
-## Sprint 43 (current)
+## Sprint 44 (current)
+- [Sprint 44 Phase Reorder — Option D](sprint_44_option_d.md) — SPEC-ARCH-REORDER-PHASES Approved, ADR-029/030/032 (031 removed)
+
+## Sprint 43
 - [Sprint 43 Multidestinos + Premium](sprint_43_multidestinos.md) — SPEC-ARCH-043-001 Draft, ADR-032/033/034, ~52h
 
 ## Project State

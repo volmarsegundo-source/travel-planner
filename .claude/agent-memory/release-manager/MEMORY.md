@@ -43,7 +43,8 @@
 - CIA-005 covers Sprint 19 -- closed (non-breaking, MINOR, 0.12.0 -> 0.13.0)
 - CIA-006 covers Sprint 20 -- closed (non-breaking, MINOR, 0.13.0 -> 0.14.0)
 - CIA-007 covers Sprint 37 -- OPEN (non-breaking, MINOR, 0.31.0 -> 0.32.0, Stripe payments + admin dashboard)
-- Next ID: CIA-008
+- CIA-008 covers Sprint 44 Phase Reorder -- OPEN (BREAKING INTERNO, v0.59.0 merge flag OFF -> v0.60.0 flip+migration -> v0.61.0 cleanup). SPEC-RELEASE-REORDER-PHASES v2.0.0 APPROVED 2026-04-15.
+- Next ID: CIA-009
 
 ## Open Risks (cross-sprint)
 
@@ -61,6 +62,18 @@
 - RISK-014 BAIXO: "Portugues (Brasil)" missing accent in ProfileForm (Sprint 7)
 - RISK-015 MEDIO: Footer authenticated links /terms, /privacy, /support -> 404 (Sprint 7)
 - RISK-016 BAIXO: aria-label="Loading" hardcoded English in skeletons (Sprint 7)
+- RISK-017 MEDIO: `package.json` version (0.35.1) desynced from git tag (v0.58.0). Must be corrected when bumping to v0.59.0 (Sprint 44).
+
+## Sprint 44 Phase Reorder -- key facts (for future reference)
+
+- **Migration strategy**: Opcao D (big-bang in-place SQL), NOT progressive cohort. No `phaseSchemaVersion`, no `currentPhaseV2`. One-shot per environment, before flag flip in that env.
+- **Feature flag**: env-only `PHASE_REORDER_ENABLED`, default OFF. Used only as UI/labels gate after migration -- does NOT control data schema read.
+- **Rollback pos-migracao**: only DB snapshot restore is confiavel (48h window). Flag OFF post-migration does NOT restore old behavior (data is already remapped in-place).
+- **Canary**: interno + 5% beta opt-in via /labs. Quarta 10:00 BRT.
+- **Beta comms**: 2 emails (T-7 and T-0) + in-app modal. Draft copy in SPEC-RELEASE.
+- **Freeze de merges**: 48h during canary, scope = phase-*, PhaseEngine, PointsEngine, AI actions.
+- **Trust score tolerance**: >= 0.82 sustained 7 days in staging (not 0.85).
+- **Version trajectory**: 0.58.0 (current tag) -> 0.59.0 (merge flag OFF + RISK-017 fix) -> 0.60.0 (migration + flip) -> 0.61.0 (cleanup).
 
 ## Communication Language
 

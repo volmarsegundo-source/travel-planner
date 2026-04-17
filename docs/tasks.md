@@ -1345,3 +1345,129 @@ Restricoes criticas:
 - [ ] **RISK-016 / BUG-S7-006**: `aria-label="Loading"` hardcoded em ingles nos loading skeletons
 - [ ] **BUG-S7-005**: "Traveler" hardcoded como fallback em ingles
 - [ ] **BUG-S7-003**: Sem teste para `DeleteAccountSection` wrapper
+
+---
+
+## [SPRINT-44-FINAL] Sprint 44 — Rodada Final: Bugs Criticos + PhaseFooter
+**Spec**: SPEC-UX-044 | **Status**: In Progress | **Sprint**: 44
+
+### Dependency Map
+```
+[TASK-S44F-001 Bug1] (independent)
+[TASK-S44F-002 Bug2] (independent)
+[TASK-S44F-003 Bug3] (independent)
+[TASK-S44F-004 PhaseFooter component + i18n] → [TASK-S44F-005 apply to Phase1] (parallel)
+                                               → [TASK-S44F-006 apply to Phase2]
+                                               → [TASK-S44F-007 apply to Phase3]
+                                               → [TASK-S44F-008 apply to Phase4]
+                                               → [TASK-S44F-009 apply to Phase5/Guide]
+                                               → [TASK-S44F-010 apply to Phase6/Itinerary]
+All → [TASK-S44F-011 test + build gate]
+```
+
+### Tasks
+
+#### Bug Fixes
+
+- [ ] `dev-fullstack-1` — TASK-S44F-001: Fix DashboardLayout click navigation in AtlasPhaseProgress
+  - Spec ref: SPEC-UX-019 §4.1 (phase states), SPEC-UX-026 §4.5 (click navigation)
+  - Root cause: `DashboardLayout` (line 224 of AtlasPhaseProgress.tsx) only makes segments clickable when `state === "completed"`. Active and pending segments with `onSegmentClick` should also be clickable — matching `WizardLayout` behavior where `state !== "locked" && (href || onClick)`.
+  - Fix: Change `const isClickable = segment.state === "completed" && onSegmentClick;` to `const isClickable = segment.state !== "locked" && onSegmentClick;`
+  - Update test: adjust test "renders clickable bars for completed phases in dashboard" to expect 4 buttons (completed + active + pending) instead of 2
+  - Acceptance: Active and pending segments in DashboardLayout (horizontal mobile bar) are rendered as `<button>` and call `onSegmentClick` on click. Locked segments remain non-clickable.
+  - Est: S
+
+- [~] `dev-fullstack-1` — TASK-S44F-002: ~~Reduce Gemini timeout to 15s~~ **OBSOLETA (2026-04-17)**
+  - Status: obsoleta — premissa desatualizada. `GEMINI_TIMEOUT_MS` atual é `30_000` (commit `3fca0ed fix(sprint-44): bump GEMINI_TIMEOUT_MS to 30s`), não 25s como indicava a descrição original. Redução para 15s não é mais apropriada dado o budget revisado.
+  - Ação: nenhuma — não mexer no código. Tarefa mantida aqui apenas para histórico.
+
+- [ ] `dev-fullstack-1` — TASK-S44F-003: Remove duplicate Save button from Phase 2 confirmation step
+  - Spec ref: SPEC-UX-044 §4 audit item #3
+  - Root cause: In `Phase2WizardV2.tsx`, `getFooterProps()` for the confirmation step in edit mode sets `primaryLabel` to `tCommon("save")` AND spreads `dirtyProps` which includes `onSave`. When `onSave` is provided to WizardFooter, it renders a separate "Salvar" button (WizardFooter line 131-149) alongside the primary button also labeled "Salvar". Two save buttons appear.
+  - Fix: In `getFooterProps()`, when `currentStep === "confirmation" && isEditMode`, do NOT spread `dirtyProps` (remove `onSave` from the return). The primary button already calls `handleSubmit` which saves and navigates.
+  - Acceptance: In edit mode on the confirmation step, only one button related to saving is visible.
+  - Est: S
+
+#### PhaseFooter Component (SPEC-UX-044)
+
+- [ ] `dev-fullstack-1` — TASK-S44F-004: Create PhaseFooter component + UnsavedChangesModal + i18n keys
+  - Spec ref: SPEC-UX-044 §5-6 (design, API contract)
+  - Create `src/components/features/expedition/PhaseFooter.tsx` implementing SPEC-UX-044 §6.2 props
+  - Create `src/components/features/expedition/UnsavedChangesModal.tsx` (dialog for unsaved changes)
+  - Add i18n keys under `phaseFooter` namespace in `messages/pt-BR.json` and `messages/en.json`
+  - Keys: back, next, advance, finish, saveDraft, save, saving, saved, unsavedChanges.title, unsavedChanges.saveAndExit, unsavedChanges.exitWithoutSaving, unsavedChanges.cancel
+  - Visual: atlas-teal primary, outline back, ghost save, sticky bottom, responsive stack on mobile
+  - Update WizardFooter.tsx to re-export PhaseFooter with @deprecated JSDoc
+  - Update PhaseShell.tsx and PhaseShellV2.tsx footerProps type to match PhaseFooterProps
+  - Write unit tests for PhaseFooter and UnsavedChangesModal
+  - Acceptance: PhaseFooter renders consistent navigation buttons per SPEC-UX-044 §5.2-5.3; WizardFooter still works as re-export; i18n keys present in both locales
+  - Est: L
+
+- [ ] `dev-fullstack-2` — TASK-S44F-005: Apply PhaseFooter to Phase1WizardV2
+  - Depends on: TASK-S44F-004
+  - Spec ref: SPEC-UX-044 §7 Wave 2 item 4
+  - Remove inline AtlasButton from step 1; use PhaseFooter via PhaseShell for all steps
+  - Change `showFooter={currentStep > 1}` to `showFooter={true}`
+  - Use `phaseFooter.next` for intermediate steps, `phaseFooter.advance` for final step
+  - Acceptance: Phase 1 renders PhaseFooter on all steps including step 1; no inline buttons
+  - Est: M
+
+- [ ] `dev-fullstack-2` — TASK-S44F-006: Apply PhaseFooter to Phase2WizardV2
+  - Depends on: TASK-S44F-004
+  - Spec ref: SPEC-UX-044 §7 Wave 1 item 2
+  - Switch labels to `phaseFooter.*` namespace
+  - Remove duplicate save button pattern (already fixed in TASK-S44F-003)
+  - Acceptance: Phase 2 uses PhaseFooter with standardized labels
+  - Est: S
+
+- [ ] `dev-fullstack-2` — TASK-S44F-007: Apply PhaseFooter to Phase3WizardV2 (Checklist)
+  - Depends on: TASK-S44F-004
+  - Spec ref: SPEC-UX-044 §7 Wave 2 item 5
+  - Remove no-op `onSave` from footerProps (Phase 3 has no real save)
+  - Switch labels to `phaseFooter.*`
+  - Acceptance: Phase 3 uses PhaseFooter, no ghost save button when there is no save handler
+  - Est: S
+
+- [ ] `dev-fullstack-1` — TASK-S44F-008: Apply PhaseFooter to Phase4WizardV2 (Logistics)
+  - Depends on: TASK-S44F-004
+  - Spec ref: SPEC-UX-044 §7 Wave 3 item 6
+  - Remove 3 inline WizardFooter instances from steps
+  - Set `showFooter={true}` on PhaseShell, derive footerProps from current step
+  - Keep sub-step save buttons (Transport/Accommodation/Mobility) as local actions
+  - Acceptance: Phase 4 renders a single PhaseFooter via PhaseShell; sub-step save buttons remain
+  - Est: L
+
+- [ ] `dev-fullstack-2` — TASK-S44F-009: Apply PhaseFooter to DestinationGuideV2 (Guide)
+  - Depends on: TASK-S44F-004
+  - Spec ref: SPEC-UX-044 §7
+  - Replace inline WizardFooter with PhaseFooter via PhaseShell
+  - Switch labels to `phaseFooter.*`
+  - Acceptance: Guide phase uses PhaseFooter with standardized labels
+  - Est: M
+
+- [ ] `dev-fullstack-1` — TASK-S44F-010: Apply PhaseFooter to Phase6ItineraryV2 (Itinerary)
+  - Depends on: TASK-S44F-004
+  - Spec ref: SPEC-UX-044 §7
+  - Replace inline WizardFooter with PhaseFooter via PhaseShell
+  - Switch labels to `phaseFooter.*`
+  - Phase 6 in new ordering is checklist (terminal planning phase) — use `phaseFooter.finish` if last phase
+  - Acceptance: Itinerary phase uses PhaseFooter with standardized labels
+  - Est: M
+
+#### Cross-cutting
+
+- [ ] `dev-fullstack-1` or `dev-fullstack-2` — TASK-S44F-011: Run test suite + build gate + verify
+  - Depends on: all above
+  - Run `npm run test` — all tests pass
+  - Run `npm run build` — clean build
+  - Verify no regressions in footer behavior across phases
+  - Est: S
+
+### Definition of Done
+- [ ] All tasks above marked [x]
+- [ ] Code review approved by tech-lead
+- [ ] Test coverage >= 80% on PhaseFooter and UnsavedChangesModal
+- [ ] Security checklist passed
+- [ ] No bias risks identified
+- [ ] Commits follow pattern: fix/feat(sprint-44) with Co-Authored-By
+- [ ] No direct commits to main — via PR

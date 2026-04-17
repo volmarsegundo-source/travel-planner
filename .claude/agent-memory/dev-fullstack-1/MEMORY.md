@@ -89,6 +89,27 @@ Never log PII — use userId only, never email in logs
 - Phase2Schema in expedition.schema.ts has optional passengers field
 - ExpeditionService.completePhase2 persists passengers to Trip
 
+#### Sprint 44 Wave 1 — Phase Reorder Foundation
+- Feature flag: `NEXT_PUBLIC_PHASE_REORDER_ENABLED` (boolean, default false) in env.ts + helper at `src/lib/flags/phase-reorder.ts`
+- New ordering (flag ON): 1=Inspiration, 2=Profile, 3=Guide(AI), 4=Itinerary(AI), 5=Logistics, 6=Checklist(AI)
+- `PHASE_DEFINITIONS_REORDERED` added to phase-config.ts; `getPhaseDefinitions()` is flag-aware factory
+- `NON_BLOCKING_PHASES_REORDERED = {5,6}` (was {3,4}); `getNonBlockingPhases()` flag-aware
+- `evaluatePhaseCompletion` flag-aware dispatch: flag ON re-wires phase3→Guide, phase4→Itinerary, etc.
+- Digest scaffold: `src/lib/prompts/digest.ts` — buildGuideDigest, buildItineraryDigest, buildLogisticsDigest (pure functions, zero I/O, sanitizeForPrompt on all user fields)
+- `ExpeditionAiContextService.assembleFor(tripId, targetPhase, userId?)` in `src/server/services/expedition-ai-context.service.ts` — canonical AI context assembler with BOLA guard + graceful degradation
+- 135 new tests (6 test files), 0 regressions
+- Pre-existing failing test: `tests/unit/components/itinerary/PlanGeneratorWizard.test.tsx` (next/server module issue — NOT caused by Sprint 44)
+
+#### Sprint 44 Wave 3 — Frontend flag-aware UI
+- `PhaseReorderBanner` — new component, 7 tests, localStorage dismiss, role=status aria-live=polite
+- `ExpeditionCardRedesigned` — quick-access order: flag ON = Guide > Itinerary > Checklist > Report
+- `ExpeditionSummary` — PHASE_ICONS and phaseNames arrays flag-aware
+- `ChecklistProgressMini` — checklist path: phase-3 (flag OFF) → phase-6 (flag ON)
+- `PhasesSectionV2` (landing) — icons and i18n keys flag-aware for phases 3-6
+- Wizards Phase2/3/4/DestinationGuideV2/Phase6ItineraryV2 — back/next paths + CTA labels + subtitles flag-aware
+- i18n: phaseReorderBanner.*, phase{3-6}.subtitleReordered, ctaNextReordered, ctaBackReordered, landingV2.phases.phase{3-6}Reordered
+- 3101 tests passing (+79 vs Wave 2 baseline)
+
 ### Completed Tasks
 - T-012: i18n setup with next-intl (locale routing, messages, middleware)
 - T-001: Auth.js backend (auth config, service, actions, route handler, tests)

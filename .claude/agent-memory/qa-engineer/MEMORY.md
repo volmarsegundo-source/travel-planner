@@ -107,9 +107,28 @@ Every AC from `docs/tasks.md` must map to at least one test in QA-SPEC. Coverage
 - Eval Template: `docs/process/templates/EVAL-TEMPLATE.md`
 - Datasets: `docs/evals/datasets/` (itinerary-quality, guide-accuracy, injection-resistance, i18n-completeness, autocomplete-quality, map-rendering, dashboard-layout, summary-completeness)
 
+## Sprint 44 Wave 4 Findings (2026-04-15)
+
+### Open Bugs (2 skipped tests with TODO markers)
+- **BUG-S44-W4-001** (S2-High, P1): markdown data-exfil URL in `localMobility` not stripped by `sanitizeForPrompt`. Injection guard lacks HTTP URL / markdown image pattern. Fix: add URL pattern to HIGH_CONFIDENCE_PATTERNS in `src/lib/prompts/injection-guard.ts` OR add URL stripping in `safeField()` in `src/lib/prompts/digest.ts`. Skipped test: `expedition-ai-context.service.test.ts` (INJ-S44-05).
+- **BUG-S44-W4-002** (S3-Medium, P2): `next-steps-engine` `completeChecklist` special case hardcoded to `phase === 3` — not flag-aware for new phase 6 slot. Fix: make checklist phase detection read from `getChecklistPhaseNumber()` (flag-aware helper). Skipped test: `next-steps-engine-reorder.test.ts`.
+
+### Wave 4 Test Locations
+- `tests/unit/server/expedition-ai-context.service.test.ts` — assembleFor context slices, BOLA, sanitization (39 tests)
+- `tests/unit/server/expedition-phase-migration.test.ts` — migration mapping FX-01..09, bijection invariant (62 tests)
+- `tests/unit/lib/engines/next-steps-engine-reorder.test.ts` — TC-NAV-E07 flag-aware (25 tests)
+- `tests/unit/lib/prompts/digest.test.ts` — S44 invariant blocks appended (28 new tests)
+- `tests/evals/injection-resistance.eval.ts` — S44 vectors IR-021..025 (7 new tests)
+- `docs/evals/datasets/checklist-quality.json` — NEW: 25 cases (20 base + 5 itinerary-aware)
+- `docs/evals/datasets/injection-resistance.json` — +5 S44 vectors IR-021..025
+
+### Key sanitizeForPrompt behavior note
+`sanitizeForPrompt` is mocked to pass-through in `tests/unit/lib/prompts/digest.test.ts`. Token budget / maxLen enforcement is only tested with real injection-guard (integration-level or `expedition-ai-context.service.test.ts`). Any new digest tests that need to validate length caps must NOT mock the guard.
+
 ## Key Docs for QA Context
 - `docs/SPEC-001.md` — data model, Server Actions, business logic
 - `docs/ux-patterns.md` — UX-001 screen specs, error states, accessibility checklist
 - `docs/SEC-SPEC-001.md` — security findings (FIND-M-001 through FIND-L-003), SR-001..SR-008, CR-001..CR-004
 - `docs/tasks.md` — acceptance criteria (source of truth)
 - `docs/QA-SPEC-001.md` — this feature's test strategy (Strategy ID: QA-SPEC-001)
+- `docs/specs/SPEC-QA-REORDER-PHASES.md` — Sprint 44 phase reorder test plan

@@ -1,5 +1,7 @@
 # UX Designer Memory — Travel Planner
 
+- [Sprint 44 Phase Reorder](project_sprint_44_reorder.md) — reorder phases 3-6: Guia(3)/Roteiro(4)/Logistica(5)/Preparo(6)
+
 ## SDD Process (Sprint 25+)
 - Official process: Spec-Driven Development
 - UX owns SPEC-UX-XXX specs

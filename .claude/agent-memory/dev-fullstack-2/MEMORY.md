@@ -28,6 +28,40 @@
 - `aria-label` on a button overrides text content for accessible name — avoid setting both
 - ProgressIndicator mock returns key string without interpolation since `"onboarding.progress"` doesn't contain `{current}` literal — test for `"onboarding.progress"` not interpolated value
 
+## Sprint 44 Wave 5 — Completed Tasks (dev-fullstack-2)
+- BUG-S44-W4-001 fixed: added markdown image URL pattern + bare HTTP/HTTPS URL pattern to HIGH_CONFIDENCE_PATTERNS in injection-guard.ts. Removed skip from INJ-S44-05 test.
+- BUG-S44-W4-002 fixed: made NextStepsEngine checklist CTA flag-aware. checklistPhase = isPhaseReorderEnabled() ? 6 : 3. Removed skip from TC-NAV-E07 test.
+- ATLAS-GAMIFICACAO-APROVADO.md updated to v2.0.0 with delta from SPEC-PROD-REORDER-PHASES §11
+- architecture.md: added ADR-029 (phase reorder strategy), ADR-030 (big-bang migration), ADR-032 (ExpeditionAiContextService). ADR-031 (phaseSchemaVersion) explicitly NOT added — rejected in spec.
+- package.json bumped 0.35.1 → 0.59.0 (RISK-017). CHANGELOG.md entry v0.59.0 added.
+- docs/dev-testing-guide.md: Feature Flags section added documenting NEXT_PUBLIC_PHASE_REORDER_ENABLED
+- docs/specs/SPEC-STATUS.md: 6 Sprint 44 REORDER-PHASES specs marked Approved; changelog entry added
+- Security review: formatGuideDigest import in itinerary-plan.service.ts is safe (formats already-sanitized digest, not raw DB data). Zero injection bypass paths found.
+- Final: 3232 tests passing, 0 skipped, 1 pre-existing unrelated failure (PlanGeneratorWizard)
+
+## Sprint 44 Wave 2 — Completed Tasks (dev-fullstack-2)
+- SQL migration scripts: scripts/db/{migrate,reverse,pre-migration-audit,README}.sql
+- phase-config.ts: badgeKey "detalhista" added to Logistics in PHASE_DEFINITIONS_REORDERED
+- checklist-engine.ts: getChecklistPhaseNumber(), initializeChecklistItems (flag-aware),
+  initializePhase3Checklist (@deprecated alias), getChecklistItems, isChecklistComplete
+- ai.types.ts: CLOTHING/ACTIVITIES/LOGISTICS categories, ChecklistSourcePhase, reason+sourcePhase,
+  ChecklistResult.summary, GenerateChecklistParams.tripId
+- expedition.actions.ts: checklistPhaseNumber()/itineraryPhaseNumber() helpers,
+  toggleChecklistItemAction + alias togglePhase3ItemAction, syncItineraryCompletionAction + alias syncPhase6CompletionAction
+- system-prompts.ts v1.1.0: PLAN guide digest rule, CHECKLIST v2 (14 HARD RULES), CHECKLIST_SYSTEM_PROMPT_V1 archived
+- checklist.prompt.ts v2.0.0: checklistPromptV1 (legacy) + checklistPrompt v2 (ChecklistV2Params XML blocks)
+- itinerary-plan.service.ts: getExpeditionContextForItinerary flag-aware + assembler fallback
+- ai.service.ts: flag-aware generateChecklist (v1/v2 dispatch, cache key v1:/v2:, assembler fallback)
+- 73 new tests across 5 new test files; 9 existing test files updated for version/API changes
+
+## Sprint 44 Wave 2 — Key Patterns
+- Flag: isPhaseReorderEnabled() from @/lib/flags/phase-reorder — single toggle point
+- checklistPhaseNumber(): 6 (ON) or 3 (OFF); itineraryPhaseNumber(): 4 (ON) or 6 (OFF)
+- Deprecated aliases: togglePhase3ItemAction = toggleChecklistItemAction (const assignment)
+- Cache versioning: cacheVersion = reorderEnabled ? "v2" : "v1" prefix before hash input
+- Graceful degradation: all new paths catch errors + fall back to legacy behavior
+- When adding new method to service used in action mock: always add to ALL test mocks for that service
+
 ## Sprint 30 — Completed Tasks (dev-fullstack-2)
 - Dashboard rewrite: ExpeditionsDashboard (filter/sort), ExpeditionCardRedesigned (status accents), ExpeditionCardSkeleton
 - ExpeditionDTO type + deriveExpeditionStatus utility in src/types/expedition.types.ts
