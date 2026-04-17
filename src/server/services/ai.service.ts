@@ -312,7 +312,7 @@ export function buildGuideCacheInput(
 // ─── Provider factory ─────────────────────────────────────────────────────────
 
 const CLAUDE_MODEL_ID_MAP: Record<ModelType, string> = {
-  plan: "claude-sonnet-4-6",
+  plan: "claude-haiku-4-5-20251001",
   checklist: "claude-haiku-4-5-20251001",
   guide: "claude-haiku-4-5-20251001",
 };

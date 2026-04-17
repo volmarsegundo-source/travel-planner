@@ -225,9 +225,9 @@ export class ClaudeProvider implements AiProvider {
 
   /**
    * Maps a ModelType hint to the concrete Anthropic model ID.
-   * - "plan" -> Sonnet (complex reasoning for itineraries)
-   * - "checklist" -> Haiku (simple structured extraction)
-   * - "guide" -> Haiku (factual structured output, cost-optimized)
+   * - "plan" -> Haiku 4.5 (cost-optimized; latency-sensitive path)
+   * - "checklist" -> Haiku 4.5 (simple structured extraction)
+   * - "guide" -> Haiku 4.5 (factual structured output, cost-optimized)
    */
   private resolveModel(model: ModelType): string {
     switch (model) {
