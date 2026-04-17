@@ -10,10 +10,11 @@ import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } fro
 const PLAN_MODEL = "gemini-2.0-flash";
 const CHECKLIST_MODEL = "gemini-2.0-flash";
 const GUIDE_MODEL = "gemini-2.0-flash";
-// Vercel Hobby serverless routes have a hard 60s limit. With the previous
-// 50s budget, Gemini mid-stream failures left only ~10s for the Anthropic
-// Gemini 15s + Claude 20s + 25s buffer = 60s (Vercel hard limit).
-const GEMINI_TIMEOUT_MS = 15_000;
+// Vercel Hobby serverless routes have a hard 60s limit.
+// Gemini 30s + Vercel margin 30s = 60s. AI Governance telemetry shows
+// Gemini typically responds in 17-19s; 15s was cutting off successful
+// responses. Anthropic fallback remains available if Gemini fails early.
+const GEMINI_TIMEOUT_MS = 30_000;
 
 // ─── Google AI singleton (lazy) ──────────────────────────────────────────────
 
