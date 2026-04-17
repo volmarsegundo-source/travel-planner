@@ -3,7 +3,7 @@ import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ChecklistCategorySection } from "./ChecklistCategorySection";
-import { ChecklistGeneratingSkeleton } from "./ChecklistGeneratingSkeleton";
+import { AiGenerationProgress } from "@/components/features/expedition/AiGenerationProgress";
 import { generateChecklistAction } from "@/server/actions/ai.actions";
 import { useAiServiceStatus } from "@/hooks/useAiServiceStatus";
 import { AiServicePausedBanner } from "@/components/features/ai/AiServicePausedBanner";
@@ -122,7 +122,7 @@ export function ChecklistView({
         </div>
       )}
 
-      {!hasItems && isPending && <ChecklistGeneratingSkeleton />}
+      {!hasItems && isPending && <AiGenerationProgress type="checklist" />}
 
       {hasItems && (
         <>

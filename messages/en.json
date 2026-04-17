@@ -528,6 +528,34 @@
   },
   "expedition": {
     "backToExpeditions": "My Expeditions",
+    "aiProgress": {
+      "guide": {
+        "title": "Generating your guide...",
+        "messages": {
+          "analyzing": "Researching the destination...",
+          "building": "Selecting recommendations...",
+          "finalizing": "Finalizing details..."
+        }
+      },
+      "plan": {
+        "title": "Charting your route...",
+        "messages": {
+          "analyzing": "Analyzing your trip...",
+          "building": "Building your day-by-day itinerary...",
+          "finalizing": "Polishing the final details..."
+        }
+      },
+      "checklist": {
+        "title": "Building your checklist...",
+        "messages": {
+          "analyzing": "Analyzing your destination...",
+          "building": "Selecting essential items...",
+          "finalizing": "Almost ready..."
+        }
+      },
+      "estimate": "This may take up to {seconds} seconds",
+      "cancel": "Cancel"
+    },
     "phase1": {
       "title": "The Inspiration",
       "subtitle": "Where will your next adventure take you?",

@@ -170,31 +170,13 @@ export function Phase4WizardV2({
     setValidationErrors([]);
   }
 
-  /** Validate the current step before navigating forward */
-  function validateCurrentStep(): string[] {
-    const errors: string[] = [];
-    if (currentStep === 1) {
-      const hasValid = transportSegments.some(
-        (s) => s.transportType && s.departurePlace && s.arrivalPlace && s.departureAt && s.arrivalAt,
-      );
-      if (!hasValid) errors.push(tValidation("transportRequired"));
-    }
-    if (currentStep === 2) {
-      const hasValid = accommodations.some(
-        (a) => a.accommodationType && a.checkIn && a.checkOut,
-      );
-      if (!hasValid) errors.push(tValidation("accommodationRequired"));
-    }
-    if (currentStep === 3 && mobility.length === 0) {
-      errors.push(tValidation("mobilityRequired"));
-    }
-    return errors;
-  }
-
+  // Free navigation between steps 1, 2, 3 — validation only fires when the
+  // user tries to advance to the next phase (handleAdvance). The whole phase
+  // stays mandatory because you can't leave it without satisfying all three
+  // sections, but inside the phase users can jump around without being
+  // blocked by half-filled forms.
   function handleStepNext(nextStep: number) {
-    const errors = validateCurrentStep();
-    setValidationErrors(errors);
-    if (errors.length > 0) return;
+    setValidationErrors([]);
     goToStep(nextStep);
   }
 

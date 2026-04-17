@@ -6,14 +6,20 @@ import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } fro
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const PLAN_MODEL = "claude-sonnet-4-6";
+/** All task types use Haiku — 4-5x faster output than Sonnet. Plan was on
+ *  Sonnet until sprint-44; mid-flight recovery couldn't finish 4500 tokens
+ *  in the 20s timeout because Sonnet outputs at ~75 tok/s. Haiku hits ~350
+ *  tok/s so the same budget fits comfortably. */
+const PLAN_MODEL = "claude-haiku-4-5-20251001";
 const CHECKLIST_MODEL = "claude-haiku-4-5-20251001";
-/** Guide uses Haiku — intentional cost optimization. Factual structured output does not require Sonnet. */
 const GUIDE_MODEL = "claude-haiku-4-5-20251001";
 // Vercel Hobby serverless routes have a hard 60s limit; keep provider timeout
 // comfortably below that to leave headroom for mid-stream recovery + persistence.
-// See: docs/architecture.md ADR-028.
-const CLAUDE_TIMEOUT_MS = 20_000;
+// Plan gets 25s (longer output budget after a failed Gemini stream); guide
+// and checklist stay at 20s. See: docs/architecture.md ADR-028.
+function getClaudeTimeoutMs(model: ModelType): number {
+  return model === "plan" ? 25_000 : 20_000;
+}
 
 // ─── Anthropic singleton (lazy) ───────────────────────────────────────────────
 
@@ -73,7 +79,7 @@ export class ClaudeProvider implements AiProvider {
 
       const message = await getAnthropic().messages.create(
         createParams as unknown as Anthropic.MessageCreateParamsNonStreaming,
-        { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) },
+        { signal: AbortSignal.timeout(getClaudeTimeoutMs(model)) },
       );
 
       const content = message.content[0];
@@ -142,7 +148,7 @@ export class ClaudeProvider implements AiProvider {
     try {
       const sdkStream = getAnthropic().messages.stream(
         createParams as unknown as Anthropic.MessageCreateParamsStreaming,
-        { signal: AbortSignal.timeout(CLAUDE_TIMEOUT_MS) },
+        { signal: AbortSignal.timeout(getClaudeTimeoutMs(model)) },
       );
 
       // Accumulate chunks as they arrive; resolved when stream ends.

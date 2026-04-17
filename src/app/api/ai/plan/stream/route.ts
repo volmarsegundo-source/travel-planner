@@ -43,12 +43,13 @@ const TOKENS_PER_DAY = 600;
 // enriched traveler context added by SPEC-AI-004 (TASK-S33-012).
 const TOKENS_OVERHEAD = 1100;
 const MIN_PLAN_TOKENS = 2048;
-// Clamped to 6000 for streaming under Vercel Hobby's 60s limit.
-// Gemini Flash streams at ~200-250 tok/s, so 6000 tokens ≈ 24-30s which
-// fits inside the 30s Gemini timeout with headroom. Previous cap (8000)
-// routinely exceeded the timeout on long trips, triggering fallback/failure.
+// Clamped to 4500 for streaming under Vercel Hobby's 60s limit.
+// Gemini Flash streams at ~200-300 tok/s. 4500 tokens ≈ 15-22s on Gemini
+// (leaves 8-15s headroom in the 30s timeout) and ≈ 13-18s on Claude Haiku
+// (fits the 25s mid-flight recovery budget). Previous caps (8000, then 6000)
+// routinely exceeded one or both timeouts on long trips.
 // See: docs/architecture.md ADR-028.
-const MAX_PLAN_TOKENS = 6000;
+const MAX_PLAN_TOKENS = 4500;
 
 const RATE_LIMIT_MAX = 10;
 const RATE_LIMIT_WINDOW_SECONDS = 3600;

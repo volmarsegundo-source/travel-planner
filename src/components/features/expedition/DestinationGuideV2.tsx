@@ -8,6 +8,7 @@ import { PhaseShell } from "./PhaseShell";
 import { DestinationImage } from "@/components/ui/DestinationImage";
 import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
+import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
   completePhase3Action,
@@ -854,6 +855,7 @@ export function DestinationGuideV2({
         : streamingPhase === "finalizing"
         ? "streaming.finalizing"
         : "streaming.inProgress";
+    const handleCancelGuide = () => streamAbortRef.current?.abort();
     return (
       <PhaseShell
         tripId={tripId}
@@ -864,15 +866,22 @@ export function DestinationGuideV2({
         phaseSubtitle={isPhaseReorderEnabled() ? t("subtitleReordered") : t("subtitle")}
         showFooter={false}
       >
-        <HeaderSkeleton />
-        <BentoSkeleton />
+        <AiGenerationProgress
+          type="guide"
+          progressMessage={t(streamingMsgKey)}
+          onCancel={handleCancelGuide}
+        />
         <p
-          className="mt-4 text-center text-sm font-atlas-body text-atlas-on-surface-variant"
+          className="sr-only"
           aria-live="polite"
           data-testid="guide-streaming-status"
         >
           {t(streamingMsgKey)}
         </p>
+        <div className="mt-6" aria-hidden="true">
+          <HeaderSkeleton />
+          <BentoSkeleton />
+        </div>
       </PhaseShell>
     );
   }

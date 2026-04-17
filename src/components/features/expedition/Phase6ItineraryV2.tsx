@@ -11,6 +11,7 @@ import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
 import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
+import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import {
   getProgressPhase,
@@ -1559,41 +1560,21 @@ export function Phase6ItineraryV2({
         completedPhases={completedPhases} phaseTitle={t("title")}
         showFooter={false} contentMaxWidth="4xl"
       >
-        <div className="flex flex-col items-center justify-center gap-6 text-center" role="status" aria-live="polite" aria-label={t("generating")}>
-          <div className="h-16 w-16 animate-spin motion-reduce:animate-none rounded-full border-4 border-atlas-secondary-container/30 border-t-atlas-secondary-container" aria-hidden="true" />
-          <p className="text-lg font-atlas-headline font-bold text-atlas-on-surface">{t("generating")}</p>
-          <p className="text-sm font-atlas-body text-atlas-on-surface-variant" data-testid="progress-message-v2">{progressMessage}</p>
-
-          {/* Progress bar */}
-          <div className="w-full max-w-md space-y-2">
-            <div className="h-2 w-full overflow-hidden rounded-full bg-atlas-surface-container-high">
-              <div
-                className="h-full rounded-full bg-atlas-secondary-container transition-all duration-500 ease-out"
-                style={{ width: `${Math.max(progressPercent, 5)}%` }}
-                role="progressbar"
-                aria-valuenow={progressPercent}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                data-testid="progress-bar-v2"
-              />
-            </div>
-            {daysGenerated > 0 && (
-              <p className="text-xs font-atlas-body text-atlas-on-surface-variant" data-testid="days-count-v2">
-                {t("progressDaysPlanned", { count: daysGenerated })}
-              </p>
-            )}
-          </div>
-
-          {/* Skeleton cards */}
-          <div className="w-full max-w-md space-y-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <AtlasCard key={i} loading className="h-16" />
-            ))}
-          </div>
-
-          <AtlasButton variant="secondary" onClick={handleCancel} leftIcon={<XIcon />}>
-            {t("cancelGeneration")}
-          </AtlasButton>
+        <AiGenerationProgress
+          type="plan"
+          progressMessage={progressMessage}
+          progressPercent={progressPercent}
+          extraDetail={
+            daysGenerated > 0
+              ? t("progressDaysPlanned", { count: daysGenerated })
+              : undefined
+          }
+          onCancel={handleCancel}
+        />
+        <div className="mx-auto mt-6 w-full max-w-md space-y-3" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <AtlasCard key={i} loading className="h-16" />
+          ))}
         </div>
       </PhaseShell>
     );
