@@ -2027,7 +2027,12 @@
       "goBack": "Go back"
     },
     "phaseNotSkippable": "This phase cannot be skipped. Please complete it to continue.",
-    "phaseNotActive": "This phase is not yet available. Please complete the previous phases first."
+    "phaseNotActive": "This phase is not yet available. Please complete the previous phases first.",
+    "AI_TIMEOUT": "The AI service is taking longer than expected. Please try again in a few moments.",
+    "AI_PARSE_ERROR": "The AI response could not be processed. Please try again.",
+    "network": "Network error. Please check your connection and try again.",
+    "aborted": "The request was cancelled.",
+    "timeout": "The request timed out. Please try again."
   },
   "legal": {
     "terms": {

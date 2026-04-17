@@ -2027,7 +2027,12 @@
       "goBack": "Voltar"
     },
     "phaseNotSkippable": "Esta fase nao pode ser pulada. Complete-a para continuar.",
-    "phaseNotActive": "Esta fase ainda nao esta disponivel. Complete as fases anteriores primeiro."
+    "phaseNotActive": "Esta fase ainda nao esta disponivel. Complete as fases anteriores primeiro.",
+    "AI_TIMEOUT": "O servico de IA esta demorando mais que o esperado. Por favor, tente novamente em alguns instantes.",
+    "AI_PARSE_ERROR": "A resposta da IA nao pode ser processada. Por favor, tente novamente.",
+    "network": "Erro de rede. Verifique sua conexao e tente novamente.",
+    "aborted": "A requisicao foi cancelada.",
+    "timeout": "A requisicao expirou. Por favor, tente novamente."
   },
   "legal": {
     "terms": {

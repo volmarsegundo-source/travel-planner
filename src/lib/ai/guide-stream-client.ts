@@ -150,14 +150,17 @@ export async function streamDestinationGuide(
               regenCount: parsed.regenCount,
             };
           } catch {
-            result = { kind: "error", errorCode: "AI_PARSE_ERROR" };
+            result = { kind: "error", errorCode: "errors.AI_PARSE_ERROR" };
           }
           continue;
         }
         if (packet.event === "error") {
           try {
             const parsed = JSON.parse(packet.data) as { error?: string };
-            result = { kind: "error", errorCode: parsed.error ?? "errors.generic" };
+            const rawCode = parsed.error ?? "errors.generic";
+            // Normalize bare AI error codes to errors.* namespace for i18n lookup
+            const errorCode = rawCode.startsWith("errors.") ? rawCode : `errors.${rawCode}`;
+            result = { kind: "error", errorCode };
           } catch {
             result = { kind: "error", errorCode: "errors.generic" };
           }
