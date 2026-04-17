@@ -547,6 +547,7 @@
         "city": "Cidade",
         "bio": "Mini bio",
         "bioPlaceholder": "Conte um pouco sobre você como viajante...",
+        "locationPlaceholder": "Busque sua cidade...",
         "optional": "Todos os campos são opcionais. Você pode completar seu perfil depois.",
         "savedProfileTitle": "Seu perfil salvo",
         "editProfile": "Editar",

@@ -547,6 +547,7 @@
         "city": "City",
         "bio": "Short bio",
         "bioPlaceholder": "Tell us about yourself as a traveler...",
+        "locationPlaceholder": "Search your city...",
         "optional": "All fields are optional. You can complete your profile later.",
         "savedProfileTitle": "Your saved profile",
         "editProfile": "Edit",

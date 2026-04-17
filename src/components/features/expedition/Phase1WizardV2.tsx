@@ -157,6 +157,42 @@ export function Phase1WizardV2({
   const [bio, setBio] = useState(userProfile?.bio ?? "");
   const [name, setName] = useState(userName ?? "");
 
+  // Derived display value for profile location autocomplete
+  const profileLocationDisplay = useMemo(() => {
+    if (city && country) return `${city}, ${country}`;
+    return city || country || "";
+  }, [city, country]);
+
+  const [profileLocationSelectedRef] = useState<{ value: string | null }>({ value: null });
+
+  function handleProfileLocationChange(newValue: string) {
+    // When the user types freely (not selecting from dropdown), update city only
+    if (profileLocationSelectedRef.value && newValue !== profileLocationSelectedRef.value) {
+      setCity(newValue);
+      setCountry("");
+      profileLocationSelectedRef.value = null;
+    } else if (!profileLocationSelectedRef.value) {
+      setCity(newValue);
+    }
+  }
+
+  function handleProfileLocationSelect(result: {
+    displayName: string;
+    country: string | null;
+    countryCode: string | null;
+    lat: number;
+    lon: number;
+    city: string | null;
+    state: string | null;
+  }) {
+    setCity(result.city ?? "");
+    setCountry(result.country ?? "");
+    const display = result.city && result.country
+      ? `${result.city}, ${result.country}`
+      : result.city ?? result.country ?? result.displayName;
+    profileLocationSelectedRef.value = display;
+  }
+
   const stepContentRef = useRef<HTMLDivElement>(null);
   const tripIdRef = useRef<string>(_tripId ?? "");
   const locale = useLocale();
@@ -602,6 +638,7 @@ export function Phase1WizardV2({
 
         {/* Step 1: About You */}
         {currentStep === 1 && (
+          <>
           <AtlasCard variant="base">
             <h2 className="font-atlas-headline text-lg font-bold text-atlas-on-surface">
               {t("step1.title")}
@@ -661,9 +698,6 @@ export function Phase1WizardV2({
                   </dl>
                 </div>
 
-                <AtlasButton onClick={handleStep1Next} size="lg" fullWidth>
-                  {tCommon("next")}
-                </AtlasButton>
               </div>
             ) : (
               <div className="mt-4 flex flex-col gap-4">
@@ -721,22 +755,19 @@ export function Phase1WizardV2({
                     helperText={!phoneInvalid ? t("step1.phoneHint") : undefined}
                   />
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <AtlasInput
-                      id="profile-country-v2"
-                      label={t("step1.country")}
-                      type="text"
-                      value={country}
-                      onChange={(e) => setCountry(e.target.value)}
-                      maxLength={100}
-                    />
-                    <AtlasInput
-                      id="profile-city-v2"
-                      label={t("step1.city")}
-                      type="text"
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      maxLength={100}
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      className="text-sm font-medium text-atlas-on-surface-variant"
+                    >
+                      {t("step1.city")} / {t("step1.country")}
+                    </label>
+                    <DestinationAutocomplete
+                      id="profile-location-v2"
+                      name="profile-location"
+                      value={profileLocationDisplay}
+                      onChange={handleProfileLocationChange}
+                      onSelect={handleProfileLocationSelect}
+                      placeholder={t("step1.locationPlaceholder")}
                     />
                   </div>
 
@@ -766,12 +797,17 @@ export function Phase1WizardV2({
                   {t("step1.optional")}
                 </p>
 
-                <AtlasButton onClick={handleStep1Next} size="lg" fullWidth>
-                  {tCommon("next")}
-                </AtlasButton>
               </div>
             )}
           </AtlasCard>
+
+          <PhaseFooter
+            onNext={handleStep1Next}
+            isSubmitting={isSubmitting}
+            canAdvance={!isSubmitting}
+            showBackButton={false}
+          />
+          </>
         )}
 
         {/* Step 2: Destination */}
