@@ -45,7 +45,17 @@
     "eval:gate": "npx tsx scripts/eval-gate.ts eval-report.json",
     "eval:drift": "npx tsx scripts/drift-check.ts",
     "eval:scheduled": "npx tsx scripts/scheduled-eval.ts",
-    "eval:trend": "npx tsx scripts/eval-trend.ts"
+    "eval:trend": "npx tsx scripts/eval-trend.ts",
+    "pf:eval": "promptfoo eval -c tests/evals/promptfooconfig.yaml --output eval-results.json",
+    "pf:eval:watch": "promptfoo eval -c tests/evals/promptfooconfig.yaml --watch",
+    "pf:eval:report": "promptfoo view",
+    "pf:eval:gate": "node tests/evals/scripts/gate.js eval-results.json --threshold=0.80",
+    "pf:eval:gate:staging": "node tests/evals/scripts/gate.js eval-results.json --threshold=0.85",
+    "pf:eval:gate:prod": "node tests/evals/scripts/gate.js eval-results.json --threshold=0.90",
+    "pf:eval:drift": "node tests/evals/scripts/drift.js eval-results.json",
+    "pf:eval:scheduled": "node tests/evals/scripts/scheduled.js",
+    "pf:eval:trend": "node tests/evals/scripts/trend.js",
+    "pf:run": "npm run pf:eval && npm run pf:eval:gate"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
@@ -106,6 +116,7 @@
     "eslint": "^9.16.0",
     "eslint-config-next": "^15.1.0",
     "jsdom": "^25.0.1",
+    "promptfoo": "^0.121.5",
     "shadcn": "^3.8.5",
     "tailwindcss": "^4.0.0",
     "tw-animate-css": "^1.4.0",

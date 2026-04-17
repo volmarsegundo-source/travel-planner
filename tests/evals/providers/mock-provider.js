@@ -196,31 +196,46 @@ function detectKind(prompt) {
   return "guide";
 }
 
-async function callApi(prompt, context) {
-  const start = Date.now();
-  const vars = (context && context.vars) || {};
-  const kind = detectKind(prompt);
+class MockAtlasProvider {
+  constructor(options) {
+    options = options || {};
+    this.providerId = options.id || "mock-atlas";
+    this.config = options.config || {};
+    this.label = options.label || this.providerId;
+  }
 
-  let payload;
-  if (kind === "plan") payload = buildPlan(vars);
-  else if (kind === "checklist") payload = buildChecklist(vars);
-  else payload = buildGuide(vars);
+  id() {
+    return this.providerId;
+  }
 
-  const output = JSON.stringify(payload);
-  const latency = Date.now() - start;
-  const outputTokens = Math.ceil(output.length / 4);
-  const inputTokens = Math.ceil(String(prompt || "").length / 4);
+  async callApi(prompt, context) {
+    const start = Date.now();
+    const vars = (context && context.vars) || {};
+    const kind = detectKind(prompt);
 
-  return {
-    output,
-    tokenUsage: {
-      prompt: inputTokens,
-      completion: outputTokens,
-      total: inputTokens + outputTokens,
-    },
-    latencyMs: latency,
-    metadata: { kind, mock: true, locale: pickLocale(vars) },
-  };
+    let payload;
+    if (kind === "plan") payload = buildPlan(vars);
+    else if (kind === "checklist") payload = buildChecklist(vars);
+    else payload = buildGuide(vars);
+
+    const output = JSON.stringify(payload);
+    const latency = Date.now() - start;
+    const outputTokens = Math.ceil(output.length / 4);
+    const inputTokens = Math.ceil(String(prompt || "").length / 4);
+
+    return {
+      output,
+      tokenUsage: {
+        prompt: inputTokens,
+        completion: outputTokens,
+        total: inputTokens + outputTokens,
+      },
+      latencyMs: latency,
+      metadata: { kind, mock: true, locale: pickLocale(vars) },
+    };
+  }
 }
 
-module.exports = { callApi };
+module.exports = MockAtlasProvider;
+module.exports.default = MockAtlasProvider;
+module.exports.MockAtlasProvider = MockAtlasProvider;

@@ -55,6 +55,8 @@ npm-debug.log*
 
 # Eval reports (generated output)
 eval-report.json
+eval-results.json
+.promptfoo/
 
 # Secrets & credentials — NEVER commit
 client_secret_*.json
