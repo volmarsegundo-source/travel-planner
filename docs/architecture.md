@@ -924,7 +924,7 @@ could produce a persisted result. The client observed an opaque
 2. **Provider timeouts strictly below 60s** with headroom for the recovery
    and persistence steps:
    - `CLAUDE_TIMEOUT_MS = 20_000`
-   - `GEMINI_TIMEOUT_MS = 35_000`
+   - `GEMINI_TIMEOUT_MS = 30_000` (30s Gemini timeout + 30s Vercel margin = 60s total)
 
    Claude's timeout is lower because Sonnet reliably finishes plan
    generation in <15s and we want fast failure so the FallbackProvider
@@ -1088,9 +1088,9 @@ AI_MONTHLY_BUDGET_ANTHROPIC_USD=40
 ```
 
 **Comportamento do FallbackProvider** (`src/server/services/ai.service.ts`):
-- Primary call (Gemini) timeout: 50s (`GEMINI_TIMEOUT_MS`)
+- Primary call (Gemini) timeout: 30s (`GEMINI_TIMEOUT_MS`) — 30s Gemini + 30s Vercel margin = 60s total
 - Se primary lança `AI_TIMEOUT`, `AI_RATE_LIMIT` ou `AI_MODEL_ERROR` → fallback
-- Fallback call (Haiku) timeout: 45s restantes do orçamento Vercel 60s
+- Fallback call (Haiku) timeout: usa o restante do orçamento Vercel 60s
 - Ambos os providers compartilham a mesma instância de sanitização, PII masking,
   logging e persistência
 
