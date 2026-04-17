@@ -101,7 +101,7 @@ describe("AI Provider Factory", () => {
     vi.resetModules();
 
     const { getModelIdForType } = await import("@/server/services/ai.service");
-    expect(getModelIdForType("plan")).toBe("claude-sonnet-4-6");
+    expect(getModelIdForType("plan")).toBe("claude-haiku-4-5-20251001");
     expect(getModelIdForType("checklist")).toBe("claude-haiku-4-5-20251001");
     expect(getModelIdForType("guide")).toBe("claude-haiku-4-5-20251001");
   });
