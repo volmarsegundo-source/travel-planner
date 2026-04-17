@@ -1,7 +1,7 @@
 # SPEC-UX-AI-GOVERNANCE-V2: Central de Governanca de IA — UX Specification
 
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Approved
 **Author**: ux-designer
 **Reviewers**: [product-owner, tech-lead, architect, ai-specialist]
 **Product Spec**: Sprint 45 — Central de Governanca de IA
@@ -38,7 +38,8 @@ Nota: Feature exclusiva para administradores. Nenhuma persona viajante interage 
 [Dashboard /admin/ia carrega com metricas da ultima semana]
     |
     v
-[4 tabs visiveis: Prompts | Modelos | Outputs | Evals]
+[4 tabs visiveis: Dashboard | Prompts | Modelos | Outputs]
+    |    (Evals e painel inline no editor de prompts, nao tab separada)
     |
     +-- Visualiza KPI cards (chamadas, custo, erro, latencia, trust score)
     +-- Visualiza graficos de tendencia semanal
@@ -172,7 +173,7 @@ Nota: Feature exclusiva para administradores. Nenhuma persona viajante interage 
 +------------------------------------------------------------------+
 | Painel de IA                              [Ultima alt: 5min, Ana] |
 +------------------------------------------------------------------+
-| [Tabs: Dashboard* | Prompts | Modelos | Outputs | Evals]        |
+| [Tabs: Dashboard* | Prompts | Modelos | Outputs]                |
 +------------------------------------------------------------------+
 |                                                                    |
 | +----------+ +----------+ +----------+ +----------+ +----------+ |
@@ -356,10 +357,8 @@ Estilo de cada card: consistente com SPEC-UX-044 — surface white, border 1px s
 | | Fase       | Primario        | Timeout | Fallback       | T.FB ||
 | |------------|-----------------|---------|----------------|------||
 | | Checklist  | [Gemini 2.5 v]  | [15s]   | [Haiku 4.5 v]  |[10s]||
-| | Guia       | [Sonnet 4.6 v]  | [25s]   | [Gemini 2.0 v] |[15s]||
-| | Roteiro    | [Opus 4.7  v]   | [30s]   | [Sonnet 4.6 v] |[20s]||
-| | Preparo    | [Gemini 2.5 v]  | [15s]   | [Haiku 4.5 v]  |[10s]||
-| | ...        | ...             | ...     | ...            | ... ||
+| | Guia       | [Haiku 4.5 v]   | [25s]   | [Gemini 2.0 v] |[15s]||
+| | Roteiro    | [Haiku 4.5 v]   | [30s]   | [Gemini 2.0 v] |[20s]||
 | +----------------------------------------------------------------+|
 |                                                                    |
 | [Indicador: "Ultima alteracao ha 3 min por Carlos"]               |
@@ -376,7 +375,8 @@ Estilo de cada card: consistente com SPEC-UX-044 — surface white, border 1px s
 **Tabela de Configuracao**:
 
 - 6 colunas: Fase | Modelo Primario | Timeout Primario | Modelo Fallback | Timeout Fallback | Ultima Alteracao.
-- Uma linha por fase que usa IA (numero de linhas definido pelo arquiteto).
+- Exatamente 3 linhas: Checklist (Fase 6), Guia (Fase 3), Roteiro/Itinerario (Fase 4). Conforme decisao PO (OQ-CONS-001).
+- Se admin selecionar Sonnet 4.6 ou Opus 4.7, exibir warning visivel: "Modelo com latencia elevada. Timeout maximo permitido: 55s. UI bloqueia salvar se timeout > 55s."
 - Coluna "Fase": texto bold, nao editavel.
 - Coluna "Ultima Alteracao": "ha X min" ou "ha X dias" + nome do admin. 12px, #94A3B8.
 
@@ -715,7 +715,6 @@ Esta feature e desktop-only (admin). Nao ha design mobile otimizado.
 | tab_prompts | Prompts |
 | tab_models | Modelos |
 | tab_outputs | Outputs |
-| tab_evals | Evals |
 | cta_run_eval | Rodar Eval Completo |
 | cta_kill_switch | Pausar Geracao |
 | cta_resume | Retomar Geracao |
@@ -789,20 +788,20 @@ Esta feature e desktop-only (admin). Nao ha design mobile otimizado.
 
 ## 12. Open Questions
 
-- [ ] **PO**: Quais fases exatamente aparecem na tabela de modelos? Todas as 6 fases que usam IA, ou ha fases que nao usam IA?
-- [ ] **PO**: A tab "Evals" (mencionada nas tabs) tem tela propria ou e apenas o painel inline do editor de prompts?
-- [ ] **PO**: Kill-switch pausa todas as geracoes ou permite granularidade por fase?
-- [ ] **PO**: Limite de versoes armazenadas por template de prompt? (impacto no diff viewer)
+- [x] **PO**: Quais fases na tabela de modelos? **DECIDIDO**: apenas 3 fases com IA: Guia (Fase 3), Roteiro (Fase 4), Checklist (Fase 6). (OQ-CONS-001)
+- [x] **PO**: Tab "Evals" separada? **DECIDIDO**: painel inline no editor de prompts, sem tab separada. (OQ-CONS-002)
+- [x] **PO**: Kill-switch granularidade? **DECIDIDO**: global + por fase (ambos coexistem). (OQ-CONS-003)
+- [x] **PO**: Limite de versoes? **DECIDIDO**: ilimitado no v1. (OQ-CONS-004)
 - [ ] **Architect**: Frequencia de polling para atualizacao de metricas e deteccao de alteracoes concorrentes.
 - [ ] **Architect**: Biblioteca de graficos a ser utilizada (Recharts? Chart.js? Nivo?).
 - [ ] **Architect**: Mecanismo de syntax highlighting para o editor de prompts (CodeMirror? Monaco? Textarea simples com regex?).
-- [ ] **FinOps**: Budget semanal para o alerta "custo acima do budget" — valor fixo ou configuravel pelo admin?
+- [x] **FinOps**: Budget para alerta de custo — **DECIDIDO**: configuravel pelo admin, default $100/mes (OQ-CONS-008). Converter para exibicao mensal na UI.
 - [ ] **Prompt Engineer**: Dados mock para preview do editor de prompts — quais campos sao necessarios por tipo de template?
 
 ---
 
-> **Spec Status**: Draft
-> **Ready for**: Architect (apos resolucao de open questions pelo PO)
+> **Spec Status**: Approved
+> **Ready for**: Implementacao (todas as OQs resolvidas pelo PO)
 
 ---
 

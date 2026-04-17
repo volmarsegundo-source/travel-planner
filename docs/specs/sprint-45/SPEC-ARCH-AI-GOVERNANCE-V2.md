@@ -1,7 +1,7 @@
 # SPEC-ARCH-AI-GOV-V2: Central de Governanca de IA v2 — Architecture Specification
 
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Approved
 **Author**: architect
 **Reviewers**: [tech-lead, security-specialist, devops-engineer, ai-specialist, product-owner]
 **Product Spec**: SPEC-PROD-AI-GOV-V2 (Sprint 45)
@@ -354,7 +354,7 @@ interface ListPromptsResponse {
   };
 }
 
-// Auth: role "admin" ou "admin-ai"
+// Auth: role "admin-ai" (DEC-01)
 // Rate limit: 60/min/admin
 ```
 
@@ -383,7 +383,7 @@ interface CreatePromptResponse {
 }
 
 // Errors: 400 (validation), 409 (slug exists), 401, 403
-// Auth: role "admin" ou "admin-ai"
+// Auth: role "admin-ai" (DEC-01)
 // Rate limit: 10/hr/admin
 ```
 
@@ -508,7 +508,7 @@ interface ListModelAssignmentsResponse {
   }[];
 }
 
-// Auth: role "admin" ou "admin-ai"
+// Auth: role "admin-ai" (DEC-01)
 ```
 
 #### PATCH /api/admin/ai/models/:id
@@ -789,9 +789,9 @@ A interface `AiConfigResolver` e o unico ponto de mudanca. Swap de implementacao
 
 ### 7.1. Autenticacao e Autorizacao
 
-- **Todas as rotas `/api/admin/ai/*`** exigem sessao Auth.js valida com `role === "admin"` ou `role === "admin-ai"`.
-- **Audit log (GET)** exige `role === "admin"` (superadmin) — admin-ai nao deve ver audit de outros admins.
-- **Decisao pendente PO**: Definir se `admin-ai` e um role separado ou se o `admin` existente e suficiente.
+- **Todas as rotas `/api/admin/ai/*`** exigem sessao Auth.js valida com `role === "admin-ai"` (DEC-01).
+- **Endpoints de promocao/rollback** exigem `role === "admin-ai-approver"` (DEC-02, four-eyes principle).
+- **Audit log (GET)** exige `role === "admin-ai"` — visivel a todos os admins AI para transparencia.
 
 ### 7.2. Rate Limiting
 
@@ -850,16 +850,16 @@ Disparar alerta Sentry (severity: warning) nos seguintes eventos:
 | Prompt promoted | `ai-governance.prompt.promoted: ${slug} v${version}` |
 | Prompt rolled back | `ai-governance.prompt.rolledback: ${slug} to v${version}` |
 
-### 7.7. RBAC — Decisao Pendente
+### 7.7. RBAC — Decidido pelo PO (DEC-01, DEC-02)
 
-Duas opcoes para o PO:
+PO decidiu: **roles separados `admin-ai` + `admin-ai-approver`** (four-eyes principle) desde a Wave 1.
 
-| Opcao | Descricao | Pros | Cons |
-|-------|-----------|------|------|
-| A: Role unico "admin" | Todos os admins tem acesso total | Simples; sem migration | Sem granularidade |
-| B: Role "admin-ai" separado | Acesso apenas a /admin/ia | Principio do menor privilegio | +1 role; logica condicional |
+| Role | Permissoes |
+|------|-----------|
+| `admin-ai` | Leitura + edicao de prompts, modelos, timeout, curadoria de outputs, visualizacao de audit log |
+| `admin-ai-approver` | Tudo de `admin-ai` + promocao de prompts para producao, rollback |
 
-**Recomendacao do architect**: Opcao B (admin-ai), mas como Sprint 45 scope, implementar Opcao A e migrar para B no Sprint 46 se necessario.
+Implementar ambos os roles na Wave 1. Nao usar `admin` generico para acesso a `/admin/ia`.
 
 ---
 
@@ -1056,7 +1056,7 @@ export function isAiGovernanceV2Enabled(): boolean {
 
 ## 14. Open Questions
 
-- [ ] **OQ-1 (PO)**: Role `admin-ai` separado ou usar `admin` existente? Recomendacao: usar `admin` no Sprint 45, avaliar granularidade no Sprint 46.
+- [x] **OQ-1 (PO)**: Role `admin-ai` separado ou usar `admin` existente? **DECIDIDO**: PO aprovou `admin-ai` + `admin-ai-approver` separados (DEC-01/DEC-02). Implementar desde Wave 1.
 - [ ] **OQ-2 (tech-lead)**: Eval Promptfoo deve rodar inline (sincrono) ou em background job? Se background, qual mecanismo? (sugestao: fire-and-forget com Promise, resultado salvo no DB e polled via GET).
 - [ ] **OQ-3 (PO)**: Limiar de trust score para promocao: 0.80 e aceitavel ou deve ser configuravel via AiRuntimeConfig?
 - [ ] **OQ-4 (security-specialist)**: AuditLog deve registrar IP e User-Agent? Implicacoes LGPD de armazenar IP de admins.
@@ -1081,4 +1081,4 @@ export function isAiGovernanceV2Enabled(): boolean {
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-04-17 | architect | Draft inicial — schema, API contracts, Opcao 2 (polling DB), security controls, migration plan, feature flag |
 
-> Status: Draft — Aguardando revisao de tech-lead, security-specialist, devops-engineer, ai-specialist, product-owner.
+> Status: Approved — Revisado por tech-lead, security-specialist, devops-engineer, ai-specialist, product-owner.

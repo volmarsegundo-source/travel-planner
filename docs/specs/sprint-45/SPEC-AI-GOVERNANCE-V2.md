@@ -2,7 +2,7 @@
 spec_id: SPEC-AI-GOVERNANCE-V2
 title: "Central de Governança de IA — Edição de Prompts, Model × Timeout, Evals e Curadoria"
 version: 1.0.0
-status: Draft
+status: Approved
 sprint: 45
 author: ai-specialist
 reviewers: [product-owner, tech-lead, architect, qa-engineer, security-specialist]

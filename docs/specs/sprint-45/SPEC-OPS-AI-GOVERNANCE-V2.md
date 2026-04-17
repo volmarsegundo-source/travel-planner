@@ -1,7 +1,7 @@
 # SPEC-OPS-AI-GOVERNANCE-V2: Infraestrutura Operacional — Central de Governanca de IA
 
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Approved
 **Author**: devops-engineer
 **Reviewers**: tech-lead, architect, release-manager, security-specialist
 **Created**: 2026-04-17
@@ -251,7 +251,7 @@ Adicionar ou validar os seguintes stages na pipeline de CI existente para PRs qu
 | `ModelAssignment` | ~10 rows (1 por tipo de geracao) | Permanente |
 | `AiRuntimeConfig` | ~5 rows (1 por ambiente logico) | Permanente |
 | `PromptTemplate` | ~50 rows/mes (versoes de prompts) | Permanente |
-| `AuditLog` | ~1.000 rows/dia (admin ativo) | 180 dias em DB; apos isso, archival |
+| `AuditLog` | ~1.000 rows/dia (admin ativo) | 90 dias em DB; apos isso, archival |
 
 ### 6.3 Indices Recomendados
 
@@ -271,11 +271,11 @@ CREATE INDEX idx_model_assignment_type ON "ModelAssignment" ("generationType");
 
 ### 6.4 Dimensionamento
 
-Com ~1.000 rows/dia no AuditLog e retencao de 180 dias: ~180.000 rows. A ~500 bytes/row = ~90 MB. Impacto negligivel no DB existente.
+Com ~1.000 rows/dia no AuditLog e retencao de 90 dias: ~90.000 rows. A ~500 bytes/row = ~45 MB. Impacto negligivel no DB existente.
 
 ### 6.5 Archival (Wave pos-beta, opcional)
 
-Job noturno (cron ou Vercel Cron Function) que move registros de AuditLog com > 180 dias para arquivo. Opcoes:
+Job noturno (cron ou Vercel Cron Function) que move registros de AuditLog com > 90 dias para arquivo. Opcoes:
 
 - **Fase 1**: soft delete (marcar como `archived = true`, excluir de queries padrao)
 - **Fase 2**: export para S3 cold storage (se volume justificar)

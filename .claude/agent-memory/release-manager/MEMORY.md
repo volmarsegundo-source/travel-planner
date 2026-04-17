@@ -2,9 +2,9 @@
 
 ## Project State
 
-- **Current version**: 0.31.0 in package.json (Sprint 36 complete)
+- **Current version**: 0.59.0 in package.json (Sprint 44 complete)
 - **Changelog**: individual changelogs at `C:\travel-planner\docs\changelogs\CHANGELOG-vX.Y.Z.md`
-- **Release risk register**: exists at `C:\travel-planner\docs\release-risk.md` -- CIA-001 closed, CIA-002 open, CIA-003 closed, CIA-004 closed, CIA-005 closed (Sprint 19), CIA-006 closed (Sprint 20), CIA-007 open (Sprint 37)
+- **Release risk register**: exists at `C:\travel-planner\docs\release-risk.md` -- CIA-001 closed, CIA-002 open, CIA-003 closed, CIA-004 closed, CIA-005 closed (Sprint 19), CIA-006 closed (Sprint 20), CIA-007 open (Sprint 37), CIA-009 open (Sprint 45)
 - **API contracts**: `/api/v1/health`, `/api/ai/plan/stream` (SSE), `/api/packages`, `/api/purchases`, `/api/webhooks/stripe` (Sprint 37), `/api/checkout/create-session` (Sprint 37)
 - **Production users**: zero -- system is in Bootstrap Phase (pre-deploy)
 - **Deploy status**: BLOCKED -- deploy.yml still placeholder (RISK-005)
@@ -44,7 +44,8 @@
 - CIA-006 covers Sprint 20 -- closed (non-breaking, MINOR, 0.13.0 -> 0.14.0)
 - CIA-007 covers Sprint 37 -- OPEN (non-breaking, MINOR, 0.31.0 -> 0.32.0, Stripe payments + admin dashboard)
 - CIA-008 covers Sprint 44 Phase Reorder -- OPEN (BREAKING INTERNO, v0.59.0 merge flag OFF -> v0.60.0 flip+migration -> v0.61.0 cleanup). SPEC-RELEASE-REORDER-PHASES v2.0.0 APPROVED 2026-04-15.
-- Next ID: CIA-009
+- CIA-009 covers Sprint 45 -- OPEN (non-breaking, MINOR, 0.59.0 -> 0.60.0, AI Governance Central with flag AI_GOVERNANCE_V2 default OFF)
+- Next ID: CIA-010
 
 ## Open Risks (cross-sprint)
 

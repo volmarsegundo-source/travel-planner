@@ -2,13 +2,13 @@
 
 **Spec ID**: SPEC-QA-AI-GOVERNANCE-V2
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Approved
 **Author**: qa-engineer
 **Created**: 2026-04-17
 **Sprint**: 45
 **Reviewers**: tech-lead, product-owner, architect, ai-specialist, security-specialist
 **Feature Flag**: `AI_GOVERNANCE_V2`
-**Related Specs**: SPEC-PROD-S45 (pendente), SPEC-ARCH-S45 (pendente), SPEC-SEC-S45 (pendente)
+**Related Specs**: SPEC-PROD-AI-GOVERNANCE-V2 (Approved), SPEC-ARCH-AI-GOV-V2 (Approved), SPEC-SEC-AI-GOVERNANCE-V2 (Approved)
 
 ---
 
@@ -45,7 +45,7 @@ A Central de Governanca de IA (V2) permite que admins editem prompts, troquem mo
 | Unit | Vitest + vitest-mock-extended | Schemas Zod (prompt, timeout, modelo), transicoes draft/active/rollback, validacao de range timeout, RBAC guards, placeholder validation | Pre-merge |
 | Integration | Vitest + real Prisma (CI) | `PromptRegistryService.getTemplate()` le DB, fallback quando DB off, `ModelAssignment` polling, audit log escrito em todas as acoes admin | Pre-merge |
 | E2E | Playwright (Chromium P0) | Fluxos admin completos, propagacao real-time, RBAC 403 | Pre-merge (P0), nightly (full) |
-| Eval | Vitest eval harness + datasets | Trust Score gate >= 0.80 em todas as dimensoes antes de promover prompt | Pre-merge |
+| Eval | Vitest eval harness + datasets | Trust Score gate >= 0.80 AND Safety >= 0.90 em todas as dimensoes antes de promover prompt | Pre-merge |
 
 ### 2.3 Avaliacao de Risco
 
@@ -321,7 +321,7 @@ A Central de Governanca de IA (V2) permite que admins editem prompts, troquem mo
 | TC-RBAC-009 | `admin` | Toda acao gera audit log com `adminId` | Audit log com identidade | P0 |
 | TC-RBAC-010 | Sem sessao | Qualquer rota `/admin/ia/*` | Redirect para login ou 401 | P0 |
 
-**Nota**: Se PO decidir por role granular `admin-ai` (em vez de `admin` generico), adicionar testes para `admin` sem escopo AI recebendo 403.
+**Nota**: PO decidiu por roles granulares `admin-ai` + `admin-ai-approver` (DEC-01/DEC-02 em SPEC-PROD). TC-RBAC-008 deve validar `admin-ai` (nao `admin` generico). Adicionar testes para `admin` sem escopo AI recebendo 403.
 
 ---
 
@@ -337,7 +337,7 @@ A Central de Governanca de IA (V2) permite que admins editem prompts, troquem mo
 | TC-BND-004 | 56s | Rejeita — "Timeout maximo: 55 segundos" | P0 |
 | TC-BND-005 | 0s | Rejeita — abaixo do minimo | P1 |
 | TC-BND-006 | -1s | Rejeita — valor invalido | P1 |
-| TC-BND-007 | 30.5s (decimal) | Decisao pendente: aceitar ou rejeitar? (ver Open Questions) | P2 |
+| TC-BND-007 | 30.5s (decimal) | Rejeita — apenas valores inteiros aceitos (SPEC-PROD AC-8, SPEC-ARCH Int) | P1 |
 
 ### 6.2 Rate Limit de Edicoes Admin
 
@@ -371,9 +371,9 @@ A Central de Governanca de IA (V2) permite que admins editem prompts, troquem mo
 
 | TC# | Cenario | Resultado Esperado | Prioridade |
 |-----|---------|--------------------|-----------| 
-| TC-TRUST-001 | Prompt draft com Trust Score global >= 0.80, todas dimensoes >= threshold individual | Promocao permitida | P0 |
+| TC-TRUST-001 | Prompt draft com Trust Score global >= 0.80 AND Safety >= 0.90, todas dimensoes >= threshold individual | Promocao permitida | P0 |
 | TC-TRUST-002 | Prompt draft com Trust Score global = 0.79 | Promocao bloqueada | P0 |
-| TC-TRUST-003 | Prompt draft com Trust Score global = 0.85 mas dimensao "injection-resistance" = 0.60 | Promocao bloqueada (dimensao abaixo do threshold) | P0 |
+| TC-TRUST-003 | Prompt draft com Trust Score global = 0.85 mas Safety = 0.88 (abaixo de 0.90) | Promocao bloqueada (Safety sub-gate falhou) | P0 |
 | TC-TRUST-004 | Prompt draft sem eval executado | Promocao bloqueada — "Execute eval antes de promover" | P0 |
 | TC-TRUST-005 | Rollback de prompt ativo para versao anterior | Rollback NAO dispara eval novamente | P1 |
 | TC-TRUST-006 | Versao anterior do prompt ja tinha trust registrado | Trust Score da versao anterior e exibido na UI | P1 |

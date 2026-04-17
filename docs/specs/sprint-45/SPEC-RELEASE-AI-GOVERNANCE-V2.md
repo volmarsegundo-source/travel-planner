@@ -1,7 +1,7 @@
 # SPEC-RELEASE-AI-GOVERNANCE-V2: Plano de Release — Central de Governanca de IA
 
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Approved
 **Author**: release-manager
 **Reviewers**: tech-lead, product-owner, architect, devops-engineer, qa-engineer
 **Created**: 2026-04-17
@@ -44,7 +44,7 @@ Adiciona ao painel admin (`/admin`) uma Central de Governanca de IA composta por
 | Tipo | Mudanca | Breaking? | Razao |
 |---|---|---|---|
 | Endpoints adicionados | `GET/PUT /api/admin/ai/models`, `GET/POST/PUT /api/admin/ai/prompts`, `GET /api/admin/ai/audit-log` | ✅ Nao | Aditivo — endpoints novos, nenhum existente alterado |
-| Tabelas adicionadas | `ModelAssignment`, `PromptTemplate`, `PromptVersion`, `AiAuditLog`, `AiOutputCuration` | ✅ Nao | Aditivo — nenhuma tabela existente modificada |
+| Tabelas adicionadas | `ModelAssignment`, `PromptTemplate`, `PromptVersion`, `AiAuditLog`, `AiInteractionLog (curation fields)` | ✅ Nao | Aditivo — nenhuma tabela existente modificada |
 | Comportamento alterado | `ai.service.ts` le modelo/prompt do DB antes do hardcoded | ✅ Nao | Com flag OFF, path existente permanece inalterado |
 | Comportamento alterado | Polling DB adiciona 5-20ms a latencia AI | ✅ Nao | Aditivo — dentro da tolerancia (baseline + 50ms) |
 | Campo adicionado | `User.aiPermissions` (JSON, nullable) | ✅ Nao | Aditivo — nullable, sem impacto em queries existentes |
@@ -53,7 +53,7 @@ Adiciona ao painel admin (`/admin`) uma Central de Governanca de IA composta por
 
 | Mudanca | Breaking? | Migracao Necessaria? |
 |---|---|---|
-| 5 tabelas novas (ModelAssignment, PromptTemplate, PromptVersion, AiAuditLog, AiOutputCuration) | ✅ Nao | Sim — migration `up` cria tabelas, `down` remove (exceto AiAuditLog que e preservada) |
+| 5 tabelas novas (ModelAssignment, PromptTemplate, PromptVersion, AiAuditLog, AiInteractionLog (curation fields)) | ✅ Nao | Sim — migration `up` cria tabelas, `down` remove (exceto AiAuditLog que e preservada) |
 | Seed de ModelAssignment com configs hardcoded atuais | ✅ Nao | Sim — seed idempotente |
 | Coluna nullable `User.aiPermissions` | ✅ Nao | Sim — `ALTER TABLE ADD COLUMN ... NULL` |
 
@@ -115,7 +115,7 @@ Adiciona ao painel admin (`/admin`) uma Central de Governanca de IA composta por
 **Criterios Go/No-Go para Fase B**:
 - [ ] 0 bugs P0 abertos
 - [ ] Latencia p90 de chamadas AI <= baseline + 50ms
-- [ ] Trust Score gate funcional (SPEC-EVALS-V1 baseline >= 0.85)
+- [ ] Trust Score gate funcional (Trust >= 0.80 AND Safety >= 0.90 conforme SPEC-AI-GOVERNANCE-V2)
 - [ ] Todos os cenarios criticos do SPEC-QA-AI-GOVERNANCE-V2 PASS
 - [ ] Teste de rollback executado com sucesso (flag OFF restaura comportamento v1)
 - [ ] Audit log registrando corretamente por >= 24h
@@ -168,7 +168,7 @@ Adiciona ao painel admin (`/admin`) uma Central de Governanca de IA composta por
 
 **Regras**:
 - `AiAuditLog` **NAO e removida** pelo script `down` — tabela de auditoria e preservada por design (compliance)
-- `ModelAssignment`, `PromptTemplate`, `PromptVersion`, `AiOutputCuration` sao removidas pelo `down`
+- `ModelAssignment`, `PromptTemplate`, `PromptVersion`, `AiInteractionLog (curation fields)` sao removidas pelo `down`
 - Constraints adicionadas em `PromptTemplate` (se houver FK para tabelas existentes) sao removidas
 - Coluna `User.aiPermissions` e removida
 
@@ -190,7 +190,7 @@ Se admins ja editaram prompts/modelos via Central e um rollback e necessario:
 | R1 | MEDIO | **Polling DB vira gargalo em escala** — cada chamada AI faz query ao DB para resolver modelo/prompt, adicionando 5-20ms. Em escala, pode sobrecarregar pool de conexoes. | Migration path documentado: (1) Redis cache com TTL 60s, (2) in-memory cache com TTL 30s. Implementar quando p99 > 50ms. | architect | Monitorar pos-flip |
 | R2 | MEDIO | **Admin promove prompt ruim apesar do eval gate** — eval gate valida metricas quantitativas mas nao captura todos os cenarios de qualidade. | Rollback 1-click no admin + alerta Sentry em qualquer promocao + curadoria de outputs permite revisao humana posterior. | prompt-engineer | Pre-flip |
 | R3 | BAIXO | **Kill-switch ativado por engano** — admin desativa modelo/prompt acidentalmente. | Modal de confirmacao obrigatorio + alerta imediato no Slack/Sentry + rollback 1-click. | ux-designer | Pre-flip |
-| R4 | BAIXO | **Audit log cresce rapido** — cada operacao gera entrada, volume pode ser significativo com muitos admins. | Retention policy 180 dias com archive para S3 cold storage. Implementar no cleanup (v0.63.0). | devops-engineer | v0.63.0 |
+| R4 | BAIXO | **Audit log cresce rapido** — cada operacao gera entrada, volume pode ser significativo com muitos admins. | Retention policy 90 dias (DEC-05 PO) com archive para S3 cold storage. Implementar no cleanup (v0.63.0). | devops-engineer | v0.63.0 |
 | R5 | MEDIO | **DB indisponivel durante geracao AI** — polling falha e fallback hardcoded ativa. Se fallback estiver desatualizado (admin mudou config via Central), usuario recebe output com config antiga. | Aceitar como comportamento esperado. Documentar na admin UI: "Em caso de indisponibilidade do banco, configuracoes anteriores ao ultimo deploy serao utilizadas temporariamente." | architect | Pre-flip |
 | R6 | BAIXO | **Dessincronia entre RISK-017** — package.json (0.59.0) e git tag (v0.58.0) ja estao dessincronizados. Bump para v0.60.0 deve alinhar ambos. | Ao criar v0.60.0, garantir que tag git e package.json estejam alinhados. Resolver RISK-017 neste bump. | release-manager | v0.60.0 |
 
@@ -225,7 +225,7 @@ Entradas devem ser adicionadas para:
 
 ### Added
 - [SPEC-PROD-AI-GOVERNANCE-V2] Central de Governanca de IA — gestao de modelos, prompts, curadoria e audit log (feature flag `AI_GOVERNANCE_V2`, default OFF)
-- [SPEC-PROD-AI-GOVERNANCE-V2] Tabelas de dados: ModelAssignment, PromptTemplate, PromptVersion, AiAuditLog, AiOutputCuration
+- [SPEC-PROD-AI-GOVERNANCE-V2] Tabelas de dados: ModelAssignment, PromptTemplate, PromptVersion, AiAuditLog, AiInteractionLog (curation fields)
 - [SPEC-PROD-AI-GOVERNANCE-V2] Seed automatico de ModelAssignment com configuracoes atuais hardcoded
 
 ### Changed
@@ -253,7 +253,7 @@ Entradas devem ser adicionadas para:
 3. Clique em **Editar** — uma nova versao (draft) sera criada automaticamente
 4. Modifique o texto do prompt no editor
 5. Clique em **Rodar Eval** — o sistema executara o SPEC-EVALS-V1 com o prompt modificado
-6. Se o Trust Score >= 0.85, o botao **Promover** sera habilitado
+6. Se o Trust Score >= 0.80 e Safety >= 0.90, o botao **Promover** sera habilitado
 7. Clique em **Promover** para ativar o prompt em producao (propagacao imediata, sem redeploy)
 
 ### 8.2 Onde Encontrar o Audit Log
@@ -285,10 +285,10 @@ Todos os criterios abaixo devem ser atendidos antes do flip em producao (Fase C)
 
 | # | Criterio | Spec de Referencia | Owner |
 |---|---|---|---|
-| 1 | Trust Score baseline >= 0.85 em todos os prompts existentes | SPEC-EVALS-V1 | qa-engineer |
+| 1 | Trust Score >= 0.80 AND Safety >= 0.90 em todos os prompts existentes | SPEC-EVALS-V1, SPEC-AI-GOVERNANCE-V2 | qa-engineer |
 | 2 | Todos os cenarios criticos PASS no SPEC-QA-AI-GOVERNANCE-V2 | SPEC-QA-AI-GOVERNANCE-V2 | qa-engineer |
 | 3 | Review de arquitetura aprovada | SPEC-ARCH-AI-GOVERNANCE-V2 | architect, tech-lead |
-| 4 | Review de seguranca aprovada | SPEC-SEC-AI-GOVERNANCE-V2 (pendente) | security-specialist |
+| 4 | Review de seguranca aprovada | SPEC-SEC-AI-GOVERNANCE-V2 (Approved) | security-specialist |
 | 5 | Zero CVE em dependencias novas | — | security-specialist |
 | 6 | Audit log testado e auditado por >= 24h em staging | SPEC-QA-AI-GOVERNANCE-V2 | qa-engineer |
 | 7 | Runbook de incident response pronto | — | devops-engineer |
@@ -303,16 +303,16 @@ Todos os criterios abaixo devem ser atendidos antes do flip em producao (Fase C)
 
 | Spec ID | Titulo | Status | Dependencia |
 |---|---|---|---|
-| SPEC-PROD-AI-GOVERNANCE-V2 | Central de Governanca de IA — Requisitos de Produto | Draft | Define funcionalidades, personas, acceptance criteria |
-| SPEC-ARCH-AI-GOVERNANCE-V2 | Arquitetura da Central de Governanca de IA | Pendente | Define schema, endpoints, polling strategy, fallback |
-| SPEC-UX-AI-GOVERNANCE-V2 | UX da Central de Governanca de IA | Pendente | Define layout, fluxos, componentes da aba admin |
-| SPEC-AI-AI-GOVERNANCE-V2 | Impacto AI da Central de Governanca | Pendente | Avalia impacto em prompts existentes e custo |
-| SPEC-QA-AI-GOVERNANCE-V2 | Estrategia de Testes — Central de Governanca | Pendente | Define cenarios criticos, datasets, criterios de aceitacao |
-| SPEC-SEC-AI-GOVERNANCE-V2 | Revisao de Seguranca — Central de Governanca | Pendente | Valida RBAC, audit log, injection prevention |
+| SPEC-PROD-AI-GOVERNANCE-V2 | Central de Governanca de IA — Requisitos de Produto | Approved | Define funcionalidades, personas, acceptance criteria |
+| SPEC-ARCH-AI-GOV-V2 | Arquitetura da Central de Governanca de IA | Approved | Define schema, endpoints, polling strategy, fallback |
+| SPEC-UX-AI-GOVERNANCE-V2 | UX da Central de Governanca de IA | Approved | Define layout, fluxos, componentes da aba admin |
+| SPEC-AI-GOVERNANCE-V2 | Impacto AI da Central de Governanca | Approved | Avalia impacto em prompts existentes e custo |
+| SPEC-QA-AI-GOVERNANCE-V2 | Estrategia de Testes — Central de Governanca | Approved | Define cenarios criticos, datasets, criterios de aceitacao |
+| SPEC-SEC-AI-GOVERNANCE-V2 | Revisao de Seguranca — Central de Governanca | Approved | Valida RBAC, audit log, injection prevention |
 | SPEC-EVALS-V1 | Metodologia de Avaliacao Continua com Promptfoo | Proposed | Baseline de Trust Score, framework de eval gate |
 | ATLAS-SPEC-016-v2 | AI Governance Framework | Existente | Framework conceitual de governanca de IA |
 
-**Bloqueadores**: SPEC-ARCH-AI-GOVERNANCE-V2 e SPEC-SEC-AI-GOVERNANCE-V2 devem estar aprovados antes do inicio da implementacao. SPEC-QA-AI-GOVERNANCE-V2 deve estar aprovado antes do inicio da Fase A.
+**Bloqueadores**: Todos resolvidos. SPEC-ARCH-AI-GOV-V2, SPEC-SEC-AI-GOVERNANCE-V2 e SPEC-QA-AI-GOVERNANCE-V2 estao Approved.
 
 ---
 

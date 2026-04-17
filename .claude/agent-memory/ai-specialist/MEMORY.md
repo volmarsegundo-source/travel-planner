@@ -1,0 +1,1 @@
+- [Sprint 45 AI Governance V2](project_sprint_45_governance.md) — Admin UI edita prompts/model/timeout; gate trust ≥ 0.80; feature flag AI_GOVERNANCE_V2

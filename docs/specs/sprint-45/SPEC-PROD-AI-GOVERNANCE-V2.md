@@ -1,7 +1,7 @@
 # SPEC-PROD-AI-GOVERNANCE-V2: Central de Governanca de IA
 
 **Version**: 1.0.0
-**Status**: Draft
+**Status**: Approved
 **Author**: product-owner
 **Reviewers**: tech-lead, architect, ux-designer, ai-specialist, qa-engineer, security-specialist
 **Created**: 2026-04-17

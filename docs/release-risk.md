@@ -17,6 +17,7 @@
 | CIA-005 | Sprint 19 | 2026-03-10 | Itinerary persistence + guide redesign + cascade fix | Non-Breaking (MINOR) | Fechado |
 | CIA-006 | Sprint 20 | 2026-03-10 | Preferences, passengers, transport data model, userId hash, Phase 1 reorder | Non-Breaking (MINOR) | Fechado |
 | CIA-007 | Sprint 37 | 2026-03-23 | Stripe payments, checkout session API, webhook handler, admin dashboard enhancements | Non-Breaking (MINOR) | Aberto |
+| CIA-009 | Sprint 45 | 2026-04-17 | Central de Governanca de IA — gestao de modelos, prompts, curadoria, audit log (flag AI_GOVERNANCE_V2, default OFF) | Non-Breaking (MINOR) | Aberto |
 
 ---
 

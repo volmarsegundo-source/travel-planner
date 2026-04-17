@@ -1,7 +1,7 @@
 # SPEC-TECHLEAD-AI-GOVERNANCE-V2: Relatorio Consolidado — Central de Governanca de IA
 
-**Version**: 1.0.0
-**Status**: Draft
+**Version**: 1.1.0
+**Status**: Approved
 **Author**: tech-lead
 **Sprint**: 45
 **Created**: 2026-04-17
@@ -12,13 +12,14 @@
 
 | Spec ID | Autor | Localizacao |
 |---------|-------|-------------|
-| SPEC-PROD-AI-GOVERNANCE-V2 | product-owner | `docs/specs/SPEC-PROD-AI-GOVERNANCE-V2.md` |
+| SPEC-PROD-AI-GOVERNANCE-V2 | product-owner | `docs/specs/sprint-45/SPEC-PROD-AI-GOVERNANCE-V2.md` |
 | SPEC-ARCH-AI-GOV-V2 | architect | `docs/specs/sprint-45/SPEC-ARCH-AI-GOVERNANCE-V2.md` |
-| SPEC-UX-AI-GOVERNANCE-V2 | ux-designer | `docs/specs/SPEC-UX-AI-GOVERNANCE-V2.md` |
-| SPEC-AI-GOVERNANCE-V2 | ai-specialist | `docs/specs/SPEC-AI-GOVERNANCE-V2.md` |
-| SPEC-QA-AI-GOVERNANCE-V2 | qa-engineer | `docs/specs/SPEC-QA-AI-GOVERNANCE-V2.md` |
-| SPEC-RELEASE-AI-GOVERNANCE-V2 | release-manager | `docs/specs/SPEC-RELEASE-AI-GOVERNANCE-V2.md` |
-| SPEC-OPS-AI-GOVERNANCE-V2 | devops-engineer | `docs/specs/SPEC-OPS-AI-GOVERNANCE-V2.md` |
+| SPEC-UX-AI-GOVERNANCE-V2 | ux-designer | `docs/specs/sprint-45/SPEC-UX-AI-GOVERNANCE-V2.md` |
+| SPEC-AI-GOVERNANCE-V2 | ai-specialist | `docs/specs/sprint-45/SPEC-AI-GOVERNANCE-V2.md` |
+| SPEC-QA-AI-GOVERNANCE-V2 | qa-engineer | `docs/specs/sprint-45/SPEC-QA-AI-GOVERNANCE-V2.md` |
+| SPEC-RELEASE-AI-GOVERNANCE-V2 | release-manager | `docs/specs/sprint-45/SPEC-RELEASE-AI-GOVERNANCE-V2.md` |
+| SPEC-OPS-AI-GOVERNANCE-V2 | devops-engineer | `docs/specs/sprint-45/SPEC-OPS-AI-GOVERNANCE-V2.md` |
+| SPEC-SEC-AI-GOVERNANCE-V2 | architect (proxy security-specialist) | `docs/specs/sprint-45/SPEC-SEC-AI-GOVERNANCE-V2.md` |
 
 ---
 
@@ -225,7 +226,7 @@
 | R-03 | Prompt promovido ruim apesar do eval gate — metricas quantitativas nao capturam tudo | Media | Media | RELEASE R2, AI Secao 5.3 | Rollback 1-click + curadoria de outputs + alerta Sentry em promocao. Gate duplo: Trust >= 0.80 + Safety >= 0.90. |
 | R-04 | Kill-switch ativado por engano — desativa geracao AI para viajantes | Media | Baixa | RELEASE R3 | Modal de confirmacao obrigatorio + justificativa + audit log + alerta Sentry. |
 | R-05 | Audit log cresce alem do esperado — impacto no DB | Baixa | Baixa | RELEASE R4, OPS Secao 6.4 | Estimativa: 180k rows em 180 dias (~90 MB). Retencao 90 dias (PO) ou 180 dias (OPS). Archival para Sprint 50. |
-| R-06 | SPEC-SEC-AI-GOVERNANCE-V2 NAO EXISTE — review de seguranca nao produzida | Alta | Alta | Identificado pelo tech-lead | **BLOQUEADOR**. Spec de seguranca e pre-requisito para implementacao. Convocar security-specialist imediatamente. |
+| R-06 | ~~SPEC-SEC-AI-GOVERNANCE-V2 NAO EXISTE~~ | ~~Alta~~ | ~~Alta~~ | ~~Identificado pelo tech-lead~~ | **RESOLVIDO** (2026-04-17). SPEC-SEC-AI-GOVERNANCE-V2 criada e aprovada. Threat model STRIDE, RBAC four-eyes, audit log imutabilidade, prompt sanitizacao cobertas. |
 | R-07 | Dessincronia de versao: package.json (0.59.0) vs release-manager (v0.59.0 -> v0.60.0) — OK. Mas v0.22.0 mencionado em CLAUDE.md e memories e MUITO antigo | Media | Alta | RELEASE R6, package.json | package.json confirma v0.59.0. CLAUDE.md e memories desatualizados. Release-manager esta correto: v0.59.0 -> v0.60.0. |
 | R-08 | Promptfoo como dependencia — nao esta no projeto atualmente | Media | Media | AI Secao 5, ARCH Secao 10 | Avaliar se Promptfoo ja e dependencia. Se nao, validar licenca (MIT — OK) e adicionar. PromptEvalService wrapper isola vendor. |
 | R-09 | Biblioteca de graficos para dashboard de metricas nao definida | Baixa | Alta | UX OQ | Architect deve decidir (Recharts recomendado — MIT, leve, Next.js friendly). |
@@ -239,36 +240,36 @@ As decisoes DEC-01 a DEC-06 do SPEC-PROD Secao 9 JA FORAM TOMADAS pelo PO. As se
 
 | ID | Pergunta | Opcoes | Recomendacao Tech-Lead | Fonte |
 |----|----------|--------|----------------------|-------|
-| OQ-CONS-001 | Quais fases exatamente aparecem na tabela de modelos? Todas as 6 fases ou apenas as que usam IA? | (a) Todas; (b) Apenas fases com IA (guide, plan, checklist = 3) | **(b)** — apenas fases com IA. As 3 fases de AI-spec Secao 1.3 (guide, plan, checklist). Expandir quando novos tipos forem adicionados. | UX OQ-1 |
-| OQ-CONS-002 | A tab "Evals" tem tela propria ou e o painel inline do editor de prompts? | (a) Tab separada; (b) Painel inline no editor | **(b)** — painel inline e suficiente para o v1. Tab "Evals" pode ser adicionada na Wave 6 se necessario. Reduz escopo. | UX OQ-2 |
-| OQ-CONS-003 | Kill-switch granular por fase ou global? | (a) Global; (b) Por fase; (c) Ambos | **(c)** — PO ja definiu AC-33 com toggle individual por fase; ARCH ja modela `killSwitch.global` + `killSwitch.plan/checklist/guide` no AiRuntimeConfig. Confirmar que PO aceita ambos. | UX OQ-3, ARCH Secao 5.3.1 |
-| OQ-CONS-004 | Limite de versoes armazenadas por template? | (a) Ilimitado; (b) Ultimas N versoes | **(a)** — ilimitado no v1. PromptVersion e imutavel e leve. Reavaliar se volume justificar. | UX OQ-4 |
-| OQ-CONS-005 | Qual o SLA de review para output `escalated`? | (a) 4h business; (b) 24h; (c) Sem SLA | **(a)** — 4h business conforme sugestao do ai-specialist. Essencial para outputs com risco (R-1, R-3). | AI OQ-2 |
-| OQ-CONS-006 | Gate de Trust Score para promocao: fixo 0.80 ou configuravel? | (a) Fixo 0.80; (b) Configuravel via AiRuntimeConfig | **(a)** — fixo 0.80 no v1. Evitar que admin reduza o gate. Reavaliar apos 3 meses de dados. | ARCH OQ-3 |
-| OQ-CONS-007 | Quem promove prompt em prod? Apenas `admin-ai-approver`, ou tambem um papel `PROMPT_EDITOR` novo? | (a) admin-ai-approver apenas; (b) Novo PROMPT_EDITOR | **(a)** — PO ja decidiu DEC-02 com admin-ai-approver. Nao criar papel adicional. | AI OQ-1 |
-| OQ-CONS-008 | Budget semanal para alerta "custo acima do budget" — fixo ou configuravel? | (a) Fixo; (b) Configuravel pelo admin | **(b)** — configuravel via AiRuntimeConfig com default sensato (ex: $10/semana). | UX OQ-8 |
-| OQ-CONS-009 | Timeout aceita decimais (15.5s) ou apenas inteiros? | (a) Apenas inteiros; (b) Decimais | **(a)** — inteiros. SPEC-PROD AC-8 explicita "valores inteiros". ARCH define como `Int` no Prisma. | QA OQ-2 |
-| OQ-CONS-010 | DB indisponivel: ModelAssignment (novo) tem fallback hardcoded? | Sim/Nao | **Sim** — ARCH ja define `HARDCODED_DEFAULTS` para plan/checklist/guide. O AiConfigResolver retorna fallback se query falha. Confirmar alinhamento. | QA OQ-8 |
+| OQ-CONS-001 | Quais fases na tabela de modelos? | (a) Todas; (b) Apenas fases com IA (3) | **(b) DECIDIDO PO** — apenas Fase 3 (Guia), Fase 4 (Roteiro), Fase 6 (Checklist). | UX OQ-1 |
+| OQ-CONS-002 | Tab "Evals" separada ou inline? | (a) Tab separada; (b) Painel inline | **(b) DECIDIDO PO** — painel inline no editor de prompts. | UX OQ-2 |
+| OQ-CONS-003 | Kill-switch granular por fase ou global? | (a) Global; (b) Por fase; (c) Ambos | **(c) DECIDIDO PO** — global + por fase coexistem. | UX OQ-3 |
+| OQ-CONS-004 | Limite de versoes por template? | (a) Ilimitado; (b) Ultimas N | **(a) DECIDIDO PO** — ilimitado no v1. | UX OQ-4 |
+| OQ-CONS-005 | SLA de review para output `escalated`? | (a) 4h; (b) 24h; (c) Sem SLA | **(b) DECIDIDO PO** — 24h sem automacao. | AI OQ-2 |
+| OQ-CONS-006 | Gate Trust Score fixo ou configuravel? | (a) Fixo 0.80; (b) Configuravel | **(a) DECIDIDO tech-lead** — fixo 0.80 + Safety 0.90 no v1. PO delegou. | ARCH OQ-3 |
+| OQ-CONS-007 | Quem promove prompt em prod? | (a) admin-ai-approver; (b) Novo role | **(a) DECIDIDO PO (DEC-02)** — admin-ai-approver apenas. | AI OQ-1 |
+| OQ-CONS-008 | Budget alerta fixo ou configuravel? | (a) Fixo; (b) Configuravel | **(b) DECIDIDO PO** — configuravel, default $100/mes. | UX OQ-8 |
+| OQ-CONS-009 | Timeout aceita decimais? | (a) Inteiros; (b) Decimais | **(a) DECIDIDO tech-lead** — inteiros. SPEC-PROD AC-8 + ARCH Int. | QA OQ-2 |
+| OQ-CONS-010 | DB indisponivel: fallback hardcoded? | Sim/Nao | **Sim — DECIDIDO tech-lead** — ARCH define HARDCODED_DEFAULTS. | QA OQ-8 |
 
 ---
 
 ## 6. Inconsistencias entre Specs
 
-### 6.1 CRITICAS (devem ser resolvidas antes de aprovacao)
+### 6.1 CRITICAS — TODAS RESOLVIDAS (2026-04-17)
 
-| # | Inconsistencia | Specs envolvidos | Recomendacao |
-|---|---------------|-----------------|-------------|
-| INC-01 | **SPEC-SEC-AI-GOVERNANCE-V2 NAO EXISTE**. Todos os specs a referenciam como dependencia. A PROD spec lista como "a ser criada". E pre-requisito para implementacao. | Todos | **BLOQUEADOR**. Convocar security-specialist para produzir este spec ANTES de aprovacao. Sem threat model, RBAC review e audit de sanitizacao, nenhum codigo deve ser escrito. |
-| INC-02 | **RBAC divergente**. PO decidiu (DEC-01, DEC-02): roles `admin-ai` + `admin-ai-approver` separados. Architect (Secao 7.7): recomenda usar `admin` existente no Sprint 45 e migrar para `admin-ai` no Sprint 46. AI-specialist: assume papel `ADMIN` generico. QA: testes para `admin` generico com nota condicional. | PROD, ARCH, AI, QA | **Alinhar com decisao do PO**: implementar `admin-ai` + `admin-ai-approver` desde a Wave 1. A decisao do PO e explicita e documentada. Architect deve atualizar recomendacao. |
-| INC-03 | **Trust Score gate divergente**. AI-specialist: exige TrustScore >= 0.80 **E** Safety >= 0.90 **E** zero critical failures. QA: menciona apenas Trust >= 0.80 globalmente (TC-TRUST-001). PO: menciona apenas Trust >= 0.80 (AC-16). Release-manager: Trust >= 0.85 como criterio go/no-go. | AI, QA, PROD, RELEASE | **Adotar criterio do AI-specialist** (mais rigoroso): Trust >= 0.80 + Safety >= 0.90. O PO definiu o minimo; o AI-specialist adicionou safety sub-gate com justificativa. Release-manager usa 0.85 para baseline existente (diferente do gate de promocao). QA deve atualizar TC-TRUST-001/003. |
-| INC-04 | **Schema de curadoria divergente**. Architect: `curationStatus` no `AiInteractionLog` com valores `none/flagged_bias/flagged_hallucination/flagged_risk/approved`. AI-specialist: usa categorias B-1..B-3 (bias), H-1..H-3 (alucinacao), R-1..R-3 (risco) com acoes `reviewed/flagged/escalated`. Release-manager: menciona tabela `AiOutputCuration` separada (nao existe no schema do Architect). | ARCH, AI, RELEASE | **Usar modelo do Architect** (`curationStatus` inline no `AiInteractionLog`). Adicionar `escalated` como status valido. Os criterios detalhados do AI-specialist (B-1..R-3) sao logica de servico, nao schema. Release-manager deve corrigir referencia a `AiOutputCuration`. |
-| INC-05 | **Localizacao do SPEC-ARCH**. SPEC-ARCH-AI-GOV-V2 esta em `docs/specs/sprint-45/SPEC-ARCH-AI-GOVERNANCE-V2.md`. Os outros 6 specs estao em `docs/specs/`. | ARCH | **Mover para `docs/specs/SPEC-ARCH-AI-GOV-V2.md`** (raiz). Manter consistencia com os demais. A subpasta `sprint-45/` nao e padrao do projeto. |
+| # | Inconsistencia | Status | Resolucao |
+|---|---------------|--------|-----------|
+| INC-01 | SPEC-SEC nao existia | **RESOLVIDO** | SPEC-SEC-AI-GOVERNANCE-V2 criada e aprovada. |
+| INC-02 | RBAC divergente entre specs | **RESOLVIDO** | SPEC-ARCH atualizado para `admin-ai` + `admin-ai-approver` desde Wave 1. SPEC-QA atualizado. |
+| INC-03 | Trust Score gate divergente | **RESOLVIDO** | Todos os specs agora usam Trust >= 0.80 AND Safety >= 0.90. SPEC-QA e SPEC-RELEASE atualizados. |
+| INC-04 | Schema curadoria divergente (AiOutputCuration vs inline) | **RESOLVIDO** | Modelo do Architect adotado (inline no AiInteractionLog). SPEC-RELEASE corrigido. |
+| INC-05 | Localizacao dos specs inconsistente | **RESOLVIDO** | PO decidiu: todos os specs em `docs/specs/sprint-45/`. Consistencia alcancada. |
 
 ### 6.2 IMPORTANTES (resolver durante implementacao)
 
 | # | Inconsistencia | Specs envolvidos | Recomendacao |
 |---|---------------|-----------------|-------------|
-| INC-06 | **Retencao de audit log**. PO decide 90 dias (DEC-05). OPS estima 180 dias. Release-manager preserva AuditLog no rollback (compliance). | PROD, OPS, RELEASE | **Adotar 90 dias** conforme decisao do PO. OPS deve ajustar. |
+| INC-06 | **Retencao de audit log**. PO decide 90 dias (DEC-05). OPS estimava 180 dias. | PROD, OPS, RELEASE | **RESOLVIDO**: 90 dias conforme PO. SPEC-OPS e SPEC-RELEASE atualizados (2026-04-17). |
 | INC-07 | **Timeout ranges divergentes**. PO/ARCH: 5s-55s (inteiros). AI-specialist: min/max variam por modelo (Haiku: 10s-45s, Sonnet: 20s-90s, Opus: 25s-120s). | PROD, ARCH, AI | **Adotar range do PO (5s-55s) como hard limit do sistema**. Os ranges por modelo do AI-specialist sao recomendacoes UX (warnings), nao bloqueios. Sonnet a 90s e Opus a 120s ultrapassam o limite Vercel de 60s — impraticavel. |
 | INC-08 | **Tabs da UI**. UX: 5 tabs (Dashboard, Prompts, Modelos, Outputs, Evals). PO: nao especifica tabs. PO OQ sobre "Evals" como tab separada. | UX, PROD | **4 tabs no v1**: Dashboard, Prompts, Modelos, Outputs. Evals como painel inline no editor de prompts (ver OQ-CONS-002). |
 | INC-09 | **Modelo `AiKillSwitch` existente vs `AiRuntimeConfig.killSwitch.*`**. O projeto ja tem modelo `AiKillSwitch` (Sprint 19+). ARCH propoe kill-switches via `AiRuntimeConfig` (key-value). | ARCH OQ-5 | **Migrar para `AiRuntimeConfig`** para unificar. Descontinuar `AiKillSwitch` em Wave 3. Migration deve copiar dados existentes. |
@@ -277,67 +278,75 @@ As decisoes DEC-01 a DEC-06 do SPEC-PROD Secao 9 JA FORAM TOMADAS pelo PO. As se
 
 ---
 
-## 7. Proximos Passos — Ordem de Aprovacao
+## 7. Proximos Passos — Kickoff Wave 1
 
-### 7.1 Bloqueador Imediato
+### 7.1 Bloqueadores — TODOS RESOLVIDOS
 
-**SPEC-SEC-AI-GOVERNANCE-V2** deve ser produzida pelo security-specialist. Conteudo minimo:
-- Threat model para `/admin/ia` (BOLA, privilege escalation, IDOR)
-- Review de RBAC: `admin-ai` + `admin-ai-approver`
-- Imutabilidade do AuditLog (constraints de DB)
-- Sanitizacao de prompts (anti-injection, PII scrub) — co-propriedade com ai-specialist
-- Audit de dependencias novas (Promptfoo: MIT)
-- CSV formula injection na exportacao de audit log
-- LGPD: armazenamento de IP de admin no audit log (ARCH OQ-4)
+- ~~SPEC-SEC-AI-GOVERNANCE-V2 nao existe~~ → Criada e aprovada (2026-04-17).
+- ~~Open questions PO (10 OQs)~~ → 5 resolvidas pelo PO, 5 decididas pelo tech-lead (Secao 5).
+- ~~Inconsistencias INC-01 a INC-05~~ → Todas resolvidas (Secao 6.1).
+- ~~Specs em locais diferentes~~ → Todos padronizados em `docs/specs/sprint-45/`.
 
-### 7.2 Fluxo de Aprovacao
+### 7.2 Checklist Pre-Kickoff
 
-| Passo | Acao | Responsavel | Prazo |
-|-------|------|------------|-------|
-| 1 | Security-specialist produz SPEC-SEC-AI-GOVERNANCE-V2 | security-specialist | D+2 (2026-04-19) |
-| 2 | PO resolve as 10 open questions consolidadas (Secao 5) | product-owner | D+3 (2026-04-20) |
-| 3 | Architect atualiza SPEC-ARCH: corrige RBAC (INC-02), move spec para raiz (INC-05), confirma timeout 5-55s (INC-07) | architect | D+3 (2026-04-20) |
-| 4 | AI-specialist atualiza SPEC-AI: confirma timeout ranges alinhados com PO (INC-07) | ai-specialist | D+3 (2026-04-20) |
-| 5 | QA atualiza SPEC-QA: atualiza TC-TRUST com criterio Safety >= 0.90 (INC-03), adiciona testes RBAC admin-ai (INC-02) | qa-engineer | D+4 (2026-04-21) |
-| 6 | Release-manager atualiza SPEC-RELEASE: corrige referencia a AiOutputCuration (INC-04) | release-manager | D+3 (2026-04-20) |
-| 7 | Tech-lead review de todos os 8 specs atualizados | tech-lead | D+5 (2026-04-22) |
-| 8 | Todos os specs movidos para "In Review" | tech-lead | D+5 (2026-04-22) |
-| 9 | Cross-review: cada agente revisa os specs dos outros (2 dias) | todos | D+7 (2026-04-24) |
-| 10 | Todos os specs movidos para "Approved" | tech-lead | D+7 (2026-04-24) |
-| 11 | Task breakdown completo em docs/tasks.md | tech-lead | D+8 (2026-04-25) |
-| 12 | **Kickoff Wave 1** | dev-fullstack-1 + dev-fullstack-2 | **D+8 (2026-04-25)** |
+| # | Item | Status |
+|---|------|--------|
+| 1 | 8/8 specs em status Approved | DONE |
+| 2 | 10/10 OQs resolvidas (5 PO + 5 tech-lead) | DONE |
+| 3 | 5/5 inconsistencias criticas resolvidas | DONE |
+| 4 | RBAC `admin-ai` + `admin-ai-approver` alinhado em todos os specs | DONE |
+| 5 | Trust gate `Trust >= 0.80 AND Safety >= 0.90` alinhado em todos os specs | DONE |
+| 6 | Seed de ModelAssignment definido (3 fases: plan, checklist, guide) | DONE (SPEC-ARCH Secao 8.3) |
+| 7 | Task breakdown em docs/tasks.md | PENDENTE — kickoff 2026-04-25 |
 
-### 7.3 Milestones
+### 7.3 Milestones (atualizados 2026-04-17)
 
-| Milestone | Data Alvo | Versao |
-|-----------|----------|--------|
-| Specs Approved (8/8) | 2026-04-24 | — |
-| Wave 1 completa (esqueleto + auth) | 2026-05-02 | v0.60.0 (flag OFF) |
-| Wave 2 completa (editor prompts) | 2026-05-12 | v0.60.x |
-| Wave 3 completa (modelo/timeout real-time) | 2026-05-19 | v0.61.0 |
-| Wave 4 completa (curadoria) | 2026-05-26 | v0.61.x |
-| Wave 5 completa (eval integrado) | 2026-06-06 | v0.62.0 (flag ON staging) |
-| Flag ON producao (100%) | 2026-06-13 | v0.62.x |
+| Milestone | Data Alvo | Versao | Status |
+|-----------|----------|--------|--------|
+| Specs Approved (8/8) | 2026-04-17 | — | DONE |
+| Task breakdown + kickoff Wave 1 | 2026-04-25 | — | PROXIMO |
+| Wave 1 completa (esqueleto + auth) | 2026-05-02 | v0.60.0 (flag OFF) | — |
+| Wave 2 completa (editor prompts) | 2026-05-12 | v0.60.x | — |
+| Wave 3 completa (modelo/timeout real-time) | 2026-05-19 | v0.61.0 | — |
+| Wave 4 completa (curadoria) | 2026-05-26 | v0.61.x | — |
+| Wave 5 completa (eval integrado) | 2026-06-06 | v0.62.0 (flag ON staging) | — |
+| Flag ON producao (100%) | 2026-06-13 | v0.62.x | — |
 
 ---
 
 ## 8. Criterio Go/No-Go para Inicio de Codigo
 
-Todas as condicoes abaixo devem ser verdadeiras antes de qualquer linha de codigo ser escrita:
+Todas as condicoes abaixo sao verdadeiras. **GO para kickoff Wave 1 em 2026-04-25.**
 
-- [ ] SPEC-PROD-AI-GOVERNANCE-V2 em status **Approved**
-- [ ] SPEC-ARCH-AI-GOV-V2 em status **Approved**
-- [ ] SPEC-UX-AI-GOVERNANCE-V2 em status **Approved**
-- [ ] SPEC-AI-GOVERNANCE-V2 em status **Approved**
-- [ ] SPEC-QA-AI-GOVERNANCE-V2 em status **Approved**
-- [ ] SPEC-RELEASE-AI-GOVERNANCE-V2 em status **Approved**
-- [ ] SPEC-OPS-AI-GOVERNANCE-V2 em status **Approved**
-- [ ] **SPEC-SEC-AI-GOVERNANCE-V2 em status Approved** (ATUALMENTE NAO EXISTE)
-- [ ] Todas as 10 open questions do PO resolvidas e documentadas
-- [ ] Inconsistencias INC-01 a INC-05 resolvidas
-- [ ] Migration Prisma aprovada pelo security-specialist
-- [ ] RBAC model (`admin-ai` + `admin-ai-approver`) confirmado e alinhado entre todos os specs
-- [ ] Trust Score gate definido e alinhado (0.80 + Safety >= 0.90)
+- [x] SPEC-PROD-AI-GOVERNANCE-V2 em status **Approved**
+- [x] SPEC-ARCH-AI-GOV-V2 em status **Approved**
+- [x] SPEC-UX-AI-GOVERNANCE-V2 em status **Approved**
+- [x] SPEC-AI-GOVERNANCE-V2 em status **Approved**
+- [x] SPEC-QA-AI-GOVERNANCE-V2 em status **Approved**
+- [x] SPEC-RELEASE-AI-GOVERNANCE-V2 em status **Approved**
+- [x] SPEC-OPS-AI-GOVERNANCE-V2 em status **Approved**
+- [x] SPEC-SEC-AI-GOVERNANCE-V2 em status **Approved**
+- [x] Todas as 10 open questions resolvidas e documentadas (5 PO + 5 tech-lead)
+- [x] Inconsistencias INC-01 a INC-05 resolvidas
+- [x] RBAC model (`admin-ai` + `admin-ai-approver`) confirmado e alinhado entre todos os specs
+- [x] Trust Score gate definido e alinhado (Trust >= 0.80 AND Safety >= 0.90)
+- [x] Seed de ModelAssignment definido (3 fases)
+- [ ] Migration Prisma aprovada pelo security-specialist (Wave 1, pre-merge)
+- [ ] Task breakdown completo em docs/tasks.md (2026-04-25)
+
+---
+
+## 9. Decisoes Residuais do Tech-Lead (5 OQs nao-criticas)
+
+As 5 OQs abaixo nao foram respondidas pelo PO (delegadas ao tech-lead):
+
+| ID | Decisao | Raciocinio |
+|----|---------|------------|
+| OQ-TL-001 | **Eval sincrono vs background job**: background job (fire-and-forget com Promise, resultado salvo em `PromptEvalResult`, polled via GET). | Evals podem levar 10-60s. Bloquear a UI e inaceitavel. O admin nao precisa manter a pagina aberta. SPEC-ARCH ja define `POST /eval` retornando 202 Accepted. |
+| OQ-TL-002 | **Sunset do modelo `AiKillSwitch` legacy**: migrar dados para `AiRuntimeConfig` na Wave 3 e deprecar o modelo antigo. Nao manter sync entre ambos. | Manter dois modelos de kill-switch e fonte de bugs. A migration deve copiar `AiKillSwitch.isEnabled` para `AiRuntimeConfig.killSwitch.<phase>` e marcar o modelo antigo como deprecated. Remocao definitiva no Sprint 47. |
+| OQ-TL-003 | **Retencao AuditLog**: 90 dias hot (PO DEC-05 confirmado). Archival para cold storage no Sprint 50. | 90 dias cobre a maioria dos cenarios de auditoria. Archival nao e MVP. Monitorar volume real. |
+| OQ-TL-004 | **Fallback hardcoded — quando remover**: somente apos 2 sprints de estabilidade com flag ON (v0.63.0, estimativa Sprint 47). Requer zero incidentes de fallback em 14 dias consecutivos. | O fallback e a rede de seguranca do sistema. Remover cedo demais e risco desnecessario. |
+| OQ-TL-005 | **Canary em prod — mecanismo**: via role `admin-ai` concedido a 10% dos admins na Fase B (nao via header). | Roles sao mais audtaveis que headers. O RBAC ja esta implementado; basta controlar quem recebe o role. Headers exigiriam logica condicional extra no middleware. |
 
 ---
 
@@ -346,3 +355,4 @@ Todas as condicoes abaixo devem ser verdadeiras antes de qualquer linha de codig
 | Version | Date | Author | Description |
 |---------|------|--------|-------------|
 | 1.0.0 | 2026-04-17 | tech-lead | Relatorio consolidado inicial — 7 specs revisados, 6 waves planejadas, 10 riscos, 10 decisoes pendentes, 11 inconsistencias identificadas, bloqueador SPEC-SEC identificado |
+| 1.1.0 | 2026-04-17 | tech-lead | PO aprovou decisoes (OQ-CONS-001 a 005, 008). SPEC-SEC-AI-GOVERNANCE-V2 criada e aprovada. 5 OQs residuais fechadas pelo tech-lead (OQ-TL-001 a 005). Todas as 5 inconsistencias criticas resolvidas. Propagacao de decisoes aos 6 specs afetados (SPEC-QA, SPEC-RELEASE, SPEC-ARCH, SPEC-UX, SPEC-OPS, SPEC-PROD confirmado). Go/no-go: GO para kickoff Wave 1 em 2026-04-25. |
