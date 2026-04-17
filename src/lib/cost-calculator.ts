@@ -19,8 +19,8 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
     outputPerMillion: 15.0,
   },
   "claude-haiku-4-5-20251001": {
-    inputPerMillion: 0.8,
-    outputPerMillion: 4.0,
+    inputPerMillion: 1.0,
+    outputPerMillion: 5.0,
   },
   // Google AI models (no cache pricing equivalent)
   "gemini-2.0-flash": {

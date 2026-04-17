@@ -65,29 +65,29 @@ describe("calculateEstimatedCost", () => {
     });
   });
 
-  describe("claude-haiku-4-5-20251001 pricing ($0.80/1M input, $4/1M output)", () => {
+  describe("claude-haiku-4-5-20251001 pricing ($1/1M input, $5/1M output)", () => {
     const model = "claude-haiku-4-5-20251001";
 
     it("calculates cost for a typical checklist generation", () => {
       const cost = calculateEstimatedCost(model, 500, 1000);
 
-      // Input: 500 * 0.8 / 1M = 0.0004
-      expect(cost.inputCost).toBe(0.0004);
-      // Output: 1000 * 4 / 1M = 0.004
-      expect(cost.outputCost).toBe(0.004);
-      expect(cost.totalCost).toBe(0.0044);
+      // Input: 500 * 1 / 1M = 0.0005
+      expect(cost.inputCost).toBe(0.0005);
+      // Output: 1000 * 5 / 1M = 0.005
+      expect(cost.outputCost).toBe(0.005);
+      expect(cost.totalCost).toBe(0.0055);
     });
 
     it("calculates cost with cache read", () => {
       const cost = calculateEstimatedCost(model, 1000, 500, 600);
 
-      // Regular input: 400 * 0.8 / 1M = 0.00032
-      // Cache read: 600 * 0.8 / 1M * 0.1 = 0.000048
-      // Total input: 0.000368
-      expect(cost.inputCost).toBe(0.000368);
-      // Output: 500 * 4 / 1M = 0.002
-      expect(cost.outputCost).toBe(0.002);
-      expect(cost.totalCost).toBe(0.002368);
+      // Regular input: 400 * 1 / 1M = 0.0004
+      // Cache read: 600 * 1 / 1M * 0.1 = 0.00006
+      // Total input: 0.00046
+      expect(cost.inputCost).toBe(0.00046);
+      // Output: 500 * 5 / 1M = 0.0025
+      expect(cost.outputCost).toBe(0.0025);
+      expect(cost.totalCost).toBe(0.00296);
     });
   });
 
