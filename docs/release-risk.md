@@ -144,3 +144,29 @@ As acoes abaixo bloqueiam o deploy em staging ou producao:
 **Detectado no Sprint 2**: o `deploy.yml` foi adicionado mas o step de deploy real e um placeholder (`echo "Deploy to staging"`). Nenhum deploy automatico para staging ou producao esta ocorrendo na pratica. Todo deploy ainda e manual.
 
 Ate que RISK-005 seja resolvido, o pipeline de CD nao oferece garantias de paridade entre o codigo no `master` e o codigo rodando em staging/producao.
+
+---
+
+## Riscos Identificados (Pre-Beta v0.22.0 — Abril 2026)
+
+| Risk ID | Severidade | Categoria | Descricao | Status | Owner | Prazo |
+|---|---|---|---|---|---|---|
+| RISK-011 | ALTO | AI Provider | Gemini 2.0 Flash descontinuado pelo Google em 2026-06-01. `src/server/services/providers/gemini.provider.ts` fixa `gemini-2.0-flash` como modelo para plan/guide/checklist. Sem migracao, a geracao de IA quebra 45 dias apos o Beta | Aberto | tech-lead | 2026-05-15 (30 dias antes do EOL) |
+| RISK-012 | MEDIO | AI Provider | `AI_FALLBACK_PROVIDER=claude` precisa estar configurado em Vercel Staging + Production para mitigar RISK-011 durante a janela de migracao | Aberto | tech-lead | Antes do deploy Beta |
+
+### RISK-011 — Gemini 2.0 Flash EOL
+
+**Contexto**: O provedor Gemini referencia `gemini-2.0-flash` em 3 constantes (`PLAN_MODEL`, `CHECKLIST_MODEL`, `GUIDE_MODEL`) e no `GEMINI_MODEL_ID_MAP` de `ai.service.ts`. Google anunciou descontinuacao em 2026-06-01; apos essa data chamadas retornarao HTTP 404.
+
+**Plano de migracao** (T-30 dias do EOL):
+1. Atualizar `gemini.provider.ts:10-12` para `gemini-2.5-flash` (ou modelo equivalente GA na data).
+2. Atualizar `GEMINI_MODEL_ID_MAP` em `ai.service.ts:321-324`.
+3. Re-rodar `npm run pf:run` (Promptfoo) para revalidar qualidade e custo.
+4. Smoke test em staging cobrindo os 3 prompts (guide/plan/checklist) em pt-BR e en.
+5. Atualizar `COST-LOG.md` com nova tabela de precos.
+
+**Mitigacao imediata (RISK-012)**: garantir que `AI_FALLBACK_PROVIDER=claude` esteja setado em ambos os ambientes Vercel para que falhas do Gemini cascateiem para Claude Haiku 4.5 sem derrubar a feature.
+
+**Acao pendente para o PO/tech-lead**: inspecionar Vercel Dashboard (Settings -> Environment Variables) nos projetos Staging e Production e confirmar ou provisionar `AI_FALLBACK_PROVIDER=claude`. Claude Code nao tem acesso direto a esse console.
+
+Ref: `docs/testing/AI-VALIDATION-REPORT.md`, `docs/testing/FASE1-EXECUTIVE-SUMMARY.md` must-fix #5.
