@@ -207,7 +207,13 @@
       "generating": "Gerando seu plano..."
     },
     "progress": "Passo {current} de {total}",
-    "skip": "Pular por agora"
+    "skip": "Pular por agora",
+    "errors": {
+      "saveFailed": "Nao foi possivel salvar seu progresso. Tente novamente.",
+      "invalidStep": "Passo invalido.",
+      "stepSkipped": "Por favor, complete o passo anterior primeiro.",
+      "validationFailed": "Por favor, preencha todos os campos obrigatorios."
+    }
   },
   "trips": {
     "myTrips": "Minhas viagens",
@@ -2173,32 +2179,40 @@
     "support": {
       "title": "Suporte",
       "breadcrumb": "Suporte",
-      "intro": "Precisa de ajuda com o Atlas Travel Planner? Encontre respostas para perguntas frequentes ou entre em contato com nossa equipe.",
+      "intro": "Estamos aqui para ajudar! Confira as perguntas frequentes abaixo ou entre em contato diretamente com nossa equipe. Seu feedback nos ajuda a tornar o Atlas cada vez melhor.",
       "faq": {
         "title": "Perguntas Frequentes",
         "items": {
           "q1": {
-            "question": "Como crio uma nova viagem?",
-            "answer": "Navegue até seu painel e clique em 'Nova Expedição' para começar a planejar uma nova viagem com nosso assistente guiado."
+            "question": "Como recupero minha senha?",
+            "answer": "Acesse a página de login e clique em \"Esqueci minha senha\". Você receberá um e-mail com instruções para redefinir sua senha de forma segura."
           },
           "q2": {
-            "question": "Como funciona a geração de roteiro por IA?",
-            "answer": "Nossa IA analisa suas preferências de viagem, orçamento e datas para criar um roteiro personalizado dia a dia. Você pode regenerar ou personalizar conforme necessário."
+            "question": "Quais idiomas o Atlas suporta?",
+            "answer": "Atualmente o Atlas está disponível em Português (BR) e Inglês. Você pode alternar o idioma a qualquer momento pelo seletor no rodapé da página."
           },
           "q3": {
-            "question": "Meus dados pessoais estão seguros?",
-            "answer": "Sim. Dados sensíveis como números de passaporte são criptografados usando AES-256-GCM. Nunca registramos informações pessoalmente identificáveis e seguimos as diretrizes LGPD/GDPR."
+            "question": "Como funciona a geração de IA?",
+            "answer": "Nossa IA analisa suas preferências, datas e orçamento para criar roteiros personalizados. Antes de gerar, você visualiza um modal de consentimento explicando quais dados serão usados. O consentimento pode ser revogado a qualquer momento."
           },
           "q4": {
-            "question": "Como excluo minha conta?",
-            "answer": "Vá em Configurações da Conta e role até a seção Zona de Perigo. A exclusão da conta é permanente e anonimiza todos os seus dados."
+            "question": "Posso cancelar minha conta?",
+            "answer": "A funcionalidade de exclusão de conta está em desenvolvimento. Enquanto isso, entre em contato com nossa equipe pelo e-mail abaixo e faremos o processo manualmente."
+          },
+          "q5": {
+            "question": "Há app mobile?",
+            "answer": "Não temos um aplicativo nativo no momento. O Atlas é uma aplicação web totalmente responsiva, otimizada para funcionar perfeitamente em qualquer navegador mobile."
+          },
+          "q6": {
+            "question": "Por que preciso ter 18 anos ou mais?",
+            "answer": "Exigimos idade mínima de 18 anos para cumprir a Lei Geral de Proteção de Dados (LGPD) e as políticas dos nossos parceiros de inteligência artificial, que restringem o uso por menores de idade."
           }
         }
       },
       "contact": {
         "title": "Entre em Contato",
         "description": "Se você não encontrou a resposta que precisa, entre em contato com nossa equipe.",
-        "email": "support@atlas-travel.app"
+        "email": "suporte@atlas.travel"
       }
     }
   },

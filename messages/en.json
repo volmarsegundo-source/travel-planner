@@ -207,7 +207,13 @@
       "generating": "Generating your plan..."
     },
     "progress": "Step {current} of {total}",
-    "skip": "Skip for now"
+    "skip": "Skip for now",
+    "errors": {
+      "saveFailed": "Could not save your progress. Please try again.",
+      "invalidStep": "Invalid step.",
+      "stepSkipped": "Please complete the previous step first.",
+      "validationFailed": "Please fill in all required fields."
+    }
   },
   "trips": {
     "myTrips": "My trips",
@@ -2173,32 +2179,40 @@
     "support": {
       "title": "Support",
       "breadcrumb": "Support",
-      "intro": "Need help with Atlas Travel Planner? Find answers to common questions or reach out to our team.",
+      "intro": "We are here to help! Check the frequently asked questions below or reach out directly to our team. Your feedback helps us make Atlas even better.",
       "faq": {
         "title": "Frequently Asked Questions",
         "items": {
           "q1": {
-            "question": "How do I create a new trip?",
-            "answer": "Navigate to your dashboard and click 'New Expedition' to start planning a new trip with our guided wizard."
+            "question": "How do I reset my password?",
+            "answer": "Go to the login page and click \"Forgot password\". You will receive an email with instructions to securely reset your password."
           },
           "q2": {
-            "question": "How does AI itinerary generation work?",
-            "answer": "Our AI analyzes your travel preferences, budget, and dates to create a personalized day-by-day itinerary. You can regenerate or customize it as needed."
+            "question": "Which languages does Atlas support?",
+            "answer": "Atlas is currently available in Portuguese (BR) and English. You can switch languages at any time using the selector in the page footer."
           },
           "q3": {
-            "question": "Is my personal data secure?",
-            "answer": "Yes. Sensitive data like passport numbers is encrypted using AES-256-GCM. We never log personally identifiable information and follow LGPD/GDPR guidelines."
+            "question": "How does AI generation work?",
+            "answer": "Our AI analyzes your preferences, dates, and budget to create personalized itineraries. Before generating, you see a consent modal explaining which data will be used. Consent can be revoked at any time."
           },
           "q4": {
-            "question": "How do I delete my account?",
-            "answer": "Go to Account Settings and scroll to the Danger Zone section. Account deletion is permanent and anonymizes all your data."
+            "question": "Can I delete my account?",
+            "answer": "The account deletion feature is under development. In the meantime, please contact our team at the email below and we will handle the process manually."
+          },
+          "q5": {
+            "question": "Is there a mobile app?",
+            "answer": "We do not have a native app at this time. Atlas is a fully responsive web application, optimized to work seamlessly on any mobile browser."
+          },
+          "q6": {
+            "question": "Why do I need to be 18+?",
+            "answer": "We require a minimum age of 18 to comply with the Brazilian General Data Protection Law (LGPD) and the policies of our AI partners, which restrict use by minors."
           }
         }
       },
       "contact": {
         "title": "Contact Us",
         "description": "If you could not find the answer you need, reach out to our team.",
-        "email": "support@atlas-travel.app"
+        "email": "suporte@atlas.travel"
       }
     }
   },
