@@ -22,7 +22,7 @@
 - Product version: v0.34.0 (Sprint 39 in progress -- Landing + Login V2) / v0.35.0 in planning (Sprint 40)
 - Sprints 1-39 in progress
 - `docs/tasks.md` at version 3.0.0 (stale -- needs major update)
-- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-056
+- Next available US ID: US-124; Next available Spec ID: SPEC-PROD-057
 - Sprint 38 backlog: `docs/specs/sprint-38/SPRINT-38-PRIORITIES.md`
 - Sprint 39 backlog: `docs/specs/sprint-39/SPRINT-39-PRIORITIES.md`
 - Sprint 40 backlog: `docs/specs/sprint-40/SPRINT-40-PRIORITIES.md`

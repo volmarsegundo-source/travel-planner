@@ -67,14 +67,20 @@
 | E5 | Footer — link Support | `/pt` | clicar Support | NÃO deve 404 (ver BUG-S7-004) | [ ] |  |
 | E6 | Header sticky em scroll | `/pt` | rolar 500px | header permanece visível; sem layout shift | [ ] |  |
 
-## F. Onboarding (4 items)
+## F. Onboarding + AI Consent Modal (6 items)
+
+> F1/F2/F4 corrigidos: o OnboardingWizard **não tem step de AI consent** (3 passos: welcome → trip style → preferências).
+> O consentimento de IA é capturado via modal pré-geração (SPEC-PROD-056).
+> F5 e F6 são novos itens para validar o modal.
 
 | ID | Description | URL | Steps | Expected | Status | Notes |
 |----|-------------|-----|-------|----------|:------:|-------|
-| F1 | Wizard 3 passos | `/pt/onboarding` (usuário novo) | welcome → trip style → AI consent | indicator atualiza; consegue voltar | [ ] |  |
-| F2 | Skip onboarding | `/pt/onboarding` | skip | redireciona para dashboard; estado marcado como skipped | [ ] |  |
-| F3 | Persistência de escolhas | onboarding completo | fazer logout e login | escolhas permanecem aplicadas | [ ] |  |
-| F4 | Consentimento AI negado | wizard step 3 | negar consent | conta funciona sem features AI | [ ] |  |
+| F1 | Wizard 3 passos | `/pt/onboarding` (usuário novo) | welcome → trip style → preferências | indicator atualiza a cada passo; consegue voltar; 3 passos totais (sem step de AI consent) | [ ] | SPEC-PROD-056: wizard NÃO inclui step de consent |
+| F2 | Skip onboarding | `/pt/onboarding` | clicar skip | redireciona para `/pt/expeditions`; estado marcado como skipped | [ ] |  |
+| F3 | Persistência de escolhas | onboarding completo | logout + login | escolhas de trip style e preferências preservadas | [ ] |  |
+| F4 | Onboarding sem bloqueio AI | wizard completo (sem gerar IA ainda) | concluir as 3 etapas | conta funcionando; `aiConsentGiven` ainda null (não foi solicitado no wizard) | [ ] | SPEC-PROD-056: consent só é pedido no momento da geração |
+| F5 | AI Consent Modal — aceitar (happy path) | Fase 5 ou Fase 6 (usuário sem consent) | clicar botão de geração de IA pela primeira vez → modal aparece → clicar "Aceitar e continuar" | modal fecha; geração inicia; `aiConsentGiven=true` persistido; modal não reaparece em sessões futuras | [ ] | SPEC-PROD-056 AC-CONSENT-001/002/007 |
+| F6 | AI Consent Modal — recusar (unhappy path) | Fase 5 ou Fase 6 (usuário sem consent) | clicar botão de geração → modal aparece → clicar "Não, obrigado" | `aiConsentGiven=false` persistido; sem chamada à API de IA; redirecionado para `/pt/expeditions` com mensagem informativa | [ ] | SPEC-PROD-056 AC-CONSENT-003/004 |
 
 ## G. Navegação autenticada (6 items)
 
@@ -270,7 +276,7 @@
 | C. Auth — Recovery | 3 | | | | |
 | D. i18n | 5 | | | | |
 | E. Landing + Header/Footer | 6 | | | | |
-| F. Onboarding | 4 | | | | |
+| F. Onboarding + AI Consent Modal | 6 | | | | |
 | G. Navegação autenticada | 6 | | | | |
 | H. Dashboard / Expeditions | 7 | | | | |
 | I. Phase 1 — Setup | 6 | | | | |
@@ -288,9 +294,9 @@
 | U. Acessibilidade | 7 | | | | |
 | V. FinOps | 3 | | | | |
 | W. Cross-browser | 3 | | | | |
-| **Total** | **129** | | | | |
+| **Total** | **131** | | | | |
 
-> **Nota:** o alvo histórico era "~131 items"; a versão final consolidada agrupa dois pares em Preferências para evitar duplicação — contagem oficial = **129**.
+> **Nota:** contagem oficial = **131** (atualizado em 2026-04-17: seção F expandida de 4 para 6 itens com F5/F6 para SPEC-PROD-056 AI Consent Modal).
 
 ---
 
