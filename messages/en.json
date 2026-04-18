@@ -91,8 +91,15 @@
       "oauthAccessDenied": "You do not have permission to sign in.",
       "oauthVerification": "The verification link has expired or has already been used.",
       "oauthAccountNotLinked": "This email is already associated with another sign-in method.",
-      "backToLogin": "Back to login"
+      "backToLogin": "Back to login",
+      "passwordWeak": "The password does not meet all requirements above."
     }
+  },
+  "passwordStrength": {
+    "minLength": "At least 8 characters",
+    "uppercase": "One uppercase letter",
+    "number": "One number",
+    "special": "One special character (!@#$...)"
   },
   "authV2": {
     "welcomeBack": "Welcome back",
@@ -2813,5 +2820,10 @@
       "saveAndSwitch": "Save and switch",
       "discardAndSwitch": "Discard and switch"
     }
+  },
+  "ageRestriction": {
+    "registrationBanner": "Artificial intelligence features are available only for users 18 years or older. You can use all other features normally.",
+    "profileBanner": "Some AI-powered features are unavailable for your age group. You still have access to all manual planning tools.",
+    "tooltip": "Available for users 18 years or older"
   }
 }

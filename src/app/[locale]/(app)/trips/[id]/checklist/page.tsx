@@ -6,6 +6,7 @@ import { db } from "@/server/db";
 import { ChecklistView } from "@/components/features/checklist/ChecklistView";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
+import { canUseAI } from "@/lib/guards/age-guard";
 
 interface ChecklistPageProps {
   params: Promise<{ locale: string; id: string }>;
@@ -62,6 +63,13 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
     orderBy: [{ category: "asc" }, { orderIndex: "asc" }],
   });
 
+  // Age restriction check
+  let ageRestricted = false;
+  try {
+    const profile = await db.userProfile.findUnique({ where: { userId: session?.user?.id ?? "" }, select: { birthDate: true } });
+    ageRestricted = !canUseAI(profile?.birthDate);
+  } catch { /* non-critical */ }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
@@ -87,6 +95,7 @@ export default async function ChecklistPage({ params }: ChecklistPageProps) {
           travelers={1}
           locale={locale}
           initialItems={checklistItems}
+          isAgeRestricted={ageRestricted}
         />
       </div>
     </div>

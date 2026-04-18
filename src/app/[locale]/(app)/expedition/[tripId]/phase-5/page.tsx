@@ -8,6 +8,7 @@ import { PointsEngine } from "@/lib/engines/points-engine";
 import { DestinationGuideV2 } from "@/components/features/expedition/DestinationGuideV2";
 import { Phase4WizardV2 } from "@/components/features/expedition/Phase4WizardV2";
 import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { canUseAI } from "@/lib/guards/age-guard";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
 interface Phase5PageProps {
@@ -82,6 +83,13 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
     !!guide?.generatedAt &&
     Date.now() - guide.generatedAt.getTime() < JUST_GENERATED_WINDOW_MS;
 
+  // Age restriction check
+  let ageRestricted = false;
+  try {
+    const profile = await db.userProfile.findUnique({ where: { userId }, select: { birthDate: true } });
+    ageRestricted = !canUseAI(profile?.birthDate);
+  } catch { /* non-critical */ }
+
   return (
     <DestinationGuideV2
       tripId={tripId}
@@ -93,6 +101,7 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
       completedPhases={completedPhases}
       availablePoints={availablePoints}
       isJustGenerated={isJustGenerated}
+      isAgeRestricted={ageRestricted}
     />
   );
 }

@@ -91,8 +91,15 @@
       "oauthAccessDenied": "Você não tem permissão para fazer login.",
       "oauthVerification": "O link de verificação expirou ou já foi utilizado.",
       "oauthAccountNotLinked": "Este e-mail já está associado a outro método de login.",
-      "backToLogin": "Voltar ao login"
+      "backToLogin": "Voltar ao login",
+      "passwordWeak": "A senha não atende a todos os requisitos acima."
     }
+  },
+  "passwordStrength": {
+    "minLength": "Pelo menos 8 caracteres",
+    "uppercase": "Uma letra maiúscula",
+    "number": "Um número",
+    "special": "Um caractere especial (!@#$...)"
   },
   "authV2": {
     "welcomeBack": "Bem-vindo de volta",
@@ -2806,5 +2813,10 @@
       "saveAndSwitch": "Salvar e trocar",
       "discardAndSwitch": "Descartar e trocar"
     }
+  },
+  "ageRestriction": {
+    "registrationBanner": "Recursos de inteligência artificial estão disponíveis apenas para maiores de 18 anos. Você pode usar todas as outras funcionalidades normalmente.",
+    "profileBanner": "Alguns recursos com IA estão indisponíveis para sua faixa etária. Você continua tendo acesso a todas as ferramentas manuais de planejamento.",
+    "tooltip": "Disponível para maiores de 18 anos"
   }
 }

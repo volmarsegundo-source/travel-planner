@@ -27,6 +27,8 @@ interface ChecklistViewProps {
   travelers: number;
   locale: string;
   initialItems: ChecklistItem[];
+  /** When true, AI generation CTAs are disabled with an age restriction tooltip. */
+  isAgeRestricted?: boolean;
 }
 
 export function ChecklistView({
@@ -36,9 +38,11 @@ export function ChecklistView({
   travelers,
   locale,
   initialItems,
+  isAgeRestricted = false,
 }: ChecklistViewProps) {
   const t = useTranslations("checklist");
   const tAi = useTranslations("ai.service");
+  const tAge = useTranslations("ageRestriction");
   const aiStatus = useAiServiceStatus();
   const [isPending, startTransition] = useTransition();
   const [items, setItems] = useState<ChecklistItem[]>(initialItems);
@@ -113,11 +117,13 @@ export function ChecklistView({
           <p className="text-sm text-muted-foreground">{t("noItemsSubtitle")}</p>
           <Button
             onClick={handleGenerate}
-            disabled={isPending || aiStatus.paused}
+            disabled={isPending || aiStatus.paused || isAgeRestricted}
             className="min-h-[44px]"
-            aria-label={aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
+            aria-label={isAgeRestricted ? tAge("tooltip") : aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
+            title={isAgeRestricted ? tAge("tooltip") : undefined}
+            aria-disabled={isAgeRestricted || undefined}
           >
-            {aiStatus.paused ? tAi("paused.buttonDisabled") : t("generate")}
+            {isAgeRestricted ? tAge("tooltip") : aiStatus.paused ? tAi("paused.buttonDisabled") : t("generate")}
           </Button>
         </div>
       )}
@@ -132,15 +138,19 @@ export function ChecklistView({
               variant="outline"
               size="sm"
               onClick={handleGenerate}
-              disabled={isPending || aiStatus.paused}
+              disabled={isPending || aiStatus.paused || isAgeRestricted}
               className="min-h-[44px]"
-              aria-label={aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
+              aria-label={isAgeRestricted ? tAge("tooltip") : aiStatus.paused ? tAi("paused.buttonDisabled") : undefined}
+              title={isAgeRestricted ? tAge("tooltip") : undefined}
+              aria-disabled={isAgeRestricted || undefined}
             >
-              {aiStatus.paused
-                ? tAi("paused.buttonDisabled")
-                : isPending
-                  ? t("generating")
-                  : t("generate")}
+              {isAgeRestricted
+                ? tAge("tooltip")
+                : aiStatus.paused
+                  ? tAi("paused.buttonDisabled")
+                  : isPending
+                    ? t("generating")
+                    : t("generate")}
             </Button>
           </div>
 

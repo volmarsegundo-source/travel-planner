@@ -10,6 +10,7 @@ import { Phase4WizardV2 } from "@/components/features/expedition/Phase4WizardV2"
 import { Phase6ItineraryV2 } from "@/components/features/expedition/Phase6ItineraryV2";
 import { deriveAgeRange } from "@/server/services/expedition-summary.service";
 import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { canUseAI } from "@/lib/guards/age-guard";
 import { logger } from "@/lib/logger";
 import type { TravelStyle, ExpeditionContext } from "@/types/ai.types";
 import type { DestinationGuideContent } from "@/types/ai.types";
@@ -271,6 +272,13 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
       // Non-critical — defaults to 0
     }
 
+    // Age restriction check
+    let ageRestricted = false;
+    try {
+      const profile = await db.userProfile.findUnique({ where: { userId }, select: { birthDate: true } });
+      ageRestricted = !canUseAI(profile?.birthDate);
+    } catch { /* non-critical */ }
+
     return (
       <Phase6ItineraryV2
         key={`phase4-itinerary-${itineraryDays.length}`}
@@ -290,6 +298,7 @@ export default async function Phase4Page({ params }: Phase4PageProps) {
         completedPhases={completedPhases}
         availablePoints={availablePoints}
         isJustGenerated={isJustGenerated}
+        isAgeRestricted={ageRestricted}
       />
     );
   }

@@ -120,6 +120,8 @@ interface DestinationGuideV2Props {
    * the revisit banner on the first-time generation flow. Sprint 43 QA UX.
    */
   isJustGenerated?: boolean;
+  /** When true, all AI generation CTAs are disabled with an age restriction tooltip. */
+  isAgeRestricted?: boolean;
 }
 
 // ─── Skeleton Sub-components ─────────────────────────────────────────────────
@@ -558,10 +560,12 @@ export function DestinationGuideV2({
   completedPhases = [],
   availablePoints = 0,
   isJustGenerated = false,
+  isAgeRestricted = false,
 }: DestinationGuideV2Props) {
   const t = useTranslations("expedition.phase5");
   const tExpedition = useTranslations("expedition");
   const tErrors = useTranslations("errors");
+  const tAge = useTranslations("ageRestriction");
   const router = useRouter();
 
   const [guide, setGuide] = useState<DestinationGuideContent | null>(initialGuide?.content ?? null);
@@ -831,6 +835,7 @@ export function DestinationGuideV2({
   }, [tripId, accessMode, completedPhases, router]);
 
   const regenDisabled =
+    isAgeRestricted ||
     isRegenerating ||
     (selectedCategories.length === 0 && !personalNotes.trim()) ||
     regenCount >= MAX_REGENS ||
@@ -1009,10 +1014,19 @@ export function DestinationGuideV2({
           </p>
 
           {/* CTA Button */}
-          <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating || insufficientPA} size="lg">
+          <AtlasButton
+            onClick={handleRequestGenerate}
+            disabled={isGenerating || insufficientPA || isAgeRestricted}
+            size="lg"
+            title={isAgeRestricted ? tAge("tooltip") : undefined}
+            aria-disabled={isAgeRestricted || undefined}
+          >
             {isGenerating ? t("generating") : t("generateCta")} {"\u2728"}
           </AtlasButton>
-          {insufficientPA && (
+          {isAgeRestricted && (
+            <p className="text-xs text-atlas-gold mt-2">{tAge("tooltip")}</p>
+          )}
+          {insufficientPA && !isAgeRestricted && (
             <p className="text-xs text-destructive mt-2">{t("insufficientPA")}</p>
           )}
 

@@ -3,9 +3,11 @@ import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { ExplorerProfile } from "@/components/features/profile/ExplorerProfile";
+import { AgeRestrictionBanner } from "@/components/features/profile/AgeRestrictionBanner";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { db } from "@/server/db";
 import { decrypt } from "@/lib/crypto";
+import { isMinor } from "@/lib/guards/age-guard.client";
 import type { Rank, BadgeKey } from "@/types/gamification.types";
 
 interface ProfilePageProps {
@@ -78,6 +80,8 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
     completionScore: userProfile?.completionScore ?? 0,
   };
 
+  const userIsMinor = isMinor(userProfile?.birthDate);
+
   return (
     <>
       <div className="mx-auto max-w-2xl px-4 pt-6 sm:px-6 lg:px-8">
@@ -87,6 +91,11 @@ export default async function ProfilePage({ params }: ProfilePageProps) {
             { label: tNav("breadcrumb.profile") },
           ]}
         />
+        {userIsMinor && (
+          <div className="mt-4">
+            <AgeRestrictionBanner isMinor={userIsMinor} variant="profile" />
+          </div>
+        )}
       </div>
       <ExplorerProfile
         rank={progress.currentRank as Rank}

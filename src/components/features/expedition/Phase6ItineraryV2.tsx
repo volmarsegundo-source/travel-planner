@@ -299,6 +299,8 @@ interface Phase6ItineraryV2Props {
    * Sprint 43 QA UX bug.
    */
   isJustGenerated?: boolean;
+  /** When true, AI generation CTAs are disabled with an age restriction tooltip. */
+  isAgeRestricted?: boolean;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -1219,10 +1221,12 @@ export function Phase6ItineraryV2({
   completedPhases = [],
   availablePoints = 0,
   isJustGenerated = false,
+  isAgeRestricted = false,
 }: Phase6ItineraryV2Props) {
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
   const tPhases = useTranslations("gamification.phases");
+  const tAge = useTranslations("ageRestriction");
   const router = useRouter();
 
   // ─── State ───────────────────────────────────────────────────────────────
@@ -1643,9 +1647,18 @@ export function Phase6ItineraryV2({
             paCost={PA_COST} currentBalance={paBalance} isLoading={isSpending}
           />
 
-          <AtlasButton onClick={handleRequestGenerate} disabled={isGenerating} size="lg">
+          <AtlasButton
+            onClick={handleRequestGenerate}
+            disabled={isGenerating || isAgeRestricted}
+            size="lg"
+            title={isAgeRestricted ? tAge("tooltip") : undefined}
+            aria-disabled={isAgeRestricted || undefined}
+          >
             {t("generateCta")} {"\u2192"}
           </AtlasButton>
+          {isAgeRestricted && (
+            <p className="text-xs text-atlas-gold mt-2">{tAge("tooltip")}</p>
+          )}
 
           <p className="text-xs text-atlas-on-surface-variant/60 font-atlas-body mt-6">
             {t("processingNote")}
@@ -1830,8 +1843,9 @@ export function Phase6ItineraryV2({
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <AtlasButton
                 onClick={handlePersonalizedRegen}
-                disabled={!hasPersonalizationInput || isRegenLimitReached || isGenerating}
+                disabled={isAgeRestricted || !hasPersonalizationInput || isRegenLimitReached || isGenerating}
                 data-testid="personalized-regen-btn"
+                title={isAgeRestricted ? tAge("tooltip") : undefined}
               >
                 {t("regenerateItineraryCta", { cost: PA_COST })}
               </AtlasButton>

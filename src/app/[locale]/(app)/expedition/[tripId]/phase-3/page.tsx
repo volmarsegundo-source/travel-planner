@@ -5,6 +5,7 @@ import { DestinationGuideV2 } from "@/components/features/expedition/Destination
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { db } from "@/server/db";
 import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { canUseAI } from "@/lib/guards/age-guard";
 import type { TripType } from "@/lib/travel/trip-classifier";
 import type { DestinationGuideContent } from "@/types/ai.types";
 
@@ -56,6 +57,13 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
       !!guide?.generatedAt &&
       Date.now() - guide.generatedAt.getTime() < JUST_GENERATED_WINDOW_MS;
 
+    // Age restriction check
+    let ageRestricted = false;
+    try {
+      const profile = await db.userProfile.findUnique({ where: { userId }, select: { birthDate: true } });
+      ageRestricted = !canUseAI(profile?.birthDate);
+    } catch { /* non-critical */ }
+
     return (
       <DestinationGuideV2
         tripId={tripId}
@@ -67,6 +75,7 @@ export default async function Phase3Page({ params }: Phase3PageProps) {
         completedPhases={completedPhases}
         availablePoints={availablePoints}
         isJustGenerated={isJustGenerated}
+        isAgeRestricted={ageRestricted}
       />
     );
   }
