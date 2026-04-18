@@ -2797,5 +2797,14 @@
       "exitWithoutSaving": "Sair sem salvar",
       "cancel": "Cancelar"
     }
+  },
+  "languageSwitcher": {
+    "tooltip": "Altera apenas o idioma da interface. Os dados da sua viagem permanecem no idioma em que foram salvos.",
+    "unsavedDialog": {
+      "title": "Alterações não salvas",
+      "body": "Você tem alterações que ainda não foram salvas. Trocar o idioma agora vai descartá-las.",
+      "saveAndSwitch": "Salvar e trocar",
+      "discardAndSwitch": "Descartar e trocar"
+    }
   }
 }

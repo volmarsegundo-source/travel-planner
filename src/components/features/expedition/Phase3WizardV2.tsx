@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
+import { useRegisterWizardDirty } from "@/hooks/useRegisterWizardDirty";
 import { AtlasCard, AtlasBadge } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
 import { PhaseFooter } from "./PhaseFooter";
@@ -88,6 +89,17 @@ export function Phase3WizardV2({
   function handleSaveChecklist() {
     markClean();
   }
+
+  // Register dirty state in context for LanguageSwitcher interception (D2)
+  const saveRef3 = useRef(handleSaveChecklist);
+  saveRef3.current = handleSaveChecklist;
+  const stableSave = useCallback(() => saveRef3.current(), []);
+  const noopDiscard = useCallback(() => {}, []);
+  useRegisterWizardDirty({
+    isDirty: formDirty,
+    save: stableSave,
+    discard: noopDiscard,
+  });
 
   async function handleToggle(itemKey: string) {
     setTogglingKey(itemKey);

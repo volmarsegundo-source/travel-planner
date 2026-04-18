@@ -8,6 +8,7 @@ import { db } from "@/server/db";
 import { AuthenticatedNavbarV2 } from "@/components/layout/AuthenticatedNavbarV2";
 import { FooterV2 } from "@/components/features/landing/FooterV2";
 import { FeedbackWidgetLoader } from "@/components/features/feedback/FeedbackWidgetLoader";
+import { AppShellClient } from "@/components/layout/AppShellClient";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
@@ -77,25 +78,27 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
-      >
-        {t("skipToContent")}
-      </a>
-      <AuthenticatedNavbarV2
-        userName={displayName}
-        userImage={user.image ?? null}
-        userEmail={user.email ?? ""}
-        gamification={gamification}
-        isPremium={isPremium}
-      />
-      <main id="main-content" className="flex-1">
-        {children}
-      </main>
-      <FooterV2 />
-      <FeedbackWidgetLoader />
-    </div>
+    <AppShellClient>
+      <div className="flex min-h-screen flex-col">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground"
+        >
+          {t("skipToContent")}
+        </a>
+        <AuthenticatedNavbarV2
+          userName={displayName}
+          userImage={user.image ?? null}
+          userEmail={user.email ?? ""}
+          gamification={gamification}
+          isPremium={isPremium}
+        />
+        <main id="main-content" className="flex-1">
+          {children}
+        </main>
+        <FooterV2 />
+        <FeedbackWidgetLoader />
+      </div>
+    </AppShellClient>
   );
 }

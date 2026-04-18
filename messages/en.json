@@ -2804,5 +2804,14 @@
     "dismissAriaLabel": "Got it, close the phase reorganization notice",
     "learnMore": "See what changed",
     "learnMoreHref": "/help/phase-reorder"
+  },
+  "languageSwitcher": {
+    "tooltip": "Changes the interface language only. Your trip data stays in the language it was saved in.",
+    "unsavedDialog": {
+      "title": "Unsaved changes",
+      "body": "You have unsaved changes. Switching the language now will discard them.",
+      "saveAndSwitch": "Save and switch",
+      "discardAndSwitch": "Discard and switch"
+    }
   }
 }

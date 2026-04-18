@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
+import { useRegisterWizardDirty } from "@/hooks/useRegisterWizardDirty";
 import { AtlasCard } from "@/components/ui/AtlasCard";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasChip } from "@/components/ui/AtlasChip";
@@ -279,6 +280,17 @@ export function Phase4WizardV2({
     else if (currentStep === 2) await handleSaveAccommodation(accommodations);
     else if (currentStep === 3) await handleSaveMobility(mobility);
   }
+
+  // Register dirty state in context for LanguageSwitcher interception (D2)
+  const saveRef4 = useRef(handleSaveCurrentStep);
+  saveRef4.current = handleSaveCurrentStep;
+  const stableSave = useCallback(() => saveRef4.current(), []);
+  const noopDiscard = useCallback(() => {}, []);
+  useRegisterWizardDirty({
+    isDirty,
+    save: stableSave,
+    discard: noopDiscard,
+  });
 
   // ─── Validation ──────────────────────────────────────────────────────────
 

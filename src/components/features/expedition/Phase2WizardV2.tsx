@@ -1,9 +1,10 @@
 "use client";
 
-import { useRef, useState, useMemo } from "react";
+import { useRef, useState, useMemo, useCallback } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
+import { useRegisterWizardDirty } from "@/hooks/useRegisterWizardDirty";
 import { AtlasButton, AtlasCard, AtlasChip, AtlasStepperInput } from "@/components/ui";
 import { AtlasInput } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
@@ -152,6 +153,17 @@ export function Phase2WizardV2({
       setErrorMessage("errors.generic");
     }
   }
+
+  // Register dirty state in context for LanguageSwitcher interception (D2)
+  const saveRef2 = useRef(handleSavePhase2);
+  saveRef2.current = handleSavePhase2;
+  const stableSave = useCallback(() => saveRef2.current(), []);
+  const noopDiscard = useCallback(() => {}, []);
+  useRegisterWizardDirty({
+    isDirty: formDirty,
+    save: stableSave,
+    discard: noopDiscard,
+  });
 
   function goToStep(index: number) {
     setCurrentStepIndex(index);

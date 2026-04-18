@@ -1348,6 +1348,85 @@ Negative / trade-offs:
 
 ---
 
+### ADR-035: User-Generated Content permanece no idioma original (sem tradução)
+
+**Status**: Accepted — Sprint 44 (2026-04-17)
+**Driver**: architect + product-owner
+**Related**: Bug D1 (QA pré-Beta), ADR-004 (next-intl)
+
+#### Contexto
+
+Ao trocar locale (PT/EN) via LanguageSwitcher, a UI traduz corretamente mas
+campos escritos pelo usuário (Trip.title, Trip.description, ChecklistItem.label,
+DestinationGuide.personalNotes, Destination.name, etc.) permanecem no idioma em
+que foram digitados. QA reportou como bug D1.
+
+Campos user-generated identificados no schema:
+
+| Model             | Campos UGC                                 |
+|---                |---                                         |
+| Trip              | title, destination, description, origin    |
+| ChecklistItem     | label (quando custom)                      |
+| DestinationGuide  | personalNotes, extraCategories             |
+| TransportSegment  | campos de booking digitados                |
+| Accommodation     | campos de booking digitados                |
+| Destination       | name                                       |
+
+Nota: DestinationGuide.locale e ItineraryPlan.locale já existem e registram o
+idioma do conteúdo gerado por IA — são campos de sistema, não de UGC.
+
+#### Opções Consideradas
+
+| Opção | Prós | Contras |
+|---|---|---|
+| A: Só UI traduzida + tooltip | Zero custo, zero risco, padrão da indústria (Airbnb, Notion, Trello) | Mistura visual de idiomas (mitigável com tooltip) |
+| B: Traduzir UGC via API (Google Translate) | UI visualmente uniforme | Custo recorrente, latência, traduções imprecisas para nomes próprios, responsabilidade legal sobre dado alterado, complexidade de cache |
+| C: Campo originalLocale + tooltip | Rastreabilidade futura | Migração em 6+ tabelas, overhead sem consumidor, YAGNI |
+
+#### Decisão
+
+**Opção A**: somente a UI é traduzida. Dados do usuário são preservados
+integralmente no idioma em que foram escritos. Um tooltip no LanguageSwitcher
+explica o comportamento.
+
+Justificativa principal: traduzir conteúdo autoral do usuário altera o dado
+original, viola o princípio de fidelidade ao input, e não é praticado por
+nenhuma plataforma de referência no setor de viagens.
+
+#### Implementação
+
+1. **Tooltip no LanguageSwitcher**: envolver o `<div>` existente com o componente
+   `Tooltip` do shadcn/ui. Ativação por hover/focus (não always-visible, não
+   first-access-only). Texto i18n em `common.languageSwitcher.tooltip`.
+2. **Sem migração de schema**: nenhum campo `originalLocale` adicionado.
+3. **Sem campo novo em nenhum model**.
+
+#### Consequências
+
+Positivo:
+- Zero migração, zero custo operacional, zero risco de corrupção de dados.
+- Comportamento consistente com padrões da indústria.
+- Tooltip educa o usuário sem fricção.
+
+Negativo / trade-offs:
+- Se no futuro uma feature de tradução opt-in de UGC for desejada, será
+  necessário adicionar `originalLocale` nesse momento. Custo adiado, não
+  eliminado — mas YAGNI prevalece.
+
+#### Regra futura
+
+Qualquer nova tabela com campos UGC **NÃO** precisa rastrear idioma original.
+Se surgir requisito de tradução automática de UGC, reavaliar com spec dedicada
+(custo, privacidade, responsabilidade legal sobre dado traduzido).
+
+#### Links
+
+- Bug D1 (checklist QA pré-Beta)
+- D1 fix PR (a criar — tooltip no LanguageSwitcher)
+- ADR-004 (next-intl como engine de i18n)
+
+---
+
 ## Document Revision History
 
 | Version | Date | Author | Changes |
@@ -1358,3 +1437,4 @@ Negative / trade-offs:
 | 1.3.0 | 2026-04-09 | tech-lead | Added ADR-028 (AI timeout strategy for Vercel Hobby — per-type provider override, tightened timeouts, streaming token clamp) |
 | 1.4.0 | 2026-04-11 | tech-lead + architect | Added ADR-031 (Gemini Flash primário, Haiku fallback automático, ceilings segmentados por provider) |
 | 1.5.0 | 2026-04-15 | architect | Added ADR-029 (Phase Reorder Strategy — semantic flip), ADR-030 (In-Place Big-Bang Migration), ADR-032 (ExpeditionAiContextService as centralised assembler) |
+| 1.6.0 | 2026-04-17 | architect | Added ADR-035 (UGC permanece no idioma original — Bug D1 pré-Beta) |

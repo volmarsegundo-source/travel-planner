@@ -5,6 +5,7 @@ import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
+import { useRegisterWizardDirty } from "@/hooks/useRegisterWizardDirty";
 import { AtlasButton, AtlasInput, AtlasCard } from "@/components/ui";
 import { PhaseShell } from "./PhaseShell";
 import { DestinationAutocomplete } from "./DestinationAutocomplete";
@@ -336,6 +337,17 @@ export function Phase1WizardV2({
       setIsSubmitting(false);
     }
   }
+
+  // Register dirty state in context for LanguageSwitcher interception (D2)
+  const saveRef = useRef(handleSave);
+  saveRef.current = handleSave;
+  const stableSave = useCallback(() => saveRef.current(), []);
+  const noopDiscard = useCallback(() => {}, []);
+  useRegisterWizardDirty({
+    isDirty: formDirty,
+    save: stableSave,
+    discard: noopDiscard,
+  });
 
   // Auto-resolve origin country code
   const resolveCountryCode = useCallback(async (query: string, setter: (code: string | null) => void) => {
