@@ -86,6 +86,10 @@ vi.mock("@/lib/guards/age-guard", () => ({
   canUseAI: vi.fn().mockReturnValue(true),
 }));
 
+vi.mock("@/lib/guards/ai-consent-guard", () => ({
+  assertAiConsent: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("@/server/db", () => ({
   db: {
     trip: { findFirst: mockTripFindFirst },

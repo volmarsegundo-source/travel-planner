@@ -88,6 +88,10 @@ vi.mock("@/lib/prompts/pii-masker", () => ({
   maskPII: vi.fn().mockReturnValue({ masked: "masked", findings: [] }),
 }));
 
+vi.mock("@/lib/guards/ai-consent-guard", () => ({
+  assertAiConsent: vi.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import {

@@ -101,6 +101,10 @@ vi.mock("@/lib/crypto", () => ({
   decrypt: vi.fn().mockReturnValue("decrypted-value"),
 }));
 
+vi.mock("@/lib/guards/ai-consent-guard", () => ({
+  assertAiConsent: vi.fn().mockResolvedValue(undefined),
+}));
+
 // ─── Import SUT after mocks ─────────────────────────────────────────────────
 
 import { updateUserProfileAction } from "@/server/actions/account.actions";

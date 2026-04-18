@@ -22,6 +22,7 @@ import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
 import { classifyTrip } from "@/lib/travel/trip-classifier";
 import { isPhaseReorderEnabled } from "@/lib/flags/phase-reorder";
+import { assertAiConsent } from "@/lib/guards/ai-consent-guard";
 
 import { ExpeditionSummaryService } from "@/server/services/expedition-summary.service";
 import type { ExpeditionSummary } from "@/server/services/expedition-summary.service";
@@ -881,6 +882,9 @@ export async function generateDestinationGuideAction(
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
 
+  // LGPD consent gate (SPEC-ARCH-056)
+  await assertAiConsent(session.user.id);
+
   try {
     // Fetch trip with Phase 1-4 context for personalized guide
     const trip = await db.trip.findFirst({
@@ -1073,6 +1077,9 @@ export async function regenerateGuideAction(
 ): Promise<ActionResult<{ content: DestinationGuideContent; regenCount: number }>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
+
+  // LGPD consent gate (SPEC-ARCH-056)
+  await assertAiConsent(session.user.id);
 
   try {
     // BOLA: verify trip belongs to user

@@ -15,6 +15,7 @@ const {
   mockProfileFindUnique,
   mockSanitizeForPrompt,
   mockMaskPII,
+  mockAssertAiConsent,
 } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockCheckRateLimit: vi.fn(),
@@ -22,6 +23,7 @@ const {
   mockProfileFindUnique: vi.fn(),
   mockSanitizeForPrompt: vi.fn(),
   mockMaskPII: vi.fn(),
+  mockAssertAiConsent: vi.fn(),
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -56,6 +58,10 @@ vi.mock("@/server/db", () => ({
 
 vi.mock("@/lib/guards/age-guard", () => ({
   canUseAI: vi.fn().mockReturnValue(true),
+}));
+
+vi.mock("@/lib/guards/ai-consent-guard", () => ({
+  assertAiConsent: mockAssertAiConsent,
 }));
 
 vi.unmock("@/server/services/ai-gateway.service");
@@ -136,8 +142,17 @@ describe("generateChecklistAction", () => {
     mockFindFirst.mockResolvedValue({ id: "trip-1" });
     mockProfileFindUnique.mockResolvedValue(null);
     // Default: guards pass through
+    mockAssertAiConsent.mockResolvedValue(undefined);
     mockSanitizeForPrompt.mockImplementation((text: string) => text);
     mockMaskPII.mockImplementation((text: string) => ({ masked: text, hasPII: false, detectedTypes: [] }));
+  });
+
+  it("blocks when AI consent is missing (SPEC-ARCH-056)", async () => {
+    mockAssertAiConsent.mockRejectedValue(
+      new AppError("AI_CONSENT_REQUIRED", "AI_CONSENT_REQUIRED", 403)
+    );
+
+    await expect(generateChecklistAction("trip-1", params)).rejects.toThrow("AI_CONSENT_REQUIRED");
   });
 
   it("calls checkRateLimit with ai:checklist:{userId} key", async () => {
@@ -218,8 +233,17 @@ describe("generateTravelPlanAction", () => {
     mockFindFirst.mockResolvedValue({ id: "trip-1" });
     mockProfileFindUnique.mockResolvedValue(null);
     // Default: guards pass through
+    mockAssertAiConsent.mockResolvedValue(undefined);
     mockSanitizeForPrompt.mockImplementation((text: string) => text);
     mockMaskPII.mockImplementation((text: string) => ({ masked: text, hasPII: false, detectedTypes: [] }));
+  });
+
+  it("blocks when AI consent is missing (SPEC-ARCH-056)", async () => {
+    mockAssertAiConsent.mockRejectedValue(
+      new AppError("AI_CONSENT_REQUIRED", "AI_CONSENT_REQUIRED", 403)
+    );
+
+    await expect(generateTravelPlanAction("trip-1", params)).rejects.toThrow("AI_CONSENT_REQUIRED");
   });
 
   it("calls checkRateLimit with ai:plan:{userId} key", async () => {

@@ -51,6 +51,10 @@ vi.mock("@/lib/guards/age-guard", () => ({
   canUseAI: vi.fn().mockReturnValue(true),
 }));
 
+vi.mock("@/lib/guards/ai-consent-guard", () => ({
+  assertAiConsent: vi.fn().mockResolvedValue(undefined),
+}));
+
 vi.mock("@/server/services/ai.service", () => ({
   AiService: {
     generateChecklist: vi.fn().mockResolvedValue({ categories: [] }),

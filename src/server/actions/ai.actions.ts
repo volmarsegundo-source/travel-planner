@@ -10,6 +10,7 @@ import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { hashUserId } from "@/lib/hash";
 import { canUseAI } from "@/lib/guards/age-guard";
+import { assertAiConsent } from "@/lib/guards/ai-consent-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitizeForPrompt } from "@/lib/prompts/injection-guard";
 import { maskPII } from "@/lib/prompts/pii-masker";
@@ -68,6 +69,9 @@ export async function generateTravelPlanAction(
 ): Promise<ActionResult<ItineraryPlan>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
+
+  // LGPD consent gate (SPEC-ARCH-056)
+  await assertAiConsent(session.user.id);
 
   // Validate tripId
   const tripIdResult = TripIdSchema.safeParse(tripId);
@@ -199,6 +203,9 @@ export async function generateChecklistAction(
 ): Promise<ActionResult<ChecklistResult>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
+
+  // LGPD consent gate (SPEC-ARCH-056)
+  await assertAiConsent(session.user.id);
 
   // Validate tripId
   const checklistTripIdResult = TripIdSchema.safeParse(tripId);

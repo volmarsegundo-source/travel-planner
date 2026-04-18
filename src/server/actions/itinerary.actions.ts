@@ -9,6 +9,7 @@ import { TripService } from "@/server/services/trip.service";
 import { PointsEngine } from "@/lib/engines/points-engine";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
+import { assertAiConsent } from "@/lib/guards/ai-consent-guard";
 import type { ActionResult } from "@/types/trip.types";
 import type { ActivityType } from "@/types/ai.types";
 
@@ -340,6 +341,9 @@ export async function regenerateItineraryAction(
 ): Promise<ActionResult<{ manualActivities: Activity[] }>> {
   const session = await auth();
   if (!session?.user?.id) throw new UnauthorizedError();
+
+  // LGPD consent gate (SPEC-ARCH-056)
+  await assertAiConsent(session.user.id);
 
   // BOLA check
   const owned = await verifyTripOwnership(tripId, session.user.id);
