@@ -2832,5 +2832,15 @@
     "registrationBanner": "Recursos de inteligência artificial estão disponíveis apenas para maiores de 18 anos. Você pode usar todas as outras funcionalidades normalmente.",
     "profileBanner": "Alguns recursos com IA estão indisponíveis para sua faixa etária. Você continua tendo acesso a todas as ferramentas manuais de planejamento.",
     "tooltip": "Disponível para maiores de 18 anos"
+  },
+  "consent": {
+    "modal": {
+      "title": "Como usamos Inteligência Artificial",
+      "body": "Para criar seu guia e roteiro personalizados, enviamos alguns dos seus dados para nosso parceiro de IA: destino, datas, estilo de viagem, orçamento e preferências que você configurou. Nenhum dado sensível (documentos, reservas completas) é enviado. Você pode revogar esse consentimento a qualquer momento nas configurações.",
+      "privacyLink": "Política de Privacidade",
+      "acceptButton": "Aceitar e continuar",
+      "declineButton": "Não, obrigado",
+      "declinedToast": "Você optou por não usar IA. Você pode alterar isso nas configurações."
+    }
   }
 }

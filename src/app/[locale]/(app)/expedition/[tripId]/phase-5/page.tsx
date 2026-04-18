@@ -83,11 +83,16 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
     !!guide?.generatedAt &&
     Date.now() - guide.generatedAt.getTime() < JUST_GENERATED_WINDOW_MS;
 
-  // Age restriction check
+  // Age restriction + AI consent check
   let ageRestricted = false;
+  let aiConsentGiven: boolean | null = null;
   try {
-    const profile = await db.userProfile.findUnique({ where: { userId }, select: { birthDate: true } });
+    const profile = await db.userProfile.findUnique({
+      where: { userId },
+      select: { birthDate: true, aiConsentGiven: true },
+    });
     ageRestricted = !canUseAI(profile?.birthDate);
+    aiConsentGiven = profile?.aiConsentGiven ?? null;
   } catch { /* non-critical */ }
 
   return (
@@ -102,6 +107,7 @@ export default async function Phase5Page({ params }: Phase5PageProps) {
       availablePoints={availablePoints}
       isJustGenerated={isJustGenerated}
       isAgeRestricted={ageRestricted}
+      aiConsentGiven={aiConsentGiven}
     />
   );
 }

@@ -92,6 +92,10 @@ vi.mock("../PhaseFooter", () => ({
   PhaseFooter: () => <div data-testid="phase-footer">PhaseFooter</div>,
 }));
 
+vi.mock("@/components/features/consent/AiConsentModal", () => ({
+  AiConsentModal: () => null,
+}));
+
 vi.mock("@/components/features/gamification/PAConfirmationModal", () => ({
   PAConfirmationModal: ({
     isOpen,
@@ -179,6 +183,7 @@ const defaultProps = {
   tripCurrentPhase: 6,
   completedPhases: [1, 2, 3, 4, 5],
   availablePoints: 200,
+  aiConsentGiven: true as boolean | null,
 };
 
 const twoDays = [

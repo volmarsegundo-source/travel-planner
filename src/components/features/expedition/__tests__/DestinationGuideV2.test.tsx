@@ -86,6 +86,10 @@ vi.mock("@/components/features/gamification/PAConfirmationModal", () => ({
   PAConfirmationModal: () => null,
 }));
 
+vi.mock("@/components/features/consent/AiConsentModal", () => ({
+  AiConsentModal: () => null,
+}));
+
 /* ────────────────────────────────────────────────────────────────────────────
  * Fixtures
  * ──────────────────────────────────────────────────────────────────────────── */
@@ -162,6 +166,7 @@ describe("DestinationGuideV2", () => {
     tripCurrentPhase: 5,
     completedPhases: [1, 2, 3, 4],
     availablePoints: 200,
+    aiConsentGiven: true as boolean | null,
   };
 
   beforeEach(() => {

@@ -10,6 +10,7 @@ import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
 import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
+import { AiConsentModal } from "@/components/features/consent/AiConsentModal";
 import {
   completePhase3Action,
   completePhase5Action,
@@ -122,6 +123,8 @@ interface DestinationGuideV2Props {
   isJustGenerated?: boolean;
   /** When true, all AI generation CTAs are disabled with an age restriction tooltip. */
   isAgeRestricted?: boolean;
+  /** AI consent status from UserProfile. null = never asked, false = refused, true = consented. */
+  aiConsentGiven?: boolean | null;
 }
 
 // ─── Skeleton Sub-components ─────────────────────────────────────────────────
@@ -561,6 +564,7 @@ export function DestinationGuideV2({
   availablePoints = 0,
   isJustGenerated = false,
   isAgeRestricted = false,
+  aiConsentGiven,
 }: DestinationGuideV2Props) {
   const t = useTranslations("expedition.phase5");
   const tExpedition = useTranslations("expedition");
@@ -570,6 +574,8 @@ export function DestinationGuideV2({
 
   const [guide, setGuide] = useState<DestinationGuideContent | null>(initialGuide?.content ?? null);
   const [_generationCount, setGenerationCount] = useState(initialGuide?.generationCount ?? 0);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [consentGranted, setConsentGranted] = useState(aiConsentGiven === true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -669,8 +675,13 @@ export function DestinationGuideV2({
   }, [tripId, destination, locale, selectedCategories, personalNotes, regenCount, t, tErrors, router]);
 
   const handleRequestGenerate = useCallback(() => {
+    // Gate: require AI consent before proceeding (SPEC-PROD-056)
+    if (!consentGranted && aiConsentGiven !== true) {
+      setShowConsentModal(true);
+      return;
+    }
     setShowPAConfirm(true);
-  }, []);
+  }, [consentGranted, aiConsentGiven]);
 
   /**
    * Refund the upfront PA debit when a guide generation ultimately fails
@@ -951,6 +962,21 @@ export function DestinationGuideV2({
           </p>
         </div>
       )}
+
+      {/* AI Consent Modal (SPEC-PROD-056) */}
+      <AiConsentModal
+        open={showConsentModal}
+        onAccepted={() => {
+          setShowConsentModal(false);
+          setConsentGranted(true);
+          // Proceed to PA confirmation after consent
+          setShowPAConfirm(true);
+        }}
+        onDeclined={() => {
+          setShowConsentModal(false);
+          router.push("/expeditions");
+        }}
+      />
 
       {/* PA Confirmation Modal */}
       <PAConfirmationModal

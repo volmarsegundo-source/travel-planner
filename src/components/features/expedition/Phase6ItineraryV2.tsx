@@ -13,6 +13,7 @@ import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
 import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
+import { AiConsentModal } from "@/components/features/consent/AiConsentModal";
 import {
   getProgressPhase,
   getProgressMessageKey,
@@ -301,6 +302,8 @@ interface Phase6ItineraryV2Props {
   isJustGenerated?: boolean;
   /** When true, AI generation CTAs are disabled with an age restriction tooltip. */
   isAgeRestricted?: boolean;
+  /** AI consent status from UserProfile. null = never asked, false = refused, true = consented. */
+  aiConsentGiven?: boolean | null;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────────────
@@ -1222,6 +1225,7 @@ export function Phase6ItineraryV2({
   availablePoints = 0,
   isJustGenerated = false,
   isAgeRestricted = false,
+  aiConsentGiven,
 }: Phase6ItineraryV2Props) {
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
@@ -1232,6 +1236,8 @@ export function Phase6ItineraryV2({
   // ─── State ───────────────────────────────────────────────────────────────
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConsentModal, setShowConsentModal] = useState(false);
+  const [consentGranted, setConsentGranted] = useState(aiConsentGiven === true);
   const [progressMessage, setProgressMessage] = useState("");
   const [daysGenerated, setDaysGenerated] = useState(0);
   const [progressPercent, setProgressPercent] = useState(0);
@@ -1473,7 +1479,14 @@ export function Phase6ItineraryV2({
   // User must click "Gerar Roteiro com IA" in the empty state.
 
   // ─── PA + generation handlers ────────────────────────────────────────────
-  function handleRequestGenerate() { setShowPAConfirm(true); }
+  function handleRequestGenerate() {
+    // Gate: require AI consent before proceeding (SPEC-PROD-056)
+    if (!consentGranted && aiConsentGiven !== true) {
+      setShowConsentModal(true);
+      return;
+    }
+    setShowPAConfirm(true);
+  }
 
   async function handlePAConfirmAndGenerate() {
     setIsSpending(true);
@@ -1939,6 +1952,20 @@ export function Phase6ItineraryV2({
           t={t}
         />
       </div>
+
+      {/* AI Consent Modal (SPEC-PROD-056) */}
+      <AiConsentModal
+        open={showConsentModal}
+        onAccepted={() => {
+          setShowConsentModal(false);
+          setConsentGranted(true);
+          setShowPAConfirm(true);
+        }}
+        onDeclined={() => {
+          setShowConsentModal(false);
+          router.push("/expeditions");
+        }}
+      />
 
       {/* PA Confirmation Modal */}
       <PAConfirmationModal

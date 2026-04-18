@@ -2839,5 +2839,15 @@
     "registrationBanner": "Artificial intelligence features are available only for users 18 years or older. You can use all other features normally.",
     "profileBanner": "Some AI-powered features are unavailable for your age group. You still have access to all manual planning tools.",
     "tooltip": "Available for users 18 years or older"
+  },
+  "consent": {
+    "modal": {
+      "title": "How we use Artificial Intelligence",
+      "body": "To create your personalized guide and itinerary, we send some of your data to our AI partner: destination, dates, travel style, budget, and the preferences you've set. No sensitive data (documents, full booking details) is shared. You can revoke this consent anytime in your settings.",
+      "privacyLink": "Privacy Policy",
+      "acceptButton": "Accept and continue",
+      "declineButton": "No, thank you",
+      "declinedToast": "You opted out of AI features. You can change this anytime in your settings."
+    }
   }
 }
