@@ -10,16 +10,17 @@ import { ProgressIndicator } from "@/components/features/onboarding/ProgressIndi
 import { LoadingPlanAnimation } from "@/components/features/itinerary/LoadingPlanAnimation";
 import { createTripAction } from "@/server/actions/trip.actions";
 import { generateTravelPlanAction } from "@/server/actions/ai.actions";
+import { saveOnboardingStepAction } from "@/server/actions/onboarding.actions";
 import type { TravelStyle } from "@/types/ai.types";
 import { getDefaultCurrency } from "@/lib/utils/currency";
 
 const TOTAL_STEPS = 3;
 
 const TRAVEL_STYLES: { value: TravelStyle; labelKey: string; emoji: string }[] = [
-  { value: "ADVENTURE", labelKey: "step3.styleAdventure", emoji: "🏔️" },
-  { value: "CULTURE", labelKey: "step3.styleCulture", emoji: "🏛️" },
-  { value: "RELAXATION", labelKey: "step3.styleRelaxation", emoji: "🏖️" },
-  { value: "GASTRONOMY", labelKey: "step3.styleGastronomy", emoji: "🍷" },
+  { value: "ADVENTURE", labelKey: "step3.styleAdventure", emoji: "\u{1F3D4}\u{FE0F}" },
+  { value: "CULTURE", labelKey: "step3.styleCulture", emoji: "\u{1F3DB}\u{FE0F}" },
+  { value: "RELAXATION", labelKey: "step3.styleRelaxation", emoji: "\u{1F3D6}\u{FE0F}" },
+  { value: "GASTRONOMY", labelKey: "step3.styleGastronomy", emoji: "\u{1F377}" },
 ];
 
 interface TripFormData {
@@ -29,32 +30,54 @@ interface TripFormData {
   travelers: number;
 }
 
-interface OnboardingWizardProps {
-  userName: string;
-  locale: string;
+interface OnboardingInitialData {
+  step1?: Record<string, unknown>;
+  step2?: TripFormData;
+  step3?: {
+    travelStyle: TravelStyle;
+    budget: number;
+    currency: string;
+  };
 }
 
-export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
+export interface OnboardingWizardProps {
+  userName: string;
+  locale: string;
+  initialStep?: number;
+  initialData?: OnboardingInitialData;
+}
+
+export function OnboardingWizard({
+  userName,
+  locale,
+  initialStep = 1,
+  initialData,
+}: OnboardingWizardProps) {
   const t = useTranslations("onboarding");
   const router = useRouter();
 
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Step 2 form data
+  // Step 2 form data — pre-fill from saved data
   const [tripForm, setTripForm] = useState<TripFormData>({
-    destination: "",
-    startDate: "",
-    endDate: "",
-    travelers: 1,
+    destination: initialData?.step2?.destination ?? "",
+    startDate: initialData?.step2?.startDate ?? "",
+    endDate: initialData?.step2?.endDate ?? "",
+    travelers: initialData?.step2?.travelers ?? 1,
   });
   const [formErrors, setFormErrors] = useState<Partial<Record<keyof TripFormData, string>>>({});
 
-  // Step 3 data
-  const [travelStyle, setTravelStyle] = useState<TravelStyle>("CULTURE");
-  const [budget, setBudget] = useState(1000);
-  const [currency, setCurrency] = useState(() => getDefaultCurrency(locale));
+  // Step 3 data — pre-fill from saved data
+  const [travelStyle, setTravelStyle] = useState<TravelStyle>(
+    initialData?.step3?.travelStyle ?? "CULTURE"
+  );
+  const [budget, setBudget] = useState(initialData?.step3?.budget ?? 1000);
+  const [currency, setCurrency] = useState(
+    initialData?.step3?.currency ?? getDefaultCurrency(locale)
+  );
 
   // Ref for focus management
   const stepContentRef = useRef<HTMLDivElement>(null);
@@ -98,17 +121,71 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
     });
   }
 
-  function handleStep1Cta() {
-    goToStep(2);
+  async function handleStep1Cta() {
+    setIsSaving(true);
+    setErrorMessage(null);
+    try {
+      const result = await saveOnboardingStepAction(1, {});
+      if (!result.success) {
+        setErrorMessage(t("errors.saveFailed"));
+        return;
+      }
+      goToStep(2);
+    } catch {
+      setErrorMessage(t("errors.saveFailed"));
+    } finally {
+      setIsSaving(false);
+    }
   }
 
-  function handleStep2Cta() {
-    if (validateStep2()) {
+  async function handleStep2Cta() {
+    if (!validateStep2()) return;
+
+    setIsSaving(true);
+    setErrorMessage(null);
+    try {
+      const result = await saveOnboardingStepAction(2, {
+        destination: tripForm.destination,
+        startDate: tripForm.startDate,
+        endDate: tripForm.endDate,
+        travelers: tripForm.travelers,
+      });
+      if (!result.success) {
+        setErrorMessage(t("errors.saveFailed"));
+        return;
+      }
       goToStep(3);
+    } catch {
+      setErrorMessage(t("errors.saveFailed"));
+    } finally {
+      setIsSaving(false);
     }
   }
 
   async function handleStep3Cta() {
+    setIsSaving(true);
+    setErrorMessage(null);
+
+    try {
+      // Save step 3 data first
+      const saveResult = await saveOnboardingStepAction(3, {
+        travelStyle,
+        budget,
+        currency,
+      });
+      if (!saveResult.success) {
+        setErrorMessage(t("errors.saveFailed"));
+        setIsSaving(false);
+        return;
+      }
+    } catch {
+      setErrorMessage(t("errors.saveFailed"));
+      setIsSaving(false);
+      return;
+    } finally {
+      setIsSaving(false);
+    }
+
     setIsGenerating(true);
     setErrorMessage(null);
 
@@ -118,7 +195,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
         title: tripForm.destination,
         destination: tripForm.destination,
         coverGradient: "ocean",
-        coverEmoji: "✈️",
+        coverEmoji: "\u2708\uFE0F",
         startDate: new Date(tripForm.startDate),
         endDate: new Date(tripForm.endDate),
       });
@@ -196,6 +273,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                 onClick={handleStep1Cta}
                 size="lg"
                 className="w-full sm:w-auto sm:min-w-48"
+                disabled={isSaving}
               >
                 {t("step1.cta")}
               </Button>
@@ -289,7 +367,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                   )}
                 </div>
 
-                <Button type="submit" size="lg" className="w-full">
+                <Button type="submit" size="lg" className="w-full" disabled={isSaving}>
                   {t("step2.cta")}
                 </Button>
               </form>
@@ -374,6 +452,7 @@ export function OnboardingWizard({ userName, locale }: OnboardingWizardProps) {
                   size="lg"
                   className="flex-[3]"
                   onClick={handleStep3Cta}
+                  disabled={isSaving}
                 >
                   {t("step3.cta")}
                 </Button>

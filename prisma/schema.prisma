@@ -376,6 +376,9 @@ model UserProfile {
   accessibility       String?   @db.VarChar(300)
   preferences         Json?     @default("{}")
   completionScore     Int       @default(0)
+  onboardingStep      Int       @default(0)
+  onboardingData      Json?
+  onboardingCompletedAt DateTime?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 

@@ -11,10 +11,11 @@ import userEvent from "@testing-library/user-event";
 
 // ─── Hoist mocks ──────────────────────────────────────────────────────────────
 
-const { mockRouterPush, mockCreateTrip, mockGeneratePlan } = vi.hoisted(() => ({
+const { mockRouterPush, mockCreateTrip, mockGeneratePlan, mockSaveOnboardingStep } = vi.hoisted(() => ({
   mockRouterPush: vi.fn(),
   mockCreateTrip: vi.fn(),
   mockGeneratePlan: vi.fn(),
+  mockSaveOnboardingStep: vi.fn(),
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -44,6 +45,10 @@ vi.mock("@/server/actions/trip.actions", () => ({
 
 vi.mock("@/server/actions/ai.actions", () => ({
   generateTravelPlanAction: mockGeneratePlan,
+}));
+
+vi.mock("@/server/actions/onboarding.actions", () => ({
+  saveOnboardingStepAction: mockSaveOnboardingStep,
 }));
 
 // ─── Import after mocks ───────────────────────────────────────────────────────
@@ -88,6 +93,10 @@ async function submitStep2() {
 describe("OnboardingWizard", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockSaveOnboardingStep.mockResolvedValue({
+      success: true,
+      data: { onboardingStep: 1, onboardingData: {}, onboardingCompletedAt: null },
+    });
     mockCreateTrip.mockResolvedValue({
       success: true,
       data: { id: "trip-123" },
@@ -127,9 +136,11 @@ describe("OnboardingWizard", () => {
     renderWizard();
     await goToStep2();
 
-    expect(
-      screen.getByRole("heading", { name: "onboarding.step2.title" })
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "onboarding.step2.title" })
+      ).toBeInTheDocument();
+    });
     expect(
       screen.queryByText("onboarding.step1.subtitle")
     ).not.toBeInTheDocument();
@@ -139,7 +150,9 @@ describe("OnboardingWizard", () => {
     renderWizard();
     await goToStep2();
 
-    expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     expect(screen.getByLabelText("onboarding.step2.startDate")).toBeInTheDocument();
     expect(screen.getByLabelText("onboarding.step2.endDate")).toBeInTheDocument();
     expect(screen.getByLabelText("onboarding.step2.travelers")).toBeInTheDocument();
@@ -148,6 +161,9 @@ describe("OnboardingWizard", () => {
   it("shows validation error when submitting step 2 without destination", async () => {
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     await submitStep2();
 
     expect(
@@ -156,25 +172,43 @@ describe("OnboardingWizard", () => {
   });
 
   it("advances to step 3 when step 2 form is valid", async () => {
+    mockSaveOnboardingStep.mockResolvedValue({
+      success: true,
+      data: { onboardingStep: 2, onboardingData: {}, onboardingCompletedAt: null },
+    });
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     await fillStep2Form();
     await submitStep2();
 
-    expect(
-      screen.getByRole("heading", { name: "onboarding.step3.title" })
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(
+        screen.getByRole("heading", { name: "onboarding.step3.title" })
+      ).toBeInTheDocument();
+    });
   });
 
   it("shows travel style cards on step 3", async () => {
+    mockSaveOnboardingStep.mockResolvedValue({
+      success: true,
+      data: { onboardingStep: 2, onboardingData: {}, onboardingCompletedAt: null },
+    });
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     await fillStep2Form();
     await submitStep2();
 
-    // Check for the 4 travel style radio buttons
-    const radios = screen.getAllByRole("radio");
-    expect(radios.length).toBe(4);
+    await waitFor(() => {
+      // Check for the 4 travel style radio buttons
+      const radios = screen.getAllByRole("radio");
+      expect(radios.length).toBe(4);
+    });
   });
 
   it("redirects to /trips?from=onboarding when skip is clicked", async () => {
@@ -196,6 +230,9 @@ describe("OnboardingWizard", () => {
   it("renders skip button on step 2 as well", async () => {
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
 
     expect(
       screen.getByRole("button", { name: "onboarding.skip" })
@@ -210,10 +247,21 @@ describe("OnboardingWizard", () => {
   });
 
   it("calls createTripAction and generateTravelPlanAction on step 3 submit", async () => {
+    mockSaveOnboardingStep.mockResolvedValue({
+      success: true,
+      data: { onboardingStep: 3, onboardingData: {}, onboardingCompletedAt: new Date() },
+    });
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     await fillStep2Form();
     await submitStep2();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "onboarding.step3.cta" })).toBeInTheDocument();
+    });
 
     // Click generate on step 3
     const generateButton = screen.getByRole("button", {
@@ -231,10 +279,21 @@ describe("OnboardingWizard", () => {
   });
 
   it("redirects to itinerary page after successful generation", async () => {
+    mockSaveOnboardingStep.mockResolvedValue({
+      success: true,
+      data: { onboardingStep: 3, onboardingData: {}, onboardingCompletedAt: new Date() },
+    });
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     await fillStep2Form();
     await submitStep2();
+
+    await waitFor(() => {
+      expect(screen.getByRole("button", { name: "onboarding.step3.cta" })).toBeInTheDocument();
+    });
 
     await userEvent.click(
       screen.getByRole("button", { name: "onboarding.step3.cta" })
@@ -246,10 +305,21 @@ describe("OnboardingWizard", () => {
   });
 
   it("allows selecting different travel styles", async () => {
+    mockSaveOnboardingStep.mockResolvedValue({
+      success: true,
+      data: { onboardingStep: 2, onboardingData: {}, onboardingCompletedAt: null },
+    });
     renderWizard();
     await goToStep2();
+    await waitFor(() => {
+      expect(screen.getByLabelText("onboarding.step2.destination")).toBeInTheDocument();
+    });
     await fillStep2Form();
     await submitStep2();
+
+    await waitFor(() => {
+      expect(screen.getByRole("radio", { name: /onboarding\.step3\.styleAdventure/ })).toBeInTheDocument();
+    });
 
     const adventureRadio = screen.getByRole("radio", {
       name: /onboarding\.step3\.styleAdventure/,
