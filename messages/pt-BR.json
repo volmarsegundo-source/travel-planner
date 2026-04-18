@@ -129,7 +129,34 @@
     "registerSubmit": "Criar conta",
     "alreadyHaveAccount": "Já tem uma conta?",
     "signInLink": "Entrar",
-    "registerLegalText": "Ao criar uma conta, você concorda com nossos"
+    "registerLegalText": "Ao criar uma conta, você concorda com nossos",
+    "forgotPasswordPage": {
+      "heading": "Esqueceu sua senha?",
+      "subtitle": "Informe seu e-mail e enviaremos instruções para redefinir sua senha.",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "seu@email.com",
+      "submit": "Enviar instruções",
+      "submitting": "Enviando...",
+      "successHeading": "Verifique seu e-mail",
+      "successMessage": "Se esse e-mail estiver cadastrado em nossa base, enviaremos as instruções para redefinir sua senha.",
+      "backToLogin": "Voltar ao login"
+    },
+    "resetPasswordPage": {
+      "heading": "Redefinir senha",
+      "subtitle": "Digite sua nova senha abaixo.",
+      "passwordLabel": "Nova senha",
+      "passwordPlaceholder": "Digite sua nova senha",
+      "confirmPasswordLabel": "Confirmar nova senha",
+      "confirmPasswordPlaceholder": "Digite sua nova senha novamente",
+      "submit": "Redefinir senha",
+      "submitting": "Redefinindo...",
+      "successHeading": "Senha redefinida!",
+      "successMessage": "Sua senha foi redefinida com sucesso. Você já pode fazer login.",
+      "goToLogin": "Ir para o login",
+      "invalidToken": "Este link é inválido ou expirou. Solicite um novo link de redefinição.",
+      "requestNewLink": "Solicitar novo link",
+      "backToLogin": "Voltar ao login"
+    }
   },
   "trustSignals": {
     "badge": "Seus dados estão protegidos",

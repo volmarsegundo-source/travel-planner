@@ -129,7 +129,34 @@
     "registerSubmit": "Create account",
     "alreadyHaveAccount": "Already have an account?",
     "signInLink": "Sign in",
-    "registerLegalText": "By creating an account, you agree to our"
+    "registerLegalText": "By creating an account, you agree to our",
+    "forgotPasswordPage": {
+      "heading": "Forgot your password?",
+      "subtitle": "Enter your email and we will send you instructions to reset your password.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "your@email.com",
+      "submit": "Send instructions",
+      "submitting": "Sending...",
+      "successHeading": "Check your email",
+      "successMessage": "If that email is registered in our system, we will send password reset instructions.",
+      "backToLogin": "Back to login"
+    },
+    "resetPasswordPage": {
+      "heading": "Reset password",
+      "subtitle": "Enter your new password below.",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "Enter your new password",
+      "confirmPasswordLabel": "Confirm new password",
+      "confirmPasswordPlaceholder": "Re-enter your new password",
+      "submit": "Reset password",
+      "submitting": "Resetting...",
+      "successHeading": "Password reset!",
+      "successMessage": "Your password has been successfully reset. You can now sign in.",
+      "goToLogin": "Go to login",
+      "invalidToken": "This link is invalid or has expired. Please request a new reset link.",
+      "requestNewLink": "Request new link",
+      "backToLogin": "Back to login"
+    }
   },
   "trustSignals": {
     "badge": "Your data is protected",
