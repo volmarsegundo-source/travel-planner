@@ -2,7 +2,7 @@
 import "server-only";
 import { headers } from "next/headers";
 import { AuthService } from "@/server/services/auth.service";
-import { UserSignUpSchema } from "@/lib/validations/user.schema";
+import { UserSignUpSchema, StrongPasswordSchema } from "@/lib/validations/user.schema";
 import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
@@ -106,7 +106,7 @@ export async function requestPasswordResetAction(
 
 const ConfirmResetSchema = z.object({
   token: z.string().min(1),
-  password: z.string().min(8, "auth.errors.passwordTooShort").max(72),
+  password: StrongPasswordSchema,
 });
 
 export async function confirmPasswordResetAction(

@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { TrustSignals } from "@/components/features/auth/TrustSignals";
 import { registerAction } from "@/server/actions/auth.actions";
+import { PasswordStrengthChecklist } from "@/components/features/auth/PasswordStrengthChecklist";
 import { z } from "zod";
 import { UserSignUpSchema } from "@/lib/validations/user.schema";
 
@@ -123,6 +124,7 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
   "Invalid email address": "errors.emailInvalid",
   "Password must be at least 8 characters": "errors.passwordTooShort",
   "Password must be at most 72 characters": "errors.passwordTooShort",
+  "auth.errors.passwordWeak": "errors.passwordWeak",
   "Confirm password is required": "errors.passwordRequired",
   "Passwords do not match": "errors.passwordsDoNotMatch",
   "Name is required": "errors.nameRequired",
@@ -242,6 +244,7 @@ export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
     return fieldError.message;
   }
 
+  const watchedPassword = form.watch("password");
   const emailError = getFieldError(form.formState.errors.email);
   const passwordError = getFieldError(form.formState.errors.password);
   const confirmPasswordError = getFieldError(form.formState.errors.confirmPassword);
@@ -380,6 +383,7 @@ export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
                     {passwordError}
                   </p>
                 )}
+                <PasswordStrengthChecklist password={watchedPassword} />
               </FormItem>
             )}
           />

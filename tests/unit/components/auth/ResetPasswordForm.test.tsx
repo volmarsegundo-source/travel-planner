@@ -165,7 +165,7 @@ describe("ResetPasswordForm", () => {
       expect(mockConfirmPasswordResetAction).not.toHaveBeenCalled();
     });
 
-    it("shows password too short error when password is less than 8 chars", async () => {
+    it("shows passwordWeak error when password does not meet strength requirements", async () => {
       const user = userEvent.setup();
       render(<ResetPasswordForm token={VALID_TOKEN} />);
 
@@ -188,7 +188,7 @@ describe("ResetPasswordForm", () => {
       });
 
       expect(screen.getByRole("alert")).toHaveTextContent(
-        "auth.errors.passwordTooShort"
+        "auth.errors.passwordWeak"
       );
       expect(mockConfirmPasswordResetAction).not.toHaveBeenCalled();
     });

@@ -10,6 +10,7 @@ import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasInput } from "@/components/ui/AtlasInput";
 import { BrandPanel, ExploreIcon } from "@/components/features/auth/LoginFormV2";
 import { registerAction } from "@/server/actions/auth.actions";
+import { PasswordStrengthChecklist } from "@/components/features/auth/PasswordStrengthChecklist";
 import { z } from "zod";
 import { UserSignUpSchema } from "@/lib/validations/user.schema";
 import type { OAuthProviderKey } from "@/lib/auth-providers";
@@ -155,6 +156,7 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
   "Invalid email address": "errors.emailInvalid",
   "Password must be at least 8 characters": "errors.passwordTooShort",
   "Password must be at most 72 characters": "errors.passwordTooShort",
+  "auth.errors.passwordWeak": "errors.passwordWeak",
   "Confirm password is required": "errors.passwordRequired",
   "Passwords do not match": "errors.passwordsDoNotMatch",
   "Name is required": "errors.nameRequired",
@@ -261,6 +263,7 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
     }
   }
 
+  const watchedPassword = form.watch("password");
   const emailError = getFieldError(form.formState.errors.email);
   const passwordError = getFieldError(form.formState.errors.password);
   const confirmPasswordError = getFieldError(form.formState.errors.confirmPassword);
@@ -363,6 +366,7 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
                   {passwordError}
                 </p>
               )}
+              <PasswordStrengthChecklist password={watchedPassword} />
             </div>
 
             {/* Confirm Password */}

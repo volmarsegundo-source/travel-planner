@@ -6,6 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasInput } from "@/components/ui/AtlasInput";
 import { confirmPasswordResetAction } from "@/server/actions/auth.actions";
+import { PasswordStrengthChecklist } from "@/components/features/auth/PasswordStrengthChecklist";
 import { BrandPanel } from "./LoginFormV2";
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -187,14 +188,15 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
     e.preventDefault();
     setErrorKey(null);
 
-    // Client-side validation
-    if (password.length < MIN_PASSWORD_LENGTH) {
-      setErrorKey("passwordTooShort");
-      return;
-    }
-
-    if (password.length > MAX_PASSWORD_LENGTH) {
-      setErrorKey("generic");
+    // Client-side validation — strong password requirements (B1/B4)
+    if (
+      password.length < MIN_PASSWORD_LENGTH ||
+      password.length > MAX_PASSWORD_LENGTH ||
+      !/[A-Z]/.test(password) ||
+      !/[0-9]/.test(password) ||
+      !/[^A-Za-z0-9]/.test(password)
+    ) {
+      setErrorKey("passwordWeak");
       return;
     }
 
@@ -211,8 +213,11 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
       if (!result.success) {
         if (result.error === "auth.errors.tokenExpired") {
           setErrorKey("tokenExpired");
-        } else if (result.error === "auth.errors.passwordTooShort") {
-          setErrorKey("passwordTooShort");
+        } else if (
+          result.error === "auth.errors.passwordTooShort" ||
+          result.error === "auth.errors.passwordWeak"
+        ) {
+          setErrorKey("passwordWeak");
         } else {
           setErrorKey("generic");
         }
@@ -279,18 +284,21 @@ export function ResetPasswordForm({ token }: ResetPasswordFormProps) {
             className="mt-8 space-y-6"
             noValidate
           >
-            <AtlasInput
-              type="password"
-              label={t("passwordLabel")}
-              placeholder={t("passwordPlaceholder")}
-              leftIcon={<LockIcon />}
-              id="reset-password-new"
-              autoComplete="new-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              disabled={isSubmitting}
-            />
+            <div>
+              <AtlasInput
+                type="password"
+                label={t("passwordLabel")}
+                placeholder={t("passwordPlaceholder")}
+                leftIcon={<LockIcon />}
+                id="reset-password-new"
+                autoComplete="new-password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+              />
+              <PasswordStrengthChecklist password={password} />
+            </div>
 
             <AtlasInput
               type="password"
