@@ -379,6 +379,9 @@ model UserProfile {
   onboardingStep      Int       @default(0)
   onboardingData      Json?
   onboardingCompletedAt DateTime?
+  aiConsentGiven      Boolean?
+  aiConsentAt         DateTime?
+  aiConsentVersion    String?   @db.VarChar(10)
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
