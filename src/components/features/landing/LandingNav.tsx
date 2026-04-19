@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui";
-import { Compass, Menu, X } from "lucide-react";
+import { Compass } from "lucide-react";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
 
 interface LandingNavProps {
@@ -13,9 +12,12 @@ interface LandingNavProps {
 
 const NAV_HEIGHT_PX = 64;
 
+// SPEC-LANDING-HEADER-001: anonymous landing nav contains only logo +
+// language switch + Login + Register. The previous "Explorar / Minhas
+// Viagens / Planejador" dead-link menus were removed so PT and EN render
+// the same, useful set of controls.
 export function LandingNav({ isAuthenticated = false }: LandingNavProps) {
   const t = useTranslations("landingV2.nav");
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header
@@ -26,40 +28,14 @@ export function LandingNav({ isAuthenticated = false }: LandingNavProps) {
         className="flex items-center justify-between px-6 h-16 max-w-screen-2xl mx-auto"
         aria-label="Main navigation"
       >
-        {/* Logo */}
-        <div className="flex items-center gap-8">
-          <Link
-            href="/"
-            className="flex items-center gap-2 text-2xl font-bold tracking-tight text-atlas-primary font-atlas-headline"
-          >
-            <Compass className="size-6" aria-hidden="true" />
-            {t("logo")}
-          </Link>
+        <Link
+          href="/"
+          className="flex items-center gap-2 text-2xl font-bold tracking-tight text-atlas-primary font-atlas-headline"
+        >
+          <Compass className="size-6" aria-hidden="true" />
+          {t("logo")}
+        </Link>
 
-          {/* Desktop nav links */}
-          <div className="hidden lg:flex items-center gap-6">
-            <a
-              href="#"
-              className="text-atlas-primary font-semibold border-b-2 border-atlas-secondary-container pb-1"
-            >
-              {t("explore")}
-            </a>
-            <a
-              href="#"
-              className="text-atlas-on-surface-variant hover:text-atlas-on-surface transition-colors duration-150"
-            >
-              {t("myTrips")}
-            </a>
-            <a
-              href="#"
-              className="text-atlas-on-surface-variant hover:text-atlas-on-surface transition-colors duration-150"
-            >
-              {t("planner")}
-            </a>
-          </div>
-        </div>
-
-        {/* Right side — Language + CTA buttons */}
         <div className="flex items-center gap-4">
           <LanguageSwitcher />
           {!isAuthenticated ? (
@@ -84,49 +60,8 @@ export function LandingNav({ isAuthenticated = false }: LandingNavProps) {
           ) : (
             <div className="h-8 w-8 rounded-full bg-atlas-surface-container border border-atlas-outline-variant/20" />
           )}
-
-          {/* Mobile hamburger */}
-          <button
-            type="button"
-            className="lg:hidden p-2 text-atlas-on-surface-variant hover:bg-atlas-surface-container-low rounded-full transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-expanded={mobileMenuOpen}
-            aria-label={mobileMenuOpen ? t("closeMenu") : t("openMenu")}
-          >
-            {mobileMenuOpen ? (
-              <X className="size-5" aria-hidden="true" />
-            ) : (
-              <Menu className="size-5" aria-hidden="true" />
-            )}
-          </button>
         </div>
       </nav>
-
-      {/* Mobile menu dropdown */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-xl shadow-md border-t border-atlas-outline-variant/10 z-40">
-          <div className="flex flex-col gap-2 px-6 py-4">
-            <a
-              href="#"
-              className="py-2 text-atlas-primary font-semibold"
-            >
-              {t("explore")}
-            </a>
-            <a
-              href="#"
-              className="py-2 text-atlas-on-surface-variant hover:text-atlas-on-surface transition-colors"
-            >
-              {t("myTrips")}
-            </a>
-            <a
-              href="#"
-              className="py-2 text-atlas-on-surface-variant hover:text-atlas-on-surface transition-colors"
-            >
-              {t("planner")}
-            </a>
-          </div>
-        </div>
-      )}
     </header>
   );
 }

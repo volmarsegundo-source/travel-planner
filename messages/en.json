@@ -2407,9 +2407,6 @@
   "landingV2": {
     "nav": {
       "logo": "Atlas",
-      "explore": "Explore",
-      "myTrips": "My Trips",
-      "planner": "Planner",
       "login": "Sign In",
       "getStarted": "Create Account",
       "openMenu": "Open navigation menu",
