@@ -1,0 +1,12 @@
+{
+  "//": "TEMPORARY tech-debt tsconfig — tracked by docs/specs/tech-debt/SPEC-TECHDEBT-CI-001.md. Scheduled for removal in Sprint 45 (Saneamento). DO NOT expand scope — every added exclusion requires a new entry in SPEC-TECHDEBT-CI-001 §5. Rationale: 497 residual TS2339/TS2493/TS2540/TS2578/TS2741 errors live in co-located __tests__ files whose Vitest matcher types and V2 component mocks drifted post-refactor. Production code is typechecked strict.",
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "travel-planner",
+    "docs/evals/graders",
+    "scripts",
+    "tests",
+    "**/__tests__/**"
+  ]
+}

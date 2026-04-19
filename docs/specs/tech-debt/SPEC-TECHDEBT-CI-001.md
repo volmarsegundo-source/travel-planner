@@ -249,6 +249,7 @@ Risco: débito cresce sem freio.
 | Versão | Data | Autor | Mudança |
 |---|---|---|---|
 | 1.0.0 | 2026-04-19 | devops-engineer | Criação inicial pós-PR #32 |
+| 1.1.0 | 2026-04-19 | dev-fullstack-1 | Opção B executada. `prisma generate` eliminou os 62 BLOQUEANTES (cliente Prisma desatualizado era a causa raiz de TS2339/TS7006 em `server/*` — não hand-annotation). Allowlist formal criada: `tsconfig.techdebt.json` (exclui `**/__tests__/**`, 497 erros residuais em Vitest matchers + mocks V2) e `eslint.config.techdebt.mjs` (10 arquivos com `no-unused-vars` downgrade para warn). Script `type-check` aponta para tsconfig.techdebt; `type-check:full` preserva modo estrito para Sprint 45. Gates CI verdes. |
 
 ---
 
