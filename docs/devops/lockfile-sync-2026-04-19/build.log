@@ -1,0 +1,94 @@
+[@sentry/nextjs] DEPRECATION WARNING: disableLogger is deprecated and will be removed in a future version. Use webpack.treeshake.removeDebugLogging instead.
+[@sentry/nextjs] DEPRECATION WARNING: automaticVercelMonitors is deprecated and will be removed in a future version. Use webpack.automaticVercelMonitors instead.
+   ▲ Next.js 15.5.14
+   - Environments: .env.local, .env
+   - Experiments (use with caution):
+     · cpus: 1
+     · clientTraceMetadata
+
+   Creating an optimized production build ...
+[@sentry/nextjs] DEPRECATION WARNING: It is recommended renaming your `sentry.client.config.ts` file, or moving its content to `instrumentation-client.ts`. When using Turbopack `sentry.client.config.ts` will no longer work. Read more about the `instrumentation-client.ts` file: https://nextjs.org/docs/app/api-reference/file-conventions/instrumentation-client
+ ✓ Compiled successfully in 2.2min
+   Skipping linting
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/13) ...
+   Generating static pages (3/13) 
+   Generating static pages (6/13) 
+   Generating static pages (9/13) 
+ ✓ Generating static pages (13/13)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                   Size  First Load JS
+┌ ○ /_not-found                              398 B         178 kB
+├ ƒ /[locale]                              9.37 kB         250 kB
+├ ƒ /[locale]/[...rest]                      399 B         178 kB
+├ ƒ /[locale]/account                        11 kB         219 kB
+├ ƒ /[locale]/admin                          398 B         178 kB
+├ ƒ /[locale]/admin/ai-governance           4.4 kB         215 kB
+├ ƒ /[locale]/admin/analytics              1.43 kB         187 kB
+├ ƒ /[locale]/admin/dashboard              4.46 kB         198 kB
+├ ƒ /[locale]/admin/errors                 1.43 kB         187 kB
+├ ƒ /[locale]/admin/evals                  1.84 kB         181 kB
+├ ƒ /[locale]/admin/feedback               4.56 kB         206 kB
+├ ƒ /[locale]/admin/prompts                2.89 kB         196 kB
+├ ƒ /[locale]/atlas                        8.76 kB         214 kB
+├ ƒ /[locale]/auth/age-rejected            1.84 kB         181 kB
+├ ƒ /[locale]/auth/complete-profile        8.69 kB         214 kB
+├ ƒ /[locale]/auth/error                   1.84 kB         181 kB
+├ ƒ /[locale]/auth/forgot-password         1.94 kB         220 kB
+├ ƒ /[locale]/auth/login                     366 B         218 kB
+├ ƒ /[locale]/auth/register                13.8 kB         245 kB
+├ ƒ /[locale]/auth/reset-password          2.59 kB         220 kB
+├ ƒ /[locale]/auth/verify-email            1.84 kB         181 kB
+├ ƒ /[locale]/como-funciona                  398 B         178 kB
+├ ƒ /[locale]/dashboard                    1.84 kB         181 kB
+├ ƒ /[locale]/expedition/[tripId]          1.84 kB         181 kB
+├ ƒ /[locale]/expedition/[tripId]/phase-1    341 B         262 kB
+├ ƒ /[locale]/expedition/[tripId]/phase-2  8.45 kB         259 kB
+├ ƒ /[locale]/expedition/[tripId]/phase-3    413 B         282 kB
+├ ƒ /[locale]/expedition/[tripId]/phase-4    409 B         285 kB
+├ ƒ /[locale]/expedition/[tripId]/phase-5    412 B         287 kB
+├ ƒ /[locale]/expedition/[tripId]/phase-6    411 B         281 kB
+├ ƒ /[locale]/expedition/[tripId]/report   6.03 kB         214 kB
+├ ƒ /[locale]/expedition/[tripId]/summary  14.8 kB         229 kB
+├ ƒ /[locale]/expedition/new                 340 B         262 kB
+├ ƒ /[locale]/expeditions                  15.7 kB         240 kB
+├ ƒ /[locale]/loja                          4.8 kB         205 kB
+├ ƒ /[locale]/loja/checkout-mock           5.92 kB         201 kB
+├ ƒ /[locale]/meu-atlas/comprar-pa         3.51 kB         204 kB
+├ ƒ /[locale]/onboarding                   6.69 kB         217 kB
+├ ƒ /[locale]/privacidade                    398 B         178 kB
+├ ƒ /[locale]/privacy                        399 B         178 kB
+├ ƒ /[locale]/profile                       9.4 kB         215 kB
+├ ƒ /[locale]/support                      1.86 kB         223 kB
+├ ƒ /[locale]/termos                         398 B         178 kB
+├ ƒ /[locale]/terms                          398 B         178 kB
+├ ƒ /[locale]/trips                        1.84 kB         181 kB
+├ ƒ /[locale]/trips/[id]                     502 B         254 kB
+├ ƒ /[locale]/trips/[id]/checklist         6.01 kB         284 kB
+├ ƒ /[locale]/trips/[id]/generate          5.09 kB         288 kB
+├ ƒ /[locale]/trips/[id]/itinerary         1.74 kB         255 kB
+├ ƒ /api/admin/export-csv                    398 B         178 kB
+├ ƒ /api/ai/guide/stream                     398 B         178 kB
+├ ƒ /api/ai/plan/stream                      399 B         178 kB
+├ ƒ /api/ai/test-anthropic                   399 B         178 kB
+├ ƒ /api/auth/[...nextauth]                  399 B         178 kB
+├ ƒ /api/debug/flags                         399 B         178 kB
+├ ƒ /api/destinations/search                 399 B         178 kB
+├ ƒ /api/v1/health                           398 B         178 kB
+├ ƒ /api/webhooks/mercado-pago               397 B         178 kB
+├ ○ /robots.txt                              399 B         178 kB
+└ ○ /sitemap.xml                             398 B         178 kB
++ First Load JS shared by all               177 kB
+  ├ chunks/2704-afa0132bf1ba62c7.js         119 kB
+  ├ chunks/4bd1b696-ae072e3a463dd0c0.js    54.4 kB
+  └ other shared chunks (total)            4.19 kB
+
+
+ƒ Middleware                                163 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,26 @@
+{
+  "total_added": 3,
+  "total_removed": 0,
+  "total_changed": 0,
+  "changed_major": 0,
+  "changed_minor": 0,
+  "changed_patch": 0,
+  "changed_unknown": 0,
+  "added_samples": [
+    "node_modules/@prisma/config/node_modules/magicast",
+    "node_modules/mongoose/node_modules/gcp-metadata",
+    "node_modules/promptfoo/node_modules/@swc/helpers"
+  ],
+  "removed_samples": [],
+  "major_bumps": [],
+  "minor_bumps": [],
+  "patch_bumps_count": 0,
+  "direct_deps_changed": [],
+  "expected_missing_now_present": {
+    "magicast": true,
+    "gcp-metadata": true,
+    "@swc/helpers": true
+  },
+  "lockfileVersion_before": 3,
+  "lockfileVersion_after": 3
+}

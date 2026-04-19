@@ -1,0 +1,259 @@
+
+> travel-planner@0.59.0 lint
+> next lint
+
+`next lint` is deprecated and will be removed in Next.js 16.
+For new projects, use create-next-app to choose your preferred linter.
+For existing projects, migrate to the ESLint CLI:
+npx @next/codemod@canary next-lint-to-eslint-cli .
+
+[@sentry/nextjs] DEPRECATION WARNING: disableLogger is deprecated and will be removed in a future version. Use webpack.treeshake.removeDebugLogging instead.
+[@sentry/nextjs] DEPRECATION WARNING: automaticVercelMonitors is deprecated and will be removed in a future version. Use webpack.automaticVercelMonitors instead.
+
+./src/app/[locale]/(app)/admin/dashboard/AdminDashboardClient.tsx
+159:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-red-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+159:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-red-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+159:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+159:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-red-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+159:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-red-950'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+159:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-red-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+169:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-yellow-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+169:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-yellow-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+169:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-yellow-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+169:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-yellow-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+169:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-yellow-950'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+169:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-yellow-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+328:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-blue-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+332:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-green-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+336:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-orange-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+361:25  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-blue-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+365:25  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-green-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+368:28  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-orange-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/(app)/admin/evals/page.tsx
+148:21  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/(app)/admin/feedback/AdminFeedbackClient.tsx
+284:27  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+341:27  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/app/[locale]/(app)/expedition/[tripId]/page.tsx
+57:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-gray-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+60:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-gray-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/(app)/loja/checkout-mock/CheckoutMockClient.tsx
+41:25  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-red-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+41:25  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/(app)/loja/checkout-mock/page.tsx
+53:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-amber-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+53:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-amber-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+53:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+53:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-amber-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+53:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-amber-950/30'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+53:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/(app)/loja/LojaClient.tsx
+409:27  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+601:19  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-orange-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+680:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-zinc-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+688:27  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+704:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-red-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+704:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'hover:bg-red-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+704:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'focus-visible:ring-red-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/(app)/meu-atlas/comprar-pa/PurchasePageClient.tsx
+128:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-amber-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+128:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-amber-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+128:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-amber-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+128:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-amber-950/30'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+131:14  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+131:14  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+157:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-emerald-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+167:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-emerald-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/app/[locale]/auth/verify-email/page.tsx
+37:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-gray-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+49:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+50:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-gray-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+55:14  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-gray-400'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+59:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-blue-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+59:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'hover:bg-blue-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/admin/PromptViewer.tsx
+77:14  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+165:36  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+174:24  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/ai/AiServicePausedBanner.tsx
+21:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-red-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+21:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-red-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+21:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+21:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-red-900/40'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+21:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-red-950/30'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+21:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-red-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+24:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-red-800/90'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+24:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-red-200/80'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+34:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-amber-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+34:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-amber-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+34:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+34:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-amber-900/40'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+34:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-amber-950/30'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+34:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+37:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-800/90'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+37:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-200/80'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/atlas/AtlasMapSkeleton.tsx
+17:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-slate-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+20:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-slate-400'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/auth/ForgotPasswordForm.tsx
+36:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-green-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+125:24  Error: React Hook "useTranslations" is called conditionally. React Hooks must be called in the exact same order in every component render. Did you accidentally call a React Hook after an early return?  react-hooks/rules-of-hooks
+157:22  Error: React Hook "useTranslations" is called conditionally. React Hooks must be called in the exact same order in every component render.  react-hooks/rules-of-hooks
+
+./src/components/features/auth/PasswordStrengthChecklist.tsx
+12:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-green-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/auth/ResetPasswordForm.tsx
+37:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-green-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/dashboard/AtlasHeroMap.tsx
+87:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-slate-400'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+87:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'hover:text-slate-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/dashboard/DashboardPhaseProgressBar.tsx
+60:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-green-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/dashboard/DashboardV2.tsx
+410:9  Error: 'phaseSegments' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx
+31:10  Error: 'futureDate' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+36:10  Error: 'pastDate' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/features/expedition/AiDisclaimer.tsx
+27:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-blue-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+27:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-blue-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+27:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-blue-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+27:7  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-blue-950/30'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+32:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-blue-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+35:10  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-blue-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+35:10  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-blue-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/expedition/DestinationGuideV2.tsx
+9:10  Error: 'WizardFooter' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+816:6  Warning: React Hook useCallback has a missing dependency: 'router'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+861:9  Error: 'guideAdvanceLabel' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1025:20  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-emerald-500/10'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+1026:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-emerald-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+1140:19  Warning: The attribute aria-pressed is not supported by the role switch.  jsx-a11y/role-supports-aria-props
+1143:21  Warning: Elements with the ARIA role "switch" must have the following attributes defined: aria-checked  jsx-a11y/role-has-required-aria-props
+
+./src/components/features/expedition/DestinationGuideWizard.tsx
+303:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-amber-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+303:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-amber-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+303:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-amber-800/40'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+303:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-amber-950/30'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+308:14  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+308:14  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/expedition/ExpeditionSummary.tsx
+213:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-orange-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+213:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-orange-800/40'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+213:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-orange-950/20'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+216:18  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-orange-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+223:21  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-orange-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+235:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-amber-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+235:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-amber-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+235:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-amber-800/40'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+235:15  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-amber-950/20'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+238:18  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+238:18  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+245:21  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+245:21  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/expedition/ExpeditionSummaryV2.tsx
+634:10  Error: 'OverviewField' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+833:29  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+860:29  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/expedition/Phase3WizardV2.tsx
+243:9  Error: 'checklistAdvanceLabel' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/features/expedition/Phase4WizardV2.tsx
+9:10  Error: 'AtlasButton' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+352:9  Error: 'logisticsAdvanceLabel' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/features/expedition/Phase6ItineraryV2.tsx
+12:10  Error: 'WizardFooter' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+32:3  Error: 'regenerateItineraryAction' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+163:10  Error: 'MapIcon' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+220:10  Error: 'ArrowBackIcon' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+229:10  Error: 'ArrowForwardIcon' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1170:10  Error: 'FooterProgressBar' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1233:9  Error: 'tPhases' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1253:10  Error: 'keepManual' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1261:9  Error: 'hasTriggeredRef' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1565:9  Error: 'itineraryAdvanceLabel' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+1636:20  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-emerald-500/10'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+1637:23  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-emerald-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/expedition/TripReport.tsx
+204:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+204:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-400'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+232:21  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/feedback/FeedbackWidget.tsx
+240:7  Warning: Unused eslint-disable directive (no problems were reported from 'no-console').
+421:19  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/features/gamification/PAConfirmationModal.tsx
+48:26  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+48:26  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-400'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+59:20  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-amber-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+59:20  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-amber-400'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/features/landing/__tests__/DestinationsSectionV2.test.tsx
+39:9  Warning: Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+./src/components/features/premium/UpsellModal.tsx
+106:9  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-zinc-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+122:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-zinc-500'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+122:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'hover:bg-zinc-100'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+122:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:hover:bg-zinc-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+137:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-zinc-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+137:12  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-zinc-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+141:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-zinc-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+141:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-zinc-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'border-zinc-300'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'text-zinc-700'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'hover:bg-zinc-50'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:border-zinc-600'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:bg-zinc-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:text-zinc-200'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+171:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'dark:hover:bg-zinc-800'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/layout/AuthenticatedNavbarV2.tsx
+33:9  Error: 't' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+64:9  Error: 'initials' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/components/layout/Footer.tsx
+19:14  Warning: Use font-atlas-headline or font-atlas-body instead of 'font-mono'. See UX Parecer Section 1.2.  atlas-design/no-raw-tailwind-colors
+
+./src/components/layout/LanguageSwitcher.tsx
+165:13  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-gray-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/components/ui/Tooltip.tsx
+35:11  Warning: Use atlas-* design tokens instead of raw Tailwind color 'bg-gray-900'. See UX-PARECER-DESIGN-SYSTEM.md.  atlas-design/no-raw-tailwind-colors
+
+./src/server/services/ai.service.ts
+888:9  Error: 'lastError' is assigned a value but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/services/entitlement.service.ts
+32:6  Error: 'Tx' is defined but never used. Allowed unused vars must match /^_/u.  @typescript-eslint/no-unused-vars
+
+./src/server/services/geocoding/nominatim.provider.ts
+144:7  Warning: Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars').
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/app/api-reference/config/eslint#disabling-rules
