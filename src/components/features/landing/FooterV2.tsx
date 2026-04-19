@@ -57,28 +57,19 @@ export function FooterV2() {
           </h4>
           <ul className="space-y-4">
             <li>
-              <Link
-                href="/como-funciona"
-                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
-              >
-                {t("destinationGuides")}
-              </Link>
+              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
+                {t("destinationGuides")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">{t("comingSoon")}</span>
+              </span>
             </li>
             <li>
-              <Link
-                href="/como-funciona"
-                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
-              >
-                {t("travelInsurance")}
-              </Link>
+              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
+                {t("travelInsurance")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">{t("comingSoon")}</span>
+              </span>
             </li>
             <li>
-              <Link
-                href="/como-funciona"
-                className="text-atlas-on-primary-container hover:text-white transition-colors underline-offset-4 hover:underline font-atlas-body"
-              >
-                {t("blog")}
-              </Link>
+              <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
+                {t("blog")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">{t("comingSoon")}</span>
+              </span>
             </li>
           </ul>
         </div>
@@ -91,12 +82,12 @@ export function FooterV2() {
           <ul className="space-y-4">
             <li>
               <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
-                {t("about")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">Em breve</span>
+                {t("about")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">{t("comingSoon")}</span>
               </span>
             </li>
             <li>
               <span className="text-atlas-on-primary-container/60 font-atlas-body cursor-default">
-                {t("contact")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">Em breve</span>
+                {t("contact")} <span className="text-[10px] uppercase tracking-wider text-atlas-on-primary-container/40 ml-1">{t("comingSoon")}</span>
               </span>
             </li>
             <li>

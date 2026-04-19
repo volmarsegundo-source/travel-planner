@@ -2525,7 +2525,6 @@
     },
     "destinations": {
       "title": "Featured Destinations",
-      "viewAll": "View All Destinations",
       "rio": {
         "name": "Rio de Janeiro",
         "category": "Culture & Beach",
@@ -2563,7 +2562,8 @@
       "send": "Send",
       "copyright": "Atlas Travel Planner",
       "lgpd": "LGPD compliant. Your data is protected.",
-      "newsletterSuccess": "Subscription registered! You will receive news soon."
+      "newsletterSuccess": "Subscription registered! You will receive news soon.",
+      "comingSoon": "Coming soon"
     },
     "meta": {
       "title": "Atlas — AI Travel Planner",

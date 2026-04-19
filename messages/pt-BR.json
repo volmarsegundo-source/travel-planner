@@ -2525,7 +2525,6 @@
     },
     "destinations": {
       "title": "Destinos em Destaque",
-      "viewAll": "Ver Todos os Destinos",
       "rio": {
         "name": "Rio de Janeiro",
         "category": "Cultura & Praia",
@@ -2563,7 +2562,8 @@
       "send": "Enviar",
       "copyright": "Atlas Travel Planner",
       "lgpd": "Em conformidade com a LGPD. Seus dados estão protegidos.",
-      "newsletterSuccess": "Inscricao registrada! Em breve você recebera novidades."
+      "newsletterSuccess": "Inscricao registrada! Em breve você recebera novidades.",
+      "comingSoon": "Em breve"
     },
     "meta": {
       "title": "Atlas — Planejador de Viagens com IA",
