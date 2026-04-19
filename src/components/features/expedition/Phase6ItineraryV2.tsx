@@ -14,6 +14,7 @@ import { PhaseFooter } from "./PhaseFooter";
 import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import { AiConsentModal } from "@/components/features/consent/AiConsentModal";
+import { toast } from "@/lib/toast";
 import {
   getProgressPhase,
   getProgressMessageKey,
@@ -1231,6 +1232,7 @@ export function Phase6ItineraryV2({
   const tExpedition = useTranslations("expedition");
   const tPhases = useTranslations("gamification.phases");
   const tAge = useTranslations("ageRestriction");
+  const tConsent = useTranslations("consent.modal");
   const router = useRouter();
 
   // ─── State ───────────────────────────────────────────────────────────────
@@ -1963,6 +1965,7 @@ export function Phase6ItineraryV2({
         }}
         onDeclined={() => {
           setShowConsentModal(false);
+          toast.info(tConsent("declinedToast"));
           router.push("/expeditions");
         }}
       />

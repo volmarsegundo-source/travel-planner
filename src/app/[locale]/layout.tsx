@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { ThemeProvider } from "next-themes";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Toaster } from "sonner";
 import { routing } from "@/i18n/routing";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { cormorantGaramond, dmSans, spaceMono, plusJakartaSans, workSans } from "@/lib/fonts";
@@ -44,6 +45,12 @@ export default async function LocaleLayout({
           <NextIntlClientProvider messages={messages}>
             <QueryProvider>{children}</QueryProvider>
           </NextIntlClientProvider>
+          <Toaster
+            position="bottom-right"
+            richColors
+            closeButton
+            duration={5000}
+          />
         </ThemeProvider>
         <Analytics />
         <SpeedInsights />

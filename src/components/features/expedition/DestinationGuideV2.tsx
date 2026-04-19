@@ -11,6 +11,7 @@ import { PhaseFooter } from "./PhaseFooter";
 import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
 import { AiConsentModal } from "@/components/features/consent/AiConsentModal";
+import { toast } from "@/lib/toast";
 import {
   completePhase3Action,
   completePhase5Action,
@@ -570,6 +571,7 @@ export function DestinationGuideV2({
   const tExpedition = useTranslations("expedition");
   const tErrors = useTranslations("errors");
   const tAge = useTranslations("ageRestriction");
+  const tConsent = useTranslations("consent.modal");
   const router = useRouter();
 
   const [guide, setGuide] = useState<DestinationGuideContent | null>(initialGuide?.content ?? null);
@@ -974,6 +976,7 @@ export function DestinationGuideV2({
         }}
         onDeclined={() => {
           setShowConsentModal(false);
+          toast.info(tConsent("declinedToast"));
           router.push("/expeditions");
         }}
       />
