@@ -162,11 +162,11 @@ export function LanguageSwitcher() {
           <div
             id={tooltipId}
             role="tooltip"
-            className="absolute z-50 bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 text-xs font-atlas-body text-white bg-gray-900 rounded-lg shadow-lg max-w-[250px] text-center whitespace-normal pointer-events-none motion-reduce:transition-none"
+            className="absolute z-50 top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-2 text-xs font-atlas-body text-white bg-gray-900 rounded-lg shadow-lg max-w-[250px] text-center whitespace-normal pointer-events-none motion-reduce:transition-none"
           >
             {t("tooltip")}
             <div
-              className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 border-4 border-transparent border-b-gray-900"
               aria-hidden="true"
             />
           </div>
