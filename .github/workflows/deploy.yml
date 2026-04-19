@@ -61,7 +61,8 @@ jobs:
           DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
 
       - name: Deploy to production
-        run: echo "Vercel deploys production automatically via Git integration (branch: production)"
+        run: |
+          echo "Vercel deploys production automatically via Git integration (branch: production)"
 
       - name: Verify deployment health
         if: vars.PRODUCTION_URL != ''
