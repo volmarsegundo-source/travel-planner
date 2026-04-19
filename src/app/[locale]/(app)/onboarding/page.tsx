@@ -8,14 +8,15 @@ export default async function OnboardingPage() {
   const locale = await getLocale();
   const session = await auth();
 
-  if (!session?.user) {
+  if (!session?.user?.id) {
     redirect({ href: "/auth/login", locale });
+    return null;
   }
 
   const t = await getTranslations("common");
 
   // Load onboarding progress from DB
-  const progress = await OnboardingService.getProgress(session.user.id!);
+  const progress = await OnboardingService.getProgress(session.user.id);
 
   // If onboarding is already completed, redirect to expeditions
   if (progress.onboardingCompletedAt) {

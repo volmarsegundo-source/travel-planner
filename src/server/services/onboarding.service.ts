@@ -1,4 +1,5 @@
 import "server-only";
+import { Prisma } from "@prisma/client";
 import { db } from "@/server/db";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
@@ -88,17 +89,19 @@ export class OnboardingService {
     const isFinalStep = stepNumber === TOTAL_ONBOARDING_STEPS;
     const nextStep = isFinalStep ? stepNumber : stepNumber;
 
+    const mergedDataJson = mergedData as unknown as Prisma.InputJsonValue;
+
     const updated = await db.userProfile.upsert({
       where: { userId },
       create: {
         userId,
         onboardingStep: nextStep,
-        onboardingData: mergedData,
+        onboardingData: mergedDataJson,
         onboardingCompletedAt: isFinalStep ? new Date() : null,
       },
       update: {
         onboardingStep: nextStep,
-        onboardingData: mergedData,
+        onboardingData: mergedDataJson,
         ...(isFinalStep ? { onboardingCompletedAt: new Date() } : {}),
       },
       select: {
