@@ -1,0 +1,674 @@
+
+> travel-planner@0.59.0 type-check
+> tsc --noEmit
+
+prisma/promote-premium.ts(50,38): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+prisma/seed-admin.ts(30,32): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/app/[locale]/(app)/admin/ai-governance/page.tsx(32,52): error TS7006: Parameter 'pt' implicitly has an 'any' type.
+src/app/[locale]/(app)/expedition/[tripId]/phase-4/page.tsx(117,41): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/app/[locale]/(app)/expedition/[tripId]/phase-4/page.tsx(128,50): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/[locale]/(app)/expedition/[tripId]/phase-6/page.tsx(125,41): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/app/[locale]/(app)/expedition/[tripId]/phase-6/page.tsx(137,50): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/app/[locale]/(app)/expeditions/page.tsx(79,11): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(39,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(46,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(54,24): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(59,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(62,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(71,28): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(76,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/app/[locale]/support/__tests__/SupportPage.test.tsx(86,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(46,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(55,18): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(69,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(70,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(103,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(118,66): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(119,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(131,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(142,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(150,65): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(166,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(175,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(184,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(197,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(206,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(209,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(255,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(265,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(272,21): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(282,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(288,71): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(289,71): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(290,72): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/admin/__tests__/PromptViewer.test.tsx(296,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/CompleteProfileForm.test.tsx(28,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/CompleteProfileForm.test.tsx(31,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/CompleteProfileForm.test.tsx(40,23): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/CompleteProfileForm.test.tsx(45,27): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/CompleteProfileForm.test.tsx(120,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/CompleteProfileForm.test.tsx(137,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(62,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(63,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(68,23): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(78,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(79,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(89,24): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element | null>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(92,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(93,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(112,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(114,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(121,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(123,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(171,21): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(191,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(201,24): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(202,37): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLAnchorElement | null>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(208,24): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(209,37): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLAnchorElement | null>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(217,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(218,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(227,22): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(230,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(273,25): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<Element | null>'.
+src/components/features/auth/__tests__/LoginFormV2.test.tsx(274,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<Element | null>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(61,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(62,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(63,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(64,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(65,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(72,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(73,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(74,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(107,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(119,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(128,31): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLAnchorElement | null>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(149,21): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(160,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/consent/__tests__/AiConsentModal.test.tsx(167,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(137,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(144,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(150,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(157,56): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(164,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(169,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(170,53): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(185,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(190,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(191,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(198,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(199,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(204,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(216,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(223,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(240,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(245,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(251,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(263,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(268,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(273,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(280,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(289,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(294,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(299,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(300,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(322,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(329,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(336,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(337,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(338,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(344,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLAnchorElement | null>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(350,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLAnchorElement | null>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(357,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/dashboard/__tests__/DashboardV2.test.tsx(379,56): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(60,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(66,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(72,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(78,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(84,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(105,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(114,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(121,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(128,18): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(149,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/dashboard/__tests__/TripCountdownInline.test.tsx(150,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(180,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(192,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(202,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(203,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(204,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(205,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(215,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(225,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(226,39): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(227,39): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(228,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(229,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(230,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(231,37): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(241,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(242,38): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(252,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(253,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(254,70): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(264,38): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(274,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(275,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(285,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(286,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(287,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(288,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(289,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(299,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(300,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(310,81): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(320,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(321,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(322,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(323,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(324,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(336,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(348,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(349,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(359,55): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(372,24): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(374,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(386,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(400,70): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(414,70): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(422,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(435,19): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(446,25): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(457,22): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(468,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(517,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(518,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(523,63): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(533,77): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(534,76): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(535,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(536,80): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(537,84): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(538,77): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(539,78): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(540,73): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(541,78): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(553,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(556,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(559,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(570,17): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(585,21): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(600,21): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(610,39): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(620,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(631,17): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(643,17): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(701,19): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(716,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(717,27): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(731,22): error TS2339: Property 'toHaveValue' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(743,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(784,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(785,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(786,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/DestinationGuideV2.test.tsx(812,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(170,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLHeadingElement | null>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(180,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(186,19): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(201,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(206,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(211,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(216,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(226,78): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(236,17): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(238,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(244,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(250,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(252,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(259,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(261,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(268,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(274,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(279,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(286,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(292,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(294,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(295,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(301,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(302,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(309,23): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(322,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(323,65): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(324,65): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(332,21): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(334,25): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(340,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(348,21): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(349,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(350,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(367,18): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(373,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(379,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(380,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(386,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(387,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(394,25): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(395,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(396,69): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(406,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(416,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(417,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(431,21): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(458,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(459,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(466,23): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(467,22): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(479,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(500,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/ExpeditionSummaryV2.test.tsx(505,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(88,13): error TS2741: Property 'endDate' is missing in type '{ tripId: string; tripType: string; origin: string; destination: string; startDate: string; }' but required in type 'Phase4WizardV2Props'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(89,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(93,13): error TS2741: Property 'endDate' is missing in type '{ tripId: string; tripType: string; origin: string; destination: string; startDate: string; }' but required in type 'Phase4WizardV2Props'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(94,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(98,13): error TS2741: Property 'endDate' is missing in type '{ tripId: string; tripType: string; origin: string; destination: string; startDate: string; }' but required in type 'Phase4WizardV2Props'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(101,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(105,13): error TS2741: Property 'endDate' is missing in type '{ tripId: string; tripType: string; origin: string; destination: string; startDate: string; }' but required in type 'Phase4WizardV2Props'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(109,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(113,13): error TS2741: Property 'endDate' is missing in type '{ tripId: string; tripType: string; origin: string; destination: string; startDate: string; }' but required in type 'Phase4WizardV2Props'.
+src/components/features/expedition/__tests__/Phase4WizardV2.test.tsx(116,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(255,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(260,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(261,70): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(262,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(267,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(269,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(282,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(296,55): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(308,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(318,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(329,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(344,21): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(345,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(346,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(357,21): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(368,23): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(385,21): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(386,48): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(402,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(406,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(421,24): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(448,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(450,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(463,24): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(464,24): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(492,22): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(493,22): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(507,22): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(508,22): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(523,23): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(534,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(546,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(570,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(586,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(602,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(618,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(632,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(716,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(747,19): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(765,23): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(788,25): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(808,25): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(809,25): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(824,23): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(825,66): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(832,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(855,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(867,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(870,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(873,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(883,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(894,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(905,19): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(918,23): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(932,23): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(942,51): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/Phase6ItineraryV2.test.tsx(966,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(42,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(61,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(86,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(107,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(124,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(131,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(150,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(153,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(174,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(192,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(209,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(227,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/expedition/__tests__/WizardFooterDirtyState.test.tsx(231,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(15,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(22,11): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(23,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(32,11): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(37,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(38,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(39,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(40,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/AiSectionV2.test.tsx(41,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/DestinationsSectionV2.test.tsx(45,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/DestinationsSectionV2.test.tsx(46,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/DestinationsSectionV2.test.tsx(72,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/DestinationsSectionV2.test.tsx(73,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/DestinationsSectionV2.test.tsx(74,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/FooterV2.test.tsx(53,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/FooterV2.test.tsx(54,50): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/FooterV2.test.tsx(55,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/LandingNav.test.tsx(47,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/LandingNav.test.tsx(48,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/LandingNav.test.tsx(49,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/landing/__tests__/LandingNav.test.tsx(55,39): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/LandingNav.test.tsx(56,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/landing/__tests__/LandingNav.test.tsx(59,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(17,20): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(18,20): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(25,20): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(26,20): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(32,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(33,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(40,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(47,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/features/profile/__tests__/AgeRestrictionBanner.test.tsx(54,18): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(91,36): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(92,36): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(104,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(123,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(142,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(145,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(148,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(165,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(173,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(195,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(212,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(218,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(235,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(239,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(259,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(271,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(274,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/layout/__tests__/LanguageSwitcher.test.tsx(285,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(9,40): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(10,40): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(17,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(25,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(30,41): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(37,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(38,19): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(40,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<SVGSVGElement | null>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(46,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(52,36): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(57,37): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(63,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(65,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<SVGSVGElement | null>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(72,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(81,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(82,19): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(87,40): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasBadge.test.tsx(93,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(9,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(24,17): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(25,17): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(31,40): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(38,17): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(39,17): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(46,17): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(47,17): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(48,17): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(50,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(52,38): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<SVGSVGElement | null>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(76,17): error TS2339: Property 'toHaveFocus' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(89,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(90,46): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasButton.test.tsx(102,40): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(9,51): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(18,20): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element | null>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(19,20): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<Element | null>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(28,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(29,38): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(37,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(43,76): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element | null>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(44,76): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element | null>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(50,57): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(53,22): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<Element | null>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(59,49): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasCard.test.tsx(73,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<Element | null>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(9,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(10,39): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(31,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<SVGSVGElement | null>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(32,42): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(38,42): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(46,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(72,18): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(106,18): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(108,22): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasChip.test.tsx(114,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(9,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(20,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(22,23): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(31,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(32,19): error TS2339: Property 'toBeRequired' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(39,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(40,39): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(45,21): error TS2339: Property 'toHaveTextContent' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(51,48): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(56,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(57,42): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(63,43): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(72,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(75,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(76,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(79,19): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(95,19): error TS2339: Property 'toHaveFocus' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(101,47): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasInput.test.tsx(107,43): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(30,18): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(39,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(40,25): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(80,66): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(81,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(82,66): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(83,69): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(89,38): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(116,45): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(122,38): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(136,7): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(158,69): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasPhaseProgress.test.tsx(159,67): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(17,40): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(18,36): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(30,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(31,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(32,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(33,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(34,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(58,62): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(64,62): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(104,24): error TS2339: Property 'toHaveAttribute' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(105,62): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(106,62): error TS2339: Property 'toBeDisabled' does not exist on type 'Assertion<HTMLElement>'.
+src/components/ui/__tests__/AtlasStepperInput.test.tsx(123,36): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/lib/engines/points-engine.ts(17,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+src/lib/engines/points-engine.ts(93,27): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/lib/engines/points-engine.ts(143,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(51,50): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(94,21): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(113,7): error TS2322: Type '{} | null' is not assignable to type 'Date | null'.
+  Type '{}' is missing the following properties from type 'Date': toDateString, toTimeString, toLocaleDateString, toLocaleTimeString, and 37 more.
+src/lib/gamification/badge-engine.ts(208,10): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(210,35): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(233,10): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(256,79): error TS2339: Property 'DbNull' does not exist on type 'typeof Prisma'.
+src/lib/gamification/badge-engine.ts(259,37): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(269,79): error TS2339: Property 'DbNull' does not exist on type 'typeof Prisma'.
+src/lib/gamification/badge-engine.ts(272,35): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/lib/gamification/badge-engine.ts(300,23): error TS7006: Parameter 'g' implicitly has an 'any' type.
+src/lib/guards/phase-access.guard.ts(89,39): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/actions/account.actions.ts(141,34): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/account.actions.ts(174,40): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/server/actions/admin.actions.ts(72,39): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/actions/admin.actions.ts(86,46): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/server/actions/admin.actions.ts(88,54): error TS7006: Parameter 'log' implicitly has an 'any' type.
+src/server/actions/admin.actions.ts(108,34): error TS2339: Property 'systemPrompt' does not exist on type '{}'.
+src/server/actions/admin.actions.ts(109,32): error TS2339: Property 'userTemplate' does not exist on type '{}'.
+src/server/actions/admin.actions.ts(110,29): error TS2339: Property 'version' does not exist on type '{}'.
+src/server/actions/ai.actions.ts(43,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/expedition.actions.ts(79,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/expedition.actions.ts(520,98): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/actions/expedition.actions.ts(938,43): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/actions/expedition.actions.ts(984,52): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/server/actions/expedition.actions.ts(1156,43): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/actions/expedition.actions.ts(1201,52): error TS7006: Parameter 's' implicitly has an 'any' type.
+src/server/actions/itinerary.actions.ts(378,38): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/server/actions/profile.actions.ts(258,71): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/actions/profile.actions.ts(259,63): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/actions/purchase.actions.ts(70,49): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/subscription.actions.ts(104,49): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/subscription.actions.ts(171,46): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/subscription.actions.ts(251,34): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/actions/subscription.actions.ts(299,34): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/accommodation.service.ts(34,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/accommodation.service.ts(75,32): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(156,8): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(156,13): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(297,25): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(315,25): error TS7006: Parameter 'r' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(383,51): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(385,10): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(385,15): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(389,10): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(389,15): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(625,48): error TS7006: Parameter 'u' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(632,42): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/admin-dashboard.service.ts(632,47): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(100,8): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(100,13): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(103,33): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(104,36): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(105,34): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(109,26): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(109,31): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(154,43): error TS7006: Parameter 'ks' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(178,8): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(178,13): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(181,33): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(182,36): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(186,26): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(186,31): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(357,27): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(357,32): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(378,8): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/ai-governance-dashboard.service.ts(378,13): error TS7006: Parameter 'l' implicitly has an 'any' type.
+src/server/services/ai-governance/policies/cost-budget.policy.ts(48,9): error TS7053: Element implicitly has an 'any' type because expression of type 'any' can't be used to index type 'Record<ProviderName, number>'.
+src/server/services/email/__tests__/factory.test.ts(19,17): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+src/server/services/email/__tests__/factory.test.ts(30,17): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+src/server/services/email/__tests__/factory.test.ts(41,17): error TS2540: Cannot assign to 'NODE_ENV' because it is a read-only property.
+src/server/services/email/__tests__/password-reset-template.test.ts(26,7): error TS2578: Unused '@ts-expect-error' directive.
+src/server/services/email/__tests__/resend-sender.test.ts(43,12): error TS2493: Tuple type '[]' of length '0' has no element at index '0'.
+src/server/services/email/__tests__/resend-sender.test.ts(43,17): error TS2493: Tuple type '[]' of length '0' has no element at index '1'.
+src/server/services/email/__tests__/resend-sender.test.ts(45,18): error TS2339: Property 'method' does not exist on type 'never'.
+src/server/services/email/__tests__/resend-sender.test.ts(46,27): error TS2339: Property 'headers' does not exist on type 'never'.
+src/server/services/email/__tests__/resend-sender.test.ts(49,35): error TS2339: Property 'body' does not exist on type 'never'.
+src/server/services/email/__tests__/resend-sender.test.ts(74,14): error TS2493: Tuple type '[]' of length '0' has no element at index '1'.
+src/server/services/email/__tests__/resend-sender.test.ts(75,35): error TS2339: Property 'body' does not exist on type 'never'.
+src/server/services/entitlement.service.ts(30,15): error TS2305: Module '"@prisma/client"' has no exported member 'PaEntitlement'.
+src/server/services/entitlement.service.ts(30,30): error TS2305: Module '"@prisma/client"' has no exported member 'PaEntitlementSource'.
+src/server/services/entitlement.service.ts(32,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+src/server/services/entitlement.service.ts(255,43): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/entitlement.service.ts(264,27): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/server/services/expedition-ai-context.service.ts(196,74): error TS7006: Parameter 'day' implicitly has an 'any' type.
+src/server/services/expedition-ai-context.service.ts(199,12): error TS7006: Parameter 'act' implicitly has an 'any' type.
+src/server/services/expedition-ai-context.service.ts(215,87): error TS7006: Parameter 'seg' implicitly has an 'any' type.
+src/server/services/expedition-ai-context.service.ts(222,86): error TS7006: Parameter 'acc' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(415,19): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(419,41): error TS2339: Property 'metadata' does not exist on type '{}'.
+src/server/services/expedition-summary.service.ts(440,21): error TS2339: Property 'status' does not exist on type '{}'.
+src/server/services/expedition-summary.service.ts(440,58): error TS2339: Property 'metadata' does not exist on type '{}'.
+src/server/services/expedition-summary.service.ts(441,31): error TS2339: Property 'metadata' does not exist on type '{}'.
+src/server/services/expedition-summary.service.ts(470,38): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(474,31): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(483,41): error TS2339: Property 'metadata' does not exist on type '{}'.
+src/server/services/expedition-summary.service.ts(493,43): error TS7006: Parameter 't' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(508,45): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(586,10): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(586,15): error TS7006: Parameter 'day' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(592,34): error TS7006: Parameter 'day' implicitly has an 'any' type.
+src/server/services/expedition-summary.service.ts(596,46): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/server/services/expedition.service.ts(16,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+src/server/services/expedition.service.ts(53,29): error TS2339: Property 'trip' does not exist on type 'never'.
+src/server/services/expedition.service.ts(78,16): error TS2339: Property 'expeditionPhase' does not exist on type 'never'.
+src/server/services/expedition.service.ts(81,16): error TS2339: Property 'expeditionPhase' does not exist on type 'never'.
+src/server/services/expedition.service.ts(108,16): error TS2339: Property 'expeditionPhase' does not exist on type 'never'.
+src/server/services/expedition.service.ts(116,16): error TS2339: Property 'trip' does not exist on type 'never'.
+src/server/services/expedition.service.ts(157,66): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/services/itinerary-persistence.service.ts(84,32): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/onboarding.service.ts(92,60): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/services/phase-completion.service.ts(68,33): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/phase-completion.service.ts(70,33): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/phase-completion.service.ts(73,50): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/server/services/phase-completion.service.ts(74,53): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/server/services/preferences.service.ts(12,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+src/server/services/preferences.service.ts(37,71): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/services/preferences.service.ts(38,63): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/services/profile.service.ts(9,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+src/server/services/report-generation.service.ts(206,40): error TS7006: Parameter 'item' implicitly has an 'any' type.
+src/server/services/report-generation.service.ts(212,52): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/server/services/report-generation.service.ts(268,38): error TS7006: Parameter 'day' implicitly has an 'any' type.
+src/server/services/report-generation.service.ts(272,47): error TS7006: Parameter 'a' implicitly has an 'any' type.
+src/server/services/report-generation.service.ts(281,16): error TS7006: Parameter 'sum' implicitly has an 'any' type.
+src/server/services/report-generation.service.ts(281,21): error TS7006: Parameter 'day' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(24,3): error TS2305: Module '"@prisma/client"' has no exported member 'Subscription'.
+src/server/services/subscription.service.ts(25,3): error TS2305: Module '"@prisma/client"' has no exported member 'SubscriptionEvent'.
+src/server/services/subscription.service.ts(26,3): error TS2305: Module '"@prisma/client"' has no exported member 'PaymentGateway'.
+src/server/services/subscription.service.ts(29,22): error TS2344: Type 'unknown' does not satisfy the constraint '(...args: any) => any'.
+src/server/services/subscription.service.ts(81,20): error TS2694: Namespace '"C:/travel-planner/node_modules/.prisma/client/default".Prisma' has no exported member 'InputJsonValue'.
+src/server/services/subscription.service.ts(84,13): error TS2339: Property 'subscriptionEvent' does not exist on type 'never'.
+src/server/services/subscription.service.ts(89,34): error TS2339: Property 'JsonNull' does not exist on type 'typeof Prisma'.
+src/server/services/subscription.service.ts(103,29): error TS2339: Property 'subscription' does not exist on type 'never'.
+src/server/services/subscription.service.ts(106,28): error TS2339: Property 'subscription' does not exist on type 'never'.
+src/server/services/subscription.service.ts(182,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(183,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(231,23): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(255,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(256,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(288,9): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(315,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(316,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(330,9): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(348,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(349,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(360,9): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(385,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(386,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(404,9): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(428,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/subscription.service.ts(429,48): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/subscription.service.ts(435,9): error TS2345: Argument of type 'any' is not assignable to parameter of type 'never'.
+src/server/services/transport.service.ts(34,35): error TS7006: Parameter 'tx' implicitly has an 'any' type.
+src/server/services/transport.service.ts(77,26): error TS7006: Parameter 'seg' implicitly has an 'any' type.
+src/server/services/trip-readiness.service.ts(101,29): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/trip-readiness.service.ts(113,24): error TS2339: Property 'status' does not exist on type '{}'.
+src/server/services/trip-readiness.service.ts(115,31): error TS2339: Property 'status' does not exist on type '{}'.
+src/server/services/trip-readiness.service.ts(133,35): error TS2339: Property 'metadata' does not exist on type '{}'.
+src/server/services/trip-readiness.service.ts(134,34): error TS2339: Property 'metadata' does not exist on type '{}'.
+src/server/services/trip-readiness.service.ts(140,45): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/server/services/trip-readiness.service.ts(165,50): error TS7006: Parameter 'c' implicitly has an 'any' type.
+src/server/services/trip.service.ts(241,23): error TS7006: Parameter 'trip' implicitly has an 'any' type.
+src/server/services/trip.service.ts(242,57): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/server/services/trip.service.ts(243,60): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/server/services/trip.service.ts(247,20): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/trip.service.ts(248,17): error TS7006: Parameter 'p' implicitly has an 'any' type.
+src/server/services/trip.service.ts(251,54): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/server/services/trip.service.ts(252,63): error TS7006: Parameter 'i' implicitly has an 'any' type.
+src/types/trip.types.ts(1,15): error TS2305: Module '"@prisma/client"' has no exported member 'TripStatus'.
+src/types/trip.types.ts(1,27): error TS2305: Module '"@prisma/client"' has no exported member 'TripVisibility'.
+src/types/trip.types.ts(2,15): error TS2305: Module '"@prisma/client"' has no exported member 'TripStatus'.
+src/types/trip.types.ts(2,27): error TS2305: Module '"@prisma/client"' has no exported member 'TripVisibility'.
