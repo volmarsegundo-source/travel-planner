@@ -73,6 +73,7 @@ function ArrowLeftIcon() {
 export function ForgotPasswordForm() {
   const t = useTranslations("authV2.forgotPasswordPage");
   const tAuth = useTranslations("auth");
+  const tBrand = useTranslations("authV2");
 
   const [email, setEmail] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -122,7 +123,7 @@ export function ForgotPasswordForm() {
   if (isSuccess) {
     return (
       <div className="flex min-h-screen overflow-hidden">
-        <BrandPanel t={useTranslations("authV2")} />
+        <BrandPanel t={tBrand} />
 
         <div className="flex w-full lg:w-[40%] flex-col items-center justify-center px-6 sm:px-12 lg:px-16 bg-atlas-surface">
           <div className="w-full max-w-md text-center">
@@ -154,7 +155,7 @@ export function ForgotPasswordForm() {
 
   return (
     <div className="flex min-h-screen overflow-hidden">
-      <BrandPanel t={useTranslations("authV2")} />
+      <BrandPanel t={tBrand} />
 
       <div className="flex w-full lg:w-[40%] flex-col items-center justify-center px-6 sm:px-12 lg:px-16 bg-atlas-surface">
         <div className="w-full max-w-md">
