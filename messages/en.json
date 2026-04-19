@@ -2478,10 +2478,7 @@
       "description": "Generate complete itineraries, document checklists, and destination guides — all personalized to your trip profile.",
       "feature1": "Complete day-by-day itinerary generation",
       "feature2": "Smart document and visa checklist",
-      "feature3": "Detailed destination guide with local tips",
-      "cta": "Learn how it works",
-      "promptExample": "Generate a 7-day itinerary for Lisbon.",
-      "mockupAlt": "AI-generated travel itinerary preview"
+      "feature3": "Detailed destination guide with local tips"
     },
     "gamification": {
       "title": "Earn points, level up",

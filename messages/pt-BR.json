@@ -2478,10 +2478,7 @@
       "description": "Gere roteiros completos, checklists de documentos e guias de destino — tudo personalizado para o perfil da sua viagem.",
       "feature1": "Geração de roteiro dia a dia completo",
       "feature2": "Checklist inteligente de documentos e vistos",
-      "feature3": "Guia detalhado do destino com dicas locais",
-      "cta": "Saiba como funciona",
-      "promptExample": "Gere um roteiro de 7 dias para Lisboa.",
-      "mockupAlt": "Preview de roteiro de viagem gerado por IA"
+      "feature3": "Guia detalhado do destino com dicas locais"
     },
     "gamification": {
       "title": "Ganhe pontos, suba de nível",

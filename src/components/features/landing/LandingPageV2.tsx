@@ -19,9 +19,9 @@ export function LandingPageV2({ isAuthenticated = false }: LandingPageV2Props) {
       <main className="flex-1">
         <HeroSectionV2 isAuthenticated={isAuthenticated} />
         <PhasesSectionV2 />
-        <AiSectionV2 />
-        <GamificationSectionV2 isAuthenticated={isAuthenticated} />
         <DestinationsSectionV2 />
+        <GamificationSectionV2 isAuthenticated={isAuthenticated} />
+        <AiSectionV2 />
       </main>
       <FooterV2 />
     </div>
