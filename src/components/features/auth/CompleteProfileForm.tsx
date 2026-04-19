@@ -6,6 +6,7 @@ import { useRouter } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasInput } from "@/components/ui/AtlasInput";
 import { completeProfileAction } from "@/server/actions/profile.actions";
+import { sanitizeCallbackUrl } from "@/lib/validation/safe-redirect";
 
 // SPEC-AUTH-AGE-002: DOB-only form for Google OAuth users. Adults → /expeditions.
 // Minors → /auth/age-rejected (server action already signs them out).
@@ -51,7 +52,7 @@ export function CompleteProfileForm({ callbackUrl }: CompleteProfileFormProps) {
         return;
       }
 
-      router.push(callbackUrl ?? "/expeditions");
+      router.push(sanitizeCallbackUrl(callbackUrl, "/expeditions"));
     } catch {
       setErrorKey("errors.generic");
     } finally {

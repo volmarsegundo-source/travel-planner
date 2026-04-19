@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { CompleteProfileForm } from "@/components/features/auth/CompleteProfileForm";
+import { sanitizeCallbackUrl } from "@/lib/validation/safe-redirect";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth.completeProfile");
@@ -30,5 +31,6 @@ export default async function CompleteProfilePage({
     return null;
   }
 
-  return <CompleteProfileForm callbackUrl={callbackUrl} />;
+  const safeCallback = sanitizeCallbackUrl(callbackUrl, "/expeditions");
+  return <CompleteProfileForm callbackUrl={safeCallback} />;
 }
