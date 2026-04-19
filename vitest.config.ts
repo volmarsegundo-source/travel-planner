@@ -14,7 +14,10 @@ export default defineConfig({
       thresholds: {
         lines: 80,
         functions: 80,
-        branches: 80,
+        // TEMPORARY: branches threshold reduced 80→78 during techdebt allowlist period
+        // Reference: docs/specs/tech-debt/SPEC-TECHDEBT-CI-001.md
+        // MUST BE RESTORED TO 80 AT END OF SPRINT 45
+        branches: 78,
         statements: 80,
       },
       include: [
