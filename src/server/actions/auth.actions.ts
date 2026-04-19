@@ -85,7 +85,8 @@ const EmailSchema = z.string().email("auth.errors.emailInvalid");
 export async function requestPasswordResetAction(
   email: string
 ): Promise<ActionResult> {
-  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
+  const hdrs = await headers();
+  const ip = hdrs.get("x-forwarded-for") ?? "unknown";
   const rl = await checkRateLimit(`pwd-reset:${ip}`, 3, 900);
   if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
 
@@ -94,8 +95,13 @@ export async function requestPasswordResetAction(
     return { success: false, error: "auth.errors.emailInvalid" };
   }
 
+  const acceptLanguage = hdrs.get("accept-language") ?? "";
+  const locale: "en" | "pt-BR" = acceptLanguage.toLowerCase().startsWith("pt")
+    ? "pt-BR"
+    : "en";
+
   try {
-    await AuthService.requestPasswordReset(parsed.data);
+    await AuthService.requestPasswordReset(parsed.data, locale);
     // Always return success to prevent user enumeration.
     return { success: true };
   } catch (err) {

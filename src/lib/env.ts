@@ -53,6 +53,11 @@ export const env = createEnv({
       ),
     SENTRY_DSN: z.string().url().optional(),
     SENTRY_AUTH_TOKEN: z.string().optional(),
+    // Resend HTTP API — pre-Beta email delivery for password reset.
+    // When unset in dev/test, ConsoleEmailSender logs the URL as a fallback.
+    // Required in production (factory throws at boot if missing).
+    RESEND_API_KEY: z.string().min(1).optional(),
+    EMAIL_FROM: z.string().min(1).optional(),
     FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
     MP_WEBHOOK_SECRET: z.string().min(1).optional(),
     NODE_ENV: z
@@ -101,6 +106,8 @@ export const env = createEnv({
     ENCRYPTION_KEY: process.env.ENCRYPTION_KEY,
     SENTRY_DSN: process.env.SENTRY_DSN,
     SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    EMAIL_FROM: process.env.EMAIL_FROM,
     FEEDBACK_WEBHOOK_URL: process.env.FEEDBACK_WEBHOOK_URL,
     MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET,
     NODE_ENV: process.env.NODE_ENV,

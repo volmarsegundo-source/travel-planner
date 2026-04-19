@@ -6,6 +6,8 @@ import { redis } from "@/server/cache/redis";
 import { ConflictError, AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { hashUserId } from "@/lib/hash";
+import { getEmailSender } from "@/server/services/email/factory";
+import type { EmailLocale } from "@/server/services/email/email-sender";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -132,7 +134,10 @@ export class AuthService {
    * Always returns successfully — even when the email is not found — to
    * prevent user-enumeration attacks.
    */
-  static async requestPasswordReset(email: string): Promise<void> {
+  static async requestPasswordReset(
+    email: string,
+    locale: EmailLocale = "en"
+  ): Promise<void> {
     const user = await db.user.findUnique({
       where: { email, deletedAt: null },
       select: { id: true },
@@ -151,7 +156,18 @@ export class AuthService {
 
     logger.info("auth.passwordReset.tokenIssued", { userIdHash: hashUserId(user.id) });
 
-    // TODO (T-003): send actual email with reset link containing token.
+    const baseUrl = process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
+
+    try {
+      await getEmailSender().sendPasswordReset({ to: email, resetUrl, locale });
+    } catch (err) {
+      // Anti-enumeration: never let dispatch failures surface to the caller.
+      logger.error("auth.passwordReset.emailDispatchFailed", {
+        userIdHash: hashUserId(user.id),
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
   }
 
   /**
