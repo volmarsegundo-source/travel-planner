@@ -75,6 +75,10 @@ async function fillAndSubmitForm(email: string, password: string, confirmPasswor
     screen.getByLabelText("auth.confirmPassword"),
     confirmPassword ?? password
   );
+  // SPEC-AUTH-AGE-001: DOB is required. Use a safely-adult value.
+  fireEvent.change(screen.getByLabelText("auth.dateOfBirth"), {
+    target: { value: "2000-01-01" },
+  });
   // Submit the form element directly — works reliably with react-hook-form
   const form = screen.getByLabelText("auth.email").closest("form")!;
   fireEvent.submit(form);
@@ -303,6 +307,9 @@ describe("RegisterForm", () => {
     await userEvent.type(screen.getByLabelText("auth.email"), "new@example.com");
     await userEvent.type(screen.getByLabelText("auth.password"), "SecurePass1!");
     await userEvent.type(screen.getByLabelText("auth.confirmPassword"), "SecurePass1!");
+    fireEvent.change(screen.getByLabelText("auth.dateOfBirth"), {
+      target: { value: "2000-01-01" },
+    });
 
     const form = screen.getByLabelText("auth.email").closest("form")!;
     fireEvent.submit(form);

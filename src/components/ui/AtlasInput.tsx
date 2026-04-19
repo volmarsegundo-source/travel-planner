@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 interface AtlasInputProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {
   /** Input type */
-  type?: "text" | "email" | "password" | "search" | "tel";
+  type?: "text" | "email" | "password" | "search" | "tel" | "date";
   /** Visible label text above the input */
   label: string;
   /** Helper text displayed below the input */

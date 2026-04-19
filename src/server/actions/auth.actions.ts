@@ -26,6 +26,7 @@ export async function registerAction(
   const raw = {
     email: formData.get("email"),
     password: formData.get("password"),
+    dateOfBirth: formData.get("dateOfBirth"),
     name: formData.get("name") ?? undefined,
   };
 
@@ -40,7 +41,8 @@ export async function registerAction(
     const result = await AuthService.registerUser(
       parsed.data.email,
       parsed.data.password,
-      parsed.data.name
+      parsed.data.name,
+      new Date(parsed.data.dateOfBirth)
     );
     return { success: true, data: result };
   } catch (err) {

@@ -36,7 +36,8 @@ export class AuthService {
   static async registerUser(
     email: string,
     password: string,
-    name?: string
+    name?: string,
+    dateOfBirth?: Date
   ): Promise<{ userId: string }> {
     const existing = await db.user.findUnique({
       where: { email },
@@ -58,6 +59,14 @@ export class AuthService {
       },
       select: { id: true },
     });
+
+    // SPEC-AUTH-AGE-001: persist DOB on UserProfile. Schema enforces 18+
+    // before reaching this code, so we trust the value here.
+    if (dateOfBirth) {
+      await db.userProfile.create({
+        data: { userId: user.id, birthDate: dateOfBirth },
+      });
+    }
 
     logger.info("auth.register", { userIdHash: hashUserId(user.id) });
 

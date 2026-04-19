@@ -125,6 +125,8 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
   "Password must be at least 8 characters": "errors.passwordTooShort",
   "Password must be at most 72 characters": "errors.passwordTooShort",
   "auth.errors.passwordWeak": "errors.passwordWeak",
+  "auth.errors.ageUnderage": "errors.ageUnderage",
+  "auth.errors.dateInvalid": "errors.dateInvalid",
   "Confirm password is required": "errors.passwordRequired",
   "Passwords do not match": "errors.passwordsDoNotMatch",
   "Name is required": "errors.nameRequired",
@@ -161,6 +163,7 @@ export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
       email: "",
       password: "",
       confirmPassword: "",
+      dateOfBirth: "",
       name: "",
     },
     mode: "onSubmit",
@@ -189,6 +192,7 @@ export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
       const formData = new FormData();
       formData.set("email", values.email);
       formData.set("password", values.password);
+      formData.set("dateOfBirth", values.dateOfBirth);
       if (values.name) formData.set("name", values.name);
 
       const result = await registerAction(formData);
@@ -248,6 +252,7 @@ export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
   const emailError = getFieldError(form.formState.errors.email);
   const passwordError = getFieldError(form.formState.errors.password);
   const confirmPasswordError = getFieldError(form.formState.errors.confirmPassword);
+  const dateOfBirthError = getFieldError(form.formState.errors.dateOfBirth);
   // name errors can come from the pipe transform result
   const nameError = getFieldError(
     form.formState.errors.name as { message?: string } | undefined
@@ -413,6 +418,37 @@ export function RegisterForm({ availableProviders = [] }: RegisterFormProps) {
                     className="text-destructive text-sm"
                   >
                     {confirmPasswordError}
+                  </p>
+                )}
+              </FormItem>
+            )}
+          />
+
+          {/* Date of Birth — SPEC-AUTH-AGE-001 */}
+          <FormField
+            control={form.control}
+            name="dateOfBirth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{t("dateOfBirth")}</FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
+                    autoComplete="bday"
+                    disabled={isSubmitting}
+                    aria-describedby={
+                      dateOfBirthError ? `${field.name}-error` : undefined
+                    }
+                    {...field}
+                  />
+                </FormControl>
+                {dateOfBirthError && (
+                  <p
+                    id={`${field.name}-error`}
+                    role="alert"
+                    className="text-destructive text-sm"
+                  >
+                    {dateOfBirthError}
                   </p>
                 )}
               </FormItem>

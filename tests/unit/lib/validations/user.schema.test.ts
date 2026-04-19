@@ -7,7 +7,11 @@ import { describe, it, expect } from "vitest";
 import { UserSignUpSchema } from "@/lib/validations/user.schema";
 
 describe("UserSignUpSchema — password strength (B1/B4)", () => {
-  const validBase = { email: "test@example.com", name: "Test" };
+  const validBase = {
+    email: "test@example.com",
+    name: "Test",
+    dateOfBirth: "2000-01-01",
+  };
 
   function parsePassword(password: string) {
     return UserSignUpSchema.safeParse({ ...validBase, password });

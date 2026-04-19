@@ -30,6 +30,15 @@ const RegisterFormSchema = UserSignUpSchema.extend({
   path: ["confirmPassword"],
 });
 
+// Today as YYYY-MM-DD for the max attribute (no future DOB allowed).
+function todayIso(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
 type RegisterFormInput = z.input<typeof RegisterFormSchema>;
 
 /* ────────────────────────────────────────────────────────────────────────────
@@ -157,6 +166,8 @@ const ZOD_MESSAGE_TO_KEY: Record<string, string> = {
   "Password must be at least 8 characters": "errors.passwordTooShort",
   "Password must be at most 72 characters": "errors.passwordTooShort",
   "auth.errors.passwordWeak": "errors.passwordWeak",
+  "auth.errors.ageUnderage": "errors.ageUnderage",
+  "auth.errors.dateInvalid": "errors.dateInvalid",
   "Confirm password is required": "errors.passwordRequired",
   "Passwords do not match": "errors.passwordsDoNotMatch",
   "Name is required": "errors.nameRequired",
@@ -192,6 +203,7 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
       email: "",
       password: "",
       confirmPassword: "",
+      dateOfBirth: "",
       name: "",
     },
     mode: "onSubmit",
@@ -202,7 +214,7 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
       const withoutNs = key.startsWith("auth.") ? key.slice(5) : key;
       if (withoutNs.startsWith("errors.")) {
         const sub = withoutNs.slice(7);
-        return tAuth(`errors.${sub as "invalidCredentials" | "emailAlreadyExists" | "generic" | "emailInvalid" | "passwordTooShort" | "passwordRequired" | "passwordsDoNotMatch" | "nameRequired"}`);
+        return tAuth(`errors.${sub as "invalidCredentials" | "emailAlreadyExists" | "generic" | "emailInvalid" | "passwordTooShort" | "passwordRequired" | "passwordsDoNotMatch" | "nameRequired" | "ageUnderage" | "dateInvalid"}`);
       }
       return key;
     } catch {
@@ -225,6 +237,7 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
       const formData = new FormData();
       formData.set("email", values.email);
       formData.set("password", values.password);
+      formData.set("dateOfBirth", values.dateOfBirth);
       if (values.name) formData.set("name", values.name);
 
       const result = await registerAction(formData);
@@ -267,6 +280,7 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
   const emailError = getFieldError(form.formState.errors.email);
   const passwordError = getFieldError(form.formState.errors.password);
   const confirmPasswordError = getFieldError(form.formState.errors.confirmPassword);
+  const dateOfBirthError = getFieldError(form.formState.errors.dateOfBirth);
   const nameError = getFieldError(
     form.formState.errors.name as { message?: string } | undefined,
   );
@@ -390,6 +404,31 @@ export function RegisterFormV2({ availableProviders = [] }: RegisterFormV2Props)
                   className="mt-1.5 text-sm text-atlas-error"
                 >
                   {confirmPasswordError}
+                </p>
+              )}
+            </div>
+
+            {/* Date of Birth — SPEC-AUTH-AGE-001 */}
+            <div>
+              <AtlasInput
+                type="date"
+                label={t("dobLabel")}
+                placeholder={t("dobPlaceholder")}
+                id="register-v2-dob"
+                autoComplete="bday"
+                required
+                max={todayIso()}
+                disabled={isSubmitting}
+                className="[&_input]:focus:border-atlas-on-tertiary-container"
+                {...form.register("dateOfBirth")}
+              />
+              {dateOfBirthError && (
+                <p
+                  id="dateOfBirth-error"
+                  role="alert"
+                  className="mt-1.5 text-sm text-atlas-error"
+                >
+                  {dateOfBirthError}
                 </p>
               )}
             </div>

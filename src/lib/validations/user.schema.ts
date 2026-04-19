@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isAdult } from "@/lib/guards/age-guard";
 
 /**
  * Strong password schema — enforces:
@@ -19,9 +20,22 @@ export const StrongPasswordSchema = z
   .regex(/[^A-Za-z0-9]/, "auth.errors.passwordWeak")
   .max(72, "auth.errors.passwordWeak");
 
+// SPEC-AUTH-AGE-001: DOB is required at signup. Accept ISO date strings
+// (from <input type="date">) and enforce 18+.
+const DateOfBirthSchema = z
+  .string()
+  .min(1, "auth.errors.dateInvalid")
+  .refine((val) => !Number.isNaN(new Date(val).getTime()), {
+    message: "auth.errors.dateInvalid",
+  })
+  .refine((val) => isAdult(val), {
+    message: "auth.errors.ageUnderage",
+  });
+
 export const UserSignUpSchema = z.object({
   email: z.string().email("Invalid email address"),
   password: StrongPasswordSchema,
+  dateOfBirth: DateOfBirthSchema,
   name: z.string().min(1, "Name is required").max(100).optional(),
 });
 
