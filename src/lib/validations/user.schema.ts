@@ -22,7 +22,8 @@ export const StrongPasswordSchema = z
 
 // SPEC-AUTH-AGE-001: DOB is required at signup. Accept ISO date strings
 // (from <input type="date">) and enforce 18+.
-const DateOfBirthSchema = z
+// SPEC-AUTH-AGE-002: exported for reuse in the Google OAuth complete-profile flow.
+export const DateOfBirthSchema = z
   .string()
   .min(1, "auth.errors.dateInvalid")
   .refine((val) => !Number.isNaN(new Date(val).getTime()), {

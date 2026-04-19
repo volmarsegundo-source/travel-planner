@@ -72,6 +72,11 @@ export default {
         // Carry role into JWT for Edge middleware admin guard.
         // The role is set from the User model during sign-in.
         token.role = (user as { role?: string }).role ?? "user";
+        // SPEC-AUTH-AGE-002: profileComplete is set by the Node.js signIn
+        // callback in auth.ts (which has DB access). Default to false here
+        // so new OAuth users are funneled to /auth/complete-profile.
+        token.profileComplete =
+          (user as { profileComplete?: boolean }).profileComplete ?? false;
       }
       // When unstable_update({ user: { name } }) is called from a server action,
       // the JWT callback re-fires with trigger="update" and the new data in session.
@@ -80,6 +85,9 @@ export default {
       }
       if (trigger === "update" && session?.user?.role !== undefined) {
         token.role = session.user.role;
+      }
+      if (trigger === "update" && session?.user?.profileComplete !== undefined) {
+        token.profileComplete = session.user.profileComplete;
       }
       return token;
     },
@@ -95,6 +103,11 @@ export default {
       // Expose role on session for server components and client
       if (session.user && token?.role) {
         (session.user as { role?: string }).role = token.role as string;
+      }
+      // SPEC-AUTH-AGE-002: expose profileComplete for middleware + app shell.
+      if (session.user && typeof token?.profileComplete === "boolean") {
+        (session.user as { profileComplete?: boolean }).profileComplete =
+          token.profileComplete;
       }
       return session;
     },

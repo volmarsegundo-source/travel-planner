@@ -1,6 +1,7 @@
 "use server";
 import "server-only";
-import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { auth, signOut } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -9,6 +10,9 @@ import { encrypt, decrypt } from "@/lib/crypto";
 import { logger } from "@/lib/logger";
 import { mapErrorToKey } from "@/lib/action-utils";
 import { hashUserId } from "@/lib/hash";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { DateOfBirthSchema } from "@/lib/validations/user.schema";
+import { z } from "zod";
 import { type Prisma } from "@prisma/client";
 import {
   PreferencesSchema,
@@ -311,6 +315,68 @@ export async function savePreferencesAction(
   } catch (error) {
     logger.error("preferences.save.error", error, {
       userId: hashUserId(session.user.id),
+    });
+    return { success: false, error: mapErrorToKey(error) };
+  }
+}
+
+// ─── completeProfileAction (SPEC-AUTH-AGE-002) ───────────────────────────────
+
+const CompleteProfileSchema = z.object({
+  dateOfBirth: DateOfBirthSchema,
+});
+
+export async function completeProfileAction(
+  formData: FormData
+): Promise<ActionResult> {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return { success: false, error: "errors.unauthorized" };
+  }
+
+  const userId = session.user.id;
+
+  // Rate-limit by userId — 5 attempts per 15 min.
+  await headers(); // preserve server-action request scope
+  const rl = await checkRateLimit(`complete-profile:${userId}`, 5, 900);
+  if (!rl.allowed) {
+    return { success: false, error: "errors.rateLimitExceeded" };
+  }
+
+  const raw = { dateOfBirth: formData.get("dateOfBirth") };
+  const parsed = CompleteProfileSchema.safeParse(raw);
+
+  if (!parsed.success) {
+    const first = parsed.error.errors[0];
+    const message = first?.message ?? "auth.errors.dateInvalid";
+
+    // When the underage refinement fires, sign the user out.
+    if (message === "auth.errors.ageUnderage") {
+      logger.info("auth.oauth.dobRejected", { userIdHash: hashUserId(userId) });
+      try {
+        await signOut({ redirect: false });
+      } catch {
+        // best-effort — if signOut throws, middleware still guards access
+      }
+      return { success: false, error: "auth.errors.ageUnderage" };
+    }
+
+    return { success: false, error: message };
+  }
+
+  try {
+    const birthDate = new Date(parsed.data.dateOfBirth);
+    await db.userProfile.upsert({
+      where: { userId },
+      create: { userId, birthDate },
+      update: { birthDate },
+    });
+
+    logger.info("auth.oauth.dobAccepted", { userIdHash: hashUserId(userId) });
+    return { success: true };
+  } catch (error) {
+    logger.error("auth.completeProfile.error", error, {
+      userIdHash: hashUserId(userId),
     });
     return { success: false, error: mapErrorToKey(error) };
   }

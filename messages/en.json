@@ -95,7 +95,19 @@
       "oauthVerification": "The verification link has expired or has already been used.",
       "oauthAccountNotLinked": "This email is already associated with another sign-in method.",
       "backToLogin": "Back to login",
-      "passwordWeak": "The password does not meet all requirements above."
+      "passwordWeak": "The password does not meet all requirements above.",
+      "unauthorized": "You must be signed in to do that."
+    },
+    "completeProfile": {
+      "title": "One more thing",
+      "subtitle": "We need your date of birth to continue. You must be 18 or older to use Atlas.",
+      "submit": "Continue",
+      "submitting": "Saving..."
+    },
+    "ageRejected": {
+      "title": "Atlas is for adults (18+)",
+      "body": "Thanks for your interest in Atlas. Unfortunately, our platform is only available to travelers aged 18 and over. You can come back when you reach the minimum age.",
+      "backToLanding": "Back to home"
     }
   },
   "passwordStrength": {

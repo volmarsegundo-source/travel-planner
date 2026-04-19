@@ -71,6 +71,25 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
+  // SPEC-AUTH-AGE-002: OAuth users without DOB are routed to the DOB
+  // collection page. Credentials users always set profileComplete=true at
+  // signup (SPEC-AUTH-AGE-001) so this only affects Google / Apple sign-ins.
+  if (req.auth) {
+    const session = req.auth as {
+      user?: { profileComplete?: boolean };
+    };
+    const profileComplete = session?.user?.profileComplete;
+    const isOnboardingRoute =
+      pathname.includes("/auth/complete-profile") ||
+      pathname.includes("/auth/age-rejected");
+
+    if (isProtected && profileComplete === false && !isOnboardingRoute) {
+      const url = new URL("/auth/complete-profile", req.url);
+      url.searchParams.set("callbackUrl", pathname);
+      return Response.redirect(url);
+    }
+  }
+
   // Admin routes: require role === "admin" in JWT token.
   // Non-admin users are redirected to /expeditions.
   if (pathname.includes("/admin") && req.auth) {

@@ -95,7 +95,19 @@
       "oauthVerification": "O link de verificação expirou ou já foi utilizado.",
       "oauthAccountNotLinked": "Este e-mail já está associado a outro método de login.",
       "backToLogin": "Voltar ao login",
-      "passwordWeak": "A senha não atende a todos os requisitos acima."
+      "passwordWeak": "A senha não atende a todos os requisitos acima.",
+      "unauthorized": "Você precisa estar autenticado para fazer isso."
+    },
+    "completeProfile": {
+      "title": "Só mais uma coisa",
+      "subtitle": "Precisamos da sua data de nascimento para continuar. Você precisa ter 18 anos ou mais para usar o Atlas.",
+      "submit": "Continuar",
+      "submitting": "Salvando..."
+    },
+    "ageRejected": {
+      "title": "O Atlas é para maiores de 18 anos",
+      "body": "Obrigado pelo seu interesse no Atlas. Infelizmente, nossa plataforma está disponível apenas para viajantes com 18 anos ou mais. Você pode voltar assim que atingir a idade mínima.",
+      "backToLanding": "Voltar para o início"
     }
   },
   "passwordStrength": {

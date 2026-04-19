@@ -52,6 +52,42 @@ export const {
   // JWT strategy: session validated via signed JWT cookie — no DB round-trip
   // in middleware, while user/account data is still persisted via PrismaAdapter.
   session: { strategy: "jwt" },
+  events: {
+    // SPEC-AUTH-AGE-002: OAuth sign-in fires createUser the first time. Mark
+    // profile as complete only if UserProfile.birthDate already exists.
+    async createUser({ user }) {
+      // No-op — the signIn callback below will check profile state each time.
+      void user;
+    },
+  },
+  callbacks: {
+    ...authConfig.callbacks,
+    async signIn(params) {
+      const base = authConfig.callbacks?.signIn;
+      const baseResult = base ? await base(params) : true;
+      if (!baseResult) return baseResult;
+
+      // Attach profileComplete to the user object so the JWT callback persists it.
+      const { user, account } = params;
+      if (user?.id && account?.provider && account.provider !== "credentials") {
+        try {
+          const profile = await db.userProfile.findUnique({
+            where: { userId: user.id },
+            select: { birthDate: true },
+          });
+          (user as { profileComplete?: boolean }).profileComplete =
+            !!profile?.birthDate;
+        } catch {
+          (user as { profileComplete?: boolean }).profileComplete = false;
+        }
+      } else if (user?.id && account?.provider === "credentials") {
+        // Credentials path (SPEC-AUTH-AGE-001) always collects DOB at signup.
+        (user as { profileComplete?: boolean }).profileComplete = true;
+      }
+
+      return true;
+    },
+  },
   providers: [
     ...oauthProviders,
     Credentials({
