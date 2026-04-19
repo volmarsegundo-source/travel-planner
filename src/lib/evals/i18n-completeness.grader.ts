@@ -109,21 +109,65 @@ function getValueAtPath(obj: unknown, dotPath: string): unknown {
  *
  * Supports next-intl / ICU-style patterns:
  *   - {name}                 -> simple variable
- *   - {count, plural, ...}   -> plural form (extracts "count")
+ *   - {count, plural, ...}   -> plural form (extracts "count" only)
  *   - {count, number}        -> number format (extracts "count")
+ *
+ * ICU plural/select bodies (e.g. `one {…} other {…}`) are traversed with
+ * balanced-brace scanning so that inner literal branches like
+ * `{expeditions}` / `{expedições}` are NOT mistaken for variables. This
+ * prevents false positives on localized plural literals that differ
+ * purely by diacritics (which the previous regex-based extractor
+ * mis-parsed because non-ASCII chars are outside `\w`).
  *
  * Returns sorted unique variable names.
  */
 function extractInterpolationVars(value: string): string[] {
   if (typeof value !== "string") return [];
 
-  const INTERPOLATION_PATTERN =
-    /\{(\w+)(?:\s*,\s*\w+)?(?:\s*,\s*[^}]*)?\}/g;
   const vars = new Set<string>();
+  const WORD_CHAR = /[A-Za-z0-9_]/;
 
-  let match: RegExpExecArray | null;
-  while ((match = INTERPOLATION_PATTERN.exec(value)) !== null) {
-    vars.add(match[1]);
+  let i = 0;
+  while (i < value.length) {
+    if (value[i] !== "{") {
+      i++;
+      continue;
+    }
+
+    let j = i + 1;
+    while (j < value.length && /\s/.test(value[j])) j++;
+
+    const nameStart = j;
+    while (j < value.length && WORD_CHAR.test(value[j])) j++;
+    const name = value.slice(nameStart, j);
+
+    if (!name) {
+      i++;
+      continue;
+    }
+
+    while (j < value.length && /\s/.test(value[j])) j++;
+
+    if (value[j] === "}") {
+      vars.add(name);
+      i = j + 1;
+      continue;
+    }
+
+    if (value[j] === ",") {
+      vars.add(name);
+      let depth = 1;
+      j++;
+      while (j < value.length && depth > 0) {
+        if (value[j] === "{") depth++;
+        else if (value[j] === "}") depth--;
+        j++;
+      }
+      i = j;
+      continue;
+    }
+
+    i++;
   }
 
   return Array.from(vars).sort();

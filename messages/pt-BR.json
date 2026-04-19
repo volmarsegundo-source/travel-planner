@@ -2830,6 +2830,13 @@
       "cancel": "Cancelar"
     }
   },
+  "phaseReorderBanner": {
+    "message": "Reorganizamos as fases para uma jornada mais natural. Seu progresso foi preservado — continue de onde parou.",
+    "dismiss": "Entendi",
+    "dismissAriaLabel": "Entendi, fechar o aviso de reorganização de fases",
+    "learnMore": "Veja o que mudou",
+    "learnMoreHref": "/help/phase-reorder"
+  },
   "languageSwitcher": {
     "tooltip": "Altera apenas o idioma da interface. Os dados da sua viagem permanecem no idioma em que foram salvos.",
     "unsavedDialog": {
