@@ -41,9 +41,10 @@ vi.mock("@/i18n/navigation", () => ({
   ),
 }));
 
-// Mock BrandPanel from LoginFormV2 to avoid complex deps
+// Mock BrandPanel and ExploreIcon from LoginFormV2 to avoid complex deps
 vi.mock("@/components/features/auth/LoginFormV2", () => ({
   BrandPanel: () => <div data-testid="brand-panel" />,
+  ExploreIcon: () => <svg data-testid="explore-icon" aria-hidden="true" />,
 }));
 
 // ─── Import after mocks ─────────────────────────────────────────────────────
