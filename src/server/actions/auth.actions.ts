@@ -1,5 +1,6 @@
 "use server";
 import "server-only";
+import { createHash } from "crypto";
 import { headers } from "next/headers";
 import { AuthService } from "@/server/services/auth.service";
 import { UserSignUpSchema, StrongPasswordSchema } from "@/lib/validations/user.schema";
@@ -87,12 +88,31 @@ export async function requestPasswordResetAction(
 ): Promise<ActionResult> {
   const hdrs = await headers();
   const ip = hdrs.get("x-forwarded-for") ?? "unknown";
-  const rl = await checkRateLimit(`pwd-reset:${ip}`, 3, 900);
-  if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
+
+  // Layer 1 — IP rate limit: 5 requests / hour.
+  // Stops scripted IP-level enumeration and mass-mailing abuse.
+  const ipLimit = await checkRateLimit(`pwd-reset:ip:${ip}`, 5, 3600);
+  if (!ipLimit.allowed) {
+    return { success: false, error: "errors.rateLimitExceeded" };
+  }
 
   const parsed = EmailSchema.safeParse(email);
   if (!parsed.success) {
     return { success: false, error: "auth.errors.emailInvalid" };
+  }
+
+  // Layer 2 — Email rate limit: 3 requests / hour per hashed email.
+  // Caps per-account harassment/mailbox-flood even when attacker rotates IP.
+  // Email is normalized (trim + lowercase) and SHA-256 hashed so we never
+  // store raw PII in Redis keys.
+  const emailKey = createHash("sha256")
+    .update(parsed.data.trim().toLowerCase())
+    .digest("hex");
+  const emailLimit = await checkRateLimit(`pwd-reset:email:${emailKey}`, 3, 3600);
+  if (!emailLimit.allowed) {
+    // Anti-enumeration: return success even when the per-email limit triggers,
+    // so attackers cannot use the error signal to confirm a registered address.
+    return { success: true };
   }
 
   const acceptLanguage = hdrs.get("accept-language") ?? "";

@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasInput } from "@/components/ui/AtlasInput";
 import { requestPasswordResetAction } from "@/server/actions/auth.actions";
-import { BrandPanel } from "./LoginFormV2";
+import { BrandPanel, ExploreIcon } from "./LoginFormV2";
 
 /* ────────────────────────────────────────────────────────────────────────────
  * Inline SVG Icons
@@ -126,24 +126,36 @@ export function ForgotPasswordForm() {
         <BrandPanel t={tBrand} />
 
         <div className="flex w-full lg:w-[40%] flex-col items-center justify-center px-6 sm:px-12 lg:px-16 bg-atlas-surface">
-          <div className="w-full max-w-md text-center">
-            <div className="flex justify-center mb-6">
-              <CheckCircleIcon />
+          <div className="w-full max-w-md">
+            {/* Mobile header (hidden on desktop) */}
+            <div className="lg:hidden flex items-center gap-2 mb-12">
+              <span className="text-atlas-secondary-container text-3xl">
+                <ExploreIcon />
+              </span>
+              <span className="font-atlas-headline text-2xl font-black text-atlas-primary">
+                Atlas
+              </span>
             </div>
-            <h1 className="font-atlas-headline text-2xl font-bold text-atlas-on-surface">
-              {t("successHeading")}
-            </h1>
-            <p className="mt-4 text-atlas-on-surface-variant leading-relaxed">
-              {t("successMessage")}
-            </p>
-            <div className="mt-8">
-              <Link
-                href="/auth/login"
-                className="inline-flex items-center gap-2 font-semibold text-atlas-on-tertiary-fixed-variant hover:underline underline-offset-2 focus-visible:ring-2 ring-atlas-focus-ring rounded-md px-2 py-1 min-h-[44px]"
-              >
-                <ArrowLeftIcon />
-                {t("backToLogin")}
-              </Link>
+
+            <div className="text-center">
+              <div className="flex justify-center mb-6">
+                <CheckCircleIcon />
+              </div>
+              <h1 className="font-atlas-headline text-2xl font-bold text-atlas-on-surface">
+                {t("successHeading")}
+              </h1>
+              <p className="mt-4 text-atlas-on-surface-variant leading-relaxed">
+                {t("successMessage")}
+              </p>
+              <div className="mt-8">
+                <Link
+                  href="/auth/login"
+                  className="inline-flex items-center gap-2 font-semibold text-atlas-on-tertiary-fixed-variant hover:underline underline-offset-2 focus-visible:ring-2 ring-atlas-focus-ring rounded-md px-2 py-1 min-h-[44px]"
+                >
+                  <ArrowLeftIcon />
+                  {t("backToLogin")}
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -159,6 +171,16 @@ export function ForgotPasswordForm() {
 
       <div className="flex w-full lg:w-[40%] flex-col items-center justify-center px-6 sm:px-12 lg:px-16 bg-atlas-surface">
         <div className="w-full max-w-md">
+          {/* Mobile header (hidden on desktop) */}
+          <div className="lg:hidden flex items-center gap-2 mb-12">
+            <span className="text-atlas-secondary-container text-3xl">
+              <ExploreIcon />
+            </span>
+            <span className="font-atlas-headline text-2xl font-black text-atlas-primary">
+              Atlas
+            </span>
+          </div>
+
           {/* Back to login link */}
           <div className="mb-8">
             <Link
@@ -218,6 +240,17 @@ export function ForgotPasswordForm() {
               {isSubmitting ? t("submitting") : t("submit")}
             </AtlasButton>
           </form>
+
+          {/* Create account link (internal navigation, consistent with LoginFormV2) */}
+          <p className="mt-10 text-center text-sm text-atlas-on-surface-variant">
+            {tBrand("noAccount")}{" "}
+            <Link
+              href="/auth/register"
+              className="font-bold text-atlas-on-tertiary-fixed-variant hover:underline underline-offset-2"
+            >
+              {tBrand("createAccount")}
+            </Link>
+          </p>
         </div>
       </div>
     </div>
