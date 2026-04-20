@@ -2479,7 +2479,7 @@
       },
       "phase4Reordered": {
         "name": "The Itinerary",
-        "description": "AI-optimized day-by-day schedule, using the guide as the foundation for your activities."
+        "description": "Day-by-day schedule, using the guide as the foundation for your activities."
       },
       "phase5Reordered": {
         "name": "The Logistics",
@@ -2501,7 +2501,7 @@
       "title": "Earn points, level up",
       "subtitle": "Every passport stamp now generates rewards. Accumulate Atlas Points and unlock exclusive benefits.",
       "currentLevel": "Your Current Level",
-      "explanation": "Complete phases to earn Atlas Points. Use them to generate itineraries, checklists, and destination guides powered by AI.",
+      "explanation": "Complete phases to earn Atlas Points. Use them to generate itineraries, checklists, and personalized guides for your trip.",
       "badge1": {
         "name": "First Trip",
         "description": "Complete your first expedition."

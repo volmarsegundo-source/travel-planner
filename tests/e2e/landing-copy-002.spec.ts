@@ -33,6 +33,10 @@ const PT_NEW_COPY: CopyCheck[] = [
     oldText: "Guia detalhado do destino com dicas locais" },
   { slot: "C2-09 phases.subtitle", newText: "Transforme cada fase da viagem",
     oldText: "metodologia proprietária" },
+  { slot: "C2-10 phase4Reordered.description", newText: "Cronograma dia a dia otimizado, usando o guia",
+    oldText: "otimizado por IA" },
+  { slot: "C2-11 gamification.explanation",    newText: "guias personalizados para sua viagem",
+    oldText: "guias de destino com IA" },
 ];
 
 const EN_NEW_COPY: CopyCheck[] = [
@@ -50,6 +54,10 @@ const EN_NEW_COPY: CopyCheck[] = [
     oldText: "Detailed destination guide with local tips" },
   { slot: "C2-09 phases.subtitle", newText: "Turn every phase of your trip",
     oldText: "proprietary methodology" },
+  { slot: "C2-10 phase4Reordered.description", newText: "Day-by-day schedule, using the guide",
+    oldText: "AI-optimized day-by-day" },
+  { slot: "C2-11 gamification.explanation",    newText: "personalized guides for your trip",
+    oldText: "powered by AI" },
 ];
 
 const VIEWPORTS = [

@@ -2479,7 +2479,7 @@
       },
       "phase4Reordered": {
         "name": "O Roteiro",
-        "description": "Cronograma dia a dia otimizado por IA, usando o guia como base para as atividades."
+        "description": "Cronograma dia a dia otimizado, usando o guia como base para as atividades."
       },
       "phase5Reordered": {
         "name": "A Logística",
@@ -2501,7 +2501,7 @@
       "title": "Ganhe pontos, suba de nível",
       "subtitle": "Cada carimbo no passaporte agora gera recompensas. Acumule Pontos Atlas e desbloqueie benefícios exclusivos.",
       "currentLevel": "Seu Nível Atual",
-      "explanation": "Complete fases para ganhar Pontos Atlas. Use-os para gerar roteiros, checklists e guias de destino com IA.",
+      "explanation": "Complete fases para ganhar Pontos Atlas. Use-os para gerar roteiros, checklists e guias personalizados para sua viagem.",
       "badge1": {
         "name": "Primeira Viagem",
         "description": "Complete sua primeira expedição."
