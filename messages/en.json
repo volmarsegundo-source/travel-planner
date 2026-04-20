@@ -2430,16 +2430,16 @@
       "closeMenu": "Close navigation menu"
     },
     "hero": {
-      "badge": "The New Era of Planning",
+      "badge": "From start to finish, your way",
       "title": "Your next adventure starts here",
-      "subtitle": "Plan amazing trips in minutes — easy, smart, and fun. AI handles the details, you enjoy the adventure.",
+      "subtitle": "Trips that match who you are. Organize everything in one place, with recommendations tailored to your profile.",
       "cta": "Start your expedition",
       "secondaryCta": "How It Works",
       "imageAlt": "Aerial view of Brazilian mountains at sunset with dramatic sky in orange and purple tones"
     },
     "phases": {
       "title": "8 Expedition Phases",
-      "subtitle": "Our proprietary methodology ensures nothing is forgotten, turning each step into a seamless experience.",
+      "subtitle": "Turn every phase of your trip into a seamless experience tailored to you",
       "comingSoon": "Coming Soon",
       "phase1": {
         "name": "The Inspiration",
@@ -2491,11 +2491,11 @@
       }
     },
     "ai": {
-      "title": "AI-powered planning tools",
-      "description": "Generate complete itineraries, document checklists, and destination guides — all personalized to your trip profile.",
-      "feature1": "Complete day-by-day itinerary generation",
-      "feature2": "Smart document and visa checklist",
-      "feature3": "Detailed destination guide with local tips"
+      "title": "Organize, discover, travel",
+      "description": "Complete itineraries, document checklists, and destination guides — all personalized to your trip profile.",
+      "feature1": "Itineraries that adapt to you",
+      "feature2": "Personalized checklist for every trip",
+      "feature3": "Personalized destination guide"
     },
     "gamification": {
       "title": "Earn points, level up",

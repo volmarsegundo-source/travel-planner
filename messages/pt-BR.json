@@ -2430,16 +2430,16 @@
       "closeMenu": "Fechar menu de navegação"
     },
     "hero": {
-      "badge": "A Nova Era do Planejamento",
+      "badge": "Do começo ao fim, do seu jeito",
       "title": "Sua próxima aventura comeca aqui",
-      "subtitle": "Planeje viagens incríveis em minutos — fácil, inteligente e divertido. A IA cuida dos detalhes, você aproveita a aventura.",
+      "subtitle": "Viagens que combinam com você. Organize tudo num lugar só, com recomendações pensadas para o seu perfil.",
       "cta": "Comece sua expedição",
       "secondaryCta": "Como Funciona",
       "imageAlt": "Vista aérea de montanhas brasileiras ao pôr do sol com céu dramático em tons de laranja e roxo"
     },
     "phases": {
       "title": "8 Fases da Expedição",
-      "subtitle": "Nossa metodologia proprietária garante que nada seja esquecido, transformando cada etapa em uma experiência fluida.",
+      "subtitle": "Transforme cada fase da viagem em uma experiência fluida e pensada para você",
       "comingSoon": "Em Breve",
       "phase1": {
         "name": "A Inspiração",
@@ -2491,11 +2491,11 @@
       }
     },
     "ai": {
-      "title": "Ferramentas de planejamento com IA",
-      "description": "Gere roteiros completos, checklists de documentos e guias de destino — tudo personalizado para o perfil da sua viagem.",
-      "feature1": "Geração de roteiro dia a dia completo",
-      "feature2": "Checklist inteligente de documentos e vistos",
-      "feature3": "Guia detalhado do destino com dicas locais"
+      "title": "Organize, descubra, viaje",
+      "description": "Roteiros completos, checklists de documentos e guias de destino — tudo personalizado para o perfil da sua viagem.",
+      "feature1": "Roteiros que se adaptam a você",
+      "feature2": "Checklist personalizado para cada viagem",
+      "feature3": "Guia personalizado do destino"
     },
     "gamification": {
       "title": "Ganhe pontos, suba de nível",
