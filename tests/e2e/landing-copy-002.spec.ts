@@ -35,7 +35,7 @@ const PT_NEW_COPY: CopyCheck[] = [
     oldText: "metodologia proprietária" },
   { slot: "C2-10 phase4Reordered.description", newText: "Cronograma dia a dia otimizado, usando o guia",
     oldText: "otimizado por IA" },
-  { slot: "C2-11 gamification.explanation",    newText: "guias personalizados para sua viagem",
+  { slot: "C2-11 gamification.explanation",    newText: "guias pensados para o seu estilo de viagem",
     oldText: "guias de destino com IA" },
 ];
 
@@ -56,7 +56,7 @@ const EN_NEW_COPY: CopyCheck[] = [
     oldText: "proprietary methodology" },
   { slot: "C2-10 phase4Reordered.description", newText: "Day-by-day schedule, using the guide",
     oldText: "AI-optimized day-by-day" },
-  { slot: "C2-11 gamification.explanation",    newText: "personalized guides for your trip",
+  { slot: "C2-11 gamification.explanation",    newText: "guides tailored to your travel style",
     oldText: "powered by AI" },
 ];
 
