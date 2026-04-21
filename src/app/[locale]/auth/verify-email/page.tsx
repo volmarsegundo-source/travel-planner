@@ -46,8 +46,8 @@ function VerifyEmailError({ errorKey }: { errorKey: string }) {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-md text-center">
-        <h1 className="text-2xl font-bold text-red-600">Verification failed</h1>
-        <p className="mt-4 text-gray-600">
+        <h1 className="text-2xl font-bold text-atlas-error">Verification failed</h1>
+        <p className="mt-4 text-atlas-on-surface-variant">
           This link may have expired. Please request a new verification email.
         </p>
         {/* errorKey is an i18n key — displayed for debugging in dev only */}

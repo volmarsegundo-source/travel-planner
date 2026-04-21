@@ -34,7 +34,7 @@ function LockIcon() {
 function CheckCircleIcon() {
   return (
     <svg
-      className="size-16 text-green-500"
+      className="size-16 text-atlas-success"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

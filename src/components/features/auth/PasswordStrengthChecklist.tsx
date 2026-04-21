@@ -9,7 +9,7 @@ import { useTranslations } from "next-intl";
 function CheckIcon() {
   return (
     <svg
-      className="size-4 text-green-600"
+      className="size-4 text-atlas-success"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -95,7 +95,7 @@ export function PasswordStrengthChecklist({
         return (
           <li
             key={key}
-            className={`flex items-center gap-2 ${met ? "text-green-600" : "text-muted-foreground"}`}
+            className={`flex items-center gap-2 ${met ? "text-atlas-success" : "text-muted-foreground"}`}
             data-testid={`criterion-${key}`}
           >
             {met ? <CheckIcon /> : <CrossIcon />}
