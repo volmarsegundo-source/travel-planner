@@ -2,6 +2,7 @@ import { handlers } from "@/lib/auth";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { hashUserId } from "@/lib/hash";
 import { logger } from "@/lib/logger";
+import { getClientIp } from "@/lib/http/get-client-ip";
 import { headers } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -18,11 +19,13 @@ const LOGIN_WINDOW_SECONDS = 900;
 async function POST(req: NextRequest) {
   if (req.nextUrl.pathname.endsWith("/callback/credentials")) {
     const headersList = await headers();
-    const ip =
-      headersList.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-      headersList.get("x-real-ip") ??
-      "unknown";
-    const rl = await checkRateLimit(`login:${ip}`, LOGIN_RATE_LIMIT, LOGIN_WINDOW_SECONDS);
+    const ip = getClientIp(headersList);
+    const rl = await checkRateLimit(
+      `login:${ip}`,
+      LOGIN_RATE_LIMIT,
+      LOGIN_WINDOW_SECONDS,
+      { failClosed: true }
+    );
     if (!rl.allowed) {
       logger.warn("auth.login.rateLimitExceeded", {
         ipHash: hashUserId(ip),

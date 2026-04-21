@@ -60,6 +60,16 @@ export const env = createEnv({
     EMAIL_FROM: z.string().min(1).optional(),
     FEEDBACK_WEBHOOK_URL: z.string().url().optional(),
     MP_WEBHOOK_SECRET: z.string().min(1).optional(),
+    // SPEC-SEC-RATE-LIMIT-FAIL-CLOSED-001 — Gradual rollout flag.
+    // When "true", checkRateLimit calls that pass { failClosed: true } will
+    // deny requests if Redis is unavailable (defensive). When "false" (default
+    // for Sprint 45), the failClosed flag is ignored and behavior stays fail-open
+    // to avoid breaking auth/registration during the rollout sprint. Flip to
+    // "true" after 1 sprint of staging validation.
+    RATE_LIMIT_FAIL_CLOSED_ENABLED: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
@@ -110,6 +120,7 @@ export const env = createEnv({
     EMAIL_FROM: process.env.EMAIL_FROM,
     FEEDBACK_WEBHOOK_URL: process.env.FEEDBACK_WEBHOOK_URL,
     MP_WEBHOOK_SECRET: process.env.MP_WEBHOOK_SECRET,
+    RATE_LIMIT_FAIL_CLOSED_ENABLED: process.env.RATE_LIMIT_FAIL_CLOSED_ENABLED,
     NODE_ENV: process.env.NODE_ENV,
     NEXT_PUBLIC_MAPBOX_TOKEN: process.env.NEXT_PUBLIC_MAPBOX_TOKEN,
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,

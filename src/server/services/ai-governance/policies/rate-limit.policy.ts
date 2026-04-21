@@ -24,7 +24,11 @@ export const rateLimitPolicy: AiPolicy = {
     const limit = PHASE_LIMITS[ctx.phase] ?? DEFAULT_LIMIT;
     const key = `ai:${ctx.phase}:${ctx.userId}`;
 
-    const result = await checkRateLimit(key, limit, WINDOW_SECONDS);
+    // Governance policy enforces AI spend ceiling — fail-closed so a Redis
+    // outage cannot let a user drain the monthly AI budget.
+    const result = await checkRateLimit(key, limit, WINDOW_SECONDS, {
+      failClosed: true,
+    });
 
     if (!result.allowed) {
       return {

@@ -93,7 +93,8 @@ describe("POST /api/auth/[...nextauth] — rate limiting (A7)", () => {
     expect(mockCheckRateLimit).toHaveBeenCalledWith(
       "login:10.0.0.1",
       LOGIN_RATE_LIMIT,
-      LOGIN_WINDOW_SECONDS
+      LOGIN_WINDOW_SECONDS,
+      { failClosed: true }
     );
     expect(response.status).toBe(200);
   });
@@ -149,7 +150,8 @@ describe("POST /api/auth/[...nextauth] — rate limiting (A7)", () => {
     expect(mockCheckRateLimit).toHaveBeenCalledWith(
       "login:1.1.1.1",
       LOGIN_RATE_LIMIT,
-      LOGIN_WINDOW_SECONDS
+      LOGIN_WINDOW_SECONDS,
+      { failClosed: true }
     );
 
     // IP-B: also allowed with its own counter
@@ -168,7 +170,8 @@ describe("POST /api/auth/[...nextauth] — rate limiting (A7)", () => {
     expect(mockCheckRateLimit).toHaveBeenCalledWith(
       "login:2.2.2.2",
       LOGIN_RATE_LIMIT,
-      LOGIN_WINDOW_SECONDS
+      LOGIN_WINDOW_SECONDS,
+      { failClosed: true }
     );
   });
 
@@ -188,7 +191,8 @@ describe("POST /api/auth/[...nextauth] — rate limiting (A7)", () => {
     expect(mockCheckRateLimit).toHaveBeenCalledWith(
       "login:10.0.0.5",
       5,
-      900
+      900,
+      { failClosed: true }
     );
   });
 
@@ -223,7 +227,8 @@ describe("POST /api/auth/[...nextauth] — rate limiting (A7)", () => {
     expect(mockCheckRateLimit).toHaveBeenCalledWith(
       "login:3.3.3.3",
       LOGIN_RATE_LIMIT,
-      LOGIN_WINDOW_SECONDS
+      LOGIN_WINDOW_SECONDS,
+      { failClosed: true }
     );
   });
 

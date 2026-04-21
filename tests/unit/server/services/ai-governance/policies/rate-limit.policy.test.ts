@@ -38,7 +38,9 @@ describe("RateLimitPolicy", () => {
     });
 
     expect(result.allowed).toBe(true);
-    expect(mockCheckRateLimit).toHaveBeenCalledWith("ai:plan:u1", 10, 3600);
+    expect(mockCheckRateLimit).toHaveBeenCalledWith("ai:plan:u1", 10, 3600, {
+      failClosed: true,
+    });
   });
 
   it("blocks when over the rate limit", async () => {
@@ -60,6 +62,7 @@ describe("RateLimitPolicy", () => {
       "ai:checklist:u2",
       5,
       3600,
+      { failClosed: true },
     );
   });
 
@@ -75,6 +78,7 @@ describe("RateLimitPolicy", () => {
       "ai:plan:u1",
       10,
       3600,
+      { failClosed: true },
     );
 
     await rateLimitPolicy.evaluate({ phase: "guide", userId: "u1" });
@@ -82,6 +86,7 @@ describe("RateLimitPolicy", () => {
       "ai:guide:u1",
       5,
       3600,
+      { failClosed: true },
     );
   });
 
@@ -97,6 +102,7 @@ describe("RateLimitPolicy", () => {
       "ai:unknown:u1",
       5,
       3600,
+      { failClosed: true },
     );
   });
 });

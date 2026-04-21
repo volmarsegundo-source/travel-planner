@@ -97,6 +97,21 @@ curl -s https://<prod-url>/api/v1/health | jq .
 
 **Importante**: No Vercel, configure cada variavel para o ambiente correto (Preview para staging, Production para producao). Nunca compartilhe secrets entre ambientes.
 
+### Feature Flags de Seguranca
+
+| Variavel | Valores | Default | Descricao |
+|----------|---------|---------|-----------|
+| `RATE_LIMIT_FAIL_CLOSED_ENABLED` | `true` / `false` | `false` | SPEC-SEC-RATE-LIMIT-FAIL-CLOSED-001. Quando `true`, chamadas a `checkRateLimit(..., { failClosed: true })` (login, register, password-reset, admin export, purchase, AI governance) passam a **negar** a requisicao se o Redis estiver inacessivel. Default `false` durante o Sprint 45 (rollout gradual) — flipar para `true` apos 1 sprint de validacao em staging. |
+
+**Plano de rollout** (`RATE_LIMIT_FAIL_CLOSED_ENABLED`):
+
+1. Sprint 45 — merge com default `false`. Nenhuma mudanca de comportamento em producao; codigo novo fica dormente.
+2. Sprint 45 (staging) — setar `RATE_LIMIT_FAIL_CLOSED_ENABLED=true` no Vercel Preview e validar que login/register continuam funcionando com Redis saudavel.
+3. Sprint 46 — setar `RATE_LIMIT_FAIL_CLOSED_ENABLED=true` em Production apos confirmar alertas de "Redis degradado" ativos. Monitorar logs `rate-limit.redis.unavailable.failClosed`.
+4. Sprint 47+ — considerar promover o flag a default `true` no codigo (remover o gate).
+
+**Rollback**: remover a variavel do Vercel ou setar `false` — volta ao comportamento fail-open universal instantaneamente.
+
 ---
 
 ## 4. Procedimento de Rollback

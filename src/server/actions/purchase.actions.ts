@@ -40,7 +40,8 @@ export async function purchasePAAction(
   const rateLimit = await checkRateLimit(
     `purchase:${userId}`,
     PURCHASE_RATE_LIMIT,
-    PURCHASE_RATE_WINDOW_SECONDS
+    PURCHASE_RATE_WINDOW_SECONDS,
+    { failClosed: true }
   );
   if (!rateLimit.allowed) {
     return { success: false, error: "gamification.purchase.rateLimited" };

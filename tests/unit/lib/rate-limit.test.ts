@@ -8,8 +8,9 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ─── Hoist mocks ──────────────────────────────────────────────────────────────
 
-const { mockEval } = vi.hoisted(() => ({
+const { mockEval, envStub } = vi.hoisted(() => ({
   mockEval: vi.fn(),
+  envStub: { RATE_LIMIT_FAIL_CLOSED_ENABLED: false as boolean },
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
@@ -22,6 +23,10 @@ vi.mock("@/server/cache/redis", () => ({
   },
 }));
 
+vi.mock("@/lib/env", () => ({
+  env: envStub,
+}));
+
 // ─── Import after mocks ───────────────────────────────────────────────────────
 
 import { checkRateLimit } from "@/lib/rate-limit";
@@ -31,6 +36,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 describe("checkRateLimit", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    envStub.RATE_LIMIT_FAIL_CLOSED_ENABLED = false;
   });
 
   it("returns allowed=true when count is within limit", async () => {
@@ -108,5 +114,58 @@ describe("checkRateLimit", () => {
 
     const windowKey = mockEval.mock.calls[0][2] as string;
     expect(windowKey).toMatch(/^ratelimit:user:123:\d+$/);
+  });
+
+  // ─── SPEC-SEC-RATE-LIMIT-FAIL-CLOSED-001 ──────────────────────────────────
+  describe("failClosed option", () => {
+    it("denies the request when Redis throws, failClosed=true, and env flag enabled", async () => {
+      envStub.RATE_LIMIT_FAIL_CLOSED_ENABLED = true;
+      mockEval.mockRejectedValueOnce(new Error("Redis connection refused"));
+
+      const result = await checkRateLimit("login:ip", 5, 900, { failClosed: true });
+
+      expect(result.allowed).toBe(false);
+      expect(result.remaining).toBe(0);
+    });
+
+    it("allows the request when Redis throws, failClosed=true, but env flag DISABLED (gradual rollout)", async () => {
+      envStub.RATE_LIMIT_FAIL_CLOSED_ENABLED = false;
+      mockEval.mockRejectedValueOnce(new Error("Redis connection refused"));
+
+      const result = await checkRateLimit("login:ip", 5, 900, { failClosed: true });
+
+      expect(result.allowed).toBe(true);
+      expect(result.remaining).toBe(5);
+    });
+
+    it("allows the request when Redis throws and failClosed omitted, regardless of env flag", async () => {
+      envStub.RATE_LIMIT_FAIL_CLOSED_ENABLED = true;
+      mockEval.mockRejectedValueOnce(new Error("Redis connection refused"));
+
+      const result = await checkRateLimit("health:ip", 60, 60);
+
+      expect(result.allowed).toBe(true);
+      expect(result.remaining).toBe(60);
+    });
+
+    it("allows the request when Redis throws and failClosed=false", async () => {
+      envStub.RATE_LIMIT_FAIL_CLOSED_ENABLED = true;
+      mockEval.mockRejectedValueOnce(new Error("Redis connection refused"));
+
+      const result = await checkRateLimit("feedback:ip", 10, 3600, { failClosed: false });
+
+      expect(result.allowed).toBe(true);
+      expect(result.remaining).toBe(10);
+    });
+
+    it("does NOT alter success path when Redis is healthy and failClosed=true", async () => {
+      envStub.RATE_LIMIT_FAIL_CLOSED_ENABLED = true;
+      mockEval.mockResolvedValueOnce(3);
+
+      const result = await checkRateLimit("register:ip", 20, 3600, { failClosed: true });
+
+      expect(result.allowed).toBe(true);
+      expect(result.remaining).toBe(17);
+    });
   });
 });

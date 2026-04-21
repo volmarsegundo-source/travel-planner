@@ -8,6 +8,7 @@ import { AppError } from "@/lib/errors";
 import { logger } from "@/lib/logger";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getClientIp } from "@/lib/http/get-client-ip";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,8 +21,10 @@ export type ActionResult<T = undefined> =
 export async function registerAction(
   formData: FormData
 ): Promise<ActionResult<{ userId: string }>> {
-  const ip = (await headers()).get("x-forwarded-for") ?? "unknown";
-  const rl = await checkRateLimit(`register:${ip}`, 20, 3600);
+  const ip = getClientIp(await headers());
+  const rl = await checkRateLimit(`register:${ip}`, 20, 3600, {
+    failClosed: true,
+  });
   if (!rl.allowed) return { success: false, error: "errors.rateLimitExceeded" };
 
   const raw = {
@@ -87,11 +90,13 @@ export async function requestPasswordResetAction(
   email: string
 ): Promise<ActionResult> {
   const hdrs = await headers();
-  const ip = hdrs.get("x-forwarded-for") ?? "unknown";
+  const ip = getClientIp(hdrs);
 
   // Layer 1 — IP rate limit: 5 requests / hour.
   // Stops scripted IP-level enumeration and mass-mailing abuse.
-  const ipLimit = await checkRateLimit(`pwd-reset:ip:${ip}`, 5, 3600);
+  const ipLimit = await checkRateLimit(`pwd-reset:ip:${ip}`, 5, 3600, {
+    failClosed: true,
+  });
   if (!ipLimit.allowed) {
     return { success: false, error: "errors.rateLimitExceeded" };
   }
@@ -108,7 +113,9 @@ export async function requestPasswordResetAction(
   const emailKey = createHash("sha256")
     .update(parsed.data.trim().toLowerCase())
     .digest("hex");
-  const emailLimit = await checkRateLimit(`pwd-reset:email:${emailKey}`, 3, 3600);
+  const emailLimit = await checkRateLimit(`pwd-reset:email:${emailKey}`, 3, 3600, {
+    failClosed: true,
+  });
   if (!emailLimit.allowed) {
     // Anti-enumeration: return success even when the per-email limit triggers,
     // so attackers cannot use the error signal to confirm a registered address.

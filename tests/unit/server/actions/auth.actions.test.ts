@@ -79,7 +79,10 @@ describe("requestPasswordResetAction", () => {
     const result = await requestPasswordResetAction("test@example.com");
 
     expect(result).toEqual({ success: true });
-    expect(mockRequestPasswordReset).toHaveBeenCalledWith("test@example.com");
+    expect(mockRequestPasswordReset).toHaveBeenCalledWith(
+      "test@example.com",
+      "en"
+    );
   });
 
   it("always returns success even when email does not exist (anti-enumeration)", async () => {
@@ -130,10 +133,21 @@ describe("requestPasswordResetAction", () => {
 
     await requestPasswordResetAction("test@example.com");
 
-    expect(mockCheckRateLimit).toHaveBeenCalledWith(
-      "pwd-reset:192.168.1.1",
+    // IP layer (first call): 5 req / 3600s, fail-closed.
+    expect(mockCheckRateLimit).toHaveBeenNthCalledWith(
+      1,
+      "pwd-reset:ip:192.168.1.1",
+      5,
+      3600,
+      { failClosed: true }
+    );
+    // Email-hash layer (second call): 3 req / 3600s, fail-closed.
+    expect(mockCheckRateLimit).toHaveBeenNthCalledWith(
+      2,
+      expect.stringMatching(/^pwd-reset:email:/),
       3,
-      900
+      3600,
+      { failClosed: true }
     );
   });
 });

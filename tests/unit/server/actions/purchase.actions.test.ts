@@ -258,7 +258,8 @@ describe("purchasePAAction", () => {
     expect(mockCheckRateLimit).toHaveBeenCalledWith(
       `purchase:${USER_ID}`,
       5,
-      3600
+      3600,
+      { failClosed: true }
     );
   });
 

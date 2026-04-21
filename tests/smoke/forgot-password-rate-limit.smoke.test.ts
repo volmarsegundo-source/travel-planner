@@ -232,17 +232,15 @@ describe("SPEC-TEST-FORGOTPW-RATE-LIMIT-001 — forgot-password dual-layer rate 
     expect(afterReset.success).toBe(true);
   });
 
-  // DIAGNÓSTICO — IP parsing hypothesis for the PO's Test 11a failure ───────
-  it("DIAGNÓSTICO — rotating x-forwarded-for tail BYPASSES the IP layer under the current raw-header implementation", async () => {
+  // REGRESSION — verifies SPEC-SEC-XFF-PARSE-001 fix (Wave 1.1) ─────────────
+  it("rotating x-forwarded-for tail does NOT bypass the IP layer (leftmost-entry parsing)", async () => {
     // On Vercel, x-forwarded-for is of the form
     //    "<real_client_ip>, <vercel_edge_ip>"
-    // where the edge IP can change per request. The action reads the RAW
-    // header string as the rate-limit key, so the same client can reach the
-    // origin with distinct XFF strings and get counted under distinct buckets.
-    //
-    // If this expectation FAILS (i.e. the 6th gets blocked), the code has
-    // been hardened to parse the first IP — in that case, update the
-    // diagnostic note in docs/qa/forgotpw-rate-limit-smoke-2026-04-20.md.
+    // where the edge IP can change per request. Before Wave 1.1 the action
+    // read the RAW header as the rate-limit key, letting a single client hit
+    // distinct buckets via a rotating edge IP. `getClientIp` now parses the
+    // LEFTMOST entry, so all rotations collapse onto a single bucket and the
+    // 6th request in a window is blocked as expected.
     const clientIp = "200.150.100.50";
     const edgeRotation = ["76.76.21.9", "76.76.21.10", "76.76.21.11", "76.76.21.12", "76.76.21.13", "76.76.21.14"];
 
@@ -253,15 +251,16 @@ describe("SPEC-TEST-FORGOTPW-RATE-LIMIT-001 — forgot-password dual-layer rate 
       if (r.success) successes += 1;
     }
 
-    // Current behavior: all 6 succeed → bug reproduced.
-    expect(successes).toBe(6);
+    // Fixed behavior: only the first 5 succeed; the 6th is rate-limited.
+    expect(successes).toBe(5);
 
-    // Corroborate: 6 distinct IP-layer Redis keys were created (one per XFF).
+    // Corroborate: a single IP-layer Redis key was used across all 6 requests.
     const ipKeys = new Set(
       hoisted.mockEval.mock.calls
         .map(([, , key]) => String(key))
         .filter((k) => k.includes("pwd-reset:ip:"))
     );
-    expect(ipKeys.size).toBe(6);
+    expect(ipKeys.size).toBe(1);
+    expect([...ipKeys][0]).toContain(clientIp);
   });
 });

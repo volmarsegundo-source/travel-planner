@@ -19,7 +19,8 @@ export async function GET(request: Request) {
   const rl = await checkRateLimit(
     `admin-export:${session.user.id}`,
     RATE_LIMIT_MAX,
-    RATE_LIMIT_WINDOW_SECONDS
+    RATE_LIMIT_WINDOW_SECONDS,
+    { failClosed: true }
   );
   if (!rl.allowed) {
     return NextResponse.json(
