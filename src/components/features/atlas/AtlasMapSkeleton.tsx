@@ -14,10 +14,10 @@ export function AtlasMapSkeleton() {
     >
       <div className="flex flex-col items-center gap-3">
         <div
-          className="h-10 w-10 animate-pulse rounded-full bg-slate-700"
+          className="h-10 w-10 animate-pulse rounded-full bg-atlas-outline"
           aria-hidden="true"
         />
-        <p className="text-sm text-slate-400">{t("loading")}</p>
+        <p className="text-sm text-atlas-on-surface-variant">{t("loading")}</p>
       </div>
     </div>
   );

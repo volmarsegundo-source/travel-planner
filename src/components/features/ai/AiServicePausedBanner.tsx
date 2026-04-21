@@ -18,10 +18,10 @@ export function AiServicePausedBanner() {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-900 dark:border-red-900/40 dark:bg-red-950/30 dark:text-red-200"
+        className="rounded-xl border border-atlas-error-container bg-atlas-error-container p-4 text-sm text-atlas-on-error-container dark:border-atlas-error/40 dark:bg-atlas-error-container/20 dark:text-atlas-error-container"
       >
         <p className="font-medium">{t("paused.title")}</p>
-        <p className="mt-1 text-red-800/90 dark:text-red-200/80">{t("paused.body")}</p>
+        <p className="mt-1 text-atlas-on-error-container/90 dark:text-atlas-error-container/80">{t("paused.body")}</p>
       </div>
     );
   }
@@ -31,10 +31,10 @@ export function AiServicePausedBanner() {
       <div
         role="status"
         aria-live="polite"
-        className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200"
+        className="rounded-xl border border-atlas-warning bg-atlas-warning-container p-4 text-sm text-atlas-warning dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10 dark:text-atlas-warning"
       >
         <p className="font-medium">{t("warning.title")}</p>
-        <p className="mt-1 text-amber-800/90 dark:text-amber-200/80">{t("warning.body")}</p>
+        <p className="mt-1 text-atlas-warning/90 dark:text-atlas-warning/80">{t("warning.body")}</p>
       </div>
     );
   }

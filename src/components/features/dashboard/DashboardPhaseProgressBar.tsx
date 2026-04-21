@@ -54,21 +54,21 @@ export function DashboardPhaseProgressBar({
 
         if (isCompleted) {
           // Green for completed phases
-          segmentClasses += " bg-green-500";
+          segmentClasses += " bg-atlas-success";
           indicator = (
             <Check
-              className="absolute -top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 text-green-500"
+              className="absolute -top-3 left-1/2 h-2.5 w-2.5 -translate-x-1/2 text-atlas-success"
               aria-hidden="true"
             />
           );
         } else if (isCurrent) {
           // Blue for current phase with pulse
-          segmentClasses += " bg-blue-500 motion-safe:animate-pulse";
+          segmentClasses += " bg-atlas-info motion-safe:animate-pulse";
         } else if (isComingSoon) {
           segmentClasses += " border border-dashed border-muted-foreground/30 bg-transparent opacity-50";
         } else {
           // Gray for pending (upcoming)
-          segmentClasses += " border border-gray-500/20 bg-transparent";
+          segmentClasses += " border border-atlas-outline/20 bg-transparent";
         }
 
         const phaseName = t(phase.nameKey);

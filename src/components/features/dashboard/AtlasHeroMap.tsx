@@ -84,7 +84,7 @@ export function AtlasHeroMap({ pins = [] }: AtlasHeroMapProps) {
       <div className="pointer-events-auto absolute bottom-3 right-3">
         <Link
           href="/atlas"
-          className="text-xs text-slate-400 hover:text-slate-200 transition-colors"
+          className="text-xs text-atlas-on-surface-variant hover:text-atlas-on-surface transition-colors"
         >
           {t("viewFullMap")} &rarr;
         </Link>
