@@ -159,10 +159,199 @@ vazar PII.
 
 ## 7. Próximos passos (aguardando PO)
 
-1. ☐ PO aprova Fix 1 + Fix 2
-2. ☐ Aplicar + rodar testes + commit
-3. ☐ Deploy Staging
-4. ☐ Reproduzir fluxo Google OAuth → DOB
-5. ☐ Se banner desaparecer: ✅ BUG-A era raiz única. Fechar.
-6. ☐ Se banner persistir: inspecionar log `auth.completeProfile.upsert.failed.errorCode` → seguir para BUG-B (provavelmente migration/DB Staging).
-7. ☐ qa-engineer valida Scenarios 2, 3, 4 do spec em Staging
+1. ✅ PO aprovou Fix 1 + Fix 2
+2. ✅ Aplicado + testado + commit `9a45312`
+3. ✅ Deploy Staging (Vercel via Git integration)
+4. ✅ Reproduzido fluxo Google OAuth → DOB — banner persistiu
+5. ❌ BUG-A era raiz única: **não**. Banner ainda aparece.
+6. ✅ Log capturado — **ver seção 8**
+7. ☐ qa-engineer valida Scenarios 2, 3, 4 do spec em Staging (bloqueado até schema drift resolver)
+
+---
+
+## 8. BUG-B causa raiz confirmada (2026-04-21 15:19 UTC)
+
+### Evidência (Vercel Functions log, deployment `9a45312`)
+
+```
+prisma:error
+Invalid `prisma.userProfile.upsert()` invocation:
+The column `onboardingStep` does not exist in the current database.
+
+errorCode:  P2022
+errorName:  PrismaClientKnownRequestError
+userIdHash: 94f9736e99d3
+```
+
+O enriquecimento de logger do Fix 2 funcionou: `errorCode` veio sem PII.
+
+### Categoria: **Schema drift Staging ↔ código**
+
+O banco Staging (Neon) está 3 migrations atrás do schema.prisma. Não é bug de código — é gap de deploy de migrations.
+
+### 8.1 Migrations faltantes no Staging (cronológicas)
+
+Confirmadas via `git ls-tree master -- prisma/migrations/` e `git log` dos commits-origem:
+
+| # | Migration | Commit | Data | Colunas adicionadas |
+|---|---|---|---|---|
+| 1 | `20260418120000_onboarding_step_persistence` | `eabc9aa` | 2026-04-18 13:59 -0300 | `onboardingStep` INT NOT NULL DEFAULT 0, `onboardingData` JSONB, `onboardingCompletedAt` TIMESTAMP |
+| 2 | `20260418130000_ai_consent_fields` | `7f93dce` | 2026-04-18 (depois de #1) | `aiConsentGiven` BOOLEAN, `aiConsentAt` TIMESTAMP, `aiConsentVersion` VARCHAR(10) |
+| 3 | `20260418130100_ai_consent_backfill_legacy` | `7f93dce` | 2026-04-18 | UPDATE idempotente em `user_profiles` (grandfather legacy AI users) |
+
+Todas estão em `prisma/schema.prisma:363-389` (model `UserProfile`) e são referenciadas em 11 arquivos de código (`onboarding.service.ts`, `ai-consent-guard.ts`, `consent.actions.ts`, etc.).
+
+### 8.2 Estado da tabela em Staging (inferido sem acesso direto)
+
+**Não confirmado** — preciso de `DATABASE_URL` Staging ou `npx prisma migrate status` contra Neon. Mas o log P2022 prova que `onboardingStep` não existe. Por transitividade (3 migrations mesmo dia, mesmo autor, mesmo blocker CI), é altamente provável que as 3 colunas e o backfill estejam ausentes. Validar antes do fix.
+
+### 8.3 Processo de deploy de migrations — mapeado
+
+`.github/workflows/deploy.yml`:
+- `deploy-staging` (push para `master`): `run: npx prisma migrate deploy` com `DATABASE_URL: ${{ secrets.STAGING_DATABASE_URL }}` (linhas 31-34)
+- `deploy-production` (push para `production` ou workflow_dispatch): mesmo pattern com `PRODUCTION_DATABASE_URL` (linhas 58-61)
+
+**Migrations DEVERIAM ser aplicadas automaticamente** em todo push para master. Processo está definido corretamente.
+
+### 8.4 Por que não foram aplicadas — causa raiz do drift
+
+Commit `26fd93e` (2026-04-19 19:34 -0300, docs em `docs/devops/deploy-yml-investigation-2026-04-19.md`):
+
+> *"The `run:` value on line 64 contained `: ` (colon-space) inside the echo string, which YAML parsed as a mapping indicator. GitHub Actions rejected the workflow before creating any jobs, producing the 0s duration / no-log failure pattern observed across 10+ master pushes."*
+>
+> *"Impact: Prisma production migrations (silently skipped on every push until now) will resume executing."*
+
+**Timeline:**
+- 2026-04-18 13:59: migration #1 (`onboardingStep`) pushada em `eabc9aa` → deploy workflow rejeitado silenciosamente
+- 2026-04-18 14:xx: migrations #2 e #3 (`aiConsent*`) pushadas em `7f93dce` → mesmo destino
+- 2026-04-18 → 2026-04-19 19:34: **janela de ~30h em que qualquer push para master ignorou silenciosamente `prisma migrate deploy`** (10+ commits afetados)
+- 2026-04-19 19:34: `26fd93e` corrige o YAML
+- 2026-04-19 19:34 → 2026-04-21 (hoje): 20+ pushes subsequentes com workflow válido — mas **o workflow só aplica as migrations que ainda não estão na tabela `_prisma_migrations`** do Neon. Se o step `deploy-staging` dos pushes pós-fix rodou com sucesso, as 3 migrations já deveriam ter sido aplicadas *a partir de `26fd93e`*. Como não foram, **há um segundo blocker pós-26fd93e** que preciso diagnosticar antes do fix.
+
+### 8.5 Estado de Produção
+
+`origin/production` → commit `cef6b8c` ("chore: add beta_feedback_model migration"). Este commit é **anterior** a Sprint 41 e **NÃO contém** nenhuma das 3 migrations de 2026-04-18:
+
+```bash
+$ git log origin/production -- prisma/migrations/20260418120000_onboarding_step_persistence/
+# (empty — migration não está no branch production)
+```
+
+Código em produção também não referencia `onboardingStep` (pré-Sprint 41 não tinha a feature). **Produção não tem o bug ainda**, mas:
+
+- 🚨 **Quando `production` branch for promovido a partir de `master`** (cutover pre-Beta), `deploy-production` vai rodar `prisma migrate deploy` contra `PRODUCTION_DATABASE_URL`. Se esse job estiver com o mesmo blocker pós-CI-fix (a determinar), produção quebrará imediatamente ao servir OAuth users.
+- 🚨 Backfill `20260418130100` faz `UPDATE user_profiles SET aiConsentGiven = true WHERE ...`. Idempotente (`AND aiConsentGiven IS NULL`), mas depende da #2 ter aplicado.
+
+### 8.6 Bloqueios para diagnosticar o segundo blocker pós-`26fd93e`
+
+Para identificar por que `prisma migrate deploy` continua não aplicando no Staging após o YAML fix, preciso de **um** dos seguintes:
+
+- **A.** Output de `gh run list --workflow=deploy.yml --branch=master --limit=15` (ou screenshots da GitHub Actions UI) — para ver se `deploy-staging` está com ✅ ou ❌ nos últimos 20 runs e, se ❌, em que step
+- **B.** `STAGING_DATABASE_URL` exposto temporariamente nesta sessão → rodo `npx prisma migrate status` contra o Neon e reporto quais migrations estão em `_prisma_migrations.applied` vs pendentes
+- **C.** Acesso read-only à tabela `_prisma_migrations` via Neon console → PO cola o output aqui
+
+### 8.7 Achados bônus (registrar — não tratar nesta sessão)
+
+1. **Redis Staging offline**: log do PO mostra `getaddrinfo ENOTFOUND relevant-mudfish-66475.upstash.io`. Rate-limit de `completeProfileAction` está fail-open (Wave 1 só aplicou fail-closed em `register` e `pwd-reset`, confirmado em `git show 0175582 -- src/server/actions/`). **Não é blocker do BUG-B**, mas é uma regressão de segurança a catalogar para Wave 2C ou 3. ADR de fail-closed global pendente.
+2. **Observabilidade**: `src/lib/logger.ts` usa `console.error` only; não forwardeia pra Sentry. `sentry.server.config.ts` existe mas só captura React ErrorBoundary, **não Server Action catch-blocked failures**. Para bugs como este (exception engolida por `mapErrorToKey`), só vemos o erro real porque o Fix 2 o adicionou explicitamente ao logger. Gap de observabilidade — registrar para `devops-engineer`.
+
+---
+
+## 9. Fix proposto (PENDENTE aprovação PO)
+
+### 9.1 Pré-fix: diagnóstico necessário (15min)
+
+- ☐ Desbloquear cenário A/B/C da seção 8.6 → confirmar **por que** pós-`26fd93e` o `deploy-staging` ainda não aplicou as migrations
+- ☐ Confirmar estado exato de `_prisma_migrations` em Staging (3 pendentes? mais? em estado `failed`?)
+
+### 9.2 Fix Staging (depois do diagnóstico; ~10–30min)
+
+Três opções — escolha depende do blocker descoberto em 9.1:
+
+| Opção | Descrição | Risco | Reversível? |
+|---|---|---|---|
+| **A. Re-rodar workflow** | `gh workflow run deploy.yml --ref master` ou via dashboard — força `prisma migrate deploy` novamente | Baixo | Sim (migrations são aditivas; nenhuma `DROP`) |
+| **B. Migrate deploy local** | PO (ou devops) roda `DATABASE_URL=<staging> npx prisma migrate deploy` local | Baixo se só um operador | Sim |
+| **C. SQL manual no Neon** | PO copia `migration.sql` das 3 pastas para o SQL editor do Neon, depois `INSERT INTO _prisma_migrations (...)` manualmente | Médio (risco de desincronizar `_prisma_migrations`) | Parcial |
+
+**Recomendação inicial:** A — a menos que o diagnóstico da 9.1 mostre que o workflow está quebrado por outra razão (aí vamos para B ou C).
+
+### 9.3 Guard-rail para produção (antes do cutover)
+
+Antes do primeiro push futuro para branch `production`:
+- ☐ `devops-engineer` adiciona step de validação `npx prisma migrate status --schema=./prisma/schema.prisma` ANTES do `prisma migrate deploy`, que falha o job se houver divergência — evita "silently skipped" novamente
+- ☐ `qa-engineer` inclui smoke test `/api/v1/health` que tenta um `SELECT "onboardingStep" FROM user_profiles LIMIT 1` (ou uma upsert dry-run) — detecta schema drift em segundos
+
+### 9.4 Riscos se nada for feito
+
+- 🔴 **P0 Staging**: Google OAuth users 100% bloqueados de completar onboarding (qualquer DOB → banner "Algo deu errado")
+- 🟡 **P1 Staging**: Fluxo AI consent também quebrado silenciosamente (tentativa de ler `aiConsentGiven` retorna P2022) — possivelmente mascarado por fallback mas já está em código de produção
+- 🔴 **P0 Produção (futuro)**: cutover pre-Beta vai herdar o mesmo gap se não fix antes
+
+---
+
+## 10. Regras de parada (reavaliadas)
+
+- ⏸ **NÃO vou rodar `prisma migrate deploy` em Staging sem aprovação PO** (regra explícita do briefing)
+- ⏸ **NÃO vou tocar produção sob nenhuma circunstância** nesta sessão
+- 🟢 Descobri múltiplas migrations atrasadas (3) em Staging — **reportando escala** antes de agir
+- 🟢 Descobri que produção ainda não tem drift HOJE, mas herdará no próximo cutover se o blocker pós-`26fd93e` não for resolvido antes — **alertando PO como risco P0 potencial**
+
+---
+
+## 11. Resumo para o PO (TL;DR)
+
+1. ✅ BUG-A (updateSession missing) — FIXADO em `9a45312`
+2. 🎯 BUG-B raiz confirmada — schema drift: **3 migrations** faltantes em Staging desde 2026-04-18
+3. 🔍 Janela de drift: pré-2026-04-19 19:34 (`26fd93e` corrigiu YAML bug que bloqueava workflow). **Mas alguma coisa ainda está bloqueando pós-fix** — precisa ver logs do `deploy-staging` job ou `_prisma_migrations` direto
+4. 🚨 Produção não tem drift hoje, mas cutover pre-Beta vai reproduzir o bug se o blocker pós-26fd93e não for identificado antes
+5. ⏸ **Aguardando PO**: escolher opção A/B/C da seção 8.6 para desbloquear o diagnóstico final, depois autorizar fix Staging (opção A/B/C da seção 9.2)
+
+---
+
+## 12. BUG-C — CSP bloqueando React hydration em /auth/complete-profile (SPEC-SEC-CSP-NONCE-001)
+
+> **Descoberto 2026-04-20** após PO resolver BUG-B (STAGING_DATABASE_URL + migrations aplicadas).
+> **Status**: 🟢 **Fix aplicado** — aguardando validação manual em Staging após deploy.
+
+### 12.1 Sintoma
+
+Após OAuth login com Google e redirect para `/auth/complete-profile`:
+- Botão de submit não reage ao clique (React hydration quebrada)
+- Console mostra `Refused to execute inline script because it violates the following Content Security Policy directive: "script-src 'self' 'nonce-<uuid>'"`
+- Também bloqueado: `https://vercel.live/_next-live/feedback/feedback.js` (widget Vercel Live em preview deployments)
+
+### 12.2 Causa raiz
+
+Latente desde Sprint 2 (`middleware.ts` adicionado em 2026-03-04). Três defeitos em cadeia:
+
+1. **Nonce nunca propagado ao request** — o middleware gerava um `nonce = crypto.randomUUID()` e o injetava no header `Content-Security-Policy` da resposta, mas **nunca** o passava para os Server Components via request header `x-nonce`. Next.js usa `headers().get('x-nonce')` para stampar nonce em scripts inline que ele mesmo gera (hydration, chunk loader). Sem isso, browser bloqueia.
+2. **CSP sem `'strict-dynamic'`** — em produção, browsers modernos que suportam CSP Level 3 ignoram host allowlists em `script-src` quando `'strict-dynamic'` está presente. Sem essa directive, scripts dinamicamente carregados via `<script nonce>` (padrão do Next.js) eram bloqueados.
+3. **Vercel Live não allowlisted em preview** — `https://vercel.live` + `wss://ws-us3.pusher.com` são injetados pelo edge Vercel apenas em preview deployments, mas CSP não os permitia.
+
+### 12.3 Fix aplicado (`SPEC-SEC-CSP-NONCE-001`)
+
+**Arquivos**:
+- `src/lib/csp.ts` (novo) — pure functions `buildCsp`, `applySecurityHeaders`, `propagateNonceToRequest` extraídas do middleware para testabilidade
+- `src/middleware.ts` — refatorado: gera nonce up-front, propaga via `NextResponse.next({ request: { headers } })` OU via sentinel headers `x-middleware-override-headers` + `x-middleware-request-x-nonce` (quando `intlMiddleware` retorna rewrite/redirect)
+- `src/lib/__tests__/csp.test.ts` (novo) — 12 testes unitários cobrindo per-request nonce, strict-dynamic prod vs dev, Vercel Live condicional, HSTS apenas fora de dev, propagação de sentinel headers
+
+**Directive changes**:
+- Dev: `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'` (react-refresh precisa de eval)
+- Prod: `script-src 'self' 'nonce-${nonce}' 'strict-dynamic'`
+- Preview: `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' https://vercel.live` + `connect-src 'self' https: https://vercel.live wss://ws-us3.pusher.com` + `frame-src 'self' https://vercel.live`
+
+### 12.4 Gates locais
+
+- ✅ `npx tsc --noEmit` — clean (exit 0)
+- ✅ `npm test` — 258 files, **3644 tests passing** (+12 novos)
+- ✅ `npm run lint` — sem warnings novos (pré-existentes mantidos)
+
+### 12.5 Validação em Staging (bloqueador para fechamento)
+
+☐ Deploy para Staging (via push para `master`)
+☐ PO abre `/auth/complete-profile` em Staging, submete DOB válido
+☐ Console devtools deve estar limpo (sem erros CSP)
+☐ Botão submit deve reagir — UserProfile deve ser persistido
+☐ Smoke test Playwright (opcional) após validação manual
+

@@ -8,14 +8,20 @@
  * Protected routes redirect unauthenticated users to /auth/login.
  *
  * CSP nonce: a random nonce is generated per request and injected into the
- * Content-Security-Policy header. The nonce is forwarded to the layout via
- * the `x-nonce` request header so that inline scripts can include it.
+ * Content-Security-Policy header AND forwarded to Server Components via the
+ * `x-nonce` request header so Next.js can apply it to framework-generated
+ * inline scripts. See `src/lib/csp.ts` and SPEC-SEC-CSP-NONCE-001.
  */
 import { NextResponse } from "next/server";
 import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import authConfig from "./lib/auth.config";
+import {
+  buildCsp,
+  applySecurityHeaders,
+  propagateNonceToRequest,
+} from "./lib/csp";
 
 const { auth } = NextAuth(authConfig);
 
@@ -25,29 +31,7 @@ const intlMiddleware = createMiddleware(routing);
 const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard", "/expedition", "/atlas", "/meu-atlas", "/admin"] as const;
 
 const isDev = process.env.NODE_ENV === "development";
-
-function buildCsp(nonce: string): string {
-  if (isDev) {
-    // Development: allow eval for HMR/Turbopack and inline styles for dev tooling
-    return [
-      "default-src 'self'",
-      `script-src 'self' 'nonce-${nonce}' 'unsafe-eval'`,
-      `style-src 'self' 'unsafe-inline'`,
-      "img-src 'self' data: https:",
-      "connect-src 'self' https: ws:",
-      "font-src 'self'",
-    ].join("; ");
-  }
-
-  return [
-    "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}'`,
-    `style-src 'self' 'unsafe-inline'`,
-    "img-src 'self' data: https:",
-    "connect-src 'self' https:",
-    "font-src 'self'",
-  ].join("; ");
-}
+const isPreview = process.env.VERCEL_ENV === "preview";
 
 export default auth((req) => {
   const { pathname } = req.nextUrl;
@@ -101,36 +85,35 @@ export default auth((req) => {
     }
   }
 
-  // Run the intl middleware — its response carries rewrites/redirects for
-  // locale routing (e.g. `/account` → internal `/pt-BR/account`).
-  // We MUST return this response directly; creating a new NextResponse.next()
-  // would discard the rewrite and cause a white screen for the default locale.
-  const response = intlMiddleware(req);
-
-  if (!response) {
-    return NextResponse.next();
-  }
-
-  // Generate a per-request CSP nonce and set security headers
+  // Generate a per-request CSP nonce up-front so it can be (a) applied to the
+  // outgoing CSP response header and (b) propagated to the downstream request
+  // so Server Components can read it via `headers().get('x-nonce')` and
+  // Next.js can stamp framework-generated inline scripts.
   const nonce = crypto.randomUUID();
+  const csp = buildCsp(nonce, { isDev, isPreview });
 
-  response.headers.set("Content-Security-Policy", buildCsp(nonce));
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set(
-    "Permissions-Policy",
-    "camera=(), microphone=(), geolocation=()"
-  );
+  // Run next-intl's middleware — it may rewrite/redirect for locale routing.
+  const intlResponse = intlMiddleware(req);
 
-  if (!isDev) {
-    response.headers.set(
-      "Strict-Transport-Security",
-      "max-age=31536000; includeSubDomains"
-    );
+  if (!intlResponse) {
+    // No rewrite/redirect: use NextResponse.next with enriched request headers
+    // so `x-nonce` reaches downstream handlers.
+    const requestHeaders = new Headers(req.headers);
+    requestHeaders.set("x-nonce", nonce);
+
+    const response = NextResponse.next({
+      request: { headers: requestHeaders },
+    });
+    applySecurityHeaders(response.headers, csp, { isDev });
+    return response;
   }
 
-  return response;
+  // intl returned a rewrite/redirect. NextResponse.next({ request }) is not
+  // applicable here, so manually propagate `x-nonce` via the same sentinel
+  // headers that Next.js uses internally.
+  propagateNonceToRequest(intlResponse.headers, nonce);
+  applySecurityHeaders(intlResponse.headers, csp, { isDev });
+  return intlResponse;
 });
 
 export const config = {
