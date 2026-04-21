@@ -103,7 +103,7 @@ export function UpsellModal({ open, onClose, trigger = "generic" }: UpsellModalP
         role="dialog"
         aria-modal="true"
         aria-labelledby="upsell-modal-title"
-        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl dark:bg-zinc-900"
+        className="w-full max-w-md rounded-2xl bg-atlas-surface p-6 shadow-xl dark:bg-atlas-primary-container"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
@@ -119,7 +119,7 @@ export function UpsellModal({ open, onClose, trigger = "generic" }: UpsellModalP
             type="button"
             onClick={onClose}
             aria-label={t("close")}
-            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-zinc-500 hover:bg-zinc-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring dark:hover:bg-zinc-800"
+            className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-atlas-on-surface-variant hover:bg-atlas-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring dark:hover:bg-atlas-surface-container-high"
           >
             <svg
               aria-hidden="true"
@@ -134,11 +134,11 @@ export function UpsellModal({ open, onClose, trigger = "generic" }: UpsellModalP
           </button>
         </div>
 
-        <p className="mt-3 text-sm text-zinc-700 dark:text-zinc-300">
+        <p className="mt-3 text-sm text-atlas-on-surface-variant dark:text-atlas-on-surface-variant">
           {t(contextKey)}
         </p>
 
-        <ul className="mt-4 space-y-2 text-sm text-zinc-800 dark:text-zinc-200">
+        <ul className="mt-4 space-y-2 text-sm text-atlas-on-surface dark:text-atlas-on-surface">
           <li className="flex items-start gap-2">
             <CheckIcon />
             {t("benefits.multiDest")}
@@ -168,7 +168,7 @@ export function UpsellModal({ open, onClose, trigger = "generic" }: UpsellModalP
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg border border-zinc-300 bg-white px-4 py-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring motion-reduce:transition-none dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            className="inline-flex min-h-[44px] w-full items-center justify-center rounded-lg border border-atlas-outline bg-atlas-surface px-4 py-3 text-sm font-medium text-atlas-on-surface-variant transition-colors hover:bg-atlas-surface-container focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-focus-ring motion-reduce:transition-none dark:border-atlas-outline dark:bg-atlas-primary-container dark:text-atlas-on-surface dark:hover:bg-atlas-surface-container-high"
           >
             {t("secondaryCta")}
           </button>

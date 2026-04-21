@@ -65,7 +65,7 @@ describe("AiDisclaimer", () => {
     render(<AiDisclaimer />);
 
     const disclaimer = screen.getByTestId("ai-disclaimer");
-    expect(disclaimer.className).toContain("border-blue-200");
-    expect(disclaimer.className).toContain("bg-blue-50");
+    expect(disclaimer.className).toContain("border-atlas-info-container");
+    expect(disclaimer.className).toContain("bg-atlas-info-container");
   });
 });

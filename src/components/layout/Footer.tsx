@@ -16,7 +16,7 @@ export function Footer({ variant = "public" }: FooterProps) {
       <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 sm:flex-row sm:justify-between">
         <div className="flex items-center gap-3">
           <span className="font-heading text-atlas-gold" aria-hidden="true">🧭 ATLAS</span>
-          <p className="font-mono text-xs text-muted-foreground">
+          <p className="font-atlas-body text-xs text-muted-foreground">
             {t("landing.footer.copyright")}
           </p>
         </div>

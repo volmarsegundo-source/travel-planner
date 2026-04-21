@@ -68,7 +68,7 @@ describe("LanguageSwitcher tooltip position — SPEC-LANDING-LANGTOOLTIP-001", (
     vi.useRealTimers();
   });
 
-  it("arrow points UP (border-b-gray-900 at bottom-full of tooltip)", async () => {
+  it("arrow points UP (border-b-atlas-primary at bottom-full of tooltip)", async () => {
     vi.useFakeTimers();
     render(<LanguageSwitcher />);
     const container = screen.getByTestId("language-switcher");
@@ -82,9 +82,9 @@ describe("LanguageSwitcher tooltip position — SPEC-LANDING-LANGTOOLTIP-001", (
     const arrow = tooltip.querySelector('[aria-hidden="true"]');
     expect(arrow).not.toBeNull();
     expect(arrow!.className).toContain("bottom-full");
-    expect(arrow!.className).toContain("border-b-gray-900");
+    expect(arrow!.className).toContain("border-b-atlas-primary");
     expect(arrow!.className).not.toContain("top-full");
-    expect(arrow!.className).not.toContain("border-t-gray-900");
+    expect(arrow!.className).not.toContain("border-t-atlas-primary");
 
     vi.useRealTimers();
   });

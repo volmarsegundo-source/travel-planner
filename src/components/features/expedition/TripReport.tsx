@@ -229,7 +229,7 @@ function ChecklistSection({
               {item.itemKey}
             </span>
             {item.required && (
-              <span className="text-xs text-amber-500">*</span>
+              <span className="text-xs text-atlas-warning">*</span>
             )}
           </li>
         ))}

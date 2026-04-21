@@ -45,7 +45,7 @@ export function PAConfirmationModal({
           showCloseButton={false}
         >
           <DialogHeader>
-            <DialogTitle className="text-amber-600 dark:text-amber-400">
+            <DialogTitle className="text-atlas-warning dark:text-atlas-warning">
               {t("insufficientTitle")}
             </DialogTitle>
             <DialogDescription asChild>
@@ -56,7 +56,7 @@ export function PAConfirmationModal({
                     balance: currentBalance,
                   })}
                 </p>
-                <p className="font-medium text-amber-600 dark:text-amber-400">
+                <p className="font-medium text-atlas-warning dark:text-atlas-warning">
                   {t("missing", { amount: missingAmount })}
                 </p>
               </div>

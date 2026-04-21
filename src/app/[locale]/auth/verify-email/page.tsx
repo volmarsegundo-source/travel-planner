@@ -34,7 +34,7 @@ function VerifyEmailPending() {
     <main className="flex min-h-screen flex-col items-center justify-center p-8">
       <div className="w-full max-w-md text-center">
         <h1 className="text-2xl font-bold">Verify your email</h1>
-        <p className="mt-4 text-gray-600">
+        <p className="mt-4 text-atlas-on-surface-variant">
           Check your inbox for a verification link.
         </p>
       </div>
@@ -52,11 +52,11 @@ function VerifyEmailError({ errorKey }: { errorKey: string }) {
         </p>
         {/* errorKey is an i18n key — displayed for debugging in dev only */}
         {process.env.NODE_ENV === "development" && (
-          <p className="mt-2 text-sm text-gray-400">{errorKey}</p>
+          <p className="mt-2 text-sm text-atlas-on-surface-variant">{errorKey}</p>
         )}
         <Link
           href="/auth/login"
-          className="mt-6 inline-block rounded-md bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="mt-6 inline-block rounded-md bg-atlas-primary px-4 py-2 text-atlas-on-primary hover:bg-atlas-primary/90"
         >
           Back to login
         </Link>

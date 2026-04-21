@@ -46,7 +46,7 @@ describe("PasswordStrengthChecklist", () => {
 
     rerender(<PasswordStrengthChecklist password="longenough" />);
     expect(screen.getByTestId("criterion-minLength")).toHaveClass(
-      "text-green-600"
+      "text-atlas-success"
     );
   });
 
@@ -60,7 +60,7 @@ describe("PasswordStrengthChecklist", () => {
 
     rerender(<PasswordStrengthChecklist password="Uppercase" />);
     expect(screen.getByTestId("criterion-uppercase")).toHaveClass(
-      "text-green-600"
+      "text-atlas-success"
     );
   });
 
@@ -74,7 +74,7 @@ describe("PasswordStrengthChecklist", () => {
 
     rerender(<PasswordStrengthChecklist password="has1digit" />);
     expect(screen.getByTestId("criterion-number")).toHaveClass(
-      "text-green-600"
+      "text-atlas-success"
     );
   });
 
@@ -88,17 +88,17 @@ describe("PasswordStrengthChecklist", () => {
 
     rerender(<PasswordStrengthChecklist password="has@special" />);
     expect(screen.getByTestId("criterion-special")).toHaveClass(
-      "text-green-600"
+      "text-atlas-success"
     );
   });
 
   it("all criteria are met for a strong password", () => {
     render(<PasswordStrengthChecklist password="Strong1!" />);
 
-    expect(screen.getByTestId("criterion-minLength")).toHaveClass("text-green-600");
-    expect(screen.getByTestId("criterion-uppercase")).toHaveClass("text-green-600");
-    expect(screen.getByTestId("criterion-number")).toHaveClass("text-green-600");
-    expect(screen.getByTestId("criterion-special")).toHaveClass("text-green-600");
+    expect(screen.getByTestId("criterion-minLength")).toHaveClass("text-atlas-success");
+    expect(screen.getByTestId("criterion-uppercase")).toHaveClass("text-atlas-success");
+    expect(screen.getByTestId("criterion-number")).toHaveClass("text-atlas-success");
+    expect(screen.getByTestId("criterion-special")).toHaveClass("text-atlas-success");
   });
 
   it("no criteria are met for an empty password", () => {

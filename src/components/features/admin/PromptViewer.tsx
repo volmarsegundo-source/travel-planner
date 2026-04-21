@@ -74,7 +74,7 @@ function CollapsibleSection({
         <div className="absolute right-2 top-2 z-10">
           <CopyButton text={content} label={copyLabel} />
         </div>
-        <pre className="overflow-x-auto rounded-atlas-sm bg-atlas-surface-container p-4 text-xs font-mono text-atlas-on-surface whitespace-pre-wrap break-words max-h-96">
+        <pre className="overflow-x-auto rounded-atlas-sm bg-atlas-surface-container p-4 text-xs font-atlas-body text-atlas-on-surface whitespace-pre-wrap break-words max-h-96">
           <code>{content}</code>
         </pre>
       </div>
@@ -162,7 +162,7 @@ function InteractionCard({
       {/* Extra info */}
       {interaction.promptSlug && (
         <div className="text-xs font-atlas-body text-atlas-on-surface-variant">
-          {t("promptSlug")}: <span className="font-mono">{interaction.promptSlug}</span>
+          {t("promptSlug")}: <span className="font-atlas-body">{interaction.promptSlug}</span>
           {interaction.templateVersion && (
             <span className="ml-2">v{interaction.templateVersion}</span>
           )}
@@ -171,7 +171,7 @@ function InteractionCard({
 
       {interaction.errorCode && (
         <div className="text-xs font-atlas-body text-atlas-error">
-          Error: <span className="font-mono">{interaction.errorCode}</span>
+          Error: <span className="font-atlas-body">{interaction.errorCode}</span>
         </div>
       )}
 

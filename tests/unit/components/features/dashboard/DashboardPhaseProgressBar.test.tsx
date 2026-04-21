@@ -151,7 +151,7 @@ describe("DashboardPhaseProgressBar", () => {
     );
 
     for (let i = 1; i <= 3; i++) {
-      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-green-500");
+      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-atlas-success");
     }
   });
 
@@ -161,7 +161,7 @@ describe("DashboardPhaseProgressBar", () => {
     );
 
     const seg4 = screen.getByTestId("phase-segment-4");
-    expect(seg4).toHaveClass("bg-blue-500", "motion-safe:animate-pulse");
+    expect(seg4).toHaveClass("bg-atlas-info", "motion-safe:animate-pulse");
   });
 
   it("incomplete (upcoming) phases have outlined border, no fill", () => {
@@ -193,7 +193,7 @@ describe("DashboardPhaseProgressBar", () => {
     );
 
     for (let i = 1; i <= 6; i++) {
-      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-green-500");
+      expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-atlas-success");
     }
   });
 
@@ -203,7 +203,7 @@ describe("DashboardPhaseProgressBar", () => {
     );
 
     // Phase 1 is current
-    expect(screen.getByTestId("phase-segment-1")).toHaveClass("bg-blue-500");
+    expect(screen.getByTestId("phase-segment-1")).toHaveClass("bg-atlas-info");
     // Phases 2-6 are incomplete
     for (let i = 2; i <= 6; i++) {
       expect(screen.getByTestId(`phase-segment-${i}`)).toHaveClass("bg-transparent");
@@ -219,13 +219,13 @@ describe("DashboardPhaseProgressBar", () => {
     );
 
     // Phase 1: completed (green)
-    expect(screen.getByTestId("phase-segment-1")).toHaveClass("bg-green-500");
+    expect(screen.getByTestId("phase-segment-1")).toHaveClass("bg-atlas-success");
     // Phase 2: NOT completed (transparent, since it's behind currentPhase)
-    expect(screen.getByTestId("phase-segment-2")).not.toHaveClass("bg-green-500");
+    expect(screen.getByTestId("phase-segment-2")).not.toHaveClass("bg-atlas-success");
     // Phase 3: completed (green)
-    expect(screen.getByTestId("phase-segment-3")).toHaveClass("bg-green-500");
+    expect(screen.getByTestId("phase-segment-3")).toHaveClass("bg-atlas-success");
     // Phase 4: current (blue)
-    expect(screen.getByTestId("phase-segment-4")).toHaveClass("bg-blue-500");
+    expect(screen.getByTestId("phase-segment-4")).toHaveClass("bg-atlas-info");
   });
 
   // ─── Aria labels ────────────────────────────────────────────────────────

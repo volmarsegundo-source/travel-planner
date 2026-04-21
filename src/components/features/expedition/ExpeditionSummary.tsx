@@ -232,17 +232,17 @@ export function ExpeditionSummary({
 
           {pendingRecommended.length > 0 && (
             <div
-              className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/40 dark:bg-amber-950/20"
+              className="rounded-lg border border-atlas-warning bg-atlas-warning-container p-4 dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10"
               data-testid="pending-recommended"
             >
-              <p className="text-sm font-medium text-amber-700 dark:text-amber-300 mb-2">
+              <p className="text-sm font-medium text-atlas-warning dark:text-atlas-warning mb-2">
                 {t("pendingRecommended")}
               </p>
               <ul className="space-y-1" role="list">
                 {pendingRecommended.map((item) => (
                   <li
                     key={`${item.phase}-${item.key}`}
-                    className="flex items-center gap-2 text-sm text-amber-700 dark:text-amber-300"
+                    className="flex items-center gap-2 text-sm text-atlas-warning dark:text-atlas-warning"
                   >
                     <span aria-hidden="true">~</span>
                     <span>{t("pendingPhaseItem", { phase: item.phase, item: item.key })}</span>
