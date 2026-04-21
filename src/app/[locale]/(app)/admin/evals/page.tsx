@@ -145,7 +145,7 @@ function EvalResultsTable({
           <tbody>
             {results.map((result, idx) => (
               <tr key={`result-${idx}`} className="border-b last:border-0">
-                <td className="py-2 font-mono text-xs">{result.evalId}</td>
+                <td className="py-2 font-atlas-body text-xs">{result.evalId}</td>
                 <td className="py-2">
                   {(result.score * PERCENT_MULTIPLIER).toFixed(1)}%
                 </td>

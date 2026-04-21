@@ -281,7 +281,7 @@ export function AdminFeedbackClient({ initialData }: AdminFeedbackClientProps) {
                     </span>
 
                     {/* User ID (truncated) */}
-                    <span className="text-xs text-atlas-on-surface-variant font-mono">
+                    <span className="text-xs text-atlas-on-surface-variant font-atlas-body">
                       {truncate(item.userId, 12)}
                     </span>
 

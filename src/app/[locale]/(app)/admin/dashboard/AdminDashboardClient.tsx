@@ -156,7 +156,7 @@ export function AdminDashboardClient({
       {marginAlert.level === "red" && (
         <div
           role="alert"
-          className="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800 dark:border-red-700 dark:bg-red-950 dark:text-red-200"
+          className="rounded-lg border border-atlas-error-container bg-atlas-error-container p-4 text-atlas-on-error-container dark:border-atlas-error/40 dark:bg-atlas-error-container/20 dark:text-atlas-error-container"
         >
           <p className="font-semibold">
             {t("alerts.marginCritical", { percent: marginAlert.marginPercent })}
@@ -166,7 +166,7 @@ export function AdminDashboardClient({
       {marginAlert.level === "yellow" && (
         <div
           role="alert"
-          className="rounded-lg border border-yellow-300 bg-yellow-50 p-4 text-yellow-800 dark:border-yellow-700 dark:bg-yellow-950 dark:text-yellow-200"
+          className="rounded-lg border border-atlas-warning bg-atlas-warning-container p-4 text-atlas-warning dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10 dark:text-atlas-warning"
         >
           <p className="font-semibold">
             {t("alerts.marginWarning", { percent: marginAlert.marginPercent })}
@@ -325,15 +325,15 @@ export function AdminDashboardClient({
           <div className="overflow-x-auto rounded-lg border p-4">
             <div className="mb-3 flex items-center gap-4 text-xs">
               <span className="flex items-center gap-1">
-                <span className="inline-block h-3 w-3 rounded bg-blue-500" />
+                <span className="inline-block h-3 w-3 rounded bg-atlas-info" />
                 {t("charts.checklist")}
               </span>
               <span className="flex items-center gap-1">
-                <span className="inline-block h-3 w-3 rounded bg-green-500" />
+                <span className="inline-block h-3 w-3 rounded bg-atlas-success" />
                 {t("charts.guide")}
               </span>
               <span className="flex items-center gap-1">
-                <span className="inline-block h-3 w-3 rounded bg-orange-500" />
+                <span className="inline-block h-3 w-3 rounded bg-atlas-secondary-container" />
                 {t("charts.itinerary")}
               </span>
             </div>
@@ -358,14 +358,14 @@ export function AdminDashboardClient({
                       title={`${point.date}: ${point.total} (C:${point.checklist} G:${point.guide} I:${point.itinerary})`}
                     >
                       <div
-                        className="w-full bg-blue-500"
+                        className="w-full bg-atlas-info"
                         style={{ height: `${checklistPct * 100}%` }}
                       />
                       <div
-                        className="w-full bg-green-500"
+                        className="w-full bg-atlas-success"
                         style={{ height: `${guidePct * 100}%` }}
                       />
-                      <div className="w-full flex-1 bg-orange-500" />
+                      <div className="w-full flex-1 bg-atlas-secondary-container" />
                     </div>
                     <span className="mt-1 max-w-12 truncate text-[10px] text-muted-foreground">
                       {point.date.slice(5)}
