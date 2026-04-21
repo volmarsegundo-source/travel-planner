@@ -406,7 +406,7 @@ function PremiumTab({
         )}
 
         {error && (
-          <p role="alert" className="mt-4 text-sm text-red-600">
+          <p role="alert" className="mt-4 text-sm text-atlas-error">
             {error}
           </p>
         )}
@@ -598,7 +598,7 @@ function MyPlanTab({
               <dt className="text-xs uppercase tracking-wide text-atlas-on-surface-variant">
                 {t("cancellationLabel")}
               </dt>
-              <dd className="mt-1 text-sm font-semibold text-orange-700">
+              <dd className="mt-1 text-sm font-semibold text-atlas-warning">
                 {t("cancelScheduled")}
               </dd>
             </div>
@@ -677,7 +677,7 @@ function CancelConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl dark:bg-zinc-900"
+        className="w-full max-w-sm rounded-xl bg-atlas-surface-container-lowest p-6 shadow-xl dark:bg-atlas-primary-container"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 id="cancel-dialog-title" className="text-lg font-bold text-atlas-primary">
@@ -685,7 +685,7 @@ function CancelConfirmDialog({
         </h3>
         <p className="mt-3 text-sm text-atlas-on-surface-variant">{t("body")}</p>
         {error && (
-          <p role="alert" className="mt-3 text-sm text-red-600">
+          <p role="alert" className="mt-3 text-sm text-atlas-error">
             {error}
           </p>
         )}
@@ -701,7 +701,7 @@ function CancelConfirmDialog({
             type="button"
             disabled={pending}
             onClick={onConfirm}
-            className="flex-1 rounded-lg bg-red-600 px-4 py-2 text-sm font-bold text-white hover:bg-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="flex-1 rounded-lg bg-atlas-error px-4 py-2 text-sm font-bold text-atlas-on-error hover:bg-atlas-error/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-atlas-error/30 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? t("canceling") : t("confirm")}
           </button>

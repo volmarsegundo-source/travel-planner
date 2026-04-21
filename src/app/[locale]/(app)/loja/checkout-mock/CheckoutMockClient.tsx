@@ -38,7 +38,7 @@ export function CheckoutMockClient({ sessionId }: CheckoutMockClientProps) {
   return (
     <div className="space-y-3">
       {error && (
-        <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        <p role="alert" className="rounded-lg bg-atlas-error-container p-3 text-sm text-atlas-on-error-container">
           {error}
         </p>
       )}

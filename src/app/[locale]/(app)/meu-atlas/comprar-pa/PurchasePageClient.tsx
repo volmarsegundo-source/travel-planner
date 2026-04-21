@@ -125,10 +125,10 @@ export function PurchasePageClient({
       {/* Contextual banner when redirected from insufficient balance */}
       {neededPA && neededPA > 0 && (
         <div
-          className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/30"
+          className="mb-6 rounded-lg border border-atlas-warning bg-atlas-warning-container p-4 dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10"
           data-testid="needed-context-banner"
         >
-          <p className="text-sm font-medium text-amber-800 dark:text-amber-300">
+          <p className="text-sm font-medium text-atlas-warning dark:text-atlas-warning">
             {featureContext
               ? t("neededForFeature", { amount: neededPA, feature: featureContext })
               : t("neededGeneric", { amount: neededPA })}
@@ -154,7 +154,7 @@ export function PurchasePageClient({
             >
               {/* Badges */}
               {isRecommended && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-3 py-0.5 text-xs font-bold text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-atlas-success px-3 py-0.5 text-xs font-bold text-atlas-on-primary">
                   {t("recommended")}
                 </span>
               )}
@@ -164,7 +164,7 @@ export function PurchasePageClient({
                 </span>
               )}
               {!isRecommended && pkg.bestValue && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-emerald-600 px-3 py-0.5 text-xs font-bold text-white">
+                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-atlas-success px-3 py-0.5 text-xs font-bold text-atlas-on-primary">
                   {t("bestValue")}
                 </span>
               )}

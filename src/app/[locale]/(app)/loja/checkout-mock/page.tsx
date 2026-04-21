@@ -50,7 +50,7 @@ export default async function CheckoutMockPage({ searchParams }: CheckoutMockPag
 
         <CheckoutMockClient sessionId={sessionId} />
 
-        <p className="mt-6 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200">
+        <p className="mt-6 rounded-lg border border-atlas-warning bg-atlas-warning-container p-3 text-xs text-atlas-warning dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10 dark:text-atlas-warning">
           {t("disclaimer")}
         </p>
       </div>

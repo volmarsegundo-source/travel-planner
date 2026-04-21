@@ -54,10 +54,10 @@ export default async function ExpeditionHubPage({ params }: ExpeditionHubPagePro
       </div>
       <div className="flex min-h-[60vh] flex-col items-center justify-center p-6 text-center">
         <span className="text-5xl" aria-hidden="true">&#x1F680;</span>
-        <h1 className="mt-4 text-2xl font-bold text-gray-900">
+        <h1 className="mt-4 text-2xl font-bold text-atlas-on-surface">
           {t("comingSoon", { number: trip.currentPhase })}
         </h1>
-        <p className="mt-2 max-w-sm text-gray-500">
+        <p className="mt-2 max-w-sm text-atlas-on-surface-variant">
           {t("comingSoonSubtitle")}
         </p>
       </div>
