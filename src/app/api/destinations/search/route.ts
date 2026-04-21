@@ -33,11 +33,13 @@ export async function GET(request: NextRequest) {
     ? Math.min(Math.max(1, parseInt(limitParam, 10) || DEFAULT_LIMIT), MAX_LIMIT)
     : DEFAULT_LIMIT;
 
-  // Rate limit per user
+  // Rate limit per user (fail-closed to protect the upstream Nominatim quota —
+  // SPEC-SEC-RATE-LIMIT-FAIL-CLOSED-001 §Wave 2B). Gated by the global env flag.
   const rl = await checkRateLimit(
     `geocoding:${session.user.id}`,
     RATE_LIMIT_MAX,
-    RATE_LIMIT_WINDOW_SECONDS
+    RATE_LIMIT_WINDOW_SECONDS,
+    { failClosed: true }
   );
   if (!rl.allowed) {
     return NextResponse.json(

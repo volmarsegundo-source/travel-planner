@@ -141,7 +141,6 @@ export class NominatimGeocodingProvider implements GeocodingProvider {
     }
     // Strip importance from final results
     return [...seen.values()].map(
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       ({ importance: _importance, ...rest }) => rest
     );
   }

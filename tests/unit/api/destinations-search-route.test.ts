@@ -118,7 +118,8 @@ describe("GET /api/destinations/search", () => {
     expect(mockRateLimit).toHaveBeenCalledWith(
       "geocoding:user-1",
       10,
-      5
+      5,
+      { failClosed: true }
     );
   });
 
