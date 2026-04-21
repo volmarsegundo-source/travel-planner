@@ -1,7 +1,7 @@
 "use server";
 import "server-only";
 import { headers } from "next/headers";
-import { auth, signOut } from "@/lib/auth";
+import { auth, signOut, updateSession } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -372,11 +372,25 @@ export async function completeProfileAction(
       update: { birthDate },
     });
 
+    // SPEC-AUTH-AGE-002 §Scenario 2: refresh JWT so middleware lets the user
+    // past /auth/complete-profile on the next navigation. Without this the
+    // token stays profileComplete=false and middleware loops them back.
+    // The auth.config.ts `session` callback reads user.profileComplete via
+    // an inline cast; we mirror that pattern on the call side.
+    await updateSession({
+      user: { profileComplete: true } as unknown as Record<string, unknown>,
+    } as Parameters<typeof updateSession>[0]);
+
     logger.info("auth.oauth.dobAccepted", { userIdHash: hashUserId(userId) });
     return { success: true };
   } catch (error) {
-    logger.error("auth.completeProfile.error", error, {
+    const err = error as { name?: string; code?: string; message?: string; stack?: string };
+    logger.error("auth.completeProfile.upsert.failed", error, {
       userIdHash: hashUserId(userId),
+      errorName: err?.name ?? "unknown",
+      errorCode: err?.code,
+      errorMessage: err?.message,
+      stack: err?.stack,
     });
     return { success: false, error: mapErrorToKey(error) };
   }

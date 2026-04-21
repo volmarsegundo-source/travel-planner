@@ -85,6 +85,12 @@ describe("completeProfileAction — SPEC-AUTH-AGE-002", () => {
     expect(call.update.birthDate).toBeInstanceOf(Date);
     expect((call.create.birthDate as Date).toISOString().slice(0, 10)).toBe("1990-05-15");
     expect(mockSignOut).not.toHaveBeenCalled();
+
+    // SPEC-AUTH-AGE-002 §Scenario 2: JWT must be refreshed so middleware
+    // allows the user past /auth/complete-profile on the next navigation.
+    expect(mockUpdateSession).toHaveBeenCalledWith({
+      user: { profileComplete: true },
+    });
   });
 
   // Scenario 3 — minor blocked and signed out
