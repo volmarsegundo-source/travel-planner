@@ -20,6 +20,7 @@ const { mockUseLocale, mockUsePathname, mockUseSearchParams } = vi.hoisted(() =>
 
 vi.mock("next-intl", () => ({
   useLocale: mockUseLocale,
+  useTranslations: () => (key: string) => key,
 }));
 
 vi.mock("@/i18n/navigation", () => ({

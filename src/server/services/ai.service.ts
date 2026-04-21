@@ -834,7 +834,6 @@ export class AiService {
     // Provider timeout is 50s, so if elapsed > 25s we cannot safely retry.
     const RETRY_BUDGET_MS = 25_000;
     const startedAt = Date.now();
-    let lastError: unknown;
 
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       const attemptStart = Date.now();
@@ -870,7 +869,6 @@ export class AiService {
           responseLength: response.text.length,
           responseTail: response.text.substring(response.text.length - 200),
         });
-        lastError = error;
         if (attempt < MAX_ATTEMPTS && Date.now() - startedAt < RETRY_BUDGET_MS) continue;
         throw new AppError("AI_PARSE_ERROR", "errors.aiSchemaError", 502);
       }
@@ -885,7 +883,6 @@ export class AiService {
           userId: hid, attempt, parseMs, errorCount: parsed.error.errors.length,
           failedPaths: failedPaths.slice(0, 10),
         });
-        lastError = parsed.error;
         if (attempt < MAX_ATTEMPTS && Date.now() - startedAt < RETRY_BUDGET_MS) continue;
         throw new AppError("AI_SCHEMA_ERROR", "errors.aiSchemaError", 502);
       }

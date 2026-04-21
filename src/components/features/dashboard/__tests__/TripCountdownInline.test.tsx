@@ -28,16 +28,6 @@ vi.mock("next-intl", () => ({
 const DAY_MS = 1000 * 60 * 60 * 24;
 const HOUR_MS = 1000 * 60 * 60;
 
-function futureDate(daysFromNow: number): string {
-  const d = new Date(Date.now() + daysFromNow * DAY_MS);
-  return d.toISOString().split("T")[0];
-}
-
-function pastDate(daysAgo: number): string {
-  const d = new Date(Date.now() - daysAgo * DAY_MS);
-  return d.toISOString().split("T")[0];
-}
-
 /* ────────────────────────────────────────────────────────────────────────────
  * Tests
  * ──────────────────────────────────────────────────────────────────────────── */

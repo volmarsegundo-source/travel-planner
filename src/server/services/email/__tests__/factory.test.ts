@@ -8,17 +8,15 @@ vi.mock("@/lib/logger", () => ({
 }));
 
 describe("getEmailSender — SPEC-AUTH-FORGOTPW-001", () => {
-  const originalEnv = { ...process.env };
-
   afterEach(() => {
-    process.env = { ...originalEnv };
+    vi.unstubAllEnvs();
     vi.resetModules();
   });
 
   it("returns ConsoleEmailSender in development when RESEND_API_KEY is absent", async () => {
-    process.env.NODE_ENV = "development";
-    delete process.env.RESEND_API_KEY;
-    delete process.env.EMAIL_FROM;
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("RESEND_API_KEY", "");
+    vi.stubEnv("EMAIL_FROM", "");
 
     const { getEmailSender } = await import("../factory");
     const { ConsoleEmailSender } = await import("../console-sender");
@@ -27,9 +25,9 @@ describe("getEmailSender — SPEC-AUTH-FORGOTPW-001", () => {
   });
 
   it("returns ResendEmailSender when RESEND_API_KEY and EMAIL_FROM are set", async () => {
-    process.env.NODE_ENV = "development";
-    process.env.RESEND_API_KEY = "re_test_key";
-    process.env.EMAIL_FROM = "Atlas <noreply@atlas.app>";
+    vi.stubEnv("NODE_ENV", "development");
+    vi.stubEnv("RESEND_API_KEY", "re_test_key");
+    vi.stubEnv("EMAIL_FROM", "Atlas <noreply@atlas.app>");
 
     const { getEmailSender } = await import("../factory");
     const { ResendEmailSender } = await import("../resend-sender");
@@ -38,8 +36,8 @@ describe("getEmailSender — SPEC-AUTH-FORGOTPW-001", () => {
   });
 
   it("throws in production when RESEND_API_KEY is missing", async () => {
-    process.env.NODE_ENV = "production";
-    delete process.env.RESEND_API_KEY;
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("RESEND_API_KEY", "");
 
     const { getEmailSender } = await import("../factory");
     expect(() => getEmailSender()).toThrow(/email/i);

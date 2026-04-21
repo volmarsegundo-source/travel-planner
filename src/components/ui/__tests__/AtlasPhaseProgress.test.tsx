@@ -51,8 +51,8 @@ describe("AtlasPhaseProgress", () => {
       />,
     );
     const buttons = screen.getAllByRole("button");
-    // 4 non-locked phases (2 completed + 1 active + 1 pending)
-    expect(buttons).toHaveLength(4);
+    // Only completed + active are clickable (2 completed + 1 active).
+    expect(buttons).toHaveLength(3);
 
     fireEvent.click(buttons[0]);
     expect(onClick).toHaveBeenCalledWith(1);
@@ -61,7 +61,7 @@ describe("AtlasPhaseProgress", () => {
     expect(onClick).toHaveBeenCalledWith(2);
   });
 
-  // ─── Locked segments are NOT clickable ────────────────────────────────────
+  // ─── Pending/locked segments are NOT clickable ────────────────────────────
   it("does not render buttons for locked segments in wizard", () => {
     render(
       <AtlasPhaseProgress
@@ -70,8 +70,8 @@ describe("AtlasPhaseProgress", () => {
         onSegmentClick={vi.fn()}
       />,
     );
-    // 4 buttons (all non-locked), 2 locked phases are not buttons
-    expect(screen.getAllByRole("button")).toHaveLength(4);
+    // Only completed + active are buttons (pending and locked are not).
+    expect(screen.getAllByRole("button")).toHaveLength(3);
   });
 
   // ─── Screen reader labels ──────────────────────────────────────────────────
@@ -103,7 +103,8 @@ describe("AtlasPhaseProgress", () => {
       />,
     );
     const buttons = screen.getAllByRole("button");
-    expect(buttons).toHaveLength(4);
+    // Only completed + active are clickable (2 completed + 1 active).
+    expect(buttons).toHaveLength(3);
 
     fireEvent.click(buttons[0]);
     expect(onClick).toHaveBeenCalledWith(1);
@@ -149,10 +150,10 @@ describe("AtlasPhaseProgress", () => {
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(8);
 
-    // coming_soon segments are NOT clickable
+    // Only completed + active are clickable (2 completed + 1 active).
+    // pending and coming_soon are not clickable.
     const buttons = screen.getAllByRole("button");
-    // 2 completed + 1 active + 3 pending = 6 non-locked/coming_soon
-    expect(buttons).toHaveLength(6);
+    expect(buttons).toHaveLength(3);
 
     // SR text says "coming soon"
     expect(screen.getByText(/Phase 7: The Treasure - coming soon/)).toBeInTheDocument();

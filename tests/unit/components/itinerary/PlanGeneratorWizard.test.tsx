@@ -95,6 +95,14 @@ vi.mock("./LoadingPlanAnimation", () => ({
   LoadingPlanAnimation: () => <div data-testid="loading-animation">Loading...</div>,
 }));
 
+vi.mock("@/hooks/useAiServiceStatus", () => ({
+  useAiServiceStatus: () => ({ available: true, paused: false, warning: false }),
+}));
+
+vi.mock("@/components/features/ai/AiServicePausedBanner", () => ({
+  AiServicePausedBanner: () => null,
+}));
+
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import { PlanGeneratorWizard } from "@/components/features/itinerary/PlanGeneratorWizard";

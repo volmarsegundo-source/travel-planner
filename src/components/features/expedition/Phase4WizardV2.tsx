@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { useFormDirty } from "@/hooks/useFormDirty";
 import { useRegisterWizardDirty } from "@/hooks/useRegisterWizardDirty";
 import { AtlasCard } from "@/components/ui/AtlasCard";
-import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasChip } from "@/components/ui/AtlasChip";
 import { PhaseShell } from "./PhaseShell";
 import { WizardFooter } from "./WizardFooter";
@@ -92,7 +91,6 @@ export function Phase4WizardV2({
   completedPhases = [],
 }: Phase4WizardV2Props) {
   const t = useTranslations("expedition.phase4");
-  const tExpedition = useTranslations("expedition");
   const tCommon = useTranslations("common");
   const tValidation = useTranslations("expedition.phase4.validation");
   const tErrors = useTranslations("errors");
@@ -349,9 +347,6 @@ export function Phase4WizardV2({
   // Flag ON:  Logistics is phase-5. Back = Itinerary (phase-4), Next = Checklist (phase-6)
   const logisticsBackPath = isPhaseReorderEnabled() ? "phase-4" : "phase-3";
   const logisticsNextPath = isPhaseReorderEnabled() ? "phase-6" : "phase-5";
-  const logisticsAdvanceLabel = isPhaseReorderEnabled()
-    ? t("ctaNextReordered")
-    : tExpedition("cta.advance");
 
   // Step indicator items
   const stepItems = [

@@ -9,7 +9,6 @@ import { AtlasButton } from "@/components/ui/AtlasButton";
 import { AtlasCard } from "@/components/ui/AtlasCard";
 import { PhaseShell } from "./PhaseShell";
 import { AiDisclaimer } from "./AiDisclaimer";
-import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
 import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
@@ -29,7 +28,6 @@ import {
   addActivityAction,
   updateActivityAction,
   deleteActivityAction,
-  regenerateItineraryAction,
 } from "@/server/actions/itinerary.actions";
 import { getItineraryDaysAction } from "@/server/actions/itinerary.actions";
 import type { ItineraryDayWithActivities, ActivityData } from "@/server/actions/itinerary.actions";
@@ -160,16 +158,6 @@ const CATEGORY_LABEL_KEYS: Record<ActivityCategory, string> = {
 
 // ─── Inline Icons ────────────────────────────────────────────────────────────
 
-function MapIcon() {
-  return (
-    <svg className="size-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
-      <line x1="8" y1="2" x2="8" y2="18" />
-      <line x1="16" y1="6" x2="16" y2="22" />
-    </svg>
-  );
-}
-
 function XIcon() {
   return (
     <svg className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -213,24 +201,6 @@ function ChartIcon() {
       <line x1="18" y1="20" x2="18" y2="10" />
       <line x1="12" y1="20" x2="12" y2="4" />
       <line x1="6" y1="20" x2="6" y2="14" />
-    </svg>
-  );
-}
-
-function ArrowBackIcon() {
-  return (
-    <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="19" y1="12" x2="5" y2="12" />
-      <polyline points="12 19 5 12 12 5" />
-    </svg>
-  );
-}
-
-function ArrowForwardIcon() {
-  return (
-    <svg className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <line x1="5" y1="12" x2="19" y2="12" />
-      <polyline points="12 5 19 12 12 19" />
     </svg>
   );
 }
@@ -311,7 +281,6 @@ interface Phase6ItineraryV2Props {
 
 const PROGRESS_UPDATE_INTERVAL_MS = 1000;
 const PA_COST = AI_COSTS.ai_itinerary;
-const TOTAL_PHASES = 8;
 const MAX_REGEN_COUNT = 5;
 const PERSONAL_NOTES_MAX_LENGTH = 500;
 
@@ -1166,45 +1135,6 @@ function MapPanel({
   );
 }
 
-/** Phase progress mini-bar for footer. AC-P6-061 */
-function FooterProgressBar({
-  completedPhases,
-  currentPhase,
-  t,
-}: {
-  completedPhases: number[];
-  currentPhase: number;
-  t: (key: string) => string;
-}) {
-  const segments = Array.from({ length: TOTAL_PHASES }, (_, i) => {
-    const phase = i + 1;
-    if (completedPhases.includes(phase)) return "completed";
-    if (phase === currentPhase) return "active";
-    return "locked";
-  });
-
-  return (
-    <div className="hidden md:flex flex-col items-center">
-      <span className="text-xs font-bold text-atlas-on-surface-variant/60 uppercase tracking-widest mb-1 font-atlas-body">
-        {t("footerProgress")}
-      </span>
-      <div className="flex gap-1">
-        {segments.map((state, i) => (
-          <div
-            key={i}
-            className={[
-              "w-6 h-1 rounded-full",
-              state === "completed" ? "bg-atlas-tertiary-fixed-dim" : "",
-              state === "active" ? "bg-atlas-secondary-container" : "",
-              state === "locked" ? "bg-atlas-surface-container-high" : "",
-            ].join(" ")}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
 // ─── Main Component ──────────────────────────────────────────────────────────
 
 export function Phase6ItineraryV2({
@@ -1230,7 +1160,6 @@ export function Phase6ItineraryV2({
 }: Phase6ItineraryV2Props) {
   const t = useTranslations("expedition.phase6");
   const tExpedition = useTranslations("expedition");
-  const tPhases = useTranslations("gamification.phases");
   const tAge = useTranslations("ageRestriction");
   const tConsent = useTranslations("consent.modal");
   const router = useRouter();
@@ -1250,7 +1179,7 @@ export function Phase6ItineraryV2({
   const [isSpending, setIsSpending] = useState(false);
   // Smart regen dialog (SPEC-ROTEIRO-REGEN-INTELIGENTE)
   const [showRegenDialog, setShowRegenDialog] = useState(false);
-  const [keepManual, setKeepManual] = useState(false);
+  const [, setKeepManual] = useState(false);
 
   // Itinerary personalization (same pattern as Phase 5 guide)
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -1258,7 +1187,6 @@ export function Phase6ItineraryV2({
   const [regenCount, setRegenCount] = useState(0);
 
   const abortControllerRef = useRef<AbortController | null>(null);
-  const hasTriggeredRef = useRef(false);
   const streamStartRef = useRef<number>(0);
   const progressTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const accumulatedRef = useRef("");
@@ -1562,9 +1490,6 @@ export function Phase6ItineraryV2({
   // Next: flag OFF = summary (end), flag ON = Logistics (phase-5)
   const itineraryBackPath = isPhaseReorderEnabled() ? "phase-3" : "phase-5";
   const itineraryNextPath = isPhaseReorderEnabled() ? "phase-5" : null; // null → summary
-  const itineraryAdvanceLabel = isPhaseReorderEnabled()
-    ? t("ctaNextReordered")
-    : t("footerSummary");
 
   /** Refresh page data after an activity add/edit/delete */
   function handleActivityMutate() {

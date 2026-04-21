@@ -631,27 +631,6 @@ export function ExpeditionSummaryV2({
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-function OverviewField({
-  label,
-  value,
-  muted = false,
-}: {
-  label: string;
-  value: string;
-  muted?: boolean;
-}) {
-  return (
-    <div>
-      <dt className="text-sm font-atlas-body font-semibold text-atlas-on-surface-variant">
-        {label}
-      </dt>
-      <dd className={`text-sm font-atlas-body ${muted ? "text-atlas-on-surface-variant italic" : "text-atlas-on-surface"}`}>
-        {value}
-      </dd>
-    </div>
-  );
-}
-
 function MiniProgressBar({
   value,
   max,

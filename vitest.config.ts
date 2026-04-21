@@ -14,9 +14,12 @@ export default defineConfig({
       thresholds: {
         lines: 80,
         functions: 80,
-        // TEMPORARY: branches threshold reduced 80→78 during techdebt allowlist period
-        // Reference: docs/specs/tech-debt/SPEC-TECHDEBT-CI-001.md
-        // MUST BE RESTORED TO 80 AT END OF SPRINT 45
+        // NOTE: branches held at 78 — actual is 78.99% (measured 2026-04-20,
+        // Sprint 45 close). Target 80 deferred: Wave 2.8b covered profile.service
+        // (→96%) and itinerary-plan.service (→86%) but ai.service.ts stayed at
+        // 57% (68 branches missing — regression vs 59% pre-sprint). Residual
+        // debt documented in docs/specs/sprint-45/COVERAGE-BRANCHES-DEBT-2026-04-20.md
+        // and tracked as SPEC-TESTS-BRANCHES-80-001 (Sprint 46).
         branches: 78,
         statements: 80,
       },
@@ -47,18 +50,6 @@ export default defineConfig({
       "tests/evals/**",
       "tests/visual/**",
       "travel-planner/**",
-      // Tech-debt allowlist (SPEC-TECHDEBT-CI-001 §5.2) — removed in Sprint 45.
-      // 51 pre-existing test failures from mocks drift / V2 component refactor.
-      "src/components/ui/__tests__/AtlasPhaseProgress.test.tsx",
-      "tests/unit/components/features/expedition/Phase1Wizard.test.tsx",
-      "tests/unit/components/features/expedition/Phase1WizardRevisit.test.tsx",
-      "tests/unit/components/features/expedition/Phase1WizardV2.test.tsx",
-      "tests/unit/components/itinerary/PlanGeneratorWizard.test.tsx",
-      "tests/unit/components/landing/LanguageSwitcher.test.tsx",
-      "tests/unit/lib/prompts/system-prompts.test.ts",
-      "tests/unit/scripts/project-bootstrap.test.ts",
-      "tests/unit/server/actions/auth.actions.test.ts",
-      "tests/unit/server/preferences.actions.test.ts",
     ],
   },
   resolve: {

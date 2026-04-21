@@ -406,22 +406,6 @@ export function DashboardV2({
     [activeTrip],
   );
 
-  // Build phase segments for active trip — now 8 phases
-  const phaseSegments = useMemo(() => {
-    if (!activeTrip) return [];
-    const keys = getPhaseNameKeys();
-    return Array.from({ length: TOTAL_EXPEDITION_PHASES }, (_, i) => {
-      const phase = i + 1;
-      const isCompleted = activeTrip.completedPhases.includes(phase);
-      const isActive = phase === activeTrip.currentPhase && !isCompleted;
-      return {
-        phase,
-        label: tPhases(keys[i]!),
-        state: isCompleted ? "completed" as const : isActive ? "active" as const : "pending" as const,
-      };
-    });
-  }, [activeTrip, tPhases]);
-
   // Sort expeditions for the grid
   const sortedExpeditions = useMemo(() => getSortedExpeditions(expeditions), [expeditions]);
   const otherExpeditions = sortedExpeditions.filter((e) => e.id !== activeTrip?.id);

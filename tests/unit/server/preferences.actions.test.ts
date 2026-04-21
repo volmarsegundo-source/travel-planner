@@ -67,6 +67,16 @@ vi.mock("@/lib/crypto", () => ({
   decrypt: vi.fn().mockReturnValue("decrypted"),
 }));
 
+vi.mock("next/headers", () => ({
+  headers: vi.fn().mockResolvedValue(new Map([["x-forwarded-for", "127.0.0.1"]])),
+}));
+
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: vi
+    .fn()
+    .mockResolvedValue({ allowed: true, remaining: 10, resetAt: 0 }),
+}));
+
 // ─── Import SUT ───────────────────────────────────────────────────────────────
 
 import { savePreferencesAction } from "@/server/actions/profile.actions";

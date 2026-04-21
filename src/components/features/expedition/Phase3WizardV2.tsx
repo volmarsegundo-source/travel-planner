@@ -48,7 +48,6 @@ export function Phase3WizardV2({
   completedPhases = [],
 }: Phase3WizardV2Props) {
   const t = useTranslations("expedition.phase3");
-  const tExpedition = useTranslations("expedition");
   const tErrors = useTranslations("errors");
   const router = useRouter();
 
@@ -240,9 +239,6 @@ export function Phase3WizardV2({
   // Flag ON:  Checklist is phase-6. Back = Logistics (phase-5), Next = summary (final phase)
   const checklistBackPath = isPhaseReorderEnabled() ? "phase-5" : "phase-2";
   const checklistNextIsReordered = isPhaseReorderEnabled();
-  const checklistAdvanceLabel = isPhaseReorderEnabled()
-    ? t("ctaNextReordered")
-    : tExpedition("cta.advance");
 
   return (
     <PhaseShell

@@ -157,15 +157,14 @@ describe("Phase1WizardV2", () => {
   it("renders Next button on step 1", () => {
     render(<Phase1WizardV2 {...defaultProps} />);
 
-    const nextButtons = screen.getAllByText("common.next");
-    expect(nextButtons.length).toBeGreaterThanOrEqual(1);
+    // Step 1 uses PhaseFooter (not WizardFooter) — exposed via data-testid.
+    expect(screen.getByTestId("phase-footer-next")).toBeInTheDocument();
   });
 
   it("shows error when name is empty and Next is clicked", () => {
     render(<Phase1WizardV2 {...defaultProps} />);
 
-    const nextButtons = screen.getAllByText("common.next");
-    fireEvent.click(nextButtons[0]);
+    fireEvent.click(screen.getByTestId("phase-footer-next"));
 
     expect(screen.getByRole("alert")).toBeInTheDocument();
     expect(screen.getByText("expedition.phase1.errors.nameRequired")).toBeInTheDocument();
@@ -182,8 +181,7 @@ describe("Phase1WizardV2", () => {
   it("uses atlas error container for error messages", () => {
     render(<Phase1WizardV2 {...defaultProps} />);
 
-    const nextButtons = screen.getAllByText("common.next");
-    fireEvent.click(nextButtons[0]);
+    fireEvent.click(screen.getByTestId("phase-footer-next"));
 
     const alert = screen.getByRole("alert");
     expect(alert.className).toContain("bg-atlas-error-container");

@@ -23,7 +23,6 @@ describe("renderPasswordResetEmail — SPEC-AUTH-FORGOTPW-001", () => {
   it("falls back to English for unknown locales", () => {
     const out = renderPasswordResetEmail({
       resetUrl,
-      // @ts-expect-error — runtime guard test
       locale: "fr",
     });
     expect(out.subject.toLowerCase()).toContain("password");

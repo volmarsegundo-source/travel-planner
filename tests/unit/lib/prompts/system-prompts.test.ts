@@ -29,8 +29,8 @@ describe("PLAN_SYSTEM_PROMPT", () => {
   });
 
   it("contains output constraints", () => {
-    expect(PLAN_SYSTEM_PROMPT).toContain("max 15 words");
-    expect(PLAN_SYSTEM_PROMPT).toContain("3-5 activities");
+    expect(PLAN_SYSTEM_PROMPT).toContain("max 12 words");
+    expect(PLAN_SYSTEM_PROMPT).toContain("3-4 activities");
   });
 
   it("does not contain dynamic trip-specific data", () => {

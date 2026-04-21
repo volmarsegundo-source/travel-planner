@@ -23,7 +23,7 @@ describe("ResendEmailSender — SPEC-AUTH-FORGOTPW-001", () => {
   });
 
   it("POSTs to https://api.resend.com/emails with the API key and subject/body", async () => {
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn<typeof fetch>(async () =>
       new Response(JSON.stringify({ id: "msg_123" }), { status: 200 })
     );
     globalThis.fetch = fetchMock as unknown as typeof fetch;
@@ -55,7 +55,7 @@ describe("ResendEmailSender — SPEC-AUTH-FORGOTPW-001", () => {
   });
 
   it("localizes the subject and body when locale=pt-BR", async () => {
-    const fetchMock = vi.fn(async () =>
+    const fetchMock = vi.fn<typeof fetch>(async () =>
       new Response(JSON.stringify({ id: "msg_456" }), { status: 200 })
     );
     globalThis.fetch = fetchMock as unknown as typeof fetch;

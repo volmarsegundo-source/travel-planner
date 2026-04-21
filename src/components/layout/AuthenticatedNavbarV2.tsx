@@ -30,7 +30,6 @@ export function AuthenticatedNavbarV2({
   gamification,
   isPremium = false,
 }: AuthenticatedNavbarV2Props) {
-  const t = useTranslations();
   const tNav = useTranslations("navV2");
   const tNavLegacy = useTranslations("navigation");
   const pathname = usePathname();
@@ -59,14 +58,6 @@ export function AuthenticatedNavbarV2({
         : "text-atlas-on-surface-variant hover:bg-atlas-surface-container-low hover:text-atlas-on-surface"
     }`;
   }
-
-  // Derive user initials for avatar
-  const initials = userName
-    .split(" ")
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
 
   return (
     <header

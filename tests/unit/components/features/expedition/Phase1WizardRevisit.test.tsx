@@ -76,6 +76,28 @@ vi.mock("@/lib/travel/trip-classifier", () => ({
   classifyTrip: vi.fn().mockReturnValue(null),
 }));
 
+// Step 1 renders PhaseFooter (not WizardFooter). Mock it so its Next button
+// matches the "common.next" label the tests click through to reach step 2+.
+vi.mock("@/components/features/expedition/PhaseFooter", () => ({
+  PhaseFooter: ({
+    onNext,
+    isSubmitting,
+    canAdvance,
+  }: {
+    onNext: () => void;
+    isSubmitting?: boolean;
+    canAdvance?: boolean;
+  }) => (
+    <button
+      type="button"
+      onClick={() => onNext()}
+      disabled={isSubmitting || canAdvance === false}
+    >
+      common.next
+    </button>
+  ),
+}));
+
 // Sprint 43 Wave 3: Phase1Wizard re-exports V2, which now pulls in
 // useIsPremium → subscription.actions → next-auth. Stub the client hook,
 // the multi-city selector, and the upsell modal to keep the test pure.

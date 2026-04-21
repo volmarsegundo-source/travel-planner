@@ -15,6 +15,20 @@ const BCRYPT_ROUNDS = 12;
 const EMAIL_VERIFY_TTL_SECONDS = 86_400; // 24 hours
 const PASSWORD_RESET_TTL_SECONDS = 3_600; // 1 hour
 
+// SPEC-SEC-AUTH-TIMING-001 — constant-time password-reset response.
+// The "user exists" path does DB lookup + Redis write + Resend HTTP call
+// (~200–500 ms). The "user not found" path stops after DB lookup (~20–50 ms).
+// That delta is a timing oracle for email enumeration. We pad both paths to
+// a shared floor so the caller cannot distinguish them.
+const PASSWORD_RESET_MIN_RESPONSE_MS = 400;
+
+async function padToMinDuration(startedAt: number, minMs: number): Promise<void> {
+  const remaining = minMs - (Date.now() - startedAt);
+  if (remaining > 0) {
+    await new Promise((resolve) => setTimeout(resolve, remaining));
+  }
+}
+
 // ─── Cache key builders ───────────────────────────────────────────────────────
 
 function emailVerifyKey(token: string): string {
@@ -138,35 +152,42 @@ export class AuthService {
     email: string,
     locale: EmailLocale = "en"
   ): Promise<void> {
-    const user = await db.user.findUnique({
-      where: { email, deletedAt: null },
-      select: { id: true },
-    });
-
-    // Do not reveal whether the email exists.
-    if (!user) {
-      logger.info("auth.passwordReset.emailNotFound");
-      return;
-    }
-
-    const token = createId();
-    const key = passwordResetKey(token);
-
-    await redis.set(key, user.id, "EX", PASSWORD_RESET_TTL_SECONDS);
-
-    logger.info("auth.passwordReset.tokenIssued", { userIdHash: hashUserId(user.id) });
-
-    const baseUrl = process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
-
+    const startedAt = Date.now();
     try {
-      await getEmailSender().sendPasswordReset({ to: email, resetUrl, locale });
-    } catch (err) {
-      // Anti-enumeration: never let dispatch failures surface to the caller.
-      logger.error("auth.passwordReset.emailDispatchFailed", {
-        userIdHash: hashUserId(user.id),
-        error: err instanceof Error ? err.message : String(err),
+      const user = await db.user.findUnique({
+        where: { email, deletedAt: null },
+        select: { id: true },
       });
+
+      // Do not reveal whether the email exists.
+      if (!user) {
+        logger.info("auth.passwordReset.emailNotFound");
+        return;
+      }
+
+      const token = createId();
+      const key = passwordResetKey(token);
+
+      await redis.set(key, user.id, "EX", PASSWORD_RESET_TTL_SECONDS);
+
+      logger.info("auth.passwordReset.tokenIssued", { userIdHash: hashUserId(user.id) });
+
+      const baseUrl = process.env.AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      const resetUrl = `${baseUrl}/auth/reset-password?token=${token}`;
+
+      try {
+        await getEmailSender().sendPasswordReset({ to: email, resetUrl, locale });
+      } catch (err) {
+        // Anti-enumeration: never let dispatch failures surface to the caller.
+        logger.error("auth.passwordReset.emailDispatchFailed", {
+          userIdHash: hashUserId(user.id),
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    } finally {
+      // SPEC-SEC-AUTH-TIMING-001: pad every exit path to the same floor so
+      // response latency does not leak whether the email was registered.
+      await padToMinDuration(startedAt, PASSWORD_RESET_MIN_RESPONSE_MS);
     }
   }
 

@@ -78,6 +78,7 @@ describe("Phase4WizardV2", () => {
     origin: "Sao Paulo",
     destination: "Tokyo",
     startDate: "2026-05-01",
+    endDate: "2026-05-10",
   };
 
   beforeEach(() => {

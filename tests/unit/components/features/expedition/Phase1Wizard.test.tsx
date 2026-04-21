@@ -78,6 +78,28 @@ vi.mock("@/lib/travel/trip-classifier", () => ({
   classifyTrip: vi.fn().mockReturnValue(null),
 }));
 
+// Step 1 renders PhaseFooter (not WizardFooter). Mock it so its Next button
+// matches the "common.next" label the tests click through to reach step 2+.
+vi.mock("@/components/features/expedition/PhaseFooter", () => ({
+  PhaseFooter: ({
+    onNext,
+    isSubmitting,
+    canAdvance,
+  }: {
+    onNext: () => void;
+    isSubmitting?: boolean;
+    canAdvance?: boolean;
+  }) => (
+    <button
+      type="button"
+      onClick={() => onNext()}
+      disabled={isSubmitting || canAdvance === false}
+    >
+      common.next
+    </button>
+  ),
+}));
+
 // Sprint 43 Wave 3: Phase1Wizard re-exports V2, which now pulls in
 // useIsPremium → subscription.actions → next-auth. Stub the client hook,
 // the multi-city selector, and the upsell modal to keep the test pure.
@@ -351,15 +373,12 @@ describe("Phase1Wizard", () => {
       ) as HTMLInputElement;
       expect(phoneInput.value).toBe("+5511999998888");
 
-      const countryInput = screen.getByLabelText(
-        "expedition.phase1.step1.country"
+      // Sprint 43 V2: city + country collapsed into a single combined field
+      // labeled "City / Country". Verify the merged display value is present.
+      const locationInput = screen.getByPlaceholderText(
+        "expedition.phase1.step1.locationPlaceholder"
       ) as HTMLInputElement;
-      expect(countryInput.value).toBe("Brazil");
-
-      const cityInput = screen.getByLabelText(
-        "expedition.phase1.step1.city"
-      ) as HTMLInputElement;
-      expect(cityInput.value).toBe("Sao Paulo");
+      expect(locationInput.value).toBe("Sao Paulo, Brazil");
     });
 
     it("pre-populates form fields from incomplete profile", () => {

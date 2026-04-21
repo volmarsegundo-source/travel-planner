@@ -6,7 +6,6 @@ import { useTranslations } from "next-intl";
 import { AtlasButton } from "@/components/ui/AtlasButton";
 import { PhaseShell } from "./PhaseShell";
 import { DestinationImage } from "@/components/ui/DestinationImage";
-import { WizardFooter } from "./WizardFooter";
 import { PhaseFooter } from "./PhaseFooter";
 import { AiGenerationProgress } from "./AiGenerationProgress";
 import { PAConfirmationModal } from "@/components/features/gamification/PAConfirmationModal";
@@ -568,7 +567,6 @@ export function DestinationGuideV2({
   aiConsentGiven,
 }: DestinationGuideV2Props) {
   const t = useTranslations("expedition.phase5");
-  const tExpedition = useTranslations("expedition");
   const tErrors = useTranslations("errors");
   const tAge = useTranslations("ageRestriction");
   const tConsent = useTranslations("consent.modal");
@@ -858,9 +856,6 @@ export function DestinationGuideV2({
   // Back: flag OFF = Logistics (phase-4), flag ON = Profile (phase-2)
   // Next: flag OFF = Itinerary (phase-6), flag ON = Itinerary (phase-4)
   const guideBackPath = isPhaseReorderEnabled() ? "phase-2" : "phase-4";
-  const guideAdvanceLabel = isPhaseReorderEnabled()
-    ? t("ctaNextReordered")
-    : tExpedition("cta.advance");
 
   const regenDisabledReasonId = "regen-disabled-reason";
 

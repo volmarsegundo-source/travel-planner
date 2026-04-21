@@ -29,8 +29,6 @@ import { hashUserId } from "@/lib/hash";
 import { SubscriptionService, PREMIUM_MONTHLY_PA, ONBOARDING_PA } from "./subscription.service";
 import type { PaEntitlement, PaEntitlementSource } from "@prisma/client";
 
-type Tx = Parameters<Parameters<typeof db.$transaction>[0]>[0];
-
 // ─── Constants ──────────────────────────────────────────────────────────────
 
 /** Free plan: max 3 active (non-archived, non-deleted) trips. */

@@ -103,7 +103,11 @@ const mockSession = {
   expires: "2099-01-01",
 };
 
-describe("AppShellLayout", () => {
+// Each AppShellLayout render takes ~33s under contention (see
+// docs/specs/sprint-45/FLAKY-TRIAGE-app-shell-layout-2026-04-20.md — slow,
+// not flaky). Bump the per-test timeout to 60s so the suite stays green when
+// co-running with the rest of the jsdom-heavy tests.
+describe("AppShellLayout", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue(mockSession);

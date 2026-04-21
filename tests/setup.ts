@@ -1,4 +1,4 @@
-import "@testing-library/jest-dom";
+import "@testing-library/jest-dom/vitest";
 
 // ─── Mock server-only (no-op in test environment) ───────────────────────────
 // server-only throws when imported from client components in prod, but tests
