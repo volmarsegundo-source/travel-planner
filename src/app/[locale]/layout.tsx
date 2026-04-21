@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -34,6 +35,10 @@ export default async function LocaleLayout({
   // Load messages server-side and pass them to the client provider.
   const messages = await getMessages();
 
+  // SPEC-SEC-CSP-NONCE-001: propagate CSP nonce to next-themes so its
+  // pre-hydration inline script is authorized by script-src.
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
+
   return (
     <html
       lang={locale}
@@ -41,7 +46,13 @@ export default async function LocaleLayout({
       suppressHydrationWarning
     >
       <body>
-        <ThemeProvider attribute="class" forcedTheme="light" enableSystem={false} disableTransitionOnChange>
+        <ThemeProvider
+          nonce={nonce}
+          attribute="class"
+          forcedTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
           <NextIntlClientProvider messages={messages}>
             <QueryProvider>{children}</QueryProvider>
           </NextIntlClientProvider>
