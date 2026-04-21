@@ -1558,8 +1558,8 @@ export function Phase6ItineraryV2({
               <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureOptimizationDesc")}</p>
             </div>
             <div className="p-5 rounded-xl bg-atlas-surface-container border border-atlas-outline-variant/30">
-              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500/10 mb-3 mx-auto">
-                <span className="text-emerald-600 text-lg" aria-hidden="true">{"\uD83D\uDCA1"}</span>
+              <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-atlas-success-container mb-3 mx-auto">
+                <span className="text-atlas-success text-lg" aria-hidden="true">{"\uD83D\uDCA1"}</span>
               </div>
               <h3 className="font-bold font-atlas-headline text-sm text-atlas-on-surface mb-1">{t("featureTips")}</h3>
               <p className="text-xs text-atlas-on-surface-variant font-atlas-body">{t("featureTipsDesc")}</p>

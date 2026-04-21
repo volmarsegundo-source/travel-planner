@@ -300,12 +300,12 @@ export function DestinationGuideWizard({
       {/* Regenerate confirmation dialog (auto-update check) */}
       {showRegenerateConfirm && (
         <div
-          className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800/40 dark:bg-amber-950/30"
+          className="mt-4 rounded-lg border border-atlas-warning bg-atlas-warning-container p-4 dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10"
           role="alertdialog"
           aria-label={t("regenerateConfirm")}
           data-testid="regenerate-confirm-dialog"
         >
-          <p className="text-sm text-amber-800 dark:text-amber-200">
+          <p className="text-sm text-atlas-warning dark:text-atlas-warning">
             {t("regenerateConfirm")}
           </p>
           <div className="mt-3 flex gap-2">

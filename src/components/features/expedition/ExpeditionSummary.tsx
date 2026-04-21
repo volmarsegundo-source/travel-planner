@@ -210,17 +210,17 @@ export function ExpeditionSummary({
 
           {pendingRequired.length > 0 && (
             <div
-              className="mb-3 rounded-lg border border-orange-200 bg-[#FFF7ED] p-4 dark:border-orange-800/40 dark:bg-orange-950/20"
+              className="mb-3 rounded-lg border border-atlas-warning bg-atlas-warning-container p-4 dark:border-atlas-warning/40 dark:bg-atlas-warning-container/10"
               data-testid="pending-required"
             >
-              <p className="text-sm font-medium text-[#92400E] dark:text-orange-300 mb-2">
+              <p className="text-sm font-medium text-atlas-warning dark:text-atlas-warning mb-2">
                 {t("pendingRequired")}
               </p>
               <ul className="space-y-1" role="list">
                 {pendingRequired.map((item) => (
                   <li
                     key={`${item.phase}-${item.key}`}
-                    className="flex items-center gap-2 text-sm text-[#92400E] dark:text-orange-300"
+                    className="flex items-center gap-2 text-sm text-atlas-warning dark:text-atlas-warning"
                   >
                     <span aria-hidden="true">!</span>
                     <span>{t("pendingPhaseItem", { phase: item.phase, item: item.key })}</span>

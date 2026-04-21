@@ -201,7 +201,7 @@ function ChecklistSection({
       </p>
       {data.completedCount < data.totalCount && (
         <p
-          className="mb-3 text-sm font-medium text-amber-600 dark:text-amber-400"
+          className="mb-3 text-sm font-medium text-atlas-warning dark:text-atlas-warning"
           data-testid="report-pending-required"
         >
           {t("pendingRequiredCount", {

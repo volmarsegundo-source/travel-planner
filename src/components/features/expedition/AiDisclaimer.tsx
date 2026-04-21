@@ -24,15 +24,15 @@ export function AiDisclaimer({ message }: AiDisclaimerProps) {
 
   return (
     <div
-      className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-950/30"
+      className="flex items-start gap-3 rounded-lg border border-atlas-info-container bg-atlas-info-container p-4 dark:border-atlas-info/40 dark:bg-atlas-info-container/20"
       role="note"
       data-testid="ai-disclaimer"
     >
       <Info
-        className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500"
+        className="mt-0.5 h-5 w-5 flex-shrink-0 text-atlas-info"
         aria-hidden="true"
       />
-      <p className="text-sm text-blue-700 dark:text-blue-300">
+      <p className="text-sm text-atlas-info dark:text-atlas-info">
         {text}
       </p>
     </div>

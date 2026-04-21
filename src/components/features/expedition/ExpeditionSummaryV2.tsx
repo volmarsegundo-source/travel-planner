@@ -809,7 +809,7 @@ function PhaseContent({
                     {seg.departureAt && <>{" \u00B7 "}{formatDate(seg.departureAt)}</>}
                     {seg.provider && <>{" \u00B7 "}{seg.provider}</>}
                     {seg.maskedBookingCode && (
-                      <span className="ml-2 font-mono text-atlas-on-surface-variant">
+                      <span className="ml-2 font-atlas-body text-atlas-on-surface-variant">
                         {t("phase4BookingCode", { code: seg.maskedBookingCode })}
                       </span>
                     )}
@@ -836,7 +836,7 @@ function PhaseContent({
                       <>{" \u00B7 "}{formatDate(acc.checkIn)} - {formatDate(acc.checkOut)}</>
                     )}
                     {acc.maskedBookingCode && (
-                      <span className="ml-2 font-mono text-atlas-on-surface-variant">
+                      <span className="ml-2 font-atlas-body text-atlas-on-surface-variant">
                         {t("phase4BookingCode", { code: acc.maskedBookingCode })}
                       </span>
                     )}
