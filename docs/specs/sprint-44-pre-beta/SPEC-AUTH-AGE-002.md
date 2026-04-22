@@ -1,6 +1,6 @@
 # SPEC-AUTH-AGE-002 — Google OAuth DOB collection + 18+ gate
 
-**Version:** 1.0.0
+**Version:** 1.2.0
 **Status:** Approved (automatic follow-up to Wave 2)
 **Sprint:** 44 (pre-Beta)
 **Owner:** dev-fullstack-1
@@ -237,3 +237,20 @@ Both `messages/en.json` and `messages/pt-BR.json`:
 - **Staging**: ≥ 0.90
 - **Prod**: ≥ 0.92
 - Weights: Safety 40% + Accuracy 25% + UX 15% + i18n 10% + Performance 10%
+
+## 7. Change History
+
+| Version | Date | Author | Change |
+|---|---|---|---|
+| 1.0.0 | 2026-04-15 | dev-fullstack-1 | Initial approved spec — Google OAuth DOB gate |
+| 1.1.0 | 2026-04-21 | dev-fullstack-1 | BUG-C-F1 fix (`9a45312`): added `updateSession({ user: { profileComplete: true } })` after DOB upsert to break middleware redirect loop; surfaced Prisma errors in logs. |
+| 1.2.0 | 2026-04-22 | dev-fullstack-1 | BUG-C-F3 fix: replaced `updateSession` (unstable_update) with direct cookie patch via new `patchSessionToken` helper (`src/lib/auth/session-cookie.ts`). Root cause confirmed via observability patch (`7d42b60`): `unstable_update` silently no-ops inside Next.js 15 Server Actions because `sessionStore.value` cannot be reconstructed from the synthetic Request's cookie header. Upstream issues: nextauthjs/next-auth#11694, #13205, #13173, #7342. Upgrade to beta.31 does not fix (release notes: no source changes). Helper uses public `encode`/`decode` from `next-auth/jwt`. |
+
+### Files touched in v1.2.0
+
+| File | Change |
+|---|---|
+| `src/lib/auth/session-cookie.ts` | NEW — `patchSessionToken` helper using `next-auth/jwt` `encode`/`decode` |
+| `src/lib/auth/__tests__/session-cookie.test.ts` | NEW — 5 unit tests (no-secret, no-cookie, decode-failed, happy path, payload merge) |
+| `src/server/actions/profile.actions.ts` | remove `updateSession` + observability logs; call `patchSessionToken({ profileComplete: true })` with warn-but-don't-fail fallback |
+| `src/server/actions/__tests__/profile.complete-profile.test.ts` | mock `patchSessionToken` instead of `updateSession`; drop `next/headers.cookies` stub; add failure-path assertion |

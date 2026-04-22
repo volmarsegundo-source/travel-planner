@@ -1,7 +1,8 @@
 "use server";
 import "server-only";
-import { headers, cookies as nextCookies } from "next/headers";
-import { auth, signOut, updateSession } from "@/lib/auth";
+import { headers } from "next/headers";
+import { auth, signOut } from "@/lib/auth";
+import { patchSessionToken } from "@/lib/auth/session-cookie";
 import { UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
 import { PointsEngine } from "@/lib/engines/points-engine";
@@ -372,28 +373,22 @@ export async function completeProfileAction(
       update: { birthDate },
     });
 
-    const cookiesBefore = (await nextCookies()).getAll().map((c) => c.name);
-    logger.info("auth.completeProfile.updateSession.start", {
-      userIdHash: hashUserId(userId),
-      cookiesBefore,
-    });
-
-    // SPEC-AUTH-AGE-002 §Scenario 2: refresh JWT so middleware lets the user
-    // past /auth/complete-profile on the next navigation. Without this the
-    // token stays profileComplete=false and middleware loops them back.
-    // The auth.config.ts `session` callback reads user.profileComplete via
-    // an inline cast; we mirror that pattern on the call side.
-    await updateSession({
-      user: { profileComplete: true } as unknown as Record<string, unknown>,
-    } as Parameters<typeof updateSession>[0]);
-
-    const cookiesAfter = (await nextCookies()).getAll().map((c) => c.name);
-    const sessionAfter = await auth();
-    logger.info("auth.completeProfile.updateSession.end", {
-      userIdHash: hashUserId(userId),
-      cookiesAfter,
-      profileCompleteAfter: (sessionAfter?.user as { profileComplete?: boolean })?.profileComplete,
-    });
+    // SPEC-AUTH-AGE-002 §Scenario 2 — refresh JWT so middleware lets the user
+    // past /auth/complete-profile on the next navigation. We patch the session
+    // cookie directly via next-auth/jwt because unstable_update silently no-ops
+    // inside Next 15 Server Actions (BUG-C-F3 — confirmed via observability
+    // logs in commit 7d42b60; root cause in @auth/core/lib/actions/session.js
+    // L18-20: sessionStore.value === "" → early return with empty cookies).
+    const patched = await patchSessionToken({ profileComplete: true });
+    if (!patched.ok) {
+      logger.warn("auth.completeProfile.patchCookie.failed", {
+        userIdHash: hashUserId(userId),
+        reason: patched.reason,
+      });
+      // Non-fatal: user may need one manual refresh, but DB state is already
+      // correct — far better than the infinite redirect loop we had with
+      // unstable_update.
+    }
 
     logger.info("auth.oauth.dobAccepted", { userIdHash: hashUserId(userId) });
     return { success: true };

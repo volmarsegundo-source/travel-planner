@@ -8,34 +8,36 @@ const {
   mockSignOut,
   mockCheckRateLimit,
   mockHeaders,
-  mockCookies,
   mockUpsert,
   mockFindUnique,
-  mockUpdateSession,
+  mockPatchSessionToken,
   mockLoggerInfo,
+  mockLoggerWarn,
 } = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockSignOut: vi.fn(),
   mockCheckRateLimit: vi.fn(),
   mockHeaders: vi.fn(),
-  mockCookies: vi.fn(),
   mockUpsert: vi.fn(),
   mockFindUnique: vi.fn(),
-  mockUpdateSession: vi.fn(),
+  mockPatchSessionToken: vi.fn(),
   mockLoggerInfo: vi.fn(),
+  mockLoggerWarn: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
 
 vi.mock("next/headers", () => ({
   headers: mockHeaders,
-  cookies: mockCookies,
 }));
 
 vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
   signOut: mockSignOut,
-  updateSession: mockUpdateSession,
+}));
+
+vi.mock("@/lib/auth/session-cookie", () => ({
+  patchSessionToken: mockPatchSessionToken,
 }));
 
 vi.mock("@/lib/rate-limit", () => ({
@@ -49,7 +51,7 @@ vi.mock("@/server/db", () => ({
 }));
 
 vi.mock("@/lib/logger", () => ({
-  logger: { info: mockLoggerInfo, error: vi.fn(), warn: vi.fn() },
+  logger: { info: mockLoggerInfo, error: vi.fn(), warn: mockLoggerWarn },
 }));
 
 import { completeProfileAction } from "@/server/actions/profile.actions";
@@ -65,12 +67,9 @@ describe("completeProfileAction — SPEC-AUTH-AGE-002", () => {
     vi.clearAllMocks();
     mockCheckRateLimit.mockResolvedValue({ allowed: true });
     mockHeaders.mockResolvedValue({ get: () => "127.0.0.1" });
-    mockCookies.mockResolvedValue({
-      getAll: () => [{ name: "authjs.session-token", value: "stub" }],
-    });
     mockAuth.mockResolvedValue({ user: { id: "user_google_1" } });
     mockUpsert.mockResolvedValue({ userId: "user_google_1" });
-    mockUpdateSession.mockResolvedValue(undefined);
+    mockPatchSessionToken.mockResolvedValue({ ok: true });
   });
 
   // Scenario 2 — adult completes profile successfully
@@ -92,11 +91,25 @@ describe("completeProfileAction — SPEC-AUTH-AGE-002", () => {
     expect((call.create.birthDate as Date).toISOString().slice(0, 10)).toBe("1990-05-15");
     expect(mockSignOut).not.toHaveBeenCalled();
 
-    // SPEC-AUTH-AGE-002 §Scenario 2: JWT must be refreshed so middleware
-    // allows the user past /auth/complete-profile on the next navigation.
-    expect(mockUpdateSession).toHaveBeenCalledWith({
-      user: { profileComplete: true },
-    });
+    // SPEC-AUTH-AGE-002 §Scenario 2 / BUG-C-F3: JWT must be refreshed so
+    // middleware allows the user past /auth/complete-profile. Patched via
+    // manual cookie rewrite because unstable_update no-ops in Server Actions.
+    expect(mockPatchSessionToken).toHaveBeenCalledWith({ profileComplete: true });
+  });
+
+  it("logs a warning but still returns success when patchSessionToken fails", async () => {
+    mockPatchSessionToken.mockResolvedValueOnce({ ok: false, reason: "no-cookie" });
+
+    const result = await completeProfileAction(buildForm({ dateOfBirth: "1990-05-15" }));
+
+    expect(result.success).toBe(true);
+    expect(mockUpsert).toHaveBeenCalledTimes(1);
+    const warnCalls = mockLoggerWarn.mock.calls;
+    const failure = warnCalls.find(
+      (c) => c[0] === "auth.completeProfile.patchCookie.failed"
+    );
+    expect(failure).toBeDefined();
+    expect(failure?.[1]).toMatchObject({ reason: "no-cookie" });
   });
 
   // Scenario 3 — minor blocked and signed out

@@ -355,3 +355,84 @@ Latente desde Sprint 2 (`middleware.ts` adicionado em 2026-03-04). Três defeito
 ☐ Botão submit deve reagir — UserProfile deve ser persistido
 ☐ Smoke test Playwright (opcional) após validação manual
 
+## 13. BUG-C-F2 — Observabilidade aplicada, H1a confirmada (2026-04-22)
+
+### 13.1 Patch de observabilidade (commit `7d42b60`)
+
+Após BUG-C Partes 1 e 2 (CSP nonce + next-themes), o submit do DOB passou a
+executar sem erro, mas o usuário continuava em loop em `/auth/complete-profile`.
+Logs estruturados foram adicionados em `completeProfileAction` para isolar
+H1a (updateSession silencioso) vs H1b (cookie gerado mas não commitado):
+
+- `auth.completeProfile.updateSession.start` — `cookiesBefore`
+- `auth.completeProfile.updateSession.end` — `cookiesAfter` + `profileCompleteAfter`
+
+### 13.2 Evidência capturada (Staging, 2 tentativas)
+
+```json
+{ "event": "auth.completeProfile.updateSession.start",
+  "cookiesBefore": ["NEXT_LOCALE","__Host-authjs.csrf-token","__Secure-authjs.callback-url","__Secure-authjs.session-token"] }
+{ "event": "auth.completeProfile.updateSession.end",
+  "cookiesAfter":  ["NEXT_LOCALE","__Host-authjs.csrf-token","__Secure-authjs.callback-url","__Secure-authjs.session-token"],
+  "profileCompleteAfter": false }
+```
+
+`cookiesAfter === cookiesBefore` e `profileCompleteAfter: false` em ambas
+tentativas → **H1a 100% confirmada**.
+
+### 13.3 Root cause no código (não só sintomático)
+
+- `node_modules/@auth/core/lib/actions/session.js` L18–20: `if (!sessionToken) return response;` com `response.cookies` vazio.
+- `node_modules/next-auth/lib/actions.js` L73–86: `update()` monta `new Request` com headers de `next/headers`; em Server Actions do Next 15, o `SessionStore` interno não consegue reconstruir `sessionStore.value` a partir desse header Cookie → early-return → `cookieJar.set()` itera sobre array vazio → no-op silencioso.
+
+### 13.4 Upstream (consultado em 2026-04-22)
+
+- Latest: `next-auth@5.0.0-beta.31` + `@auth/core@0.41.2` (ambos 2026-04-14)
+- Release notes beta.31: **"No changes to `next-auth`'s own source"** → upgrade não corrige
+- Issues: [#11694](https://github.com/nextauthjs/next-auth/issues/11694), [#13205](https://github.com/nextauthjs/next-auth/issues/13205), [#13173](https://github.com/nextauthjs/next-auth/issues/13173), [#11853](https://github.com/nextauthjs/next-auth/issues/11853), [#7342](https://github.com/nextauthjs/next-auth/issues/7342) (feature ainda `unstable_` há 2+ anos)
+
+## 14. BUG-C-F3 — Fix definitivo via cookie manual (2026-04-22)
+
+### 14.1 Opções avaliadas
+
+| Opção | Veredito |
+|---|---|
+| A. Escrita manual do cookie via `next-auth/jwt` | ✅ **Selecionada** |
+| B. signOut + signIn silencioso | ❌ Bloqueada por design OAuth (Google exige redirect) |
+| C. Upgrade beta.30 → beta.31 | ❌ Upstream explicitamente sem mudanças em `next-auth`'s source |
+| D. Mover check para callback `jwt` com DB | ❌ `auth.config.ts` precisa ser Edge-safe (sem Prisma) |
+
+### 14.2 Fix aplicado
+
+- **Novo helper** `src/lib/auth/session-cookie.ts` — `patchSessionToken(patch)`:
+  1. Lê `AUTH_SECRET` → retorna `no-secret` se ausente.
+  2. Lê cookie `__Secure-authjs.session-token` (prod) ou `authjs.session-token` (dev) → retorna `no-cookie` se ausente.
+  3. `decode({ token, secret, salt: cookieName })` → retorna `decode-failed` se inválido.
+  4. Merge do patch no payload + `encode({ token, secret, salt, maxAge: 30d })`.
+  5. `cookies().set(name, newToken, { httpOnly, sameSite: lax, path, secure, maxAge })`.
+- **`completeProfileAction` refatorada**: remove `updateSession` + logs de observabilidade; chama `patchSessionToken({ profileComplete: true })`; em caso de falha apenas `logger.warn(...)` e segue (DB já consistente, UX degrada para 1 refresh manual).
+- **Tests**: 5 unit tests novos no helper + 1 teste extra na action (fallback path).
+
+### 14.3 Por que API é estável
+
+`encode`/`decode` são exportados publicamente por `next-auth/jwt` (re-export de `@auth/core/jwt`), com signatures estáveis desde v4. O parâmetro `salt` é o nome do cookie — também estável. A documentação marca o módulo como "not recommended" para uso server-side mas nunca removeu nem quebrou as funções.
+
+### 14.4 Gates locais
+
+- ☐ `npx tsc --noEmit`
+- ☐ `npm test`
+- ☐ `npm run lint`
+
+### 14.5 Validação em Staging (bloqueador para fechamento BUG-C)
+
+☐ Deploy verde no Vercel
+☐ PO repete fluxo Google OAuth + DOB em aba anônima
+☐ Middleware **não** redireciona de volta para `/auth/complete-profile`
+☐ Usuário aterrissa em `/expeditions` (ou rota protegida target)
+☐ Log `auth.oauth.dobAccepted` presente; log `auth.completeProfile.patchCookie.failed` **ausente**
+
+### 14.6 Follow-up (Sprint 46)
+
+- Se upstream estabilizar `unstable_update` em versão futura, avaliar remoção do helper (item de SPEC-SEC-AUDIT-001).
+- Adicionar logs opcionais dentro de `patchSessionToken` (não na action) se quisermos monitorar o helper em produção por 1 sprint — registro arquitetural mais coerente.
+
