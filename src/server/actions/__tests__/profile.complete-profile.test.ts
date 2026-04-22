@@ -8,6 +8,7 @@ const {
   mockSignOut,
   mockCheckRateLimit,
   mockHeaders,
+  mockCookies,
   mockUpsert,
   mockFindUnique,
   mockUpdateSession,
@@ -17,6 +18,7 @@ const {
   mockSignOut: vi.fn(),
   mockCheckRateLimit: vi.fn(),
   mockHeaders: vi.fn(),
+  mockCookies: vi.fn(),
   mockUpsert: vi.fn(),
   mockFindUnique: vi.fn(),
   mockUpdateSession: vi.fn(),
@@ -27,6 +29,7 @@ vi.mock("server-only", () => ({}));
 
 vi.mock("next/headers", () => ({
   headers: mockHeaders,
+  cookies: mockCookies,
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -62,6 +65,9 @@ describe("completeProfileAction — SPEC-AUTH-AGE-002", () => {
     vi.clearAllMocks();
     mockCheckRateLimit.mockResolvedValue({ allowed: true });
     mockHeaders.mockResolvedValue({ get: () => "127.0.0.1" });
+    mockCookies.mockResolvedValue({
+      getAll: () => [{ name: "authjs.session-token", value: "stub" }],
+    });
     mockAuth.mockResolvedValue({ user: { id: "user_google_1" } });
     mockUpsert.mockResolvedValue({ userId: "user_google_1" });
     mockUpdateSession.mockResolvedValue(undefined);

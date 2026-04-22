@@ -1,6 +1,6 @@
 "use server";
 import "server-only";
-import { headers } from "next/headers";
+import { headers, cookies as nextCookies } from "next/headers";
 import { auth, signOut, updateSession } from "@/lib/auth";
 import { UnauthorizedError } from "@/lib/errors";
 import { db } from "@/server/db";
@@ -372,6 +372,12 @@ export async function completeProfileAction(
       update: { birthDate },
     });
 
+    const cookiesBefore = (await nextCookies()).getAll().map((c) => c.name);
+    logger.info("auth.completeProfile.updateSession.start", {
+      userIdHash: hashUserId(userId),
+      cookiesBefore,
+    });
+
     // SPEC-AUTH-AGE-002 §Scenario 2: refresh JWT so middleware lets the user
     // past /auth/complete-profile on the next navigation. Without this the
     // token stays profileComplete=false and middleware loops them back.
@@ -380,6 +386,14 @@ export async function completeProfileAction(
     await updateSession({
       user: { profileComplete: true } as unknown as Record<string, unknown>,
     } as Parameters<typeof updateSession>[0]);
+
+    const cookiesAfter = (await nextCookies()).getAll().map((c) => c.name);
+    const sessionAfter = await auth();
+    logger.info("auth.completeProfile.updateSession.end", {
+      userIdHash: hashUserId(userId),
+      cookiesAfter,
+      profileCompleteAfter: (sessionAfter?.user as { profileComplete?: boolean })?.profileComplete,
+    });
 
     logger.info("auth.oauth.dobAccepted", { userIdHash: hashUserId(userId) });
     return { success: true };
