@@ -15,6 +15,7 @@ import "server-only";
 import { cookies } from "next/headers";
 import { encode, decode } from "next-auth/jwt";
 import type { JWT } from "next-auth/jwt";
+import { logger } from "@/lib/logger";
 
 const SESSION_COOKIE_NAME =
   process.env.NODE_ENV === "production"
@@ -27,6 +28,19 @@ export type PatchSessionTokenResult =
   | { ok: true }
   | { ok: false; reason: "no-secret" | "no-cookie" | "decode-failed" };
 
+function parseJweHeader(token: string): Record<string, unknown> | null {
+  try {
+    const headerB64 = token.split(".")[0];
+    if (!headerB64) return null;
+    return JSON.parse(Buffer.from(headerB64, "base64url").toString()) as Record<
+      string,
+      unknown
+    >;
+  } catch {
+    return null;
+  }
+}
+
 export async function patchSessionToken(
   patch: Record<string, unknown>
 ): Promise<PatchSessionTokenResult> {
@@ -35,20 +49,68 @@ export async function patchSessionToken(
 
   const jar = await cookies();
   const current = jar.get(SESSION_COOKIE_NAME)?.value;
-  if (!current) return { ok: false, reason: "no-cookie" };
+
+  // BUG-C-F3 Iteration 2 diagnostic: enumerate all session-token-prefixed
+  // cookies to detect chunk contamination (`.0`, `.1` variants left over
+  // from a previous chunked write that our unchunked rewrite would NOT
+  // clean up — SessionStore in middleware would then join the new cookie
+  // with stale chunks and produce garbage on decode).
+  const sessionCookieNames = jar
+    .getAll()
+    .map((c) => c.name)
+    .filter((n) => n.startsWith(SESSION_COOKIE_NAME));
+
+  if (!current) {
+    logger.info("auth.patchCookie.debug", {
+      phase: "no-cookie",
+      cookieName: SESSION_COOKIE_NAME,
+      sessionCookieNames,
+    });
+    return { ok: false, reason: "no-cookie" };
+  }
+
+  const currentHeader = parseJweHeader(current);
 
   const payload = await decode<JWT>({
     token: current,
     secret,
     salt: SESSION_COOKIE_NAME,
   });
-  if (!payload) return { ok: false, reason: "decode-failed" };
+  if (!payload) {
+    logger.info("auth.patchCookie.debug", {
+      phase: "decode-failed",
+      cookieName: SESSION_COOKIE_NAME,
+      sessionCookieNames,
+      currentLength: current.length,
+      currentHeader,
+    });
+    return { ok: false, reason: "decode-failed" };
+  }
 
+  const merged = { ...payload, ...patch } as JWT;
   const newToken = await encode<JWT>({
-    token: { ...payload, ...patch } as JWT,
+    token: merged,
     secret,
     salt: SESSION_COOKIE_NAME,
     maxAge: SESSION_MAX_AGE,
+  });
+  const newHeader = parseJweHeader(newToken);
+
+  logger.info("auth.patchCookie.debug", {
+    phase: "encoded",
+    cookieName: SESSION_COOKIE_NAME,
+    sessionCookieNames,
+    secureFlag: process.env.NODE_ENV === "production",
+    currentLength: current.length,
+    currentHeader,
+    payloadKeys: Object.keys(payload),
+    payloadProfileCompleteBefore:
+      (payload as { profileComplete?: unknown }).profileComplete ?? null,
+    patchKeys: Object.keys(patch),
+    mergedProfileCompleteAfter:
+      (merged as { profileComplete?: unknown }).profileComplete ?? null,
+    newTokenLength: newToken.length,
+    newHeader,
   });
 
   jar.set(SESSION_COOKIE_NAME, newToken, {
