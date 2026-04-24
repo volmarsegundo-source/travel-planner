@@ -97,12 +97,16 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     And every code change has test coverage OR a documented exception
     And Trust Score composite ≥ 0.93 (no regression from Sprint 45 closing)
 
-  Scenario: Sprint 46 retrospective captures all debt items
-    Given Sprint 45 retrospective flagged single-author bias
+  Scenario: Sprint 46 retrospective captures all debt items with 5-agent independent format
+    Given Sprint 45 retrospective flagged single-author bias (memo L-02)
+    And Sprint 46 execution plan §9 mandates a 5-agent independent-input format
     When Sprint 46 retrospective runs
-    Then at least 3 agents contributed input independently
-    And Start/Stop/Continue items include specific code/commit references
+    Then 5 input files exist at docs/sprint-reviews/sprint-46-retro-inputs/ for: product-owner, tech-lead, qa-engineer, security-specialist, architect
+    And each input was committed BEFORE any cross-reading among agents
+    And Start/Stop/Continue items include specific code/commit/SPEC references
+    And divergences between agents are explicitly noted in the synthesis doc (not hidden)
     And no debt discovered during the sprint is left undocumented
+    And the synthesis is PO-signed on Day 15 after a review loop where all 5 agents can add/contest/confirm
 
   # ─────────────────────────────────────────────────────────────────────
   # Infra gates (scenarios B / C / D depending on scope)
@@ -189,3 +193,41 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When npm run eval:gate is invoked
     Then the process exits with code 1
     And the failure reason is logged to stderr
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Kickoff Close (2026-04-24) — 3 PO decisions
+  # Covers: C-04 early-gate semantics, Approach 1 Profit/Ranking gate
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: C-04 Gemini ADR acts as hard gate on Day 3 before Wave 2 API work starts
+    Given Sprint 46 Week 1 is in progress
+    And C-04 Gemini ADR is drafted by tech-lead + architect on Days 1-2
+    When Day 3 ends
+    Then the ADR is published at docs/architecture/ADR-XXX-gemini-timeout.md
+    And PO has signed off on the chosen direction (Edge migration OR Claude fallback)
+    And architect confirmed schema-compat implications for PromptVersion + AiConfigResolver inline in the ADR
+    When dev-fullstack-1 starts B-W2-001 on Day 6
+    Then any schema changes the ADR required are already reflected in the Prisma migration from Wave 1
+    And no mid-sprint Wave 2 rework is needed due to C-04
+
+  Scenario: Approach 1 Sprint Zero parallel gate to Sprint 47
+    Given PO chose Approach 1 for Profit Scoring and Dynamic Ranking
+    And Sprint 46 Week 3 Day 14 has arrived
+    When the Sprint Zero parallel SPECs are reviewed
+    Then SPEC-PROFIT-SCORING-001 is in Approved status at docs/specs/sprint-46-parallel/
+    And SPEC-DYNAMIC-RANKING-001 is in Approved status at docs/specs/sprint-46-parallel/
+    And both SPECs have all 9 dimensions filled
+    And tech-lead and architect signed off inline
+    # Fallback paths if not met:
+    #   Fallback A: Sprint 47 absorbs remaining work in "Sprint Zero Mini" Days 1-3
+    #   Fallback B: SPECs deferred post-Beta entirely (original Approach 3)
+    #   Both are pre-approved by PO — no new decision required
+
+  Scenario: Approach 1 load signal on Week 2 check — fallback triggers without guilt
+    Given PO chose Approach 1 at Sprint 46 kickoff
+    When Sprint 46 Week 2 Day 10 check happens
+    And PO reports actual SPEC writing time exceeded 1 day (was planned 0.5 day/week)
+    Then the team recognises this as signal to escalate
+    And PO may invoke Fallback A (Sprint 47 Sprint Zero Mini) OR Fallback B (post-Beta deferral)
+    And neither fallback requires a new PO decision round
+    And the synthesis in sprint-46-retrospective.md records the invocation + rationale

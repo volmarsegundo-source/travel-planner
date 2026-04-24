@@ -37,9 +37,15 @@ Grep of `src/` reveals both concepts **already implemented**:
 
 Wave 1 has 8 enumerated tasks (`T-W1-001`..`T-W1-008`) with sizes S/M/L and dependencies in SPEC-TECHLEAD §3. Wave 2 lists deliverables; I derive 9 tasks (`T-W2-001`..`T-W2-009`) below. **No Sprint Zero for V2 required**.
 
-### 1.4 Outstanding inputs
+### 1.4 PO decisions (registered 2026-04-24)
 
-- **Gemini timeout ADR** — prompt said "Prod promotion is separate; Profit/Ranking Claude proposes approach". Gemini ADR not explicitly listed in S46 kickoff scope; planning doc §2.1(b) classifies it as MUST pre-Beta. **Assumption**: Gemini ADR lands in S46 as a 1-2d work item owned by tech-lead + architect; flagged under Block C below. If PO intends Gemini for S47, flip classification. Call out below for PO.
+Three decisions registered at sprint kickoff:
+
+1. **C-04 Gemini timeout ADR**: KEPT in Sprint 46 as early-week priority. Rationale (PO): V2 Waves 1-2 include Prompt Registry work whose schema could be affected if the ADR picks Edge-migration as the direction. Deciding first avoids Wave 2 rework.
+2. **Profit Scoring + Dynamic Ranking**: **Approach 1** — Sprint Zero parallel during S46. PO writes SPECs at 0.5 day/week cadence. Approach 3 (post-Beta deferral) remains valid fallback if PO load exceeds capacity.
+3. **Sprint 46 retrospective format**: 5 agents independent inputs (PO + tech-lead + qa-engineer + security-specialist + architect) → PO synthesis → review loop. Eliminates single-author bias from Sprint 45. Full format in §9.
+
+Sections 3 (schedule), 4 (DoD), 6 (Profit/Ranking), 7 (risk), 8 (success criteria), 9 (new) reflect these decisions.
 
 ---
 
@@ -95,7 +101,7 @@ Source: `SPEC-TECHLEAD-AI-GOVERNANCE-V2` §3 (deliverables list, tasks derived b
 | C-01 | CI fix: `tests/unit/scripts/project-bootstrap.test.ts:69` skip on CI when `.env.local` absent | 0.5h | devops-engineer | Single-line assertion change + comment |
 | C-02 | EDD Eval Gates: fix exit code so `npm run eval:gate` exits 0 on pass | 1-2h | qa-engineer + devops | Pre-existing since pre-Sprint-45 |
 | C-03 | Redis Staging provider decision (Upstash paid / Vercel KV / self-hosted) + ADR + smoke test | 2-4h | devops-engineer + finops-engineer | Decision doc required before any V2 Wave that depends on Staging Redis |
-| C-04 | **Gemini timeout ADR** (Edge migration vs Claude fallback) + chosen-option implementation | 2-5d | tech-lead + architect + devops-engineer | **Flagged for PO — assumption is Gemini lands in S46. If S47 instead, move this row.** |
+| C-04 | **Gemini timeout ADR** (Edge migration vs Claude fallback) + chosen-option implementation. **PO-confirmed priority 2026-04-24**: ADR Week 1 Days 1-3, implementation Days 4-8. Hard gate for B-W2-001 start (if ADR changes PromptVersion schema). | 2-5d | tech-lead + architect draft; devops-engineer + dev-fullstack-1 implement | **PO decision §1.4**: landed in S46. |
 
 ### Block D — Security follow-ups (2-4h)
 
@@ -133,17 +139,17 @@ Source: `SPEC-TECHLEAD-AI-GOVERNANCE-V2` §3 (deliverables list, tasks derived b
 
 Calendar assumes 2 devs in parallel for V2; 1 dedicated non-dev agent per Block-A/D/E item; 15% buffer applied.
 
-### Week 1 (days 1-5): foundation unblock
+### Week 1 (days 1-5): foundation unblock + Gemini ADR
 
 | Day | Thread 1 (dev-1) | Thread 2 (dev-2) | Non-dev agents |
 |---|---|---|---|
-| 1 | B-W1-001 (flag) + B-W1-002 (migration start) | C-01 (CI fix, 0.5h) → D-01 (F-01, 0.25h) → B-W1-005 (RBAC) | A-01 kickoff (SEC-AUDIT discovery phase) |
-| 2 | B-W1-002 cont. + B-W1-003 (seed) | B-W1-005 cont. + B-W1-006 (UI shell) | A-01 cont. + C-02 (EDD fix, 1-2h) |
-| 3 | B-W1-004 (AuditLogService) | B-W1-006 cont. + B-W1-007 (health) | A-01 findings draft + C-03 (Redis decision draft) |
-| 4 | B-W1-004 tests | B-W1-008 start (integration tests) | A-02 kickoff (MOCK-ASSERTION rule) + D-02 (F-02 canUseAI) |
-| 5 | **Wave 1 review + gate** | Wave 1 review + gate | A-01 commit + A-02 cont. + C-03 decision commit |
+| 1 | B-W1-001 (flag) + B-W1-002 (migration start) | C-01 (CI fix, 0.5h) → D-01 (F-01, 0.25h) → B-W1-005 (RBAC) | A-01 kickoff (SEC-AUDIT discovery) + **C-04 ADR draft — tech-lead + architect** |
+| 2 | B-W1-002 cont. + B-W1-003 (seed) | B-W1-005 cont. + B-W1-006 (UI shell) | A-01 cont. + C-02 (EDD fix, 1-2h) + **C-04 ADR cont.** |
+| 3 | B-W1-004 (AuditLogService) | B-W1-006 cont. + B-W1-007 (health) | A-01 findings draft + C-03 (Redis decision draft) + **C-04 ADR publish + PO sign-off on direction** |
+| 4 | B-W1-004 tests | B-W1-008 start (integration tests) | A-02 kickoff (MOCK-ASSERTION rule) + D-02 (F-02 canUseAI) + **C-04 implementation start (devops lead)** |
+| 5 | **Wave 1 review + gate** | Wave 1 review + gate | A-01 commit + A-02 cont. + C-03 decision commit + **C-04 implementation cont.** |
 
-Critical path: **B-W1-001 → B-W1-002 → B-W1-004 → B-W2-001**. Any slip propagates.
+Critical path: **B-W1-001 → B-W1-002 → B-W1-004 → [C-04 ADR publish Day 3] → B-W2-001**. C-04 ADR publication Day 3 is a **hard gate** for B-W2-001 start: if the ADR picks Edge migration, PromptVersion model schema may need adjustment before API endpoints are locked. B-W2-001 starts Day 6, giving a 3-day buffer between C-04 ADR and Wave 2 dependency — acceptable.
 
 ### Week 2 (days 6-10): prompt editor + observability
 
@@ -152,8 +158,8 @@ Critical path: **B-W1-001 → B-W1-002 → B-W1-004 → B-W2-001**. Any slip pro
 | 6 | B-W2-001 (API endpoints) | B-W2-006 (editor UI start) | A-02 wrap-up + A-03 kickoff (Sentry forwarder) |
 | 7 | B-W2-002 (versioning) + B-W2-003 start (validations) | B-W2-006 cont. + B-W2-007 (diff viewer) | A-03 cont. + E-02 adapter tests (jwt callback) |
 | 8 | B-W2-003 cont. | B-W2-007 cont. + B-W2-008 (preview) | A-03 commit + E-02 session callback |
-| 9 | B-W2-004 (warnings) + B-W2-005 (token count) | B-W2-008 cont. + B-W2-009 start | E-01 retrospective doc draft |
-| 10 | **Mid-sprint gate** (V2 W2 backend ≥ 80% coverage) | Mid-sprint gate (V2 W2 UI complete) | C-04 Gemini ADR published |
+| 9 | B-W2-004 (warnings) + B-W2-005 (token count) | B-W2-008 cont. + B-W2-009 start | E-01 retrospective doc draft + **C-04 implementation wrap-up + staging smoke** |
+| 10 | **Mid-sprint gate** (V2 W2 backend ≥ 80% coverage + C-04 smoke ≥ Phase 5/6 < 55s) | Mid-sprint gate (V2 W2 UI complete) | PO Sprint Zero parallel — Profit Scoring SPEC Week 2 checkpoint |
 
 Critical path continues: **B-W1-004 → B-W2-001 → B-W2-003 → B-W2-009**.
 
@@ -161,11 +167,11 @@ Critical path continues: **B-W1-004 → B-W2-001 → B-W2-003 → B-W2-009**.
 
 | Day | Thread 1 | Thread 2 | Non-dev agents |
 |---|---|---|---|
-| 11 | B-W2-009 (validation tests) | B-W2-009 (UI tests) | E-01 commit |
-| 12 | Wave 2 integration | Wave 2 integration | C-04 implementation (Gemini fix) start |
-| 13 | Wave 2 gate + Trust Score | Wave 2 gate + Trust Score | C-04 implementation cont. |
-| 14 | **Buffer day** (15%) | **Buffer day** | Sprint 46 retrospective prep + Sprint 47 planning input |
-| 15 | Sprint close gate + release notes | — | Sprint 46 review doc + Trust Score close-out |
+| 11 | B-W2-009 (validation tests) | B-W2-009 (UI tests) | E-01 commit + **5-agent retrospective inputs Day 1** (PO + tech-lead + qa + sec + architect each start own file) |
+| 12 | Wave 2 integration | Wave 2 integration | 5-agent retrospective inputs continue |
+| 13 | Wave 2 gate + Trust Score | Wave 2 gate + Trust Score | 5-agent inputs committed + PO synthesis starts |
+| 14 | **Buffer day** (15%) | **Buffer day** | Retrospective synthesis + PO Sprint Zero — Profit/Ranking SPECs final review by tech-lead + architect |
+| 15 | Sprint close gate + release notes | — | Retrospective review loop + Sprint 46 review doc + Trust Score close-out + Sprint 47 planning input |
 
 ### Critical path
 
@@ -249,10 +255,13 @@ DoD is binary — every criterion is yes/no.
 
 ### C-04 Gemini timeout ADR + fix
 
-- [ ] ADR with 2 options + chosen direction + rationale.
-- [ ] Implementation landed (either Edge migration or Claude fallback).
-- [ ] Staging smoke: Phase 5 + Phase 6 generations complete in < 55 s (beneath Vercel Hobby cap).
-- [ ] tech-lead + architect + devops sign-off.
+- [ ] ADR with 2 options + chosen direction + rationale, **published by end of Day 3**.
+- [ ] **Gate check on Day 3**: PO reviews ADR direction; architect + tech-lead co-sign. B-W2-001 start (Day 6) is **blocked** until this gate passes.
+- [ ] If ADR picks "Edge migration" direction: `PromptVersion` and `AiConfigResolver` schema review by architect to confirm no Wave 2 API contract changes required (or document required changes explicitly).
+- [ ] Implementation landed (either Edge migration or Claude fallback) by end of Day 9.
+- [ ] Staging smoke: Phase 5 + Phase 6 generations complete in < 55 s (beneath Vercel Hobby cap), captured Day 10 (mid-sprint gate).
+- [ ] finops-engineer confirms cost delta (Edge tier billing change OR Anthropic credit refill) within projected envelope (`sprint-46-planning.md` §9 C-04 row).
+- [ ] tech-lead + architect + devops-engineer + finops-engineer sign-off inline in the ADR.
 
 ### D-01 F-01 fix
 
@@ -321,61 +330,55 @@ Governance tier = the smallest acceptable governance envelope per SPEC-PROCESS-R
 
 ---
 
-## §6 — Profit Scoring + Dynamic Ranking — 3 refined approaches
+## §6 — Profit Scoring + Dynamic Ranking — Approach 1 (PO decision, 2026-04-24)
 
-**Reframe from §1.2 grounding finding**: both concepts already exist in code. The question is not "build" but "refine" — what rules / dynamic behaviour should the PO layer on top?
+**Decision registered**: Approach 1 — Sprint Zero parallel during Sprint 46.
 
-Without a written scope doc from the PO, I propose three approaches. **No decision taken here.**
+**PO rationale (from kickoff 2026-04-24)**: "1-2 days of PO attention is acceptable; compensates for the desire to have these documented before Beta."
 
-### Approach 1 — Sprint Zero parallel (was "Approach 1" in planning §6)
+### 6.1 Structure
 
-**Refined**: PO (with product-owner agent assist) writes `SPEC-PROFIT-SCORING-001` and `SPEC-DYNAMIC-RANKING-001` during Sprint 46 Week 1-2, in parallel with dev execution. S47 consumes the SPECs.
+PO (Volmar) produces `SPEC-PROFIT-SCORING-001` and `SPEC-DYNAMIC-RANKING-001` in parallel to Sprint 46 execution. Both SPECs must reach **approved** status before Sprint 46 closes, so Sprint 47 can consume them in Wave 3+ planning.
 
-**Activities** (PO side, ~1-2d total):
-- Week 1: PO drafts outline of what rules should be configurable (e.g. per-tier profit multipliers, per-cohort rank thresholds). Product-owner agent writes first-pass SPEC with 9 dimensions.
-- Week 2: review by tech-lead + architect; finalize SPEC.
+### 6.2 Deliverables
 
-**Pros**: S47 starts with concrete SPEC; no delay.
-**Cons**: PO attention split with S46 execution reviews.
-**Effort impact on S46 dev**: zero.
-**Risk**: PO time-slice may slip; SPECs may land mid-S47.
+| Path | Purpose |
+|---|---|
+| `docs/specs/sprint-46-parallel/SPEC-PROFIT-SCORING-001.md` | 9-dimension SPEC covering configurable profit rules on top of existing `PerUserProfitRow` |
+| `docs/specs/sprint-46-parallel/SPEC-DYNAMIC-RANKING-001.md` | 9-dimension SPEC covering dynamic rank threshold rules on top of existing `UserProgress.currentRank` |
+| `docs/specs/sprint-46-parallel/research/` | Existing implementation snapshots + edge cases discovered during SPEC writing |
 
-### Approach 2 — S47 starts with 3-5d Sprint Zero Mini
+### 6.3 PO weekly allocation (0.5 day/week cadence)
 
-**Refined**: S47 week 1 is "Sprint Zero Mini" — all agents converge on Profit/Ranking SPECs + scoping. S47 weeks 2-3 execute V2 Waves 3-5 + Beta readiness.
+| Week | Day block | Activity |
+|---|---|---|
+| 1 | 0.5 day | Profit Scoring draft — SPEC-PROD + SPEC-UX dimensions |
+| 2 | 0.5 day | Profit Scoring cont. — SPEC-TECH + SPEC-SEC + SPEC-QA dimensions |
+| 2 | 0.5 day | Dynamic Ranking draft — SPEC-PROD + SPEC-UX |
+| 3 | 0.5 day | Dynamic Ranking cont. + both SPECs reviewed by tech-lead + architect |
 
-**Activities** (~3-5d team-wide):
-- Day 1-2: PO + product-owner draft SPECs with 9 dimensions.
-- Day 3: tech-lead + architect technical review; architect writes `SPEC-ARCH-PROFIT-SCORING` if infra changes needed.
-- Day 4: security + finops review; BDD scenarios written.
-- Day 5: SPECs approved; S47 execution kicks off.
+### 6.4 Ownership
 
-**Pros**: Focused scoping; full team alignment.
-**Cons**: S47 execution window shrinks to 2 weeks for V2 Waves 3-5 (60 pts) — tight.
-**Effort impact on S46**: zero.
-**Risk**: V2 Waves 3-5 slippage if Sprint Zero overruns.
+- **Author**: PO (Volmar).
+- **Reviewers**: tech-lead, architect, security-specialist (per dimension as applicable).
+- **Sign-off gate**: both SPECs in `Approved` status before Sprint 46 closing. If not met, fallback per §6.6.
 
-### Approach 3 — Post-Beta deferral
+### 6.5 Risks + mitigations
 
-**Refined**: Since Profit/Ranking already exist as static implementations, the "dynamic rules" refinement is **not a Beta blocker**. Defer entirely to post-Beta. S47 remains focused on V2 Waves 3-5 + Beta readiness.
+| Risk | Mitigation |
+|---|---|
+| PO split attention impacts BOTH sprint execution AND SPEC quality | 0.5 day/week is *dedicated* — no blending with execution review calls during that block |
+| Week 2 check shows SPECs taking > 1 day/week actual | Escalate to PO for re-evaluation; fallback to Approach 3 (post-Beta deferral) on the spot is acceptable without guilt |
+| PO cognitive load trending toward burnout | Self-monitored; deferral is the safe default, not a failure |
 
-**Activities**: none in S46/S47.
-**Pros**: Sprint 47 stays at its planned size; Beta ships sooner.
-**Cons**: Profit/Ranking rules feature lands post-Beta.
-**Effort impact on S46/S47**: zero.
-**Risk**: **Low**. The current static implementations are functional; dynamic rules are enhancement, not fix.
+### 6.6 Gate to Sprint 47
 
-### Recommendation conditional (not binding)
+Both SPECs in approved state before Sprint 47 planning kicks off. Two fallback paths:
 
-- **If PO considers dynamic rules a Beta gate**: Approach 2 (S47 Sprint Zero Mini) — it's the cleanest boundary.
-- **If PO wants to parallelize**: Approach 1 — but PO attention must be available.
-- **If PO wants Beta soonest**: **Approach 3 (post-Beta)** — my best-fit given the grounding discovery that these features already functionally exist.
+- **Fallback A**: Sprint 47 absorbs remaining SPEC work in a "Sprint Zero Mini" Day 1-3 block (was Approach 2 in planning doc §4).
+- **Fallback B**: SPECs deferred post-Beta entirely (was Approach 3). No Beta-launch impact because the static implementations are already functional.
 
-### Decision inputs for PO
-
-1. Does the admin dashboard (`PerUserProfitRow` sort) already surface enough profit visibility for Beta users? If yes → Approach 3.
-2. Are dynamic rank thresholds needed for any Beta marketing / retention flow? If yes → Approach 1 or 2.
-3. How much PO time is available for SPEC drafting during S46? If zero → Approach 2 or 3.
+**Either fallback is pre-approved** — PO does not need a new decision round if Approach 1 slips. Sprint 47 planning picks whichever fits capacity.
 
 ---
 
@@ -392,15 +395,17 @@ Per-agent dimension. Severities: P0 blocks Sprint 46 close; P1 impacts quality; 
 | R46-T03 | Redis Staging decision blocks A-03 Sentry if Sentry needs Redis for rate-limit | P2 | Sentry doesn't require Redis; reconfirm A-03 has no hidden dep |
 | R46-T04 | V2 polling DB hot-path latency exceeds 20 ms budget | P1 | Wave 3 concern not Wave 1-2; flag for S47 review |
 | R46-T05 | C-04 Gemini ADR discovers deeper incompatibility (Edge migration blocks current Server Action auth refresh chain) | P1 | ADR surfaces incompatibility BEFORE fix; rollback to Claude fallback keeps AI working |
+| R46-T06 | **C-04 ADR cascading into Wave 2 rework** — if ADR picks Edge migration and `PromptVersion` / AiConfigResolver schema is affected, B-W2-001 (API endpoints) may need contract changes mid-sprint | **P1** | C-04 ADR publish is a **hard gate on Day 3** (before B-W2-001 starts Day 6). Architect signs off on schema-compat review inline in ADR. If ADR picks Claude fallback (simpler path), no schema impact. |
 
 ### 7.2 Process (product-owner + release-manager)
 
 | ID | Risk | Severity | Mitigation |
 |---|---|---|---|
-| R46-P01 | Single-author retrospective bias (Sprint 45 lesson L-02) | P1 | Schedule Sprint 46 retrospective as 3-agent round: PO + tech-lead + qa-engineer contribute independently before synthesis |
+| R46-P01 | Single-author retrospective bias (Sprint 45 lesson L-02) | P1 | **RESOLVED by §9 decision** — 5-agent independent inputs + review loop is the format. Risk shifts from "will we do it" to "can all 5 agents contribute in Week 3" (tracked as R46-P05 below) |
 | R46-P02 | Unplanned bug discovery (Sprint 45 had 5 in 6 days) | P1 | 15% buffer (Day 14) + scope-cut playbook on path §3 |
-| R46-P03 | PO burnout after intense Sprint 45 | P1 | Approach 3 for Profit/Ranking minimises PO attention this sprint; ensure PO has at least 2 non-review days |
+| R46-P03 | PO parallel load — Approach 1 for Profit/Ranking splits PO attention across S46 execution AND SPEC writing | **P1** | 0.5 day/week dedicated to SPECs (no blending). Week 2 check: if actual > 1 day/week, fallback to Approach 3 without guilt. See §6.5 mitigations. |
 | R46-P04 | Governance slippage under perceived urgency (Sprint 45 Stop item St-01) | P1 | Crisis-governance minimum from E-01 codified Day 9; apply to any urgency-mode commit |
+| R46-P05 | Multi-agent retrospective (§9) blocked — one of 5 agents unable to contribute by Day 13 | P2 | Documented-absence is acceptable; synthesis notes "agent X did not contribute because Y". Silent omission is not. Gate per §9.5 |
 
 ### 7.3 Security (security-specialist / architect stand-in)
 
@@ -427,8 +432,9 @@ Per-agent dimension. Severities: P0 blocks Sprint 46 close; P1 impacts quality; 
 
 ### 7.6 Aggregate exposure
 
-- **3 P1 Technical + 4 P1 Process + 2 P1 Security = 9 active P1 risks**. 15% buffer absorbs 1-2. More than 3 simultaneous P1 realizations → scope cut decision by Day 10.
+- **6 P1 Technical (R46-T01..T06) + 4 P1 Process (P02-P04 active; P01 resolved by §9; +P03 new from Approach 1) + 3 P1 Security = 13 active P1 risks**. 15% buffer absorbs 1-2. More than 3 simultaneous P1 realizations → scope cut decision by Day 10.
 - All P0 risks already burned during Sprint 45 (Auth.js rotation race, schema drift, CSP nonce). No P0 carrying into Sprint 46.
+- Two **new** P1 risks introduced by PO decisions 2026-04-24: **R46-P03** (PO parallel load from Approach 1 Profit/Ranking) and **R46-T06** (C-04 ADR Wave 2 cascading).
 
 ---
 
@@ -439,21 +445,23 @@ Per-agent dimension. Severities: P0 blocks Sprint 46 close; P1 impacts quality; 
 - [ ] **Block A (3 SPECs)**: all 3 closed with DoD checkmarks.
 - [ ] **V2 Wave 1**: foundation functional with flag toggle.
 - [ ] **V2 Wave 2**: prompt editor CRUD + versioning + V-01..V-08 validations working.
+- [ ] **C-04 Gemini ADR + implementation**: published Day 3, staging smoke Phase 5/6 < 55s by Day 10.
 - [ ] **Trust Score composite ≥ 0.93** (no regression from Sprint 45 close).
 - [ ] **Zero open P0 or unresolved P1 security findings** from A-01.
+- [ ] **Multi-agent retrospective (§9)**: 5 input files + synthesis + review loop complete, OR documented-absence for any missing agent (per §9.5).
 - [ ] Sprint 46 review doc + retrospective doc committed.
 
 ### 8.2 Should-have (strong goal; miss = note in retrospective)
 
-- [ ] **Block C (tech debt)**: C-01 + C-02 closed (CI + EDD). C-03 decision doc landed. C-04 Gemini ADR published.
+- [ ] **Block C (tech debt)**: C-01 + C-02 closed (CI + EDD). C-03 decision doc landed.
 - [ ] **F-01 + F-02** resolved (Block D).
-- [ ] **Sprint 46 retrospective with independent input from ≥ 3 agents** (not single-author).
-- [ ] BDD file `sprint-46-goals.feature` expanded with Wave-specific scenarios (Phase 8 of this kickoff).
+- [ ] **Profit Scoring + Dynamic Ranking SPECs in Approved status** — signals Approach 1 success. Fallback A or B (§6.6) triggers if not.
+- [ ] BDD file `sprint-46-goals.feature` expanded with Wave-specific + C-04 + retrospective + Profit/Ranking scenarios (Phase 8 of this kickoff + this close commit).
 
 ### 8.3 Could-have (bonus; miss = Sprint 47 carry-over)
 
-- [ ] Approach chosen for Profit/Ranking (§6) and initial SPEC drafted if Approach 1 or 2.
 - [ ] Sprint 47 planning doc started.
+- [ ] V2 Wave 3 spike / scoping pre-work (non-binding preview of S47 critical path).
 
 ### 8.4 Gate condition failure response
 
@@ -465,19 +473,79 @@ If Must-have §8.1 is not all ✅ on Day 14 (buffer day):
 
 ---
 
-## §9 — BDD expansion (Phase 8 deliverable)
+## §9 — Sprint 46 Retrospective Format (PO decision, 2026-04-24)
 
-`docs/specs/bdd/sprint-46-goals.feature` is expanded in this commit with:
-- **Wave 1 end-to-end acceptance scenario** (feature flag toggle + migration revert + health check 3-state).
-- **Wave 2 end-to-end acceptance scenario** (draft creation + validation blocks + diff render + audit log).
-- **CI fix verification scenario** (runner without `.env.local` passes).
-- **EDD Eval Gates fix verification scenario** (exit code 0 on pass).
+**Decision registered**: 5-agent independent inputs → PO synthesis → review loop.
 
-See `docs/specs/bdd/sprint-46-goals.feature` for the full scenario text.
+**PO rationale**: Sprint 45 retrospective flagged single-author bias (memo §L-02). Sprint 46 eliminates it by having 5 agents contribute independent perspectives before any synthesis.
+
+### 9.1 Objective
+
+Eliminate single-author bias flagged in `sprint-45-retrospective.md`. Produce Sprint 46 retrospective with independent input from 5 agents before any synthesis.
+
+### 9.2 Agents + dimensions (5 slots)
+
+1. **product-owner (PO / Volmar)** — product outcomes, scope delivery, PO cognitive load / capacity signals, PO-facing friction.
+2. **tech-lead** — technical execution, code quality, architectural fit, critical-path adherence, scope-cut decisions if invoked.
+3. **qa-engineer** — test coverage, BDD/TDD discipline, trust score evolution, red-green-refactor adherence.
+4. **security-specialist** (architect stand-in) — security findings from A-01, threat model deltas, audit outcomes, governance-minimum adherence.
+5. **architect** — system-level coherence, V2 Waves 1-2 integration quality, ADR outcomes (C-04), debt decisions.
+
+### 9.3 Process
+
+**Step 1 — Independent contribution (no cross-reading)**
+
+Each agent writes own input to `docs/sprint-reviews/sprint-46-retro-inputs/{agent}.md` with:
+- **What worked** (3-5 items with specific code / commit / SPEC references)
+- **What didn't** (3-5 items with specific references)
+- **What to change** (3-5 items actionable in Sprint 47)
+- Cross-cutting observations (optional)
+
+Agents MUST NOT read each other's drafts before committing their own. Inputs committed by Day 13 (Week 3 Day 3).
+
+**Step 2 — Synthesis (PO-led with full transparency)**
+
+PO reads all 5 inputs, produces consolidated `docs/sprint-reviews/sprint-46-retrospective.md` with:
+- Start / Stop / Continue merged from 5 inputs, grouped by theme
+- **Divergences between agents explicitly noted** — if tech-lead says X worked and qa-engineer says X didn't, the disagreement appears in the doc (not hidden)
+- Action items with owner + deadline
+
+Synthesis committed by Day 14.
+
+**Step 3 — Review loop**
+
+All 5 agents review the synthesis. Each can add, contest, or confirm. Final version PO-signed on Day 15.
+
+### 9.4 Deliverables at Sprint 46 close
+
+- 5 input files: `docs/sprint-reviews/sprint-46-retro-inputs/product-owner.md`, `tech-lead.md`, `qa-engineer.md`, `security-specialist.md`, `architect.md`.
+- Synthesis: `docs/sprint-reviews/sprint-46-retrospective.md`.
+- Action items tracked with owner + deadline inside the synthesis doc.
+
+### 9.5 Gate condition
+
+**Sprint 46 does not formally close without this multi-agent retrospective.** Missing any of the 5 inputs or skipping the review loop blocks close. If an agent slot cannot contribute (scheduling conflict), that MUST be documented in the synthesis as "agent X did not contribute because Y" — no silent omissions.
+
+This is a hard gate codified in §8 Must-have.
 
 ---
 
-## §10 — Sign-off
+## §10 — BDD expansion (Phase 8 deliverable)
+
+`docs/specs/bdd/sprint-46-goals.feature` is expanded with:
+- **Wave 1 end-to-end acceptance scenario** (feature flag toggle + migration revert + health check 3-state).
+- **Wave 1 RBAC guards** (403 for non-`admin-ai` users).
+- **Wave 2 prompt editor validations** (V-02 placeholder, V-06 PII, V-05 API key; audit log on valid save).
+- **Wave 2 immutable versioning** (no UPDATE on historical rows).
+- **Wave 2 diff viewer** (side-by-side + token count heuristic).
+- **CI fix verification scenario** (runner without `.env.local` passes).
+- **EDD Eval Gates fix verification scenario** (exit code 0 on pass, 1 on fail).
+
+See `docs/specs/bdd/sprint-46-goals.feature` for the full scenario text. Additional scenarios covering C-04 Gemini ADR DoD, multi-agent retrospective gate, and Profit/Ranking SPEC approval gate are added in this kickoff-close commit (§6.5 of the feature file).
+
+---
+
+## §11 — Sign-off
 
 | Agent | Dimension | Sign-off |
 |---|---|---|
