@@ -231,3 +231,37 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     And PO may invoke Fallback A (Sprint 47 Sprint Zero Mini) OR Fallback B (post-Beta deferral)
     And neither fallback requires a new PO decision round
     And the synthesis in sprint-46-retrospective.md records the invocation + rationale
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 1 (2026-04-24) — C-04 ADR-0036 acceptance
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: ADR-0036 Gemini timeout env override resolves with default
+    Given ADR-0036 is in "Accepted" state
+    And GEMINI_TIMEOUT_MS env var is NOT set
+    When the Gemini provider module loads
+    Then the resolved timeout value is 30000 (default per ADR-028 + ADR-0036)
+    And no warn log is emitted
+
+  Scenario: ADR-0036 env override within bounds is honored
+    Given ADR-0036 is "Accepted"
+    And GEMINI_TIMEOUT_MS is set to "25000" in the environment
+    When the Gemini provider module loads
+    Then the resolved timeout value is 25000
+    And no warn log is emitted
+
+  Scenario: ADR-0036 invalid env value falls back with warn log
+    Given ADR-0036 is "Accepted"
+    And GEMINI_TIMEOUT_MS is set to "not-a-number" OR "100000" (above MAX) OR "1000" (below MIN)
+    When the Gemini provider module loads
+    Then the resolved timeout value is 30000 (fallback default)
+    And a structured warn log "ai.provider.gemini.timeout.envInvalid" is emitted
+    And the log includes the raw value + the fallback value
+
+  Scenario: ADR-0036 Gemini request honors the resolved timeout
+    Given the resolved GEMINI_TIMEOUT_MS is 30000
+    When a Gemini API call takes longer than 30000 ms
+    Then the request aborts via AbortSignal.timeout(30000)
+    And the AbortError is mapped to AppError("AI_TIMEOUT", 504) per existing mapError
+    And the FallbackProvider retries the call on Anthropic (if AI_FALLBACK_PROVIDER=anthropic)
+    And the user receives a graceful error message (no PII leak)
