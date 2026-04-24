@@ -17,8 +17,40 @@ const GUIDE_MODEL = "claude-haiku-4-5-20251001";
 // comfortably below that to leave headroom for mid-stream recovery + persistence.
 // Plan gets 25s (longer output budget after a failed Gemini stream); guide
 // and checklist stay at 20s. See: docs/architecture.md ADR-028.
+//
+// ADR-0036 (Sprint 46 Day 1): env override `CLAUDE_TIMEOUT_MS` permits ops
+// tuning without redeploy. When set, replaces BOTH per-model defaults
+// uniformly. When unset, per-model deltas (plan=25s, others=20s) preserved.
+// ADR §7.4 explicitly rejected per-type env vars (Option O5) — V2 Wave 3
+// DB config is the long-term per-type lever. Bounds [5000, 55000] enforced;
+// invalid values fall back to per-model defaults + warn log.
+const CLAUDE_TIMEOUT_MS_PLAN_DEFAULT = 25_000;
+const CLAUDE_TIMEOUT_MS_OTHER_DEFAULT = 20_000;
+const CLAUDE_TIMEOUT_MS_MIN = 5_000;
+const CLAUDE_TIMEOUT_MS_MAX = 55_000;
+
+export function resolveClaudeTimeoutMs(model: ModelType): number {
+  const fallback =
+    model === "plan"
+      ? CLAUDE_TIMEOUT_MS_PLAN_DEFAULT
+      : CLAUDE_TIMEOUT_MS_OTHER_DEFAULT;
+  const raw = process.env.CLAUDE_TIMEOUT_MS;
+  if (raw === undefined) return fallback;
+  const n = Number.parseInt(raw, 10);
+  if (
+    !Number.isFinite(n) ||
+    String(n) !== raw.trim() ||
+    n < CLAUDE_TIMEOUT_MS_MIN ||
+    n > CLAUDE_TIMEOUT_MS_MAX
+  ) {
+    logger.warn("ai.provider.claude.timeout.envInvalid", { raw, fallback });
+    return fallback;
+  }
+  return n;
+}
+
 function getClaudeTimeoutMs(model: ModelType): number {
-  return model === "plan" ? 25_000 : 20_000;
+  return resolveClaudeTimeoutMs(model);
 }
 
 // ─── Anthropic singleton (lazy) ───────────────────────────────────────────────

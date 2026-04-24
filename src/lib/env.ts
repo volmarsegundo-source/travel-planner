@@ -15,6 +15,14 @@ export const env = createEnv({
     GEMINI_API_KEY: z.string().optional(),
     AI_PROVIDER: z.enum(["anthropic", "gemini"]).default("anthropic"),
     AI_FALLBACK_PROVIDER: z.enum(["anthropic", "gemini"]).optional(),
+    // ADR-0036: env-override bridge for AI provider timeouts.
+    // Schema is intentionally PERMISSIVE — bounds and integer validation
+    // live in the provider resolvers (gemini/claude.provider.ts) so that
+    // invalid values fall back gracefully + warn-log at request time
+    // instead of crashing the app at boot. See ADR-0036 §3.2 (security
+    // caveat: clamp [5000, 55000] enforced in resolvers).
+    GEMINI_TIMEOUT_MS: z.string().optional(),
+    CLAUDE_TIMEOUT_MS: z.string().optional(),
     // Per-type provider overrides. If set, take precedence over AI_PROVIDER
     // for that specific ModelType. Useful for beta-gating expensive models
     // (e.g. Claude Sonnet for Phase 5 & 6 only). See SPEC-PROD-AI-PROGRESS.
@@ -97,6 +105,8 @@ export const env = createEnv({
     GEMINI_API_KEY: process.env.GEMINI_API_KEY,
     AI_PROVIDER: process.env.AI_PROVIDER,
     AI_FALLBACK_PROVIDER: process.env.AI_FALLBACK_PROVIDER,
+    GEMINI_TIMEOUT_MS: process.env.GEMINI_TIMEOUT_MS,
+    CLAUDE_TIMEOUT_MS: process.env.CLAUDE_TIMEOUT_MS,
     AI_PROVIDER_PLAN: process.env.AI_PROVIDER_PLAN,
     AI_PROVIDER_GUIDE: process.env.AI_PROVIDER_GUIDE,
     AI_PROVIDER_CHECKLIST: process.env.AI_PROVIDER_CHECKLIST,

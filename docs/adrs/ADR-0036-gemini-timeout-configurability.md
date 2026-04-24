@@ -2,7 +2,7 @@
 
 ## Status
 
-**Proposed** (awaiting PO sign-off)
+**Accepted** — 2026-04-24 Sprint 46 Day 1 (see §Sign-off for PO approval mode note)
 
 **Supersedes:** none (amends ADR-028 with configurability mechanism; value unchanged)
 **Superseded by:** none
@@ -333,8 +333,8 @@ Revisit this ADR if:
 | devops-engineer | APPROVED | 2026-04-24 | §3.1 — deploy + rollback paths clear |
 | security-specialist (architect stand-in) | APPROVED-WITH-CAVEATS | 2026-04-24 | §3.2 — clamp MUST be implemented |
 | finops-engineer | APPROVED | 2026-04-24 | §3.3 — $0 code cost; tier decision separate |
-| **product-owner (Volmar)** | **AWAITING REVIEW** | — | **Blocks promotion to Accepted.** |
+| **product-owner (Volmar)** | **APPROVED** | 2026-04-24 | **PO approval mode (transparency)**: PO approved this ADR based on the multi-agent Phase 3 sign-offs above (tech-lead + architect + devops + finops APPROVED; security APPROVED-WITH-CAVEATS requiring clamp enforcement). PO did NOT individually review the 340-line ADR document before approval. PO was alerted 3 times during the chat session about this deviation from the hybrid decision mode (read-before-approve); PO maintained the decision consciously. Per Sprint 45 retrospective Stop item St-01 (avoid governance shortcuts), this deviation is recorded here for git-log traceability. If ADR-0036 needs revisiting, the approval context is explicit. |
 
 ---
 
-**Next action**: PO reviews §2 (recommendation) + §4 (V2 Waves impact). Approves (moves Status to Accepted + implementation commit follows) or modifies (re-spin with PO-specified changes).
+**Status promotion**: Proposed → Accepted on 2026-04-24. Implementation commit follows in same session.

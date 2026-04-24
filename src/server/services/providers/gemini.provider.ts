@@ -10,11 +10,40 @@ import type { AiProvider, AiProviderOptions, AiProviderResponse, ModelType } fro
 const PLAN_MODEL = "gemini-2.0-flash";
 const CHECKLIST_MODEL = "gemini-2.0-flash";
 const GUIDE_MODEL = "gemini-2.0-flash";
-// Vercel Hobby serverless routes have a hard 60s limit.
-// Gemini 30s + Vercel margin 30s = 60s. AI Governance telemetry shows
-// Gemini typically responds in 17-19s; 15s was cutting off successful
-// responses. Anthropic fallback remains available if Gemini fails early.
-const GEMINI_TIMEOUT_MS = 30_000;
+
+// ADR-0036: Gemini timeout configurability bridge.
+// Default 30_000 ms preserved from ADR-028 (Vercel Hobby 60s cap; Gemini
+// telemetry shows typical 17-19s responses; 30s leaves Vercel margin).
+// Env override `GEMINI_TIMEOUT_MS` permits ops tuning without redeploy.
+// Bounds [5000, 55000] enforced here (per ADR §3.2 security caveat).
+// Invalid values fall back to default + warn log (no app crash).
+const GEMINI_TIMEOUT_MS_DEFAULT = 30_000;
+const GEMINI_TIMEOUT_MS_MIN = 5_000;
+const GEMINI_TIMEOUT_MS_MAX = 55_000;
+
+export function resolveGeminiTimeoutMs(): number {
+  const raw = process.env.GEMINI_TIMEOUT_MS;
+  if (raw === undefined) return GEMINI_TIMEOUT_MS_DEFAULT;
+  const n = Number.parseInt(raw, 10);
+  if (
+    !Number.isFinite(n) ||
+    String(n) !== raw.trim() ||
+    n < GEMINI_TIMEOUT_MS_MIN ||
+    n > GEMINI_TIMEOUT_MS_MAX
+  ) {
+    logger.warn("ai.provider.gemini.timeout.envInvalid", {
+      raw,
+      fallback: GEMINI_TIMEOUT_MS_DEFAULT,
+    });
+    return GEMINI_TIMEOUT_MS_DEFAULT;
+  }
+  return n;
+}
+
+// Module-level constant captures the env value at boot. For tests that
+// vary process.env between cases, the resolver function above re-evaluates
+// on each call — but production hot path reads the constant once.
+const GEMINI_TIMEOUT_MS = resolveGeminiTimeoutMs();
 
 // ─── Google AI singleton (lazy) ──────────────────────────────────────────────
 

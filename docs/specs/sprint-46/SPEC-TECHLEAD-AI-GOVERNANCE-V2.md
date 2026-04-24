@@ -127,6 +127,8 @@
 
 **Deliverables**:
 - `AiConfigResolver` interface + implementacao DB polling (ADR-033)
+  - **3-tier resolution** per ADR-0036 (Sprint 46 Day 1): DB → env → hardcoded.
+  - Env tier (`GEMINI_TIMEOUT_MS`, `CLAUDE_TIMEOUT_MS`) implemented in S46 as bridge; DB tier lands here in Wave 3.
 - Integracao do `AiConfigResolver` no `AiGatewayService` / `AiService`
 - API endpoints: `GET/PATCH /api/admin/ai/models/:id`, `GET/PATCH /api/admin/ai/runtime-config`
 - Validacao: timeout 5s-55s, soma primary+fallback <= 55s
