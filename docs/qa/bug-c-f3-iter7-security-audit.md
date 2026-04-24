@@ -253,3 +253,61 @@ APPROVED
 architect (acting as security-specialist)
 2026-04-24 (Iter 7.1)
 ```
+
+---
+
+## 9. Iter 8 Review (SPEC v2.0.2) — 2026-04-24
+
+### Scope
+
+Two small code changes:
+- `src/middleware.ts` — propagate `x-pathname` request header (and `x-middleware-request-x-pathname` on the rewrite branch) so Node Server Components can read the original pathname.
+- `src/app/[locale]/(app)/layout.tsx` — read `x-pathname`, validate as a safe relative path, fall back to a locale-aware safe default on rejection, interpolate into the age-gate `callbackUrl`.
+
+### Threat model — open redirect, path traversal, protocol bypass
+
+| Vector | Rejected by | Test coverage |
+|---|---|---|
+| `https://attacker.com/phish` (absolute URL with scheme) | `rawPath.includes("://")` check in layout + existing `sanitizeCallbackUrl` on the downstream `/auth/complete-profile` page | Unit test: "rejects absolute-URL x-pathname" |
+| `//attacker.com/phish` (protocol-relative) | `rawPath.startsWith("//")` check in layout + existing helper | Unit test: "rejects protocol-relative x-pathname" |
+| `\attacker.com\share` (Windows network share) | `rawPath.includes("\\")` check in layout + existing helper (`startsWith("\\")`) | Covered by layout rule; note existing helper only checks startsWith, layout is stricter |
+| `/../etc/passwd` (path traversal token) | `rawPath.includes("..")` check in layout | Unit test: "rejects path-traversal tokens" — note existing `sanitizeCallbackUrl` does NOT check `..`; layout is stricter here |
+| `javascript:alert(1)` (non-HTTP scheme) | layout requires `rawPath.startsWith("/")` → rejected; existing helper catches generic-scheme regex too | Covered by layout rule |
+| Empty / missing header | fallback to locale-aware safe default (`/expeditions` for pt-BR, `/en/expeditions` for en) | Unit test: "uses locale-aware safe default when x-pathname header is absent" |
+| Header value > 2048 chars | existing `sanitizeCallbackUrl` length check (defense in depth on the page side) | Covered by existing helper unit tests |
+
+### Defense-in-depth alignment
+
+Three layers validate callbackUrl independently:
+
+1. **Layout** (new, iter 8): validates `x-pathname` header before constructing the `?callbackUrl=...` query.
+2. **Complete-profile page** (pre-existing): calls `sanitizeCallbackUrl(searchParams.callbackUrl, "/expeditions")` at `src/app/[locale]/auth/complete-profile/page.tsx:34` before rendering the form.
+3. **Form client component** (pre-existing): re-validates via `sanitizeCallbackUrl` at `src/components/features/auth/CompleteProfileForm.tsx:55` before `router.push`.
+
+Verdict: triple-gated. Even if the layout's validation had a gap, the downstream helper catches it. Even if the helper had a gap, the form re-checks.
+
+### Minor discrepancy noted (non-blocking)
+
+The layout's inline validation rejects `..` (path traversal); the shared `sanitizeCallbackUrl` helper does not. This means the layout is *stricter* than the helper on traversal tokens, so attacks using `..` are fully stopped at the layout. Benefit: a user who somehow injected `..` via a different path into the page-side `searchParams.callbackUrl` would still get through the page-side helper.
+
+**Recommendation (non-blocking)**: extend `sanitizeCallbackUrl` to also reject `..` and `\` (the helper currently only checks `startsWith("\\")`, missing mid-path backslashes). Register as Sprint 46 backlog alongside the MSW OAuth stub. Not blocking because the layout is the outer boundary for this particular flow.
+
+### XSS via callbackUrl
+
+User-supplied path is `encodeURIComponent`-ed before interpolation into the href. The complete-profile page then treats `searchParams.callbackUrl` as a URL, never inlining it into HTML. Iter 8 does not change the rendering pipeline — pre-existing XSS protections intact.
+
+### Locale spoofing
+
+The `locale` param in `redirect({ ..., locale })` comes from the Next.js App Router's `[locale]` segment — not from any user-controlled header. A user cannot forge a locale via `x-pathname` manipulation.
+
+### Verdict
+
+**APPROVED.**
+
+The iter 8 change introduces a new request-header dependency (`x-pathname`), but the header's trust level is equivalent to `req.nextUrl.pathname` in middleware — controllable only via navigation. The layout validates the value comprehensively before use, and downstream helpers re-validate. No new attack surface; i18n UX improvement is clean.
+
+```
+APPROVED
+architect (acting as security-specialist)
+2026-04-24 (Iter 8)
+```

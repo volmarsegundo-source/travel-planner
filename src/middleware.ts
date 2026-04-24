@@ -88,9 +88,13 @@ export default auth((req) => {
 
   if (!intlResponse) {
     // No rewrite/redirect: use NextResponse.next with enriched request headers
-    // so `x-nonce` reaches downstream handlers.
+    // so `x-nonce` and `x-pathname` reach downstream handlers. The layout
+    // gate at src/app/[locale]/(app)/layout.tsx reads `x-pathname` to
+    // preserve the user's original path in the age-gate callbackUrl
+    // (SPEC-AUTH-AGE-002 v2.0.2, Iter 8).
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set("x-nonce", nonce);
+    requestHeaders.set("x-pathname", pathname);
 
     const response = NextResponse.next({
       request: { headers: requestHeaders },
@@ -100,9 +104,10 @@ export default auth((req) => {
   }
 
   // intl returned a rewrite/redirect. NextResponse.next({ request }) is not
-  // applicable here, so manually propagate `x-nonce` via the same sentinel
-  // headers that Next.js uses internally.
+  // applicable here, so manually propagate `x-nonce` + `x-pathname` via the
+  // same sentinel headers that Next.js uses internally.
   propagateNonceToRequest(intlResponse.headers, nonce);
+  intlResponse.headers.set("x-middleware-request-x-pathname", pathname);
   applySecurityHeaders(intlResponse.headers, csp, { isDev });
   return intlResponse;
 });

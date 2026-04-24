@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { redirect } from "@/i18n/navigation";
 import { getTranslations } from "next-intl/server";
@@ -40,8 +41,26 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
     select: { birthDate: true },
   });
   if (!profile?.birthDate) {
+    // SPEC-AUTH-AGE-002 v2.0.2 (Iter 8): preserve the user's original
+    // path in callbackUrl. Middleware (src/middleware.ts) sets the
+    // `x-pathname` header alongside `x-nonce`. Validate it as a safe
+    // relative path before interpolating — on any rejection, fall back
+    // to a locale-aware safe default. Default locale (pt-BR) has no
+    // URL prefix per src/i18n/routing.ts (`localePrefix: 'as-needed'`);
+    // `en` is prefixed.
+    const h = await headers();
+    const rawPath = h.get("x-pathname");
+    const safeDefault = locale === "en" ? "/en/expeditions" : "/expeditions";
+    const isSafeRelativePath =
+      typeof rawPath === "string" &&
+      rawPath.startsWith("/") &&
+      !rawPath.startsWith("//") &&
+      !rawPath.includes("://") &&
+      !rawPath.includes("\\") &&
+      !rawPath.includes("..");
+    const callbackPath = isSafeRelativePath ? rawPath : safeDefault;
     redirect({
-      href: "/auth/complete-profile?callbackUrl=%2Fexpeditions",
+      href: `/auth/complete-profile?callbackUrl=${encodeURIComponent(callbackPath)}`,
       locale,
     });
     return null;

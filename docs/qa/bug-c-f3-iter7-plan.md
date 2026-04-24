@@ -110,3 +110,73 @@ Rollback effort: < 5 min (single revert commit + push + Vercel auto-deploy).
 ---
 
 End of plan.
+
+---
+
+## Iter 8 Appendix — i18n callbackUrl preservation (SPEC v2.0.2)
+
+**Author:** tech-lead
+**Architect signoff:** ✅ (captured inline)
+**Effort estimate:** ~45 min implementation + ~30 min governance docs
+
+### Problem
+
+Iter 7 layout gate at `src/app/[locale]/(app)/layout.tsx:42-48` hardcodes
+`?callbackUrl=%2Fexpeditions`. Any user redirected to
+`/auth/complete-profile` returns to `/expeditions` regardless of where
+they were actually trying to go (e.g. `/en/expeditions/trip-123/planner`
+loses the trip id, the planner step, and the `en` locale prefix).
+
+### Design
+
+1. **Middleware** (`src/middleware.ts`) propagates `x-pathname` on every
+   request — same pattern the file already uses for `x-nonce`. Two
+   insertion points mirror the nonce propagation (intl-pass-through +
+   intl-rewrite branches).
+
+2. **Layout** (`src/app/[locale]/(app)/layout.tsx`):
+   - Read `headers().get("x-pathname")` after confirming the user must
+     be redirected (post-birthDate-null check).
+   - Validate the pathname as a safe relative path:
+     - MUST start with `/`
+     - MUST NOT start with `//` (protocol-relative)
+     - MUST NOT contain `://` (absolute URL with scheme)
+     - MUST NOT contain `\` (Windows-style paths)
+     - MUST NOT contain `..` (traversal)
+   - On rejection or missing header, fall back to the locale-aware safe
+     default: `pt-BR` → `/expeditions`, `en` → `/en/expeditions`.
+   - `encodeURIComponent` before interpolating into the href.
+
+3. **`redirect()` call**: use `redirect({ href, locale })` from next-intl
+   — same pattern as iter 7. The `href` is the destination path
+   relative to the locale prefix; the `locale` arg preserves the
+   current-locale segment. The `callbackUrl` query string rides inside
+   the `href`.
+
+### Rollback plan
+
+Single commit touches 2 source files + 1 test file + 5 docs. `git revert <hash>`
++ `git push` reverts atomically in < 5 min. Prior iter 7 behavior
+(hardcoded callbackUrl) returns; not a regression from user-visible
+perspective, just a return to the minor-i18n-imperfection state.
+
+### Risks
+
+| # | Risk | Mitigation |
+|---|---|---|
+| R1 | `x-pathname` header trusted by layout, but user can indirectly control it by navigating. | Validation rules above; fallback to safe default on any rejection. |
+| R2 | Next.js internal paths (e.g. RSC postfix `?_rsc=...`) leak into header. | The middleware reads `req.nextUrl.pathname` which does NOT include query string. Safe. |
+| R3 | Custom Auth.js route handlers under `/api/auth/*` might see the header too. | Middleware already returns early for `/api/*`, so `x-pathname` is only set for non-API paths. Safe. |
+| R4 | Downstream redirect from `/auth/complete-profile` action trusts callbackUrl. | Verify in Phase 7 security audit. If page-side guard missing, add a matching allow-list there. |
+| R5 | Edge bundle size. | `requestHeaders.set` is zero-cost. No deps added. |
+
+### Architect review (inline)
+
+- **Coupling**: middleware-to-layout data flow is already established
+  via `x-nonce`. Reusing the pattern is consistent.
+- **Defense in depth**: validation in layout + validation in the
+  complete-profile page/action is correct. Both layers MUST enforce the
+  same rules or the weaker is effectively the boundary.
+- **No over-engineering**: no regex-heavy allow-list, just the minimum
+  set of forbidden tokens.
+- **Sign-off**: ✅ Approved. Proceed to Phase 5.

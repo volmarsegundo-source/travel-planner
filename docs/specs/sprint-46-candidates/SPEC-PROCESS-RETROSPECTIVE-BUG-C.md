@@ -65,15 +65,40 @@ the adapter contract. Specifically:
 
 Iter 7.1 added coverage for (1). Sprint 46 task: extend to (2) and (3).
 
-#### 3.2 MSW OAuth integration stub
+#### 3.2 MSW OAuth integration stub + age-gate E2E suite
 
 Implement a Playwright + MSW harness that stubs the Google OAuth
 token exchange and runs a full OAuth callback flow against the real
-NextAuth handlers + PrismaAdapter (with a test DB). One end-to-end
-test: "fresh user via OAuth → redirected to complete-profile → DOB
-submit → lands on /expeditions".
+NextAuth handlers + PrismaAdapter (with a test DB). Closes the gap
+identified in Iter 7.1 §4 (diagnostic report) AND the E2E gap
+identified in Iter 8 Phase 6.
 
-This closes the gap identified in Iter 7.1 §4 (diagnostic report).
+**Iter 8 Phase 6 finding (2026-04-24)**: we need E2E coverage for the
+age-gate layout redirect AND the i18n callbackUrl preservation
+(SPEC v2.0.2). Current blocker: the only way to create a
+`UserProfile.birthDate = null` user is via Google OAuth — credentials
+signup enforces DOB at the Zod-schema layer (SPEC-AUTH-AGE-001).
+Unit tests cover the layout guard (15 tests total across iter 7 and
+iter 8) but no end-to-end verification exists.
+
+**Target E2E scenarios** (to implement with MSW OAuth stub):
+
+1. `pt-BR` user signs in via OAuth → `UserProfile.birthDate` is null →
+   layout redirects to `/auth/complete-profile?callbackUrl=%2Fexpeditions`
+   → user submits valid DOB → lands on `/expeditions`.
+2. `en` user signs in via OAuth → redirected to
+   `/en/auth/complete-profile?callbackUrl=%2Fen%2Fexpeditions` → DOB
+   submit → lands on `/en/expeditions`.
+3. User navigates to deep link `/en/expeditions/trip-123/planner` pre-DOB
+   → after DOB submit, lands back on the exact original path.
+4. Malicious callbackUrl (`https://attacker.com/phish`) → rejected at
+   layout, fallback to safe default.
+5. Fresh user via OAuth (regression guard for Iter 7.1): Google OAuth
+   callback → `adapter.createUser` succeeds → profile completion flow.
+
+Until the OAuth stub lands, the age-gate is covered only by unit tests
++ PO manual Staging walk-through. Acceptable for Iter 8 ship; revisit
+before Sprint 46 close.
 
 #### 3.3 Retroactive audit of SPEC v1.0.0 auth callbacks
 

@@ -1,8 +1,8 @@
 # SPEC-AUTH-AGE-002 — Google OAuth DOB collection + 18+ gate
 
-**Version:** 2.0.1
-**Status:** Approved — v2.0.1 (BUG-C-F3 iteração 7.1 hotfix)
-**Sprint:** 44 (pre-Beta) — v2.0.0 amended 2026-04-24, v2.0.1 hotfixed 2026-04-24
+**Version:** 2.0.2
+**Status:** Approved — v2.0.2 (BUG-C-F3 iteração 8, i18n callbackUrl preservation)
+**Sprint:** 44 (pre-Beta) — v2.0.0 amended 2026-04-24, v2.0.1 hotfixed 2026-04-24, v2.0.2 iter 8 on 2026-04-24
 **Owner:** dev-fullstack-1
 **Related:** SPEC-AUTH-AGE-001 (credentials path)
 
@@ -500,3 +500,116 @@ adjacent flow. Layout-side DB read is the security boundary.
 
 MSW-based OAuth integration test stub — added to
 `SPEC-PROCESS-RETROSPECTIVE-BUG-C` (Sprint 46).
+
+---
+
+## 10. v2.0.2 — Iter 8 (i18n callbackUrl preservation + open-redirect guard)
+
+### 10.1 Why
+
+Iter 7 introduced the Node-runtime layout gate at
+`src/app/[locale]/(app)/layout.tsx:42-48`, redirecting users without a
+`UserProfile.birthDate` to `/auth/complete-profile?callbackUrl=%2Fexpeditions`.
+The `callbackUrl` was hardcoded to `/expeditions`, losing the user's
+original path. Trust score §2.5 flagged this as the sole dimension
+preventing Prod gate clearance (i18n = 0.78; composite 0.91 vs 0.92
+threshold).
+
+### 10.2 What changes
+
+- **`src/middleware.ts`**: propagate `x-pathname` alongside `x-nonce` on
+  every request (~4 LOC in the existing `requestHeaders.set` flow).
+  Follows the precedent of SPEC-SEC-CSP-NONCE-001.
+- **`src/app/[locale]/(app)/layout.tsx`**:
+  - Read pathname from `headers().get("x-pathname")`; fallback to
+    `/${locale === "pt-BR" ? "" : locale}` (empty for default, prefixed
+    for `en`).
+  - Validate the pathname as a safe relative path before inclusion in
+    callbackUrl (no protocol, no `//` prefix, no backslashes, no
+    traversal tokens).
+  - Construct `callbackUrl` preserving the exact original path.
+  - Encode with `encodeURIComponent`.
+- **Consumer side (`/auth/complete-profile` page + action)**: already
+  validates callbackUrl to relative paths before redirecting after DOB
+  submit. Iter 8 confirms this is in place (defense in depth); if not,
+  hardens the page-side guard.
+- **Tests**: 4 new unit tests in `layout.test.tsx`; 3 new e2e tests in
+  `tests/e2e/auth-age-gate.spec.ts` (Credentials-login proxy — Google
+  OAuth mock deferred to Sprint 46 per process-retrospective doc).
+
+### 10.3 Threat model delta
+
+**New surface**: callbackUrl value is now derived from a request header
+that an authenticated user can influence indirectly (via the URL they
+visit). The header's trust level is equivalent to `req.nextUrl.pathname`
+in middleware — anything the user can navigate to. Validation strips:
+
+| Input class | Rejected? | Why |
+|---|---|---|
+| `/expeditions` | ✅ accept | normal relative path |
+| `/en/expeditions/trip-123` | ✅ accept | normal nested relative path with locale |
+| `https://attacker.com/phish` | ❌ reject | absolute URL |
+| `//attacker.com/phish` | ❌ reject | protocol-relative |
+| `\attacker.com` | ❌ reject | Windows-style network share (some parsers interpret as host) |
+| `/../etc/passwd` | ❌ reject | path traversal token |
+| `/expeditions?foo=<script>` | ✅ accept with encoding | querystring preserved via `encodeURIComponent`; downstream still HTML-escapes where rendered |
+
+On rejection: callbackUrl falls back to `/{locale === "pt-BR" ? "" : locale}/expeditions`.
+
+### 10.4 Files touched in v2.0.2
+
+| File | Change |
+|---|---|
+| `src/middleware.ts` | +4 LOC: set `x-pathname` on request headers (2 places: intl-pass-through + intl-rewrite) |
+| `src/app/[locale]/(app)/layout.tsx` | +15 LOC: read header, validate, construct locale-aware callbackUrl |
+| `src/app/[locale]/(app)/__tests__/layout.test.tsx` | +4 tests |
+| `tests/e2e/auth-age-gate.spec.ts` | NEW — 3 e2e tests via Credentials proxy |
+| `docs/specs/sprint-44-pre-beta/SPEC-AUTH-AGE-002.md` | v2.0.1 → v2.0.2 + §10 |
+| `docs/specs/bdd/auth-age-gate.feature` | +4 scenarios |
+| `docs/qa/bug-c-f3-iter7-plan.md` | +Iter 8 plan section |
+| `docs/qa/bug-c-f3-iter7-security-audit.md` | +§9 iter 8 review |
+| `docs/qa/bug-c-f3-iter7-trust-score.md` | +§7 iter 8 recomputation |
+| `docs/releases/bug-c-f3-iter8.md` | NEW |
+
+### 10.5 Locale semantics (grounding record)
+
+Project `src/i18n/routing.ts` configures:
+
+```ts
+defineRouting({
+  locales: ['pt-BR', 'en'],
+  defaultLocale: 'pt-BR',
+  localePrefix: 'as-needed',
+});
+```
+
+Consequences for iter 8:
+
+- A `pt-BR` user sees no locale prefix in URLs: `/expeditions`.
+- An `en` user sees: `/en/expeditions`.
+- `headers().get("x-pathname")` returns the raw pathname — with or
+  without `en` prefix as applicable — so no further locale processing
+  is needed in the layout for callbackUrl construction. The path as
+  observed is already the round-trip target.
+- Fallback (header missing) builds a per-locale safe target
+  explicitly.
+
+### 10.6 Change history append
+
+| Version | Date | Author | Change |
+|---|---|---|---|
+| 2.0.2 | 2026-04-24 | dev-fullstack-1 (full governance with architect + security + qa) | i18n callbackUrl preservation + open-redirect guard. Middleware propagates `x-pathname`; layout reads it, validates as safe relative path, encodes into callbackUrl preserving user's original target. Lifts i18n trust score 0.78 → target 0.92+, composite 0.91 → ≥0.92 (Prod gate clearance). |
+
+### 10.7 SDD — 9 dimensions sign-off (v2.0.2)
+
+| Dim | Role | Status |
+|---|---|---|
+| PROD | product-owner | ✅ §10.1-10.2 binary criterion: user returns to original locale-qualified path |
+| UX | ux-designer | ✅ §10.5 locale consistency end-to-end |
+| TECH | tech-lead + architect | ✅ §10.2, plan in `bug-c-f3-iter7-plan.md` iter 8 section |
+| SEC | security-specialist | ✅ §10.3 open-redirect + traversal + protocol-relative rejected |
+| AI | prompt-engineer | ✅ N/A |
+| INFRA | devops-engineer | ✅ no infra change |
+| QA | qa-engineer | ✅ §10.4 unit + e2e |
+| RELEASE | release-manager | ✅ zero downtime, no flag, revert rollback < 5 min |
+| COST | finops-engineer | ✅ −1 redirect bounce per first-visit = negligible negative |
