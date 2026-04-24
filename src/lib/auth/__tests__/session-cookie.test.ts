@@ -5,14 +5,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 const {
   mockCookies,
   mockGet,
-  mockGetAll,
   mockSet,
   mockEncode,
   mockDecode,
 } = vi.hoisted(() => ({
   mockCookies: vi.fn(),
   mockGet: vi.fn(),
-  mockGetAll: vi.fn(),
   mockSet: vi.fn(),
   mockEncode: vi.fn(),
   mockDecode: vi.fn(),
@@ -29,14 +27,6 @@ vi.mock("next-auth/jwt", () => ({
   decode: mockDecode,
 }));
 
-vi.mock("@/lib/logger", () => ({
-  logger: {
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  },
-}));
-
 import { patchSessionToken } from "@/lib/auth/session-cookie";
 
 describe("patchSessionToken", () => {
@@ -45,10 +35,8 @@ describe("patchSessionToken", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     process.env = { ...originalEnv, AUTH_SECRET: "test-secret-123" };
-    mockGetAll.mockReturnValue([]);
     mockCookies.mockResolvedValue({
       get: mockGet,
-      getAll: mockGetAll,
       set: mockSet,
     });
   });

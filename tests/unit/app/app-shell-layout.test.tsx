@@ -9,15 +9,34 @@ import { render, screen } from "@testing-library/react";
 
 // ─── Hoist mocks ─────────────────────────────────────────────────────────────
 
-const { mockAuth, mockRedirect } = vi.hoisted(() => ({
+const {
+  mockAuth,
+  mockRedirect,
+  mockUserProfileFindUnique,
+  mockSubscriptionFindUnique,
+} = vi.hoisted(() => ({
   mockAuth: vi.fn(),
   mockRedirect: vi.fn(),
+  mockUserProfileFindUnique: vi.fn(),
+  mockSubscriptionFindUnique: vi.fn(),
 }));
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 
 vi.mock("@/lib/auth", () => ({
   auth: mockAuth,
+}));
+
+// SPEC-AUTH-AGE-002 v2.0.0 (BUG-C-F3 iteração 7): the layout now reads
+// UserProfile.birthDate to enforce the age gate. Default mock returns a
+// present birthDate so the existing assertions about footer/navbar/etc.
+// all run past the gate. The "redirects to login" test stays unaffected
+// because mockAuth.mockResolvedValue(null) short-circuits before this read.
+vi.mock("@/server/db", () => ({
+  db: {
+    userProfile: { findUnique: mockUserProfileFindUnique },
+    subscription: { findUnique: mockSubscriptionFindUnique },
+  },
 }));
 
 vi.mock("@/i18n/navigation", () => ({
@@ -111,6 +130,13 @@ describe("AppShellLayout", { timeout: 60_000 }, () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAuth.mockResolvedValue(mockSession);
+    // Default: present birthDate so the new B4-Node-gate (iteração 7)
+    // does not redirect — keeps the existing footer/navbar assertions
+    // running on the rendered shell.
+    mockUserProfileFindUnique.mockResolvedValue({
+      birthDate: new Date("1982-03-28"),
+    });
+    mockSubscriptionFindUnique.mockResolvedValue(null);
   });
 
   it("renders FooterV2 with copyright text in authenticated pages", async () => {

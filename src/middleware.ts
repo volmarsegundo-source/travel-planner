@@ -17,19 +17,11 @@ import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import authConfig from "./lib/auth.config";
-import { logger } from "./lib/logger";
 import {
   buildCsp,
   applySecurityHeaders,
   propagateNonceToRequest,
 } from "./lib/csp";
-
-// BUG-C-F3 iteração 3: name of the cookie middleware should see after the
-// helper rewrites it. Used only by the diagnostic log below.
-const SESSION_COOKIE_NAME =
-  process.env.NODE_ENV === "production"
-    ? "__Secure-authjs.session-token"
-    : "authjs.session-token";
 
 const { auth } = NextAuth(authConfig);
 
@@ -63,61 +55,15 @@ export default auth((req) => {
     return Response.redirect(loginUrl);
   }
 
-  // SPEC-AUTH-AGE-002: OAuth users without DOB are routed to the DOB
-  // collection page. Credentials users always set profileComplete=true at
-  // signup (SPEC-AUTH-AGE-001) so this only affects Google / Apple sign-ins.
-  if (req.auth) {
-    const session = req.auth as {
-      user?: { id?: string; profileComplete?: boolean };
-    };
-    const profileComplete = session?.user?.profileComplete;
-    const isOnboardingRoute =
-      pathname.includes("/auth/complete-profile") ||
-      pathname.includes("/auth/age-rejected");
-
-    if (isProtected && profileComplete === false && !isOnboardingRoute) {
-      // BUG-C-F3 iteração 3 diagnostic: capture exactly what the middleware
-      // sees in the request when it decides to redirect back to the DOB
-      // collection page. Comparing this against auth.patchCookie.debug from
-      // the prior commit will reveal whether (H1a) middleware caches stale
-      // JWT, (H1b) jar.set() did not commit to the response, or (H1c)
-      // something overwrites the cookie before the next request.
-      const cookieValue = req.cookies.get(SESSION_COOKIE_NAME)?.value;
-      // BUG-C-F3 iteração 4: extract the JWE IV from the cookie and read
-      // the raw Cookie header to detect (a) whether this is the same
-      // ciphertext the helper just wrote — IV match proves it — and (b)
-      // whether duplicate `authjs.session-token*` entries exist at the
-      // HTTP layer (chunk variants the Next.js cookie parser would silently
-      // dedupe, hiding chunk contamination from req.cookies.get).
-      const cookieIv = cookieValue ? (cookieValue.split(".")[2] ?? null) : null;
-      const rawCookieHeader = req.headers.get("cookie") ?? "";
-      const rawAuthjsCookies = rawCookieHeader
-        .split(";")
-        .map((c) => c.trim())
-        .filter((c) => c.includes("authjs.session-token"))
-        .map((c) => {
-          const eq = c.indexOf("=");
-          return eq === -1
-            ? { name: c, valueLength: 0 }
-            : { name: c.slice(0, eq), valueLength: c.length - eq - 1 };
-        });
-
-      logger.info("auth.middleware.redirectToCompleteProfile", {
-        path: pathname,
-        cookieName: SESSION_COOKIE_NAME,
-        hasCookie: !!cookieValue,
-        cookieLength: cookieValue?.length,
-        cookieIv,
-        rawAuthjsCookies,
-        profileCompleteFromJwt: profileComplete,
-        tokenSub: session?.user?.id,
-      });
-
-      const url = new URL("/auth/complete-profile", req.url);
-      url.searchParams.set("callbackUrl", pathname);
-      return Response.redirect(url);
-    }
-  }
+  // SPEC-AUTH-AGE-002 v2.0.0 (BUG-C-F3 iteração 7, B4-Node-gate):
+  // age-gate enforcement moved out of Edge middleware into
+  // src/app/[locale]/(app)/layout.tsx, which derives the gate from
+  // UserProfile.birthDate (single source of truth in the DB). This
+  // eliminates the Auth.js v5-beta cookie-rotation race that caused
+  // BUG-C-F3 iterations 1-6 to fail on Staging. Diagnostic helpers from
+  // iterações 3-4 are removed in this commit; the absence of the
+  // auth.middleware.redirectToCompleteProfile event in Staging logs
+  // is itself the success signal.
 
   // Admin routes: require role === "admin" in JWT token.
   // Non-admin users are redirected to /expeditions.

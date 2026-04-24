@@ -29,6 +29,24 @@ export default async function AppShellLayout({ children, params }: AppShellLayou
   }
 
   const user = session.user;
+
+  // SPEC-AUTH-AGE-002 v2.0.0 (BUG-C-F3 iteração 7, B4-Node-gate):
+  // single source of truth for the age gate is UserProfile.birthDate.
+  // Edge middleware no longer enforces this — JWT `profileComplete` is
+  // a UX hint only. A null birthDate (or no UserProfile row) funnels
+  // OAuth sign-ins to /auth/complete-profile.
+  const profile = await db.userProfile.findUnique({
+    where: { userId: user.id! },
+    select: { birthDate: true },
+  });
+  if (!profile?.birthDate) {
+    redirect({
+      href: "/auth/complete-profile?callbackUrl=%2Fexpeditions",
+      locale,
+    });
+    return null;
+  }
+
   const t = await getTranslations("common");
 
   // Derive display name: name > email local part > translated fallback
