@@ -83,11 +83,32 @@ export default auth((req) => {
       // JWT, (H1b) jar.set() did not commit to the response, or (H1c)
       // something overwrites the cookie before the next request.
       const cookieValue = req.cookies.get(SESSION_COOKIE_NAME)?.value;
+      // BUG-C-F3 iteração 4: extract the JWE IV from the cookie and read
+      // the raw Cookie header to detect (a) whether this is the same
+      // ciphertext the helper just wrote — IV match proves it — and (b)
+      // whether duplicate `authjs.session-token*` entries exist at the
+      // HTTP layer (chunk variants the Next.js cookie parser would silently
+      // dedupe, hiding chunk contamination from req.cookies.get).
+      const cookieIv = cookieValue ? (cookieValue.split(".")[2] ?? null) : null;
+      const rawCookieHeader = req.headers.get("cookie") ?? "";
+      const rawAuthjsCookies = rawCookieHeader
+        .split(";")
+        .map((c) => c.trim())
+        .filter((c) => c.includes("authjs.session-token"))
+        .map((c) => {
+          const eq = c.indexOf("=");
+          return eq === -1
+            ? { name: c, valueLength: 0 }
+            : { name: c.slice(0, eq), valueLength: c.length - eq - 1 };
+        });
+
       logger.info("auth.middleware.redirectToCompleteProfile", {
         path: pathname,
         cookieName: SESSION_COOKIE_NAME,
         hasCookie: !!cookieValue,
         cookieLength: cookieValue?.length,
+        cookieIv,
+        rawAuthjsCookies,
         profileCompleteFromJwt: profileComplete,
         tokenSub: session?.user?.id,
       });

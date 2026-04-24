@@ -96,6 +96,15 @@ export async function patchSessionToken(
   });
   const newHeader = parseJweHeader(newToken);
 
+  // BUG-C-F3 iteração 4: capture the JWE Initialization Vector (3rd segment
+  // of the compact serialization) AND the IV of the cookie we just decoded.
+  // Pairing helper IV with middleware IV on the next request answers the
+  // central question: did our rewrite reach the browser, or did something
+  // revert it? The IV is unique per encrypt() call so it is a perfect
+  // identity fingerprint without leaking secrets.
+  const currentIv = current.split(".")[2] ?? null;
+  const newTokenIv = newToken.split(".")[2] ?? null;
+
   logger.info("auth.patchCookie.debug", {
     phase: "encoded",
     cookieName: SESSION_COOKIE_NAME,
@@ -103,6 +112,7 @@ export async function patchSessionToken(
     secureFlag: process.env.NODE_ENV === "production",
     currentLength: current.length,
     currentHeader,
+    currentIv,
     payloadKeys: Object.keys(payload),
     payloadProfileCompleteBefore:
       (payload as { profileComplete?: unknown }).profileComplete ?? null,
@@ -111,6 +121,7 @@ export async function patchSessionToken(
       (merged as { profileComplete?: unknown }).profileComplete ?? null,
     newTokenLength: newToken.length,
     newHeader,
+    newTokenIv,
   });
 
   jar.set(SESSION_COOKIE_NAME, newToken, {
