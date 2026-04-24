@@ -1,8 +1,8 @@
 # SPEC-AUTH-AGE-002 — Google OAuth DOB collection + 18+ gate
 
-**Version:** 2.0.0
-**Status:** Approved — v2.0.0 (BUG-C-F3 iteração 7, B4-Node-gate)
-**Sprint:** 44 (pre-Beta) — v2.0.0 amended 2026-04-24
+**Version:** 2.0.1
+**Status:** Approved — v2.0.1 (BUG-C-F3 iteração 7.1 hotfix)
+**Sprint:** 44 (pre-Beta) — v2.0.0 amended 2026-04-24, v2.0.1 hotfixed 2026-04-24
 **Owner:** dev-fullstack-1
 **Related:** SPEC-AUTH-AGE-001 (credentials path)
 
@@ -425,6 +425,7 @@ approved moving the enforcement layer:
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 2.0.0 | 2026-04-24 | dev-fullstack-1 (impersonating tech-lead orchestration) | B4-Node-gate. Move age-gate enforcement from Edge middleware to Node `(app)` layout. JWT `profileComplete` demoted to UX hint. Eliminates Auth.js v5-beta cookie-rotation race confirmed via 3-IV evidence on 2026-04-24 02:05 UTC. PO-approved per iteração 6 feasibility report. |
+| 2.0.1 | 2026-04-24 | dev-fullstack-1 (hotfix) | Remove `signIn` callback mutation of `user.profileComplete` in `src/lib/auth.ts:65-89`. Was dead code post-v2.0.0 — JWT claim is UX-hint-only, defaults to `false` via jwt callback, no consumer reads it. Mutation caused `PrismaClientValidationError: Unknown argument profileComplete` on fresh OAuth signups (User table has no such column). Bug predates iteração 7 — introduced in db73225 (SPEC v1.0.0) but latent until first fresh OAuth user on 2026-04-24 14:27 UTC. Iteração 7 did not cause it; did unmask it. Fix shape PO-approved per Iter 7.1 diagnostic report Option A. |
 
 ### 8.6 Agent dimension sign-offs (v2.0.0)
 
@@ -445,3 +446,57 @@ approved moving the enforcement layer:
 | QA | qa-engineer | ✅ §8.3.7 |
 | RELEASE | release-manager | ✅ §8.3.8 |
 | COST | finops-engineer | ✅ §8.3.9 |
+
+---
+
+## 9. v2.0.1 — Iter 7.1 hotfix (signIn mutation removal)
+
+### 9.1 Why
+
+Fresh Google OAuth signup on Staging (2026-04-24 14:27 UTC,
+`claricersmoura@gmail.com`) failed with
+`PrismaClientValidationError: Unknown argument profileComplete` inside
+`adapter.createUser`. Root cause: `signIn` callback at
+`src/lib/auth.ts:65-89` mutates the OAuth-profile-derived `user` object
+by attaching `user.profileComplete`. The `@auth/prisma-adapter`
+subsequently spreads the full user into
+`db.user.create({ data: user })`, but `User` model has no
+`profileComplete` column — it never did (see §8.3.4, v2.0.0 audit). The
+mutation has been dead code since db73225 (SPEC v1.0.0) and became
+unambiguously unnecessary when v2.0.0 made `birthDate` the sole source
+of truth.
+
+### 9.2 What changes
+
+- `src/lib/auth.ts:65-89` — `signIn` callback reduced to `return true`
+  (preserving the credentials-vs-oauth boolean from
+  `authConfig.callbacks.signIn` via delegation).
+- `src/lib/__tests__/auth.test.ts` (NEW) — regression tests asserting
+  that the user object passed to `signIn` is returned without a
+  `profileComplete` property (both oauth and credentials paths).
+- JWT claim `token.profileComplete` continues to default to `false` via
+  `auth.config.ts:78-79` (`?? false`). This is intentional and matches
+  v2.0.0 SPEC §8.3.4 — UX hint only.
+
+### 9.3 Threat model delta
+
+None. v2.0.0 already demoted the JWT claim to UX hint. v2.0.1 simply
+removes code that was writing to that hint in a way that broke an
+adjacent flow. Layout-side DB read is the security boundary.
+
+### 9.4 Files touched in v2.0.1
+
+| File | Change |
+|---|---|
+| `src/lib/auth.ts` | signIn callback simplified (−20 LOC) |
+| `src/lib/__tests__/auth.test.ts` | NEW — regression coverage |
+| `docs/specs/sprint-44-pre-beta/SPEC-AUTH-AGE-002.md` | v2.0.1 change history + §9 |
+| `docs/specs/bdd/auth-age-gate.feature` | +1 scenario (fresh OAuth user) |
+| `docs/qa/bug-c-f3-iter7-security-audit.md` | +§8 Iter 7.1 Hotfix Review |
+| `docs/qa/bug-c-f3-iter7-trust-score.md` | +§6 Iter 7.1 Update |
+| `docs/specs/sprint-46-candidates/SPEC-PROCESS-RETROSPECTIVE-BUG-C.md` | +adapter-integration-test coverage requirement |
+
+### 9.5 Deferred
+
+MSW-based OAuth integration test stub — added to
+`SPEC-PROCESS-RETROSPECTIVE-BUG-C` (Sprint 46).

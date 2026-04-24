@@ -92,3 +92,52 @@ Threshold for Prod: ≥ 0.92 → **MARGINAL FAIL** ❌ (0.02 below)
 | 1-2 | 2026-04-15 → 2026-04-21 | n/a | bypassed governance (debug mode) |
 | 3-6 | 2026-04-21 → 2026-04-24 | n/a | diagnostic-only, no fix shipped |
 | **7** | **2026-04-24** | **0.90** | **Staging GO; Prod HOLD** |
+
+---
+
+## 6. Iter 7.1 Update — 2026-04-24
+
+### Trigger
+
+Staging PO walk-through surfaced a pre-existing latent bug: fresh Google OAuth signup fails with `PrismaClientValidationError: Unknown argument profileComplete` (origin: `src/lib/auth.ts:65-89` mutation, present since SPEC v1.0.0 commit `db73225`). Iter 7 did not introduce the bug — it unmasked it via the first real fresh-user walk-through.
+
+Option A (remove mutation) applied. Governance: proportional (unit TDD + security smoke + BDD + SPEC v2.0.1 + this score update).
+
+### Re-scoring
+
+| Dim | v2.0.0 | v2.0.1 | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.95 | **0.97** | +0.02 | Adds regression test for signIn mutation. Layout gate intact. |
+| Accuracy | 0.95 | 0.95 | 0 | Unchanged — same SoT. |
+| Performance | 0.82 | 0.82 | 0 | Unchanged — no new query. |
+| UX | 0.92 | **0.94** | +0.02 | Fresh OAuth signup now actually works end-to-end (was previously broken for any first-time user). |
+| i18n | 0.78 | 0.78 | 0 | Still pending Iter 8 callbackUrl preservation. |
+
+### Composite v2.0.1
+
+| Dim | Score | Weight | Weighted |
+|---|---:|---:|---:|
+| Safety | 0.97 | 0.30 | 0.291 |
+| Accuracy | 0.95 | 0.25 | 0.2375 |
+| Performance | 0.82 | 0.20 | 0.164 |
+| UX | 0.94 | 0.15 | 0.141 |
+| i18n | 0.78 | 0.10 | 0.078 |
+| **Composite v2.0.1** | | **1.00** | **0.9115** |
+
+### Decision
+
+**Composite: 0.91 (≈ 0.9115).**
+
+- Staging gate ≥ 0.85 → **PASS** ✅
+- Prod gate ≥ 0.92 → **MARGINAL FAIL** ❌ (0.01 below)
+
+Position unchanged: **Staging GO, Prod HOLD.** The 0.01 gap to the prod gate is entirely attributable to the i18n dimension, which Iter 8 will address by restoring original-path `callbackUrl` from `headers().get("x-pathname")`. That single change is projected to lift i18n to ~0.92, which carries the composite to ~0.925 and clears the Prod gate.
+
+### History update
+
+| Iteração | Date | Composite | Verdict |
+|---|---|---:|---|
+| 1-2 | 2026-04-15 → 2026-04-21 | n/a | bypassed governance (debug mode) |
+| 3-6 | 2026-04-21 → 2026-04-24 | n/a | diagnostic-only, no fix shipped |
+| 7 | 2026-04-24 | 0.90 | Staging GO; Prod HOLD |
+| **7.1** | **2026-04-24** | **0.91** | **Staging GO; Prod HOLD** (regression fixed; i18n still blocks Prod) |

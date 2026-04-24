@@ -202,3 +202,54 @@ APPROVED-WITH-FOLLOWUPS
 architect (acting as security-specialist)
 2026-04-24
 ```
+
+---
+
+## 8. Iter 7.1 Hotfix Review (SPEC v2.0.1) — 2026-04-24
+
+### Scope
+
+Single change: remove `signIn` callback mutation of `user.profileComplete`
+in `src/lib/auth.ts:65-89`. The mutation was dead code post-v2.0.0 and
+caused `PrismaClientValidationError` on fresh OAuth signups because
+`@auth/prisma-adapter` forwarded the extra property into
+`db.user.create`.
+
+### Security review (smoke)
+
+1. **JWT claim still defaults to `false`.** `auth.config.ts:78-79` uses
+   `token.profileComplete = (user as ...).profileComplete ?? false`.
+   With the mutation removed, `user.profileComplete` is always
+   `undefined`, so the nullish fallback yields `false`. Downstream: the
+   layout still redirects new users to `/auth/complete-profile` because
+   `birthDate` is null — identical behavior to v2.0.0 except the JWT
+   hint is now `false` for **all** users until
+   `patchSessionToken({ profileComplete: true })` runs on DOB submit.
+   That is a strict tightening of the UX hint, not a loosening.
+2. **No consumer of `session.user.profileComplete`.** Re-verified via
+   grep: the only client-side reference (`Phase1WizardV2.tsx:113`) uses
+   a local `isProfileComplete(userProfile)` helper tied to personal
+   fields, not the JWT claim.
+3. **Layout gate unchanged.** `src/app/[locale]/(app)/layout.tsx:38-48`
+   still queries `db.userProfile.findUnique` and gates on `birthDate`.
+   v2.0.0 defense-in-depth intact.
+4. **`canUseAI` unchanged.** All 10 call sites continue to read
+   `birthDate` from DB (Section 4 of the v2.0.0 audit). Mutation removal
+   does not touch this.
+5. **No new attack surface.** The removed code wrote a UX hint; it did
+   not authorize anything. Removing it cannot grant access that the
+   previous code denied.
+
+### Verdict
+
+**APPROVED.**
+
+The hotfix is a pure subtraction of dead code that had been causing a
+production-visible bug. It does not weaken any security boundary and
+aligns with the v2.0.0 architecture.
+
+```
+APPROVED
+architect (acting as security-specialist)
+2026-04-24 (Iter 7.1)
+```

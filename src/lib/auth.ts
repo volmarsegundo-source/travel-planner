@@ -63,29 +63,26 @@ export const {
   callbacks: {
     ...authConfig.callbacks,
     async signIn(params) {
+      // SPEC-AUTH-AGE-002 v2.0.1 (BUG-C-F3 Iter 7.1): prior versions of
+      // this callback mutated `params.user.profileComplete` so the JWT
+      // callback could pick it up. That mutation broke `adapter.createUser`
+      // on fresh OAuth signups because `@auth/prisma-adapter` spreads the
+      // user into `db.user.create({ data: user })`, and `User` has no
+      // `profileComplete` column.
+      //
+      // Post-v2.0.0 the JWT claim is a UX hint only — the Node `(app)`
+      // layout derives truth from `UserProfile.birthDate` in the DB. So
+      // the mutation was dead code and is removed. The claim defaults to
+      // `false` in `auth.config.ts:78-79` (`?? false`), which is safe:
+      // layout still redirects to /auth/complete-profile when birthDate
+      // is null, and `patchSessionToken({ profileComplete: true })` in
+      // `completeProfileAction` flips the hint after a successful DOB
+      // submission.
+      //
+      // Delegate to the Edge-safe base signIn (which handles the
+      // credentials-path `!!user?.id` check) and return its result.
       const base = authConfig.callbacks?.signIn;
-      const baseResult = base ? await base(params) : true;
-      if (!baseResult) return baseResult;
-
-      // Attach profileComplete to the user object so the JWT callback persists it.
-      const { user, account } = params;
-      if (user?.id && account?.provider && account.provider !== "credentials") {
-        try {
-          const profile = await db.userProfile.findUnique({
-            where: { userId: user.id },
-            select: { birthDate: true },
-          });
-          (user as { profileComplete?: boolean }).profileComplete =
-            !!profile?.birthDate;
-        } catch {
-          (user as { profileComplete?: boolean }).profileComplete = false;
-        }
-      } else if (user?.id && account?.provider === "credentials") {
-        // Credentials path (SPEC-AUTH-AGE-001) always collects DOB at signup.
-        (user as { profileComplete?: boolean }).profileComplete = true;
-      }
-
-      return true;
+      return base ? await base(params) : true;
     },
   },
   providers: [

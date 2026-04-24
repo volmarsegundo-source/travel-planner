@@ -58,3 +58,13 @@ Feature: Age gate enforcement via DB source of truth (B4-Node-gate)
     Then the admin panel loads
     And no DOB check interferes with admin flow
     And the role guard in middleware still applies
+
+  # Added in SPEC v2.0.1 (Iter 7.1 hotfix)
+  Scenario: Fresh OAuth user (first-time signup) completes flow without adapter error
+    Given a user authenticates via Google OAuth for the first time
+    And no User row exists in the database for their email
+    When the OAuth callback creates the user via adapter.createUser
+    Then the creation succeeds without PrismaClientValidationError
+    And the user is redirected to /auth/complete-profile because birthDate is null
+    And after submitting a valid DOB, they land on /expeditions
+    # Prevents regression of the signIn mutation issue fixed in SPEC v2.0.1.
