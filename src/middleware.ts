@@ -17,11 +17,19 @@ import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import authConfig from "./lib/auth.config";
+import { logger } from "./lib/logger";
 import {
   buildCsp,
   applySecurityHeaders,
   propagateNonceToRequest,
 } from "./lib/csp";
+
+// BUG-C-F3 iteração 3: name of the cookie middleware should see after the
+// helper rewrites it. Used only by the diagnostic log below.
+const SESSION_COOKIE_NAME =
+  process.env.NODE_ENV === "production"
+    ? "__Secure-authjs.session-token"
+    : "authjs.session-token";
 
 const { auth } = NextAuth(authConfig);
 
@@ -60,7 +68,7 @@ export default auth((req) => {
   // signup (SPEC-AUTH-AGE-001) so this only affects Google / Apple sign-ins.
   if (req.auth) {
     const session = req.auth as {
-      user?: { profileComplete?: boolean };
+      user?: { id?: string; profileComplete?: boolean };
     };
     const profileComplete = session?.user?.profileComplete;
     const isOnboardingRoute =
@@ -68,6 +76,22 @@ export default auth((req) => {
       pathname.includes("/auth/age-rejected");
 
     if (isProtected && profileComplete === false && !isOnboardingRoute) {
+      // BUG-C-F3 iteração 3 diagnostic: capture exactly what the middleware
+      // sees in the request when it decides to redirect back to the DOB
+      // collection page. Comparing this against auth.patchCookie.debug from
+      // the prior commit will reveal whether (H1a) middleware caches stale
+      // JWT, (H1b) jar.set() did not commit to the response, or (H1c)
+      // something overwrites the cookie before the next request.
+      const cookieValue = req.cookies.get(SESSION_COOKIE_NAME)?.value;
+      logger.info("auth.middleware.redirectToCompleteProfile", {
+        path: pathname,
+        cookieName: SESSION_COOKIE_NAME,
+        hasCookie: !!cookieValue,
+        cookieLength: cookieValue?.length,
+        profileCompleteFromJwt: profileComplete,
+        tokenSub: session?.user?.id,
+      });
+
       const url = new URL("/auth/complete-profile", req.url);
       url.searchParams.set("callbackUrl", pathname);
       return Response.redirect(url);
