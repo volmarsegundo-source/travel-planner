@@ -348,14 +348,21 @@ PO (Volmar) produces `SPEC-PROFIT-SCORING-001` and `SPEC-DYNAMIC-RANKING-001` in
 | `docs/specs/sprint-46-parallel/SPEC-DYNAMIC-RANKING-001.md` | 9-dimension SPEC covering dynamic rank threshold rules on top of existing `UserProgress.currentRank` |
 | `docs/specs/sprint-46-parallel/research/` | Existing implementation snapshots + edge cases discovered during SPEC writing |
 
-### 6.3 PO weekly allocation (0.5 day/week cadence)
+### 6.3 PO weekly allocation (0.3 day/week cadence — R-03-A applied 2026-04-24)
+
+**Rationale (R-03-A from `docs/qa/sprint-46-pendentes-recommendations.md`)**: deeper grounding revealed both SPECs are smaller than originally feared:
+
+- Dynamic Ranking — 2 ghost ranks to fill (not 4 as the original grounding overstated). `B47-RANK-FILL` registered in Sprint 47 BACKLOG handles the content addition.
+- Profit Scoring — heuristic is intentional design, not a calculation bug. SPEC-PROFIT-SCORING-001 §4 documents this; no implementation change in S46.
+
+PO weekly allocation reduced 0.5d → 0.3d. Total Sprint 46 PO commitment: ~1 day (down from 2). Frees ~0.6 days for other Sprint 46 review surfaces or buffer.
 
 | Week | Day block | Activity |
 |---|---|---|
-| 1 | 0.5 day | Profit Scoring draft — SPEC-PROD + SPEC-UX dimensions |
-| 2 | 0.5 day | Profit Scoring cont. — SPEC-TECH + SPEC-SEC + SPEC-QA dimensions |
-| 2 | 0.5 day | Dynamic Ranking draft — SPEC-PROD + SPEC-UX |
-| 3 | 0.5 day | Dynamic Ranking cont. + both SPECs reviewed by tech-lead + architect |
+| 1 | 0.3 day | Profit Scoring §2-3 draft — SPEC-PROD + SPEC-UX dimensions (§4 already seeded by R-02-B commit) |
+| 2 | 0.3 day | Profit Scoring §5-8 cont. — SPEC-TECH + SPEC-SEC + SPEC-QA dimensions |
+| 2 | 0.3 day | Dynamic Ranking SPEC §2-3 draft — SPEC-PROD + SPEC-UX (note: scope shrunk per R-01-A; ghost ranks deferred to S47 B47-RANK-FILL) |
+| 3 | 0.3 day | Dynamic Ranking cont. + both SPECs reviewed by tech-lead + architect |
 
 ### 6.4 Ownership
 

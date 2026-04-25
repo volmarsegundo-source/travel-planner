@@ -364,3 +364,40 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     And no AI provider config reads from the new ModelAssignment table
     And no PromptVersion lookup occurs in the AI hot path
     # Wave 3 (S47) wires the lookups; Wave 1 only ships the storage layer.
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 2 cont. (2026-04-24) — R-01-A + R-02-B + R-03-A
+  # PO-approved recommendations from sprint-46-pendentes-recommendations.md
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: R-02-B cost model heuristic documented in SPEC-PROFIT-SCORING-001
+    Given the admin dashboard uses AI_COST_PER_PA_CENTS = 1 as platform-cost heuristic
+    And cost-calculator.ts uses MODEL_PRICING per-token as technical source of truth
+    When SPEC-PROFIT-SCORING-001 §4 is reviewed
+    Then the heuristic is explicitly documented as intentional design
+    And the empirical 66x divergence (heuristic vs raw provider cost) is acknowledged
+    And the rationale (platform overhead capture) is recorded
+    And §4.4 explicitly rejects R-02-A (replace) and R-02-C (lower retroactively)
+    And §4.5 lists the 4 future revisitation triggers
+
+  Scenario: R-03-A PO weekly allocation reduced for Sprint Zero parallel
+    Given execution-plan §6.3 prescribes PO Approach 1 cadence
+    When R-03-A is applied
+    Then the table reads 0.3 day/week (down from 0.5)
+    And total Sprint 46 PO commitment is ~1 day (down from 2)
+    And the rationale references reduced scope from the corrected grounding (ghost ranks 4→2; heuristic intentional, not a bug)
+
+  Scenario: R-01-A B47-RANK-FILL added to Sprint 47 BACKLOG
+    Given Dynamic Ranking has 2 unreachable ranks (navegador, lendario)
+    When Sprint 47 BACKLOG is updated per R-01-A
+    Then docs/specs/sprint-47-candidates/BACKLOG.md contains B47-RANK-FILL
+    And the entry has a 4-6h estimate and P2 priority
+    And acceptance criteria require 2 phase milestones added to phase-config.ts (PO chooses which phases)
+
+  Scenario: R-02-B B47-COST-TILE added to Sprint 47 BACKLOG
+    Given the cost model uses an intentional heuristic
+    When Sprint 47 BACKLOG is updated per R-02-B
+    Then docs/specs/sprint-47-candidates/BACKLOG.md contains B47-COST-TILE
+    And the entry has a 4-6h estimate and P2 priority
+    And acceptance criteria require a transparency tile alongside the heuristic display
+    And the tile sources actual provider cost from AiInteractionLog.estimatedCostUsd

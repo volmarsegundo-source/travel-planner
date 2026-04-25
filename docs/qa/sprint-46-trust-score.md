@@ -59,6 +59,39 @@ V2 Wave 1 + Wave 2 not yet started — wave-scoped trust scores will be computed
 | Day 1 | ADR-0036 implementation (this commit) | **0.93** (+0.01 Safety, rounded composite same) |
 | Day 2 | B-W1-001 feature flag (`AI_GOVERNANCE_V2` + helper) | **0.93** (no dimension change — pure infrastructure addition; default OFF preserves all existing behavior) |
 | Day 2 cont. | B-W1-002 Prisma migration (5 new models + 7 new columns) | **0.93** (no dimension change — additive schema; no read-path consumer until Wave 3 / S47) |
+| Day 2 cont. | R-01-A + R-02-B + R-03-A applied (SPEC-PROFIT-SCORING-001 §4 seeded; exec-plan §6.3 cadence reduced; B47 backlog) | **0.93** (no dimension change — docs only; honesty reinforced by documenting heuristic intent and self-correction in commit) |
+
+---
+
+## §5 — Day 2 cont. entry: R-01-A + R-02-B + R-03-A application
+
+### 5.1 Context
+
+PO approved 3 recommendations from `docs/qa/sprint-46-pendentes-recommendations.md` (commit `502b336`):
+
+- **R-01-A**: Defer Dynamic Ranking ghost ranks to Sprint 47 via new `B47-RANK-FILL`.
+- **R-02-B**: Document the cost-model heuristic in `SPEC-PROFIT-SCORING-001` §4; add S47 transparency tile (`B47-COST-TILE`).
+- **R-03-A**: Reduce Approach 1 PO cadence 0.5d/w → 0.3d/w (smaller scope justifies).
+
+**PO approval mode**: PO approved based on multi-agent sign-offs in `502b336` without individual review of the 290-line recommendations doc. Per Sprint 45 retrospective St-01, the deviation from read-before-approve is recorded in this commit's message for git-log traceability.
+
+### 5.2 Per-dimension scoring delta
+
+| Dimension | Day 2 cont. (after B-W1-002) | Day 2 cont. (after R-01/02/03) | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.98 | 0.98 | 0 | No code change; security smoke confirmed no new vectors. |
+| Accuracy | 0.95 | 0.95 | 0 | Heuristic correctness explicitly documented (was implicit before). Time-series integrity preserved. |
+| Performance | 0.82 | 0.82 | 0 | No runtime path touched. |
+| UX | 0.95 | 0.95 | 0 | No UI surface in this commit. |
+| i18n | 0.93 | 0.93 | 0 | No i18n touched. |
+
+### 5.3 Composite
+
+Composite: **0.9310** (unchanged). The honesty-reinforcement value (documenting heuristic intent + flagging self-correction in commit) does not lift any single Trust Score dimension but it **prevents a future Safety regression**: a future engineer "fixing" the heuristic without context could destroy time-series integrity (R-02-C path the SPEC explicitly forbids).
+
+### 5.4 PO load update
+
+Total Sprint 46 PO commitment for Approach 1: 2 days → ~1 day (R-03-A applied). PO frees ~0.6 days for other Sprint 46 review surfaces or buffer.
 
 ---
 
