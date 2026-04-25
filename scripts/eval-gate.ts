@@ -2,10 +2,24 @@
 /**
  * EDD Eval Gate
  *
- * Reads vitest JSON report and determines pass/fail based on trust score threshold.
- * Exit code 0 = pass, 1 = fail
+ * Reads a vitest JSON report and emits a PASS/FAIL decision based on
+ * the configured pass-rate threshold. Exit code 0 = PASS, 1 = FAIL.
  *
- * Usage: npx tsx scripts/eval-gate.ts [report-file] [--threshold=0.8]
+ * Usage:
+ *   npx tsx scripts/eval-gate.ts [report-file] [flags]
+ *
+ * Flags:
+ *   --threshold=<0..1>      Required pass-rate. Default 0.8 (PR gate).
+ *                           Use 0.85 for staging, 0.90 for prod.
+ *   --max-age-hours=<n>     Fail loud if report mtime older than n hours.
+ *                           Default OFF (no staleness check). Recommended
+ *                           in CI to catch stale-artifact regressions.
+ *   --allow-empty           Treat numTotalTests == 0 as PASS instead of FAIL.
+ *                           Default OFF (fail-closed). Use only when an
+ *                           empty test set is the legitimate expected state.
+ *
+ * C-02 (Sprint 46): hardened to be the authoritative PASS/FAIL decision
+ * point. Sprint 45 retro St-05: "don't defer silent CI failures."
  */
 
 import * as fs from "node:fs";
@@ -45,6 +59,19 @@ if (Number.isNaN(threshold) || threshold < 0 || threshold > 1) {
   process.exit(1);
 }
 
+const maxAgeArg = args.find((a) => a.startsWith("--max-age-hours="));
+const maxAgeHours = maxAgeArg ? parseFloat(maxAgeArg.split("=")[1]) : null;
+
+if (
+  maxAgeHours !== null &&
+  (Number.isNaN(maxAgeHours) || maxAgeHours <= 0)
+) {
+  console.error("ERROR: --max-age-hours must be a positive number");
+  process.exit(1);
+}
+
+const allowEmpty = args.includes("--allow-empty");
+
 // ---------------------------------------------------------------------------
 // Read report
 // ---------------------------------------------------------------------------
@@ -53,6 +80,18 @@ const reportPath = path.resolve(process.cwd(), reportFile);
 if (!fs.existsSync(reportPath)) {
   console.error(`ERROR: Eval report not found: ${reportPath}`);
   process.exit(1);
+}
+
+if (maxAgeHours !== null) {
+  const stat = fs.statSync(reportPath);
+  const ageHours = (Date.now() - stat.mtimeMs) / (1000 * 60 * 60);
+  if (ageHours > maxAgeHours) {
+    console.error(
+      `ERROR: Eval report is stale (mtime exceeds --max-age-hours=${maxAgeHours}). ` +
+        `Actual age: ${ageHours.toFixed(2)}h. Re-run \`npm run eval:report\` and retry.`
+    );
+    process.exit(1);
+  }
 }
 
 let report: VitestJsonReport;
@@ -122,6 +161,24 @@ console.log("");
 // ---------------------------------------------------------------------------
 // Gate decision
 // ---------------------------------------------------------------------------
+// Empty-report guard: by default a zero-test report is fail-closed (an
+// empty suite cannot validate anything). The `--allow-empty` opt-in is
+// the ONLY way to skip — it must surface a visible reason in stdout so
+// the skip is loud, not silent (Sprint 45 retro St-05).
+if (report.numTotalTests === 0) {
+  if (allowEmpty) {
+    console.log(
+      "GATE PASSED (0 tests; --allow-empty was set — verify this is the expected state)"
+    );
+    process.exit(0);
+  }
+  console.log(
+    "GATE FAILED (0 tests collected; refusing to silently pass — " +
+      "pass --allow-empty if an empty test set is the intended state)"
+  );
+  process.exit(1);
+}
+
 if (passRate >= threshold) {
   console.log(`GATE PASSED (${(passRate * 100).toFixed(1)}% >= ${(threshold * 100).toFixed(1)}%)`);
   process.exit(0);

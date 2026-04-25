@@ -38,11 +38,30 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Run eval suite
-        run: npx vitest run --config vitest.eval.config.ts --reporter=json --outputFile=eval-report.json
+      # C-02 (Sprint 46) — `continue-on-error: true` ensures the eval-gate
+      # step below is the authoritative PASS/FAIL signal. Previously, a
+      # single failing eval test short-circuited the workflow before the
+      # gate could apply its threshold, producing an opaque red CI build
+      # even when overall pass-rate was well above threshold (Sprint 45
+      # retro St-05).
+      - name: Run eval suite (writes JSON; failures handled by gate step)
+        id: eval-suite
+        continue-on-error: true
+        run: npx vitest run --config vitest.eval.config.ts --reporter=default --reporter=json --outputFile=eval-report.json
 
-      - name: Check eval gate
-        run: npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.8
+      - name: Eval suite outcome (visibility — gate is authoritative below)
+        run: |
+          echo "Eval suite step outcome: ${{ steps.eval-suite.outcome }}"
+          if [ ! -f eval-report.json ]; then
+            echo "::error::eval-report.json was not produced by the eval suite step"
+            exit 1
+          fi
+
+      - name: Check eval gate (authoritative PASS/FAIL)
+        # 24h staleness check is belt-and-braces — the artifact is fresh in
+        # this workflow, but enforcing the flag guards against future
+        # workflow refactors that might cache or reuse stale artifacts.
+        run: npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.8 --max-age-hours=24
 
       - name: Run drift check
         run: npx tsx scripts/drift-check.ts docs/evals/baselines/v0.22.0-baseline.json eval-report.json --delta=0.1

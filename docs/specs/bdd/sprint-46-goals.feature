@@ -649,3 +649,65 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then the existing route continues to operate via its inline auth check
     # The convention applies only to /api/admin/ai/**; other admin routes
     # keep their existing pattern.
+
+  # ─────────────────────────────────────────────────────────────────────
+  # C-02 — EDD Eval Gates fix (Sprint 45 retro St-05)
+  # Closes the silent CI failure where the eval-suite step fails on any
+  # individual test failure, short-circuiting the threshold-based gate.
+  # The gate should be the authoritative PASS/FAIL signal — not whether
+  # any single test failed.
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: C-02 EDD gate PASSES when pass-rate at PR threshold (≥0.80)
+    Given an eval-report.json with 90 of 100 tests passing
+    When `npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.80` runs
+    Then the script exits with code 0
+    And stdout contains "GATE PASSED"
+
+  Scenario: C-02 EDD gate FAILS when pass-rate below PR threshold
+    Given an eval-report.json with 70 of 100 tests passing
+    When `npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.80` runs
+    Then the script exits with code 1
+    And stdout contains "GATE FAILED"
+
+  Scenario: C-02 EDD gate FAILS when staging threshold not met
+    Given an eval-report.json with 82 of 100 tests passing
+    When `npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.85` runs
+    Then the script exits with code 1
+    And stdout contains "GATE FAILED"
+
+  Scenario: C-02 EDD gate FAILS when prod threshold not met
+    Given an eval-report.json with 88 of 100 tests passing
+    When `npx tsx scripts/eval-gate.ts eval-report.json --threshold=0.90` runs
+    Then the script exits with code 1
+
+  Scenario: C-02 EDD gate FAILS loud when report file missing
+    Given no eval-report.json exists
+    When the gate runs
+    Then the script exits with code 1
+    And stderr contains "ERROR: Eval report not found"
+
+  Scenario: C-02 EDD gate FAILS loud when report file is stale
+    Given an eval-report.json older than 24 hours
+    When the gate runs with default behavior
+    Then the script exits with code 1
+    And stderr contains "ERROR" and "stale"
+
+  Scenario: C-02 EDD gate FAILS when report has zero tests collected
+    Given an eval-report.json with numTotalTests = 0
+    When the gate runs
+    Then the script exits with code 1
+    And stdout indicates 0 tests + GATE FAILED
+
+  Scenario: C-02 EDD gate skip is explicit (no silent pass)
+    Given the gate is configured to skip via --allow-empty (not default)
+    When invoked without the flag and report has zero tests
+    Then the script exits with code 1
+    # Default is fail-closed; opt-in to allow-empty is the only path to skip.
+
+  Scenario: C-02 CI workflow runs eval-gate even when eval suite has failing tests
+    Given the CI eval workflow runs the eval suite
+    When the eval suite exits 1 (some individual eval tests failed)
+    Then the workflow continues to the eval-gate step (continue-on-error)
+    And the eval-gate step is the authoritative PASS/FAIL signal
+    # Resolves the silent failure where suite-step short-circuited the gate.

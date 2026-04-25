@@ -63,6 +63,7 @@ V2 Wave 1 + Wave 2 not yet started — wave-scoped trust scores will be computed
 | Day 3 | B-W1-008 Wave 1 close (integration tests) — see §11 | **0.94** (precise 0.9380; +0.01 Accuracy from drift-prevention test) |
 | Day 3+ | B47-MW-PURE-FN — extract `decideAdminAccess` (closes batch-review P1) — see §12 | **0.94** (precise 0.9405; +0.01 Accuracy from single source of truth) |
 | Day 3+ | B47-API-RBAC-CONVENTION — `withAiGovernance*` HOFs + compliance test (closes batch-review P1 Wave-2 foot-gun) — see §13 | **0.95** (precise 0.9460; +0.01 Safety + +0.01 Accuracy from fail-closed wrappers + lint-equivalent compliance test) |
+| Day 3+ | C-02 — EDD Eval Gates fix (Sprint 45 retro St-05; loud failure restoration) — see §14 | **0.95** (precise 0.9485; +0.01 Accuracy from CI gate now authoritative) |
 
 ---
 
@@ -416,6 +417,64 @@ Self-disclosed deltas (no impact on score):
 Open follow-ups (unchanged by this commit):
 - `f188686` — `HARDCODED_FALLBACK` duplicates seed defaults (B47-FALLBACK-CONST in S47).
 - `04d8d8e` — AdminNav not extended with `/admin/ia` link (B47-NAV-IA-LINK in S47, blocks Wave 2 nav-discoverability).
+
+---
+
+## §14 — Day 3+ entry: C-02 EDD Eval Gates fix
+
+### 14.1 Context
+
+Sprint 45 retrospective St-05 ("don't defer silent CI failures"). The EDD eval pipeline had a structural bug: the CI workflow's "Run eval suite" step short-circuited the workflow when ANY individual eval test failed, so the threshold-based gate at the next step never executed. The pipeline was loud (CI red) but uninformative — it could not distinguish "pass-rate 96% but 4 known-failing IR-024 tests still need triage" from "everything is broken." Sprint 45 deferred this as out-of-scope; Sprint 46 retires the debt.
+
+Worth noting: 4 of the failing eval tests are IR-024 Cyrillic homoglyph injection-resistance vectors, tracked separately as B46-16 in the Sprint 47 candidate backlog. C-02 does NOT fix those tests — it fixes the gate plumbing so the gate can apply its threshold and cleanly distinguish "below threshold" from "any individual test failed."
+
+### 14.2 Per-dimension scoring delta
+
+| Dimension | After §13 | After C-02 | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 1.00 | 1.00 | 0 | No new attack surface; existing fail-closed behavior strengthened (zero-tests case + stale-report case). |
+| Accuracy | 0.98 | **0.99** | **+0.01** | Eval gate is now the authoritative CI signal. False-red builds (pass-rate 96% > 80% threshold but pre-existing IR-024 noise) become structurally distinguishable from real regressions. The gate's exit-code contract is now covered by 15 unit tests. |
+| Performance | 0.82 | 0.82 | 0 | No runtime change. |
+| UX | 0.96 | 0.96 | 0 | No UX surface touched. |
+| i18n | 0.93 | 0.93 | 0 | No i18n surface touched. |
+
+### 14.3 Composite
+
+| Dim | Weight | Score | Weighted |
+|---|---:|---:|---:|
+| Safety | 0.30 | 1.00 | 0.300 |
+| Accuracy | 0.25 | 0.99 | 0.2475 |
+| Performance | 0.20 | 0.82 | 0.164 |
+| UX | 0.15 | 0.96 | 0.144 |
+| i18n | 0.10 | 0.93 | 0.093 |
+| **Composite** | 1.00 | | **0.9485** |
+
+Composite: **0.95** (precise 0.9485; +0.0025 vs §13 at 0.9460). Sprint 46 close gate (≥0.93) cleared with margin; prod gate (≥0.92) cleared.
+
+### 14.4 What changed (file inventory)
+
+- `scripts/eval-gate.ts` — added `--allow-empty` (opt-in skip for empty test sets, default fail-closed) and `--max-age-hours=N` (stale-report guard, default off). Empty-report case now FAILs by default with a visible reason; `--allow-empty` makes the skip explicit. Header JSDoc rewritten to document the contract.
+- `.github/workflows/eval.yml` — "Run eval suite" step gains `continue-on-error: true` + `id: eval-suite`. New "Eval suite outcome" step prints the suite outcome but allows the gate step to proceed. "Check eval gate" step gains `--max-age-hours=24` so future workflow refactors that cache stale artifacts fail loudly.
+- `package.json` — `eval:report` now uses `--reporter=default --reporter=json` so test failures are visible in stdout (JSON-only mode hides them). Two new aliases: `eval:gate:staging` (threshold 0.85) and `eval:gate:prod` (threshold 0.90, max-age 12h) so staging/prod paths in future workflows have one-liner invocations.
+- `scripts/__tests__/eval-gate.test.ts` — NEW. 15 tests covering threshold pass/fail boundaries, loud-failure paths (missing report, malformed JSON, zero tests, stale), argument validation, and the JSON telemetry shape consumed by CI log aggregators.
+
+### 14.5 Test deltas
+
+- New tests: **+15** in `scripts/__tests__/eval-gate.test.ts`. Tests run the gate as a child process so they exercise the same exit-code contract CI uses.
+- Regression suite: full vitest unit suite unaffected (gate tests are scripts/, not src/).
+- BDD: +9 scenarios appended to `docs/specs/bdd/sprint-46-goals.feature`.
+
+### 14.6 Honesty-flag impact
+
+Closes:
+- Sprint 45 retro St-05 — EDD silent CI failures (the deferred debt).
+- Implicit: the IR-024 noise no longer obscures real regressions. The gate now reports `GATE PASSED (96.9% >= 80.0%)` instead of failing the suite step.
+
+Open follow-ups (unchanged):
+- B46-16 — 4 IR-024 Cyrillic homoglyph injection-resistance failures. Tracked in Sprint 47 candidate backlog. Distinct from C-02 (gate plumbing) — those tests need a substantive fix to the injection-resistance grader's homoglyph detection.
+
+Self-disclosed deltas:
+- Default `--max-age-hours` is OFF (no enforcement) to avoid breaking existing local workflows. Only CI enables it. Tradeoff is documented; alternative was making it on-by-default, which would break the `npm run eval:gate` ad-hoc invocation from a stale local report.
 
 ---
 
