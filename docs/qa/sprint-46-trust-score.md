@@ -60,6 +60,8 @@ V2 Wave 1 + Wave 2 not yet started — wave-scoped trust scores will be computed
 | Day 2 | B-W1-001 feature flag (`AI_GOVERNANCE_V2` + helper) | **0.93** (no dimension change — pure infrastructure addition; default OFF preserves all existing behavior) |
 | Day 2 cont. | B-W1-002 Prisma migration (5 new models + 7 new columns) | **0.93** (no dimension change — additive schema; no read-path consumer until Wave 3 / S47) |
 | Day 2 cont. | R-01-A + R-02-B + R-03-A applied (SPEC-PROFIT-SCORING-001 §4 seeded; exec-plan §6.3 cadence reduced; B47 backlog) | **0.93** (no dimension change — docs only; honesty reinforced by documenting heuristic intent and self-correction in commit) |
+| Day 3 | B-W1-008 Wave 1 close (integration tests) — see §11 | **0.94** (precise 0.9380; +0.01 Accuracy from drift-prevention test) |
+| Day 3+ | B47-MW-PURE-FN — extract `decideAdminAccess` (closes batch-review P1) — see §12 | **0.94** (precise 0.9405; +0.01 Accuracy from single source of truth) |
 
 ---
 
@@ -299,6 +301,57 @@ Composite: **0.94** (precise 0.9380; +0.0025). Wave 1 close composite well above
 | B-W1-008 (integration tests) | this commit | ✅ |
 
 Next: 4-agent batch review (consultive, non-blocking) over the 12-13 commits since `ce223f4`. Then Wave 2 starts in a follow-up session.
+
+---
+
+## §12 — Day 3+ entry: B47-MW-PURE-FN (P1 batch-review follow-up moved into Sprint 46)
+
+### 12.1 Context
+
+The 4-agent batch review (commit `a8bef3a`, synthesis §10.3) flagged the middleware unit-test gap as the single consolidated **P1** — surfaced by all four lenses (tech-lead, architect, security, qa). PO authorized moving the resolution from Sprint 47 backlog into Sprint 46 as pre-Wave 2 hardening.
+
+Refactor extracts the inline path-aware RBAC decision (previously duplicated in `src/middleware.ts:78-89` and `src/app/[locale]/(app)/admin/layout.tsx:31-39`) into a new pure function `decideAdminAccess(pathname, role): "allow" | "deny"` at `src/lib/auth/rbac.ts`. Both consumers delegate to it — eliminating drift risk and unlocking 19 new unit tests at the decision layer that do **not** require mocking NextAuth's `auth()` HOF.
+
+Side-benefit: the substring-collision boundary `/admin/iam` is now correctly classified as admin-only (previous `pathname.includes("/admin/ia")` would have mis-classified it as the AI route). Documented + tested.
+
+### 12.2 Per-dimension scoring delta
+
+| Dimension | Wave 1 close | After B47-MW-PURE-FN | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.99 | 0.99 | 0 | No new attack surface; behavior preserved. Substring-collision boundary explicit (defense-in-depth). |
+| Accuracy | 0.96 | **0.97** | **+0.01** | Single source of truth for RBAC decision; impossible for middleware and layout to drift. Closes the consolidated batch-review P1 directly. |
+| Performance | 0.82 | 0.82 | 0 | Pure function with two regex tests + Set lookups; same constant-time profile as the inlined version. |
+| UX | 0.96 | 0.96 | 0 | No UX surface touched. |
+| i18n | 0.93 | 0.93 | 0 | Pathname matchers ignore locale prefix correctly via regex anchored on `/admin`. No i18n surface touched. |
+
+### 12.3 Composite
+
+| Dim | Weight | Score | Weighted |
+|---|---:|---:|---:|
+| Safety | 0.30 | 0.99 | 0.297 |
+| Accuracy | 0.25 | 0.97 | 0.2425 |
+| Performance | 0.20 | 0.82 | 0.164 |
+| UX | 0.15 | 0.96 | 0.144 |
+| i18n | 0.10 | 0.93 | 0.093 |
+| **Composite** | 1.00 | | **0.9405** |
+
+Composite: **0.94** (precise 0.9405; +0.0025 vs Wave 1 close at 0.9380). Sprint 46 close gate (≥ 0.93) cleared with margin; prod gate (≥ 0.92) cleared.
+
+### 12.4 Test deltas
+
+- New tests: **+19** (all in `src/lib/auth/__tests__/rbac.test.ts` under `describe("decideAdminAccess …")`). Total file: 31/31 green.
+- Regression suite: **270 files / 3745 tests** all green after refactor (full `npx vitest run` confirmed).
+- BDD: 8 new scenarios appended to `docs/specs/bdd/sprint-46-goals.feature` documenting decision matrix + delegation contract for both consumers.
+
+### 12.5 Honesty-flag impact
+
+Closes:
+- `bfa2643` — "Layout-as-proxy for middleware" (now: pure function is the source of truth; layout-as-proxy still works as defense-in-depth, but is no longer the only test surface).
+- `1c021db` — "Middleware integration test deferred" (the decision logic is now directly unit-testable).
+
+Open follow-ups (unchanged by this commit):
+- `f188686` — `HARDCODED_FALLBACK` duplicates seed defaults (B47-FALLBACK-CONST in S47).
+- `04d8d8e` — AdminNav not extended with `/admin/ia` link (B47-NAV-IA-LINK in S47, blocks Wave 2 nav-discoverability).
 
 ---
 

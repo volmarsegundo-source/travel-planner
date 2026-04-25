@@ -528,3 +528,67 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then it returns true
     When role is "admin-ai" (read-only)
     Then it returns false
+
+  # ─────────────────────────────────────────────────────────────────────
+  # B47-MW-PURE-FN — Sprint 46 (P1 from batch-review synthesis §10.3)
+  # Extract middleware/layout RBAC decision into a pure function so it
+  # can be unit-tested independently of NextAuth's auth() HOF wrapper.
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B47-MW-PURE-FN decideAdminAccess allows admin on any /admin/* path
+    Given the helper decideAdminAccess(pathname, role) is called
+    When pathname is "/en/admin/dashboard" and role is "admin"
+    Then it returns "allow"
+    When pathname is "/pt/admin/ia" and role is "admin"
+    Then it returns "allow"
+
+  Scenario: B47-MW-PURE-FN decideAdminAccess allows admin-ai only on /admin/ia
+    Given the helper decideAdminAccess(pathname, role) is called
+    When pathname is "/en/admin/ia" and role is "admin-ai"
+    Then it returns "allow"
+    When pathname is "/en/admin/dashboard" and role is "admin-ai"
+    Then it returns "deny"
+    # admin-ai is scoped to /admin/ia per SPEC-ARCH-AI-GOVERNANCE-V2 §7.7.
+
+  Scenario: B47-MW-PURE-FN decideAdminAccess allows admin-ai-approver only on /admin/ia
+    Given the helper decideAdminAccess(pathname, role) is called
+    When pathname is "/en/admin/ia/prompts" and role is "admin-ai-approver"
+    Then it returns "allow"
+    When pathname is "/en/admin/users" and role is "admin-ai-approver"
+    Then it returns "deny"
+
+  Scenario: B47-MW-PURE-FN decideAdminAccess denies regular user on any /admin/* path
+    Given the helper decideAdminAccess(pathname, role) is called
+    When pathname is "/en/admin/ia" and role is "user"
+    Then it returns "deny"
+    When pathname is "/en/admin/dashboard" and role is "user"
+    Then it returns "deny"
+
+  Scenario: B47-MW-PURE-FN decideAdminAccess denies null/undefined/non-string role defensively
+    Given the helper decideAdminAccess(pathname, role) is called
+    When pathname is "/en/admin/ia" and role is null
+    Then it returns "deny"
+    When pathname is "/en/admin/dashboard" and role is undefined
+    Then it returns "deny"
+    When role is a non-string value
+    Then it returns "deny"
+
+  Scenario: B47-MW-PURE-FN decideAdminAccess on non-admin path is structurally allow
+    Given the helper decideAdminAccess(pathname, role) is called
+    When pathname is "/en/expeditions" and role is "user"
+    Then it returns "allow"
+    # Pure function is intended to be called only from /admin/* gates;
+    # returning "allow" for non-admin paths matches the caller's expectation
+    # that gating is opt-in (caller decides whether to invoke the helper).
+
+  Scenario: B47-MW-PURE-FN middleware delegates RBAC decision to decideAdminAccess
+    Given the middleware processes a request to "/en/admin/ia"
+    When the helper decideAdminAccess returns "deny"
+    Then the middleware redirects to /expeditions
+    And the inline RBAC logic at middleware.ts is removed
+
+  Scenario: B47-MW-PURE-FN admin layout delegates RBAC decision to decideAdminAccess
+    Given the admin layout server component runs for "/en/admin/ia"
+    When the helper decideAdminAccess returns "deny"
+    Then the layout redirects to /expeditions
+    And the inline RBAC logic at admin/layout.tsx is removed

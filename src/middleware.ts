@@ -17,7 +17,7 @@ import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import authConfig from "./lib/auth.config";
-import { hasAiGovernanceAccess } from "./lib/auth/rbac";
+import { decideAdminAccess } from "./lib/auth/rbac";
 import {
   buildCsp,
   applySecurityHeaders,
@@ -70,19 +70,17 @@ export default auth((req) => {
   // auth.middleware.redirectToCompleteProfile event in Staging logs
   // is itself the success signal.
 
-  // Admin routes RBAC.
-  // - /admin/ia (AI Governance V2): allow admin | admin-ai | admin-ai-approver
-  //   per SPEC-ARCH-AI-GOVERNANCE-V2 §7.7. B-W1-005 (Sprint 46 Day 3).
-  // - All other /admin/*: stays admin-only (back-compat).
-  // Non-qualifying users are redirected to /expeditions.
+  // Admin routes RBAC — delegated to the pure `decideAdminAccess` helper
+  // (`src/lib/auth/rbac.ts`). The helper is unit-testable independently of
+  // the NextAuth `auth()` HOF wrapper that surrounds this middleware,
+  // closing the test gap raised by the 4-agent batch-review synthesis
+  // (P1, B47-MW-PURE-FN, Sprint 46). The same helper is invoked from the
+  // admin layout (`src/app/[locale]/(app)/admin/layout.tsx`) so middleware
+  // and layout cannot drift.
   if (pathname.includes("/admin") && req.auth) {
     const session = req.auth as { user?: { role?: string } };
     const role = session?.user?.role ?? "user";
-    const isAiAdminRoute = pathname.includes("/admin/ia");
-    const allowed = isAiAdminRoute
-      ? hasAiGovernanceAccess(role)
-      : role === "admin";
-    if (!allowed) {
+    if (decideAdminAccess(pathname, role) === "deny") {
       const expeditionsUrl = new URL("/expeditions", req.url);
       return Response.redirect(expeditionsUrl);
     }

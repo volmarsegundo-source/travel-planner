@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminNav } from "./AdminNav";
-import { hasAiGovernanceAccess } from "@/lib/auth/rbac";
+import { decideAdminAccess } from "@/lib/auth/rbac";
 
 export default async function AdminLayout({
   children,
@@ -24,18 +24,13 @@ export default async function AdminLayout({
     select: { role: true },
   });
 
-  // B-W1-006 (Sprint 46 Day 3): path-aware RBAC mirrors the middleware's
-  // SPEC §7.7 model — `/admin/ia` allows admin | admin-ai | admin-ai-approver;
-  // other `/admin/*` paths stay admin-only (back-compat). Defense-in-depth
-  // alongside the middleware check.
+  // Path-aware RBAC delegated to `decideAdminAccess` (B47-MW-PURE-FN,
+  // Sprint 46) — the same helper the Edge middleware calls, so the two
+  // gates cannot drift. Empty `x-pathname` (header missing) collapses to
+  // the back-compat admin-only branch via the helper's path detection.
   const h = await headers();
-  const pathname = h.get("x-pathname") ?? "";
-  const isAiAdminRoute = pathname.includes("/admin/ia");
-  const allowed = isAiAdminRoute
-    ? hasAiGovernanceAccess(user?.role)
-    : user?.role === "admin";
-
-  if (!allowed) {
+  const pathname = h.get("x-pathname") ?? "/admin";
+  if (decideAdminAccess(pathname, user?.role) === "deny") {
     redirect("/expeditions");
   }
 
