@@ -58,6 +58,33 @@ V2 Wave 1 + Wave 2 not yet started — wave-scoped trust scores will be computed
 | Day 1 | C-04 ADR-0036 proposed (`f0d4805`) | 0.93 (no change — docs only) |
 | Day 1 | ADR-0036 implementation (this commit) | **0.93** (+0.01 Safety, rounded composite same) |
 | Day 2 | B-W1-001 feature flag (`AI_GOVERNANCE_V2` + helper) | **0.93** (no dimension change — pure infrastructure addition; default OFF preserves all existing behavior) |
+| Day 2 cont. | B-W1-002 Prisma migration (5 new models + 7 new columns) | **0.93** (no dimension change — additive schema; no read-path consumer until Wave 3 / S47) |
+
+---
+
+## §4 — Day 2 cont. entry: B-W1-002 Prisma migration
+
+### 4.1 Context
+
+V2 Wave 1 longest-pole task (size L). Adds 5 new Prisma models (`PromptVersion`, `PromptEvalResult`, `ModelAssignment`, `AiRuntimeConfig`, `AuditLog`) plus 5 columns on `PromptTemplate` and 2 columns on `AiInteractionLog`, per SPEC-ARCH-AI-GOVERNANCE-V2 §4 + §8. Migration file `20260424120000_ai_governance_v2/migration.sql` hand-written because Claude Code lacks Docker/DB access; SQL anchored to SPEC §8.4 (downgrade) for inverse-correctness.
+
+### 4.2 Per-dimension scoring delta
+
+| Dimension | Day 2 | Day 2 cont. | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.98 | 0.98 | 0 | Migration is purely additive. All FK constraints + indexes per SPEC §4. No PII columns introduced. AuditLog `actor` cascade on user-delete intentional + documented. |
+| Accuracy | 0.95 | 0.95 | 0 | Schema change; no behaviour change. `AiKillSwitch` intentionally NOT migrated (Wave 3 / S47 scope per SPEC-TECHLEAD INC-09). |
+| Performance | 0.82 | 0.82 | 0 | New tables empty at migration time. Indexes pre-created so first reads are not table-scans. `AiInteractionLog` gains 2 columns (one VarChar default, one nullable Text) — no row-rewrite penalty in Postgres. |
+| UX | 0.95 | 0.95 | 0 | No UI surface yet (B-W1-006 in same wave; Wave 3 wires consumers). |
+| i18n | 0.93 | 0.93 | 0 | No i18n surface touched. |
+
+### 4.3 Composite
+
+Composite: **0.9310** (unchanged). Storage layer landed; value emerges when downstream Wave 1 + Wave 3 items consume the tables.
+
+### 4.4 Per-wave note
+
+V2 Wave 1 progress: **2 of 8 tasks complete** (B-W1-001 ✅, B-W1-002 ✅). Remaining: B-W1-003 (seed defaults), B-W1-004 (AuditLogService), B-W1-005 (RBAC), B-W1-006 (UI shell), B-W1-007 (health check), B-W1-008 (tests). Wave 1 gate Day 5.
 
 ---
 

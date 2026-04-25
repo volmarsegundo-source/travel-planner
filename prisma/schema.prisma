@@ -122,6 +122,15 @@ model User {
   subscription      Subscription?
   paEntitlements    PaEntitlement[]
 
+  // SPEC-ARCH-AI-GOVERNANCE-V2 §4.7 — back-relations for the 5 V2 models.
+  promptTemplatesCreated  PromptTemplate[]   @relation("PromptTemplateCreatedBy")
+  promptTemplatesApproved PromptTemplate[]   @relation("PromptTemplateApprovedBy")
+  promptVersionsCreated   PromptVersion[]    @relation("PromptVersionCreatedBy")
+  promptEvalsRan          PromptEvalResult[] @relation("PromptEvalResultRanBy")
+  modelAssignmentsUpdated ModelAssignment[]  @relation("ModelAssignmentUpdatedBy")
+  runtimeConfigsUpdated   AiRuntimeConfig[]  @relation("AiRuntimeConfigUpdatedBy")
+  auditLogs               AuditLog[]         @relation("AuditLogActor")
+
   @@index([email])
   @@index([deletedAt])
   @@map("users")
@@ -547,7 +556,20 @@ model PromptTemplate {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // SPEC-ARCH-AI-GOVERNANCE-V2 §4.1 — Sprint 46 V2 fields.
+  status          String    @default("active") @db.VarChar(20)
+  activeVersionId String?   @db.VarChar(30)
+  createdById     String?
+  approvedById    String?
+  approvedAt      DateTime?
+
+  createdBy   User?              @relation("PromptTemplateCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  approvedBy  User?              @relation("PromptTemplateApprovedBy", fields: [approvedById], references: [id], onDelete: SetNull)
+  versions    PromptVersion[]
+  evalResults PromptEvalResult[]
+
   @@index([slug, isActive])
+  @@index([status])
   @@map("prompt_templates")
 }
 
@@ -569,6 +591,10 @@ model AiInteractionLog {
   cacheHit         Boolean  @default(false)
   metadata         Json?
   createdAt        DateTime @default(now())
+
+  // SPEC-ARCH-AI-GOVERNANCE-V2 §8.2 step 2 — V2 curation fields.
+  curationStatus String  @default("none") @db.VarChar(30)
+  curationNotes  String? @db.Text
 
   @@index([phase, createdAt])
   @@index([userId, createdAt])
@@ -717,4 +743,116 @@ model PaEntitlement {
   @@index([userId, expiresAt])
   @@index([userId, source])
   @@map("pa_entitlements")
+}
+
+// ─── AI Governance V2 (Sprint 46 Wave 1 — B-W1-002) ──────────────────────────
+//
+// SPEC-ARCH-AI-GOVERNANCE-V2 §4 — 5 new models supporting the Central de
+// Governanca de IA. Wave 1 (S46) ships the storage layer; Wave 3 (S47)
+// wires AiConfigResolver to read from these tables. Until then, the tables
+// are populated only via admin CRUD and remain unread on the AI hot path.
+
+// §4.2 — Imutavel: cada edicao de prompt cria um novo registro. No updatedAt.
+model PromptVersion {
+  id               String   @id @default(cuid())
+  promptTemplateId String
+  versionTag       String   @db.VarChar(20)
+  systemPrompt     String   @db.Text
+  userTemplate     String   @db.Text
+  maxTokens        Int      @default(2048)
+  cacheControl     Boolean  @default(true)
+  modelType        String   @db.VarChar(20)
+  metadata         Json?
+  changeNote       String?  @db.VarChar(500)
+  createdById      String?
+  createdAt        DateTime @default(now())
+
+  promptTemplate PromptTemplate     @relation(fields: [promptTemplateId], references: [id], onDelete: Cascade)
+  createdBy      User?              @relation("PromptVersionCreatedBy", fields: [createdById], references: [id], onDelete: SetNull)
+  evalResults    PromptEvalResult[]
+
+  @@unique([promptTemplateId, versionTag])
+  @@index([promptTemplateId, createdAt])
+  @@map("prompt_versions")
+}
+
+// §4.3 — Resultados de eval por versao de prompt (Promptfoo wrapper).
+model PromptEvalResult {
+  id               String   @id @default(cuid())
+  promptTemplateId String
+  promptVersionId  String
+  trustScore       Float
+  dimensions       Json
+  totalCases       Int      @default(0)
+  passedCases      Int      @default(0)
+  failedCases      Int      @default(0)
+  evalDurationMs   Int      @default(0)
+  rawOutput        Json?
+  ranAt            DateTime @default(now())
+  ranById          String?
+
+  promptTemplate PromptTemplate @relation(fields: [promptTemplateId], references: [id], onDelete: Cascade)
+  promptVersion  PromptVersion  @relation(fields: [promptVersionId], references: [id], onDelete: Cascade)
+  ranBy          User?          @relation("PromptEvalResultRanBy", fields: [ranById], references: [id], onDelete: SetNull)
+
+  @@index([promptTemplateId, ranAt])
+  @@index([promptVersionId])
+  @@index([trustScore])
+  @@map("prompt_eval_results")
+}
+
+// §4.4 — Atribuicao de modelo + timeouts por fase de IA.
+model ModelAssignment {
+  id                String   @id @default(cuid())
+  phase             String   @unique @db.VarChar(20)
+  primaryProvider   String   @db.VarChar(20)
+  primaryModelId    String   @db.VarChar(80)
+  primaryTimeoutMs  Int      @default(30000)
+  fallbackProvider  String?  @db.VarChar(20)
+  fallbackModelId   String?  @db.VarChar(80)
+  fallbackTimeoutMs Int?
+  updatedById       String?
+  updatedAt         DateTime @updatedAt
+  createdAt         DateTime @default(now())
+
+  updatedBy User? @relation("ModelAssignmentUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@map("model_assignments")
+}
+
+// §4.5 — Config key-value para runtime (kill-switch, cache TTL, etc.).
+model AiRuntimeConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique @db.VarChar(50)
+  value       String   @db.Text
+  description String?  @db.VarChar(300)
+  updatedById String?
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+
+  updatedBy User? @relation("AiRuntimeConfigUpdatedBy", fields: [updatedById], references: [id], onDelete: SetNull)
+
+  @@index([key])
+  @@map("ai_runtime_configs")
+}
+
+// §4.6 — Audit log imutavel (sem updatedAt).
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorUserId String
+  action      String   @db.VarChar(50)
+  entityType  String   @db.VarChar(30)
+  entityId    String   @db.VarChar(30)
+  diffJson    Json?
+  ip          String?  @db.VarChar(45)
+  userAgent   String?  @db.VarChar(500)
+  createdAt   DateTime @default(now())
+
+  actor User @relation("AuditLogActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@index([actorUserId, createdAt])
+  @@index([entityType, entityId, createdAt])
+  @@index([action, createdAt])
+  @@index([createdAt])
+  @@map("audit_logs")
 }

@@ -305,3 +305,62 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then the import fails (server-only marker)
     And the env var has NO NEXT_PUBLIC_ prefix
     # Per SPEC-OPS-V2 §2.2: admin-only feature; no client targeting needed
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 2 cont. (2026-04-24) — B-W1-002 migration
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §4 + §8
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W1-002 migration applies cleanly on a fresh database
+    Given a database without migration 20260424120000_ai_governance_v2
+    When the migration is applied via prisma migrate deploy
+    Then 5 new tables exist: prompt_versions, prompt_eval_results, model_assignments, ai_runtime_configs, audit_logs
+    And prompt_templates table has 5 new columns: status, activeVersionId, createdById, approvedById, approvedAt
+    And ai_interaction_logs table has 2 new columns: curationStatus, curationNotes
+    And all FK constraints reference existing tables (users, prompt_templates, prompt_versions)
+    And all indexes are created per SPEC-ARCH §4
+    # User runs locally: npx prisma migrate dev (against Docker Postgres)
+    # CI runs on Vercel deploy: npx prisma migrate deploy
+
+  Scenario: B-W1-002 migration revert removes only the new objects
+    Given migration 20260424120000_ai_governance_v2 has been applied
+    When the operator runs the SPEC-ARCH §8.4 downgrade SQL
+    Then the 5 new tables are dropped
+    And the 7 new columns are removed (5 on prompt_templates + 2 on ai_interaction_logs)
+    And no pre-Sprint-46 tables, columns, or rows are affected
+    And AiKillSwitch model is intact (Wave 3 will migrate it; out of scope here)
+
+  Scenario: B-W1-002 migration is FK-safe — child rows enforce parent existence
+    Given the migration is applied
+    When code attempts to insert a PromptVersion with an unknown promptTemplateId
+    Then the insert fails with a foreign-key violation
+    When code attempts to insert an AuditLog with an unknown actorUserId
+    Then the insert fails with a foreign-key violation
+    When code attempts to insert a PromptEvalResult with an unknown promptVersionId
+    Then the insert fails with a foreign-key violation
+
+  Scenario: B-W1-002 cascade rules match SPEC-ARCH §4
+    Given the migration is applied
+    When a PromptTemplate row is deleted
+    Then its child PromptVersion + PromptEvalResult rows cascade-delete
+    When a User row is deleted
+    Then its AuditLog rows cascade-delete (actor FK is required; cascade)
+    And its PromptTemplate.createdById / approvedById become null (SetNull)
+    And its PromptVersion.createdById become null (SetNull)
+    And its ModelAssignment.updatedById become null (SetNull)
+
+  Scenario: B-W1-002 generates Prisma client types for the 5 new models
+    Given the schema includes the 5 new models
+    When npx prisma generate runs
+    Then @prisma/client exports types named PromptVersion, PromptEvalResult, ModelAssignment, AiRuntimeConfig, AuditLog
+    And db.promptVersion.findMany() compiles without TS error
+    And db.modelAssignment.findUnique({where:{phase:"plan"}}) compiles
+    And db.auditLog.create({data:{actorUserId, action, entityType, entityId}}) compiles
+
+  Scenario: B-W1-002 no behaviour change at deploy (default-OFF flag still gates UI)
+    Given the migration is applied AND AI_GOVERNANCE_V2 is unset (default OFF)
+    When users browse the application
+    Then the admin/ia tab remains hidden
+    And no AI provider config reads from the new ModelAssignment table
+    And no PromptVersion lookup occurs in the AI hot path
+    # Wave 3 (S47) wires the lookups; Wave 1 only ships the storage layer.
