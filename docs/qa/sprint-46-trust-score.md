@@ -121,6 +121,32 @@ V2 Wave 1 progress: **3 of 8 tasks complete** (B-W1-001 ✅, B-W1-002 ✅, B-W1-
 
 ---
 
+## §7 — Day 3 entry: B-W1-004 AuditLogService
+
+### 7.1 Context
+
+V2 Wave 1 task 4/8 (size M). Append-only service exposing `AuditLogService.append(input)` per SPEC §4.6 (immutable model). No update/delete surface — service shape mirrors schema's no-`updatedAt` invariant. Used by Wave 2+ admin actions to record `prompt.create`, `prompt.promote`, `model.update`, `config.update`, `killswitch.toggle`, etc.
+
+### 7.2 Per-dimension scoring delta
+
+| Dimension | Day 2-3 | Day 3 (after B-W1-004) | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.98 | 0.98 | 0 | Append-only surface enforces SPEC §4.6 immutability at service layer; no `update`/`delete`/`clear` exported. Caller-provided diffJson trust is the boundary (not service responsibility — caller handles redaction per SPEC §7.4). |
+| Accuracy | 0.95 | 0.95 | 0 | Service is a thin pass-through; no transformations. |
+| Performance | 0.82 | 0.82 | 0 | Single Prisma `create` per call. ~5-10 ms warm. No new index pressure (audit_logs table indexes already created in B-W1-002). |
+| UX | 0.95 | 0.95 | 0 | No UI surface in this commit. |
+| i18n | 0.93 | 0.93 | 0 | No i18n surface. |
+
+### 7.3 Composite
+
+Composite: **0.9310** (unchanged). Append-only enforcement at the service layer is a quiet but real Safety-class win — once Wave 2+ admin actions wire through this, it's structurally impossible for a routine code review miss to introduce mutability into audit history.
+
+### 7.4 Per-wave note
+
+V2 Wave 1 progress: **4 of 8 tasks complete** (B-W1-001/002/003 ✅, B-W1-004 ✅). Remaining: B-W1-005 (RBAC), B-W1-006 (UI shell), B-W1-007 (health check), B-W1-008 (tests).
+
+---
+
 ## §4 — Day 2 cont. entry: B-W1-002 Prisma migration
 
 ### 4.1 Context

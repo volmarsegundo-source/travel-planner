@@ -451,3 +451,35 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When the seeded rows are inspected
     Then every value matches the SPEC byte-for-byte
     And any divergence is treated as spec-drift (P0 bug)
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 3 (2026-04-25) — B-W1-004 AuditLogService
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §4.6 + §5.5
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W1-004 AuditLogService.append creates an audit_logs row
+    Given a user with id "actor_user_id" exists
+    When AuditLogService.append({ actorUserId, action, entityType, entityId, diffJson }) runs
+    Then exactly one audit_logs row is created
+    And the row carries actorUserId, action, entityType, entityId, diffJson, createdAt verbatim
+    And the row id is a generated cuid
+
+  Scenario: B-W1-004 service is append-only (no update/delete exposed)
+    Given the SPEC §4.6 declares AuditLog is immutable
+    When the AuditLogService surface is inspected
+    Then only an `append` method is exported
+    And no `update`, `delete`, or `clear` method exists
+    And the underlying schema has no updatedAt column (per migration 20260424120000)
+
+  Scenario: B-W1-004 append accepts optional ip + userAgent metadata
+    Given the SPEC §4.6 schema includes nullable ip and userAgent
+    When AuditLogService.append is invoked without ip or userAgent
+    Then the row is created with ip=null and userAgent=null
+    When AuditLogService.append is invoked with ip="1.2.3.4" and userAgent="Mozilla/5.0"
+    Then those values are persisted verbatim
+
+  Scenario: B-W1-004 append serializes diffJson as JSON value
+    Given diffJson is { before: { value: "x" }, after: { value: "y" } }
+    When AuditLogService.append is invoked
+    Then the underlying upsert receives diffJson as a Prisma JSON value
+    And re-reading the row deserializes back to the original shape
