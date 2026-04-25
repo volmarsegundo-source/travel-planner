@@ -592,3 +592,60 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When the helper decideAdminAccess returns "deny"
     Then the layout redirects to /expeditions
     And the inline RBAC logic at admin/layout.tsx is removed
+
+  # ─────────────────────────────────────────────────────────────────────
+  # B47-API-RBAC-CONVENTION — Sprint 46 (P1 from batch-review §10.3)
+  # Mandatory RBAC convention for /api/admin/ai/* handlers. Middleware
+  # skips /api/* (line 45 of middleware.ts), so handlers must self-gate.
+  # The convention is two HOF wrappers + a compliance test that fails CI
+  # if any /api/admin/ai/** route ships without one of the wrappers.
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B47-API-RBAC-CONVENTION withAiGovernanceAccess returns 401 when no session
+    Given a route handler wrapped with withAiGovernanceAccess
+    When the request has no authenticated session
+    Then the wrapped handler returns 401 Unauthorized
+    And the inner handler is NOT invoked
+
+  Scenario: B47-API-RBAC-CONVENTION withAiGovernanceAccess returns 403 for unqualified roles
+    Given a route handler wrapped with withAiGovernanceAccess
+    When the request has a session with role "user"
+    Then the wrapped handler returns 403 Forbidden
+    And the inner handler is NOT invoked
+
+  Scenario: B47-API-RBAC-CONVENTION withAiGovernanceAccess passes through for admin-ai
+    Given a route handler wrapped with withAiGovernanceAccess
+    When the request has a session with role "admin-ai"
+    Then the inner handler is invoked
+    And the inner handler receives an auth context with userId and role
+
+  Scenario: B47-API-RBAC-CONVENTION withAiGovernanceApproverAccess DENIES admin-ai
+    Given a route handler wrapped with withAiGovernanceApproverAccess
+    When the request has a session with role "admin-ai"
+    Then the wrapped handler returns 403 Forbidden
+    # admin-ai is read+edit only per SPEC §7.7 — promote requires the
+    # stricter wrapper; admin-ai must NOT call promote endpoints.
+
+  Scenario: B47-API-RBAC-CONVENTION withAiGovernanceApproverAccess allows admin-ai-approver
+    Given a route handler wrapped with withAiGovernanceApproverAccess
+    When the request has a session with role "admin-ai-approver"
+    Then the inner handler is invoked
+
+  Scenario: B47-API-RBAC-CONVENTION compliance test enumerates admin/ai handlers
+    Given the compliance test scans src/app/api/admin/ai/**/*.ts
+    When any route file does NOT import withAiGovernanceAccess or withAiGovernanceApproverAccess
+    Then the compliance test fails with a clear error naming the file
+    # Lint-rule equivalent: prevents Wave 2 handlers from shipping unprotected.
+
+  Scenario: B47-API-RBAC-CONVENTION wrapper is defensive on DB lookup failure
+    Given a route handler wrapped with withAiGovernanceAccess
+    When the DB lookup for the user role throws an error
+    Then the wrapped handler returns 503 (or 500) — not 200 with the inner handler invoked
+    # Fail-closed: if we cannot determine the role, deny access.
+
+  Scenario: B47-API-RBAC-CONVENTION wrapper does not introduce regression for unwrapped handlers
+    Given the existing /api/admin/export-csv route (admin-only, not in /admin/ai/*)
+    When the wrapper is added to the codebase
+    Then the existing route continues to operate via its inline auth check
+    # The convention applies only to /api/admin/ai/**; other admin routes
+    # keep their existing pattern.
