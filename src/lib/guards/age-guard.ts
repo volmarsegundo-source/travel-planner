@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger";
+
 const MINIMUM_AI_AGE = 18;
 
 function toDate(input: Date | string | null | undefined): Date | null {
@@ -33,11 +35,27 @@ export function isAdult(
   return computeAgeYears(birth, referenceDate) >= MINIMUM_AI_AGE;
 }
 
-// Legacy guard used at AI call sites. Kept permissive (returns true when
-// birthDate is absent) because existing users predate the signup-time
-// requirement. Signup now enforces via isAdult directly.
-export function canUseAI(birthDate: Date | null | undefined): boolean {
-  if (!birthDate) return true;
+/**
+ * Guard used at AI call sites.
+ *
+ * D-02 (Sprint 46) — F-02 MEDIUM closure: previously returned `true`
+ * when `birthDate` was null/undefined for legacy-user permissiveness.
+ * That permissive default was unreachable for users coming through
+ * `(app)/layout.tsx` (which redirects null-birthDate users to
+ * `/auth/complete-profile`), but the `/api/ai/(guide|plan)/stream`
+ * routes skip the layout and relied on this guard alone. The hole is
+ * now closed:
+ * fail-closed for null/undefined, plus a warn log for visibility into
+ * any future caller that ships without proper null handling upstream.
+ */
+export function canUseAI(birthDate: Date | string | null | undefined): boolean {
+  if (birthDate === null || birthDate === undefined) {
+    // Visibility for callers that should have funneled the user through
+    // the layout's birthDate gate before reaching this point. The event
+    // name is enumerated; payload carries no caller-supplied data.
+    logger.warn("auth.age_guard.null_birthdate");
+    return false;
+  }
   return isAdult(birthDate);
 }
 

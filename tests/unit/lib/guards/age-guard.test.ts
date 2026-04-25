@@ -15,13 +15,15 @@ describe("age-guard", () => {
     vi.useRealTimers();
   });
 
-  // canUseAI tests
-  it("returns true when birthDate is null", () => {
-    expect(canUseAI(null)).toBe(true);
+  // canUseAI tests — D-02 (Sprint 46) F-02 MEDIUM closure: null/undefined
+  // birthDate now returns FALSE (fail-closed). See src/lib/guards/age-guard.ts.
+  // Detailed warn-log assertions live in src/lib/guards/__tests__/age-guard.test.ts.
+  it("returns false when birthDate is null (D-02 fail-closed)", () => {
+    expect(canUseAI(null)).toBe(false);
   });
 
-  it("returns true when birthDate is undefined", () => {
-    expect(canUseAI(undefined)).toBe(true);
+  it("returns false when birthDate is undefined (D-02 fail-closed)", () => {
+    expect(canUseAI(undefined)).toBe(false);
   });
 
   it("returns true for user exactly 18 years old today", () => {

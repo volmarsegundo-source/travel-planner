@@ -883,6 +883,11 @@ describe("PhaseEngine.useAiInPhase", () => {
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(
       activePhase as never
     );
+    // D-02 (Sprint 46): canUseAI(undefined) is now fail-closed; mock an
+    // adult birthDate so the age-guard passes and the AI flow proceeds.
+    prismaMock.userProfile.findUnique.mockResolvedValue({
+      birthDate: new Date("1990-01-01"),
+    } as never);
 
     const result = await PhaseEngine.useAiInPhase(
       TEST_TRIP_ID,
@@ -971,6 +976,9 @@ describe("PhaseEngine.useAiInPhase", () => {
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(
       activePhase as never
     );
+    prismaMock.userProfile.findUnique.mockResolvedValue({
+      birthDate: new Date("1990-01-01"),
+    } as never);
 
     await PhaseEngine.useAiInPhase(TEST_TRIP_ID, TEST_USER_ID, 5);
 
@@ -991,6 +999,9 @@ describe("PhaseEngine.useAiInPhase", () => {
     prismaMock.expeditionPhase.findUnique.mockResolvedValue(
       activePhase as never
     );
+    prismaMock.userProfile.findUnique.mockResolvedValue({
+      birthDate: new Date("1990-01-01"),
+    } as never);
 
     await PhaseEngine.useAiInPhase(TEST_TRIP_ID, TEST_USER_ID, 6);
 

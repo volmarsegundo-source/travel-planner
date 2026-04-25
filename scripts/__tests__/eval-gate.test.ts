@@ -7,6 +7,11 @@
  *
  * Runs the gate as a child process so it exercises the same exit-code path
  * CI uses. Each scenario writes a fixture report to a tmp file.
+ *
+ * `testTimeout` bumped to 30s — each spawnSync(tsx) startup is ~1-2s on
+ * a warm machine, ~5s under heavy parallel load (full suite). Keeping the
+ * default 5s caused flakes when this file ran alongside the regression
+ * suite; the bump is conservative and only affects this file.
  */
 import { describe, it, expect, beforeAll, afterEach } from "vitest";
 import { spawnSync, type SpawnSyncReturns } from "node:child_process";
@@ -75,7 +80,7 @@ function runGate(args: string[]): SpawnSyncReturns<string> {
   );
 }
 
-describe("C-02 EDD Eval Gate — behavioral contract", () => {
+describe("C-02 EDD Eval Gate — behavioral contract", { timeout: 30_000 }, () => {
   describe("threshold pass/fail boundaries", () => {
     it("exits 0 (PASS) when pass-rate ≥ PR threshold (0.80)", () => {
       const path = writeReport({ total: 100, passed: 90, failed: 10 });

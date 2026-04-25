@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { isAdult, canUseAI } from "../age-guard";
+import { logger } from "@/lib/logger";
 
 // SPEC-AUTH-AGE-001: 18+ age gate — BDD scenarios for isAdult.
 
@@ -47,13 +48,74 @@ describe("isAdult — SPEC-AUTH-AGE-001", () => {
   });
 });
 
-describe("canUseAI — regression after refactor (SPEC-AUTH-AGE-001)", () => {
-  it("returns true when birthDate is null (permissive for legacy users)", () => {
-    expect(canUseAI(null)).toBe(true);
+describe("canUseAI — D-02 F-02 MEDIUM fail-closed (Sprint 46)", () => {
+  // F-02 (Sprint 45 iter 7 security audit): canUseAI(null) previously
+  // returned `true`, allowing accidental AI access for under-18s with
+  // no birthDate. The (app)/layout already redirects null-birthDate
+  // users to /auth/complete-profile, so the guard's permissive default
+  // was unreachable for users coming through pages — but API routes
+  // (/api/ai/*/stream) skip the layout and rely on the guard alone.
+  // Fix: fail-closed default + warn log for visibility.
+
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    warnSpy = vi.spyOn(logger, "warn").mockImplementation(() => {});
   });
 
-  it("returns true for an adult", () => {
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it("returns false when birthDate is null (fail-closed; was true)", () => {
+    expect(canUseAI(null)).toBe(false);
+  });
+
+  it("returns false when birthDate is undefined (fail-closed; was true)", () => {
+    expect(canUseAI(undefined)).toBe(false);
+  });
+
+  it("emits a warn log when birthDate is null (visibility for caller gaps)", () => {
+    canUseAI(null);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    const [event] = warnSpy.mock.calls[0];
+    expect(event).toBe("auth.age_guard.null_birthdate");
+  });
+
+  it("emits a warn log when birthDate is undefined", () => {
+    canUseAI(undefined);
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+  });
+
+  it("returns true for an adult (no regression)", () => {
     const dob = new Date("2000-01-01");
     expect(canUseAI(dob)).toBe(true);
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("returns false for an under-18 (no regression)", () => {
+    const dob = new Date("2020-01-01");
+    expect(canUseAI(dob)).toBe(false);
+    // Real (under-18) birthDate is NOT a missing-data condition; no warn.
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("returns false for an invalid date string (no regression; no warn)", () => {
+    expect(canUseAI("not-a-date" as unknown as Date)).toBe(false);
+    // Caller-supplied bad input — distinct from the null-birthDate case.
+    expect(warnSpy).not.toHaveBeenCalled();
+  });
+
+  it("warn-log payload does NOT leak any caller-supplied data", () => {
+    canUseAI(null);
+    const [, meta] = warnSpy.mock.calls[0] ?? [];
+    // Meta may carry guard-internal context, but never the raw input
+    // (null is unlikely to be sensitive, but undefined could carry an
+    // env-leaked stack — keep the contract strict).
+    if (meta) {
+      const serialized = JSON.stringify(meta);
+      expect(serialized).not.toContain("null");
+      expect(serialized).not.toContain("undefined");
+    }
   });
 });

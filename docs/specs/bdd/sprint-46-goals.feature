@@ -711,3 +711,55 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then the workflow continues to the eval-gate step (continue-on-error)
     And the eval-gate step is the authoritative PASS/FAIL signal
     # Resolves the silent failure where suite-step short-circuited the gate.
+
+  # ─────────────────────────────────────────────────────────────────────
+  # D-02 — F-02 MEDIUM canUseAI(null) fail-closed (Sprint 46)
+  # canUseAI previously returned `true` for null/undefined birthDate,
+  # so a caller that forgot the null check could accidentally allow AI
+  # access for under-18s with no birthDate set. The (app)/layout already
+  # blocks that case at the route level — but the F-02 finding asks the
+  # guard itself to be fail-closed as defense-in-depth.
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: D-02 canUseAI(null) returns false (fail-closed)
+    Given the canUseAI(birthDate) helper is called
+    When birthDate is null
+    Then it returns false
+    And a warn log is emitted with event "auth.age_guard.null_birthdate"
+
+  Scenario: D-02 canUseAI(undefined) returns false (fail-closed)
+    Given the canUseAI(birthDate) helper is called
+    When birthDate is undefined
+    Then it returns false
+    And a warn log is emitted
+
+  Scenario: D-02 canUseAI(adult birthDate) returns true (no regression)
+    Given the canUseAI(birthDate) helper is called
+    When birthDate is "2000-01-01" (adult on the reference date)
+    Then it returns true
+    And no warn log is emitted
+
+  Scenario: D-02 canUseAI(under-18 birthDate) returns false (no regression)
+    Given the canUseAI(birthDate) helper is called
+    When birthDate is "2020-01-01" (under 18 on the reference date)
+    Then it returns false
+    And no warn log is emitted (real birthDate, not a missing one)
+
+  Scenario: D-02 callers that pre-check null still behave identically
+    Given an existing caller that calls `if (!canUseAI(profile?.birthDate))` and blocks
+    When profile is missing or birthDate is null
+    Then the caller blocks AI access (same behavior as before, but for a stronger reason)
+    # Layout already redirects null-birthDate users; this is defense-in-depth.
+
+  Scenario: D-02 API routes /api/ai/*/stream still 403 when birthDate is null
+    Given a request to /api/ai/guide/stream OR /api/ai/plan/stream
+    When the user's UserProfile.birthDate is null
+    Then the route returns 403 (was: silently allowed AI generation)
+    # F-02 closure path — middleware skips /api/*; layout doesn't run on
+    # API routes; canUseAI guard is the last line of defense.
+
+  Scenario: D-02 invalid date string still returns false
+    Given the canUseAI(birthDate) helper is called
+    When birthDate is "not-a-date"
+    Then it returns false
+    # Pre-existing isAdult contract preserved; no warn (caller-supplied bad input).
