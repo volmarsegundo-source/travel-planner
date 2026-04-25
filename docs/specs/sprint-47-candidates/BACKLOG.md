@@ -3,7 +3,9 @@
 **Status:** Draft — input to Sprint 47 planning (not Sprint 47 kickoff).
 **Source:** Sprint 46 Day 2 cont. PO decisions (R-01-A, R-02-B) + the planning doc §10 V2 Waves 3-5 scope already approved.
 **Author:** product-owner + tech-lead (orchestration).
-**Date:** 2026-04-24.
+**Date:** 2026-04-24 (last updated 2026-04-25 after Sprint 46 P1 follow-ups landed).
+
+> **Update 2026-04-25**: Two P1 items from the 4-agent batch-review synthesis (commit `a8bef3a` §10.3) — `B47-MW-PURE-FN` and `B47-API-RBAC-CONVENTION` — were moved from this backlog to Sprint 46 per PO autonomous-execution authorization (pre-Wave 2 hardening). Both shipped in commits `8a3c486` and `26233e8`. They are removed from the §"Items moved IN from batch review" addendum below for full audit.
 
 ---
 
@@ -131,6 +133,30 @@ P2/P3 carryovers from Sprint 46 candidates BACKLOG slot in as capacity allows.
 - `docs/sprint-planning/sprint-46-execution-plan.md` §6.6 — Approach 1 fallbacks A/B (relevant if SPECs not approved by Sprint 46 close).
 - `docs/specs/sprint-46/SPEC-TECHLEAD-AI-GOVERNANCE-V2.md` §3 — V2 Waves 3-5 detailed scope.
 - `docs/specs/sprint-46-candidates/SPEC-PROCESS-RETROSPECTIVE-BUG-C.md` — iter 1-6 retro scope.
+
+---
+
+## Items added IN from batch-review (synthesis §10.3) — Sprint 46 Day 3+
+
+The 4-agent batch review of Sprint 46 commits (`ce223f4..bfa2643`) surfaced one consolidated P1 plus 9 P2 items. PO consumed two P1s into Sprint 46 (see header note); the remainder are added here for Sprint 47 planning consideration.
+
+| ID | Item | Source | Effort | Priority |
+|---|---|---|---|---|
+| ~~B47-MW-PURE-FN~~ | ~~Extract middleware RBAC decision to pure function~~ | All 4 agents | 2-3h | ~~P1~~ → **DONE** in S46 (`8a3c486`) |
+| ~~B47-API-RBAC-CONVENTION~~ | ~~HOF wrappers + compliance test for `/api/admin/ai/**`~~ | security | 4-6h | ~~P1~~ → **DONE** in S46 (`26233e8`) |
+| B47-WAVE1-SMOKE | Manual PO walk-through of Wave 1 surfaces in Staging post-deploy | qa | 30min PO + doc | P1 (PO action) |
+| B47-FALLBACK-CONST | Shared constants module — `HARDCODED_FALLBACK` ↔ seed defaults | tech-lead + architect | 1-2h | P2 |
+| B47-NAV-IA-LINK | Extend `AdminNav` with `/admin/ia` entry (gated by `AI_GOVERNANCE_V2`) | tech-lead + architect | 1h | P2 (Wave 2 dep.) |
+| B47-COVERAGE-INCLUDE | Vitest coverage scope expansion to `src/app/api/**` + selected admin/** | qa | 1-3h | P2 |
+| B47-XPATH-WARN | Warn log when middleware fails to set `x-pathname` | security | 30min | P2 |
+| B47-BDD-MAP | BDD-to-test mapping audit (identify aspirational scenarios) | qa | 2-3h | P2 |
+| B47-SEC-AUDIT-WAVE1 | SPEC-SEC-AUDIT-001 walk on Wave 1 surfaces (RBAC, audit, layout, page) | security | 4-6h | P2 |
+| B47-V1-V2-DEPRECATION-PLAN | V1 `/admin/ai-governance` ↔ V2 `/admin/ia` coexistence roadmap | architect | 30min doc | P2 |
+| B47-SEED-AUTO | Decide on `prisma db seed` auto-wiring at Vercel deploy | tech-lead, architect | 1-2h | P2 |
+| B47-WAVE3-MICROBENCH | Hot-path microbench during Wave 3 (`AiConfigResolver` polling) | tech-lead | 2-3h | P2 |
+| B47-PRISMA-NULL-SEMANTICS | Test `Prisma.JsonNull` vs `null` distinction in audit log | qa | 1h | P3 |
+
+**Net carry-over to Sprint 47**: ~17-31h (was ~22-37h before two P1s consumed).
 
 ---
 
