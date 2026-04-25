@@ -16,6 +16,7 @@ import {
   CHECKLIST_SYSTEM_PROMPT,
   GUIDE_SYSTEM_PROMPT,
 } from "../src/lib/prompts/system-prompts";
+import { seedAiGovernanceV2Defaults } from "./seed-ai-governance-v2";
 
 const db = new PrismaClient();
 
@@ -93,6 +94,11 @@ async function main() {
   }
 
   console.log("AI governance seeded.");
+
+  // ─── B-W1-003 — AI Governance V2 defaults (Sprint 46) ─────────────────────
+  console.log("Seeding AI Governance V2 defaults (B-W1-003)...");
+  await seedAiGovernanceV2Defaults(db);
+  console.log("AI Governance V2 defaults seeded (3 ModelAssignment + 13 AiRuntimeConfig).");
 }
 
 main()

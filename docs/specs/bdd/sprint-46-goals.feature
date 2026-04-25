@@ -401,3 +401,53 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     And the entry has a 4-6h estimate and P2 priority
     And acceptance criteria require a transparency tile alongside the heuristic display
     And the tile sources actual provider cost from AiInteractionLog.estimatedCostUsd
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 2-3 (2026-04-24) — B-W1-003 seed defaults
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §5.3.1 + §8.3
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W1-003 seed populates ModelAssignment defaults per SPEC §8.3
+    Given a database where the V2 migration has been applied (B-W1-002)
+    And model_assignments table is empty
+    When the seed function seedAiGovernanceV2Defaults() runs
+    Then exactly 3 model_assignments rows exist (plan, checklist, guide)
+    And the plan row has primary anthropic claude-haiku-4-5-20251001 with timeout 30000
+    And the plan row has fallback gemini gemini-2.0-flash with timeout 25000
+    And the checklist row has primary anthropic claude-haiku-4-5-20251001 with timeout 20000
+    And the checklist row has no fallback
+    And the guide row has primary anthropic claude-haiku-4-5-20251001 with timeout 25000
+    And the guide row has no fallback
+
+  Scenario: B-W1-003 seed populates AiRuntimeConfig defaults per SPEC §5.3.1
+    Given a database where the V2 migration has been applied
+    And ai_runtime_configs table is empty
+    When the seed function seedAiGovernanceV2Defaults() runs
+    Then exactly 13 ai_runtime_configs rows exist
+    And the 3 maxTokens keys exist with values 2048, 2048, 4096 for plan/checklist/guide
+    And the 3 temperature keys exist with values 0.7, 0.3, 0.7 for plan/checklist/guide
+    And the 4 killSwitch keys exist with value false (global, plan, checklist, guide)
+    And the 3 rateLimitPerHour keys exist with values 10, 5, 5 for plan/checklist/guide
+    And every value column is JSON-encoded string (per schema VarChar/Text contract)
+
+  Scenario: B-W1-003 seed is idempotent — second run does not duplicate
+    Given seedAiGovernanceV2Defaults() has run once
+    And model_assignments has 3 rows + ai_runtime_configs has 13 rows
+    When seedAiGovernanceV2Defaults() runs a second time
+    Then row counts remain at 3 + 13 (no duplicates)
+    And no FK or unique-constraint violations occur
+    And updatedAt fields update (last-write-wins semantics on upsert)
+
+  Scenario: B-W1-003 seed runs unconditionally regardless of feature flag state
+    Given AI_GOVERNANCE_V2 is set to "false" or unset
+    When npx prisma db seed is invoked
+    Then seedAiGovernanceV2Defaults() still executes
+    And the 16 rows (3 + 13) are populated
+    # The flag gates runtime UI/API consumers, NOT the data layer.
+    # Wave 3 (S47) reads from these tables only when flag is ON.
+
+  Scenario: B-W1-003 seed values match SPEC §5.3.1 + §8.3 verbatim
+    Given the SPEC declares specific defaults
+    When the seeded rows are inspected
+    Then every value matches the SPEC byte-for-byte
+    And any divergence is treated as spec-drift (P0 bug)

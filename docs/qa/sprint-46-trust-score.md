@@ -95,6 +95,32 @@ Total Sprint 46 PO commitment for Approach 1: 2 days → ~1 day (R-03-A applied)
 
 ---
 
+## §6 — Day 2-3 entry: B-W1-003 seed defaults
+
+### 6.1 Context
+
+V2 Wave 1 task 3/8 (size M). Consumes the schema migration from B-W1-002 (`452ec7d`). Adds `prisma/seed-ai-governance-v2.ts` with `seedAiGovernanceV2Defaults()` — 3 ModelAssignment rows + 13 AiRuntimeConfig rows. Idempotent (Prisma upserts keyed on unique columns). Wired into `prisma/seed.ts`. Runs unconditionally regardless of `AI_GOVERNANCE_V2` flag (flag gates runtime UI/API consumers, not data).
+
+### 6.2 Per-dimension scoring delta
+
+| Dimension | Day 2 cont. (after R-01/02/03) | Day 2-3 (after B-W1-003) | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.98 | 0.98 | 0 | Idempotent upsert; admin-tuned values preserved across re-seeds (`update: {}` on every upsert). No PII, no secrets. |
+| Accuracy | 0.95 | 0.95 | 0 | Defaults match SPEC §5.3.1 + §8.3 verbatim (asserted by 8/8 unit tests). |
+| Performance | 0.82 | 0.82 | 0 | Seed runs at deploy time only. 16 upserts ≈ 16 ms warm. |
+| UX | 0.95 | 0.95 | 0 | No UI surface in this commit (Wave 1 ships storage; Wave 3 reads it in S47). |
+| i18n | 0.93 | 0.93 | 0 | No i18n surface touched. |
+
+### 6.3 Composite
+
+Composite: **0.9310** (unchanged). Storage layer + defaults populated; value emerges when Wave 3 (S47) wires `AiConfigResolver` to read from these tables.
+
+### 6.4 Per-wave note
+
+V2 Wave 1 progress: **3 of 8 tasks complete** (B-W1-001 ✅, B-W1-002 ✅, B-W1-003 ✅). Remaining: B-W1-004 (AuditLogService), B-W1-005 (RBAC), B-W1-006 (UI shell), B-W1-007 (health check), B-W1-008 (tests).
+
+---
+
 ## §4 — Day 2 cont. entry: B-W1-002 Prisma migration
 
 ### 4.1 Context
