@@ -29,7 +29,11 @@ const { auth } = NextAuth(authConfig);
 const intlMiddleware = createMiddleware(routing);
 
 // Routes that require an authenticated session.
-const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard", "/expedition", "/atlas", "/meu-atlas", "/admin"] as const;
+// D-01 (Sprint 46 Day 3): "/expeditions" added explicitly. Per Iter 7 security
+// audit F-01: "/expedition" matched both /expedition AND /expeditions via
+// substring includes(), but the audit recommended an explicit entry to make
+// intent visible and surface any future routing changes loudly.
+const PROTECTED_PATH_SEGMENTS = ["/trips", "/onboarding", "/account", "/dashboard", "/expedition", "/expeditions", "/atlas", "/meu-atlas", "/admin"] as const;
 
 const isDev = process.env.NODE_ENV === "development";
 const isPreview = process.env.VERCEL_ENV === "preview";

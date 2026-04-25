@@ -182,6 +182,36 @@ V2 Wave 1 progress: **5 of 8 tasks complete** (B-W1-001/002/003/004 ✅, B-W1-00
 
 ---
 
+## §9 — Day 3 entry: B-W1-007 + C-01 + D-01 (bundled small wins)
+
+### 9.1 Context
+
+Three small items shipped together for efficiency:
+
+- **B-W1-007** (V2 Wave 1 task 6/8, size S) — Public health endpoint `GET /api/health/ai-config` per SPEC §5.6. Returns `ok` + `database` when ModelAssignment is populated, `degraded` + `fallback` when DB is empty or errors.
+- **C-01** (Bloco C tech debt) — Fix `tests/unit/scripts/project-bootstrap.test.ts` `.env.local` assumption. Test now skips the existence assert on CI (where `.env.local` is gitignored) and asserts only the boolean return contract.
+- **D-01** (Bloco D security follow-up F-01 LOW) — `/expeditions` added explicitly to `PROTECTED_PATH_SEGMENTS` in middleware (was matched via substring `/expedition` includes() but explicit entry surfaces routing-change drift loudly).
+
+### 9.2 Per-dimension scoring delta
+
+| Dimension | Day 3 (after B-W1-005) | Day 3 (after this bundle) | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.99 | 0.99 | 0 | D-01 is defense-in-depth; F-01 was LOW. Health endpoint adds no new attack surface (public, read-only). |
+| Accuracy | 0.95 | 0.95 | 0 | Health endpoint mirrors DB or hardcoded default — no transformation. |
+| Performance | 0.82 | 0.82 | 0 | One Prisma read on success path; no latency to user-facing flows. |
+| UX | 0.95 | 0.95 | 0 | No UI surface yet. |
+| i18n | 0.93 | 0.93 | 0 | No i18n surface. |
+
+### 9.3 Composite
+
+Composite: **0.9340** (unchanged). The bundle ships infrastructure (CI hygiene + health observability + middleware allowlist tightening) without changing user-facing behavior. Wave 1 critical-path now has 6/8 done.
+
+### 9.4 Per-wave note
+
+V2 Wave 1 progress: **6 of 8 tasks complete** (B-W1-001/002/003/004/005/007 ✅). Remaining: B-W1-006 (admin UI shell, M), B-W1-008 (Wave 1 integration tests, M). Both are the heaviest items in the wave.
+
+---
+
 ## §4 — Day 2 cont. entry: B-W1-002 Prisma migration
 
 ### 4.1 Context
