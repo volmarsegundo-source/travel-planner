@@ -265,3 +265,43 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     And the AbortError is mapped to AppError("AI_TIMEOUT", 504) per existing mapError
     And the FallbackProvider retries the call on Anthropic (if AI_FALLBACK_PROVIDER=anthropic)
     And the user receives a graceful error message (no PII leak)
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 2 (2026-04-24) — B-W1-001 feature flag
+  # SPEC-OPS-AI-GOVERNANCE-V2 §2.1-2.2
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W1-001 feature flag defaults to OFF when env var is unset
+    Given the env var AI_GOVERNANCE_V2 is NOT set
+    When the application bootstraps and parses env via @t3-oss/env-nextjs
+    Then env.AI_GOVERNANCE_V2 resolves to boolean false
+    And isAiGovernanceV2Enabled() returns false
+
+  Scenario: B-W1-001 feature flag enabled when env var is "true"
+    Given AI_GOVERNANCE_V2="true" is set in the environment
+    When the application bootstraps
+    Then env.AI_GOVERNANCE_V2 resolves to boolean true
+    And isAiGovernanceV2Enabled() returns true
+
+  Scenario: B-W1-001 feature flag disabled when env var is "false"
+    Given AI_GOVERNANCE_V2="false" is set in the environment
+    When the application bootstraps
+    Then env.AI_GOVERNANCE_V2 resolves to boolean false
+    And isAiGovernanceV2Enabled() returns false
+
+  Scenario: B-W1-001 feature flag rejects invalid env values at boot
+    Given AI_GOVERNANCE_V2="yes" (or any value other than "true"/"false") is set
+    When the application bootstraps
+    Then @t3-oss/env-nextjs validation FAILS at boot
+    And the helper isAiGovernanceV2Enabled() never executes
+    # Per SPEC-OPS-V2 §2.1: enum(["true","false"]) is strict — invalid values
+    # crash app at boot to surface misconfiguration loudly. This is the
+    # OPPOSITE of the ADR-0036 graceful-fallback contract because feature
+    # flags are admin-only ON/OFF and ambiguity is a deploy-time bug.
+
+  Scenario: B-W1-001 helper is server-only (no client exposure)
+    Given the helper file at src/lib/flags/ai-governance.ts
+    When client-side code attempts to import it
+    Then the import fails (server-only marker)
+    And the env var has NO NEXT_PUBLIC_ prefix
+    # Per SPEC-OPS-V2 §2.2: admin-only feature; no client targeting needed

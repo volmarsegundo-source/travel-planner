@@ -23,6 +23,14 @@ export const env = createEnv({
     // caveat: clamp [5000, 55000] enforced in resolvers).
     GEMINI_TIMEOUT_MS: z.string().optional(),
     CLAUDE_TIMEOUT_MS: z.string().optional(),
+    // B-W1-001 (SPEC-OPS-AI-GOVERNANCE-V2 §2.1): AI Governance Central feature
+    // flag. Strict enum + transform: invalid values crash at boot to surface
+    // misconfiguration loudly (admin-only feature; no graceful fallback
+    // semantics warranted). Default OFF for safe rollout (§2.3).
+    AI_GOVERNANCE_V2: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((v) => v === "true"),
     // Per-type provider overrides. If set, take precedence over AI_PROVIDER
     // for that specific ModelType. Useful for beta-gating expensive models
     // (e.g. Claude Sonnet for Phase 5 & 6 only). See SPEC-PROD-AI-PROGRESS.
@@ -107,6 +115,7 @@ export const env = createEnv({
     AI_FALLBACK_PROVIDER: process.env.AI_FALLBACK_PROVIDER,
     GEMINI_TIMEOUT_MS: process.env.GEMINI_TIMEOUT_MS,
     CLAUDE_TIMEOUT_MS: process.env.CLAUDE_TIMEOUT_MS,
+    AI_GOVERNANCE_V2: process.env.AI_GOVERNANCE_V2,
     AI_PROVIDER_PLAN: process.env.AI_PROVIDER_PLAN,
     AI_PROVIDER_GUIDE: process.env.AI_PROVIDER_GUIDE,
     AI_PROVIDER_CHECKLIST: process.env.AI_PROVIDER_CHECKLIST,

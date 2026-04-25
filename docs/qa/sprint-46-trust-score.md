@@ -57,3 +57,30 @@ V2 Wave 1 + Wave 2 not yet started — wave-scoped trust scores will be computed
 | Day 0 (sprint baseline) | Sprint 45 close | 0.93 |
 | Day 1 | C-04 ADR-0036 proposed (`f0d4805`) | 0.93 (no change — docs only) |
 | Day 1 | ADR-0036 implementation (this commit) | **0.93** (+0.01 Safety, rounded composite same) |
+| Day 2 | B-W1-001 feature flag (`AI_GOVERNANCE_V2` + helper) | **0.93** (no dimension change — pure infrastructure addition; default OFF preserves all existing behavior) |
+
+---
+
+## §3 — Day 2 entry: B-W1-001 feature flag
+
+### 3.1 Context
+
+V2 Wave 1 task B-W1-001 (size S — first dependency for B-W1-002 migration and B-W1-005 RBAC). Adds `AI_GOVERNANCE_V2` env var (strict enum `"true"|"false"`, default `"false"`) and `isAiGovernanceV2Enabled()` helper at `src/lib/flags/ai-governance.ts`. Mirrors the existing `phase-reorder.ts` pattern (single-helper, no `NEXT_PUBLIC_` exposure, server-only by env barrel boundary).
+
+### 3.2 Per-dimension scoring delta
+
+| Dimension | Day 1 | Day 2 | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.98 | 0.98 | 0 | No new attack surface; flag default OFF; strict enum crashes loud on invalid env (consistent with admin-only flag semantics, NOT graceful-fallback ADR-0036 contract — which is correct per SPEC-OPS §2.1). |
+| Accuracy | 0.95 | 0.95 | 0 | Pure infrastructure; no data path change. |
+| Performance | 0.82 | 0.82 | 0 | Helper is single-line `env.AI_GOVERNANCE_V2` read. Zero overhead. |
+| UX | 0.95 | 0.95 | 0 | Default OFF — no UI change observable. |
+| i18n | 0.93 | 0.93 | 0 | No i18n surface touched. |
+
+### 3.3 Composite
+
+Composite: **0.9310** (unchanged). Day 2 is a foundation layer — value emerges when downstream Wave 1 items consume the flag (B-W1-005 RBAC + B-W1-006 admin UI shell).
+
+### 3.4 Per-wave note
+
+V2 Wave 1 progress: 1 of 8 tasks complete (B-W1-001). Remaining: B-W1-002 (migration), B-W1-003 (seed), B-W1-004 (AuditLogService), B-W1-005 (RBAC), B-W1-006 (UI shell), B-W1-007 (health check), B-W1-008 (tests). Wave-scoped trust score will be computed at Day 5 Wave 1 gate.
