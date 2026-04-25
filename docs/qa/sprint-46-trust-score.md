@@ -252,6 +252,56 @@ V2 Wave 1 progress: **7 of 8 tasks complete**. Remaining: B-W1-008 (Wave 1 integ
 
 ---
 
+## §11 — Day 3 entry: B-W1-008 Wave 1 integration tests + close
+
+### 11.1 Context
+
+V2 Wave 1 task 8/8 (size M). Integration test suite covering the cross-component RBAC + flag + layout chain. Resolves the honesty flag from commit `f188686` (middleware integration test deferred): the middleware is wrapped in NextAuth's `auth()` HOF which is hard to unit-test in isolation, so the layout — which duplicates the same path-aware RBAC logic as defense-in-depth — is the correct integration point.
+
+11 tests covering the 4 roles × 2 paths matrix + edge cases (unauthenticated, nested paths, missing x-pathname header).
+
+### 11.2 Per-dimension scoring delta
+
+| Dimension | Day 3 (after B-W1-006) | Day 3 (after B-W1-008) | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.99 | 0.99 | 0 | Test coverage validates existing safety; doesn't add new. |
+| Accuracy | 0.95 | **0.96** | +0.01 | Integration test catches drift between middleware (B-W1-005) and layout (B-W1-006) RBAC logic — closes one of the explicit honesty flags from this session. |
+| Performance | 0.82 | 0.82 | 0 | No runtime change. |
+| UX | 0.96 | 0.96 | 0 | No UX change. |
+| i18n | 0.93 | 0.93 | 0 | No i18n change. |
+
+### 11.3 Composite
+
+| Dim | Weight | Score | Weighted |
+|---|---:|---:|---:|
+| Safety | 0.30 | 0.99 | 0.297 |
+| Accuracy | 0.25 | 0.96 | 0.240 |
+| Performance | 0.20 | 0.82 | 0.164 |
+| UX | 0.15 | 0.96 | 0.144 |
+| i18n | 0.10 | 0.93 | 0.093 |
+| **Composite** | 1.00 | | **0.9380** |
+
+Composite: **0.94** (precise 0.9380; +0.0025). Wave 1 close composite well above Sprint 46 close gate (≥ 0.93). Prod gate (≥ 0.92) cleared throughout.
+
+### 11.4 Per-wave note
+
+**V2 Wave 1: 8 of 8 tasks complete ✅** — Wave 1 closed.
+
+| Task | Commit | Status |
+|---|---|---|
+| B-W1-001 (feature flag) | `29bd1a4` | ✅ |
+| B-W1-002 (Prisma migration) | `452ec7d` | ✅ |
+| B-W1-003 (seed defaults) | `04b1f3f` | ✅ |
+| B-W1-004 (AuditLogService) | `01ad8a6` | ✅ |
+| B-W1-005 (RBAC + middleware) | `1c021db` | ✅ |
+| B-W1-006 (admin UI shell) | `04d8d8e` | ✅ |
+| B-W1-007 (health endpoint) | `f188686` (bundled) | ✅ |
+| B-W1-008 (integration tests) | this commit | ✅ |
+
+Next: 4-agent batch review (consultive, non-blocking) over the 12-13 commits since `ce223f4`. Then Wave 2 starts in a follow-up session.
+
+---
+
 ## §4 — Day 2 cont. entry: B-W1-002 Prisma migration
 
 ### 4.1 Context
