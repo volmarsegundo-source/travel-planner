@@ -483,3 +483,48 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When AuditLogService.append is invoked
     Then the underlying upsert receives diffJson as a Prisma JSON value
     And re-reading the row deserializes back to the original shape
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 3 (2026-04-25) — B-W1-005 RBAC middleware
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §7.7 (RBAC matrix)
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W1-005 admin role accesses /admin/ia (backward compat)
+    Given a user with role "admin"
+    When the user navigates to /admin/ia
+    Then the middleware allows the request to proceed (no redirect)
+
+  Scenario: B-W1-005 admin-ai role accesses /admin/ia (new SPEC §7.7)
+    Given a user with role "admin-ai"
+    When the user navigates to /admin/ia
+    Then the middleware allows the request to proceed (no redirect)
+
+  Scenario: B-W1-005 admin-ai-approver role accesses /admin/ia (superset)
+    Given a user with role "admin-ai-approver"
+    When the user navigates to /admin/ia
+    Then the middleware allows the request to proceed (no redirect)
+
+  Scenario: B-W1-005 regular user denied /admin/ia
+    Given a user with role "user"
+    When the user navigates to /admin/ia
+    Then the middleware redirects to /expeditions
+
+  Scenario: B-W1-005 admin-ai role denied other /admin/* routes
+    Given a user with role "admin-ai" (NOT admin)
+    When the user navigates to /admin/dashboard
+    Then the middleware redirects to /expeditions
+    # admin-ai is scoped to /admin/ia only; broad /admin/* stays admin-only.
+
+  Scenario: B-W1-005 RBAC helper hasAiGovernanceAccess is permissive across the 3 roles
+    Given the helper hasAiGovernanceAccess(role) is called
+    When role is "admin", "admin-ai", or "admin-ai-approver"
+    Then it returns true
+    When role is "user", "moderator", null, or undefined
+    Then it returns false
+
+  Scenario: B-W1-005 RBAC helper hasAiGovernanceApproverAccess is stricter
+    Given the helper hasAiGovernanceApproverAccess(role) is called
+    When role is "admin" or "admin-ai-approver"
+    Then it returns true
+    When role is "admin-ai" (read-only)
+    Then it returns false

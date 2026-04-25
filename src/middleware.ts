@@ -17,6 +17,7 @@ import NextAuth from "next-auth";
 import createMiddleware from "next-intl/middleware";
 import { routing } from "./i18n/routing";
 import authConfig from "./lib/auth.config";
+import { hasAiGovernanceAccess } from "./lib/auth/rbac";
 import {
   buildCsp,
   applySecurityHeaders,
@@ -65,12 +66,19 @@ export default auth((req) => {
   // auth.middleware.redirectToCompleteProfile event in Staging logs
   // is itself the success signal.
 
-  // Admin routes: require role === "admin" in JWT token.
-  // Non-admin users are redirected to /expeditions.
+  // Admin routes RBAC.
+  // - /admin/ia (AI Governance V2): allow admin | admin-ai | admin-ai-approver
+  //   per SPEC-ARCH-AI-GOVERNANCE-V2 §7.7. B-W1-005 (Sprint 46 Day 3).
+  // - All other /admin/*: stays admin-only (back-compat).
+  // Non-qualifying users are redirected to /expeditions.
   if (pathname.includes("/admin") && req.auth) {
     const session = req.auth as { user?: { role?: string } };
     const role = session?.user?.role ?? "user";
-    if (role !== "admin") {
+    const isAiAdminRoute = pathname.includes("/admin/ia");
+    const allowed = isAiAdminRoute
+      ? hasAiGovernanceAccess(role)
+      : role === "admin";
+    if (!allowed) {
       const expeditionsUrl = new URL("/expeditions", req.url);
       return Response.redirect(expeditionsUrl);
     }
