@@ -1754,6 +1754,25 @@
     "navAiGovernance": "AI Governance",
     "navAnalytics": "Analytics",
     "navErrors": "Errors",
+    "ia": {
+      "title": "AI Governance Central",
+      "subtitle": "Model, prompt, and output-curation configuration (V2)",
+      "dashboardEmptyTitle": "Dashboard not yet implemented",
+      "dashboardEmptyBody": "Health, cost, and quality metrics ship in Wave 4.",
+      "promptsEmptyTitle": "Prompt editor not yet implemented",
+      "promptsEmptyBody": "Editor with immutable versioning ships in Wave 2.",
+      "modelosEmptyTitle": "Model configuration not yet implemented",
+      "modelosEmptyBody": "Model + timeout assignment in real-time ships in Wave 3.",
+      "outputsEmptyTitle": "Output curation not yet implemented",
+      "outputsEmptyBody": "Review queue with bias / hallucination / risk flags ships in Wave 4.",
+      "tabs": {
+        "ariaLabel": "AI Governance Central tabs",
+        "dashboard": "Dashboard",
+        "prompts": "Prompts",
+        "modelos": "Models",
+        "outputs": "Outputs"
+      }
+    },
     "dashboard": {
       "title": "Admin Dashboard",
       "subtitle": "Revenue, users, and platform metrics",

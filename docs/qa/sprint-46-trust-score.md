@@ -212,6 +212,46 @@ V2 Wave 1 progress: **6 of 8 tasks complete** (B-W1-001/002/003/004/005/007 ✅)
 
 ---
 
+## §10 — Day 3 entry: B-W1-006 admin UI shell
+
+### 10.1 Context
+
+V2 Wave 1 task 7/8 (size M). Server-rendered page at `src/app/[locale]/(app)/admin/ia/page.tsx` with a 4-tab skeleton (Dashboard, Prompts, Modelos, Outputs). Each tab shows an empty state pointing to which Wave will implement it. Gating:
+
+- **Feature flag** `AI_GOVERNANCE_V2` OFF → `notFound()` (404).
+- **RBAC** via path-aware parent admin layout — `admin | admin-ai | admin-ai-approver` per SPEC §7.7.
+
+Parent admin layout (`src/app/[locale]/(app)/admin/layout.tsx`) extended to be path-aware; for `/admin/ia` paths it uses `hasAiGovernanceAccess`; other `/admin/*` paths stay admin-only (back-compat). Defense-in-depth alongside middleware (B-W1-005).
+
+### 10.2 Per-dimension scoring delta
+
+| Dimension | Day 3 (after B-W1-007 bundle) | Day 3 (after B-W1-006) | Δ | Reason |
+|---|---:|---:|---:|---|
+| Safety | 0.99 | 0.99 | 0 | Two-tier gating (flag + RBAC) at server. No client-only checks. |
+| Accuracy | 0.95 | 0.95 | 0 | Skeleton — no data computation. |
+| Performance | 0.82 | 0.82 | 0 | One server render; no DB calls beyond layout's existing role lookup. |
+| UX | 0.95 | **0.96** | +0.01 | i18n strings PT+EN; aria-labels on tablist + tabs; minimum 44px touch targets per A11y SPEC; tab state in URL (deep-link friendly). |
+| i18n | 0.93 | 0.93 | 0 | Both locales seeded; no callbackUrl path touched. |
+
+### 10.3 Composite
+
+| Dim | Weight | Score | Weighted |
+|---|---:|---:|---:|
+| Safety | 0.30 | 0.99 | 0.297 |
+| Accuracy | 0.25 | 0.95 | 0.2375 |
+| Performance | 0.20 | 0.82 | 0.164 |
+| UX | 0.15 | 0.96 | 0.144 |
+| i18n | 0.10 | 0.93 | 0.093 |
+| **Composite** | 1.00 | | **0.9355** |
+
+Composite: **0.94** (precise 0.9355; +0.0015). UX bump from accessibility + i18n discipline at the shell layer pays forward when Wave 2+ fills in tab content.
+
+### 10.4 Per-wave note
+
+V2 Wave 1 progress: **7 of 8 tasks complete**. Remaining: B-W1-008 (Wave 1 integration tests, M). Closes Wave 1.
+
+---
+
 ## §4 — Day 2 cont. entry: B-W1-002 Prisma migration
 
 ### 4.1 Context

@@ -1754,6 +1754,25 @@
     "navAiGovernance": "Governança de IA",
     "navAnalytics": "Analytics",
     "navErrors": "Erros",
+    "ia": {
+      "title": "Central de Governança de IA",
+      "subtitle": "Configuração de modelos, prompts e curadoria de outputs (V2)",
+      "dashboardEmptyTitle": "Painel ainda não implementado",
+      "dashboardEmptyBody": "Métricas de saúde, custo e qualidade chegam na Wave 4.",
+      "promptsEmptyTitle": "Editor de Prompts ainda não implementado",
+      "promptsEmptyBody": "Editor com versionamento imutável chega na Wave 2.",
+      "modelosEmptyTitle": "Configuração de Modelos ainda não implementada",
+      "modelosEmptyBody": "Atribuição de modelo + timeouts em tempo real chega na Wave 3.",
+      "outputsEmptyTitle": "Curadoria de Outputs ainda não implementada",
+      "outputsEmptyBody": "Fila de revisão com flags de bias/alucinação/risco chega na Wave 4.",
+      "tabs": {
+        "ariaLabel": "Abas da Central de Governança de IA",
+        "dashboard": "Painel",
+        "prompts": "Prompts",
+        "modelos": "Modelos",
+        "outputs": "Outputs"
+      }
+    },
     "dashboard": {
       "title": "Painel Administrativo",
       "subtitle": "Receita, usuários e métricas da plataforma",
