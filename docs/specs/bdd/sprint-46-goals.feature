@@ -763,3 +763,90 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When birthDate is "not-a-date"
     Then it returns false
     # Pre-existing isAdult contract preserved; no warn (caller-supplied bad input).
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 (2026-04-26) — B-W2-001 prompts CRUD API
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §5.1
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-001 GET /api/admin/ai/prompts lists templates with pagination
+    Given an authenticated user with role admin-ai
+    And N PromptTemplate rows exist with mixed status
+    When the user requests GET /api/admin/ai/prompts?page=1&limit=20
+    Then the response is 200
+    And the body has shape { data, pagination }
+    And each row exposes id, slug, status, modelType, activeVersionTag, versionsCount
+    # Rate limit per SPEC §5.1: 60/min/admin
+
+  Scenario: B-W2-001 GET filters by status=draft
+    Given an authenticated user with role admin-ai
+    When the user requests GET /api/admin/ai/prompts?status=draft
+    Then only templates with status="draft" are returned
+    # Service forwards the filter to db.findMany where clause
+
+  Scenario: B-W2-001 POST /api/admin/ai/prompts creates template + initial version 1.0.0
+    Given an authenticated user with role admin-ai
+    And no template with slug "new-guide" exists
+    When the user POSTs a valid CreatePromptRequest with slug="new-guide"
+    Then the response is 201
+    And the body returns id, slug, versionId, versionTag="1.0.0"
+    And a new PromptTemplate row exists with status="draft"
+    And a new PromptVersion row exists with versionTag="1.0.0"
+    And exactly one AuditLog row is appended with action="prompt.create"
+    And the AuditLog diffJson does NOT contain the systemPrompt verbatim
+    # Per SPEC §7.4: systemPrompt redacted as "[REDACTED — see PromptVersion <id>]"
+
+  Scenario: B-W2-001 POST rejects duplicate slug with 409
+    Given an existing PromptTemplate with slug "destination-guide"
+    When the user POSTs a valid CreatePromptRequest with the same slug
+    Then the response is 409
+    And no new template, version, or audit row is created
+
+  Scenario: B-W2-001 POST rejects invalid input with 400
+    Given an authenticated user with role admin-ai
+    When the user POSTs a body with slug="X" (too short, fails regex)
+    Then the response is 400
+    And the body contains a Zod-flattened details object
+
+  Scenario: B-W2-001 PATCH /api/admin/ai/prompts/:id creates a NEW version (immutable history)
+    Given a PromptTemplate with id "tpl_1" and active version 1.2.0
+    And an authenticated user with role admin-ai
+    When the user PATCHes with { systemPrompt: "new content", changeNote: "tweak" }
+    Then the response is 200
+    And the body returns newVersionId and newVersionTag
+    And exactly one AuditLog row is appended with action="prompt.update"
+    And the previous PromptVersion row is unchanged
+    # Semver bump itself is asserted in B-W2-002 tests; B-W2-001 only asserts a new version was created
+
+  Scenario: B-W2-001 PATCH rejects content change without changeNote with 400
+    Given a PromptTemplate with id "tpl_1"
+    When the user PATCHes with { systemPrompt: "new content" } and NO changeNote
+    Then the response is 400
+    And the error code is "CHANGE_NOTE_REQUIRED"
+    # SPEC-ARCH §5.1: changeNote is mandatory when systemPrompt or userTemplate changes
+
+  Scenario: B-W2-001 PATCH on missing template returns 404
+    Given no PromptTemplate with id "tpl_missing"
+    When the user PATCHes /api/admin/ai/prompts/tpl_missing
+    Then the response is 404
+    And the error code is "NOT_FOUND"
+
+  Scenario: B-W2-001 unauthenticated request returns 401
+    Given no authenticated session
+    When the request hits any /api/admin/ai/prompts* method
+    Then the response is 401
+    # Enforced by withAiGovernanceAccess HOF; tested in src/lib/auth/__tests__/with-rbac.test.ts
+
+  Scenario: B-W2-001 user with role "user" returns 403
+    Given an authenticated user with role "user"
+    When the request hits any /api/admin/ai/prompts* method
+    Then the response is 403
+    # Enforced by withAiGovernanceAccess HOF; allowed roles: admin | admin-ai | admin-ai-approver
+
+  Scenario: B-W2-001 every route file complies with B47-API-RBAC-CONVENTION
+    Given the directory src/app/api/admin/ai/**
+    When the compliance test handler-rbac-compliance.test.ts runs
+    Then every route.ts imports withAiGovernanceAccess or withAiGovernanceApproverAccess
+    And every export const GET|POST|PATCH|PUT|DELETE wraps via one of those HOFs
+    # Activated automatically on the first Wave 2 commit; both prompts/route.ts
+    # and prompts/[id]/route.ts must satisfy this gate.
