@@ -1160,3 +1160,56 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Given a guide template containing "{destination}"
     When PromptPreview renders
     Then the token count is computed against "Paris, France" (resolved), not the raw "{destination}"
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-009 Wave 2 gate close
+  # SPEC execution-plan §B.2 close criteria; SPEC-AI §10.2 integration
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-009 full create pipeline runs Zod → V-01..V-08 → DB → audit → warnings
+    Given an admin posts a valid `guide` template
+    When PromptAdminService.create executes
+    Then the Zod schema parses
+    And V-01..V-08 pass
+    And the PromptTemplate + initial PromptVersion 1.0.0 are created in one transaction
+    And exactly one AuditLog row is appended (action=prompt.create)
+    And the result includes a warnings array (possibly empty)
+
+  Scenario: B-W2-009 PATCH semver path produces 1.2.5 → 1.2.6
+    Given an existing PromptTemplate with active version 1.2.5
+    When PATCH runs (no content change, only maxTokens)
+    Then a new PromptVersion is created with versionTag=1.2.6
+    And the previous PromptVersion is unchanged
+
+  Scenario: B-W2-009 V-XX gate stops the write before any DB call
+    Given a template that violates V-02 (forbidden) OR V-06 (PII)
+    When PromptAdminService.create runs
+    Then PromptAdminError("VALIDATION_FAILED") is thrown
+    And db.promptTemplate.create is NEVER called
+    And db.promptVersion.create is NEVER called
+    And AuditLogService.append is NEVER called
+
+  Scenario: B-W2-009 audit-log redaction holds end-to-end
+    Given a template whose systemPrompt contains a unique secret marker
+    When the create flow completes
+    Then the AuditLog diffJson does NOT contain the secret marker verbatim
+    And the diffJson DOES contain the new PromptVersion id (the redaction pointer)
+
+  Scenario: B-W2-009 lineDiff produces actionable ops on a real-shaped version pair
+    Given two version bodies that differ on one line
+    When lineDiff runs against them
+    Then the summary shows ≥1 add and ≥1 remove and ≥2 same
+    # Wave 2 close gate: cross-cuts B-W2-007 + the service-stored versions
+
+  Scenario: B-W2-009 list pagination computes totalPages and forwards filter
+    Given 57 PromptTemplate rows of which some are draft
+    When PromptAdminService.list({status:"draft", page:2, limit:20})
+    Then pagination.total === 57 and totalPages === 3
+    And the underlying findMany receives where.status="draft" and skip=20
+
+  Scenario: B-W2-009 Wave 2 gate condition: 9/9 tasks complete + Trust Score ≥ 0.93
+    Given B-W2-001..009 all merged and tests green
+    When the Wave 2 close gate runs
+    Then 13 test files pass with 223+ assertions
+    And the Wave 2 composite Trust Score is ≥ 0.93 (qualitative — see release notes)
+    And no V-XX or W-XX is left without test coverage
