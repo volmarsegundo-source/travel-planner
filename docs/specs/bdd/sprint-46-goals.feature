@@ -1097,3 +1097,33 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When the API returns 409
     Then the editor displays the slugTaken i18n message
     And onSaved is NOT called
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-007 Diff viewer
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §5.1; SPEC-UX-V2 §4.1 (side-by-side)
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-007 lineDiff identical inputs produce only same ops
+    Given two strings A and B where A === B
+    When lineDiff(A, B) runs
+    Then every op has type="same"
+
+  Scenario: B-W2-007 lineDiff respects LCS top-to-bottom display order
+    Given lineDiff("a\\nb\\nc", "a\\nx\\nb\\ny\\nc")
+    Then the resulting op texts read ["a","x","b","y","c"] in order
+
+  Scenario: B-W2-007 DiffViewer renders +X / -Y / =Z summary
+    Given before="a\\nb\\nc" and after="a\\nMID\\nb\\nc"
+    When the DiffViewer renders
+    Then the summary panel shows +1 inserted and =3 unchanged
+
+  Scenario: B-W2-007 DiffViewer pairs adjacent remove+add as a modification row
+    Given before="a\\nb\\nc" and after="a\\nB\\nc"
+    When the DiffViewer renders
+    Then the row containing the remove "b" sits next to the add "B" on the same row
+    And the left cell carries data-cell-type="remove" while the right is "add"
+
+  Scenario: B-W2-007 DiffViewer renders column header labels
+    Given before/after labels "v-baseline" and "v-candidate"
+    When the DiffViewer renders
+    Then both labels appear in the column headers

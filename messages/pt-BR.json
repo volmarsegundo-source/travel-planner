@@ -1794,6 +1794,12 @@
         "edit": "Editar",
         "editAria": "Editar template {slug}"
       },
+      "diff": {
+        "title": "Diff entre versões",
+        "regionAria": "Diff lado a lado entre duas versões do prompt",
+        "leftAria": "Baseline ({label})",
+        "rightAria": "Candidato ({label})"
+      },
       "editor": {
         "titleCreate": "Novo template de prompt",
         "titleEdit": "Editando {slug}",
