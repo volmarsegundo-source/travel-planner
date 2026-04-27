@@ -3,28 +3,16 @@
  *
  * SPEC-AI-GOVERNANCE-V2 §3.1 V-03.
  *
- * The heuristic itself lives at `estimateTokenCount` here as an inline
- * implementation; B-W2-005 extracts it to a public helper at
- * `src/lib/ai/token-count.ts` and updates this file to import it.
+ * The token-count helper lives at `src/lib/ai/token-count.ts` (B-W2-005)
+ * so the editor (B-W2-006) and the preview panel (B-W2-008) can share it.
  *
  * B-W2-003 — Sprint 46 Wave 2 task 3/9.
  */
 import "server-only";
+import { estimateTokenCount } from "@/lib/ai/token-count";
 import type { ValidationCheck } from "./types";
 
 export const TOKEN_BUDGET_MAX = 4000;
-
-/**
- * Inline token-count heuristic. Returns ceil(chars / 3.5).
- *
- * Note: B-W2-005 turns this into the canonical helper. Until then, callers
- * outside this validation MUST NOT import it — the function is module-local
- * via a private name.
- */
-function estimateTokenCount(text: string): number {
-  if (typeof text !== "string" || text.length === 0) return 0;
-  return Math.ceil(text.length / 3.5);
-}
 
 /**
  * V-03: combined input tokens (systemPrompt + userTemplate) must not exceed

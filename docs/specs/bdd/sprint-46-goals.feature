@@ -1017,3 +1017,27 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When the admin POSTs the template
     Then the response is 201
     And the body's warnings is an empty array
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-005 token-count helper
+  # SPEC-AI-GOVERNANCE-V2 §3.1 V-03 (heuristic ceil(chars/3.5))
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-005 estimateTokenCount applies ceil(chars/3.5) for ASCII
+    Given the helper estimateTokenCount from src/lib/ai/token-count.ts
+    When called with a 14000-character ASCII string
+    Then it returns 4000 (the V-03 budget boundary)
+    When called with a 14001-character ASCII string
+    Then it returns 4001
+
+  Scenario: B-W2-005 helper is reused by V-03 + B-W2-006 + B-W2-008
+    Given the helper at src/lib/ai/token-count.ts
+    When V-03 (token-budget) validation runs
+    Then it imports estimateTokenCount from the canonical location
+    # B-W2-006 editor + B-W2-008 preview will consume the same helper
+
+  Scenario: B-W2-005 helper degrades gracefully on null / undefined / non-string
+    Given the helper estimateTokenCount
+    When called with null OR undefined OR a number
+    Then it returns 0 (no throw)
+    # Defensive: callers may pass partially-loaded data without try/catch
