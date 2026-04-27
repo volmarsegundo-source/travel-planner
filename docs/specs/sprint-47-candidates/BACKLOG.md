@@ -119,20 +119,42 @@ These two items are the systemic follow-ups to the Sprint 46 walk-through "shipp
 
 ### B47-UI-DOD-DISCOVER — UI Definition of Done with discoverability (P2)
 
-- **Source**: Sprint 46 walk-through investigation v2 §11.3 + Sprint 46.5 wave-close-staging-readiness checklist §4
-- **Effort**: 1-2h
+- **Source**: Sprint 46 walk-through investigation v2 §11.3 + Sprint 46.5 wave-close-staging-readiness checklist §4 + Sprint 46 walk-through #2 findings (commit `7da7f69`) + Sprint 46 close (esta release).
+- **Effort revisado:** **~3.5h** (era 1-2h pré-walk-through-#2; ampliado pelo escopo emergente em §A-§E; reduzido ~30% pela decisão admin PT-only de 2026-04-27 — sem EN translation work).
 - **Priority**: P2
-- **Trigger**: Existing DoD for UI items required RTL tests + a11y class tokens but did not require "feature is reachable via primary navigation". Sprint 46 Wave 2 met the existing DoD but produced features admins could not reach (F-WALK-02 root cause).
-- **Scope**:
-  - Create `docs/process/definition-of-done.md` (or extend `ADOPTION-CHECKLIST.md`) with explicit DoD bullet: "Every new UI route MUST be reachable via primary navigation in the same Sprint that adds the route. Direct-URL-only access requires explicit rationale in release notes + ticket for next-sprint navigation extension."
-  - Add forbidden anti-patterns: "Nav not extended — intentional during Wave N" without ticket; "Access via direct URL" as permanent solution; flag-gated nav items where flag ON Staging differs from Prod.
-  - Cross-reference `wave-close-staging-readiness.md` §4 (Sprint 46.5 deliverable).
-- **Acceptance criteria**:
-  - DoD doc exists and is referenced from `ADOPTION-CHECKLIST.md`.
-  - tech-lead PR review template updated to ask "is this UI route discoverable via primary nav?".
-  - At least 1 retro Sprint 46 retrospective entry references this DoD (already done in `docs/sprint-reviews/sprint-46-retrospective-inputs/shipping-vapor-pattern.md` §4.2).
-- **Dependencies**: none.
-- **Owner (proposed)**: tech-lead + ux-designer (review).
+- **Trigger**: existing DoD permitiu Sprint 46 Wave 2 ser declarada "complete" enquanto features eram operacionais mas exigiam conhecimento implícito (sintaxe placeholder canônica, lista de obrigatórios per modelType, shape de regex V-XX). Walk-through #2 PO descobriu este gap como F-WALK2-01 + F-WALK2-02. DoD v1 cobre §4(a) "alcançável" mas não §4(b) "operável sem help text inline".
+
+#### Sub-itens (sequência sugerida)
+
+| Sub | Item | Effort | Prioridade | Notas |
+|---|---|---|---|---|
+| §A | Help text de sintaxe placeholder PT-only — banner persistente no PromptEditor explicando `{name}` (interpolação) vs `{{name}}` (escape literal) + charset válido | ~30 min | Alta | Atende F-WALK2-01 root cause |
+| §B | Lista de obrigatórios reativa ao modelType PT-only — quando admin troca dropdown modelType, painel lateral lista os 8 / 11 / 6 obrigatórios; cada chip insertable por click; progress indicator "5/8 presentes" | ~1.5h | Alta | Atende F-WALK2-02 root cause + previne erro V-01 antes do submit |
+| §C | Lista de forbidden visíveis PT-only — painel "Não use" listando os 14 forbidden em FORBIDDEN_PLACEHOLDERS | ~30 min | Média | Educativo; complementa §B |
+| §D | Validação real-time client-side PT-only — debounced effect rodando V-01/V-02/W-01 client-side enquanto admin digita; não substitui server-side gate | ~2h | Baixa (polish — pode deferir Wave 3+) | Trade-off de complexidade vs benefício UX; mitigar drift via export único de regex do server |
+| §E | V-06/V-07/V-08 shape exemplos PT-only — dentro do help text, mostrar 1 exemplo curto de cada V-XX detecta (e.g. "sk-XXXXXXXXXXXXXXXXXXXX (Anthropic key shape)") | ~30 min | Média | Atende parte de F-WALK2-02 |
+
+**Total expandido:** ~5h se completar todos sub-itens. Recomenda sequência §A + §B + §E primeiro (~2.5h, atende ~80% do gap UX); §C + §D são polish.
+
+**i18n note:** todos sub-itens são **PT-only** per decisão arquitetural [`docs/process/decision-admin-ptbr-only.md`](../../process/decision-admin-ptbr-only.md) (2026-04-27). Sem EN mirror necessário — economiza ~30% do effort original.
+
+#### Acceptance criteria
+
+- [ ] §A help text visível no PromptEditor; PO confirma sintaxe canônica óbvia em ≤ 1 leitura
+- [ ] §B lista reativa atualiza on dropdown change; chips insertable funcionais
+- [ ] `docs/process/definition-of-done.md` (ou extensão de `ADOPTION-CHECKLIST.md`) documenta novo critério DoD: "feature alcançável via primary nav AND tem help text in-editor (PT-only OK para admin per decision-admin-ptbr-only.md)"
+- [ ] tech-lead PR review template atualizado com "is this UI route discoverable + does it have help text?"
+- [ ] Walk-through #3 Sprint 47 confirma que admin não precisa de externa documentation para usar PromptEditor
+
+#### Dependencies
+
+- Nenhuma direta. Pode prosseguir em paralelo com B47-W3 / B47-W4 / B47-W5 V2 Waves.
+
+#### Owner (proposed)
+
+- dev-fullstack-1 ou 2 (implementação UI)
+- ux-designer (review §A-§E texts antes de commit)
+- tech-lead (DoD doc update)
 
 ---
 

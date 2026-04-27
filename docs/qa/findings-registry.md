@@ -58,15 +58,72 @@ Sprint 46.5 scope is "make Wave 1+2 functional in Staging + walk-through #2 OK +
 
 ---
 
-## F-WALK-01..03 — Sprint 46 walk-through findings
+## F-WALK-01..03 — Sprint 46 walk-through #1 findings
 
 Already documented in `docs/qa/sprint-46-walk-through-investigation.md` (v1, commit `9717506`) and `docs/qa/sprint-46-walk-through-investigation-v2.md` (v2, commit `1806731`). Resolution path: Sprint 46.5 fix bundle (`68bb0e5..a878f62`).
 
 | Finding | Severity | Status | Resolution |
 |---|---|---|---|
-| F-WALK-01 — `/admin/ia` 404 + locale prefix divergence | P2 | Resolved by F-OPS-01 + F-FIX-05 | Vercel env set + AdminNav extended |
-| F-WALK-02 — Editor not editable (PO at wrong page) | P1 (case) / P2 (pattern) | Resolved by F-FIX-05; pattern in B47-FLAGS-REGISTRY + B47-UI-DOD-DISCOVER | AdminNav links /admin/ia gated by flag |
-| F-WALK-03 — Health endpoint `degraded` | P2 | Pending PO action F-OPS-03 (run `npm run seed:v2-only`) | Migration confirmed ran; only seed missing |
+| F-WALK-01 — `/admin/ia` 404 + locale prefix divergence | P2 | ✅ Resolved by F-OPS-01 + F-FIX-05 | Vercel env set + AdminNav extended |
+| F-WALK-02 — Editor not editable (PO at wrong page) | P1 (case) / P2 (pattern) | ✅ Resolved by F-FIX-05; pattern in B47-FLAGS-REGISTRY + B47-UI-DOD-DISCOVER | AdminNav links /admin/ia gated by flag |
+| F-WALK-03 — Health endpoint `degraded` | P2 | ✅ Resolved by F-OPS-03 SQL execution | Migration confirmed ran; seed populated 16 rows |
+
+---
+
+## F-WALK2-01..03 — Sprint 46 walk-through #2 findings
+
+Documented in `docs/qa/sprint-46-walk-through-2-findings.md` (commit `7da7f69`). Discovered during PO walk-through #2 in Staging on 2026-04-27 after Sprint 46.5 fix bundle deploy. All classified as **by-design + UX gap** (implementação alinhada com SPEC §2.1; discoverability é o gap real).
+
+### F-WALK2-01 — Sintaxe placeholder ambígua na UI (P2)
+
+| Field | Value |
+|---|---|
+| **Discovered** | 2026-04-27 — PO walk-through #2 |
+| **Severity** | P2 — UX gap, não bug |
+| **Status** | Open — deferido para Sprint 47 |
+| **Disposition** | B47-UI-DOD-DISCOVER §A (S47 backlog) |
+
+**Behavior:** PO digitou `{{userName}}` esperando interpolação Mustache-style. Editor mostrou "Placeholders detectados: (nenhum)" — comportamento correto per SPEC-AI-GOVERNANCE-V2 §2.1 (single-brace `{var}` é canônico; double-brace `{{var}}` é escape literal). PO sem help text inline para descobrir convenção.
+
+**Root cause:** ausência de help text in-editor explicando sintaxe canônica + escape rule.
+
+**Fix path:** B47-UI-DOD-DISCOVER §A (Sprint 47, ~30 min PT-only).
+
+### F-WALK2-02 — V-01 obscurece V-02/V-07 percepção em testes UI (P2)
+
+| Field | Value |
+|---|---|
+| **Discovered** | 2026-04-27 — PO walk-through #2 |
+| **Severity** | P2 — UX gap, não bug |
+| **Status** | Open — deferido para Sprint 47 |
+| **Disposition** | B47-UI-DOD-DISCOVER §B-§E (S47 backlog) |
+
+**Behavior:** PO testou `Sua senha é {{password}}` esperando V-02 disparar; só V-01 fired. Testou email + key fake esperando V-07; só V-06 fired.
+
+**Root cause:** orchestrator é paralelo (per SPEC §3 line 162 — não sequencial), mas:
+- V-02 só checa placeholders extraídos canonicamente; `{{password}}` é escape, não placeholder, então set extraído está vazio
+- V-07 regex SPEC `/sk-[a-zA-Z0-9]{20,}/g` requer prefix exato + 20+ chars; PO's "fake" não bateu
+
+Comportamento alinhado com SPEC. Gap é admin não saber **shape** de cada V-XX preventivamente.
+
+**Fix path:** B47-UI-DOD-DISCOVER §B (lista obrigatórios reativa) + §C (forbidden visíveis) + §E (V-06/V-07/V-08 exemplos).
+
+### F-WALK2-03 — Mensagens de validação em PT mesmo com UI EN (P3 won't-fix)
+
+| Field | Value |
+|---|---|
+| **Discovered** | 2026-04-27 — PO walk-through #2 |
+| **Severity** | P3 |
+| **Status** | **Won't-fix** — admin é PT-only por decisão arquitetural |
+| **Disposition** | Closed (decisão arquitetural) |
+
+**Behavior:** Mensagens V-XX/W-XX retornam em PT mesmo quando UI está em locale `en`. Naturalmente surge de `messages/pt-BR.json` ser source of truth para validação.
+
+**Root cause:** intencional. Admin pages target audience único é o PO; EN translation não é requerida para admin surfaces.
+
+**Decision:** documentado em `docs/process/decision-admin-ptbr-only.md` (commit desta release). Aplica-se a `/admin/*` rotas, mensagens V-XX/W-XX, admin help text, audit log displays. NÃO aplica a páginas público-facing.
+
+**Reversibilidade:** se Atlas adicionar admin user não-Brasileiro / cliente externo / equipe internacional, decisão pode ser revisitada.
 
 ---
 

@@ -57,13 +57,35 @@ curl https://<staging-url>/api/health/<feature>
 -- Esperado: {"status":"ok",...}
 ```
 
-## §4 UI discoverability (NEW Definition of Done)
+## §4 UI discoverability (NEW Definition of Done — evoluído 2026-04-27)
+
+Walk-through #2 Sprint 46 (commit `7da7f69`) revelou que "alcançável via nav" e "operável sem conhecimento implícito" são **dois níveis diferentes** de discoverability. §4 evoluído em três sub-bullets para capturar essa nuance.
+
+### §4(a) — Feature alcançável via primary navigation (BINÁRIO, OBRIGATÓRIO)
 
 - [ ] **Toda rota nova é acessível via primary navigation** OU explicitamente documentada como direct-URL-only com rationale escrito (não default).
 - [ ] **AdminNav (ou nav equivalente) atualizada** no MESMO sprint que adiciona a rota. Não deferir para "wave seguinte" — exatamente o anti-padrão que F-WALK-02 expôs.
 - [ ] **Walk-through manual:** PO consegue navegar do dashboard root até a feature em ≤ 3 clicks, sem digitar URL.
 - [ ] **Mobile + desktop ambos funcionais** (44×44 touch targets, focus-visible rings).
-- [ ] **i18n PT-BR + EN ambos preenchidos.**
+
+**Critério binário:** se uma das checkboxes acima estiver desmarcada, Wave Close = BLOCKED.
+
+### §4(b) — Feature tem help text in-editor (ESCALA, OPCIONAL para admin)
+
+- [ ] **Sintaxe esperada documentada visualmente** (ex: placeholder syntax, formato de input, regex de validação)
+- [ ] **Lista de itens obrigatórios** mostrada ao admin antes de tentar salvar (não só após erro)
+- [ ] **Exemplos de input válido + inválido** disponíveis no editor
+
+**Critério condicional por surface:**
+- **Para admin pages** (`/admin/*`): help text **PT-only é aceitável** per [`docs/process/decision-admin-ptbr-only.md`](../process/decision-admin-ptbr-only.md) (decisão arquitetural 2026-04-27)
+- **Para user-facing pages**: PT/EN ambos obrigatórios
+
+**Severity de gap em §4(b):** P2 — não bloqueia Wave Close (READY-WITH-FOLLOWUPS aceitável) mas vai para próximo Sprint backlog como item de UX excellence (ex: B47-UI-DOD-DISCOVER).
+
+### §4(c) — i18n requirements
+
+- [ ] **User-facing surfaces** (não-admin): PT-BR + EN ambos preenchidos
+- [ ] **Admin-only surfaces** (`/admin/*` + admin email/audit): PT-only OK per decisão arquitetural
 
 ### §4.1 Discoverability anti-patterns (NÃO fazer)
 
@@ -71,6 +93,8 @@ curl https://<staging-url>/api/health/<feature>
 - ❌ "Acesso via URL direta" como solução permanente.
 - ❌ Tabs aninhadas (`/admin/ia?tab=prompts`) sem link visível ao tab.
 - ❌ Feature flag ON em Staging mas link da nav só aparece com flag ON em Prod.
+- ❌ Tratar §4(b) como blocker — READY-WITH-FOLLOWUPS é aceitável quando help text estiver no backlog do próximo Sprint.
+- ❌ Aplicar critério bilíngue PT/EN a admin pages — desperdício de scope per decisão arquitetural.
 
 ## §5 PO walk-through (Staging gate)
 
