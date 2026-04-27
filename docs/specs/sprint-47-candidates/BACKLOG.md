@@ -95,6 +95,47 @@ These items remain pending from `docs/specs/sprint-46-candidates/BACKLOG.md` § 
 
 ---
 
+## P2 — Sprint 46.5 process corrections (added 2026-04-27)
+
+These two items are the systemic follow-ups to the Sprint 46 walk-through "shipping vapor" findings (commits `9717506` + `1806731`). The specific case was resolved in Sprint 46.5 (commits `68bb0e5` + `a878f62` + `0376691`); these items prevent recurrence.
+
+### B47-FLAGS-REGISTRY — Honesty flags formal registry (P2)
+
+- **Source**: Sprint 46 walk-through investigation v2 §11.3 + Sprint 46.5 retrospective input ("shipping vapor" pattern §4.2)
+- **Effort**: 2-3h
+- **Priority**: P2
+- **Trigger**: Sprint 46 published ~50 honesty flags across 17 commits as Markdown text in release notes. None had owner / target sprint / status tracking. The B-W1-006 flag #4 ("AdminNav not extended") survived 11 commits without follow-up and became the F-WALK-02 root cause exposed during walk-through.
+- **Scope**:
+  - Create `docs/qa/honesty-flags-registry.md` with columns: ID, source commit, severity (P1/P2/P3), owner, target sprint, status (open / in-progress / resolved / wont-fix).
+  - Backfill all flags from Sprint 46 release notes (~50 entries) — requires read pass over `docs/releases/b-w1-*.md`, `b-w2-*.md`, `f-fix-*.md`, `f-ops-*.md`.
+  - Add a CI/pre-commit hook (or weekly script) that flags release notes containing honesty flags but no corresponding registry entry.
+  - Update `docs/process/ADOPTION-CHECKLIST.md` (or create) to require "registry entry created" as part of release note publication.
+- **Acceptance criteria**:
+  - Registry exists with all Sprint 46 flags backfilled.
+  - At least 1 flag marked "resolved" by Sprint 47 (e.g. B-W1-006 flag #4 already closed by F-FIX-05 in Sprint 46.5).
+  - New flags from Sprint 47+ commits land in the registry alongside the release note.
+- **Dependencies**: none.
+- **Owner (proposed)**: tech-lead + qa-engineer (registry stewardship).
+
+### B47-UI-DOD-DISCOVER — UI Definition of Done with discoverability (P2)
+
+- **Source**: Sprint 46 walk-through investigation v2 §11.3 + Sprint 46.5 wave-close-staging-readiness checklist §4
+- **Effort**: 1-2h
+- **Priority**: P2
+- **Trigger**: Existing DoD for UI items required RTL tests + a11y class tokens but did not require "feature is reachable via primary navigation". Sprint 46 Wave 2 met the existing DoD but produced features admins could not reach (F-WALK-02 root cause).
+- **Scope**:
+  - Create `docs/process/definition-of-done.md` (or extend `ADOPTION-CHECKLIST.md`) with explicit DoD bullet: "Every new UI route MUST be reachable via primary navigation in the same Sprint that adds the route. Direct-URL-only access requires explicit rationale in release notes + ticket for next-sprint navigation extension."
+  - Add forbidden anti-patterns: "Nav not extended — intentional during Wave N" without ticket; "Access via direct URL" as permanent solution; flag-gated nav items where flag ON Staging differs from Prod.
+  - Cross-reference `wave-close-staging-readiness.md` §4 (Sprint 46.5 deliverable).
+- **Acceptance criteria**:
+  - DoD doc exists and is referenced from `ADOPTION-CHECKLIST.md`.
+  - tech-lead PR review template updated to ask "is this UI route discoverable via primary nav?".
+  - At least 1 retro Sprint 46 retrospective entry references this DoD (already done in `docs/sprint-reviews/sprint-46-retrospective-inputs/shipping-vapor-pattern.md` §4.2).
+- **Dependencies**: none.
+- **Owner (proposed)**: tech-lead + ux-designer (review).
+
+---
+
 ## Pre-Beta blockers (still unresolved at Sprint 46 close)
 
 These remain from Sprint 45 review and need PO source-doc resolution before Sprint 47 commits:
