@@ -93,6 +93,16 @@ const patchHandler: AdminApiHandler<{ id: string }> = async (
             { status: 400 }
           );
         }
+        if (error.code === "VALIDATION_FAILED") {
+          return NextResponse.json(
+            {
+              error: error.message,
+              code: error.code,
+              validationErrors: error.validationErrors ?? [],
+            },
+            { status: 400 }
+          );
+        }
       }
       logger.error("api.admin.ai.prompts.update.error", error, {
         actorUserId: auth.userId,

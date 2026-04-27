@@ -25,6 +25,11 @@ import type { Prisma } from "@prisma/client";
 
 import { db } from "@/server/db";
 import { AuditLogService } from "@/server/services/audit-log.service";
+import {
+  validateBlocking,
+  type PromptValidationContext,
+  type ValidationFailure,
+} from "@/server/services/ai-governance/prompt-validations";
 import type {
   CreatePromptInput,
   UpdatePromptInput,
@@ -36,14 +41,22 @@ export type PromptAdminErrorCode =
   | "SLUG_TAKEN"
   | "NOT_FOUND"
   | "CHANGE_NOTE_REQUIRED"
-  | "NO_OP";
+  | "NO_OP"
+  | "VALIDATION_FAILED";
 
 export class PromptAdminError extends Error {
   readonly code: PromptAdminErrorCode;
-  constructor(code: PromptAdminErrorCode, message: string) {
+  /** Populated for code=VALIDATION_FAILED only — the aggregate of V-XX failures. */
+  readonly validationErrors?: ValidationFailure[];
+  constructor(
+    code: PromptAdminErrorCode,
+    message: string,
+    validationErrors?: ValidationFailure[]
+  ) {
     super(message);
     this.name = "PromptAdminError";
     this.code = code;
+    this.validationErrors = validationErrors;
   }
 }
 
@@ -218,6 +231,20 @@ export class PromptAdminService {
     input: CreatePromptInput,
     ctx: ActorContext
   ): Promise<CreatePromptResult> {
+    const validation = validateBlocking({
+      systemPrompt: input.systemPrompt,
+      userTemplate: input.userTemplate,
+      modelType: input.modelType,
+      // CreatePromptSchema has no metadata field yet — V-04/V-05 skip.
+    } as PromptValidationContext);
+    if (!validation.ok) {
+      throw new PromptAdminError(
+        "VALIDATION_FAILED",
+        `prompt content failed ${validation.errors.length} blocking validation(s)`,
+        validation.errors
+      );
+    }
+
     const existing = await db.promptTemplate.findUnique({
       where: { slug: input.slug },
       select: { id: true },
@@ -347,6 +374,20 @@ export class PromptAdminService {
     const newMaxTokens = input.maxTokens ?? tpl.maxTokens;
     const newCacheControl =
       input.cacheControl ?? tpl.cacheControl;
+
+    // V-01..V-08 run on the merged content (post-merge, pre-DB-write).
+    const validation = validateBlocking({
+      systemPrompt: newSystemPrompt,
+      userTemplate: newUserTemplate,
+      modelType: tpl.modelType as PromptValidationContext["modelType"],
+    });
+    if (!validation.ok) {
+      throw new PromptAdminError(
+        "VALIDATION_FAILED",
+        `prompt content failed ${validation.errors.length} blocking validation(s)`,
+        validation.errors
+      );
+    }
 
     const result = await db.$transaction(async (tx) => {
       const txDb = tx as unknown as typeof db;

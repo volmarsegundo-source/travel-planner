@@ -109,11 +109,23 @@ export const POST = withAiGovernanceAccess(async (request, _ctx, auth) => {
     });
     return NextResponse.json(out, { status: 201 });
   } catch (error) {
-    if (error instanceof PromptAdminError && error.code === "SLUG_TAKEN") {
-      return NextResponse.json(
-        { error: "Slug already exists", code: error.code },
-        { status: 409 }
-      );
+    if (error instanceof PromptAdminError) {
+      if (error.code === "SLUG_TAKEN") {
+        return NextResponse.json(
+          { error: "Slug already exists", code: error.code },
+          { status: 409 }
+        );
+      }
+      if (error.code === "VALIDATION_FAILED") {
+        return NextResponse.json(
+          {
+            error: error.message,
+            code: error.code,
+            validationErrors: error.validationErrors ?? [],
+          },
+          { status: 400 }
+        );
+      }
     }
     if (error instanceof ZodError) {
       return NextResponse.json(

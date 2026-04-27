@@ -900,3 +900,76 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then the new versionTag is "1.2.1" (computed by bumpSemverPatch, not the B-W2-001 stub)
     And the previous version row remains intact (immutable history)
     # Closes the B-W2-001 stub; integration assertion lives in B-W2-009
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-003 V-01..V-08 gate
+  # SPEC-AI-GOVERNANCE-V2 §3.1 (blocking validations)
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-003 V-01 missing required placeholder blocks save
+    Given a guide template missing the {originCity} placeholder
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-01"
+    And no PromptTemplate or PromptVersion row is created
+    And no AuditLog row is appended
+
+  Scenario: B-W2-003 V-02 forbidden placeholder blocks save
+    Given a template that contains {userEmail} or {apiKey}
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-02"
+    And the field name (systemPrompt or userTemplate) is reported
+
+  Scenario: B-W2-003 V-03 token budget overflow blocks save
+    Given a template whose systemPrompt + userTemplate exceeds 4000 token budget
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-03"
+    # Heuristic ceil(chars/3.5) per SPEC §3.1
+
+  Scenario: B-W2-003 V-04 outputFormat=json without jsonSchema blocks save
+    Given a template with metadata.outputFormat="json" but no metadata.jsonSchema
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-04"
+    # Soft floor — V-04 only fires when metadata.outputFormat is set
+
+  Scenario: B-W2-003 V-05 declared language conflicts with content heuristic
+    Given a template with metadata.language="pt-BR" but content is clearly English
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-05"
+    # Heuristic threshold confidence ≥ 0.7
+
+  Scenario: B-W2-003 V-06 PII in template blocks save
+    Given a template that contains a real e-mail address OR Brazilian CPF format
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-06"
+    And each occurrence is reported with line number
+
+  Scenario: B-W2-003 V-07 API key in template blocks save
+    Given a template that contains "sk-..." OR "AIza..." secret-shaped string
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-07"
+
+  Scenario: B-W2-003 V-08 internal URL in template blocks save
+    Given a template that mentions "localhost:3000" OR ".travel-planner.dev"
+    When the admin POSTs the template
+    Then the response is 400
+    And the body's validationErrors include code="V-08"
+
+  Scenario: B-W2-003 multiple V-XX failures aggregate (no short-circuit)
+    Given a template that simultaneously violates V-01, V-02, V-06, V-07, V-08
+    When the admin POSTs the template
+    Then the response body's validationErrors contains EVERY violated code
+    And the admin sees all errors on a single response (per SPEC §3 line 162)
+
+  Scenario: B-W2-003 PATCH gate runs on the merged content (not the partial diff)
+    Given a PromptTemplate with valid existing content
+    When the admin PATCHes with userTemplate containing PII (V-06)
+    Then the merged systemPrompt + new userTemplate fails V-06
+    And no new PromptVersion row is created
+    And no AuditLog row is appended

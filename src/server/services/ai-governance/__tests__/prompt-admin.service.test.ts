@@ -128,11 +128,17 @@ describe("B-W2-001 — PromptAdminService.list", () => {
 });
 
 describe("B-W2-001 — PromptAdminService.create", () => {
+  // SystemPrompt must include every required `guide` placeholder so the V-01..V-08
+  // gate (B-W2-003) does not block these B-W2-001 service tests.
   const baseInput = {
     slug: "new-template",
     modelType: "guide" as const,
-    systemPrompt: "You are a helpful travel guide assistant.",
-    userTemplate: "Plan a trip to {destination} for {days} days.",
+    systemPrompt:
+      "You are a helpful travel guide assistant. " +
+      "Plan {destination} from {originCity} for {days} days starting {startDate} " +
+      "ending {endDate} for {passengers} in {travelStyle} style. " +
+      "Respond in {language}.",
+    userTemplate: "Generate the destination guide.",
     maxTokens: 4096,
     cacheControl: true,
     changeNote: "initial version",
@@ -233,8 +239,10 @@ describe("B-W2-001 — PromptAdminService.update", () => {
       id: "tpl_1",
       slug: "destination-guide",
       modelType: "guide",
-      systemPrompt: "old system",
-      userTemplate: "old user",
+      // Existing template content already passes V-01 (all required placeholders).
+      systemPrompt:
+        "Old system {destination} {originCity} {days} {startDate} {endDate} {passengers} {travelStyle} {language}",
+      userTemplate: "Old user template content",
       maxTokens: 4096,
       cacheControl: true,
       activeVersionId: "ver_prev",
@@ -256,7 +264,8 @@ describe("B-W2-001 — PromptAdminService.update", () => {
     const out = await PromptAdminService.update(
       "tpl_1",
       {
-        systemPrompt: "new system content here",
+        systemPrompt:
+          "New system content {destination} {originCity} {days} {startDate} {endDate} {passengers} {travelStyle} {language}",
         changeNote: "tweak intro",
       },
       { actorUserId: "actor_1" }
@@ -283,8 +292,9 @@ describe("B-W2-001 — PromptAdminService.update", () => {
       id: "tpl_1",
       slug: "destination-guide",
       modelType: "guide",
-      systemPrompt: "old",
-      userTemplate: "old",
+      systemPrompt:
+        "Old {destination} {originCity} {days} {startDate} {endDate} {passengers} {travelStyle} {language}",
+      userTemplate: "Old user template",
       maxTokens: 4096,
       cacheControl: true,
       activeVersionId: "ver_prev",
@@ -298,7 +308,10 @@ describe("B-W2-001 — PromptAdminService.update", () => {
     await expect(
       PromptAdminService.update(
         "tpl_1",
-        { systemPrompt: "new content without note" },
+        {
+          systemPrompt:
+            "New content without note {destination} {originCity} {days} {startDate} {endDate} {passengers} {travelStyle} {language}",
+        },
         { actorUserId: "actor_1" }
       )
     ).rejects.toBeInstanceOf(PromptAdminError);
@@ -320,5 +333,102 @@ describe("B-W2-001 — PromptAdminService.update", () => {
         { actorUserId: "actor_1" }
       )
     ).rejects.toBeInstanceOf(PromptAdminError);
+  });
+});
+
+describe("B-W2-003 — V-01..V-08 gate inside PromptAdminService", () => {
+  it("create rejects with VALIDATION_FAILED when V-02 forbidden placeholder present", async () => {
+    promptTemplateFindUnique.mockResolvedValue(null);
+
+    const { PromptAdminService, PromptAdminError } = await import(
+      "@/server/services/ai-governance/prompt-admin.service"
+    );
+
+    let caught: PromptAdminError | null = null;
+    try {
+      await PromptAdminService.create(
+        {
+          slug: "bad-template",
+          modelType: "guide",
+          systemPrompt:
+            "Send to {userEmail}. Plan {destination} from {originCity} for {days} days starting {startDate} ending {endDate} for {passengers} in {travelStyle} style. Respond in {language}.",
+          userTemplate: "Generate the guide.",
+          maxTokens: 4096,
+          cacheControl: true,
+        },
+        { actorUserId: "actor_1" }
+      );
+    } catch (e) {
+      caught = e as PromptAdminError;
+    }
+    expect(caught).toBeInstanceOf(PromptAdminError);
+    expect(caught?.code).toBe("VALIDATION_FAILED");
+    expect(caught?.validationErrors?.some((v) => v.code === "V-02")).toBe(true);
+    expect(promptTemplateCreate).not.toHaveBeenCalled();
+    expect(auditLogAppend).not.toHaveBeenCalled();
+  });
+
+  it("create rejects with VALIDATION_FAILED when V-01 missing required placeholders", async () => {
+    promptTemplateFindUnique.mockResolvedValue(null);
+
+    const { PromptAdminService, PromptAdminError } = await import(
+      "@/server/services/ai-governance/prompt-admin.service"
+    );
+
+    let caught: PromptAdminError | null = null;
+    try {
+      await PromptAdminService.create(
+        {
+          slug: "incomplete-template",
+          modelType: "guide",
+          systemPrompt: "Plan a trip to {destination}",
+          userTemplate: "Generate a guide.",
+          maxTokens: 4096,
+          cacheControl: true,
+        },
+        { actorUserId: "actor_1" }
+      );
+    } catch (e) {
+      caught = e as PromptAdminError;
+    }
+    expect(caught?.code).toBe("VALIDATION_FAILED");
+    expect(caught?.validationErrors?.some((v) => v.code === "V-01")).toBe(true);
+  });
+
+  it("update rejects with VALIDATION_FAILED when merged content fails V-06 PII", async () => {
+    promptTemplateFindUnique.mockResolvedValue({
+      id: "tpl_1",
+      slug: "destination-guide",
+      modelType: "guide",
+      systemPrompt:
+        "Old {destination} {originCity} {days} {startDate} {endDate} {passengers} {travelStyle} {language}",
+      userTemplate: "Old user template",
+      maxTokens: 4096,
+      cacheControl: true,
+      activeVersionId: "ver_prev",
+    });
+    promptVersionFindFirst.mockResolvedValue({ id: "ver_prev", versionTag: "1.2.0" });
+
+    const { PromptAdminService, PromptAdminError } = await import(
+      "@/server/services/ai-governance/prompt-admin.service"
+    );
+
+    let caught: PromptAdminError | null = null;
+    try {
+      await PromptAdminService.update(
+        "tpl_1",
+        {
+          userTemplate: "Email ada@example.com to confirm.",
+          changeNote: "intentional pii test",
+        },
+        { actorUserId: "actor_1" }
+      );
+    } catch (e) {
+      caught = e as PromptAdminError;
+    }
+    expect(caught?.code).toBe("VALIDATION_FAILED");
+    expect(caught?.validationErrors?.some((v) => v.code === "V-06")).toBe(true);
+    expect(promptVersionCreate).not.toHaveBeenCalled();
+    expect(auditLogAppend).not.toHaveBeenCalled();
   });
 });
