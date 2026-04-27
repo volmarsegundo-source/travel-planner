@@ -1041,3 +1041,59 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     When called with null OR undefined OR a number
     Then it returns 0 (no throw)
     # Defensive: callers may pass partially-loaded data without try/catch
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-006 UI editor
+  # SPEC-AI-GOVERNANCE-V2 §3 + §7 (admin editor + placeholders + token count)
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-006 PromptsTab replaces the empty-state on the Prompts tab
+    Given an admin-ai user on /admin/ia?tab=prompts
+    When the page renders
+    Then the PromptsTab list is shown (not the Wave 1 empty-state)
+    And a "+ New" button is visible
+
+  Scenario: B-W2-006 list view fetches GET /api/admin/ai/prompts
+    Given an admin-ai user on the Prompts tab
+    When the list loads
+    Then the table renders one row per template with slug / status / model / activeVersion / count / updated columns
+
+  Scenario: B-W2-006 status filter forwards to the API
+    Given the list view is showing
+    When the admin selects status="draft" in the filter
+    Then a new GET request runs with ?status=draft
+
+  Scenario: B-W2-006 editor shows live placeholder chips as the admin types
+    Given the editor is open in create mode
+    When the admin types "{destination} from {originCity}" into systemPrompt
+    Then a chip with data-placeholder="destination" is rendered
+    And a chip with data-placeholder="originCity" is rendered
+
+  Scenario: B-W2-006 editor flags forbidden placeholder inline (V-02 client echo)
+    Given the editor is open
+    When the admin types "{userEmail}" anywhere
+    Then the inline warn block surfaces with the forbidden name
+    # Server still re-validates V-02 — this is a UX shortcut
+
+  Scenario: B-W2-006 editor shows live token count via B-W2-005 helper
+    Given the editor is open
+    When the admin types content into systemPrompt and userTemplate
+    Then the stats panel updates with system / user / total token counts in real time
+
+  Scenario: B-W2-006 editor surfaces server validationErrors on 400
+    Given the admin submits content that fails V-01 + V-06
+    When the API returns 400 with validationErrors=[V-01, V-06]
+    Then the editor renders both codes + messages in an alert list
+    And onSaved is NOT called
+
+  Scenario: B-W2-006 editor surfaces returned warnings on 201
+    Given the admin submits valid content with W-02 warning
+    When the API returns 201 with warnings=[W-02]
+    Then the editor calls onSaved (list reloads)
+    # The W-02 surface lives on the next list view; UI hand-off is implicit
+
+  Scenario: B-W2-006 editor 409 surfaces "slug already exists"
+    Given the admin POSTs a slug that is already in use
+    When the API returns 409
+    Then the editor displays the slugTaken i18n message
+    And onSaved is NOT called

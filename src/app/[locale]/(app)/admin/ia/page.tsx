@@ -16,6 +16,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { isAiGovernanceV2Enabled } from "@/lib/flags/ai-governance";
 import { AdminIaTabs } from "./AdminIaTabs";
+import { PromptsTab } from "./PromptsTab";
 
 interface PageProps {
   searchParams: Promise<{ tab?: string }>;
@@ -55,12 +56,7 @@ export default async function AdminIaPage({ searchParams }: PageProps) {
             body={t("dashboardEmptyBody")}
           />
         )}
-        {activeTab === "prompts" && (
-          <EmptyState
-            title={t("promptsEmptyTitle")}
-            body={t("promptsEmptyBody")}
-          />
-        )}
+        {activeTab === "prompts" && <PromptsTab />}
         {activeTab === "modelos" && (
           <EmptyState
             title={t("modelosEmptyTitle")}
