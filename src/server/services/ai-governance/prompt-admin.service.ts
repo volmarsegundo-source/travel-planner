@@ -99,19 +99,52 @@ export interface UpdatePromptResult {
   newVersionTag: string;
 }
 
-// ─── Semver bump (stub — replaced in B-W2-002) ──────────────────────────────
+// ─── Semver bump (B-W2-002) ─────────────────────────────────────────────────
 
 /**
- * Stubbed semver patch bump.
+ * Strict semver patch bump for `PromptVersion.versionTag`.
  *
- * B-W2-001 ships this as a fixed `"1.0.1"` to keep the API contract live
- * before B-W2-002 lands the real arithmetic. Tests in B-W2-002 will assert
- * `1.2.5 → 1.2.6`, overflow protection, and rejection of malformed inputs.
+ * Accepts ONLY canonical `major.minor.patch` strings where each component
+ * is a non-negative integer with no leading zero (except the literal "0").
+ * Rejects everything else — null/undefined, empty, four-component, prefixed
+ * (`v1.0.0`), negative, leading zeros, and any value that would push the
+ * patch component past `Number.MAX_SAFE_INTEGER`.
  *
- * Do not depend on this returning anything specific in callers.
+ * Increments only the patch component; major and minor are preserved
+ * verbatim. This matches SPEC-TECHLEAD §3 Wave 2 ("auto-increment de versão
+ * — semver patch bump") and the execution-plan §B.2 B-W2-002 contract.
+ *
+ * Throws `PromptAdminError("NO_OP", ...)` on malformed input. Callers
+ * (PromptAdminService.create/update) treat this as a 400-class failure
+ * because it indicates corrupted version state in the DB rather than a
+ * client mistake.
  */
-export function bumpSemverPatch(_prev: string | null | undefined): string {
-  return "1.0.1";
+const SEMVER_RE = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+
+export function bumpSemverPatch(prev: string | null | undefined): string {
+  if (typeof prev !== "string" || prev.length === 0) {
+    throw new PromptAdminError(
+      "NO_OP",
+      "bumpSemverPatch: previous tag must be a non-empty string"
+    );
+  }
+  const match = prev.match(SEMVER_RE);
+  if (!match) {
+    throw new PromptAdminError(
+      "NO_OP",
+      `bumpSemverPatch: "${prev}" is not canonical semver (expected major.minor.patch with non-negative integers, no leading zeros)`
+    );
+  }
+  const major = match[1];
+  const minor = match[2];
+  const patch = Number(match[3]);
+  if (!Number.isSafeInteger(patch) || patch + 1 > Number.MAX_SAFE_INTEGER) {
+    throw new PromptAdminError(
+      "NO_OP",
+      `bumpSemverPatch: patch component overflow on "${prev}"`
+    );
+  }
+  return `${major}.${minor}.${patch + 1}`;
 }
 
 // ─── Service ────────────────────────────────────────────────────────────────

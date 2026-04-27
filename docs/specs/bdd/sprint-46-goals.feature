@@ -850,3 +850,53 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     And every export const GET|POST|PATCH|PUT|DELETE wraps via one of those HOFs
     # Activated automatically on the first Wave 2 commit; both prompts/route.ts
     # and prompts/[id]/route.ts must satisfy this gate.
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-002 PromptVersion
+  # immutability + semver auto-increment
+  # SPEC-ARCH-AI-GOVERNANCE-V2 §4.2 + §5.1; SPEC-TECHLEAD §3 Wave 2
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-002 bumpSemverPatch increments only the patch component
+    Given a previous PromptVersion.versionTag of "1.2.5"
+    When bumpSemverPatch("1.2.5") is called
+    Then the result is "1.2.6"
+    And the major + minor components are preserved verbatim
+
+  Scenario: B-W2-002 bumpSemverPatch handles edge of 9.9.9
+    Given a previous PromptVersion.versionTag of "9.9.9"
+    When bumpSemverPatch("9.9.9") is called
+    Then the result is "9.9.10"
+    # Only patch advances; no major/minor cascade
+
+  Scenario: B-W2-002 bumpSemverPatch rejects non-canonical input
+    Given a previous tag value that is null OR undefined OR empty OR malformed
+    When bumpSemverPatch is called
+    Then it throws PromptAdminError with code NO_OP
+    # Malformed inputs include "1.0", "v1.0.0", "1.0.x", "01.0.0", "1.-1.0"
+
+  Scenario: B-W2-002 bumpSemverPatch rejects leading zeros and negative components
+    Given inputs "01.0.0", "1.02.0", "-1.0.0", "1.-1.0"
+    When bumpSemverPatch is called for each
+    Then each call throws PromptAdminError("NO_OP")
+    # Strict canonical semver — no normalization
+
+  Scenario: B-W2-002 bumpSemverPatch refuses overflow on patch component
+    Given a previous tag of "1.0.<Number.MAX_SAFE_INTEGER>"
+    When bumpSemverPatch is called
+    Then it throws PromptAdminError("NO_OP") with overflow message
+    # Caller treats this as 400-class corrupted DB state, not a client error
+
+  Scenario: B-W2-002 PromptVersion is immutable in production code
+    Given the codebase scan under src/server/services/
+    When the immutability regression test runs
+    Then no production source calls db.promptVersion.update / delete / upsert / updateMany / deleteMany
+    # Test files under __tests__ are excluded — they may simulate forbidden writes
+    # SPEC-ARCH §4.2 — the convention is enforced at codebase level, not DB level
+
+  Scenario: B-W2-002 PATCH /api/admin/ai/prompts/:id materializes new versionTag from real arithmetic
+    Given a PromptTemplate with active version 1.2.0
+    When PATCH creates a new version
+    Then the new versionTag is "1.2.1" (computed by bumpSemverPatch, not the B-W2-001 stub)
+    And the previous version row remains intact (immutable history)
+    # Closes the B-W2-001 stub; integration assertion lives in B-W2-009
