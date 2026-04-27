@@ -1213,3 +1213,32 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then 13 test files pass with 223+ assertions
     And the Wave 2 composite Trust Score is ≥ 0.93 (qualitative — see release notes)
     And no V-XX or W-XX is left without test coverage
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46.5 (2026-04-27) — F-FIX-05 AdminNav extends with
+  # /admin/ia link. Closes B-W1-006 honesty flag #4 + F-WALK-02 root cause.
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: F-FIX-05 AdminNav exposes /admin/ia when AI_GOVERNANCE_V2 is true
+    Given the admin layout reads isAiGovernanceV2Enabled() returning true
+    When AdminNav renders
+    Then a 7th link appears with href="/admin/ia"
+    And the link label resolves the i18n key admin.navAi
+
+  Scenario: F-FIX-05 AdminNav hides /admin/ia when AI_GOVERNANCE_V2 is false
+    Given the admin layout reads isAiGovernanceV2Enabled() returning false
+    When AdminNav renders
+    Then exactly 6 links render (no /admin/ia)
+    # Default Prod state — Wave 2 dormant behind the flag
+
+  Scenario: F-FIX-05 pre-existing 6 admin links remain regardless of flag
+    Given AdminNav is rendered in any flag state
+    Then the dashboard / feedback / ai-governance / analytics / errors / prompts
+      links are all present
+    # No regression introduced by the new entry
+
+  Scenario: F-FIX-05 new link preserves a11y class shape (44×44 + focus ring)
+    Given AdminNav is rendered with the V2 flag ON
+    Then the /admin/ia link className contains min-h-[44px]
+    And contains focus-visible:ring-atlas-focus-ring
+    # Atlas a11y tokens preserved across all nav entries

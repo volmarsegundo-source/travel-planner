@@ -2036,6 +2036,7 @@
       "notConfigured": "Sentry nao esta configurado. Defina SENTRY_DSN para ativar o monitoramento de erros."
     },
     "navPrompts": "Prompts AI",
+    "navAi": "Central Governanca IA",
     "prompts": {
       "title": "Visualizador de Prompts AI",
       "subtitle": "Historico de interacoes com modelos de IA",

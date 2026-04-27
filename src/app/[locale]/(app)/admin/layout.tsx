@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { AdminNav } from "./AdminNav";
 import { decideAdminAccess } from "@/lib/auth/rbac";
+import { isAiGovernanceV2Enabled } from "@/lib/flags/ai-governance";
 
 export default async function AdminLayout({
   children,
@@ -42,7 +43,7 @@ export default async function AdminLayout({
         <h1 className="text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted-foreground">{t("subtitle")}</p>
       </header>
-      <AdminNav />
+      <AdminNav aiGovernanceV2Enabled={isAiGovernanceV2Enabled()} />
       {children}
     </div>
   );

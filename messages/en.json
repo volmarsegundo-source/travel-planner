@@ -2036,6 +2036,7 @@
       "notConfigured": "Sentry is not configured. Set SENTRY_DSN to enable error tracking."
     },
     "navPrompts": "AI Prompts",
+    "navAi": "AI Governance Central",
     "prompts": {
       "title": "AI Prompt Viewer",
       "subtitle": "AI model interaction history",

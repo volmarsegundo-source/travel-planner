@@ -4,25 +4,52 @@ import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-const ADMIN_LINKS = [
+interface AdminLinkDef {
+  href: string;
+  i18nKey: string;
+}
+
+const BASE_ADMIN_LINKS: ReadonlyArray<AdminLinkDef> = [
   { href: "/admin/dashboard", i18nKey: "navDashboard" },
   { href: "/admin/feedback", i18nKey: "navFeedback" },
   { href: "/admin/ai-governance", i18nKey: "navAiGovernance" },
   { href: "/admin/analytics", i18nKey: "navAnalytics" },
   { href: "/admin/errors", i18nKey: "navErrors" },
   { href: "/admin/prompts", i18nKey: "navPrompts" },
-] as const;
+];
 
-export function AdminNav() {
+// F-FIX-05 — Sprint 46.5. Closes B-W1-006 honesty flag #4. The link is
+// gated by the AI_GOVERNANCE_V2 feature flag (read in the parent server
+// layout and passed in as `aiGovernanceV2Enabled`) so this client
+// component never imports the server-only flag helper.
+const V2_GOVERNANCE_LINK: AdminLinkDef = {
+  href: "/admin/ia",
+  i18nKey: "navAi",
+};
+
+interface AdminNavProps {
+  /**
+   * When `true`, expose the link to the V2 AI Governance Central
+   * (`/admin/ia`). Provided by the parent admin layout (server component)
+   * which reads `isAiGovernanceV2Enabled()` from `src/lib/flags/ai-governance.ts`.
+   */
+  aiGovernanceV2Enabled: boolean;
+}
+
+export function AdminNav({ aiGovernanceV2Enabled }: AdminNavProps) {
   const t = useTranslations("admin");
   const pathname = usePathname();
+
+  const links: AdminLinkDef[] = aiGovernanceV2Enabled
+    ? [...BASE_ADMIN_LINKS, V2_GOVERNANCE_LINK]
+    : [...BASE_ADMIN_LINKS];
 
   return (
     <nav
       aria-label="Admin navigation"
       className="mb-6 flex gap-1 border-b border-atlas-outline-variant/20"
     >
-      {ADMIN_LINKS.map((link) => {
+      {links.map((link) => {
         const isActive = pathname.includes(link.href);
         return (
           <Link

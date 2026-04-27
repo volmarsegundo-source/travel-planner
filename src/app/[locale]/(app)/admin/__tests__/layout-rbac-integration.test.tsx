@@ -47,6 +47,12 @@ vi.mock("@/server/db", () => ({
 }));
 // Keep AdminNav out of the way — it's a client component.
 vi.mock("../AdminNav", () => ({ AdminNav: () => null }));
+// F-FIX-05 — layout now reads the V2 flag and forwards it to AdminNav.
+// The real helper touches t3-env which throws in test context; mock to
+// keep this RBAC-focused suite independent of flag state.
+vi.mock("@/lib/flags/ai-governance", () => ({
+  isAiGovernanceV2Enabled: () => false,
+}));
 
 import AdminLayout from "@/app/[locale]/(app)/admin/layout";
 
