@@ -1800,6 +1800,15 @@
         "leftAria": "Baseline ({label})",
         "rightAria": "Candidato ({label})"
       },
+      "preview": {
+        "title": "Preview (dados mock)",
+        "disclaimer": "Valores sintéticos são substituídos no client. O modelo real NÃO é chamado.",
+        "tokenCount": "Tokens resolvidos: {total}",
+        "systemHeading": "System (resolvido)",
+        "userHeading": "User (resolvido)",
+        "emptyField": "(vazio)",
+        "unfilledNotice": "Estes placeholders não têm mock value e chegariam ao modelo sem preenchimento: {names}"
+      },
       "editor": {
         "titleCreate": "Novo template de prompt",
         "titleEdit": "Editando {slug}",

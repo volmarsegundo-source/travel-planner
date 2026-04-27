@@ -1127,3 +1127,36 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Given before/after labels "v-baseline" and "v-candidate"
     When the DiffViewer renders
     Then both labels appear in the column headers
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-008 Preview panel
+  # SPEC-AI-GOVERNANCE-V2 §3 V-01 + §7.4 (mock substitution; no AI call)
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-008 substitutePlaceholders maps {destination} to canonical guide mock
+    Given modelType="guide"
+    When substitutePlaceholders is called with "Plan {destination}"
+    Then the result is "Plan Paris, France"
+
+  Scenario: B-W2-008 escaped {{literal}} render as single-brace literal
+    Given a template "hello {{kept}} and {destination}"
+    When substitutePlaceholders runs for guide
+    Then the result is "hello {kept} and Paris, France"
+    # Escape contract from §2.1 carries through to preview
+
+  Scenario: B-W2-008 unknown placeholders render as [mock:NAME]
+    Given a template "we have {customField}"
+    When substitutePlaceholders runs
+    Then the resolved string contains "[mock:customField]"
+    And the unfilled notice surfaces with the placeholder name
+
+  Scenario: B-W2-008 PromptPreview never calls fetch
+    Given a PromptPreview is rendered
+    When the component mounts and re-renders
+    Then globalThis.fetch is NEVER invoked
+    # Preview is pure client-side substitution; the real model is not touched
+
+  Scenario: B-W2-008 token count reflects substituted text
+    Given a guide template containing "{destination}"
+    When PromptPreview renders
+    Then the token count is computed against "Paris, France" (resolved), not the raw "{destination}"

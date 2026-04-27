@@ -1800,6 +1800,15 @@
         "leftAria": "Baseline ({label})",
         "rightAria": "Candidate ({label})"
       },
+      "preview": {
+        "title": "Preview (mock data)",
+        "disclaimer": "Synthetic mock values are substituted client-side. The real model is NOT called.",
+        "tokenCount": "Resolved tokens: {total}",
+        "systemHeading": "System (resolved)",
+        "userHeading": "User (resolved)",
+        "emptyField": "(empty)",
+        "unfilledNotice": "These placeholders have no mock value and would reach the model unfilled: {names}"
+      },
       "editor": {
         "titleCreate": "New prompt template",
         "titleEdit": "Editing {slug}",
