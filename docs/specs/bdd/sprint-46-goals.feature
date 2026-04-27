@@ -973,3 +973,47 @@ Feature: Sprint 46 Central Governança IA + V2 Foundation
     Then the merged systemPrompt + new userTemplate fails V-06
     And no new PromptVersion row is created
     And no AuditLog row is appended
+
+  # ─────────────────────────────────────────────────────────────────────
+  # Added at Sprint 46 Day 4 cont. (2026-04-26) — B-W2-004 W-01..W-04 warnings
+  # SPEC-AI-GOVERNANCE-V2 §3.2 (warning validations, non-blocking)
+  # ─────────────────────────────────────────────────────────────────────
+
+  Scenario: B-W2-004 W-01 unknown placeholder surfaces as warning (does NOT block)
+    Given a guide template with a placeholder {customField} not listed in §2.2
+    When the admin POSTs the template
+    Then the response is 201
+    And the body's warnings include code="W-01" with the placeholder name
+    # Save succeeds; admin can override
+
+  Scenario: B-W2-004 W-02 missing output-format instruction surfaces as warning
+    Given a template with no "Return JSON" / "Retorne em markdown" instruction
+    When the admin POSTs the template
+    Then the response is 201 (W-02 does not block)
+    And the body's warnings include code="W-02"
+
+  Scenario: B-W2-004 W-03 missing language hint in system surfaces as warning
+    Given a template whose systemPrompt has no language directive
+    When the admin POSTs the template
+    Then the response is 201
+    And the body's warnings include code="W-03"
+
+  Scenario: B-W2-004 W-04 temperature > 1.0 on guide surfaces as warning
+    Given a guide template with metadata.temperature=1.2
+    When the admin POSTs the template
+    Then the response is 201
+    And the body's warnings include code="W-04"
+    # Soft floor: only fires when metadata.temperature is set and modelType is guide/checklist
+
+  Scenario: B-W2-004 W-04 temperature > 1.0 on plan does NOT warn
+    Given a plan template with metadata.temperature=1.5
+    When the admin POSTs the template
+    Then the response is 201
+    And the body's warnings does NOT include W-04
+    # plan modelType is excluded — non-deterministic by design
+
+  Scenario: B-W2-004 clean template returns warnings=[]
+    Given a template that satisfies V-01..V-08 AND has no W-XX triggers
+    When the admin POSTs the template
+    Then the response is 201
+    And the body's warnings is an empty array

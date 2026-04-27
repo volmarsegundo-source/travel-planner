@@ -27,6 +27,7 @@ import { db } from "@/server/db";
 import { AuditLogService } from "@/server/services/audit-log.service";
 import {
   validateBlocking,
+  validateWarnings,
   type PromptValidationContext,
   type ValidationFailure,
 } from "@/server/services/ai-governance/prompt-validations";
@@ -104,12 +105,16 @@ export interface CreatePromptResult {
   slug: string;
   versionId: string;
   versionTag: string;
+  /** Non-blocking W-XX advisories — empty array when content is clean. */
+  warnings: ValidationFailure[];
 }
 
 export interface UpdatePromptResult {
   id: string;
   newVersionId: string;
   newVersionTag: string;
+  /** Non-blocking W-XX advisories — empty array when content is clean. */
+  warnings: ValidationFailure[];
 }
 
 // ─── Semver bump (B-W2-002) ─────────────────────────────────────────────────
@@ -320,11 +325,18 @@ export class PromptAdminService {
       userAgent: ctx.userAgent ?? null,
     });
 
+    const warnings = validateWarnings({
+      systemPrompt: input.systemPrompt,
+      userTemplate: input.userTemplate,
+      modelType: input.modelType,
+    } as PromptValidationContext);
+
     return {
       id: result.tpl.id,
       slug: result.tpl.slug,
       versionId: result.ver.id,
       versionTag: result.ver.versionTag,
+      warnings: warnings.errors,
     };
   }
 
@@ -452,10 +464,17 @@ export class PromptAdminService {
       userAgent: ctx.userAgent ?? null,
     });
 
+    const warnings = validateWarnings({
+      systemPrompt: newSystemPrompt,
+      userTemplate: newUserTemplate,
+      modelType: tpl.modelType as PromptValidationContext["modelType"],
+    });
+
     return {
       id,
       newVersionId: result.ver.id,
       newVersionTag: newTag,
+      warnings: warnings.errors,
     };
   }
 }
